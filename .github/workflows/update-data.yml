@@ -10,7 +10,7 @@ env:
 
 jobs:
   update:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     permissions:
       contents: write
       pages: write
@@ -38,12 +38,9 @@ jobs:
           path: ~/.cache/ms-playwright
           key: playwright-chromium-${{ hashFiles('scraper/requirements.txt') }}
 
-      - name: Install Playwright system deps
-        run: sudo apt-get install -y libasound2t64 libgbm1 libnss3 libxss1 libatk-bridge2.0-0 libgtk-3-0 libx11-xcb1
-
       - name: Install Playwright browsers
         if: steps.cache-playwright.outputs.cache-hit != 'true'
-        run: playwright install chromium
+        run: playwright install chromium --with-deps
 
       - name: Run scraper
         run: python -m scraper.scraper
