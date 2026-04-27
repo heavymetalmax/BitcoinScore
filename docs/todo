@@ -1,0 +1,19 @@
+**План робіт (від простого до складного)**
+
+- **1 — Add data.json loader:** Додати в `index.html` завантаження `data.json` як джерела правди.  
+- **2 — Implement mapping functions:** Реалізувати функції перетворення NUPL/MVRV/Profit → slider (формули/пороги).  
+- **3 — Persist sliders:** Зберігати/відновлювати значення слайдерів у `localStorage`, додати кнопку reset.  
+- **4 — Build scraper skeleton:** Створити `scraper.py` (CoinGecko, Alternative.me, загальна структура Playwright).  
+- **5 — MacroMicro scraping + OCR:** Додати скрейп MacroMicro; fallback — скріншот + Vision API (ANTHROPIC_API_KEY).  
+- **6 — Validate & write data.json:** Перевірка полів, форматування, запис `data.json` у репо.  
+- **7 — GitHub Actions workflow:** Додати `.github/workflows/update-data.yml` з cron, встановленням Playwright, commit/push.  
+- **8 — Frontend integration:** Підключити `index.html` до `data.json`, застосувати mapping та оновлення слайдерів.  
+- **9 — Daily snapshots:** Зберігати історичні `data-YYYY-MM-DD.json` для графіків/бектестингу.  
+- **10 — Notifications:** Додати опціональний Telegram/Discord нотифайер при зміні зон сигналу.  
+- **11 — Backtesting module:** Імпорт історії → перевірка сигналів на минулих даних.  
+- **12 — Static API endpoint:** Публічний JSON endpoint (через GitHub Pages або невеликий хост) для `score`.  
+- **13 — Docs / README:** Оновити README з інструкціями розгортання, секретів і troubleshooting.  
+- **14 — Hardening:** Логування, retry/backoff, тестування CI прав на push, error alerts.  
+- **15 — Extras:** Опціональні UI фічі (графіки, мобільний UI, теми).
+
+План збережено в TODO і готовий виконувати по кроках. Починаємо з пункту 1 (завантаження `data.json`) — підтверджуєш?
