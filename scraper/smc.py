@@ -4,7 +4,7 @@ from datetime import datetime
 import statistics
 
 
-def fetch_ohlcv_binance(symbol='BTCUSDT', interval='1w', limit=500):
+def fetch_ohlcv_kraken(symbol='BTCUSDT', interval='1w', limit=500):
     # Kraken public API — no geo-blocking on GitHub Actions
     kraken_interval = 10080 if interval == '1w' else 60
     url = 'https://api.kraken.com/0/public/OHLC'
@@ -17,6 +17,7 @@ def fetch_ohlcv_binance(symbol='BTCUSDT', interval='1w', limit=500):
     result = data['result']
     pair_key = next(k for k in result if k != 'last')
     rows = result[pair_key]
+    rows = rows[:-1]  # drop last unclosed candle
     rows = rows[-limit:]
     out = []
     for k in rows:
@@ -121,7 +122,7 @@ def compute_smc(ohlc, size=10):
 
 
 def get_smc(symbol='BTCUSDT', timeframe='1w', size=10):
-    ohlc = fetch_ohlcv_binance(symbol=symbol, interval=timeframe, limit=500)
+    ohlc = fetch_ohlcv_kraken(symbol=symbol, interval=timeframe, limit=500)
     res = compute_smc(ohlc, size=size)
     return {'series': ohlc, 'last': res}
 

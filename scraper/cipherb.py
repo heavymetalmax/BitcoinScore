@@ -4,7 +4,7 @@ import statistics
 from datetime import datetime
 
 
-def fetch_ohlcv_binance(symbol='BTCUSDT', interval='1w', limit=500):
+def fetch_ohlcv_kraken(symbol='BTCUSDT', interval='1w', limit=500):
     # Kraken public API — no geo-blocking on GitHub Actions
     # interval: '1w' -> 10080 minutes
     kraken_interval = 10080 if interval == '1w' else 60
@@ -18,7 +18,8 @@ def fetch_ohlcv_binance(symbol='BTCUSDT', interval='1w', limit=500):
     # result key is usually 'XXBTZUSD'
     result = data['result']
     pair_key = next(k for k in result if k != 'last')
-    rows = result[pair_key]  # already chronological
+    rows = result[pair_key]
+    rows = rows[:-1]  # drop last unclosed candle
     rows = rows[-limit:]
     out = []
     for k in rows:
@@ -191,7 +192,7 @@ def compute_cipherb_from_ohlcv(ohlc, channelLength=9, averageLength=12, wtSmaLen
 
 
 def get_cipherb(symbol='BTCUSDT'):
-    ohlc = fetch_ohlcv_binance(symbol=symbol, interval='1w', limit=500)
+    ohlc = fetch_ohlcv_kraken(symbol=symbol, interval='1w', limit=500)
     return compute_cipherb_from_ohlcv(ohlc)
 
 
