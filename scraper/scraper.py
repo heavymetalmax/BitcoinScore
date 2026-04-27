@@ -229,7 +229,8 @@ def main():
     try:
         try:
             cb = get_cipherb('BTCUSDT')
-        except Exception:
+        except Exception as _cb_err:
+            print('get_cipherb inner exception:', _cb_err)
             cb = None
         if cb and cb.get('last'):
             # store only under metrics.cipherb to avoid top-level duplication
@@ -244,7 +245,8 @@ def main():
         smc = None
         try:
             smc = get_smc('BTCUSDT', timeframe='1w', size=10)
-        except Exception:
+        except Exception as _smc_err:
+            print('get_smc inner exception:', _smc_err)
             smc = None
         if smc and smc.get('last'):
             p['metrics']['smc'] = {'value': smc.get('last'), 'source': 'Local', 'updated': now_iso()}
