@@ -23,14 +23,27 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.9'
+          cache: 'pip'
+          cache-dependency-path: scraper/requirements.txt
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r scraper/requirements.txt
 
+      - name: Cache Playwright browser
+        id: cache-playwright
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-chromium-${{ hashFiles('scraper/requirements.txt') }}
+
+      - name: Install Playwright system deps
+        run: sudo apt-get install -y libasound2t64 libgbm1 libnss3 libxss1 libatk-bridge2.0-0 libgtk-3-0 libx11-xcb1
+
       - name: Install Playwright browsers
-        run: playwright install --with-deps chromium
+        if: steps.cache-playwright.outputs.cache-hit != 'true'
+        run: playwright install chromium
 
       - name: Run scraper
         run: python -m scraper.scraper
