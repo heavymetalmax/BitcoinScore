@@ -5,25 +5,28 @@ import statistics
 
 
 def fetch_ohlcv_binance(symbol='BTCUSDT', interval='1w', limit=500):
-    # Bybit v5 — no geo-blocking on GitHub Actions runners
-    bybit_interval = 'W' if interval == '1w' else interval
-    url = 'https://api.bybit.com/v5/market/kline'
-    params = {'category': 'spot', 'symbol': symbol, 'interval': bybit_interval, 'limit': limit}
+    # Kraken public API — no geo-blocking on GitHub Actions
+    kraken_interval = 10080 if interval == '1w' else 60
+    url = 'https://api.kraken.com/0/public/OHLC'
+    params = {'pair': 'XBTUSD', 'interval': kraken_interval}
     r = requests.get(url, params=params, timeout=20)
     r.raise_for_status()
     data = r.json()
-    if data.get('retCode') != 0:
-        raise RuntimeError(f"Bybit error: {data.get('retMsg')}")
-    rows = list(reversed(data['result']['list']))
+    if data.get('error'):
+        raise RuntimeError(f"Kraken error: {data['error']}")
+    result = data['result']
+    pair_key = next(k for k in result if k != 'last')
+    rows = result[pair_key]
+    rows = rows[-limit:]
     out = []
     for k in rows:
         out.append({
-            'timestamp': int(k[0]) // 1000,
+            'timestamp': int(k[0]),
             'open': float(k[1]),
             'high': float(k[2]),
             'low': float(k[3]),
             'close': float(k[4]),
-            'volume': float(k[5])
+            'volume': float(k[6])
         })
     return out
 
