@@ -38,9 +38,13 @@ jobs:
           path: ~/.cache/ms-playwright
           key: playwright-chromium-${{ hashFiles('scraper/requirements.txt') }}
 
+      - name: Install Playwright system deps
+        if: steps.cache-playwright.outputs.cache-hit != 'true'
+        run: sudo apt-get install -y libasound2t64 libgbm1 libnss3 libxss1 libatk-bridge2.0-0 libgtk-3-0
+
       - name: Install Playwright browsers
         if: steps.cache-playwright.outputs.cache-hit != 'true'
-        run: playwright install chromium --with-deps
+        run: playwright install chromium
 
       - name: Run scraper
         run: python -m scraper.scraper
