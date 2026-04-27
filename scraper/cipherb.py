@@ -5,16 +5,23 @@ from datetime import datetime
 
 
 def fetch_ohlcv_binance(symbol='BTCUSDT', interval='1w', limit=500):
-    url = 'https://api.binance.com/api/v3/klines'
-    params = {'symbol': symbol, 'interval': interval, 'limit': limit}
+    # Bybit v5 — no geo-blocking on GitHub Actions runners
+    # interval mapping: '1w' -> 'W'
+    bybit_interval = 'W' if interval == '1w' else interval
+    url = 'https://api.bybit.com/v5/market/kline'
+    params = {'category': 'spot', 'symbol': symbol, 'interval': bybit_interval, 'limit': limit}
     r = requests.get(url, params=params, timeout=20)
     r.raise_for_status()
     data = r.json()
-    # each kline: [openTime, open, high, low, close, volume, closeTime, ...]
+    if data.get('retCode') != 0:
+        raise RuntimeError(f"Bybit error: {data.get('retMsg')}")
+    # list: [[startTime(ms), open, high, low, close, volume, turnover], ...]
+    # Bybit returns newest first — reverse to chronological order
+    rows = list(reversed(data['result']['list']))
     out = []
-    for k in data:
+    for k in rows:
         out.append({
-            'timestamp': int(k[0])//1000,
+            'timestamp': int(k[0]) // 1000,
             'open': float(k[1]),
             'high': float(k[2]),
             'low': float(k[3]),
