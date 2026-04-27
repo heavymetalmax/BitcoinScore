@@ -37,6 +37,7 @@ jobs:
           git remote set-url origin "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
           git add data/data.json web/data.json
           git commit -m "chore: update data.json [skip ci]" || echo "No changes to commit"
+          git pull --rebase --strategy-option=theirs origin main
           git push
 
       - name: Upload Pages artifact
