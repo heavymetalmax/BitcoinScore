@@ -11,6 +11,7 @@ env:
 jobs:
   update:
     runs-on: ubuntu-24.04
+    container: mcr.microsoft.com/playwright/python:v1.51.0-noble
     permissions:
       contents: write
       pages: write
@@ -19,35 +20,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4.2.2
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.9'
-          cache: 'pip'
-          cache-dependency-path: scraper/requirements.txt
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r scraper/requirements.txt
-
-      - name: Cache Playwright browser
-        id: cache-playwright
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-chromium-${{ hashFiles('scraper/requirements.txt') }}
-
-      - name: Install Playwright system deps
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -yq libasound2t64 libatk1.0-0 libatk-bridge2.0-0 \
-            libcups2 libdrm2 libgbm1 libgtk-3-0 libnss3 libxss1 libxcomposite1 \
-            libxdamage1 libxfixes3 libxrandr2 libxkbcommon0
-
-      - name: Install Playwright browsers
-        if: steps.cache-playwright.outputs.cache-hit != 'true'
-        run: playwright install chromium
+      - name: Install Python dependencies
+        run: pip install -r scraper/requirements.txt
 
       - name: Run scraper
         run: python -m scraper.scraper
@@ -59,6 +33,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
           git add data/data.json web/data.json
           git commit -m "chore: update data.json [skip ci]" || echo "No changes to commit"
           git push
