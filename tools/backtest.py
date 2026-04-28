@@ -18,7 +18,7 @@ from scraper.scoring import (
     map_nupl, map_mvrv, map_sopr, map_addr_profit, map_fear_greed,
     map_m2, map_dxy, map_cvdd, map_rhodl, OC_WEIGHTS, TECH_WEIGHTS, weighted_score
 )
-from scraper.smc import fetch_ohlcv_binance, compute_smc
+from scraper.smc import fetch_ohlcv_kraken as fetch_ohlcv_binance, compute_smc
 
 # ── Key BTC milestones ───────────────────────────────────────────────────────
 MILESTONES = [

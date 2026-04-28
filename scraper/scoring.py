@@ -2,10 +2,12 @@
 Decision matrix scoring — shared between report.py and scraper.py.
 
 On-chain group  (6 metrics, weights sum to 1.0):
-  nupl ×20  mvrv_z_score ×20  addresses_in_profit ×15  cvdd_ratio ×18  rhodl_ratio ×17  sopr ×10
+  nupl ×22  mvrv_z_score ×14  addresses_in_profit ×24  cvdd_ratio ×18  rhodl_ratio ×12  sopr ×10
+  (addr_in_profit ↑ — цикло-нейтральний; mvrv/rhodl ↓ — деградують з ростом realized cap)
 
 Tech/Macro group  (6 metrics, weights sum to 1.0):
-  cipherb ×40  smc ×20  m2_yoy ×8  fear_greed ×20  dxy ×8  geopolitical_risk ×4
+  cipherb ×40  smc ×28  m2_yoy ×8  fear_greed ×12  dxy ×8  geopolitical_risk ×4
+  (smc ↑ — структурний індикатор; fear_greed ↓ — занижений в інституційних циклах)
   (m2_yoy = Global M2 YoY % change; source: BMP Global Liquidity index)
 
 Index 1 (onchain_score) = 60% OC + 40% Tech
@@ -16,19 +18,19 @@ Final score             = 50% OC + 50% Tech
 import math
 
 OC_WEIGHTS = {
-    'nupl':                0.20,
-    'mvrv_z_score':        0.20,
+    'nupl':                0.22,
+    'mvrv_z_score':        0.14,
     'cvdd_ratio':          0.18,
-    'rhodl_ratio':         0.17,
+    'rhodl_ratio':         0.12,
     'sopr':                0.10,
-    'addresses_in_profit': 0.15,
+    'addresses_in_profit': 0.24,
 }
 
 TECH_WEIGHTS = {
-    'cipherb':             0.40,   # was 0.35
-    'smc':                 0.20,
-    'm2_mom':              0.08,   # was 0.18 — M2 barely differs peaks/troughs
-    'fear_greed':          0.20,   # was 0.15
+    'cipherb':             0.40,
+    'smc':                 0.28,   # ↑ від 0.20 — структурний індикатор, цикло-нейтральний
+    'm2_mom':              0.08,
+    'fear_greed':          0.12,   # ↓ від 0.20 — роздрібний сентимент деградує в інст. циклах
     'dxy':                 0.08,
     'geopolitical_risk':   0.04,
 }
