@@ -174,26 +174,27 @@ def fetch_fred_series(series_id):
     return result
 
 
-def load_global_m2_yoy():
+def load_us_m2_10w_momentum():
     """
-    Load Global M2 index from data/history/global_m2.json and compute
-    year-over-year % change for each date.
-    Returns [(date_str, yoy_pct), ...] sorted by date.
+    Fetch US M2 (WM2NS) from FRED and compute 10-week momentum for each data point.
+    Returns [(date_str, momentum_pct), ...] sorted by date.
+    Momentum = % change vs 10 weeks prior (leading indicator for BTC price).
     """
-    import os
-    path = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', 'data', 'history', 'global_m2.json'))
-    with open(path) as f:
-        data = json.load(f)
-    series = [(p['date'], float(p['value'])) for p in data['series'] if p.get('value') is not None]
+    import csv, io, ssl, urllib.request
+    url = 'https://fred.stlouisfed.org/graph/fredgraph.csv?id=WM2NS'
+    ctx = ssl.create_default_context()
+    req = urllib.request.Request(url, headers={'User-Agent': 'curl/7.88'})
+    with urllib.request.urlopen(req, timeout=30, context=ctx) as r:
+        text = r.read().decode()
+    rows = list(csv.reader(io.StringIO(text)))
+    series = [(r[0], float(r[1])) for r in rows[1:] if r[1] != '.']
     series.sort(key=lambda x: x[0])
-    dates = [datetime.date.fromisoformat(d) for d, _ in series]
     result = []
-    for i, (d_str, val) in enumerate(series):
-        td = dates[i]
-        target = td - datetime.timedelta(days=365)
-        j = min(range(len(dates)), key=lambda k: abs((dates[k] - target).days))
-        yoy = (val - series[j][1]) / series[j][1] * 100
-        result.append((d_str, round(yoy, 2)))
+    for i in range(10, len(series)):
+        d_str, val = series[i]
+        past_val = series[i - 10][1]
+        momentum = round((val - past_val) / past_val * 100, 2)
+        result.append((d_str, momentum))
     return result
 
 # ── 3. Fear & Greed ──────────────────────────────────────────────────────────
@@ -309,10 +310,10 @@ def run():
     cvdd_series = fetch_cvdd_ratio_series()
     print(f"        {len(cvdd_series)} points")
 
-    print("  [6/7] DXY from FRED + Global M2 YoY from history...")
+    print("  [6/7] DXY from FRED + US M2 10w momentum from FRED...")
     dxy_series  = fetch_fred_series('DTWEXBGS')
-    m2_yoy      = load_global_m2_yoy()
-    print(f"        dxy: {len(dxy_series)}, global m2 yoy: {len(m2_yoy)} points")
+    m2_momentum = load_us_m2_10w_momentum()
+    print(f"        dxy: {len(dxy_series)}, us m2 10w momentum: {len(m2_momentum)} points")
 
     print("  [7/7] Fear & Greed from alternative.me...")
     fg_series = fetch_fg_series()
@@ -338,7 +339,7 @@ def run():
         rhodl   = closest(rhodl_series, td)
         cvdd    = closest(cvdd_series, td)
         dxy     = closest(dxy_series, td)
-        m2      = closest(m2_yoy, td)
+        m2      = closest(m2_momentum, td)
         fg      = closest(fg_series, td)
         cb      = closest(cb_series, td)
         s_smc   = compute_smc_at_date(binance_ohlcv, td)

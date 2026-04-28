@@ -64,9 +64,12 @@ def map_fear_greed(v):
 
 def map_m2(v):
     if v is None: return None
-    # Global M2 YoY % range: -5% (strong contraction) to +20% (COVID stimulus peak)
-    v = max(-5, min(20, v))
-    return round(((v + 5) / 25) * 100)
+    # US M2 10-week momentum (% change): leading indicator for BTC ~10 weeks ahead
+    # HIGH momentum → BTC will rise → accumulate now → LOW score
+    # LOW/negative momentum → BTC will fall → exit now → HIGH score  (inverted)
+    # Range: -2% (QT contraction) to +4% (strong expansion)
+    v = max(-2, min(4, v))
+    return round(((4 - v) / 6) * 100)
 
 def map_dxy(v):
     if v is None: return None
