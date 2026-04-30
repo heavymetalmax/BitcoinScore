@@ -123,17 +123,7 @@ def generate_ics(entries: list) -> str:
         if final is None:
             continue
 
-        # Format time as HH:MM UTC
-        try:
-            dt = datetime.datetime.fromisoformat(ts.replace('Z', '+00:00'))
-            time_str = dt.strftime('%H:%M UTC')
-        except Exception:
-            time_str = ts[:16] if ts else ''
-
-        summary = f'BBR {final} [C{oc}/T{tech}] ⟳ {time_str}'
-        price_str = f'${price}' if price else ''
-        label = zone_label(int(final))
-        desc = f'{label}\nBTC: {price_str}' if price_str else label
+        summary = f'BBR {final} [C{oc} | T{tech}]'
 
         uid = f'{date_str}@bitcoin-buy-risk'
 
@@ -142,7 +132,6 @@ def generate_ics(entries: list) -> str:
             f'DTSTART;VALUE=DATE:{date_str}',
             f'DTEND;VALUE=DATE:{next_date}',
             f'SUMMARY:{ics_escape(summary)}',
-            f'DESCRIPTION:{ics_escape(desc)}',
             f'UID:{uid}',
             'END:VEVENT',
         ]
