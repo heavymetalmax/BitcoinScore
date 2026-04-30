@@ -4,6 +4,7 @@ __pycache__/
 env/
 /.idea/
 node_modules/
-data/history/
+data/history/*
+!data/history/scores.json
 data/debug/
 .DS_Store
