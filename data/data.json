@@ -1,13 +1,13 @@
 {
-  "timestamp": "2026-04-30T10:47:38Z",
-  "btc_price": 76001,
+  "timestamp": "2026-04-30T10:55:32Z",
+  "btc_price": 75994,
   "fear_greed": 29,
   "fear_greed_label": "Fear",
   "nupl": 28.625,
   "mvrv_z_score": 0.7226,
   "sopr": -0.008924,
-  "addresses_in_loss": null,
-  "addresses_in_profit": null,
+  "addresses_in_loss": 22.7867,
+  "addresses_in_profit": 77.2133,
   "cvdd_ratio": 1.5874,
   "rhodl_ratio": 1700.8554,
   "rainbow_band": {
@@ -21,48 +21,48 @@
   "metrics": {
     "nupl": {
       "value": 28.625,
-      "source": "MacroMicro",
-      "updated": "2026-04-30T10:46:24Z"
+      "source": "BMP",
+      "updated": "2026-04-30T10:55:15Z"
     },
     "mvrv": {
       "value": 0.7226,
-      "source": "MacroMicro",
-      "updated": "2026-04-30T10:46:24Z"
+      "source": "BMP",
+      "updated": "2026-04-30T10:55:15Z"
     },
     "sopr": {
       "value": -0.008924,
-      "source": "MacroMicro",
-      "updated": "2026-04-30T10:46:24Z"
+      "source": "BMP",
+      "updated": "2026-04-30T10:55:15Z"
     },
     "addresses_in_loss": {
-      "value": null,
-      "source": null,
-      "updated": "2026-04-30T10:47:31Z"
+      "value": 22.7867,
+      "source": "BMP",
+      "updated": "2026-04-30T10:55:24Z"
     },
     "m2": {
       "value": 3.45,
-      "source": "MacroMicro",
-      "updated": "2026-04-30T10:47:31Z"
+      "source": "BMP",
+      "updated": "2026-04-30T10:55:24Z"
     },
     "dxy": {
       "value": 118.7294,
-      "source": "MacroMicro",
-      "updated": "2026-04-30T10:47:31Z"
+      "source": "BMP",
+      "updated": "2026-04-30T10:55:24Z"
     },
     "geopolitical_risk": {
       "value": 297.2698,
-      "source": "MacroMicro",
-      "updated": "2026-04-30T10:47:31Z"
+      "source": "BMP",
+      "updated": "2026-04-30T10:55:24Z"
     },
     "cvdd_ratio": {
       "value": 1.5874,
-      "source": "MacroMicro",
-      "updated": "2026-04-30T10:47:31Z"
+      "source": "BMP",
+      "updated": "2026-04-30T10:55:24Z"
     },
     "rhodl_ratio": {
       "value": 1700.8554,
-      "source": "MacroMicro",
-      "updated": "2026-04-30T10:47:31Z"
+      "source": "BMP",
+      "updated": "2026-04-30T10:55:24Z"
     },
     "rainbow_band": {
       "value": {
@@ -73,18 +73,18 @@
         "date": "2026-04-29"
       },
       "source": "BMP",
-      "updated": "2026-04-30T10:47:38Z"
+      "updated": "2026-04-30T10:55:32Z"
     },
     "fear_greed": {
       "value": 29,
       "label": "Fear",
       "source": "Alternative.me",
-      "updated": "2026-04-30T10:47:38Z"
+      "updated": "2026-04-30T10:55:32Z"
     },
     "addresses_in_profit": {
-      "value": null,
+      "value": 77.2133,
       "source": "Derived",
-      "updated": "2026-04-30T10:47:38Z"
+      "updated": "2026-04-30T10:55:32Z"
     },
     "cipherb": {
       "value": {
@@ -101,7 +101,7 @@
         "distance_to_sell": 62.286124716579025
       },
       "source": "Local",
-      "updated": "2026-04-30T10:47:39Z"
+      "updated": "2026-04-30T10:55:32Z"
     },
     "smc": {
       "value": {
@@ -115,16 +115,16 @@
         "size": 10
       },
       "source": "Local",
-      "updated": "2026-04-30T10:47:39Z"
+      "updated": "2026-04-30T10:55:32Z"
     },
     "m2_mom": {
       "value": 3.45,
       "source": "Global M2 YoY (BMP)",
-      "updated": "2026-04-30T10:47:39Z"
+      "updated": "2026-04-30T10:55:32Z"
     }
   },
   "m2_mom": 3.45,
-  "onchain_score": 36,
-  "tech_score": 34,
-  "final_score": 35
+  "onchain_score": 47,
+  "tech_score": 35,
+  "final_score": 41
 }
