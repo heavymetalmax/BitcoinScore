@@ -1,11 +1,8 @@
 """Scraper for NUPL (Net Unrealized Profit/Loss) metric."""
-import re
 import logging
 import requests
 import os
-from scraper.mm_utils import (
-    MM, _parse_number, _read_cached_stats_for_metric, get_bmp_trace,
-)
+from scraper.mm_utils import get_bmp_trace
 
 logger = logging.getLogger(__name__)
 
@@ -69,19 +66,6 @@ def get_nupl():
     val = get_bmp_trace(_BMP_URL, 'nupl', multiply=100)
     if val is not None:
         return val
-
-    # 2. Cached MacroMicro snapshot
-    try:
-        cached = _read_cached_stats_for_metric('nupl')
-        if cached:
-            sb = cached.get('sidebar') or []
-            if sb and isinstance(sb, list) and sb[0].get('val'):
-                return _parse_number(re.sub(r'[^0-9\-\.,]', '', sb[0].get('val')))
-            stats = cached.get('stats') or []
-            if stats and stats[0].get('val'):
-                return _parse_number(re.sub(r'[^0-9\-\.,]', '', stats[0].get('val')))
-    except Exception:
-        pass
 
     return None
 

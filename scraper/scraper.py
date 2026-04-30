@@ -91,8 +91,8 @@ def build_payload():
     from scraper.utils import is_valid_metric
 
     metric_specs = [
-        ('nupl', nupl_mod.get_nupl, 'https://en.macromicro.me/series/45910/bitcoin-nupl', lambda r: r),
-        ('mvrv', mvrv_mod.get_mvrv, 'https://en.macromicro.me/series/45911/bitcoin-mvrv', lambda r: r),
+        ('nupl', nupl_mod.get_nupl, None, lambda r: r),
+        ('mvrv', mvrv_mod.get_mvrv, None, lambda r: r),
         ('sopr', sopr_mod.get_sopr, None, lambda r: r),
         ('addresses_in_loss', addr_mod.get_addresses_in_loss, None, lambda r: r),
         ('m2', m2_mod.get_m2, None, lambda r: r),
@@ -156,7 +156,7 @@ def build_payload():
         # save into metrics dict placeholder (later merged into payload)
         if 'metrics' not in locals():
             metrics = {}
-        metrics[name] = {'value': val, 'source': 'MacroMicro' if val is not None else None, 'updated': now_iso()}
+        metrics[name] = {'value': val, 'source': 'BMP' if val is not None else None, 'updated': now_iso()}
 
     # Rainbow band — separate call (returns dict, not scalar)
     rainbow_band = None

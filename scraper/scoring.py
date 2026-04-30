@@ -1,38 +1,42 @@
 """
 Decision matrix scoring — shared between report.py and scraper.py.
 
-On-chain group  (6 metrics, weights sum to 1.0):
-  nupl ×22  mvrv_z_score ×14  addresses_in_profit ×24  cvdd_ratio ×18  rhodl_ratio ×12  sopr ×10
-  (addr_in_profit ↑ — цикло-нейтральний; mvrv/rhodl ↓ — деградують з ростом realized cap)
+On-chain group  (5 metrics, weights sum to 1.0):
+  addresses_in_profit ×25  rhodl_ratio ×22  mvrv_z_score ×20  cvdd_ratio ×18  nupl ×15
+  (addr_in_profit — прямий % холдерів у прибутку, найстабільніший;
+   rhodl ↑ — найнадійніший цикловий маркер, не деградує з ростом realized cap;
+   nupl ↓ — корелює з mvrv, зменшено дублювання;
+   sopr — видалено: <10% поріг, шум у циклах 2024–2025)
 
-Tech/Macro group  (6 metrics, weights sum to 1.0):
-  cipherb ×40  smc ×28  m2_yoy ×8  fear_greed ×12  dxy ×8  geopolitical_risk ×4
-  (smc ↑ — структурний індикатор; fear_greed ↓ — занижений в інституційних циклах)
-  (m2_yoy = Global M2 YoY % change; source: BMP Global Liquidity index)
+Tech/Macro group  (5 metrics, weights sum to 1.0):
+  cipherb ×35  smc ×25  fear_greed ×20  dxy ×10  m2_yoy ×10
+  (smc — 100% binary accuracy на 4/4 ATH і 4/4 дніх;
+   m2_yoy = Global M2 YoY % change; source: BMP Global Liquidity;
+   geopolitical_risk — видалено: <10% поріг, відсутній у backtest)
 
-Index 1 (onchain_score) = 60% OC + 40% Tech
-Index 2 (tech_score)    = 40% OC + 60% Tech
+Index 1 (onchain_score) = 80% OC + 20% Tech
+Index 2 (tech_score)    = 20% OC + 80% Tech
 Final score             = 50% OC + 50% Tech
 """
 
 import math
 
 OC_WEIGHTS = {
-    'nupl':                0.22,
-    'mvrv_z_score':        0.14,
-    'cvdd_ratio':          0.18,
-    'rhodl_ratio':         0.12,
-    'sopr':                0.10,
-    'addresses_in_profit': 0.24,
+    'addresses_in_profit': 0.25,   # #1 — прямий % холдерів у прибутку
+    'rhodl_ratio':         0.22,   # #2 — не деградує з ростом realized cap
+    'mvrv_z_score':        0.20,   # #3 — нормований на волатильність
+    'cvdd_ratio':          0.18,   # #4
+    'nupl':                0.15,   # #5 — корелює з MVRV, менша вага
+    # sopr видалено: <10% поріг, слабка диференціація в циклах 2024–2025
 }
 
 TECH_WEIGHTS = {
-    'cipherb':             0.40,
-    'smc':                 0.28,   # ↑ від 0.20 — структурний індикатор, цикло-нейтральний
-    'm2_mom':              0.08,
-    'fear_greed':          0.12,   # ↓ від 0.20 — роздрібний сентимент деградує в інст. циклах
-    'dxy':                 0.08,
-    'geopolitical_risk':   0.04,
+    'cipherb':             0.35,
+    'smc':                 0.25,   # 100% binary accuracy на 4/4 ATH і 4/4 дніх
+    'fear_greed':          0.20,
+    'dxy':                 0.10,   # ↑ від 0.08
+    'm2_mom':              0.10,   # ↑ від 0.08
+    # geopolitical_risk видалено: <10% поріг, відсутній у backtest
 }
 
 
@@ -158,7 +162,7 @@ def compute_scores(metrics: dict) -> dict:
     return {
         'onchain_avg':    oc_avg,
         'tech_avg':       tech_avg,
-        'onchain_score':  blend(oc_avg, tech_avg, 0.60),
-        'tech_score':     blend(oc_avg, tech_avg, 0.40),
+        'onchain_score':  blend(oc_avg, tech_avg, 0.80),
+        'tech_score':     blend(oc_avg, tech_avg, 0.20),
         'final_score':    blend(oc_avg, tech_avg, 0.50),
     }

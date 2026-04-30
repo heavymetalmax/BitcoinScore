@@ -247,7 +247,10 @@
   <div class="score-box main">
     <div class="main-title">&#x20BF; Bitcoin Score <button class="info-btn" onclick="document.getElementById('modal').classList.add('open')" title="Про індекс">i</button></div>
     <div class="s-label" style="margin-top:10px">Final Score</div>
-    <div class="s-value" id="s-final">&#8212;</div>
+    <div class="s-value" style="display:flex;align-items:center;justify-content:center;gap:8px">
+      <span id="s-warn" style="display:none;font-size:1.8rem;cursor:help;line-height:1" title="Один або більше ключових індикаторів суперечить загальному напрямку індексу">&#x26A0;&#xFE0F;</span>
+      <span id="s-final">&#8212;</span>
+    </div>
     <div class="main-bar-wrap">
       <div class="main-bar-track">
         <div class="main-bar-fill" id="b-final" style="width:0%"></div>
@@ -290,9 +293,14 @@
     <span class="section-avg" id="oc-avg-label">weighted avg &#8212;</span>
   </div>
   <div class="metric-row">
-    <span class="m-name" data-tip="Net Unrealized Profit/Loss — частка ринкової капіталізації в нереалізованому прибутку/збитку. >0.75 = ейфорія, <0 = капітуляція.">NUPL</span>
-    <div><div class="bar-wrap"><div class="bar-fill" id="m-nupl-bar"></div></div><div class="m-raw" id="m-nupl-raw"></div></div>
-    <span class="m-num" id="m-nupl-num">&#8212;</span>
+    <span class="m-name" data-tip="Addresses in Profit — % адрес Bitcoin у нереалізованому прибутку. На ATH ≈ 95–99%, на ведмежому дні ≈ 40–55%.">Addr in Profit</span>
+    <div><div class="bar-wrap"><div class="bar-fill" id="m-addr-bar"></div></div><div class="m-raw" id="m-addr-raw"></div></div>
+    <span class="m-num" id="m-addr-num">&#8212;</span>
+  </div>
+  <div class="metric-row">
+    <span class="m-name" data-tip="RHODL Ratio — відношення 1-тижневої хвилі HODL до 1–2-річної. Пік = новий капітал заміщує довгострокових тримачів (сигнал ATH).">RHODL Ratio</span>
+    <div><div class="bar-wrap"><div class="bar-fill" id="m-rhodl-bar"></div></div><div class="m-raw" id="m-rhodl-raw"></div></div>
+    <span class="m-num" id="m-rhodl-num">&#8212;</span>
   </div>
   <div class="metric-row">
     <span class="m-name" data-tip="Market Value to Realized Value Z-score — ринкова капіталізація відносно реалізованої, нормована на волатильність. Пік >5 = перегрів, <0 = дно.">MVRV Z-Score</span>
@@ -305,19 +313,9 @@
     <span class="m-num" id="m-cvdd-num">&#8212;</span>
   </div>
   <div class="metric-row">
-    <span class="m-name" data-tip="RHODL Ratio — відношення 1-тижневої хвилі HODL до 1–2-річної. Пік = новий капітал заміщує довгострокових тримачів (сигнал ATH).">RHODL Ratio</span>
-    <div><div class="bar-wrap"><div class="bar-fill" id="m-rhodl-bar"></div></div><div class="m-raw" id="m-rhodl-raw"></div></div>
-    <span class="m-num" id="m-rhodl-num">&#8212;</span>
-  </div>
-  <div class="metric-row">
-    <span class="m-name" data-tip="Spent Output Profit Ratio — чи продають холдери в прибуток (>1) чи збиток (<1). Тривале падіння нижче 1 = капітуляція.">SOPR</span>
-    <div><div class="bar-wrap"><div class="bar-fill" id="m-sopr-bar"></div></div><div class="m-raw" id="m-sopr-raw"></div></div>
-    <span class="m-num" id="m-sopr-num">&#8212;</span>
-  </div>
-  <div class="metric-row">
-    <span class="m-name" data-tip="Addresses in Profit — % адрес Bitcoin у нереалізованому прибутку. На ATH ≈ 95–99%, на ведмежому дні ≈ 40–55%.">Addr in Profit</span>
-    <div><div class="bar-wrap"><div class="bar-fill" id="m-addr-bar"></div></div><div class="m-raw" id="m-addr-raw"></div></div>
-    <span class="m-num" id="m-addr-num">&#8212;</span>
+    <span class="m-name" data-tip="Net Unrealized Profit/Loss — частка ринкової капіталізації в нереалізованому прибутку/збитку. >0.75 = ейфорія, <0 = капітуляція.">NUPL</span>
+    <div><div class="bar-wrap"><div class="bar-fill" id="m-nupl-bar"></div></div><div class="m-raw" id="m-nupl-raw"></div></div>
+    <span class="m-num" id="m-nupl-num">&#8212;</span>
   </div>
 </div>
 
@@ -337,25 +335,21 @@
     <span class="m-num" id="m-smc-num">&#8212;</span>
   </div>
   <div class="metric-row">
-    <span class="m-name" data-tip="Global M2 YoY — річне зростання глобальної грошової маси M2 (BMP). Висока ліквідність стимулює попит на ризикові активи. 2021 COVID QE: +18.5%.">Global M2 YoY</span>
-    <div><div class="bar-wrap"><div class="bar-fill" id="m-m2-bar"></div></div><div class="m-raw" id="m-m2-raw"></div></div>
-    <span class="m-num" id="m-m2-num">&#8212;</span>
-  </div>
-  <div class="metric-row">
     <span class="m-name" data-tip="Fear &amp; Greed Index (alternative.me) — сентимент роздрібного ринку. 0 = екстремальний страх, 100 = екстремальна жадібність. Контрарний індикатор.">Fear &amp; Greed</span>
     <div><div class="bar-wrap"><div class="bar-fill" id="m-fg-bar"></div></div><div class="m-raw" id="m-fg-raw"></div></div>
     <span class="m-num" id="m-fg-num">&#8212;</span>
+  </div>
+  <div class="metric-row">
+    <span class="m-name" data-tip="Global M2 YoY — річне зростання глобальної грошової маси M2 (BMP). Висока ліквідність стимулює попит на ризикові активи. 2021 COVID QE: +18.5%.">Global M2 YoY</span>
+    <div><div class="bar-wrap"><div class="bar-fill" id="m-m2-bar"></div></div><div class="m-raw" id="m-m2-raw"></div></div>
+    <span class="m-num" id="m-m2-num">&#8212;</span>
   </div>
   <div class="metric-row">
     <span class="m-name" data-tip="US Dollar Index — індекс сили долара США. Зміцнення долара (↑DXY) тисне на BTC. Скор інвертований: 100 = слабкий долар = бичачо для BTC.">DXY</span>
     <div><div class="bar-wrap"><div class="bar-fill" id="m-dxy-bar"></div></div><div class="m-raw" id="m-dxy-raw"></div></div>
     <span class="m-num" id="m-dxy-num">&#8212;</span>
   </div>
-  <div class="metric-row">
-    <span class="m-name" data-tip="Geopolitical Risk Index (GPR) — індекс геополітичного ризику. Зростання напруженості = відтік від ризикових активів. Скор інвертований: 100 = низький ризик.">Geopolitical</span>
-    <div><div class="bar-wrap"><div class="bar-fill" id="m-gpr-bar"></div></div><div class="m-raw" id="m-gpr-raw"></div></div>
-    <span class="m-num" id="m-gpr-num">&#8212;</span>
-  </div>
+
 </div>
 
 <footer id="footer"></footer>
@@ -569,7 +563,7 @@ async function init() {
     document.getElementById('rb-box').style.background = rb.color;
     document.getElementById('s-rainbow').textContent =
       data.btc_price ? '$' + data.btc_price.toLocaleString() : '\u2014';
-    document.getElementById('s-rainbow-sub').textContent = rb.band || '';
+    document.getElementById('s-rainbow-sub').textContent = rb.band ? '\uD83C\uDF08 ' + rb.band : '';
   }
 
   const nupl  = mv('nupl');
@@ -612,15 +606,28 @@ async function init() {
     return den > 0 ? Math.round(num / den) : null;
   }
 
-  const OC_W = { nupl:.25, mvrv:.25, cvdd:.18, rhodl:.17, sopr:.10, addr:.05 };
-  const TC_W = { cipherb:.40, smc:.20, m2:.08, fg:.20, dxy:.08, gpr:.04 };
-  const ocVals = { nupl:mapNupl(nupl), mvrv:mapMvrv(mvrv), cvdd:mapCvdd(cvdd), rhodl:mapRhodl(rhodl), sopr:mapSopr(sopr), addr:mapAddr(addr) };
-  const tcVals = { cipherb:cbScore, smc:smcScore, m2:mapM2(m2raw), fg:mapFG(fg), dxy:mapDxy(dxy), gpr:mapGPR(gpr) };
+  const OC_W = { addr:.25, rhodl:.22, mvrv:.20, cvdd:.18, nupl:.15 };
+  const TC_W = { cipherb:.35, smc:.25, fg:.20, dxy:.10, m2:.10 };
+  const ocVals = { addr:mapAddr(addr), rhodl:mapRhodl(rhodl), mvrv:mapMvrv(mvrv), cvdd:mapCvdd(cvdd), nupl:mapNupl(nupl) };
+  const tcVals = { cipherb:cbScore, smc:smcScore, fg:mapFG(fg), dxy:mapDxy(dxy), m2:mapM2(m2raw) };
 
   const ocAvg = wavg(ocVals, OC_W);
   const tcAvg = wavg(tcVals, TC_W);
   if(ocAvg != null) document.getElementById('oc-avg-label').textContent   = 'weighted avg ' + ocAvg;
   if(tcAvg != null) document.getElementById('tech-avg-label').textContent = 'weighted avg ' + tcAvg;
+
+  // Contradiction detection: warn if any indicator is in the opposite zone from the final score
+  const finalScore = data.final_score;
+  if (finalScore != null) {
+    const allIndScores = [
+      mapAddr(addr), mapRhodl(rhodl), mapMvrv(mvrv), mapCvdd(cvdd), mapNupl(nupl),
+      cbScore, smcScore, mapFG(fg), mapDxy(dxy), mapM2(m2raw)
+    ].filter(s => s != null);
+    const hasContra = allIndScores.some(s =>
+      (finalScore <= 40 && s >= 65) || (finalScore >= 60 && s <= 35)
+    );
+    document.getElementById('s-warn').style.display = hasContra ? 'inline' : 'none';
+  }
 
   document.getElementById('footer').textContent = 'Source: data.json \u00B7 ' + (data.timestamp || '');
 }
