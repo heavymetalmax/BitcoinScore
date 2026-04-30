@@ -1,5 +1,5 @@
 """
-Retrospective check — compute Bitcoin Score at key historical BTC price milestones.
+Retrospective check — compute Bitcoin Buy Risk at key historical BTC price milestones.
 
 Data sources:
   - NUPL, MVRV, CVDD, RHODL, SOPR, Addr-in-loss : BitcoinMagazinePro (Playwright)

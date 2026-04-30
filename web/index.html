@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Bitcoin Score</title>
+  <title>Bitcoin Buy Risk</title>
   <style>
     :root {
       --bg:        #0f1117;
@@ -245,7 +245,7 @@
 
 <div class="scores">
   <div class="score-box main">
-    <div class="main-title">&#x20BF; Bitcoin Score <button class="info-btn" onclick="document.getElementById('modal').classList.add('open')" title="Про індекс">i</button></div>
+    <div class="main-title">&#x20BF; Bitcoin Buy Risk <button class="info-btn" onclick="document.getElementById('modal').classList.add('open')" title="Про індекс">i</button></div>
     <div class="s-label" style="margin-top:10px">Final Score</div>
     <div class="s-value" style="display:flex;align-items:center;justify-content:center;gap:8px">
       <span id="s-warn" style="display:none;font-size:1.8rem;cursor:help;line-height:1" title="Один або більше ключових індикаторів суперечить загальному напрямку індексу">&#x26A0;&#xFE0F;</span>
@@ -357,11 +357,11 @@
 <div class="modal-overlay" id="modal" onclick="if(event.target===this)this.classList.remove('open')">
   <div class="modal-box">
     <button class="modal-close" onclick="document.getElementById('modal').classList.remove('open')">&times;</button>
-    <h1>&#x20BF; Bitcoin Score — Як працює індекс</h1>
+    <h1>&#x20BF; Bitcoin Buy Risk — Як працює індекс</h1>
     <p class="meta">Версія: квітень 2026 р. &middot; 11 індикаторів &middot; 16 мілстоунів 2018–2026 рр.</p>
 
-    <h2>Що таке Bitcoin Score</h2>
-    <p>Bitcoin Score — інтегральний індекс, що вимірює поточну ринкову позицію Bitcoin за шкалою 0–100:</p>
+    <h2>Що таке Bitcoin Buy Risk</h2>
+    <p>Bitcoin Buy Risk — інтегральний індекс, що вимірює поточну ринкову позицію Bitcoin за шкалою 0–100:</p>
     <ul>
       <li><span class="zone-0"><strong>0–20</strong></span>: капітуляція / екстремальне дно</li>
       <li><span class="zone-25"><strong>20–40</strong></span>: дискаунт-зона, накопичення</li>
@@ -406,7 +406,7 @@
 
     <h3>2. Ефект спадання піків</h3>
     <table>
-      <thead><tr><th>Цикл</th><th>ATH</th><th>Bitcoin Score</th></tr></thead>
+      <thead><tr><th>Цикл</th><th>ATH</th><th>Bitcoin Buy Risk</th></tr></thead>
       <tbody>
         <tr><td>2021 весна</td><td>$63,500</td><td><strong class="zone-100">91</strong></td></tr>
         <tr><td>2021 осінь</td><td>$69,000</td><td><strong class="zone-100">86</strong></td></tr>
@@ -414,7 +414,7 @@
         <tr><td>2025</td><td>$129,000</td><td><strong class="zone-75">68</strong></td></tr>
       </tbody>
     </table>
-    <p>Попри новий ціновий максимум у 2025 р. (+76% до 2024 ATH), Bitcoin Score на піку впав до 68. Ринок дорослішає: менша волатильність оцінок означає менший спекулятивний перегрів. <strong>У 2025 р. зона продажу починається від ~65, а не від ~80, як у 2021 р.</strong></p>
+    <p>Попри новий ціновий максимум у 2025 р. (+76% до 2024 ATH), Bitcoin Buy Risk на піку впав до 68. Ринок дорослішає: менша волатильність оцінок означає менший спекулятивний перегрів. <strong>У 2025 р. зона продажу починається від ~65, а не від ~80, як у 2021 р.</strong></p>
 
     <h3>3. SMC — найточніший бінарний індикатор</h3>
     <p>SMC ідеально відрізняє всі 4 дні (<strong class="zone-0">0</strong>) від усіх 4 ATH (<strong class="zone-100">100</strong>) без єдиного хибного сигналу. Вимірює поточну ціну між підтвердженим swing low і swing high на тижневому таймфреймі.</p>
