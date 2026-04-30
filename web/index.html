@@ -51,10 +51,10 @@
     }
     .main-title { font-size: 1.1rem; font-weight: 700; letter-spacing: .07em; color: #f7931a; margin-bottom: 2px; }
     .main-ts { font-size: .7rem; color: var(--text-ts); margin-top: 8px; }
-    .score-hist { font-size: .68rem; color: var(--text-mute); margin-top: 4px; letter-spacing: .03em; }
     .score-hist .h-up   { color: #e05252; }
     .score-hist .h-down { color: #4caf50; }
     .score-hist .h-same { color: var(--text-mute); }
+    #score-hist:not(:empty)::before { content: '\00a0\00b7\00a0'; }
 
     .scores {
       display: grid;
@@ -278,8 +278,7 @@
       </div>
     </div>
     <div class="s-sub" style="margin-top:2px">50% on-chain &middot; 50% tech/macro</div>
-    <div class="score-hist" id="score-hist"></div>
-    <div class="main-ts" id="main-ts"></div>
+    <div class="main-ts" id="main-ts"><span id="score-hist"></span></div>
   </div>
 
   <div class="score-box">
@@ -567,7 +566,7 @@ async function init() {
   const mv = key => { const x = m[key]; return x != null ? (x.value !== undefined ? x.value : x) : null; };
 
   if(data.timestamp)
-    document.getElementById('main-ts').textContent = 'Updated: ' + new Date(data.timestamp).toLocaleString();
+    document.getElementById('main-ts').innerHTML = 'Updated: ' + new Date(data.timestamp).toLocaleString() + '<span id="score-hist"></span>';
 
   // prev_day / prev_week comparison
   (function() {
