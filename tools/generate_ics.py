@@ -52,6 +52,7 @@ def update_history(entries: list, data: dict) -> list:
 
     entry = {
         'date':          date_str,
+        'timestamp':     ts,
         'final_score':   data.get('final_score'),
         'onchain_score': data.get('onchain_score'),
         'tech_score':    data.get('tech_score'),
@@ -117,16 +118,22 @@ def generate_ics(entries: list) -> str:
         oc      = e.get('onchain_score')
         tech    = e.get('tech_score')
         price   = e.get('btc_price')
+        ts      = e.get('timestamp', '')
 
         if final is None:
             continue
 
-        label   = zone_label(int(final))
-        summary = f'Bitcoin Buy Risk: {final} — {label}'
+        # Format time as HH:MM UTC
+        try:
+            dt = datetime.datetime.fromisoformat(ts.replace('Z', '+00:00'))
+            time_str = dt.strftime('%H:%M UTC')
+        except Exception:
+            time_str = ts[:16] if ts else ''
+
+        summary = f'BBR {final} [C{oc}/T{tech}] ⟳ {time_str}'
         price_str = f'${price}' if price else ''
-        desc = f'Final: {final} | On-chain: {oc} | Tech: {tech}'
-        if price_str:
-            desc += f'\nBTC: {price_str}'
+        label = zone_label(int(final))
+        desc = f'{label}\nBTC: {price_str}' if price_str else label
 
         uid = f'{date_str}@bitcoin-buy-risk'
 
