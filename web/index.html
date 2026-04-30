@@ -770,6 +770,7 @@ async function init() {
     else               { tEl.textContent = ''; }
   } else {
     tEl.textContent = '';
+  }
   setScore('s-final', 'b-final', data.final_score);
   document.getElementById('s-trend').style.color = scoreColor(data.final_score);
   setScore('s-oc',    'b-oc',    data.onchain_score);
