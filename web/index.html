@@ -61,10 +61,11 @@
     .top-link-btn:hover, .top-links a:hover { color: #f7931a; }
     .top-links a { color: var(--text-mute); text-decoration: none; transition: color .15s; }
 
-    /* main box 2-col layout */
-    .main-inner { display: flex; flex-direction: column; gap: 4px; }
-    .main-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; }
+    /* main box layout */
+    .main-inner { display: flex; flex-direction: column; gap: 4px; align-items: center; text-align: center; }
+    .main-header { display: flex; justify-content: space-between; align-items: baseline; width: 100%; margin-bottom: 4px; }
     .main-score-row { display: flex; align-items: center; justify-content: center; gap: 12px; }
+    .rb-pill-wrap { display: flex; flex-direction: column; align-items: center; gap: 3px; }
     .s-trend { font-size: 2rem; font-weight: 700; line-height: 1; }
 
     .scores {
@@ -295,14 +296,14 @@
         <span id="s-warn" style="display:none;font-size:1.8rem;cursor:help;line-height:1" title="Один або більше ключових індикаторів суперечить загальному напрямку індексу">&#x26A0;&#xFE0F;</span>
         <span class="s-trend" id="s-trend"></span>
         <span class="s-value" id="s-final">&#8212;</span>
-        <div class="rb-strip" id="rb-strip">
-          <span class="rb-price" id="s-rainbow">&#8212;</span>
+        <div class="rb-pill-wrap">
+          <div class="rb-strip" id="rb-strip">
+            <span class="rb-price" id="s-rainbow">&#8212;</span>
+          </div>
+          <span class="rb-strip-label" id="s-rainbow-sub"></span>
         </div>
       </div>
-      <div style="text-align:center;margin-top:4px">
-        <span class="rb-strip-label" id="s-rainbow-sub"></span>
-      </div>
-      <div class="main-bar-wrap">
+      <div class="main-bar-wrap" style="width:100%">
         <div class="main-bar-track">
           <div class="main-bar-fill" id="b-final" style="width:0%"></div>
           <div class="bar-tick-25"></div>
