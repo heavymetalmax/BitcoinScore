@@ -769,7 +769,7 @@ async function init() {
     document.getElementById('rb-strip').style.background = rb.color;
     document.getElementById('s-rainbow').textContent =
       data.btc_price ? '$' + data.btc_price.toLocaleString() : '\u2014';
-    document.getElementById('s-rainbow-sub').textContent = rb.band || '';
+    document.getElementById('s-rainbow-sub').textContent = rb.band ? '🌈 ' + rb.band : '';
   }
 
   const nupl  = mv('nupl');
