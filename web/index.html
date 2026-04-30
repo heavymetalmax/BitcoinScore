@@ -64,8 +64,8 @@
     /* main box 2-col layout */
     .main-inner { display: flex; flex-direction: column; gap: 4px; }
     .main-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; }
-    .main-score-row { display: flex; align-items: center; gap: 16px; }
-    .s-trend { font-size: 3.2rem; font-weight: 700; line-height: 1; }
+    .main-score-row { display: flex; align-items: center; justify-content: center; gap: 12px; }
+    .s-trend { font-size: 2rem; font-weight: 700; line-height: 1; color: #f7931a; }
 
     .scores {
       display: grid;
@@ -765,13 +765,11 @@ async function init() {
   const tEl = document.getElementById('s-trend');
   if(ref != null && data.final_score != null) {
     const diff = data.final_score - ref;
-    if(diff > 0)       { tEl.textContent = '\u25B2'; tEl.style.color = '#22c55e'; }
-    else if(diff < 0)  { tEl.textContent = '\u25BC'; tEl.style.color = '#ef4444'; }
-    else               { tEl.textContent = '\u2014'; tEl.style.color = 'var(--text-mute)'; }
+    if(diff > 0)       { tEl.textContent = '\u25B2'; }
+    else if(diff < 0)  { tEl.textContent = '\u25BC'; }
+    else               { tEl.textContent = ''; }
   } else {
-    tEl.textContent = ''; 
-  }
-
+    tEl.textContent = '';
   setScore('s-final', 'b-final', data.final_score);
   setScore('s-oc',    'b-oc',    data.onchain_score);
   setScore('s-tech',  'b-tech',  data.tech_score);
@@ -780,8 +778,8 @@ async function init() {
   if(rb && typeof rb === 'object') {
     document.getElementById('rb-strip').style.background = rb.color;
     document.getElementById('s-rainbow').textContent =
-      data.btc_price ? '$' + data.btc_price.toLocaleString() : '\u2014';
-    document.getElementById('s-rainbow-sub').textContent = rb.band ? '🌈 ' + rb.band : '';
+      data.btc_price ? '🌈 $' + data.btc_price.toLocaleString() : '\u2014';
+    document.getElementById('s-rainbow-sub').textContent = rb.band || '';
   }
 
   const nupl  = mv('nupl');
