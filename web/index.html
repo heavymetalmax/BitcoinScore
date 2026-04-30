@@ -62,9 +62,10 @@
     .top-links a { color: var(--text-mute); text-decoration: none; transition: color .15s; }
 
     /* main box 2-col layout */
-    .main-inner { display: flex; gap: 20px; align-items: flex-start; }
-    .main-left  { flex: 1; text-align: center; }
-    .main-right { width: 190px; flex-shrink: 0; display: flex; flex-direction: column; gap: 8px; }
+    .main-inner { display: flex; flex-direction: column; gap: 4px; }
+    .main-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; }
+    .main-score-row { display: flex; align-items: center; gap: 16px; }
+    .s-trend { font-size: 3.2rem; font-weight: 700; line-height: 1; }
 
     .scores {
       display: grid;
@@ -286,37 +287,34 @@
 <div class="scores">
   <div class="score-box main">
     <div class="main-inner">
-      <div class="main-left">
+      <div class="main-header">
         <div class="main-title">&#x20BF; Bitcoin Buy Risk</div>
-        <div class="s-label" style="margin-top:10px">Final Score</div>
-        <div class="s-value" style="display:flex;align-items:center;justify-content:center;gap:8px">
-          <span id="s-warn" style="display:none;font-size:1.8rem;cursor:help;line-height:1" title="Один або більше ключових індикаторів суперечить загальному напрямку індексу">&#x26A0;&#xFE0F;</span>
-          <span id="s-final">&#8212;</span>
-        </div>
-        <div class="main-bar-wrap">
-          <div class="main-bar-track">
-            <div class="main-bar-fill" id="b-final" style="width:0%"></div>
-            <div class="bar-tick-25"></div>
-            <div class="bar-tick-75"></div>
-          </div>
-          <div class="bar-zone-labels">
-            <span class="bar-zone-buy">buy</span>
-            <span class="bar-zone-mid"></span>
-            <span class="bar-zone-sell">sell</span>
-          </div>
-        </div>
-        <div class="s-sub" style="margin-top:2px">50% on-chain &middot; 50% tech/macro</div>
-      </div>
-      <div class="main-right">
         <div class="main-ts" id="main-ts">Updated:</div>
+      </div>
+      <div class="main-score-row">
+        <span id="s-warn" style="display:none;font-size:1.8rem;cursor:help;line-height:1" title="Один або більше ключових індикаторів суперечить загальному напрямку індексу">&#x26A0;&#xFE0F;</span>
+        <span class="s-trend" id="s-trend">&#8212;</span>
+        <span class="s-value" id="s-final">&#8212;</span>
         <div class="rb-strip-wrap">
-          <div class="s-label" id="rb-label">BTC Price</div>
           <div class="rb-strip" id="rb-strip">
             <span class="rb-price" id="s-rainbow">&#8212;</span>
           </div>
           <span class="rb-strip-label" id="s-rainbow-sub"></span>
         </div>
       </div>
+      <div class="main-bar-wrap">
+        <div class="main-bar-track">
+          <div class="main-bar-fill" id="b-final" style="width:0%"></div>
+          <div class="bar-tick-25"></div>
+          <div class="bar-tick-75"></div>
+        </div>
+        <div class="bar-zone-labels">
+          <span class="bar-zone-buy">buy</span>
+          <span class="bar-zone-mid"></span>
+          <span class="bar-zone-sell">sell</span>
+        </div>
+      </div>
+      <div class="s-sub" style="margin-top:2px">50% on-chain &middot; 50% tech/macro</div>
     </div>
   </div>
 
@@ -759,6 +757,20 @@ async function init() {
     setScore('s-yesterday', 'b-yesterday', data.prev_day.final_score);
   if(data.prev_week && data.prev_week.final_score != null)
     setScore('s-week', 'b-week', data.prev_week.final_score);
+
+  // Trend arrow (weekly preferred, fallback to daily)
+  const ref = (data.prev_week && data.prev_week.final_score != null)
+    ? data.prev_week.final_score
+    : (data.prev_day && data.prev_day.final_score != null ? data.prev_day.final_score : null);
+  const tEl = document.getElementById('s-trend');
+  if(ref != null && data.final_score != null) {
+    const diff = data.final_score - ref;
+    if(diff > 0)       { tEl.textContent = '\u25B2'; tEl.style.color = '#22c55e'; }
+    else if(diff < 0)  { tEl.textContent = '\u25BC'; tEl.style.color = '#ef4444'; }
+    else               { tEl.textContent = '\u2014'; tEl.style.color = 'var(--text-mute)'; }
+  } else {
+    tEl.textContent = ''; 
+  }
 
   setScore('s-final', 'b-final', data.final_score);
   setScore('s-oc',    'b-oc',    data.onchain_score);
