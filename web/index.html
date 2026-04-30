@@ -152,19 +152,21 @@
     .m-num  { font-size: .78rem; font-variant-numeric: tabular-nums; text-align: right; font-weight: 600; }
     .m-raw  { font-size: .68rem; color: var(--text-raw); margin-top: 1px; }
 
-    .rb-box {
-      border-radius: 8px; padding: 14px; text-align: center;
-      background: var(--bg-card);
-      transition: background .5s ease;
+    .rb-strip-wrap { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+    .rb-strip {
+      width: 8px; border-radius: 4px; flex-shrink: 0; align-self: stretch; min-height: 52px;
+      background: var(--bar-bg);
+      display: flex; align-items: center; justify-content: center;
+      transition: background .5s ease; overflow: hidden;
+    }
+    .rb-strip-label {
+      font-size: .5rem; color: rgba(255,255,255,.75);
+      writing-mode: vertical-rl; text-orientation: mixed;
+      transform: rotate(180deg); letter-spacing: .05em; white-space: nowrap;
     }
     .rb-price {
-      font-size: 2rem; font-weight: 700; color: #fff;
-      text-shadow: 0 1px 4px rgba(0,0,0,.4);
-      line-height: 1.1;
-    }
-    .rb-band-name {
-      font-size: .7rem; color: rgba(255,255,255,.6);
-      margin-top: 6px; letter-spacing: .04em;
+      font-size: 1.15rem; font-weight: 700; color: var(--text);
+      line-height: 1.2;
     }
 
     .main-bar-wrap {
@@ -300,10 +302,12 @@
       </div>
       <div class="main-right">
         <div class="main-ts" id="main-ts">Updated:</div>
-        <div class="rb-box" id="rb-box">
-          <div class="s-label" id="rb-label">BTC Price</div>
-          <div class="rb-price" id="s-rainbow">&#8212;</div>
-          <div class="rb-band-name" id="s-rainbow-sub"></div>
+        <div class="rb-strip-wrap">
+          <div class="rb-strip" id="rb-strip"><span class="rb-strip-label" id="s-rainbow-sub"></span></div>
+          <div>
+            <div class="s-label" id="rb-label">BTC Price</div>
+            <div class="rb-price" id="s-rainbow">&#8212;</div>
+          </div>
         </div>
       </div>
     </div>
@@ -612,11 +616,10 @@ async function init() {
 
   const rb = mv('rainbow_band') || data.rainbow_band;
   if(rb && typeof rb === 'object') {
-    document.getElementById('rb-box').style.background = rb.color;
-    document.getElementById('rb-label').style.color = 'rgba(255,255,255,.6)';
+    document.getElementById('rb-strip').style.background = rb.color;
     document.getElementById('s-rainbow').textContent =
       data.btc_price ? '$' + data.btc_price.toLocaleString() : '\u2014';
-    document.getElementById('s-rainbow-sub').textContent = rb.band ? '\uD83C\uDF08 ' + rb.band : '';
+    document.getElementById('s-rainbow-sub').textContent = rb.band || '';
   }
 
   const nupl  = mv('nupl');
