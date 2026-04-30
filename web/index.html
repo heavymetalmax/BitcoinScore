@@ -266,6 +266,15 @@
     .modal-box .zone-50 { color: #d4c050; }
     .modal-box .zone-75 { color: #e09050; }
     .modal-box .zone-100{ color: #e05252; }
+    .lang-toggle { display: flex; gap: 6px; margin-bottom: 18px; }
+    .lang-btn {
+      background: none; border: 1px solid var(--border); border-radius: 5px;
+      color: var(--text-mute); font-size: .72rem; padding: 3px 10px;
+      cursor: pointer; transition: background .15s, color .15s;
+    }
+    .lang-btn.active { background: #f7931a; border-color: #f7931a; color: #0f1117; font-weight: 700; }
+    .modal-lang { display: none; }
+    .modal-lang.active { display: block; }
   </style>
 </head>
 <body>
@@ -407,6 +416,14 @@
 <div class="modal-overlay" id="modal" onclick="if(event.target===this)this.classList.remove('open')">
   <div class="modal-box">
     <button class="modal-close" onclick="document.getElementById('modal').classList.remove('open')">&times;</button>
+
+    <div class="lang-toggle">
+      <button class="lang-btn active" onclick="setLang('ua')">UA</button>
+      <button class="lang-btn" onclick="setLang('en')">EN</button>
+    </div>
+
+    <!-- UA -->
+    <div class="modal-lang active" id="modal-ua">
     <h1>&#x20BF; Bitcoin Buy Risk — Як працює індекс</h1>
     <p class="meta">Версія: квітень 2026 р. &middot; 11 індикаторів &middot; 16 мілстоунів 2018–2026 рр.</p>
 
@@ -528,10 +545,145 @@
       <li><strong>Калібровка map-функцій</strong>: MVRV і RHODL перекалібровані під поточну реальність. Порівняння з 2013/2017 некоректне.</li>
       <li><strong>SMC retroactive</strong>: обчислений ретроспективно на weekly OHLCV, зрізаному до дати мілстоуна.</li>
     </ul>
+    </div><!-- /modal-ua -->
+
+    <!-- EN -->
+    <div class="modal-lang" id="modal-en">
+    <h1>&#x20BF; Bitcoin Buy Risk — How the Index Works</h1>
+    <p class="meta">Version: April 2026 &middot; 11 indicators &middot; 16 milestones 2018–2026</p>
+
+    <h2>What is Bitcoin Buy Risk</h2>
+    <p>Bitcoin Buy Risk is a composite index measuring the current Bitcoin market position on a 0–100 scale:</p>
+    <ul>
+      <li><span class="zone-0"><strong>0–20</strong></span>: capitulation / extreme bottom</li>
+      <li><span class="zone-25"><strong>20–40</strong></span>: discount zone, accumulation</li>
+      <li><span class="zone-50"><strong>40–60</strong></span>: neutral zone, uncertainty</li>
+      <li><span class="zone-75"><strong>60–75</strong></span>: distribution / overheating, caution</li>
+      <li><span class="zone-100"><strong>75–100</strong></span>: extreme overheating, sell zone</li>
+    </ul>
+    <p>The index consists of two groups:</p>
+    <ul>
+      <li><strong>On-chain score (50%)</strong>: NUPL, MVRV Z-score, Addr in Profit, RHODL Ratio, CVDD Ratio</li>
+      <li><strong>Tech/Macro score (50%)</strong>: CipherB, SMC, Fear &amp; Greed, DXY, Global M2 YoY</li>
+    </ul>
+
+    <hr>
+    <h2>Historical Table 2018–2026</h2>
+    <table>
+      <thead><tr><th>Date</th><th>Event</th><th>BTC</th><th>OC</th><th>Tech</th><th>Final</th></tr></thead>
+      <tbody>
+        <tr><td>2018-12-15</td><td>Cycle bear bottom</td><td>$3,200</td><td>18</td><td>9</td><td><strong class="zone-0">14</strong></td></tr>
+        <tr><td>2019-06-26</td><td>Local peak</td><td>$13,880</td><td>69</td><td>90</td><td><strong class="zone-100">80</strong></td></tr>
+        <tr><td>2020-03-13</td><td>COVID crash</td><td>$3,800</td><td>31</td><td>21</td><td><strong class="zone-0">26</strong></td></tr>
+        <tr><td>2020-10-01</td><td>Bull run start</td><td>$10,800</td><td>52</td><td>71</td><td><strong class="zone-75">62</strong></td></tr>
+        <tr><td>2021-04-14</td><td>Spring ATH</td><td>$63,500</td><td>91</td><td>91</td><td><strong class="zone-100">91</strong></td></tr>
+        <tr><td>2021-07-20</td><td>Summer dip</td><td>$29,800</td><td>56</td><td>32</td><td><strong class="zone-50">44</strong></td></tr>
+        <tr><td>2021-11-10</td><td>Nov 2021 ATH</td><td>$69,000</td><td>84</td><td>88</td><td><strong class="zone-100">86</strong></td></tr>
+        <tr><td>2022-06-18</td><td>Capitulation</td><td>$17,600</td><td>29</td><td>7</td><td><strong class="zone-0">18</strong></td></tr>
+        <tr><td>2022-11-21</td><td>FTX bottom</td><td>$15,500</td><td>22</td><td>10</td><td><strong class="zone-0">16</strong></td></tr>
+        <tr><td>2023-01-14</td><td>Recovery start</td><td>$21,000</td><td>33</td><td>38</td><td><strong class="zone-25">36</strong></td></tr>
+        <tr><td>2024-03-14</td><td>2024 ATH</td><td>$73,500</td><td>77</td><td>88</td><td><strong class="zone-100">82</strong></td></tr>
+        <tr><td>2025-01-20</td><td>Jan 2025 peak</td><td>$109,000</td><td>73</td><td>84</td><td><strong class="zone-100">78</strong></td></tr>
+        <tr><td>2025-09-29</td><td>Intraday ATH</td><td>$129,000</td><td>65</td><td>72</td><td><strong class="zone-75">68</strong></td></tr>
+        <tr><td>2025-11-10</td><td>Post-ATH dump</td><td>$94,000</td><td>60</td><td>32</td><td><strong class="zone-50">46</strong></td></tr>
+        <tr><td>2026-04-27</td><td>Today</td><td>$77,500</td><td>47</td><td>30</td><td><strong class="zone-25">38</strong></td></tr>
+      </tbody>
+    </table>
+
+    <hr>
+    <h2>Key Findings</h2>
+
+    <h3>1. The index clearly distinguishes bottoms from tops</h3>
+    <p>Average at <strong>confirmed bottoms</strong> (4 events): <strong class="zone-0">18.5</strong> &nbsp;|&nbsp; At <strong>confirmed ATHs</strong> (4 events): <strong class="zone-100">81.8</strong><br>A <strong>63-point gap</strong> — statistically significant for a binary buy/sell signal.</p>
+
+    <h3>2. Declining peaks effect</h3>
+    <table>
+      <thead><tr><th>Cycle</th><th>ATH</th><th>Bitcoin Buy Risk</th></tr></thead>
+      <tbody>
+        <tr><td>2021 spring</td><td>$63,500</td><td><strong class="zone-100">91</strong></td></tr>
+        <tr><td>2021 autumn</td><td>$69,000</td><td><strong class="zone-100">86</strong></td></tr>
+        <tr><td>2024</td><td>$73,500</td><td><strong class="zone-100">82</strong></td></tr>
+        <tr><td>2025</td><td>$129,000</td><td><strong class="zone-75">68</strong></td></tr>
+      </tbody>
+    </table>
+    <p>Despite a new price ATH in 2025 (+76% vs 2024 ATH), Bitcoin Buy Risk peaked at only 68. The market is maturing: lower score volatility means less speculative overheating. <strong>In 2025, the sell zone starts at ~65, not ~80 as in 2021.</strong></p>
+
+    <h3>3. SMC — most accurate binary indicator</h3>
+    <p>SMC perfectly separates all 4 bottoms (<strong class="zone-0">0</strong>) from all 4 ATHs (<strong class="zone-100">100</strong>) with zero false signals. It measures the current price between a confirmed weekly swing low and swing high.</p>
+
+    <h3>4. Fear &amp; Greed: confirms extremes, but not the 2025 ATH</h3>
+    <p>F&amp;G at the 2025 peak showed only <strong>50 (Neutral)</strong> at $129,000. Reason: institutional capital (ETFs, corporations) drives price without mass retail euphoria.</p>
+
+    <h3>5. Global M2 YoY: liquidity benchmark</h3>
+    <p>2024 ATH had M2 score = <strong>30</strong> — rally driven by Halving + ETF, not monetary expansion. 2021 ATH had M2 = <strong>94</strong> — COVID QE flooded markets with liquidity.</p>
+
+    <h3>6. On-chain group: most reliable long-term</h3>
+    <ul>
+      <li>OC at bottoms: <strong class="zone-0">18–31</strong></li>
+      <li>OC at 2021 ATH: <strong class="zone-100">84–91</strong></li>
+      <li>OC at 2024–2025 ATH: <strong class="zone-75">63–77</strong> — MVRV Z-score no longer reaches extremes due to the grown Realized cap</li>
+    </ul>
+
+    <h3>7. Tech/Macro: sensitive to short-term events</h3>
+    <ul>
+      <li>2022 capitulation: Tech = <strong class="zone-0">7</strong> (CipherB=0, SMC=0, F&amp;G=6)</li>
+      <li>Pre-bull 2020: Tech = <strong class="zone-75">71</strong> (SMC=100, M2=83)</li>
+      <li>Post-ATH dump 2025: Tech = <strong class="zone-25">32</strong> (SMC=56, CipherB=14)</li>
+    </ul>
+
+    <hr>
+    <h2>Current State (April 2026) — Discount Zone</h2>
+    <table>
+      <thead><tr><th>Metric</th><th>Score</th><th>Signal</th></tr></thead>
+      <tbody>
+        <tr><td>OC score</td><td>47</td><td>neutral-healthy</td></tr>
+        <tr><td>Tech score</td><td>30</td><td>suppressed</td></tr>
+        <tr><td>NUPL</td><td>54</td><td>neutral</td></tr>
+        <tr><td>MVRV Z-score</td><td>40</td><td>moderate</td></tr>
+        <tr><td>SMC</td><td>8</td><td>price near swing low</td></tr>
+        <tr><td>CipherB</td><td>31</td><td>below trend</td></tr>
+        <tr><td>Fear &amp; Greed</td><td>31</td><td>Fear</td></tr>
+        <tr><td>Global M2 YoY</td><td>53</td><td>+8.2%, moderate expansion</td></tr>
+      </tbody>
+    </table>
+    <p>Current readings correspond to a <strong>post-correction accumulation phase</strong>. The market is technically healthy (OC = 47), but sentiment is weak (Tech = 30). Comparisons: Recovery Jan 2023 ($21k) = <strong>36</strong>, Pre-bull Oct 2020 ($10.8k) = <strong>62</strong>.</p>
+
+    <hr>
+    <h2>Summary</h2>
+    <table>
+      <thead><tr><th>Performance metric</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td>Avg Final at bottoms</td><td><strong class="zone-0">18.5 / 100</strong></td></tr>
+        <tr><td>Avg Final at ATHs</td><td><strong class="zone-100">81.8 / 100</strong></td></tr>
+        <tr><td>Peak–bottom gap</td><td><strong>63.3 points</strong></td></tr>
+        <tr><td>SMC binary signal accuracy</td><td><strong>100%</strong> (4/4 bottoms = 0, 4/4 ATHs = 100)</td></tr>
+        <tr><td>F&amp;G at bottoms (avg)</td><td><strong class="zone-0">12 / 100</strong></td></tr>
+        <tr><td>F&amp;G at 2021–2024 ATHs (avg)</td><td><strong class="zone-100">79 / 100</strong></td></tr>
+      </tbody>
+    </table>
+
+    <hr>
+    <h2>Methodology Limitations</h2>
+    <ul>
+      <li><strong>Geopolitical Risk</strong>: excluded from backtest, weight 4% — minimal impact on final score.</li>
+      <li><strong>Global M2 gap</strong>: BMP data lags ~6 months. US WM2NS delta used as proxy for current values.</li>
+      <li><strong>Map function calibration</strong>: MVRV and RHODL recalibrated for current market reality. Comparison with 2013/2017 is not applicable.</li>
+      <li><strong>SMC retroactive</strong>: computed retrospectively on weekly OHLCV trimmed to milestone date.</li>
+    </ul>
+    </div><!-- /modal-en -->
+
   </div>
 </div>
 
 <script>
+function setLang(lang) {
+  document.querySelectorAll('.modal-lang').forEach(el => el.classList.remove('active'));
+  document.getElementById('modal-' + lang).classList.add('active');
+  document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+  const ua = document.querySelector('.lang-btn[onclick*="ua"]');
+  const en = document.querySelector('.lang-btn[onclick*="en"]');
+  (lang === 'ua' ? ua : en).classList.add('active');
+}
 function mapNupl(v)  { if(v==null)return null; v=Math.max(-50,Math.min(100,v));    return Math.round(((v+50)/150)*100); }
 function mapMvrv(v)  { if(v==null)return null; v=Math.max(-2,Math.min(10,v));      return Math.round(((v+2)/12)*100); }
 function mapSopr(v)  { if(v==null)return null; v=Math.max(-0.05,Math.min(0.10,v)); return Math.round(((v+0.05)/0.15)*100); }
