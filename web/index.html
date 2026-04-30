@@ -65,7 +65,7 @@
     .main-inner { display: flex; flex-direction: column; gap: 4px; }
     .main-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; }
     .main-score-row { display: flex; align-items: center; justify-content: center; gap: 12px; }
-    .s-trend { font-size: 2rem; font-weight: 700; line-height: 1; color: #f7931a; }
+    .s-trend { font-size: 2rem; font-weight: 700; line-height: 1; }
 
     .scores {
       display: grid;
@@ -771,6 +771,7 @@ async function init() {
   } else {
     tEl.textContent = '';
   setScore('s-final', 'b-final', data.final_score);
+  document.getElementById('s-trend').style.color = scoreColor(data.final_score);
   setScore('s-oc',    'b-oc',    data.onchain_score);
   setScore('s-tech',  'b-tech',  data.tech_score);
 
