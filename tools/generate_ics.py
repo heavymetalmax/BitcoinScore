@@ -140,6 +140,41 @@ def generate_ics(entries: list) -> str:
     return '\r\n'.join(fold(l) for l in lines) + '\r\n'
 
 
+def find_entry_nearest(entries, target_date):
+    """Return the entry whose date is closest to (and not after) target_date, or None."""
+    candidates = [e for e in entries if datetime.date.fromisoformat(e['date']) <= target_date]
+    if not candidates:
+        return None
+    return max(candidates, key=lambda e: e['date'])
+
+
+def patch_data_json(data: dict, entries: list) -> None:
+    """Add prev_day and prev_week fields to data/data.json."""
+    today_str = (data.get('timestamp') or '')[:10] or datetime.date.today().isoformat()
+    today = datetime.date.fromisoformat(today_str)
+
+    others = [e for e in entries if e['date'] != today_str]
+
+    yesterday = find_entry_nearest(others, today - datetime.timedelta(days=1))
+    week_ago  = find_entry_nearest(others, today - datetime.timedelta(days=7))
+
+    def entry_summary(e):
+        if e is None:
+            return None
+        return {
+            'date':          e['date'],
+            'final_score':   e.get('final_score'),
+            'onchain_score': e.get('onchain_score'),
+            'tech_score':    e.get('tech_score'),
+        }
+
+    data['prev_day']  = entry_summary(yesterday)
+    data['prev_week'] = entry_summary(week_ago)
+
+    with open(DATA_JSON, 'w', encoding='utf-8') as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
+
 def main():
     with open(DATA_JSON, 'r', encoding='utf-8') as f:
         data = json.load(f)
@@ -147,6 +182,8 @@ def main():
     entries = load_history()
     entries = update_history(entries, data)
     save_history(entries)
+
+    patch_data_json(data, entries)
 
     ics_content = generate_ics(entries)
     os.makedirs(os.path.dirname(ICS_OUTPUT), exist_ok=True)
