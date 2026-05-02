@@ -2,11 +2,12 @@
 
 Score mapping:
   gap_pct = (2×350DMA - 111DMA) / (2×350DMA) × 100
-  score   = clamp((50 - gap_pct) / 50 × 100, 0, 100)
+  score   = clamp(100 - gap_pct, 0, 100)
 
-  gap_pct ≥ 50% → score = 0   (far from top, low risk)
-  gap_pct = 25% → score = 50  (moderate risk)
-  gap_pct = 0%  → score = 100 (cross confirmed, sell zone)
+  gap_pct = 100% → score = 0   (deep bear, MAs far apart)
+  gap_pct =  60% → score = 40  (current bull early stage)
+  gap_pct =  20% → score = 80  (approaching top)
+  gap_pct =   0% → score = 100 (cross confirmed, sell zone)
 """
 import logging
 import requests
@@ -38,7 +39,7 @@ def compute_pi_cycle(closes):
     ma350 = sum(closes[-350:]) / 350
     ma350x2 = ma350 * 2
     gap_pct = (ma350x2 - ma111) / ma350x2 * 100
-    score = round(max(0, min(100, (50 - gap_pct) / 50 * 100)))
+    score = round(max(0, min(100, 100 - gap_pct)))
     return {
         'ma111':   round(ma111, 0),
         'ma350x2': round(ma350x2, 0),
