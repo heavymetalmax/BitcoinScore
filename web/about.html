@@ -271,7 +271,7 @@
         <h3>Технічний аналіз: що залишено і чому</h3>
         <ul>
           <li><strong>Cipher B</strong> на тижневому таймфреймі — найбільш поведінково обґрунтований ТА-індикатор у даному контексті. Реалізація тут <em>апроксимує</em> оригінал, але не відтворює його на 100%. Майте це на увазі.</li>
-          <li><strong>SMC (Smart Money Concepts)</strong> — концепція відстеження ціни відносно підтверджених swing high і swing low на тижневому таймфреймі має структурне підґрунтя. Конкретна реалізація тут також є апроксимацією.</li>
+          <li><strong>Pi Cycle Top</strong> — класичний індикатор циклічних вершин на основі 111DMA і 2×350DMA. Перетин цих ліній гістрично збігається з максимумами циклу.</li>
         </ul>
 
         <h3>Ончейн-метрики: більше даних, але не більше визначеності</h3>
@@ -286,7 +286,7 @@
           <thead><tr><th>Група</th><th>Вага</th><th>Індикатори</th></tr></thead>
           <tbody>
             <tr><td><strong>On-Chain (OC)</strong></td><td>50%</td><td>NUPL, MVRV Z-score, Addr in Profit, RHODL Ratio, CVDD Ratio</td></tr>
-            <tr><td><strong>Tech / Macro</strong></td><td>50%</td><td>Cipher B (тижн.), SMC, Fear &amp; Greed, Real Yield (10Y TIPS), US M2 YoY</td></tr>
+            <tr><td><strong>Tech / Macro</strong></td><td>50%</td><td>Cipher B ×50%, Pi Cycle Top ×10%, Fear &amp; Greed (7d avg) ×20%, Real Yield ×10%, US M2 YoY ×10%</td></tr>
           </tbody>
         </table>
         <p>Обидві групи відображаються як окремі суб-скори з перехресним змішуванням: OC суб-скор = 80% ончейн + 20% техно/макро; Tech суб-скор = 20% ончейн + 80% техно/макро; Final = 50% кожної групи.</p>
@@ -299,7 +299,8 @@
         <h2>Обмеження методології</h2>
         <ul>
           <li><strong>Це не фінансова порада.</strong> Не приймайте рішення виключно на основі цього індексу.</li>
-          <li><strong>Cipher B і SMC</strong> — апроксимації оригінальних концепцій, а не точні відтворення.</li>
+          <li><strong>Cipher B</strong> — апроксимація оригінального індикатора (TradingView WaveTrend), а не точне відтворення.</li>
+          <li><strong>SMC</strong> видалено з ваг: ретроспективний аналіз виявив ~40% хибних сигналів «дна» у ведмежих ринках.</li>
           <li><strong>US Real Yield (DFII10, FRED)</strong> — пряма логіка: висока реальна ставка = жорстке грошово-кредитне середовище = високий ризик-скор для BTC.</li>
           <li><strong>Ретроспективна ефективність</strong> на 8 подіях не гарантує, що індекс залишатиметься відкаліброваним у майбутніх циклах.</li>
           <li><strong>Ніхто не знає</strong>, що буде з ринком завтра. Не довіряйте тим, хто стверджує, що знає.</li>
@@ -333,7 +334,7 @@
         <h3>What is kept from TA, and why</h3>
         <ul>
           <li><strong>Cipher B</strong> on the weekly timeframe is included as the most behaviourally grounded TA indicator in this context. The implementation here <em>approximates</em> the original but does not reproduce it exactly. Keep that in mind.</li>
-          <li><strong>SMC (Smart Money Concepts)</strong> — tracking price relative to confirmed weekly swing highs and lows has a reasonable structural basis. The specific implementation here is also an approximation.</li>
+          <li><strong>Pi Cycle Top</strong> — a classic BTC cycle-top indicator tracking the gap between the 111DMA and 2×350DMA. When 111DMA crosses 2×350DMA, it has historically coincided with a cycle top.</li>
         </ul>
 
         <h3>On-chain metrics: more data, not more certainty</h3>
@@ -348,7 +349,7 @@
           <thead><tr><th>Group</th><th>Weight</th><th>Indicators</th></tr></thead>
           <tbody>
             <tr><td><strong>On-Chain (OC)</strong></td><td>50%</td><td>NUPL, MVRV Z-score, Addr in Profit, RHODL Ratio, CVDD Ratio</td></tr>
-            <tr><td><strong>Tech / Macro</strong></td><td>50%</td><td>Cipher B (weekly), SMC, Fear &amp; Greed, Real Yield (10Y TIPS), US M2 YoY</td></tr>
+            <tr><td><strong>Tech / Macro</strong></td><td>50%</td><td>Cipher B (weekly) ×50%, Pi Cycle Top ×10%, Fear &amp; Greed (7d avg) ×20%, Real Yield ×10%, US M2 YoY ×10%</td></tr>
           </tbody>
         </table>
         <p>Both groups are displayed as separate sub-scores with cross-blending: OC sub-score = 80% on-chain + 20% tech/macro; Tech sub-score = 20% on-chain + 80% tech/macro; Final = 50% each.</p>
@@ -361,7 +362,8 @@
         <h2>Limitations</h2>
         <ul>
           <li><strong>This is not financial advice.</strong> Do not make financial decisions based solely on this index.</li>
-          <li><strong>Cipher B and SMC</strong> are approximations of established concepts, not exact reproductions.</li>
+          <li><strong>Cipher B</strong> is an approximation of the original (TradingView WaveTrend), not an exact reproduction.</li>
+          <li><strong>SMC</strong> was removed from the weights: retrospective analysis revealed ~40% false bottom signals in bear markets.</li>
           <li><strong>US Real Yield (DFII10, FRED)</strong> — direct logic: high real yield = tight monetary policy = high risk score for BTC.</li>
           <li><strong>Past performance</strong> across 8 cycle events does not guarantee the index will remain calibrated in future cycles.</li>
           <li><strong>Nobody knows</strong> what the market will do tomorrow. Distrust anyone who claims otherwise with confidence.</li>
@@ -390,12 +392,12 @@
         <div class="ua">
           <h3>Addr in Profit — Адреси в прибутку</h3>
           <p>Відсоток Bitcoin-адрес, поточна ринкова ціна яких вища за ціну їх останнього переміщення (нереалізований прибуток). При ATH ≈ 95–99% адрес у прибутку; на циклічному дні ≈ 40–55%.</p>
-          <p>Чим більше адрес у прибутку — тим більше тримачів мають мотивацію продавати. Вага у On-Chain групі: <strong>25%</strong>.</p>
+          <p>Чим більше адрес у прибутку — тим більше тримачів мають мотивацію продавати. Шкала квадратична (v×(v+5)/105): нижня рідкісна зона стиснута коректно. Вага у On-Chain групі: <strong>25%</strong>.</p>
         </div>
         <div class="en">
           <h3>Addr in Profit — Addresses in Profit</h3>
           <p>The percentage of Bitcoin addresses whose last-moved price is below the current market price (unrealised profit). At ATH ≈ 95–99% of addresses are in profit; at a cycle bottom ≈ 40–55%.</p>
-          <p>The more addresses in profit, the more holders have an incentive to sell. Weight in On-Chain group: <strong>25%</strong>.</p>
+          <p>The more addresses in profit, the more holders have an incentive to sell. Score uses a quadratic scale (v×(v+5)/105): the rare low zone (40–55%) is compressed correctly. Weight in On-Chain group: <strong>25%</strong>.</p>
         </div>
       </div>
 
@@ -429,12 +431,12 @@
         <div class="ua">
           <h3>CVDD Ratio</h3>
           <p>Cumulative Value Days Destroyed — відношення поточної ціни до накопиченої вартості знищених монетоднів (монети × вік у днях × ціна). Зростання = активний розподіл довгостроковими тримачами; падіння = накопичення.</p>
-          <p>Вимірює «активність» старих монет як прокси поведінки довгострокових інвесторів. Вага: <strong>18%</strong>.</p>
+          <p>Вимірює «активність» старих монет як прокси поведінки довгострокових інвесторів. Шкала логарифмічна (log₁₀(v)/log₁₀(5)): більшість циклічного часу ratio 1–3, тому лог краще розподіляє середній діапазон. Вага: <strong>18%</strong>.</p>
         </div>
         <div class="en">
           <h3>CVDD Ratio</h3>
           <p>Cumulative Value Days Destroyed — the ratio of current price to cumulative coin days destroyed (coins × age in days × price). Rising = long-term holders actively distributing; falling = accumulation.</p>
-          <p>Measures the "activity" of old coins as a proxy for long-term investor behaviour. Weight: <strong>18%</strong>.</p>
+          <p>Measures the "activity" of old coins as a proxy for long-term investor behaviour. Score uses a logarithmic scale (log₁₀(v)/log₁₀(5)): most of the cycle the ratio stays in 1–3, so the log scale distributes the mid-range better. Weight: <strong>18%</strong>.</p>
         </div>
       </div>
 
@@ -458,25 +460,25 @@
         <div class="ua">
           <h3>Cipher B Oscillator</h3>
           <p>Технічний осцилятор на основі WaveTrend на тижневому таймфреймі. Значення 0 = глибока корекція / капітуляція; 100 = перегрітий бичачий тренд. Реалізація тут <em>апроксимує</em> оригінал (TradingView), але не відтворює його точно.</p>
-          <p>Найбільш поведінково обґрунтований TA-індикатор у цьому контексті. Тижневий таймфрейм фільтрує короткостроковий шум. Вага: <strong>35%</strong>.</p>
+          <p>Найбільш поведінково обґрунтований TA-індикатор у цьому контексті. Тижневий таймфрейм фільтрує короткостроковий шум. Вага: <strong>50%</strong>.</p>
         </div>
         <div class="en">
           <h3>Cipher B Oscillator</h3>
           <p>A technical oscillator based on WaveTrend on the weekly timeframe. 0 = deep correction / capitulation; 100 = overheated bull trend. The implementation here <em>approximates</em> the original (TradingView) but does not reproduce it exactly.</p>
-          <p>The most behaviourally grounded TA indicator in this context. The weekly timeframe filters short-term noise. Weight: <strong>35%</strong>.</p>
+          <p>The most behaviourally grounded TA indicator in this context. The weekly timeframe filters short-term noise. Weight: <strong>50%</strong>.</p>
         </div>
       </div>
 
-      <div id="m-smc" style="scroll-margin-top:20px">
+      <div id="m-picycle" style="scroll-margin-top:20px">
         <div class="ua">
-          <h3>SMC Position — Smart Money Concepts</h3>
-          <p>Позиція поточної ціни між підтвердженим swing low (підтримка) і swing high (опір) на тижневому таймфреймі. 0 = ціна нижче підтримки, 100 = ціна вище опору. Swing points підтверджуються із затримкою 1–2 тижні.</p>
-          <p><strong>Бектест (16 подій 2018–2026):</strong> ідеально розділив усі 4 підтверджені дна (score=0) і 4 ATH (score=100) — жодного хибного сигналу. Найточніший бінарний індикатор у наборі. Вага: <strong>25%</strong>.</p>
+          <h3>Pi Cycle Top</h3>
+          <p>Класичний індикатор циклічних вершин BTC: відстеження розриву між 111-денною ковзною середньою (111DMA) і подвоєною 350-денною ковзною середньою (2×350DMA). Коли 111DMA перетинає 2×350DMA знизу вгору — гістрично збігається з циклічною вершиною.</p>
+          <p>Скор лінійний: <code>score = 100 − gap%</code>. gap=100% (далеко від вершини) → score=0; gap=0% (перетин) → score=100. Зараз gap ≈ 61% → score ≈ 39. Вага: <strong>10%</strong>.</p>
         </div>
         <div class="en">
-          <h3>SMC Position — Smart Money Concepts</h3>
-          <p>The position of the current price between the confirmed weekly swing low (support) and swing high (resistance). 0 = price below support, 100 = price above resistance. Swing points are confirmed with a 1–2 week lag.</p>
-          <p><strong>Backtest (16 events 2018–2026):</strong> perfectly separated all 4 confirmed bottoms (score=0) from all 4 ATHs (score=100) — zero false signals. The most accurate binary indicator in the set. Weight: <strong>25%</strong>.</p>
+          <h3>Pi Cycle Top</h3>
+          <p>A classic BTC cycle-top indicator: tracks the gap between the 111-day moving average (111DMA) and twice the 350-day moving average (2×350DMA). When 111DMA crosses 2×350DMA from below, it has historically coincided with a cycle top.</p>
+          <p>Score is linear: <code>score = 100 − gap%</code>. gap=100% (far from top) → score=0; gap=0% (cross) → score=100. Current gap ≈ 61% → score ≈ 39. Weight: <strong>10%</strong>.</p>
         </div>
       </div>
 
@@ -484,11 +486,13 @@
         <div class="ua">
           <h3>Fear &amp; Greed Index</h3>
           <p>Зважений агрегат: волатильність BTC, об'єм торгів, активність соцмедіа, BTC-домінація і Google Trends. 0 = Extreme Fear, 100 = Extreme Greed. Контрарний індикатор: страх = можлива точка накопичення, жадібність = обережність.</p>
+          <p>Для скорингу використовується <strong>7-денна середня</strong> (а не денний знімок) — для зменшення впливу короткострокових викидів. На сторінці відображається і сьогоднішнє, і середнє значення.</p>
           <p><strong>Обмеження:</strong> на ATH 2025 ($129k) показав лише 50 (Neutral) — ринок рухався інституційним капіталом (ETF, корпорації) без масової роздрібної ейфорії. Вага: <strong>20%</strong>.</p>
         </div>
         <div class="en">
           <h3>Fear &amp; Greed Index</h3>
           <p>A weighted aggregate of: BTC volatility, trading volume, social media activity, BTC dominance, and Google Trends. 0 = Extreme Fear, 100 = Extreme Greed. Contrarian: fear = potential accumulation, greed = caution.</p>
+          <p>Scoring uses the <strong>7-day rolling average</strong> (not a daily snapshot) to reduce the impact of short-term spikes. Both today's value and the 7-day average are shown on the dashboard.</p>
           <p><strong>Limitation:</strong> at the 2025 ATH ($129k) it showed only 50 (Neutral) — the market was driven by institutional capital (ETFs, corporations) without mass retail euphoria. Weight: <strong>20%</strong>.</p>
         </div>
       </div>
@@ -519,6 +523,19 @@
         </div>
       </div>
 
+      <div id="m-funding" style="scroll-margin-top:20px">
+        <div class="ua">
+          <h3>Funding Rate — Ставка фінансування (відображення)</h3>
+          <p>7-денна середня ставки фінансування безстрокових ф'ючерсів BTC на Bybit (BTCUSDT perp). Показується в raw-рядку сторінки, але <strong>не включена до вагових скорів</strong>.</p>
+          <p>Позитивна ставка (+0.05–0.10%/8h) → лонги переплачують, ринок перегрітий. Від'ємна або нульова → лонги не перегріті. <strong>Обмеження:</strong> у 2025 р. BTC досяг $129k при майже нульовому funding rate (ринок рухали ETF і корпоративні покупки, а не ф'ючерсна ейфорія). Через нестабільність цього сигналу в ETF-ері метрика є довідковою.</p>
+        </div>
+        <div class="en">
+          <h3>Funding Rate — Perpetual Futures Rate (display only)</h3>
+          <p>7-day average of Bybit BTCUSDT perpetual futures funding rate. Shown as a raw metric on the dashboard, but <strong>not included in the weighted scores</strong>.</p>
+          <p>Positive rate (+0.05–0.10%/8h) → longs are overheating. Near-zero or negative → no excessive leverage. <strong>Limitation:</strong> in 2025 BTC reached $129k with near-zero funding (price was driven by ETF/corporate buying, not futures euphoria). Due to the signal's unreliability in the ETF era, this metric is informational only.</p>
+        </div>
+      </div>
+
     </section>
 
     <!-- ════════════════════════════════════════════
@@ -542,24 +559,24 @@
 
         <h2>Повна таблиця мілстоунів 2018–2026</h2>
         <table>
-          <thead><tr><th>Дата</th><th>Подія</th><th>BTC</th><th>OC</th><th>Tech</th><th>Final</th><th>F&amp;G</th><th>M2</th><th>SMC</th></tr></thead>
+          <thead><tr><th>Дата</th><th>Подія</th><th>BTC</th><th>OC</th><th>Tech</th><th>Final</th><th>F&amp;G</th><th>M2</th><th>Pi Cycle</th></tr></thead>
           <tbody>
             <tr><td>2018-12-15</td><td>Cycle bear bottom</td><td>$3,200</td><td>17</td><td>13</td><td><strong class="zone-0">15</strong></td><td>11</td><td>33</td><td>0</td></tr>
-            <tr><td>2019-06-26</td><td>Локальний пік</td><td>$13,880</td><td>73</td><td>84</td><td><strong class="zone-100">78</strong></td><td>95</td><td>39</td><td>100</td></tr>
+            <tr><td>2019-06-26</td><td>Локальний пік</td><td>$13,880</td><td>73</td><td>84</td><td><strong class="zone-100">78</strong></td><td>95</td><td>39</td><td>68</td></tr>
             <tr><td>2020-03-13</td><td>COVID crash</td><td>$3,800</td><td>29</td><td>24</td><td><strong class="zone-25">26</strong></td><td>10</td><td>54</td><td>0</td></tr>
-            <tr><td>2020-10-01</td><td>Старт булрану</td><td>$10,800</td><td>56</td><td>67</td><td><strong class="zone-75">62</strong></td><td>45</td><td>100</td><td>100</td></tr>
-            <tr><td>2021-04-14</td><td>Spring ATH</td><td>$63,500</td><td>90</td><td>89</td><td><strong class="zone-100">90</strong></td><td>75</td><td>99</td><td>100</td></tr>
-            <tr><td>2021-07-20</td><td>Літній дип</td><td>$29,800</td><td>51</td><td>36</td><td><strong class="zone-50">44</strong></td><td>19</td><td>71</td><td>52</td></tr>
-            <tr><td>2021-11-10</td><td>Nov 2021 ATH</td><td>$69,000</td><td>84</td><td>84</td><td><strong class="zone-100">84</strong></td><td>75</td><td>69</td><td>100</td></tr>
-            <tr><td>2022-06-18</td><td>Капітуляція</td><td>$17,600</td><td>25</td><td>15</td><td><strong class="zone-0">20</strong></td><td>6</td><td>43</td><td>0</td></tr>
-            <tr><td>2022-11-21</td><td>FTX дно</td><td>$15,500</td><td>20</td><td>16</td><td><strong class="zone-0">18</strong></td><td>21</td><td>21</td><td>0</td></tr>
-            <tr><td>2023-01-14</td><td>Початок відновлення</td><td>$21,000</td><td>34</td><td>35</td><td><strong class="zone-25">34</strong></td><td>46</td><td>13</td><td>0</td></tr>
-            <tr><td>2024-03-14</td><td>2024 ATH</td><td>$73,500</td><td>79</td><td>85</td><td><strong class="zone-100">82</strong></td><td>88</td><td>17</td><td>100</td></tr>
-            <tr><td>2025-01-20</td><td>Jan 2025 пік</td><td>$109,000</td><td>76</td><td>84</td><td><strong class="zone-100">80</strong></td><td>76</td><td>35</td><td>100</td></tr>
-            <tr><td>2025-09-26</td><td>Close ATH</td><td>$123,000</td><td>64</td><td>68</td><td><strong class="zone-75">66</strong></td><td>28</td><td>36</td><td>100</td></tr>
-            <tr><td>2025-09-29</td><td>Intraday ATH</td><td>$129,000</td><td>67</td><td>71</td><td><strong class="zone-75">69</strong></td><td>50</td><td>36</td><td>100</td></tr>
-            <tr><td>2025-11-10</td><td>Post-ATH dump</td><td>$94,000</td><td>55</td><td>41</td><td><strong class="zone-50">48</strong></td><td>29</td><td>35</td><td>56</td></tr>
-            <tr><td>2026-04-30</td><td>Сьогодні</td><td>$76,243</td><td>48</td><td>37</td><td><strong class="zone-50">42</strong></td><td>29</td><td>40</td><td>23</td></tr>
+            <tr><td>2020-10-01</td><td>Старт булрану</td><td>$10,800</td><td>56</td><td>67</td><td><strong class="zone-75">62</strong></td><td>45</td><td>100</td><td>22</td></tr>
+            <tr><td>2021-04-14</td><td>Spring ATH</td><td>$63,500</td><td>90</td><td>89</td><td><strong class="zone-100">90</strong></td><td>75</td><td>99</td><td>99</td></tr>
+            <tr><td>2021-07-20</td><td>Літній дип</td><td>$29,800</td><td>51</td><td>36</td><td><strong class="zone-50">44</strong></td><td>19</td><td>71</td><td>46</td></tr>
+            <tr><td>2021-11-10</td><td>Nov 2021 ATH</td><td>$69,000</td><td>84</td><td>84</td><td><strong class="zone-100">84</strong></td><td>75</td><td>69</td><td>91</td></tr>
+            <tr><td>2022-06-18</td><td>Капітуляція</td><td>$17,600</td><td>25</td><td>15</td><td><strong class="zone-0">20</strong></td><td>6</td><td>43</td><td>4</td></tr>
+            <tr><td>2022-11-21</td><td>FTX дно</td><td>$15,500</td><td>20</td><td>16</td><td><strong class="zone-0">18</strong></td><td>21</td><td>21</td><td>2</td></tr>
+            <tr><td>2023-01-14</td><td>Початок відновлення</td><td>$21,000</td><td>34</td><td>35</td><td><strong class="zone-25">34</strong></td><td>46</td><td>13</td><td>5</td></tr>
+            <tr><td>2024-03-14</td><td>2024 ATH</td><td>$73,500</td><td>79</td><td>85</td><td><strong class="zone-100">82</strong></td><td>88</td><td>17</td><td>84</td></tr>
+            <tr><td>2025-01-20</td><td>Jan 2025 пік</td><td>$109,000</td><td>76</td><td>84</td><td><strong class="zone-100">80</strong></td><td>76</td><td>35</td><td>76</td></tr>
+            <tr><td>2025-09-26</td><td>Close ATH</td><td>$123,000</td><td>64</td><td>68</td><td><strong class="zone-75">66</strong></td><td>28</td><td>36</td><td>82</td></tr>
+            <tr><td>2025-09-29</td><td>Intraday ATH</td><td>$129,000</td><td>67</td><td>71</td><td><strong class="zone-75">69</strong></td><td>50</td><td>36</td><td>84</td></tr>
+            <tr><td>2025-11-10</td><td>Post-ATH dump</td><td>$94,000</td><td>55</td><td>41</td><td><strong class="zone-50">48</strong></td><td>29</td><td>35</td><td>62</td></tr>
+            <tr><td>2026-04-30</td><td>Сьогодні</td><td>$76,243</td><td>48</td><td>37</td><td><strong class="zone-50">42</strong></td><td>29</td><td>40</td><td>39</td></tr>
           </tbody>
         </table>
 
@@ -585,8 +602,8 @@
         <p>Попри новий ціновий максимум у 2025 р. (+76% до 2024 ATH), Bitcoin Buy Risk на піку впав до 70. On-chain метрики (MVRV Z-score ≈ 3.5, RHODL ≈ 8000) більше не досягають екстремумів попередніх циклів. Ринок дорослішає.<br>
         <strong>Практичний висновок: у 2025 р. зона продажу починається від ~65, а не від ~80, як у 2021 р.</strong></p>
 
-        <h3>3. SMC — найточніший бінарний індикатор</h3>
-        <p>SMC ідеально відрізняє всі 4 підтверджені дна (<strong class="zone-0">0</strong>) від усіх 4 підтверджених ATH (<strong class="zone-100">100</strong>) без єдиного хибного сигналу. Вимірює поточну ціну між підтвердженим swing low і swing high на тижневому таймфреймі.</p>
+        <h3>3. Pi Cycle — індикатор циклічних вершин</h3>
+        <p>Pi Cycle Top показує високі значення (&gt;80) на всіх підтверджених ATH і низькі (&lt;10) на всіх підтверджених днах 2020–2022, але в часи довгої ведмежі 2018–2019 умовно показав ~50–70. Метрика працює найкраще як додаткове підтвердження вершини або дна, а не як самостійний бінарний сигнал.</p>
 
         <h3>4. Fear &amp; Greed: підтверджує екстремуми, але не ATH 2025</h3>
         <table>
@@ -613,9 +630,9 @@
 
         <h3>7. Tech/Macro: чутлива до короткострокових подій</h3>
         <ul>
-          <li>Капітуляція 2022: Tech = <strong class="zone-0">15</strong> (CipherB=0, SMC=0, F&amp;G=6; M2=43)</li>
-          <li>Pre-bull 2020: Tech = <strong class="zone-75">67</strong> (SMC=100, CipherB=71, M2=100)</li>
-          <li>Post-ATH dump 2025: Tech = <strong class="zone-25">41</strong> (SMC=56, CipherB=14, F&amp;G=29)</li>
+          <li>2022 капітуляція: Tech = <strong class="zone-0">15</strong> (CipherB=0, Pi Cycle=4, F&amp;G=6; M2=43)</li>
+          <li>Pre-bull 2020: Tech = <strong class="zone-75">67</strong> (Pi Cycle=22, CipherB=71, M2=100)</li>
+          <li>Post-ATH dump 2025: Tech = <strong class="zone-25">41</strong> (Pi Cycle=62, CipherB=14, F&amp;G=29)</li>
         </ul>
         <p>Tech score швидко реагує на зміну сентименту — корисний для тактичних точок входу.</p>
 
@@ -630,7 +647,7 @@
             <tr><td><strong>Final</strong></td><td><strong class="zone-50">42</strong></td><td>нейтральна зона</td></tr>
             <tr><td>NUPL</td><td>52</td><td>нейтральний</td></tr>
             <tr><td>MVRV Z-score</td><td>39</td><td>помірний</td></tr>
-            <tr><td>SMC</td><td>23</td><td>нижня третина свінг-діапазону</td></tr>
+            <tr><td>Pi Cycle</td><td>39</td><td>gap ≈ 61%, далеко від вершини</td></tr>
             <tr><td>CipherB</td><td>38</td><td>нижче тренду</td></tr>
             <tr><td>Fear &amp; Greed</td><td>29</td><td>Fear</td></tr>
             <tr><td>US M2 YoY</td><td>40</td><td>~5% YoY, помірна ліквідність</td></tr>
@@ -647,7 +664,7 @@
             <tr><td>Середній Final на дніх</td><td><strong class="zone-0">20.0 / 100</strong></td></tr>
             <tr><td>Середній Final на ATH</td><td><strong class="zone-100">84.0 / 100</strong></td></tr>
             <tr><td>Розрив пік–дно</td><td><strong>~64 пункти</strong></td></tr>
-            <tr><td>SMC бінарна точність</td><td><strong>100%</strong> (4/4 дна = 0, 4/4 ATH = 100)</td></tr>
+            <tr><td>Pi Cycle на підтверджених ATH (avg)</td><td><strong class="zone-100">&gt;80</strong></td></tr>
             <tr><td>F&amp;G на дніх (avg)</td><td><strong class="zone-0">12 / 100</strong></td></tr>
             <tr><td>F&amp;G на ATH 2021–2024 (avg)</td><td><strong class="zone-100">79 / 100</strong></td></tr>
           </tbody>
@@ -675,24 +692,24 @@
 
         <h2>Full Milestone Table 2018–2026</h2>
         <table>
-          <thead><tr><th>Date</th><th>Event</th><th>BTC</th><th>OC</th><th>Tech</th><th>Final</th><th>F&amp;G</th><th>M2</th><th>SMC</th></tr></thead>
+          <thead><tr><th>Date</th><th>Event</th><th>BTC</th><th>OC</th><th>Tech</th><th>Final</th><th>F&amp;G</th><th>M2</th><th>Pi Cycle</th></tr></thead>
           <tbody>
             <tr><td>2018-12-15</td><td>Cycle bear bottom</td><td>$3,200</td><td>17</td><td>13</td><td><strong class="zone-0">15</strong></td><td>11</td><td>33</td><td>0</td></tr>
-            <tr><td>2019-06-26</td><td>Local peak</td><td>$13,880</td><td>73</td><td>84</td><td><strong class="zone-100">78</strong></td><td>95</td><td>39</td><td>100</td></tr>
+            <tr><td>2019-06-26</td><td>Local peak</td><td>$13,880</td><td>73</td><td>84</td><td><strong class="zone-100">78</strong></td><td>95</td><td>39</td><td>68</td></tr>
             <tr><td>2020-03-13</td><td>COVID crash</td><td>$3,800</td><td>29</td><td>24</td><td><strong class="zone-25">26</strong></td><td>10</td><td>54</td><td>0</td></tr>
-            <tr><td>2020-10-01</td><td>Bull run start</td><td>$10,800</td><td>56</td><td>67</td><td><strong class="zone-75">62</strong></td><td>45</td><td>100</td><td>100</td></tr>
-            <tr><td>2021-04-14</td><td>Spring ATH</td><td>$63,500</td><td>90</td><td>89</td><td><strong class="zone-100">90</strong></td><td>75</td><td>99</td><td>100</td></tr>
-            <tr><td>2021-07-20</td><td>Summer dip</td><td>$29,800</td><td>51</td><td>36</td><td><strong class="zone-50">44</strong></td><td>19</td><td>71</td><td>52</td></tr>
-            <tr><td>2021-11-10</td><td>Nov 2021 ATH</td><td>$69,000</td><td>84</td><td>84</td><td><strong class="zone-100">84</strong></td><td>75</td><td>69</td><td>100</td></tr>
-            <tr><td>2022-06-18</td><td>Capitulation</td><td>$17,600</td><td>25</td><td>15</td><td><strong class="zone-0">20</strong></td><td>6</td><td>43</td><td>0</td></tr>
-            <tr><td>2022-11-21</td><td>FTX bottom</td><td>$15,500</td><td>20</td><td>16</td><td><strong class="zone-0">18</strong></td><td>21</td><td>21</td><td>0</td></tr>
-            <tr><td>2023-01-14</td><td>Recovery start</td><td>$21,000</td><td>34</td><td>35</td><td><strong class="zone-25">34</strong></td><td>46</td><td>13</td><td>0</td></tr>
-            <tr><td>2024-03-14</td><td>2024 ATH</td><td>$73,500</td><td>79</td><td>85</td><td><strong class="zone-100">82</strong></td><td>88</td><td>17</td><td>100</td></tr>
-            <tr><td>2025-01-20</td><td>Jan 2025 peak</td><td>$109,000</td><td>76</td><td>84</td><td><strong class="zone-100">80</strong></td><td>76</td><td>35</td><td>100</td></tr>
-            <tr><td>2025-09-26</td><td>Close ATH</td><td>$123,000</td><td>64</td><td>68</td><td><strong class="zone-75">66</strong></td><td>28</td><td>36</td><td>100</td></tr>
-            <tr><td>2025-09-29</td><td>Intraday ATH</td><td>$129,000</td><td>67</td><td>71</td><td><strong class="zone-75">69</strong></td><td>50</td><td>36</td><td>100</td></tr>
-            <tr><td>2025-11-10</td><td>Post-ATH dump</td><td>$94,000</td><td>55</td><td>41</td><td><strong class="zone-50">48</strong></td><td>29</td><td>35</td><td>56</td></tr>
-            <tr><td>2026-04-30</td><td>Today</td><td>$76,243</td><td>48</td><td>37</td><td><strong class="zone-50">42</strong></td><td>29</td><td>40</td><td>23</td></tr>
+            <tr><td>2020-10-01</td><td>Bull run start</td><td>$10,800</td><td>56</td><td>67</td><td><strong class="zone-75">62</strong></td><td>45</td><td>100</td><td>22</td></tr>
+            <tr><td>2021-04-14</td><td>Spring ATH</td><td>$63,500</td><td>90</td><td>89</td><td><strong class="zone-100">90</strong></td><td>75</td><td>99</td><td>99</td></tr>
+            <tr><td>2021-07-20</td><td>Summer dip</td><td>$29,800</td><td>51</td><td>36</td><td><strong class="zone-50">44</strong></td><td>19</td><td>71</td><td>46</td></tr>
+            <tr><td>2021-11-10</td><td>Nov 2021 ATH</td><td>$69,000</td><td>84</td><td>84</td><td><strong class="zone-100">84</strong></td><td>75</td><td>69</td><td>91</td></tr>
+            <tr><td>2022-06-18</td><td>Capitulation</td><td>$17,600</td><td>25</td><td>15</td><td><strong class="zone-0">20</strong></td><td>6</td><td>43</td><td>4</td></tr>
+            <tr><td>2022-11-21</td><td>FTX bottom</td><td>$15,500</td><td>20</td><td>16</td><td><strong class="zone-0">18</strong></td><td>21</td><td>21</td><td>2</td></tr>
+            <tr><td>2023-01-14</td><td>Recovery start</td><td>$21,000</td><td>34</td><td>35</td><td><strong class="zone-25">34</strong></td><td>46</td><td>13</td><td>5</td></tr>
+            <tr><td>2024-03-14</td><td>2024 ATH</td><td>$73,500</td><td>79</td><td>85</td><td><strong class="zone-100">82</strong></td><td>88</td><td>17</td><td>84</td></tr>
+            <tr><td>2025-01-20</td><td>Jan 2025 peak</td><td>$109,000</td><td>76</td><td>84</td><td><strong class="zone-100">80</strong></td><td>76</td><td>35</td><td>76</td></tr>
+            <tr><td>2025-09-26</td><td>Close ATH</td><td>$123,000</td><td>64</td><td>68</td><td><strong class="zone-75">66</strong></td><td>28</td><td>36</td><td>82</td></tr>
+            <tr><td>2025-09-29</td><td>Intraday ATH</td><td>$129,000</td><td>67</td><td>71</td><td><strong class="zone-75">69</strong></td><td>50</td><td>36</td><td>84</td></tr>
+            <tr><td>2025-11-10</td><td>Post-ATH dump</td><td>$94,000</td><td>55</td><td>41</td><td><strong class="zone-50">48</strong></td><td>29</td><td>35</td><td>62</td></tr>
+            <tr><td>2026-04-30</td><td>Today</td><td>$76,243</td><td>48</td><td>37</td><td><strong class="zone-50">42</strong></td><td>29</td><td>40</td><td>39</td></tr>
           </tbody>
         </table>
 
@@ -718,8 +735,8 @@
         <p>Despite a new price ATH in 2025 (+76% vs 2024 ATH), Bitcoin Buy Risk peaked at only 70. On-chain metrics (MVRV Z-score ≈ 3.5, RHODL ≈ 8000) no longer reach the extremes of prior cycles. The market is maturing.<br>
         <strong>Practical takeaway: in 2025, the sell zone starts at ~65, not ~80 as in 2021.</strong></p>
 
-        <h3>3. SMC — most accurate binary indicator</h3>
-        <p>SMC perfectly separates all 4 confirmed bottoms (<strong class="zone-0">0</strong>) from all 4 confirmed ATHs (<strong class="zone-100">100</strong>) with zero false signals. It measures current price relative to the confirmed weekly swing low and swing high.</p>
+        <h3>3. Pi Cycle — cycle top indicator</h3>
+        <p>Pi Cycle Top shows high values (&gt;80) at all confirmed ATHs and low values (&lt;10) at confirmed bottoms in 2020–2022. During the prolonged 2018–2019 bear market it showed ~50–70. The metric works best as additional confirmation of a top or bottom, not as a standalone binary signal.</p>
 
         <h3>4. Fear &amp; Greed: confirms extremes, but not the 2025 ATH</h3>
         <table>
@@ -746,9 +763,9 @@
 
         <h3>7. Tech/Macro: sensitive to short-term events</h3>
         <ul>
-          <li>2022 capitulation: Tech = <strong class="zone-0">15</strong> (CipherB=0, SMC=0, F&amp;G=6; M2=43)</li>
-          <li>Pre-bull 2020: Tech = <strong class="zone-75">67</strong> (SMC=100, CipherB=71, M2=100)</li>
-          <li>Post-ATH dump 2025: Tech = <strong class="zone-25">41</strong> (SMC=56, CipherB=14, F&amp;G=29)</li>
+          <li>2022 capitulation: Tech = <strong class="zone-0">15</strong> (CipherB=0, Pi Cycle=4, F&amp;G=6; M2=43)</li>
+          <li>Pre-bull 2020: Tech = <strong class="zone-75">67</strong> (Pi Cycle=22, CipherB=71, M2=100)</li>
+          <li>Post-ATH dump 2025: Tech = <strong class="zone-25">41</strong> (Pi Cycle=62, CipherB=14, F&amp;G=29)</li>
         </ul>
         <p>Tech score reacts quickly to sentiment shifts — useful for identifying tactical entry points.</p>
 
@@ -763,7 +780,7 @@
             <tr><td><strong>Final</strong></td><td><strong class="zone-50">42</strong></td><td>neutral zone</td></tr>
             <tr><td>NUPL</td><td>52</td><td>neutral</td></tr>
             <tr><td>MVRV Z-score</td><td>39</td><td>moderate</td></tr>
-            <tr><td>SMC</td><td>23</td><td>lower third of swing range</td></tr>
+            <tr><td>Pi Cycle</td><td>39</td><td>gap ≈ 61%, far from top</td></tr>
             <tr><td>CipherB</td><td>38</td><td>below trend</td></tr>
             <tr><td>Fear &amp; Greed</td><td>29</td><td>Fear</td></tr>
             <tr><td>US M2 YoY</td><td>40</td><td>~5% YoY, moderate liquidity</td></tr>
@@ -780,7 +797,7 @@
             <tr><td>Avg Final at confirmed bottoms</td><td><strong class="zone-0">20.0 / 100</strong></td></tr>
             <tr><td>Avg Final at confirmed ATHs</td><td><strong class="zone-100">84.0 / 100</strong></td></tr>
             <tr><td>Peak–bottom gap</td><td><strong>~64 points</strong></td></tr>
-            <tr><td>SMC binary accuracy</td><td><strong>100%</strong> (4/4 bottoms = 0, 4/4 ATHs = 100)</td></tr>
+            <tr><td>Pi Cycle at confirmed ATHs (avg)</td><td><strong class="zone-100">&gt;80</strong></td></tr>
             <tr><td>F&amp;G at bottoms (avg)</td><td><strong class="zone-0">12 / 100</strong></td></tr>
             <tr><td>F&amp;G at 2021–2024 ATHs (avg)</td><td><strong class="zone-100">79 / 100</strong></td></tr>
           </tbody>
