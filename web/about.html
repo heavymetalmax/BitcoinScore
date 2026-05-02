@@ -57,7 +57,7 @@
       transition: color .15s;
     }
     .back-link:hover { color: #f7931a; }
-    .lang-toggle { display: flex; gap: 6px; }
+    .lang-toggle { display: flex; gap: 6px; margin-bottom: 14px; }
     .lang-btn {
       background: none;
       border: 1px solid var(--border);
@@ -201,6 +201,7 @@
         flex-shrink: 0;
       }
       .nav-link.active { border-bottom-color: #f7931a; background: #f7931a0d; }
+      .lang-toggle { margin-bottom: 0; align-self: center; }
       table { font-size: .72rem; }
       td, th { padding: 5px 5px; }
     }
@@ -210,16 +211,16 @@
 
 <div class="topbar">
   <a class="back-link" href="index.html">← Bitcoin Buy Risk</a>
-  <div class="lang-toggle">
-    <button class="lang-btn active" onclick="setLang('ua')">UA</button>
-    <button class="lang-btn"        onclick="setLang('en')">EN</button>
-  </div>
 </div>
 
 <div class="article-wrap">
 
   <!-- ── Sidebar ── -->
   <nav class="sidebar" id="sidebar">
+    <div class="lang-toggle">
+      <button class="lang-btn active" onclick="setLang('ua')">UA</button>
+      <button class="lang-btn"        onclick="setLang('en')">EN</button>
+    </div>
     <div class="sidebar-title ua">Розділи</div>
     <div class="sidebar-title en">Contents</div>
     <a class="nav-link" href="#about" id="nav-about">
