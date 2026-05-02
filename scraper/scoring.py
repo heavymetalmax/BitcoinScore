@@ -63,7 +63,8 @@ def map_sopr(v):
 
 def map_addr_profit(v):
     if v is None: return None
-    return round(max(0, min(100, v)))
+    v = max(0, min(100, v))
+    return round(v * (v + 5) / 105)
 
 def map_fear_greed(v):
     if v is None: return None

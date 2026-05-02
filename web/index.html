@@ -397,7 +397,7 @@
 function mapNupl(v)  { if(v==null)return null; v=Math.max(-50,Math.min(100,v));    return Math.round(((v+50)/150)*100); }
 function mapMvrv(v)  { if(v==null)return null; v=Math.max(-2,Math.min(10,v));      return Math.round(((v+2)/12)*100); }
 function mapSopr(v)  { if(v==null)return null; v=Math.max(-0.05,Math.min(0.10,v)); return Math.round(((v+0.05)/0.15)*100); }
-function mapAddr(v)  { if(v==null)return null; return Math.round(Math.max(0,Math.min(100,v))); }
+function mapAddr(v)  { if(v==null)return null; v=Math.max(0,Math.min(100,v)); return Math.round(v*(v+5)/105); }
 function mapFG(v)    { if(v==null)return null; const n=typeof v==='object'?(v.avg_7d!=null?v.avg_7d:(v.latest!=null?v.latest:(v.value!=null?v.value:null))):v; return n!=null?Math.round(Math.max(0,Math.min(100,n))):null; }
 function mapM2(v)    { if(v==null)return null; v=Math.max(-5,Math.min(20,v));      return Math.round(((v+5)/25)*100); }
 function mapRealYield(v) { if(v==null)return null; v=Math.max(-2,Math.min(3,v)); return Math.round(((v+2)/5)*100); }
