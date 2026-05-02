@@ -320,7 +320,6 @@
 <div class="section">
   <div class="section-header">
     <h2>On-chain metrics</h2>
-    <span class="section-avg" id="oc-avg-label">weighted avg &#8212;</span>
   </div>
   <div class="metric-row">
     <a class="m-name" href="about.html#m-addr">Addr in Profit</a>
@@ -352,7 +351,6 @@
 <div class="section">
   <div class="section-header">
     <h2>Tech / Macro metrics</h2>
-    <span class="section-avg" id="tech-avg-label">weighted avg &#8212;</span>
   </div>
   <div class="metric-row">
     <a class="m-name" href="about.html#m-cipherb">Cipher B</a>
@@ -573,8 +571,6 @@ async function init() {
 
   const ocAvg = wavg(ocVals, OC_W);
   const tcAvg = wavg(tcVals, TC_W);
-  if(ocAvg != null) document.getElementById('oc-avg-label').textContent   = 'weighted avg ' + ocAvg;
-  if(tcAvg != null) document.getElementById('tech-avg-label').textContent = 'weighted avg ' + tcAvg;
 
   // Contradiction detection: warn if any indicator is in the opposite zone from the final score
   const finalScore = data.final_score;
