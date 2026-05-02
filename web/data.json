@@ -1,90 +1,91 @@
 {
-  "timestamp": "2026-04-30T13:26:24Z",
-  "btc_price": 76243,
-  "fear_greed": 45.0,
-  "fear_greed_label": "CMC",
-  "nupl": 28.625,
-  "mvrv_z_score": 0.7226,
-  "sopr": -0.008924,
-  "addresses_in_loss": 22.7867,
-  "addresses_in_profit": 77.2133,
-  "cvdd_ratio": 1.5874,
-  "rhodl_ratio": 1700.8554,
+  "timestamp": "2026-05-02T10:42:59Z",
+  "btc_price": 78238,
+  "btc_dominance": null,
+  "fear_greed": 39,
+  "fear_greed_label": "Fear",
+  "nupl": 30.7939,
+  "mvrv_z_score": 0.8016,
+  "sopr": 0.003686,
+  "addresses_in_loss": 21.4146,
+  "addresses_in_profit": 78.58539999999999,
+  "cvdd_ratio": 1.6366,
+  "rhodl_ratio": 1213.0965,
   "rainbow_band": {
     "band": "Fire sale!",
     "color": "rgba(68, 114, 196, 0.8)",
-    "price": 75775,
-    "band_upper": 94178.24,
-    "date": "2026-04-29"
+    "price": 78172,
+    "band_upper": 94361.04,
+    "date": "2026-05-01"
   },
-  "m2": 3.45,
+  "m2": 4.99,
   "metrics": {
     "nupl": {
-      "value": 28.625,
+      "value": 30.7939,
       "source": "BMP",
-      "updated": "2026-04-30T13:26:17Z"
+      "updated": "2026-05-02T10:41:51Z"
     },
     "mvrv": {
-      "value": 0.7226,
+      "value": 0.8016,
       "source": "BMP",
-      "updated": "2026-04-30T13:26:17Z"
+      "updated": "2026-05-02T10:42:01Z"
     },
     "sopr": {
-      "value": -0.008924,
+      "value": 0.003686,
       "source": "BMP",
-      "updated": "2026-04-30T13:26:17Z"
+      "updated": "2026-05-02T10:42:11Z"
     },
     "addresses_in_loss": {
-      "value": 22.7867,
+      "value": 21.4146,
       "source": "BMP",
-      "updated": "2026-04-30T13:26:17Z"
+      "updated": "2026-05-02T10:42:19Z"
     },
     "m2": {
-      "value": 3.45,
+      "value": 4.99,
       "source": "BMP",
-      "updated": "2026-04-30T13:26:17Z"
+      "updated": "2026-05-02T10:42:21Z"
     },
-    "dxy": {
-      "value": 118.7294,
+    "real_yield": {
+      "value": 1.94,
       "source": "BMP",
-      "updated": "2026-04-30T13:26:17Z"
+      "updated": "2026-05-02T10:42:23Z"
     },
     "geopolitical_risk": {
-      "value": 297.2698,
+      "value": 230.7708,
       "source": "BMP",
-      "updated": "2026-04-30T13:26:17Z"
+      "updated": "2026-05-02T10:42:26Z"
     },
     "cvdd_ratio": {
-      "value": 1.5874,
+      "value": 1.6366,
       "source": "BMP",
-      "updated": "2026-04-30T13:26:17Z"
+      "updated": "2026-05-02T10:42:42Z"
     },
     "rhodl_ratio": {
-      "value": 1700.8554,
+      "value": 1213.0965,
       "source": "BMP",
-      "updated": "2026-04-30T13:26:17Z"
+      "updated": "2026-05-02T10:42:51Z"
     },
     "rainbow_band": {
       "value": {
         "band": "Fire sale!",
         "color": "rgba(68, 114, 196, 0.8)",
-        "price": 75775,
-        "band_upper": 94178.24,
-        "date": "2026-04-29"
+        "price": 78172,
+        "band_upper": 94361.04,
+        "date": "2026-05-01"
       },
       "source": "BMP",
-      "updated": "2026-04-30T13:26:24Z"
+      "updated": "2026-05-02T10:42:59Z"
     },
     "fear_greed": {
-      "value": 45.0,
-      "label": "CMC",
-      "source": "CoinMarketCap",
-      "updated": "2026-05-02T07:02:17.373498Z"
+      "value": 39,
+      "label": "Fear",
+      "source": "Alternative.me",
+      "updated": "2026-05-02T10:42:59Z"
     },
     "addresses_in_profit": {
-      "value": 77.2133,
+      "value": 78.58539999999999,
       "source": "Derived",
-      "updated": "2026-04-30T13:26:24Z"
+      "updated": "2026-05-02T10:42:59Z"
     },
     "cipherb": {
       "value": {
@@ -98,10 +99,14 @@
         "red_dot": 0,
         "weekly_score": 37.713875283420975,
         "distance_to_buy": 37.713875283420975,
-        "distance_to_sell": 62.286124716579025
+        "distance_to_sell": 62.286124716579025,
+        "bearish_divergence": false,
+        "bullish_divergence": false,
+        "fast_bearish_div": false,
+        "fast_bullish_div": false
       },
       "source": "Local",
-      "updated": "2026-04-30T13:26:25Z"
+      "updated": "2026-05-02T10:42:59Z"
     },
     "smc": {
       "value": {
@@ -115,28 +120,23 @@
         "size": 10
       },
       "source": "Local",
-      "updated": "2026-04-30T13:26:25Z"
+      "updated": "2026-05-02T10:42:59Z"
     },
     "m2_mom": {
-      "value": 3.45,
+      "value": 4.99,
       "source": "Global M2 YoY (BMP)",
-      "updated": "2026-04-30T13:26:26Z"
-    },
-    "real_yield": {
-      "value": 1.94,
-      "source": "FRED",
-      "updated": "2026-05-02T07:02:16.833488Z"
+      "updated": "2026-05-02T10:42:59Z"
     }
   },
-  "m2_mom": 3.45,
-  "onchain_score": 47,
-  "tech_score": 35,
-  "final_score": 41,
+  "m2_mom": 4.99,
+  "onchain_score": 49,
+  "tech_score": 43,
+  "final_score": 46,
   "prev_day": {
-    "date": "2026-04-29",
-    "final_score": 39,
-    "onchain_score": 41,
-    "tech_score": 37
+    "date": "2026-05-01",
+    "final_score": 40,
+    "onchain_score": 47,
+    "tech_score": 34
   },
   "prev_week": null
 }
