@@ -402,7 +402,7 @@ function mapFG(v)    { if(v==null)return null; const n=typeof v==='object'?(v.av
 function mapM2(v)    { if(v==null)return null; v=Math.max(-5,Math.min(20,v));      return Math.round(((v+5)/25)*100); }
 function mapRealYield(v) { if(v==null)return null; v=Math.max(-2,Math.min(3,v)); return Math.round(((v+2)/5)*100); }
 function mapGPR(v)   { if(v==null)return null; v=Math.max(0,Math.min(350,v));      return Math.round(((350-v)/350)*100); }
-function mapCvdd(v)  { if(v==null)return null; v=Math.max(1,Math.min(5,v));        return Math.round(((v-1)/4)*100); }
+function mapCvdd(v)  { if(v==null)return null; v=Math.max(1,Math.min(5,v)); return Math.round(Math.log10(v)/Math.log10(5)*100); }
 function mapRhodl(v) { if(v==null)return null; v=Math.max(100,Math.min(100000,v)); return Math.round((Math.log10(v)-2)/(5-2)*100); }
 function mapFunding(fr) {
   if(!fr) return null;

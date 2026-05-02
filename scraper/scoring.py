@@ -127,7 +127,7 @@ def map_georisk(v):
 def map_cvdd(v):
     if v is None: return None
     v = max(1, min(5, v))
-    return round(((v - 1) / 4) * 100)
+    return round(math.log10(v) / math.log10(5) * 100)
 
 def map_rhodl(v):
     if v is None: return None
