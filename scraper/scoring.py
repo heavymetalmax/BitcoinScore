@@ -101,6 +101,19 @@ def map_pi_cycle(v):
         return v.get('score')
     return round(max(0, min(100, v)))
 
+def map_funding(v):
+    """v is funding_rate dict or avg_7d float (%).
+    Range: -0.05% (shorts overheated) .. +0.10% (longs overheated).
+    score = clamp((avg + 0.05) / 0.15 * 100, 0, 100)
+    """
+    if v is None: return None
+    if isinstance(v, dict):
+        avg = v.get('avg_7d')
+        if avg is None: return v.get('score')
+        v = avg
+    v = float(v)
+    return round(max(0, min(100, (v + 0.05) / 0.15 * 100)))
+
 def map_georisk(v):
     if v is None: return None
     v = max(0, min(350, v))
@@ -153,6 +166,7 @@ def build_slider_map(metrics: dict) -> dict:
         'rhodl_ratio':         map_rhodl(mv('rhodl_ratio')),
         'cipherb':             cipherb_score,
         'pi_cycle':            pi_cycle_score,
+        'funding_rate':        map_funding(mv('funding_rate')),
     }
 
 

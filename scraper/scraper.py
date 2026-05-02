@@ -128,6 +128,7 @@ def build_payload():
     from scraper import rhodl as rhodl_mod
     from scraper import rainbow as rainbow_mod
     from scraper import pi_cycle as pi_cycle_mod
+    from scraper import funding_rate as funding_rate_mod
     from scraper.utils import is_valid_metric
 
     metric_specs = [
@@ -237,7 +238,8 @@ def build_payload():
             'addresses_in_profit': {'value': addresses_in_profit, 'source': 'Derived', 'updated': now_iso()},
             'cipherb': {'value': None, 'source': 'Local', 'updated': now_iso()},
             'smc': {'value': None, 'source': 'Local', 'updated': now_iso()},
-            'pi_cycle': {'value': None, 'source': 'Local', 'updated': now_iso()}
+            'pi_cycle': {'value': None, 'source': 'Local', 'updated': now_iso()},
+            'funding_rate': {'value': None, 'source': 'Binance', 'updated': now_iso()}
         }
     }
     return payload
@@ -297,6 +299,16 @@ def main():
             print(f"Updated data/data.json with pi_cycle: gap={pc['gap_pct']}%  score={pc['score']}  cross={pc['cross']}")
     except Exception as e:
         print('pi_cycle error', e)
+
+    # Populate Funding Rate metric (Binance Futures, 7-day avg)
+    try:
+        fr = funding_rate_mod.get_funding_rate('BTCUSDT')
+        if fr is not None:
+            p['metrics']['funding_rate'] = {'value': fr, 'source': 'Binance', 'updated': now_iso()}
+            write_json('data/data.json', p)
+            print(f"Updated data/data.json with funding_rate: avg_7d={fr['avg_7d']}%  score={fr['score']}")
+    except Exception as e:
+        print('funding_rate error', e)
 
     # Append M2 snapshot to history
     try:
