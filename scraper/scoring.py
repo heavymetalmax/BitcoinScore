@@ -9,9 +9,11 @@ On-chain group  (5 metrics, weights sum to 1.0):
    sopr — видалено: <10% поріг, шум у циклах 2024–2025)
 
 Tech/Macro group  (5 metrics, weights sum to 1.0):
-  cipherb ×35  smc ×25  fear_greed ×20  dxy ×10  m2_yoy ×10
-  (smc — 100% binary accuracy на 4/4 ATH і 4/4 дніх;
-   m2_yoy = Global M2 YoY % change; source: BMP Global Liquidity;
+  cipherb ×50  smc ×10  fear_greed ×20  real_yield ×10  m2_yoy ×10
+  (cipherb — price/momentum осцилятор; +12 penalty при активній bearish divergence;
+   smc — ретроспективний, знижено з ×25 → ×10;
+   real_yield = US 10Y TIPS real yield (DFII10, FRED), пряма логіка: ↑ реальна ставка = ↑ ризик;
+   m2_yoy = US M2 WM2NS YoY % change (FRED), пряма логіка: ↑ ліквідність = ↑ ризик;
    geopolitical_risk — видалено: <10% поріг, відсутній у backtest)
 
 Index 1 (onchain_score) = 80% OC + 20% Tech
@@ -31,11 +33,11 @@ OC_WEIGHTS = {
 }
 
 TECH_WEIGHTS = {
-    'cipherb':             0.35,
-    'smc':                 0.25,   # 100% binary accuracy на 4/4 ATH і 4/4 дніх
+    'cipherb':             0.50,   # +bearish_div penalty; основний price/momentum сигнал
+    'smc':                 0.10,   # ретроспективний; знижено на користь cipherb
     'fear_greed':          0.20,
-    'dxy':                 0.10,   # ↑ від 0.08
-    'm2_mom':              0.10,   # ↑ від 0.08
+    'real_yield':          0.10,   # US 10Y TIPS real yield (DFII10, FRED)
+    'm2_yoy':              0.10,   # US M2 YoY (пряма логіка: ↑ ліквідність = ↑ ризик)
     # geopolitical_risk видалено: <10% поріг, відсутній у backtest
 }
 
@@ -66,19 +68,28 @@ def map_fear_greed(v):
     if v is None: return None
     return round(max(0, min(100, v)))
 
-def map_m2(v):
+def map_m2_mom(v):  # legacy — kept for reference only
+    """Old inverted 10w momentum mapping. No longer used."""
     if v is None: return None
-    # US M2 10-week momentum (% change): leading indicator for BTC ~10 weeks ahead
-    # HIGH momentum → BTC will rise → accumulate now → LOW score
-    # LOW/negative momentum → BTC will fall → exit now → HIGH score  (inverted)
-    # Range: -2% (QT contraction) to +4% (strong expansion)
     v = max(-2, min(4, v))
     return round(((4 - v) / 6) * 100)
 
-def map_dxy(v):
+
+def map_m2(v):  # US M2 YoY, direct: high expansion = high risk score
     if v is None: return None
-    v = max(80, min(160, v))
-    return round(((160 - v) / 80) * 100)
+    # US M2 year-over-year % change (FRED WM2NS)
+    # HIGH YoY → system flooded with liquidity → market overheated → HIGH score
+    # LOW/negative YoY → liquidity tightening → accumulate → LOW score
+    # Range: -5% to +20% (excludes 2020 COVID QE outlier +27%)
+    v = max(-5, min(20, v))
+    return round(((v + 5) / 25) * 100)
+
+def map_real_yield(v):
+    # US 10Y Real Yield (DFII10). Direct: high real yield = tight money = high risk
+    # Range: -2% (stimulative) to +3% (restrictive)
+    if v is None: return None
+    v = max(-2, min(3, v))
+    return round(((v + 2) / 5) * 100)
 
 def map_georisk(v):
     if v is None: return None
@@ -105,13 +116,16 @@ def build_slider_map(metrics: dict) -> dict:
     def mv(key):
         return metrics.get(key, {}).get('value')
 
-    dxy_raw     = mv('dxy')
     georisk_raw = mv('geopolitical_risk')
-    dxy_val     = dxy_raw[0] if isinstance(dxy_raw, (list, tuple)) else (dxy_raw.get('current') if isinstance(dxy_raw, dict) else dxy_raw)
     georisk_val = georisk_raw[0] if isinstance(georisk_raw, (list, tuple)) else (georisk_raw.get('current') if isinstance(georisk_raw, dict) else georisk_raw)
 
     cipherb = mv('cipherb')
     cipherb_score = round(cipherb['weekly_score']) if isinstance(cipherb, dict) and cipherb.get('weekly_score') is not None else None
+    if cipherb_score is not None and isinstance(cipherb, dict):
+        if cipherb.get('bearish_divergence'):
+            cipherb_score = min(100, cipherb_score + 12)  # overbought signal
+        elif cipherb.get('bullish_divergence'):
+            cipherb_score = max(0, cipherb_score - 12)    # oversold signal
 
     smc_val = mv('smc')
     smc_score = round(smc_val['position']) if isinstance(smc_val, dict) and smc_val.get('position') is not None else None
@@ -122,8 +136,8 @@ def build_slider_map(metrics: dict) -> dict:
         'sopr':                map_sopr(mv('sopr')),
         'addresses_in_profit': map_addr_profit(mv('addresses_in_profit')),
         'fear_greed':          map_fear_greed(mv('fear_greed')),
-        'm2_mom':              map_m2(mv('m2_mom')),
-        'dxy':                 map_dxy(dxy_val),
+        'm2_yoy':              map_m2(mv('m2_mom')),  # field key in data.json still 'm2_mom'
+        'real_yield':          map_real_yield(mv('real_yield')),
         'geopolitical_risk':   map_georisk(georisk_val),
         'cvdd_ratio':          map_cvdd(mv('cvdd_ratio')),
         'rhodl_ratio':         map_rhodl(mv('rhodl_ratio')),

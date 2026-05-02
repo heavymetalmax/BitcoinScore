@@ -8,14 +8,20 @@ import datetime
 import os
 import json
 import time
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass  # python-dotenv not installed yet; run: pip install python-dotenv
 from scraper.coingecko import get_price
 from scraper.alternative_me import get_fear_greed
+from scraper import cmc as cmc_mod
 from scraper.nupl import get_nupl
 from scraper.mvrv import get_mvrv
 from scraper.sopr import get_sopr
 from scraper.addresses_in_loss import get_addresses_in_loss
 from scraper.m2_metric import get_m2
-from scraper.dxy_metric import get_dxy_change
+from scraper.real_yield_metric import get_real_yield
 from scraper.geopolitical_risk import get_geopolitical_risk_change
 from scraper.utils import human_visit
 from scraper.cipherb import get_cipherb
@@ -30,14 +36,47 @@ def now_iso():
 def build_payload():
     price = None
     fg = None
-    try:
-        price = get_price()
-    except Exception as e:
-        print('CoinGecko error', e)
-    try:
-        fg = get_fear_greed()
-    except Exception as e:
-        print('Fear&Greed error', e)
+    btc_dominance = None
+
+    # ── BTC price: CMC primary, CoinGecko fallback ────────────────────────────
+    if cmc_mod.available():
+        try:
+            cmc_price = cmc_mod.get_btc_price()
+            if cmc_price and cmc_price.get('price'):
+                price = {'price': cmc_price['price'], 'change_24h': cmc_price.get('change_24h')}
+                print(f"CMC price: ${price['price']:,.0f}")
+        except Exception as e:
+            print('CMC price error', e)
+    if price is None:
+        try:
+            price = get_price()
+        except Exception as e:
+            print('CoinGecko error', e)
+
+    # ── Fear & Greed: CMC primary, alternative.me fallback ───────────────────
+    if cmc_mod.available():
+        try:
+            cmc_fg = cmc_mod.get_fear_greed()
+            if cmc_fg is not None:
+                fg = {'value': cmc_fg, 'label': 'CMC'}
+                print(f'CMC F&G: {cmc_fg:.0f}')
+        except Exception as e:
+            print('CMC F&G error', e)
+    if fg is None:
+        try:
+            fg = get_fear_greed()
+        except Exception as e:
+            print('Fear&Greed error', e)
+
+    # ── Global metrics (BTC dominance) ───────────────────────────────────────
+    if cmc_mod.available():
+        try:
+            gm = cmc_mod.get_global_metrics()
+            if gm and gm.get('btc_dominance') is not None:
+                btc_dominance = round(gm['btc_dominance'], 2)
+                print(f'CMC BTC dominance: {btc_dominance}%')
+        except Exception as e:
+            print('CMC global metrics error', e)
 
     # MacroMicro: avoid spamming requests. If cached MacroMicro metrics exist and are
     # recent (<=24h) and valid, reuse them instead of live-fetching.
@@ -83,7 +122,7 @@ def build_payload():
     from scraper import sopr as sopr_mod
     from scraper import addresses_in_loss as addr_mod
     from scraper import m2_metric as m2_mod
-    from scraper import dxy_metric as dxy_mod
+    from scraper import real_yield_metric as ry_mod
     from scraper import geopolitical_risk as gr_mod
     from scraper import cvdd as cvdd_mod
     from scraper import rhodl as rhodl_mod
@@ -96,7 +135,7 @@ def build_payload():
         ('sopr', sopr_mod.get_sopr, None, lambda r: r),
         ('addresses_in_loss', addr_mod.get_addresses_in_loss, None, lambda r: r),
         ('m2', m2_mod.get_m2, None, lambda r: r),
-        ('dxy', dxy_mod.get_dxy_change, None, lambda r: (r[0] if isinstance(r, (list, tuple)) and len(r) > 0 else (r.get('current') if isinstance(r, dict) else None))),
+        ('real_yield', ry_mod.get_real_yield, None, lambda r: r),
         ('geopolitical_risk', gr_mod.get_geopolitical_risk_change, None, lambda r: (r[0] if isinstance(r, (list, tuple)) and len(r) > 0 else (r.get('current') if isinstance(r, dict) else None))),
         ('cvdd_ratio', cvdd_mod.get_cvdd_ratio, None, lambda r: r),
         ('rhodl_ratio', rhodl_mod.get_rhodl_ratio, None, lambda r: r),
@@ -144,8 +183,8 @@ def build_payload():
             addresses_in_loss = val
         if name == 'm2':
             m2 = val
-        if name == 'dxy':
-            dxy = {'current': val, 'prev': None, 'delta': val} if val is not None else None
+        if name == 'real_yield':
+            real_yield = val
         if name == 'geopolitical_risk':
             georisk = {'current': val, 'prev': None, 'delta': val} if val is not None else None
         if name == 'cvdd_ratio':
@@ -178,6 +217,7 @@ def build_payload():
     payload = {
         'timestamp': now_iso(),
         'btc_price': price['price'] if price else None,
+        'btc_dominance': btc_dominance,
         'fear_greed': fg['value'] if fg else None,
         'fear_greed_label': fg['label'] if fg else None,
         'nupl': nupl,
@@ -276,26 +316,22 @@ def main():
     except Exception as e:
         print('Failed to compute/include M2 MoM:', e)
 
-    # Append DXY snapshot to history for analysis
+    # Append Real Yield snapshot to history for analysis
     try:
-        dxy_val = None
-        try:
-            dxy_val = p.get('metrics', {}).get('dxy', {}).get('value')
-        except Exception:
-            dxy_val = p.get('dxy')
-        hist_d_path = 'data/history/dxy.json'
-        os.makedirs(os.path.dirname(hist_d_path), exist_ok=True)
-        if os.path.exists(hist_d_path):
-            with open(hist_d_path, 'r', encoding='utf-8') as hf:
-                dhist = json.load(hf)
+        ry_val = p.get('metrics', {}).get('real_yield', {}).get('value')
+        hist_ry_path = 'data/history/real_yield.json'
+        os.makedirs(os.path.dirname(hist_ry_path), exist_ok=True)
+        if os.path.exists(hist_ry_path):
+            with open(hist_ry_path, 'r', encoding='utf-8') as hf:
+                ryhist = json.load(hf)
         else:
-            dhist = []
-        dhist.append({'timestamp': p['timestamp'], 'btc_price': p.get('btc_price'), 'dxy': dxy_val})
-        dhist = dhist[-730:]
-        write_json(hist_d_path, dhist)
-        print('Wrote', hist_d_path)
+            ryhist = []
+        ryhist.append({'timestamp': p['timestamp'], 'btc_price': p.get('btc_price'), 'real_yield': ry_val})
+        ryhist = ryhist[-730:]
+        write_json(hist_ry_path, ryhist)
+        print('Wrote', hist_ry_path)
     except Exception as e:
-        print('Failed to write DXY history:', e)
+        print('Failed to write Real Yield history:', e)
 
     # Append CipherB snapshot to history
     try:

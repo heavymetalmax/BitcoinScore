@@ -133,33 +133,13 @@
     }
     .m-name {
       font-size: .83rem; color: var(--text-sub);
-      position: relative; cursor: help;
     }
-    .m-name[data-tip]:hover::after {
-      content: attr(data-tip);
-      position: absolute;
-      left: 0; top: calc(100% + 7px);
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      color: var(--text);
-      font-size: .72rem; line-height: 1.55;
-      padding: 7px 11px;
-      border-radius: 7px;
-      width: 230px;
-      z-index: 200;
-      box-shadow: 0 4px 16px rgba(0,0,0,.35);
-      pointer-events: none;
-      white-space: normal;
+    a.m-name {
+      text-decoration: none;
+      color: var(--text-sub);
+      transition: color .15s;
     }
-    .m-name[data-tip]:hover::before {
-      content: '';
-      position: absolute;
-      left: 12px; top: calc(100% + 2px);
-      border: 5px solid transparent;
-      border-bottom-color: var(--border);
-      z-index: 201;
-      pointer-events: none;
-    }
+    a.m-name:hover { color: #f7931a; }
     .m-num  { font-size: .78rem; font-variant-numeric: tabular-nums; text-align: right; font-weight: 600; }
     .m-raw  { font-size: .68rem; color: var(--text-raw); margin-top: 1px; }
 
@@ -233,60 +213,34 @@
     }
     .cal-btn:hover { background: #f7931a; color: #0f1117; }
 
-    .modal-overlay {
-      display: none; position: fixed; inset: 0;
-      background: rgba(0,0,0,.72); z-index: 1000;
-      align-items: flex-start; justify-content: center;
-      padding: 40px 16px;
-      overflow-y: auto;
+    /* ── Mobile ≤ 540px ─────────────────────────────────────────────────── */
+    @media (max-width: 540px) {
+      body { padding: 16px 14px; }
+
+      /* Score boxes: 2-column grid */
+      .scores { grid-template-columns: 1fr 1fr; }
+      .score-box.main { grid-column: span 2; }
+
+      /* Main score layout: stack vertically */
+      .main-score-row {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+      }
+      .main-score-left  { padding-right: 0; justify-content: center; }
+      .main-score-right { padding-left: 0;  align-items: center; }
+
+      /* Metric row: tighter label */
+      .metric-row { grid-template-columns: 110px 1fr 34px; gap: 7px; }
+      .m-name { font-size: .78rem; }
     }
-    .modal-overlay.open { display: flex; }
-    .modal-box {
-      background: var(--bg-card); border-radius: 14px;
-      border: 1px solid var(--border);
-      padding: 28px 32px; max-width: 760px; width: 100%;
-      position: relative;
-    }
-    .modal-close {
-      position: absolute; top: 14px; right: 16px;
-      background: none; border: none; color: var(--text-mute);
-      font-size: 1.3rem; cursor: pointer; line-height: 1; padding: 4px 8px;
-    }
-    .modal-close:hover { color: var(--text); }
-    .modal-box h1 { font-size: 1.1rem; color: #f7931a; margin-bottom: 6px; }
-    .modal-box h2 { font-size: .9rem; color: var(--text-name); margin: 22px 0 8px; text-transform: uppercase; letter-spacing: .07em; }
-    .modal-box h3 { font-size: .83rem; color: var(--text); margin: 14px 0 5px; }
-    .modal-box p  { font-size: .82rem; color: var(--text); line-height: 1.6; margin-bottom: 8px; }
-    .modal-box ul { font-size: .82rem; color: var(--text); line-height: 1.7; padding-left: 18px; margin-bottom: 8px; }
-    .modal-box li { margin-bottom: 2px; }
-    .modal-box strong { color: #f7931a; }
-    .modal-box hr { border: none; border-top: 1px solid var(--divider); margin: 18px 0; }
-    .modal-box .meta { font-size: .72rem; color: var(--text-mute); margin-bottom: 16px; }
-    .modal-box table { width: 100%; border-collapse: collapse; font-size: .78rem; margin-bottom: 12px; }
-    .modal-box th { text-align: left; color: var(--text-mute); font-weight: 600; padding: 5px 8px; border-bottom: 1px solid var(--divider); }
-    .modal-box td { padding: 5px 8px; border-bottom: 1px solid var(--divider); color: var(--text); }
-    .modal-box td:nth-child(n+2) { text-align: right; }
-    .modal-box th:nth-child(n+2) { text-align: right; }
-    .modal-box .zone-0  { color: #4caf50; }
-    .modal-box .zone-25 { color: #7abf5e; }
-    .modal-box .zone-50 { color: #d4c050; }
-    .modal-box .zone-75 { color: #e09050; }
-    .modal-box .zone-100{ color: #e05252; }
-    .lang-toggle { display: flex; gap: 6px; margin-bottom: 18px; }
-    .lang-btn {
-      background: none; border: 1px solid var(--border); border-radius: 5px;
-      color: var(--text-mute); font-size: .72rem; padding: 3px 10px;
-      cursor: pointer; transition: background .15s, color .15s;
-    }
-    .lang-btn.active { background: #f7931a; border-color: #f7931a; color: #0f1117; font-weight: 700; }
-    .modal-lang { display: none; }
-    .modal-lang.active { display: block; }
   </style>
 </head>
 <body>
 
 <div class="top-links">
-  <button class="top-link-btn" onclick="document.getElementById('modal').classList.add('open')">Info</button>
+  <a href="about.html">About</a>
   &nbsp;|&nbsp;
   <a href="bitcoin_buy_risk.ics">iCal</a>
 </div>
@@ -309,6 +263,7 @@
         </div>
         <div class="main-score-right">
           <div class="rb-strip" id="rb-strip">
+            <div class="rb-pill-label">&nbsp;</div>
             <span class="rb-price" id="s-rainbow">&#8212;</span>
             <div class="rb-pill-label" id="s-rainbow-sub"></div>
           </div>
@@ -345,6 +300,7 @@
     <div style="display:flex;align-items:center;justify-content:center;gap:4px">
       <span id="tech-warn" style="display:none;cursor:help;font-size:.9rem" title="Одна або більше tech/macro метрик суперечить tech score">&#x26A0;&#xFE0F;</span>
       <div class="s-value" id="s-tech">&#8212;</div>
+      <span id="tech-div-badge" style="display:none;font-size:.7rem;font-weight:600;cursor:help"></span>
     </div>
     <div class="bar-wrap"><div class="bar-fill" id="b-tech" style="width:0%"></div></div>
     <div class="s-sub">Tech 80% | BBR 50%</div>
@@ -367,27 +323,27 @@
     <span class="section-avg" id="oc-avg-label">weighted avg &#8212;</span>
   </div>
   <div class="metric-row">
-    <span class="m-name" data-tip="Addresses in Profit — % адрес Bitcoin у нереалізованому прибутку. На ATH ≈ 95–99%, на ведмежому дні ≈ 40–55%.">Addr in Profit</span>
+    <a class="m-name" href="about.html#m-addr">Addr in Profit</a>
     <div><div class="bar-wrap"><div class="bar-fill" id="m-addr-bar"></div></div><div class="m-raw" id="m-addr-raw"></div></div>
     <span class="m-num" id="m-addr-num">&#8212;</span>
   </div>
   <div class="metric-row">
-    <span class="m-name" data-tip="RHODL Ratio — відношення 1-тижневої хвилі HODL до 1–2-річної. Пік = новий капітал заміщує довгострокових тримачів (сигнал ATH).">RHODL Ratio</span>
+    <a class="m-name" href="about.html#m-rhodl">RHODL Ratio</a>
     <div><div class="bar-wrap"><div class="bar-fill" id="m-rhodl-bar"></div></div><div class="m-raw" id="m-rhodl-raw"></div></div>
     <span class="m-num" id="m-rhodl-num">&#8212;</span>
   </div>
   <div class="metric-row">
-    <span class="m-name" data-tip="Market Value to Realized Value Z-score — ринкова капіталізація відносно реалізованої, нормована на волатильність. Пік >5 = перегрів, <0 = дно.">MVRV Z-Score</span>
+    <a class="m-name" href="about.html#m-mvrv">MVRV Z-Score</a>
     <div><div class="bar-wrap"><div class="bar-fill" id="m-mvrv-bar"></div></div><div class="m-raw" id="m-mvrv-raw"></div></div>
     <span class="m-num" id="m-mvrv-num">&#8212;</span>
   </div>
   <div class="metric-row">
-    <span class="m-name" data-tip="Cumulative Value Days Destroyed — відношення поточної ціни до накопиченої вартості знищених монет. Зростання = розподіл, падіння = накопичення.">CVDD Ratio</span>
+    <a class="m-name" href="about.html#m-cvdd">CVDD Ratio</a>
     <div><div class="bar-wrap"><div class="bar-fill" id="m-cvdd-bar"></div></div><div class="m-raw" id="m-cvdd-raw"></div></div>
     <span class="m-num" id="m-cvdd-num">&#8212;</span>
   </div>
   <div class="metric-row">
-    <span class="m-name" data-tip="Net Unrealized Profit/Loss — частка ринкової капіталізації в нереалізованому прибутку/збитку. >0.75 = ейфорія, <0 = капітуляція.">NUPL</span>
+    <a class="m-name" href="about.html#m-nupl">NUPL</a>
     <div><div class="bar-wrap"><div class="bar-fill" id="m-nupl-bar"></div></div><div class="m-raw" id="m-nupl-raw"></div></div>
     <span class="m-num" id="m-nupl-num">&#8212;</span>
   </div>
@@ -399,29 +355,29 @@
     <span class="section-avg" id="tech-avg-label">weighted avg &#8212;</span>
   </div>
   <div class="metric-row">
-    <span class="m-name" data-tip="CipherB Oscillator — технічний осцилятор на основі хвильової структури та тренду. 0 = глибока корекція / капітуляція, 100 = розігрітий бичачий тренд.">Cipher B</span>
+    <a class="m-name" href="about.html#m-cipherb">Cipher B</a>
     <div><div class="bar-wrap"><div class="bar-fill" id="m-cipherb-bar"></div></div><div class="m-raw" id="m-cipherb-raw"></div></div>
     <span class="m-num" id="m-cipherb-num">&#8212;</span>
   </div>
   <div class="metric-row">
-    <span class="m-name" data-tip="Smart Money Concepts — позиція ціни між підтвердженим swing low (підтримка) і swing high (опір) на тижневому ТФ. 0 = нижче підтримки, 100 = вище опору.">SMC Position</span>
+    <a class="m-name" href="about.html#m-smc">SMC Position</a>
     <div><div class="bar-wrap"><div class="bar-fill" id="m-smc-bar"></div></div><div class="m-raw" id="m-smc-raw"></div></div>
     <span class="m-num" id="m-smc-num">&#8212;</span>
   </div>
   <div class="metric-row">
-    <span class="m-name" data-tip="Fear &amp; Greed Index (alternative.me) — сентимент роздрібного ринку. 0 = екстремальний страх, 100 = екстремальна жадібність. Контрарний індикатор.">Fear &amp; Greed</span>
+    <a class="m-name" href="about.html#m-fg">Fear &amp; Greed</a>
     <div><div class="bar-wrap"><div class="bar-fill" id="m-fg-bar"></div></div><div class="m-raw" id="m-fg-raw"></div></div>
     <span class="m-num" id="m-fg-num">&#8212;</span>
   </div>
   <div class="metric-row">
-    <span class="m-name" data-tip="Global M2 YoY — річне зростання глобальної грошової маси M2 (BMP). Висока ліквідність стимулює попит на ризикові активи. 2021 COVID QE: +18.5%.">Global M2 YoY</span>
+    <a class="m-name" href="about.html#m-m2">Global M2 YoY</a>
     <div><div class="bar-wrap"><div class="bar-fill" id="m-m2-bar"></div></div><div class="m-raw" id="m-m2-raw"></div></div>
     <span class="m-num" id="m-m2-num">&#8212;</span>
   </div>
   <div class="metric-row">
-    <span class="m-name" data-tip="US Dollar Index — індекс сили долара США. Зміцнення долара (↑DXY) тисне на BTC. Скор інвертований: 100 = слабкий долар = бичачо для BTC.">DXY</span>
-    <div><div class="bar-wrap"><div class="bar-fill" id="m-dxy-bar"></div></div><div class="m-raw" id="m-dxy-raw"></div></div>
-    <span class="m-num" id="m-dxy-num">&#8212;</span>
+    <a class="m-name" href="about.html#m-ry">Real Yield</a>
+    <div><div class="bar-wrap"><div class="bar-fill" id="m-ry-bar"></div></div><div class="m-raw" id="m-ry-raw"></div></div>
+    <span class="m-num" id="m-ry-num">&#8212;</span>
   </div>
 
 </div>
@@ -431,284 +387,15 @@
   This tool is for informational purposes only and does not constitute financial advice. All data is automatically collected from public sources. Any decisions to buy or sell assets are made solely at your own risk.
 </p>
 
-<div class="modal-overlay" id="modal" onclick="if(event.target===this)this.classList.remove('open')">
-  <div class="modal-box">
-    <button class="modal-close" onclick="document.getElementById('modal').classList.remove('open')">&times;</button>
-
-    <div class="lang-toggle">
-      <button class="lang-btn active" onclick="setLang('ua')">UA</button>
-      <button class="lang-btn" onclick="setLang('en')">EN</button>
-    </div>
-
-    <!-- UA -->
-    <div class="modal-lang active" id="modal-ua">
-    <h1>&#x20BF; Bitcoin Buy Risk — Як працює індекс</h1>
-    <p class="meta">Версія: квітень 2026 р. &middot; 11 індикаторів &middot; 16 мілстоунів 2018–2026 рр.</p>
-
-    <h2>Що таке Bitcoin Buy Risk</h2>
-    <p>Bitcoin Buy Risk — інтегральний індекс, що вимірює поточну ринкову позицію Bitcoin за шкалою 0–100:</p>
-    <ul>
-      <li><span class="zone-0"><strong>0–20</strong></span>: капітуляція / екстремальне дно</li>
-      <li><span class="zone-25"><strong>20–40</strong></span>: дискаунт-зона, накопичення</li>
-      <li><span class="zone-50"><strong>40–60</strong></span>: нейтральна зона, невизначеність</li>
-      <li><span class="zone-75"><strong>60–75</strong></span>: дистрибуція / перегрів, обережність</li>
-      <li><span class="zone-100"><strong>75–100</strong></span>: екстремальний перегрів, зона продажу</li>
-    </ul>
-    <p>Індекс складається з двох рівнів:</p>
-    <ul>
-      <li><strong>On-chain score (50%)</strong>: NUPL, MVRV Z-score, SOPR, Addr in Profit, RHODL Ratio, CVDD Ratio</li>
-      <li><strong>Tech/Macro score (50%)</strong>: CipherB, SMC, Fear &amp; Greed, DXY, Global M2 YoY, Geopolitical Risk</li>
-    </ul>
-
-    <hr>
-    <h2>Ретроспективна таблиця 2018–2026</h2>
-    <table>
-      <thead><tr><th>Дата</th><th>Подія</th><th>BTC</th><th>OC</th><th>Tech</th><th>Final</th></tr></thead>
-      <tbody>
-        <tr><td>2018-12-15</td><td>Cycle bear bottom</td><td>$3,200</td><td>18</td><td>9</td><td><strong class="zone-0">14</strong></td></tr>
-        <tr><td>2019-06-26</td><td>Локальний пік</td><td>$13,880</td><td>69</td><td>90</td><td><strong class="zone-100">80</strong></td></tr>
-        <tr><td>2020-03-13</td><td>COVID crash</td><td>$3,800</td><td>31</td><td>21</td><td><strong class="zone-0">26</strong></td></tr>
-        <tr><td>2020-10-01</td><td>Старт булрану</td><td>$10,800</td><td>52</td><td>71</td><td><strong class="zone-75">62</strong></td></tr>
-        <tr><td>2021-04-14</td><td>Spring ATH</td><td>$63,500</td><td>91</td><td>91</td><td><strong class="zone-100">91</strong></td></tr>
-        <tr><td>2021-07-20</td><td>Літній дип</td><td>$29,800</td><td>56</td><td>32</td><td><strong class="zone-50">44</strong></td></tr>
-        <tr><td>2021-11-10</td><td>Nov 2021 ATH</td><td>$69,000</td><td>84</td><td>88</td><td><strong class="zone-100">86</strong></td></tr>
-        <tr><td>2022-06-18</td><td>Капітуляція</td><td>$17,600</td><td>29</td><td>7</td><td><strong class="zone-0">18</strong></td></tr>
-        <tr><td>2022-11-21</td><td>FTX дно</td><td>$15,500</td><td>22</td><td>10</td><td><strong class="zone-0">16</strong></td></tr>
-        <tr><td>2023-01-14</td><td>Початок відновлення</td><td>$21,000</td><td>33</td><td>38</td><td><strong class="zone-25">36</strong></td></tr>
-        <tr><td>2024-03-14</td><td>2024 ATH</td><td>$73,500</td><td>77</td><td>88</td><td><strong class="zone-100">82</strong></td></tr>
-        <tr><td>2025-01-20</td><td>Jan 2025 пік</td><td>$109,000</td><td>73</td><td>84</td><td><strong class="zone-100">78</strong></td></tr>
-        <tr><td>2025-09-29</td><td>Intraday ATH</td><td>$129,000</td><td>65</td><td>72</td><td><strong class="zone-75">68</strong></td></tr>
-        <tr><td>2025-11-10</td><td>Post-ATH dump</td><td>$94,000</td><td>60</td><td>32</td><td><strong class="zone-50">46</strong></td></tr>
-        <tr><td>2026-04-27</td><td>Сьогодні</td><td>$77,500</td><td>47</td><td>30</td><td><strong class="zone-25">38</strong></td></tr>
-      </tbody>
-    </table>
-
-    <hr>
-    <h2>Ключові висновки</h2>
-
-    <h3>1. Індекс чітко розрізняє дна від вершин</h3>
-    <p>Середнє значення на <strong>підтверджених дніх</strong> (4 події): <strong class="zone-0">18.5</strong> &nbsp;|&nbsp; На <strong>підтверджених ATH</strong> (4 події): <strong class="zone-100">81.8</strong><br>Розрив у <strong>63 пункти</strong> — статистично значуща різниця для бінарного сигналу «купувати / продавати».</p>
-
-    <h3>2. Ефект спадання піків</h3>
-    <table>
-      <thead><tr><th>Цикл</th><th>ATH</th><th>Bitcoin Buy Risk</th></tr></thead>
-      <tbody>
-        <tr><td>2021 весна</td><td>$63,500</td><td><strong class="zone-100">91</strong></td></tr>
-        <tr><td>2021 осінь</td><td>$69,000</td><td><strong class="zone-100">86</strong></td></tr>
-        <tr><td>2024</td><td>$73,500</td><td><strong class="zone-100">82</strong></td></tr>
-        <tr><td>2025</td><td>$129,000</td><td><strong class="zone-75">68</strong></td></tr>
-      </tbody>
-    </table>
-    <p>Попри новий ціновий максимум у 2025 р. (+76% до 2024 ATH), Bitcoin Buy Risk на піку впав до 68. Ринок дорослішає: менша волатильність оцінок означає менший спекулятивний перегрів. <strong>У 2025 р. зона продажу починається від ~65, а не від ~80, як у 2021 р.</strong></p>
-
-    <h3>3. SMC — найточніший бінарний індикатор</h3>
-    <p>SMC ідеально відрізняє всі 4 дні (<strong class="zone-0">0</strong>) від усіх 4 ATH (<strong class="zone-100">100</strong>) без єдиного хибного сигналу. Вимірює поточну ціну між підтвердженим swing low і swing high на тижневому таймфреймі.</p>
-
-    <h3>4. Fear &amp; Greed: підтверджує екстремуми, але не ATH 2025</h3>
-    <p>F&amp;G на піку 2025 показав лише <strong>50 (Neutral)</strong> при ціні $129,000. Причина: великий капітал (ETF, корпорації) рухає ціну без масової роздрібної ейфорії.</p>
-
-    <h3>5. Global M2 YoY: ліквідний бенчмарк</h3>
-    <p>2024 ATH мав M2 score = <strong>30</strong> — ралі спровоковане Halving + ETF, а не монетарною експансією. 2021 ATH мав M2 = <strong>94</strong> — COVID QE заливав ліквідністю.</p>
-
-    <h3>6. On-chain група: найнадійніша в довгостроковому розрізі</h3>
-    <ul>
-      <li>OC на дніх: <strong class="zone-0">18–31</strong></li>
-      <li>OC на ATH 2021: <strong class="zone-100">84–91</strong></li>
-      <li>OC на ATH 2024–2025: <strong class="zone-75">63–77</strong> — MVRV Z-score більше не досягає екстремумів через зрослий Realized cap</li>
-    </ul>
-
-    <h3>7. Tech/Macro: чутлива до короткострокових подій</h3>
-    <ul>
-      <li>Капітуляція 2022: Tech = <strong class="zone-0">7</strong> (CipherB=0, SMC=0, F&amp;G=6)</li>
-      <li>Pre-bull 2020: Tech = <strong class="zone-75">71</strong> (SMC=100, M2=83)</li>
-      <li>Post-ATH dump 2025: Tech = <strong class="zone-25">32</strong> (SMC=56, CipherB=14)</li>
-    </ul>
-
-    <hr>
-    <h2>Поточний стан (квітень 2026) — дискаунт-зона</h2>
-    <table>
-      <thead><tr><th>Метрика</th><th>Скор</th><th>Сигнал</th></tr></thead>
-      <tbody>
-        <tr><td>OC score</td><td>47</td><td>нейтрально-здоровий</td></tr>
-        <tr><td>Tech score</td><td>30</td><td>пригнічений</td></tr>
-        <tr><td>NUPL</td><td>54</td><td>нейтральний</td></tr>
-        <tr><td>MVRV Z-score</td><td>40</td><td>помірний</td></tr>
-        <tr><td>SMC</td><td>8</td><td>ціна біля swing low</td></tr>
-        <tr><td>CipherB</td><td>31</td><td>нижче тренду</td></tr>
-        <tr><td>Fear &amp; Greed</td><td>31</td><td>Fear</td></tr>
-        <tr><td>Global M2 YoY</td><td>53</td><td>+8.2%, помірне розширення</td></tr>
-      </tbody>
-    </table>
-    <p>Поточні показники відповідають <strong>фазі накопичення після корекції</strong>. Ринок технічно здоровий (OC = 47), але сентимент слабкий (Tech = 30). Порівняння: Recovery Jan 2023 ($21k) = <strong>36</strong>, Pre-bull Oct 2020 ($10.8k) = <strong>62</strong>.</p>
-
-    <hr>
-    <h2>Підсумок</h2>
-    <table>
-      <thead><tr><th>Метрика ефективності</th><th>Значення</th></tr></thead>
-      <tbody>
-        <tr><td>Середній Final на дніх</td><td><strong class="zone-0">18.5 / 100</strong></td></tr>
-        <tr><td>Середній Final на ATH</td><td><strong class="zone-100">81.8 / 100</strong></td></tr>
-        <tr><td>Розрив пік–дно</td><td><strong>63.3 пункти</strong></td></tr>
-        <tr><td>SMC точність бінарного сигналу</td><td><strong>100%</strong> (4/4 дна = 0, 4/4 ATH = 100)</td></tr>
-        <tr><td>F&amp;G на дніх (avg)</td><td><strong class="zone-0">12 / 100</strong></td></tr>
-        <tr><td>F&amp;G на ATH 2021–2024 (avg)</td><td><strong class="zone-100">79 / 100</strong></td></tr>
-      </tbody>
-    </table>
-
-    <hr>
-    <h2>Обмеження методології</h2>
-    <ul>
-      <li><strong>Geopolitical Risk</strong>: виключений з backtest, вага 4% — мінімальний вплив на фінальний скор.</li>
-      <li><strong>Global M2 gap</strong>: BMP дані з ~6 міс. відставанням. Для поточних значень застосовується US WM2NS delta як proxy.</li>
-      <li><strong>Калібровка map-функцій</strong>: MVRV і RHODL перекалібровані під поточну реальність. Порівняння з 2013/2017 некоректне.</li>
-      <li><strong>SMC retroactive</strong>: обчислений ретроспективно на weekly OHLCV, зрізаному до дати мілстоуна.</li>
-    </ul>
-    </div><!-- /modal-ua -->
-
-    <!-- EN -->
-    <div class="modal-lang" id="modal-en">
-    <h1>&#x20BF; Bitcoin Buy Risk — How the Index Works</h1>
-    <p class="meta">Version: April 2026 &middot; 11 indicators &middot; 16 milestones 2018–2026</p>
-
-    <h2>What is Bitcoin Buy Risk</h2>
-    <p>Bitcoin Buy Risk is a composite index measuring the current Bitcoin market position on a 0–100 scale:</p>
-    <ul>
-      <li><span class="zone-0"><strong>0–20</strong></span>: capitulation / extreme bottom</li>
-      <li><span class="zone-25"><strong>20–40</strong></span>: discount zone, accumulation</li>
-      <li><span class="zone-50"><strong>40–60</strong></span>: neutral zone, uncertainty</li>
-      <li><span class="zone-75"><strong>60–75</strong></span>: distribution / overheating, caution</li>
-      <li><span class="zone-100"><strong>75–100</strong></span>: extreme overheating, sell zone</li>
-    </ul>
-    <p>The index consists of two groups:</p>
-    <ul>
-      <li><strong>On-chain score (50%)</strong>: NUPL, MVRV Z-score, Addr in Profit, RHODL Ratio, CVDD Ratio</li>
-      <li><strong>Tech/Macro score (50%)</strong>: CipherB, SMC, Fear &amp; Greed, DXY, Global M2 YoY</li>
-    </ul>
-
-    <hr>
-    <h2>Historical Table 2018–2026</h2>
-    <table>
-      <thead><tr><th>Date</th><th>Event</th><th>BTC</th><th>OC</th><th>Tech</th><th>Final</th></tr></thead>
-      <tbody>
-        <tr><td>2018-12-15</td><td>Cycle bear bottom</td><td>$3,200</td><td>18</td><td>9</td><td><strong class="zone-0">14</strong></td></tr>
-        <tr><td>2019-06-26</td><td>Local peak</td><td>$13,880</td><td>69</td><td>90</td><td><strong class="zone-100">80</strong></td></tr>
-        <tr><td>2020-03-13</td><td>COVID crash</td><td>$3,800</td><td>31</td><td>21</td><td><strong class="zone-0">26</strong></td></tr>
-        <tr><td>2020-10-01</td><td>Bull run start</td><td>$10,800</td><td>52</td><td>71</td><td><strong class="zone-75">62</strong></td></tr>
-        <tr><td>2021-04-14</td><td>Spring ATH</td><td>$63,500</td><td>91</td><td>91</td><td><strong class="zone-100">91</strong></td></tr>
-        <tr><td>2021-07-20</td><td>Summer dip</td><td>$29,800</td><td>56</td><td>32</td><td><strong class="zone-50">44</strong></td></tr>
-        <tr><td>2021-11-10</td><td>Nov 2021 ATH</td><td>$69,000</td><td>84</td><td>88</td><td><strong class="zone-100">86</strong></td></tr>
-        <tr><td>2022-06-18</td><td>Capitulation</td><td>$17,600</td><td>29</td><td>7</td><td><strong class="zone-0">18</strong></td></tr>
-        <tr><td>2022-11-21</td><td>FTX bottom</td><td>$15,500</td><td>22</td><td>10</td><td><strong class="zone-0">16</strong></td></tr>
-        <tr><td>2023-01-14</td><td>Recovery start</td><td>$21,000</td><td>33</td><td>38</td><td><strong class="zone-25">36</strong></td></tr>
-        <tr><td>2024-03-14</td><td>2024 ATH</td><td>$73,500</td><td>77</td><td>88</td><td><strong class="zone-100">82</strong></td></tr>
-        <tr><td>2025-01-20</td><td>Jan 2025 peak</td><td>$109,000</td><td>73</td><td>84</td><td><strong class="zone-100">78</strong></td></tr>
-        <tr><td>2025-09-29</td><td>Intraday ATH</td><td>$129,000</td><td>65</td><td>72</td><td><strong class="zone-75">68</strong></td></tr>
-        <tr><td>2025-11-10</td><td>Post-ATH dump</td><td>$94,000</td><td>60</td><td>32</td><td><strong class="zone-50">46</strong></td></tr>
-        <tr><td>2026-04-27</td><td>Today</td><td>$77,500</td><td>47</td><td>30</td><td><strong class="zone-25">38</strong></td></tr>
-      </tbody>
-    </table>
-
-    <hr>
-    <h2>Key Findings</h2>
-
-    <h3>1. The index clearly distinguishes bottoms from tops</h3>
-    <p>Average at <strong>confirmed bottoms</strong> (4 events): <strong class="zone-0">18.5</strong> &nbsp;|&nbsp; At <strong>confirmed ATHs</strong> (4 events): <strong class="zone-100">81.8</strong><br>A <strong>63-point gap</strong> — statistically significant for a binary buy/sell signal.</p>
-
-    <h3>2. Declining peaks effect</h3>
-    <table>
-      <thead><tr><th>Cycle</th><th>ATH</th><th>Bitcoin Buy Risk</th></tr></thead>
-      <tbody>
-        <tr><td>2021 spring</td><td>$63,500</td><td><strong class="zone-100">91</strong></td></tr>
-        <tr><td>2021 autumn</td><td>$69,000</td><td><strong class="zone-100">86</strong></td></tr>
-        <tr><td>2024</td><td>$73,500</td><td><strong class="zone-100">82</strong></td></tr>
-        <tr><td>2025</td><td>$129,000</td><td><strong class="zone-75">68</strong></td></tr>
-      </tbody>
-    </table>
-    <p>Despite a new price ATH in 2025 (+76% vs 2024 ATH), Bitcoin Buy Risk peaked at only 68. The market is maturing: lower score volatility means less speculative overheating. <strong>In 2025, the sell zone starts at ~65, not ~80 as in 2021.</strong></p>
-
-    <h3>3. SMC — most accurate binary indicator</h3>
-    <p>SMC perfectly separates all 4 bottoms (<strong class="zone-0">0</strong>) from all 4 ATHs (<strong class="zone-100">100</strong>) with zero false signals. It measures the current price between a confirmed weekly swing low and swing high.</p>
-
-    <h3>4. Fear &amp; Greed: confirms extremes, but not the 2025 ATH</h3>
-    <p>F&amp;G at the 2025 peak showed only <strong>50 (Neutral)</strong> at $129,000. Reason: institutional capital (ETFs, corporations) drives price without mass retail euphoria.</p>
-
-    <h3>5. Global M2 YoY: liquidity benchmark</h3>
-    <p>2024 ATH had M2 score = <strong>30</strong> — rally driven by Halving + ETF, not monetary expansion. 2021 ATH had M2 = <strong>94</strong> — COVID QE flooded markets with liquidity.</p>
-
-    <h3>6. On-chain group: most reliable long-term</h3>
-    <ul>
-      <li>OC at bottoms: <strong class="zone-0">18–31</strong></li>
-      <li>OC at 2021 ATH: <strong class="zone-100">84–91</strong></li>
-      <li>OC at 2024–2025 ATH: <strong class="zone-75">63–77</strong> — MVRV Z-score no longer reaches extremes due to the grown Realized cap</li>
-    </ul>
-
-    <h3>7. Tech/Macro: sensitive to short-term events</h3>
-    <ul>
-      <li>2022 capitulation: Tech = <strong class="zone-0">7</strong> (CipherB=0, SMC=0, F&amp;G=6)</li>
-      <li>Pre-bull 2020: Tech = <strong class="zone-75">71</strong> (SMC=100, M2=83)</li>
-      <li>Post-ATH dump 2025: Tech = <strong class="zone-25">32</strong> (SMC=56, CipherB=14)</li>
-    </ul>
-
-    <hr>
-    <h2>Current State (April 2026) — Discount Zone</h2>
-    <table>
-      <thead><tr><th>Metric</th><th>Score</th><th>Signal</th></tr></thead>
-      <tbody>
-        <tr><td>OC score</td><td>47</td><td>neutral-healthy</td></tr>
-        <tr><td>Tech score</td><td>30</td><td>suppressed</td></tr>
-        <tr><td>NUPL</td><td>54</td><td>neutral</td></tr>
-        <tr><td>MVRV Z-score</td><td>40</td><td>moderate</td></tr>
-        <tr><td>SMC</td><td>8</td><td>price near swing low</td></tr>
-        <tr><td>CipherB</td><td>31</td><td>below trend</td></tr>
-        <tr><td>Fear &amp; Greed</td><td>31</td><td>Fear</td></tr>
-        <tr><td>Global M2 YoY</td><td>53</td><td>+8.2%, moderate expansion</td></tr>
-      </tbody>
-    </table>
-    <p>Current readings correspond to a <strong>post-correction accumulation phase</strong>. The market is technically healthy (OC = 47), but sentiment is weak (Tech = 30). Comparisons: Recovery Jan 2023 ($21k) = <strong>36</strong>, Pre-bull Oct 2020 ($10.8k) = <strong>62</strong>.</p>
-
-    <hr>
-    <h2>Summary</h2>
-    <table>
-      <thead><tr><th>Performance metric</th><th>Value</th></tr></thead>
-      <tbody>
-        <tr><td>Avg Final at bottoms</td><td><strong class="zone-0">18.5 / 100</strong></td></tr>
-        <tr><td>Avg Final at ATHs</td><td><strong class="zone-100">81.8 / 100</strong></td></tr>
-        <tr><td>Peak–bottom gap</td><td><strong>63.3 points</strong></td></tr>
-        <tr><td>SMC binary signal accuracy</td><td><strong>100%</strong> (4/4 bottoms = 0, 4/4 ATHs = 100)</td></tr>
-        <tr><td>F&amp;G at bottoms (avg)</td><td><strong class="zone-0">12 / 100</strong></td></tr>
-        <tr><td>F&amp;G at 2021–2024 ATHs (avg)</td><td><strong class="zone-100">79 / 100</strong></td></tr>
-      </tbody>
-    </table>
-
-    <hr>
-    <h2>Methodology Limitations</h2>
-    <ul>
-      <li><strong>Geopolitical Risk</strong>: excluded from backtest, weight 4% — minimal impact on final score.</li>
-      <li><strong>Global M2 gap</strong>: BMP data lags ~6 months. US WM2NS delta used as proxy for current values.</li>
-      <li><strong>Map function calibration</strong>: MVRV and RHODL recalibrated for current market reality. Comparison with 2013/2017 is not applicable.</li>
-      <li><strong>SMC retroactive</strong>: computed retrospectively on weekly OHLCV trimmed to milestone date.</li>
-    </ul>
-    </div><!-- /modal-en -->
-
-  </div>
-</div>
 
 <script>
-function setLang(lang) {
-  document.querySelectorAll('.modal-lang').forEach(el => el.classList.remove('active'));
-  document.getElementById('modal-' + lang).classList.add('active');
-  document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
-  const ua = document.querySelector('.lang-btn[onclick*="ua"]');
-  const en = document.querySelector('.lang-btn[onclick*="en"]');
-  (lang === 'ua' ? ua : en).classList.add('active');
-}
 function mapNupl(v)  { if(v==null)return null; v=Math.max(-50,Math.min(100,v));    return Math.round(((v+50)/150)*100); }
 function mapMvrv(v)  { if(v==null)return null; v=Math.max(-2,Math.min(10,v));      return Math.round(((v+2)/12)*100); }
 function mapSopr(v)  { if(v==null)return null; v=Math.max(-0.05,Math.min(0.10,v)); return Math.round(((v+0.05)/0.15)*100); }
 function mapAddr(v)  { if(v==null)return null; return Math.round(Math.max(0,Math.min(100,v))); }
 function mapFG(v)    { if(v==null)return null; return Math.round(Math.max(0,Math.min(100,v))); }
 function mapM2(v)    { if(v==null)return null; v=Math.max(-5,Math.min(20,v));      return Math.round(((v+5)/25)*100); }
-function mapDxy(v)   { if(v==null)return null; v=Math.max(80,Math.min(160,v));     return Math.round(((160-v)/80)*100); }
+function mapRealYield(v) { if(v==null)return null; v=Math.max(-2,Math.min(3,v)); return Math.round(((v+2)/5)*100); }
 function mapGPR(v)   { if(v==null)return null; v=Math.max(0,Math.min(350,v));      return Math.round(((350-v)/350)*100); }
 function mapCvdd(v)  { if(v==null)return null; v=Math.max(1,Math.min(5,v));        return Math.round(((v-1)/4)*100); }
 function mapRhodl(v) { if(v==null)return null; v=Math.max(100,Math.min(100000,v)); return Math.round((Math.log10(v)-2)/(5-2)*100); }
@@ -826,7 +513,7 @@ async function init() {
   const m2raw = mv('m2_mom') != null ? mv('m2_mom') : mv('m2');
   const fg    = mv('fear_greed');
   const fgLbl = (m['fear_greed']||{}).label || data.fear_greed_label || '';
-  const dxy   = scalar(mv('dxy'));
+  const ry    = scalar(mv('real_yield'));
   const gpr   = scalar(mv('geopolitical_risk'));
 
   const cbScore  = mapCipherb(cb);
@@ -834,11 +521,23 @@ async function init() {
 
   setMetric('cipherb', cbScore,
     cb ? 'wt1=' + (cb.wt1!=null?cb.wt1.toFixed(1):'--') + '  score=' + (cb.weekly_score!=null?cb.weekly_score.toFixed(1):'--') : null);
+  const techDivBadge = document.getElementById('tech-div-badge');
+  if(techDivBadge && cb) {
+    if(cb.fast_bearish_div) {
+      techDivBadge.textContent = '\u25BC div'; techDivBadge.style.color = '#e05252'; techDivBadge.style.display = 'inline';
+      techDivBadge.title = 'CipherB bearish divergence (1w): ціна вища, wt1 нижче';
+    } else if(cb.fast_bullish_div) {
+      techDivBadge.textContent = '\u25B2 div'; techDivBadge.style.color = '#4caf50'; techDivBadge.style.display = 'inline';
+      techDivBadge.title = 'CipherB bullish divergence (1w): ціна нижча, wt1 вище';
+    } else {
+      techDivBadge.style.display = 'none';
+    }
+  }
   setMetric('smc', smcScore,
     smc ? 'pos=' + (smc.position!=null?smc.position.toFixed(1):'--') + '%  eq=$' + (smc.equilibrium||0).toLocaleString(undefined,{maximumFractionDigits:0}) : null);
   setMetric('m2',  mapM2(m2raw), m2raw != null ? m2raw.toFixed(2)+'%' : null);
   setMetric('fg',  mapFG(fg),    fg    != null ? fg + ' ' + fgLbl      : null);
-  setMetric('dxy', mapDxy(dxy),  dxy   != null ? dxy.toFixed(4)        : null);
+  setMetric('ry',  mapRealYield(ry),  ry    != null ? ry.toFixed(4)+'%'   : null);
   setMetric('gpr', mapGPR(gpr),  gpr   != null ? gpr.toFixed(2)        : null);
 
   function wavg(vals, weights) {
@@ -848,9 +547,9 @@ async function init() {
   }
 
   const OC_W = { addr:.25, rhodl:.22, mvrv:.20, cvdd:.18, nupl:.15 };
-  const TC_W = { cipherb:.35, smc:.25, fg:.20, dxy:.10, m2:.10 };
+  const TC_W = { cipherb:.35, smc:.25, fg:.20, real_yield:.10, m2:.10 };
   const ocVals = { addr:mapAddr(addr), rhodl:mapRhodl(rhodl), mvrv:mapMvrv(mvrv), cvdd:mapCvdd(cvdd), nupl:mapNupl(nupl) };
-  const tcVals = { cipherb:cbScore, smc:smcScore, fg:mapFG(fg), dxy:mapDxy(dxy), m2:mapM2(m2raw) };
+  const tcVals = { cipherb:cbScore, smc:smcScore, fg:mapFG(fg), real_yield:mapRealYield(ry), m2:mapM2(m2raw) };
 
   const ocAvg = wavg(ocVals, OC_W);
   const tcAvg = wavg(tcVals, TC_W);
@@ -862,7 +561,7 @@ async function init() {
   if (finalScore != null) {
     const allIndScores = [
       mapAddr(addr), mapRhodl(rhodl), mapMvrv(mvrv), mapCvdd(cvdd), mapNupl(nupl),
-      cbScore, smcScore, mapFG(fg), mapDxy(dxy), mapM2(m2raw)
+      cbScore, smcScore, mapFG(fg), mapRealYield(ry), mapM2(m2raw)
     ].filter(s => s != null);
     const hasContra = allIndScores.some(s =>
       (finalScore <= 40 && s >= 65) || (finalScore >= 60 && s <= 35)
@@ -879,7 +578,7 @@ async function init() {
   }
   const tcScore = data.tech_score;
   if (tcScore != null) {
-    const tcInds = [cbScore, smcScore, mapFG(fg), mapDxy(dxy), mapM2(m2raw)].filter(s => s != null);
+    const tcInds = [cbScore, smcScore, mapFG(fg), mapRealYield(ry), mapM2(m2raw)].filter(s => s != null);
     const tcContra = tcInds.some(s => (tcScore < 65 && s >= 65) || (tcScore > 35 && s <= 35));
     document.getElementById('tech-warn').style.display = tcContra ? 'inline' : 'none';
   }

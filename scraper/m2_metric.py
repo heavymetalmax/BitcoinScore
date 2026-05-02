@@ -1,14 +1,12 @@
-"""Scraper for US M2 liquidity momentum signal.
+"""Scraper for US M2 liquidity signal.
 
 Source: FRED WM2NS (US M2 Money Stock, weekly, seasonally adjusted).
 
-Returns 10-week % change (momentum). This is a leading indicator:
-  positive momentum → M2 expanding → BTC price expected to rise ~10 weeks ahead
-  negative momentum → M2 contracting → BTC price expected to fall ~10 weeks ahead
+Returns year-over-year % change. Direct (non-inverted) logic:
+  high YoY expansion → system flooded with liquidity → high risk score
+  low/negative YoY  → liquidity tightening → low risk score (accumulate)
 
-The map in scoring.py is INVERTED accordingly:
-  high momentum → low score (accumulate before the rise)
-  low/negative momentum → high score (exit before the fall)
+Range: map_m2 uses -5% to +20% → 0..100.
 """
 import csv
 import io
@@ -34,21 +32,22 @@ def _fetch_wm2ns_series():
 
 
 def get_m2():
-    """Return US M2 10-week momentum as float (% change over last 10 weeks).
+    """Return US M2 year-over-year % change (WM2NS, FRED).
 
-    Fetches FRED WM2NS weekly data. Returns None on failure.
+    High value = liquidity expanding = high risk = high score (direct mapping).
+    Returns None on failure.
     """
     try:
         series = _fetch_wm2ns_series()
-        if len(series) < 12:
+        if len(series) < 54:
             logger.error('get_m2: insufficient FRED data (%d points)', len(series))
             return None
         current_val = series[-1][1]
-        past_val = series[-11][1]   # 10 weeks ago
-        momentum = round((current_val - past_val) / past_val * 100, 2)
-        logger.info('get_m2: US M2 10w momentum=%.2f%% (%s → %s)',
-                    momentum, series[-11][0], series[-1][0])
-        return momentum
+        past_val    = series[-53][1]   # ~52 weeks ago
+        yoy = round((current_val - past_val) / past_val * 100, 2)
+        logger.info('get_m2: US M2 YoY=%.2f%% (%s → %s)',
+                    yoy, series[-53][0], series[-1][0])
+        return yoy
     except Exception as e:
         logger.error('get_m2: FRED fetch failed: %s', e)
         return None

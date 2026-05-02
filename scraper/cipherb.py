@@ -110,6 +110,83 @@ def stdev_rolling(series, length):
     return out
 
 
+def _divergence(series, lookback=24, peak_window=4, max_peak_age=6, kind='bearish'):
+    """
+    Detect divergence between price and wt1 among recent peaks/troughs.
+    kind='bearish': higher price high + lower wt1 high  → overbought
+    kind='bullish': lower price low  + higher wt1 low   → oversold
+    Returns True only while the latest pivot is still fresh (<= max_peak_age candles ago).
+    """
+    valid = [s for s in series if s.get('wt1') is not None]
+    if len(valid) < lookback:
+        return False
+    recent = valid[-lookback:]
+    n = len(recent)
+    pivots = []
+    for i in range(peak_window, n - peak_window):
+        c = recent[i]
+        neighbors = recent[max(0, i - peak_window):i] + recent[i + 1:i + peak_window + 1]
+        if kind == 'bearish':
+            if all(c['close'] >= nb['close'] for nb in neighbors):
+                pivots.append((i, c['close'], c['wt1']))
+        else:
+            if all(c['close'] <= nb['close'] for nb in neighbors):
+                pivots.append((i, c['close'], c['wt1']))
+    if len(pivots) < 2:
+        return False
+    _, prev_price, prev_wt1 = pivots[-2]
+    last_i, last_price, last_wt1 = pivots[-1]
+    if kind == 'bearish':
+        detected = last_price > prev_price and last_wt1 < prev_wt1
+    else:
+        detected = last_price < prev_price and last_wt1 > prev_wt1
+    return detected and (n - 1 - last_i) <= max_peak_age
+
+
+def _bearish_divergence(series, **kw):
+    return _divergence(series, kind='bearish', **kw)
+
+
+def _bullish_divergence(series, **kw):
+    return _divergence(series, kind='bullish', **kw)
+
+
+def _fast_divergence(series, kind='bearish', lookback=20, peak_window=1, max_peak_age=3):
+    """
+    1-week fast divergence: compare the most recent price peak against the
+    peak with the most extreme wt1 in the lookback window.
+    Bearish: last price peak higher, but wt1 at that peak lower than the best prior wt1 peak.
+    Bullish: last price trough lower, but wt1 higher than the worst prior wt1 trough.
+    max_peak_age: how many candles ago the last pivot can be (1 = just confirmed).
+    """
+    valid = [s for s in series if s.get('wt1') is not None]
+    if len(valid) < lookback:
+        return False
+    recent = valid[-lookback:]
+    n = len(recent)
+    pivots = []
+    for i in range(peak_window, n - peak_window):
+        c = recent[i]
+        neighbors = recent[max(0, i - peak_window):i] + recent[i + 1:i + peak_window + 1]
+        if kind == 'bearish':
+            if all(c['close'] >= nb['close'] for nb in neighbors):
+                pivots.append((i, c['close'], c['wt1']))
+        else:
+            if all(c['close'] <= nb['close'] for nb in neighbors):
+                pivots.append((i, c['close'], c['wt1']))
+    if len(pivots) < 2:
+        return False
+    last_i, last_price, last_wt1 = pivots[-1]
+    # Compare last pivot vs the most extreme wt1 among all previous pivots
+    if kind == 'bearish':
+        ref = max(pivots[:-1], key=lambda p: p[2])  # highest wt1
+        detected = last_price > ref[1] and last_wt1 < ref[2]
+    else:
+        ref = min(pivots[:-1], key=lambda p: p[2])  # lowest wt1
+        detected = last_price < ref[1] and last_wt1 > ref[2]
+    return detected and (n - 1 - last_i) <= max_peak_age
+
+
 def compute_cipherb_from_ohlcv(ohlc, channelLength=9, averageLength=12, wtSmaLength=3, oversoldLevel=-60, overboughtLevel=60):
     # ohlc: list of dicts with keys timestamp, open, high, low, close, volume
     n = len(ohlc)
@@ -187,6 +264,14 @@ def compute_cipherb_from_ohlcv(ohlc, channelLength=9, averageLength=12, wtSmaLen
         if it['wt1'] is not None and it['wt2'] is not None:
             last = it
             break
+
+    bearish_div = _bearish_divergence(series)
+    bullish_div = _bullish_divergence(series)
+    fast_bear   = _fast_divergence(series, kind='bearish')
+    fast_bull   = _fast_divergence(series, kind='bullish')
+    if last is not None:
+        last = {**last, 'bearish_divergence': bearish_div, 'bullish_divergence': bullish_div,
+                'fast_bearish_div': fast_bear, 'fast_bullish_div': fast_bull}
 
     return {'series': series, 'last': last, 'params': {'channelLength': channelLength, 'averageLength': averageLength, 'wtSmaLength': wtSmaLength, 'oversoldLevel': oversoldLevel, 'overboughtLevel': overboughtLevel}}
 

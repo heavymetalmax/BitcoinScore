@@ -16,7 +16,7 @@ sys.path.insert(0, '.')
 
 from scraper.scoring import (
     map_nupl, map_mvrv, map_sopr, map_addr_profit, map_fear_greed,
-    map_m2, map_dxy, map_cvdd, map_rhodl, OC_WEIGHTS, TECH_WEIGHTS, weighted_score
+    map_m2, map_real_yield, map_cvdd, map_rhodl, OC_WEIGHTS, TECH_WEIGHTS, weighted_score
 )
 from scraper.smc import fetch_ohlcv_kraken as fetch_ohlcv_binance, compute_smc
 
@@ -174,11 +174,11 @@ def fetch_fred_series(series_id):
     return result
 
 
-def load_us_m2_10w_momentum():
+def load_us_m2_yoy():
     """
-    Fetch US M2 (WM2NS) from FRED and compute 10-week momentum for each data point.
-    Returns [(date_str, momentum_pct), ...] sorted by date.
-    Momentum = % change vs 10 weeks prior (leading indicator for BTC price).
+    Fetch US M2 (WM2NS) from FRED and compute year-over-year % change for each point.
+    Returns [(date_str, yoy_pct), ...] sorted by date.
+    Direct logic: high YoY = liquidity flood = high risk score.
     """
     import csv, io, ssl, urllib.request
     url = 'https://fred.stlouisfed.org/graph/fredgraph.csv?id=WM2NS'
@@ -190,12 +190,17 @@ def load_us_m2_10w_momentum():
     series = [(r[0], float(r[1])) for r in rows[1:] if r[1] != '.']
     series.sort(key=lambda x: x[0])
     result = []
-    for i in range(10, len(series)):
+    for i in range(52, len(series)):
         d_str, val = series[i]
-        past_val = series[i - 10][1]
-        momentum = round((val - past_val) / past_val * 100, 2)
-        result.append((d_str, momentum))
+        past_val = series[i - 52][1]   # ~52 weeks ago
+        yoy = round((val - past_val) / past_val * 100, 2)
+        result.append((d_str, yoy))
     return result
+
+
+# legacy alias
+def load_us_m2_10w_momentum():
+    return load_us_m2_yoy()
 
 # ── 3. Fear & Greed ──────────────────────────────────────────────────────────
 
@@ -310,10 +315,10 @@ def run():
     cvdd_series = fetch_cvdd_ratio_series()
     print(f"        {len(cvdd_series)} points")
 
-    print("  [6/7] DXY from FRED + US M2 10w momentum from FRED...")
-    dxy_series  = fetch_fred_series('DTWEXBGS')
+    print("  [6/7] Real Yield (DFII10) from FRED + US M2 YoY from FRED...")
+    ry_series   = fetch_fred_series('DFII10')
     m2_momentum = load_us_m2_10w_momentum()
-    print(f"        dxy: {len(dxy_series)}, us m2 10w momentum: {len(m2_momentum)} points")
+    print(f"        real_yield: {len(ry_series)}, us m2 yoy: {len(m2_momentum)} points")
 
     print("  [7/7] Fear & Greed from alternative.me...")
     fg_series = fetch_fg_series()
@@ -326,7 +331,7 @@ def run():
     print(f"{'Date':<12} {'Label':<22} {'BTC':>8}  "
           f"{'OC':>4} {'Tech':>4} {'Final':>5}  "
           f"{'NUPL':>4} {'MVRV':>4} {'SOPR':>4} {'Addr':>4} {'RHODL':>5} {'CVDD':>4}  "
-          f"{'FG':>3} {'DXY':>4} {'M2':>4} {'CB':>4} {'SMC':>4}")
+          f"{'FG':>3} {'RY':>4} {'M2':>4} {'CB':>4} {'SMC':>4}")
     print("-" * 121)
 
     for date_str, label, btc_price in MILESTONES:
@@ -338,7 +343,7 @@ def run():
         addr    = closest(addr_profit_series, td)
         rhodl   = closest(rhodl_series, td)
         cvdd    = closest(cvdd_series, td)
-        dxy     = closest(dxy_series, td)
+        ry      = closest(ry_series, td)
         m2      = closest(m2_momentum, td)
         fg      = closest(fg_series, td)
         cb      = closest(cb_series, td)
@@ -352,7 +357,7 @@ def run():
         s_addr  = map_addr_profit(addr)
         s_rhodl = map_rhodl(rhodl)
         s_cvdd  = map_cvdd(cvdd)
-        s_dxy   = map_dxy(dxy)
+        s_ry    = map_real_yield(ry)
         s_m2    = map_m2(m2)
         s_fg    = map_fear_greed(fg)
         s_cb    = round(max(0, min(100, cb))) if cb is not None else None
@@ -363,7 +368,7 @@ def run():
         }
         # geopolitical_risk excluded
         tech_map = {
-            'cipherb': s_cb, 'm2_mom': s_m2, 'fear_greed': s_fg, 'dxy': s_dxy,
+            'cipherb': s_cb, 'm2_yoy': s_m2, 'fear_greed': s_fg, 'real_yield': s_ry,
             'smc': s_smc,
         }
 
@@ -385,7 +390,7 @@ def run():
             f"{date_str:<12} {label:<22} ${btc_price:>7,}  "
             f"{fmt(oc)} {fmt(tech)} {fmt(final)}  "
             f"{fmt(s_nupl)} {fmt(s_mvrv)} {fmt(s_sopr)} {fmt(s_addr)} {fmt(s_rhodl)} {fmt(s_cvdd)}  "
-            f"{fmt(s_fg)} {fmt(s_dxy)} {fmt(s_m2)} {fmt(s_cb)} {fmt(s_smc)}"
+            f"{fmt(s_fg)} {fmt(s_ry)} {fmt(s_m2)} {fmt(s_cb)} {fmt(s_smc)}"
         )
 
     print("\nNote: Geopolitical Risk excluded (not available historically).")

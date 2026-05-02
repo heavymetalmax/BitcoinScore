@@ -123,7 +123,7 @@ def is_valid_metric(name, value):
             'sopr': (-0.5, 1.0),  # SOPR adjusted, near 0
             'addresses_in_loss': (0, 100),
             'm2': (None, None),
-            'dxy': (80, 160),         # FRED DTWEXBGS Broad Dollar Index
+            'real_yield': (-5, 10),   # FRED DFII10 US 10Y Real Yield (%)
             'geopolitical_risk': (0, 2000),  # GPR Index (Caldara & Iacoviello)
             'rhodl_ratio': (0, 500000),  # RHODL Ratio (BMP)
         }
