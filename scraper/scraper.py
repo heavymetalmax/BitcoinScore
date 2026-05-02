@@ -304,7 +304,7 @@ def main():
     try:
         fr = funding_rate_mod.get_funding_rate('BTCUSDT')
         if fr is not None:
-            p['metrics']['funding_rate'] = {'value': fr, 'source': 'Binance', 'updated': now_iso()}
+            p['metrics']['funding_rate'] = {'value': fr, 'source': fr.get('source', 'Bybit'), 'updated': now_iso()}
             write_json('data/data.json', p)
             print(f"Updated data/data.json with funding_rate: avg_7d={fr['avg_7d']}%  score={fr['score']}")
     except Exception as e:
