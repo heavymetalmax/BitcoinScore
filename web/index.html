@@ -411,6 +411,7 @@ function mapFunding(fr) {
   if(fr.avg_7d != null) return Math.round(Math.max(0, Math.min(100, (fr.avg_7d + 0.05) / 0.15 * 100)));
   return null;
 }
+function mapPiCycle(pc) {
   if(!pc) return null;
   if(typeof pc === 'number') return Math.round(Math.max(0, Math.min(100, pc)));
   return pc.score != null ? pc.score : null;
