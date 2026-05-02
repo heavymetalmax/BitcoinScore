@@ -60,8 +60,8 @@ def build_payload():
         try:
             cmc_fg = cmc_mod.get_fear_greed()
             if cmc_fg is not None:
-                fg = {'value': cmc_fg, 'label': 'CMC'}
-                print(f'CMC F&G: {cmc_fg:.0f}')
+                fg = cmc_fg  # already {'latest': X, 'avg_7d': Y, 'label': 'CMC'}
+                print(f"CMC F&G: {cmc_fg.get('latest')} (avg7d={cmc_fg.get('avg_7d')})")
         except Exception as e:
             print('CMC F&G error', e)
     if fg is None:
@@ -220,8 +220,8 @@ def build_payload():
         'timestamp': now_iso(),
         'btc_price': price['price'] if price else None,
         'btc_dominance': btc_dominance,
-        'fear_greed': fg['value'] if fg else None,
-        'fear_greed_label': fg['label'] if fg else None,
+        'fear_greed': fg.get('avg_7d', fg.get('latest')) if fg else None,
+        'fear_greed_label': fg.get('label') if fg else None,
         'nupl': nupl,
         'mvrv_z_score': mvrv,
         'sopr': sopr_value,
@@ -234,7 +234,7 @@ def build_payload():
         'metrics': {
             # merge our collected metrics dict with static ones
             **(metrics if 'metrics' in locals() else {}),
-            'fear_greed': {'value': fg['value'] if fg else None, 'label': fg['label'] if fg else None, 'source': 'Alternative.me', 'updated': now_iso()},
+            'fear_greed': {'latest': fg.get('latest') if fg else None, 'avg_7d': fg.get('avg_7d') if fg else None, 'label': fg.get('label') if fg else None, 'source': fg.get('label', 'Alternative.me') if fg else None, 'updated': now_iso()},
             'addresses_in_profit': {'value': addresses_in_profit, 'source': 'Derived', 'updated': now_iso()},
             'cipherb': {'value': None, 'source': 'Local', 'updated': now_iso()},
             'smc': {'value': None, 'source': 'Local', 'updated': now_iso()},

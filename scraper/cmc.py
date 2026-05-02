@@ -33,25 +33,30 @@ def available():
 # ── Fear & Greed ─────────────────────────────────────────────────────────────
 
 def get_fear_greed():
-    """Return CMC Fear & Greed value 0-100, or None on error.
+    """Return dict {'latest': float, 'avg_7d': float, 'label': str} or None on error.
 
-    Endpoint: GET /v3/fear-and-greed/latest
-    Scale: 0 (Extreme Fear) → 100 (Extreme Greed)  — same as alternative.me.
+    Fetches last 7 days via /v3/fear-and-greed/historical and returns both
+    the latest value and the 7-day average for smoother scoring.
     """
     if not available():
         return None
     try:
         r = requests.get(
-            f'{_BASE}/v3/fear-and-greed/latest',
+            f'{_BASE}/v3/fear-and-greed/historical',
             headers=_headers(),
+            params={'limit': 7},
             timeout=_TIMEOUT,
         )
         r.raise_for_status()
-        data = r.json().get('data', {})
-        val = data.get('value')
-        if val is None:
+        entries = r.json().get('data', [])
+        if not entries:
             return None
-        return float(val)
+        values = [float(e['value']) for e in entries if e.get('value') is not None]
+        if not values:
+            return None
+        latest = values[0]
+        avg_7d = round(sum(values) / len(values), 1)
+        return {'latest': round(latest, 1), 'avg_7d': avg_7d, 'label': 'CMC'}
     except Exception:
         return None
 

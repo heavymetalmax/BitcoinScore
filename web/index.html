@@ -398,7 +398,7 @@ function mapNupl(v)  { if(v==null)return null; v=Math.max(-50,Math.min(100,v)); 
 function mapMvrv(v)  { if(v==null)return null; v=Math.max(-2,Math.min(10,v));      return Math.round(((v+2)/12)*100); }
 function mapSopr(v)  { if(v==null)return null; v=Math.max(-0.05,Math.min(0.10,v)); return Math.round(((v+0.05)/0.15)*100); }
 function mapAddr(v)  { if(v==null)return null; return Math.round(Math.max(0,Math.min(100,v))); }
-function mapFG(v)    { if(v==null)return null; return Math.round(Math.max(0,Math.min(100,v))); }
+function mapFG(v)    { if(v==null)return null; const n=typeof v==='object'?(v.avg_7d!=null?v.avg_7d:(v.latest!=null?v.latest:(v.value!=null?v.value:null))):v; return n!=null?Math.round(Math.max(0,Math.min(100,n))):null; }
 function mapM2(v)    { if(v==null)return null; v=Math.max(-5,Math.min(20,v));      return Math.round(((v+5)/25)*100); }
 function mapRealYield(v) { if(v==null)return null; v=Math.max(-2,Math.min(3,v)); return Math.round(((v+2)/5)*100); }
 function mapGPR(v)   { if(v==null)return null; v=Math.max(0,Math.min(350,v));      return Math.round(((350-v)/350)*100); }
@@ -550,7 +550,10 @@ async function init() {
   setMetric('picycle', pcScore,
     pc ? (pc.cross ? '⚠ CROSS' : 'gap=' + pc.gap_pct.toFixed(1) + '%') : null);
   setMetric('m2',  mapM2(m2raw), m2raw != null ? m2raw.toFixed(2)+'%' : null);
-  setMetric('fg',  mapFG(fg),    fg    != null ? fg + ' ' + fgLbl      : null);
+  const fgAvg = fg != null && typeof fg === 'object' ? (fg.avg_7d != null ? fg.avg_7d : fg.latest) : fg;
+  const fgToday = fg != null && typeof fg === 'object' ? fg.latest : fg;
+  const fgRaw = fgAvg != null ? 'avg7d=' + fgAvg + (fgToday != null && fgToday !== fgAvg ? '  today=' + fgToday : '') + (fgLbl ? '  ' + fgLbl : '') : null;
+  setMetric('fg',  mapFG(fg), fgRaw);
   setMetric('ry',  mapRealYield(ry),  ry    != null ? ry.toFixed(4)+'%'   : null);
   setMetric('gpr', mapGPR(gpr),  gpr   != null ? gpr.toFixed(2)        : null);
   const frScore = mapFunding(fr);

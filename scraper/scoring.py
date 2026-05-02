@@ -67,6 +67,10 @@ def map_addr_profit(v):
 
 def map_fear_greed(v):
     if v is None: return None
+    if isinstance(v, dict):
+        val = v.get('avg_7d') if v.get('avg_7d') is not None else v.get('latest') if v.get('latest') is not None else v.get('value')
+        if val is None: return None
+        return round(max(0, min(100, val)))
     return round(max(0, min(100, v)))
 
 def map_m2_mom(v):  # legacy — kept for reference only
