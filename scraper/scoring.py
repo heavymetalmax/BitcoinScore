@@ -2,7 +2,7 @@
 Decision matrix scoring — shared between report.py and scraper.py.
 
 On-chain group  (5 metrics, weights sum to 1.0):
-  addresses_in_profit ×25  rhodl_ratio ×22  mvrv_z_score ×20  cvdd_ratio ×18  nupl ×15
+  addresses_in_profit ×25  rhodl_ratio ×20  mvrv_z_score ×20  cvdd_ratio ×20  nupl ×15
   (addr_in_profit — прямий % холдерів у прибутку, найстабільніший;
    rhodl ↑ — найнадійніший цикловий маркер, не деградує з ростом realized cap;
    nupl ↓ — корелює з mvrv, зменшено дублювання;
@@ -25,9 +25,9 @@ import math
 
 OC_WEIGHTS = {
     'addresses_in_profit': 0.25,   # #1 — прямий % холдерів у прибутку
-    'rhodl_ratio':         0.22,   # #2 — не деградує з ростом realized cap
+    'rhodl_ratio':         0.20,   # #2 — не деградує з ростом realized cap
     'mvrv_z_score':        0.20,   # #3 — нормований на волатильність
-    'cvdd_ratio':          0.18,   # #4
+    'cvdd_ratio':          0.20,   # #4
     'nupl':                0.15,   # #5 — корелює з MVRV, менша вага
     # sopr видалено: <10% поріг, слабка диференціація в циклах 2024–2025
 }
