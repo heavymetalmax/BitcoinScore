@@ -360,9 +360,9 @@
     <span class="m-num" id="m-cipherb-num">&#8212;</span>
   </div>
   <div class="metric-row">
-    <a class="m-name" href="about.html#m-smc">SMC Position</a>
-    <div><div class="bar-wrap"><div class="bar-fill" id="m-smc-bar"></div></div><div class="m-raw" id="m-smc-raw"></div></div>
-    <span class="m-num" id="m-smc-num">&#8212;</span>
+    <a class="m-name" href="about.html#m-picycle">Pi Cycle</a>
+    <div><div class="bar-wrap"><div class="bar-fill" id="m-picycle-bar"></div></div><div class="m-raw" id="m-picycle-raw"></div></div>
+    <span class="m-num" id="m-picycle-num">&#8212;</span>
   </div>
   <div class="metric-row">
     <a class="m-name" href="about.html#m-fg">Fear &amp; Greed</a>
@@ -399,9 +399,10 @@ function mapRealYield(v) { if(v==null)return null; v=Math.max(-2,Math.min(3,v));
 function mapGPR(v)   { if(v==null)return null; v=Math.max(0,Math.min(350,v));      return Math.round(((350-v)/350)*100); }
 function mapCvdd(v)  { if(v==null)return null; v=Math.max(1,Math.min(5,v));        return Math.round(((v-1)/4)*100); }
 function mapRhodl(v) { if(v==null)return null; v=Math.max(100,Math.min(100000,v)); return Math.round((Math.log10(v)-2)/(5-2)*100); }
-function mapSmc(smc) {
-  if(!smc||smc.position==null) return null;
-  return Math.round(Math.max(0, Math.min(100, smc.position)));
+function mapPiCycle(pc) {
+  if(!pc) return null;
+  if(typeof pc === 'number') return Math.round(Math.max(0, Math.min(100, pc)));
+  return pc.score != null ? pc.score : null;
 }
 function mapCipherb(cb) {
   if(!cb) return null;
@@ -509,7 +510,7 @@ async function init() {
   setMetric('addr',  mapAddr(addr),   addr  != null ? addr.toFixed(2)+'%'   : null);
 
   const cb    = mv('cipherb');
-  const smc   = mv('smc');
+  const pc    = mv('pi_cycle');
   const m2raw = mv('m2_mom') != null ? mv('m2_mom') : mv('m2');
   const fg    = mv('fear_greed');
   const fgLbl = (m['fear_greed']||{}).label || data.fear_greed_label || '';
@@ -517,7 +518,7 @@ async function init() {
   const gpr   = scalar(mv('geopolitical_risk'));
 
   const cbScore  = mapCipherb(cb);
-  const smcScore = mapSmc(smc);
+  const pcScore  = mapPiCycle(pc);
 
   setMetric('cipherb', cbScore,
     cb ? 'wt1=' + (cb.wt1!=null?cb.wt1.toFixed(1):'--') + '  score=' + (cb.weekly_score!=null?cb.weekly_score.toFixed(1):'--') : null);
@@ -533,8 +534,8 @@ async function init() {
       techDivBadge.style.display = 'none';
     }
   }
-  setMetric('smc', smcScore,
-    smc ? 'pos=' + (smc.position!=null?smc.position.toFixed(1):'--') + '%  eq=$' + (smc.equilibrium||0).toLocaleString(undefined,{maximumFractionDigits:0}) : null);
+  setMetric('picycle', pcScore,
+    pc ? (pc.cross ? '⚠ CROSS' : 'gap=' + pc.gap_pct.toFixed(1) + '%') : null);
   setMetric('m2',  mapM2(m2raw), m2raw != null ? m2raw.toFixed(2)+'%' : null);
   setMetric('fg',  mapFG(fg),    fg    != null ? fg + ' ' + fgLbl      : null);
   setMetric('ry',  mapRealYield(ry),  ry    != null ? ry.toFixed(4)+'%'   : null);
@@ -547,9 +548,9 @@ async function init() {
   }
 
   const OC_W = { addr:.25, rhodl:.22, mvrv:.20, cvdd:.18, nupl:.15 };
-  const TC_W = { cipherb:.35, smc:.25, fg:.20, real_yield:.10, m2:.10 };
+  const TC_W = { cipherb:.50, pi_cycle:.10, fg:.20, real_yield:.10, m2:.10 };
   const ocVals = { addr:mapAddr(addr), rhodl:mapRhodl(rhodl), mvrv:mapMvrv(mvrv), cvdd:mapCvdd(cvdd), nupl:mapNupl(nupl) };
-  const tcVals = { cipherb:cbScore, smc:smcScore, fg:mapFG(fg), real_yield:mapRealYield(ry), m2:mapM2(m2raw) };
+  const tcVals = { cipherb:cbScore, pi_cycle:pcScore, fg:mapFG(fg), real_yield:mapRealYield(ry), m2:mapM2(m2raw) };
 
   const ocAvg = wavg(ocVals, OC_W);
   const tcAvg = wavg(tcVals, TC_W);
@@ -561,7 +562,7 @@ async function init() {
   if (finalScore != null) {
     const allIndScores = [
       mapAddr(addr), mapRhodl(rhodl), mapMvrv(mvrv), mapCvdd(cvdd), mapNupl(nupl),
-      cbScore, smcScore, mapFG(fg), mapRealYield(ry), mapM2(m2raw)
+      cbScore, pcScore, mapFG(fg), mapRealYield(ry), mapM2(m2raw)
     ].filter(s => s != null);
     const hasContra = allIndScores.some(s =>
       (finalScore <= 40 && s >= 65) || (finalScore >= 60 && s <= 35)
@@ -578,7 +579,7 @@ async function init() {
   }
   const tcScore = data.tech_score;
   if (tcScore != null) {
-    const tcInds = [cbScore, smcScore, mapFG(fg), mapRealYield(ry), mapM2(m2raw)].filter(s => s != null);
+    const tcInds = [cbScore, pcScore, mapFG(fg), mapRealYield(ry), mapM2(m2raw)].filter(s => s != null);
     const tcContra = tcInds.some(s => (tcScore < 65 && s >= 65) || (tcScore > 35 && s <= 35));
     document.getElementById('tech-warn').style.display = tcContra ? 'inline' : 'none';
   }

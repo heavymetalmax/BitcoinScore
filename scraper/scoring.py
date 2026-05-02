@@ -34,11 +34,12 @@ OC_WEIGHTS = {
 
 TECH_WEIGHTS = {
     'cipherb':             0.50,   # +bearish_div penalty; основний price/momentum сигнал
-    'smc':                 0.10,   # ретроспективний; знижено на користь cipherb
+    'pi_cycle':            0.10,   # Pi Cycle Top (111DMA vs 2×350DMA); наближення до cross = max ризик
     'fear_greed':          0.20,
     'real_yield':          0.10,   # US 10Y TIPS real yield (DFII10, FRED)
     'm2_yoy':              0.10,   # US M2 YoY (пряма логіка: ↑ ліквідність = ↑ ризик)
     # geopolitical_risk видалено: <10% поріг, відсутній у backtest
+    # smc видалено: 40% false bottom rate, слабка диференціація в ведмедячих трендах
 }
 
 
@@ -91,6 +92,15 @@ def map_real_yield(v):
     v = max(-2, min(3, v))
     return round(((v + 2) / 5) * 100)
 
+def map_pi_cycle(v):
+    """v is pi_cycle dict or pre-computed score int.
+    gap_pct=50% → score=0 (far from top), gap_pct=0% → score=100 (cross).
+    """
+    if v is None: return None
+    if isinstance(v, dict):
+        return v.get('score')
+    return round(max(0, min(100, v)))
+
 def map_georisk(v):
     if v is None: return None
     v = max(0, min(350, v))
@@ -127,8 +137,8 @@ def build_slider_map(metrics: dict) -> dict:
         elif cipherb.get('bullish_divergence'):
             cipherb_score = max(0, cipherb_score - 12)    # oversold signal
 
-    smc_val = mv('smc')
-    smc_score = round(smc_val['position']) if isinstance(smc_val, dict) and smc_val.get('position') is not None else None
+    pi_cycle_val = mv('pi_cycle')
+    pi_cycle_score = map_pi_cycle(pi_cycle_val)
 
     return {
         'nupl':                map_nupl(mv('nupl')),
@@ -142,7 +152,7 @@ def build_slider_map(metrics: dict) -> dict:
         'cvdd_ratio':          map_cvdd(mv('cvdd_ratio')),
         'rhodl_ratio':         map_rhodl(mv('rhodl_ratio')),
         'cipherb':             cipherb_score,
-        'smc':                 smc_score,
+        'pi_cycle':            pi_cycle_score,
     }
 
 

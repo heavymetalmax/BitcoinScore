@@ -127,6 +127,7 @@ def build_payload():
     from scraper import cvdd as cvdd_mod
     from scraper import rhodl as rhodl_mod
     from scraper import rainbow as rainbow_mod
+    from scraper import pi_cycle as pi_cycle_mod
     from scraper.utils import is_valid_metric
 
     metric_specs = [
@@ -235,7 +236,8 @@ def build_payload():
             'fear_greed': {'value': fg['value'] if fg else None, 'label': fg['label'] if fg else None, 'source': 'Alternative.me', 'updated': now_iso()},
             'addresses_in_profit': {'value': addresses_in_profit, 'source': 'Derived', 'updated': now_iso()},
             'cipherb': {'value': None, 'source': 'Local', 'updated': now_iso()},
-            'smc': {'value': None, 'source': 'Local', 'updated': now_iso()}
+            'smc': {'value': None, 'source': 'Local', 'updated': now_iso()},
+            'pi_cycle': {'value': None, 'source': 'Local', 'updated': now_iso()}
         }
     }
     return payload
@@ -276,7 +278,7 @@ def main():
     except Exception as e:
         print('cipherb error', e)
 
-    # Populate SMC metric (Price vs Support)
+    # Populate SMC metric (Price vs Support) — kept for historical reference, not used in scoring
     try:
         smc = get_smc('BTCUSDT', timeframe='1w', size=10)
         if smc and smc.get('last'):
@@ -285,6 +287,16 @@ def main():
             print('Updated data/data.json with smc')
     except Exception as e:
         print('smc error', e)
+
+    # Populate Pi Cycle Top metric (111DMA vs 2×350DMA on daily)
+    try:
+        pc = pi_cycle_mod.get_pi_cycle()
+        if pc is not None:
+            p['metrics']['pi_cycle'] = {'value': pc, 'source': 'Kraken', 'updated': now_iso()}
+            write_json('data/data.json', p)
+            print(f"Updated data/data.json with pi_cycle: gap={pc['gap_pct']}%  score={pc['score']}  cross={pc['cross']}")
+    except Exception as e:
+        print('pi_cycle error', e)
 
     # Append M2 snapshot to history
     try:
