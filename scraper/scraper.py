@@ -26,6 +26,8 @@ from scraper.geopolitical_risk import get_geopolitical_risk_change
 from scraper.utils import human_visit
 from scraper.cipherb import get_cipherb
 from scraper.smc import get_smc
+from scraper import pi_cycle as pi_cycle_mod
+from scraper import funding_rate as funding_rate_mod
 from scraper.utils import write_json, validate_data
 
 
@@ -127,8 +129,6 @@ def build_payload():
     from scraper import cvdd as cvdd_mod
     from scraper import rhodl as rhodl_mod
     from scraper import rainbow as rainbow_mod
-    from scraper import pi_cycle as pi_cycle_mod
-    from scraper import funding_rate as funding_rate_mod
     from scraper.utils import is_valid_metric
 
     metric_specs = [
