@@ -1,113 +1,113 @@
 {
-  "timestamp": "2026-05-06T08:59:33Z",
-  "btc_price": 81920,
+  "timestamp": "2026-05-07T09:02:03Z",
+  "btc_price": 81209,
   "btc_dominance": null,
-  "fear_greed": 39.6,
-  "fear_greed_label": "Fear",
-  "nupl": 33.0292,
-  "mvrv_z_score": 0.8893,
-  "sopr": 0.005457,
-  "addresses_in_loss": 20.3795,
-  "addresses_in_profit": 79.62049999999999,
-  "cvdd_ratio": 1.6923,
-  "rhodl_ratio": 1295.7492,
+  "fear_greed": 42.1,
+  "fear_greed_label": "Neutral",
+  "nupl": 33.4206,
+  "mvrv_z_score": 0.9052,
+  "sopr": 0.006166,
+  "addresses_in_loss": 20.2918,
+  "addresses_in_profit": 79.7082,
+  "cvdd_ratio": 1.7026,
+  "rhodl_ratio": 1270.9678,
   "rainbow_band": {
     "band": "Fire sale!",
     "color": "rgba(68, 114, 196, 0.8)",
-    "price": 80925,
-    "band_upper": 94727.54,
-    "date": "2026-05-05"
+    "price": 81425,
+    "band_upper": 94819.35,
+    "date": "2026-05-06"
   },
   "m2": 4.99,
   "metrics": {
     "nupl": {
-      "value": 33.0292,
+      "value": 33.4206,
       "source": "BMP",
-      "updated": "2026-05-06T08:58:24Z"
+      "updated": "2026-05-07T09:00:52Z"
     },
     "mvrv": {
-      "value": 0.8893,
+      "value": 0.9052,
       "source": "BMP",
-      "updated": "2026-05-06T08:58:32Z"
+      "updated": "2026-05-07T09:01:02Z"
     },
     "sopr": {
-      "value": 0.005457,
+      "value": 0.006166,
       "source": "BMP",
-      "updated": "2026-05-06T08:58:42Z"
+      "updated": "2026-05-07T09:01:12Z"
     },
     "addresses_in_loss": {
-      "value": 20.3795,
+      "value": 20.2918,
       "source": "BMP",
-      "updated": "2026-05-06T08:58:51Z"
+      "updated": "2026-05-07T09:01:21Z"
     },
     "m2": {
       "value": 4.99,
       "source": "BMP",
-      "updated": "2026-05-06T08:58:55Z"
+      "updated": "2026-05-07T09:01:24Z"
     },
     "real_yield": {
-      "value": 1.95,
+      "value": 1.96,
       "source": "BMP",
-      "updated": "2026-05-06T08:58:57Z"
+      "updated": "2026-05-07T09:01:26Z"
     },
     "geopolitical_risk": {
       "value": 230.7708,
       "source": "BMP",
-      "updated": "2026-05-06T08:59:00Z"
+      "updated": "2026-05-07T09:01:29Z"
     },
     "cvdd_ratio": {
-      "value": 1.6923,
+      "value": 1.7026,
       "source": "BMP",
-      "updated": "2026-05-06T08:59:17Z"
+      "updated": "2026-05-07T09:01:46Z"
     },
     "rhodl_ratio": {
-      "value": 1295.7492,
+      "value": 1270.9678,
       "source": "BMP",
-      "updated": "2026-05-06T08:59:25Z"
+      "updated": "2026-05-07T09:01:55Z"
     },
     "rainbow_band": {
       "value": {
         "band": "Fire sale!",
         "color": "rgba(68, 114, 196, 0.8)",
-        "price": 80925,
-        "band_upper": 94727.54,
-        "date": "2026-05-05"
+        "price": 81425,
+        "band_upper": 94819.35,
+        "date": "2026-05-06"
       },
       "source": "BMP",
-      "updated": "2026-05-06T08:59:33Z"
+      "updated": "2026-05-07T09:02:03Z"
     },
     "fear_greed": {
-      "latest": 46,
-      "avg_7d": 39.6,
-      "label": "Fear",
-      "source": "Fear",
-      "updated": "2026-05-06T08:59:33Z"
+      "latest": 47,
+      "avg_7d": 42.1,
+      "label": "Neutral",
+      "source": "Neutral",
+      "updated": "2026-05-07T09:02:03Z"
     },
     "addresses_in_profit": {
-      "value": 79.62049999999999,
+      "value": 79.7082,
       "source": "Derived",
-      "updated": "2026-05-06T08:59:33Z"
+      "updated": "2026-05-07T09:02:03Z"
     },
     "cipherb": {
       "value": {
-        "timestamp": 1776902400,
-        "close": 75750.3,
-        "wt1": -14.743349659894829,
-        "wt2": -26.837268722591705,
+        "timestamp": 1777507200,
+        "close": 81438.0,
+        "wt1": -1.004812772529565,
+        "wt2": -13.75342936962113,
         "buySignal": false,
         "sellSignal": false,
         "green_dot": 0,
         "red_dot": 0,
-        "weekly_score": 37.713875283420975,
-        "distance_to_buy": 37.713875283420975,
-        "distance_to_sell": 62.286124716579025,
+        "weekly_score": 49.16265602289203,
+        "distance_to_buy": 49.16265602289203,
+        "distance_to_sell": 50.83734397710797,
         "bearish_divergence": false,
         "bullish_divergence": false,
         "fast_bearish_div": false,
         "fast_bullish_div": false
       },
       "source": "Local",
-      "updated": "2026-05-06T08:59:33Z"
+      "updated": "2026-05-07T09:02:04Z"
     },
     "smc": {
       "value": {
@@ -116,49 +116,49 @@
         "swing_low": 60500.0,
         "swing_low_ts": 1770249600,
         "equilibrium": 93349.05,
-        "current_price": 75750.3,
-        "position": 23.21,
+        "current_price": 81438.0,
+        "position": 31.87,
         "size": 10
       },
       "source": "Local",
-      "updated": "2026-05-06T08:59:33Z"
+      "updated": "2026-05-07T09:02:04Z"
     },
     "pi_cycle": {
       "value": {
-        "ma111": 73946.0,
-        "ma350x2": 191806.0,
-        "gap_pct": 61.45,
+        "ma111": 73819.0,
+        "ma350x2": 191645.0,
+        "gap_pct": 61.48,
         "score": 39,
         "cross": false
       },
       "source": "Kraken",
-      "updated": "2026-05-06T08:59:34Z"
+      "updated": "2026-05-07T09:02:04Z"
     },
     "funding_rate": {
       "value": null,
       "source": "Binance",
-      "updated": "2026-05-06T08:59:33Z"
+      "updated": "2026-05-07T09:02:03Z"
     },
     "m2_mom": {
       "value": 4.99,
       "source": "Global M2 YoY (BMP)",
-      "updated": "2026-05-06T08:59:34Z"
+      "updated": "2026-05-07T09:02:04Z"
     }
   },
   "m2_mom": 4.99,
-  "onchain_score": 49,
-  "tech_score": 45,
-  "final_score": 47,
+  "onchain_score": 50,
+  "tech_score": 50,
+  "final_score": 50,
   "prev_day": {
-    "date": "2026-05-05",
-    "final_score": 46,
-    "onchain_score": 48,
+    "date": "2026-05-06",
+    "final_score": 47,
+    "onchain_score": 49,
     "tech_score": 45
   },
   "prev_week": {
-    "date": "2026-04-29",
-    "final_score": 39,
-    "onchain_score": 41,
-    "tech_score": 37
+    "date": "2026-04-30",
+    "final_score": 41,
+    "onchain_score": 47,
+    "tech_score": 35
   }
 }
