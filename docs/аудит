@@ -1,0 +1,221 @@
+Now I have a comprehensive view of the entire repository. Here is my full audit:
+
+BitcoinScore — Full Repository Audit
+
+1. Purpose & Overview
+
+Bitcoin Buy Risk is a personal, open-source composite index that scores Bitcoin's current market positioning on a 0–100 scale (0 = extreme bottom, 100 = extreme top). It is designed to reduce emotional decision-making for long-horizon investors by aggregating 10+ on-chain and macro/technical indicators into a single daily-updated signal. The index is published as a static GitHub Pages site and as an iCal calendar feed.
+
+2. Repository Structure
+
+Code
+BitcoinScore/
+├── scraper/          # Python data-collection modules (one per metric)
+├── data/
+│   ├── data.json     # Live output — consumed by the web dashboard
+│   └── history/      # Append-only JSON series (m2, cipherb, fear_greed, smc, scores…)
+├── web/
+│   ├── index.html    # Single-page dashboard (vanilla JS + CSS)
+│   ├── about.html    # Metric explanations + methodology (bilingual EN/UA)
+│   └── data.json     # Copy of data/data.json, served by GitHub Pages
+├── tools/
+│   ├── backtest.py       # Retrospective scoring across 16 key milestones
+│   ├── generate_ics.py   # iCal calendar feed generator
+│   ├── retry_stale_metrics.py
+│   ├── save_fear_greed.py
+│   └── save_global_m2.py
+├── docs/
+│   ├── README.md              # Methodology + backtest summary (English)
+│   └── retrospective_analysis.md  # Full backtest table (Ukrainian)
+└── .github/workflows/update-data.yml  # Daily GitHub Actions automation
+Assessment: clean separation of concerns — scraper, data, presentation, tooling. The flat file approach (committing data.json to git) is pragmatic for a personal project deployed on GitHub Pages.
+
+3. Data Pipeline
+
+3.1 Metric Sources
+
+Metric	Source	Method
+NUPL	BitcoinMagazinePro (BMP)	Playwright → Plotly trace
+MVRV Z-Score	BMP	Playwright → Plotly trace
+SOPR	BMP	Playwright → Plotly trace
+Addresses in Profit	BMP	Playwright → Plotly trace (derived from loss %)
+RHODL Ratio	BMP	Playwright → Plotly trace
+CVDD Ratio	BMP	Two Playwright calls (price ÷ CVDD)
+Rainbow Band	BMP	Playwright → Plotly band bounds
+CipherB (weekly)	Kraken public OHLC	Locally computed (WaveTrend)
+Pi Cycle Top	Kraken public OHLC	Locally computed (111DMA vs 2×350DMA)
+SMC	Kraken public OHLC	Locally computed (LuxAlgo swing pivots)
+Funding Rate	Bybit (Binance fallback)	REST API
+Fear & Greed	BMP (alt.me fallback)	Playwright → Plotly / REST API
+Global M2 YoY	FRED WM2NS CSV	Direct HTTP
+Real Yield	FRED DFII10 CSV	Direct HTTP
+BTC Price	CMC Pro API (CoinGecko fallback)	REST API
+Geopolitical Risk	Caldara & Iacoviello XLS	Direct HTTP + xlrd
+3.2 Strengths
+
+Graceful degradation on every metric. All fetchers catch exceptions and return None, and the scoring engine (scoring.py:187) renormalizes weights over available metrics — partial data never crashes the pipeline.
+Smart caching. scraper.py:91–118 caches BMP Playwright results for ≤24 h to avoid hammering a third-party site on repeated runs.
+API fallback chains. BTC price: CMC → CoinGecko (scraper.py:43–56). Fear & Greed: BMP → history file → alternative.me (alternative_me.py:21–97). Funding rate: Bybit → Binance (funding_rate.py:65–75).
+Free data sources. Kraken OHLC, FRED CSVs, and alt.me are all public and unmetered. Only CipherB/SMC/Pi Cycle use Kraken which has no geo-blocking on GitHub Actions (smc.py:7).
+3.3 Weaknesses
+
+Playwright Playwright heavy dependency on a third-party site (BMP). Six of the ten on-chain metrics depend on Playwright scraping bitcoinmagazinepro.com. Any anti-bot change, Cloudflare upgrade, or DOM restructuring will silently break all six at once. There is no non-Playwright fallback for NUPL, MVRV, CVDD, RHODL, SOPR, or Addresses in Profit.
+BMP scraper reliability is acknowledged but unmonitored. The comment at scraper.py:2-6 says "Complete Playwright scraping and OCR fallback later" — the OCR fallback was never implemented.
+mm_utils.py has an os import missing, causing a NameError if _read_cached_stats_for_metric is called (mm_utils.py:69 uses os.environ.get but os is not imported in that module's scope; glob is also unimported at line 74).
+nupl.py has duplicated code. The entire file contains duplicate definitions of _get_market_cap_coingecko, _get_realized_cap_from_glassnode, _get_realized_cap_from_file, and get_nupl_computed (lines 13–100 and again 103–233). The active get_nupl() now just calls get_bmp_trace(), making the duplicated Glassnode/CoinGecko fallback paths dead code.
+alternative_me.py has duplicate _score_to_label function at lines 100–111 and again at 115–126.
+cvdd.py:18-34 makes two sequential Playwright browser launches (one for BTC price, one for CVDD) on the same BMP URL — this opens and closes the Playwright browser twice for one data point. A single session would suffice.
+scraper.py:198 uses if 'metrics' not in locals() — a code smell; metrics should be initialized at the top of the function, not checked inside a loop.
+SOPR range check is inconsistent. utils.py:123 validates SOPR in (-0.5, 1.0), but scraper.py:262-264 clamps it at (-0.5, 1.0) with a warning at (-0.5, 1.0), while scoring.py:60-62 maps SOPR in the range (-0.05, 0.10). The wider validation window means near-invalid values pass silently.
+No unit or integration tests. There are no test files (pytest, unittest, etc.) anywhere in the repository.
+4. Scoring Engine (scraper/scoring.py)
+
+4.1 Design
+
+The engine uses a two-group weighted average:
+
+Group	Weights
+On-chain (OC)	Addr in Profit ×25, RHODL ×20, MVRV ×20, CVDD ×20, NUPL ×15
+Tech/Macro	CipherB ×50, Fear & Greed ×20, Pi Cycle ×10, Real Yield ×10, M2 YoY ×10
+Three composite scores are emitted: onchain_score (80% OC + 20% Tech), tech_score (20% OC + 80% Tech), final_score (50/50).
+
+4.2 Strengths
+
+Logarithmic scaling for CVDD and RHODL (scoring.py:128–136) correctly handles their multi-order-of-magnitude ranges. Using math.log10 avoids the linear compression that would make mid-cycle values indistinguishable.
+CipherB divergence penalty (scoring.py:152–156): bearish divergence adds +12 to the score (↑ risk), bullish divergence subtracts 12. This is a well-considered signal enhancement rarely seen in amateur composite indexes.
+Pi Cycle integration is elegant: gap_pct 50%→0% maps to score 50→100, capping at 100 when the MAs cross (pi_cycle.py:41–48).
+Renormalization over null metrics (scoring.py:178–187): missing data doesn't drag the score to zero — weights rescale over present indicators.
+4.3 Weaknesses
+
+JavaScript mapping functions in index.html are out of sync with Python scoring.py:
+index.html:396: mapMvrv clamps to max(-2, min(10, v)) → range 12, but scoring.py:54: map_mvrv clamps to max(-2, min(5, v)) → range 7. The JS dashboard uses a wider MVRV range than the Python scorer, so a Z-score of 5 reads differently on the front-end vs. the backend.
+index.html:404: mapRhodl uses Math.min(100000, v) (range 0–100k), but scoring.py:135: map_rhodl clamps at 10,000. At RHODL=50,000, the JS would give a different score than Python.
+index.html:567: OC weights { addr:.25, rhodl:.22, mvrv:.20, cvdd:.18, nupl:.15 } — these don't match scoring.py:26 weights { addr:.25, rhodl:.20, mvrv:.20, cvdd:.20, nupl:.15 }. The frontend computes its own score using slightly different weights.
+The frontend scores computed in JS are not displayed anywhere — they appear to be computed but only used for contradiction detection. However, the inconsistency is a latent bug.
+scoring.py comment block says SOPR was removed (line 9, "sopr видалено"), but OC_WEIGHTS dict at line 26 does not contain SOPR, so only build_slider_map still maps it (line 164) — SOPR mapping exists but its weight is zero in scoring. The dashboard still shows SOPR as a metric row (index.html:519) with mapSopr. A displayed metric that does not contribute to the score is confusing.
+The generate_ics.py zone labels (zone_label function, lines 23–32) are Ukrainian-only, while the dashboard and README are English. An English-speaking subscriber to the iCal feed will see "Капітуляція / Дно" in their calendar.
+5. Frontend Dashboard (web/index.html, web/about.html)
+
+5.1 Strengths
+
+Clean, minimal dark-mode UI with full light-mode support (@media (prefers-color-scheme: light), index.html:24). The Bitcoin orange (#f7931a) accent color is on-brand.
+Mobile-responsive with a two-column grid at ≤540 px (index.html:217).
+Contradiction detection (index.html:576–600): shows a ⚠️ emoji when any individual metric is in the opposite zone from the composite score — a useful sanity check for users.
+Color-coded bars (green → yellow → red, scoreColor function at index.html:423) give immediate visual context without requiring number interpretation.
+Rainbow Chart band integration (index.html:499–506): the background of the rainbow strip dynamically adopts the band's RGBA fill color from BMP data. Elegant.
+Trend arrow (▲/▼ vs. last week, index.html:481–493) with a score history box (Yesterday / Last 7 days) provides temporal context.
+iCal feed (tools/generate_ics.py): allows passive monitoring via any calendar app — a genuinely useful feature for non-technical investors.
+About page (about.html) has bilingual EN/UA toggle and anchored per-metric explanations, enabling users to navigate directly from each metric row to its explanation.
+5.2 Weaknesses
+
+No historical chart. The dashboard shows today's score, yesterday, and last 7 days — but there's no chart or table of the score's history over weeks/months. The data/history/scores.json file exists and grows daily, but is never consumed by the frontend.
+SOPR shown but not used in scoring — see above. The metric row at index.html:519 shows SOPR's colored bar but a user reading the about page would (reasonably) assume it contributes to the final score.
+The about.html "About" references DXY and Global M2 in the table at docs/README.md:44 that says the Tech/Macro group includes "DXY, Global M2 YoY, Geopolitical Risk." DXY (dxy_metric.py) exists in the scraper folder but is not called from scraper.py at all — it appears to have been removed from the pipeline but not from documentation.
+dxy_metric.py is a dead file — exists in scraper/ but is never imported or called.
+scraper/__init__.py is empty — not a bug, but suggests the package structure was created without intentional design.
+No error state on the frontend. If data.json is stale (e.g., the GitHub Actions workflow failed), the user sees old data with no indication it may be outdated. The timestamp is shown but no "data is X days old" warning exists.
+No CSP or security headers — not relevant for a static site, but worth noting for future deployments.
+6. GitHub Actions Workflow (.github/workflows/update-data.yml)
+
+6.1 Strengths
+
+Pinned action versions (actions/checkout@v4.2.2, actions/upload-pages-artifact@v3, actions/deploy-pages@v4) — good security practice.
+[skip ci] in commit message (update-data.yml:42) prevents infinite CI loops.
+Rebase with --strategy-option=theirs (update-data.yml:43) handles the common case where the data branch diverges from main.
+Daily schedule (cron: '0 8 * * *') runs at 08:00 UTC — data is fresh for European morning users.
+Uses official Playwright Docker image (mcr.microsoft.com/playwright/python:v1.51.0-noble) — avoids manual browser installation.
+6.2 Weaknesses
+
+No notification on failure. If the workflow fails (BMP scraping broken, FRED unreachable, etc.), there is no email/Slack/issue notification. The dashboard silently shows stale data.
+All steps run unconditionally. If the scraper step fails (non-zero exit), the workflow's later steps (generate ICS, commit, deploy Pages) will still attempt to run. A continue-on-error: false / if: success() pattern would be cleaner.
+git add is selective (update-data.yml:41) — adds only specific paths. If a new history file is created (e.g., data/history/new_metric.json), it won't be committed until manually updated.
+The pip install runs on every job without caching — adds ~30–60 seconds to each daily run unnecessarily. actions/cache for pip would be a trivial improvement.
+7. Documentation (docs/)
+
+7.1 Strengths
+
+Honest and unusually frank. README.md:7-11 explicitly states "There is no universally correct way to measure the risk of buying Bitcoin. Anyone who claims otherwise is selling something." This builds genuine trust.
+Philosophy section (README.md:24-36) explains why certain technical analysis is excluded (fractals, harmonics) and what is retained (CipherB, SMC) with specific rationale.
+Backtested performance table covering 8 major events from 2018–2026 with real scores — rare for a personal tool.
+Limitations are explicitly documented (README.md:74-80), including the ~6 month M2 lag, approximated CipherB, and weight calibration subjectivity.
+7.2 Weaknesses
+
+retrospective_analysis.md is entirely in Ukrainian, making it inaccessible to the majority of English-speaking Bitcoin investors. It contains the most detailed backtest table and actionable conclusions.
+README.md has a stale indicator table at line 44 listing DXY, SMC, and Geopolitical Risk as active components. SMC was later removed from scoring (only its mapping exists), DXY is a dead file, and Geopolitical Risk was removed with a comment in scoring.py:41. The live indicator set is now 10 metrics (5 OC + 5 Tech), not 11+ as documented.
+No CONTRIBUTING.md or LICENSE file. The project gives no guidance for potential contributors and has no declared license.
+ICS calendar labels are Ukrainian (generate_ics.py:26–32) despite the rest of the project being English-first.
+8. Security Observations
+
+No secrets in code. API keys (CMC, Glassnode) are environment-variable driven (cmc.py:20, nupl.py:26). The workflow uses secrets.GITHUB_TOKEN only.
+Playwright runs headless with no persistent profile in CI (the use_real_browser path in utils.py:46 is macOS-only and not reached in CI).
+No user input is accepted — the tool is read-only, so injection risks are not present.
+Minor: utils.py:67 hardcodes a macOS Chrome profile path (~/Library/Application Support/Google/Chrome/Default) which would fail silently on other platforms — but this code path is only activated by use_real_browser=True, which is never called in production.
+9. Key Strengths Summary
+
+Intellectual honesty. The README is one of the most candid self-assessments in the crypto tool space — weight calibration is called "assumption-based, not research-derived" (README.md:48).
+Solid retrospective validation. 63-point average gap between bottoms (18.5) and tops (81.8) across 8 confirmed events is a meaningful signal (retrospective_analysis.md:52-55).
+Resilient data pipeline. Every metric has fallback logic; the scoring renormalizes over null values.
+Well-considered metric selection. Removing SOPR, Geopolitical Risk, and lowering SMC weight was driven by explicit backtesting evidence, not intuition (scoring.py:7–17).
+Zero operational cost. GitHub Actions + GitHub Pages — free hosting, free automation, no infrastructure to maintain.
+The iCal feed is a uniquely practical feature for long-term investors who want passive daily awareness without visiting a website.
+10. Suggested Improvements for Bitcoin Investors and Beginners
+
+High-Priority (Correctness / Trust)
+
+Fix the JS↔Python scoring divergence (index.html:396–404, 567 vs. scoring.py:54–136). The frontend MVRV range (12 units wide) vs backend (7 units wide) means displayed individual scores do not match what was actually used to compute final_score. This is the highest-trust issue.
+Translate retrospective_analysis.md to English (or add an English version alongside the Ukrainian). The document that demonstrates the index's effectiveness is only readable to ~40 million people.
+Translate generate_ics.py zone labels (lines 23–32) to English. Calendar subscribers expect English text.
+Remove or mark SOPR as informational-only. Either restore its weight to the OC group or add a note on the dashboard explaining it is displayed for context but excluded from scoring.
+Update docs/README.md indicator table (line 44): remove DXY and correct the list to the actual active 10 metrics.
+Medium-Priority (Reliability / Usability)
+
+Add a stale-data warning to the dashboard. If data.timestamp is more than 36 hours ago, show a banner like "⚠️ Data may be outdated (last updated: [timestamp])".
+Add a score history chart. The data/history/scores.json file already exists and accumulates daily. A simple 30-day line chart rendered via Canvas or an SVG path would dramatically increase the tool's value for long-term users.
+Add CI failure notification. A notify: step using GitHub Actions GITHUB_STEP_SUMMARY or a workflow_run trigger that opens an issue when the daily run fails would prevent silent stale data.
+Fix the dead dxy_metric.py — either delete it or reinstate DXY in the pipeline. Its presence implies it's active.
+Fix mm_utils.py missing imports (os, glob, lines 69–74) — the _read_cached_stats_for_metric function will raise NameError if called.
+Low-Priority (Code Quality / Discoverability)
+
+Remove dead code from nupl.py (lines 103–233 are duplicates of lines 13–100). The file is ~240 lines but could be ~100 lines.
+Remove duplicate _score_to_label from alternative_me.py (lines 115–126 duplicate lines 100–111).
+Add a LICENSE file. Omitting a license means the code is legally "all rights reserved" — contributors and users have no clear rights.
+Pip caching in GitHub Actions to reduce daily run time by ~30–60 seconds.
+Beginner glossary. The about.html explains each metric, but terms like "realized cap," "UTXO," and "coindays" are not defined. A simple tooltip or one-sentence definition on first mention would reduce the knowledge barrier for new Bitcoin investors significantly.
+Add OG meta tags (<meta property="og:title"> etc.) to index.html. When shared on social media, the page currently shows no preview, which reduces organic discoverability among Bitcoin communities.
+You asked
+То як ти думаєш, може цей інструмент бути цікавим широкому загалу?
+
+Exploring the tool's appeal to a broader audience
+
+1m 12s
+Так, але з важливими умовами. Ось мій чесний аналіз:
+
+Потенційно — так. Інструмент має реальні переваги, які відрізняють його від типового крипто-шуму:
+
+Інтелектуальна чесність — рідкість у цій ніші. Пряма фраза "Anyone who claims otherwise is selling something" викликає довіру саме у скептично налаштованої аудиторії, якій такий інструмент і потрібен.
+Щоденний iCal-фід — справді унікальна функція. Жоден відомий Bitcoin-дашборд цього не робить. Це зменшує FOMO: не треба відкривати сайт, скор приходить у календар.
+Ретроспективна валідація — 63-пунктовий розрив між дном (18.5) і піком (81.8) по 8 підтверджених подіях — це переконливо для аудиторії, яка вміє читати числа.
+Відсутність "токенів", реклами, преміум-підписки — це сигнал, що автор будував для себе, а не для монетизації.
+Але є суттєві бар'єри для широкої аудиторії:
+
+Мова. Найціннішій документ (retrospective_analysis.md) — українською. iCal-мітки — українською. Для не-україномовної аудиторії (а це більшість Bitcoin-спільноти) це стоп-фактор.
+
+Немає графіка динаміки. Показати поточний скор — недостатньо. Широка аудиторія хоче бачити, як він змінювався, де він був у 2022, де зараз. Без цього важко переконатися у цінності інструменту.
+
+Немає "входу" для початківця. Терміни NUPL, MVRV Z-score, RHODL — незнайомі 95% роздрібних інвесторів. Немає пояснення простими словами на головній сторінці.
+
+Немає соціального доказу. Немає зірок, немає коментарів, немає посилань від відомих людей. Нова людина не знає, чи варто довіряти.
+
+Немає OG-тегів — при репості в Twitter/Telegram посилання виглядає порожнім, без превʼю.
+
+Висновок:
+
+Інструмент має сильне ядро — але в поточному вигляді він апелює до вузької аудиторії: технічно освіченим довгостроковим Bitcoin-інвесторам, які вже знають ці метрики і хочуть агрегований сигнал. Це, мабуть, кілька тисяч людей глобально, а не мільйони.
+
+Щоб вийти на ширшу аудиторію, потрібні три кроки:
+
+Переклад — весь контент на англійську (або мінімум iCal + retrospective).
+Графік історії скору — 30–90 днів на головній.
+"Що це означає для мене?" — одна фраза-інтерпретація поруч з числом (наприклад: "Score 38 — discount zone. Historically, scores below 40 have preceded significant price appreciation.").
+З цими змінами — так, інструмент може знайти свою аудиторію серед декількох десятків тисяч серйозних Bitcoin-інвесторів.
+Send message

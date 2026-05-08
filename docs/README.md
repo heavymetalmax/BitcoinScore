@@ -36,12 +36,14 @@ On-chain metrics occupy the other half of the index. They offer a window into th
 
 ## How the Index Is Constructed
 
-The index is a weighted composite of **11 indicators** across two groups:
+The index is a weighted composite of **10 indicators** across two groups:
 
-| Group | Weight | Indicators |
+| Group | Weight in final score | Indicators |
 |---|---|---|
-| **On-Chain (OC)** | 50% | NUPL, MVRV Z-score, SOPR, Addresses in Profit, RHODL Ratio, CVDD Ratio |
-| **Tech / Macro** | 50% | Cipher B (weekly), SMC, Fear & Greed, DXY, Global M2 YoY, Geopolitical Risk |
+| **On-Chain (OC)** | 50% | Addresses in Profit ×25%, RHODL Ratio ×20%, MVRV Z-score ×20%, CVDD Ratio ×20%, NUPL ×15% |
+| **Tech / Macro** | 50% | Cipher B ×50%, Fear & Greed ×20%, Pi Cycle Top ×10%, Real Yield ×10%, Global M2 YoY ×10% |
+
+Removed indicators (with reasons): SOPR (weak differentiation in 2024–2025 cycles), SMC (~40% false bottom signals in bear markets), DXY (superseded by Real Yield), Geopolitical Risk (<10% explanatory weight in backtest).
 
 The two groups are also displayed as separate sub-scores for readers who weight one approach more than the other.
 
@@ -73,7 +75,7 @@ The declining peak scores across cycles (91 → 86 → 82 → 68) reflect a matu
 
 - **This is one person's tool, not financial advice.** Do not make financial decisions based solely on this index.
 - **Weight calibration** is assumption-based, not research-derived.
-- **Cipher B and SMC** are approximations of established concepts, not exact reproductions.
+- **Cipher B** is an approximation of the original indicator, not an exact reproduction.
 - **Global M2 data** carries a ~6-month reporting lag; a US M2 proxy is used for current readings.
 - **Past performance** across 8 cycles does not guarantee the index will remain calibrated in future cycles.
 - **Nobody knows** what the market will do tomorrow. Distrust anyone who claims otherwise with confidence.

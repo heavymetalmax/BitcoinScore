@@ -50,6 +50,7 @@ def _build_metric_specs():
     from scraper.coingecko import get_price
     from scraper.cipherb import get_cipherb
     from scraper.smc import get_smc
+    from scraper.funding_rate import get_funding_rate
 
     return {
         'nupl': (nupl_mod.get_nupl, lambda r: r),
@@ -74,6 +75,7 @@ def _build_metric_specs():
         'btc_price': (get_price, lambda r: r.get('price') if isinstance(r, dict) else r),
         'cipherb': (lambda: get_cipherb('BTCUSDT'), lambda r: r.get('last') if isinstance(r, dict) else r),
         'smc': (lambda: get_smc('BTCUSDT', timeframe='1w', size=10), lambda r: r.get('last') if isinstance(r, dict) else r),
+        'funding_rate': (lambda: get_funding_rate('BTCUSDT'), lambda r: r),
     }
 
 
@@ -160,7 +162,7 @@ def retry_metrics(stale: list[str], data: dict, specs: dict) -> dict[str, bool]:
         # Validate
         if not is_valid_metric(name, val):
             # addresses_in_profit is a special derived field, skip validation
-            if name not in ('rainbow_band', 'fear_greed', 'btc_price', 'cipherb', 'smc'):
+            if name not in ('rainbow_band', 'fear_greed', 'btc_price', 'cipherb', 'smc', 'funding_rate'):
                 logger.warning('  %s value failed validation: %r', name, val)
                 val = None
 
@@ -230,6 +232,10 @@ def retry_metrics(stale: list[str], data: dict, specs: dict) -> dict[str, bool]:
         elif name == 'smc' and val is not None:
             data['metrics']['smc'] = {'value': val, 'source': 'Local', 'updated': now}
 
+        elif name == 'funding_rate' and raw is not None:
+            source = raw.get('source', 'Bybit') if isinstance(raw, dict) else 'Bybit'
+            data['metrics']['funding_rate'] = {'value': raw, 'source': source, 'updated': now}
+
         # Random pause between requests to avoid hammering sources
         if name != stale[-1]:
             time.sleep(1 + random.random() * 2)
@@ -253,7 +259,7 @@ def main():
         'nupl', 'mvrv', 'sopr', 'addresses_in_loss',
         'm2', 'dxy', 'geopolitical_risk',
         'cvdd_ratio', 'rhodl_ratio', 'rainbow_band',
-        'cipherb', 'smc',
+        'cipherb', 'smc', 'funding_rate',
     ]
 
     candidates = [m.strip() for m in args.metrics.split(',')] if args.metrics else default_metrics

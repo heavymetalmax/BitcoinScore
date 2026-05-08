@@ -110,18 +110,3 @@ def _score_to_label(score):
         return 'Greed'
     return 'Extreme Greed'
 
-
-
-def _score_to_label(score):
-    if score is None:
-        return None
-    if score <= 24:
-        return 'Extreme Fear'
-    if score <= 44:
-        return 'Fear'
-    if score <= 55:
-        return 'Neutral'
-    if score <= 75:
-        return 'Greed'
-    return 'Extreme Greed'
-

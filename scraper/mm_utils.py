@@ -1,8 +1,10 @@
 """Shared Playwright + parsing utilities for BMP (BitcoinMagazinePro) scrapers."""
 from playwright.sync_api import sync_playwright
-import re
-import logging
+import glob
 import json
+import logging
+import os
+import re
 
 logger = logging.getLogger(__name__)
 

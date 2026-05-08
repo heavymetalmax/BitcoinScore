@@ -62,8 +62,46 @@ def _from_binance(symbol='BTCUSDT', periods=21):
     }
 
 
+def _from_kraken_futures(symbol='PF_XBTUSD'):
+    """Kraken Futures perpetual funding rate.
+
+    Kraken returns fundingRate as an annualised decimal (e.g. 0.308 = 30.8% p.a.).
+    Convert to per-8h % to match the Bybit/Binance score mapping:
+        rate_8h_pct = kraken_rate / (365 * 3) * 100
+    Only the current rate is available (no 7-day history endpoint), so
+    latest == avg_7d as an approximation.
+    """
+    url = 'https://futures.kraken.com/derivatives/api/v3/tickers'
+    data = _get(url)
+    ticker = next((t for t in data.get('tickers', []) if t.get('symbol') == symbol), None)
+    if ticker is None:
+        return None
+    raw_rate = ticker.get('fundingRate')
+    if raw_rate is None:
+        return None
+    rate_8h_pct = float(raw_rate) / (365 * 3) * 100
+    score = round(max(0, min(100, (rate_8h_pct + 0.05) / 0.15 * 100)))
+    return {
+        'latest':  round(rate_8h_pct, 5),
+        'avg_7d':  round(rate_8h_pct, 5),   # only current rate available
+        'score':   score,
+        'periods': 1,
+        'source':  'Kraken Futures',
+    }
+
+
 def get_funding_rate(symbol='BTCUSDT', periods=21):
-    """Return funding rate dict or None on failure. Bybit primary, Binance fallback."""
+    """Return funding rate dict or None on failure.
+
+    Source priority:
+      1. Kraken Futures — no geo-blocking, works in GitHub Actions CI
+      2. Bybit           — better 7-day avg, but blocked by some CI runners
+      3. Binance Futures — same issue as Bybit on GitHub Actions
+    """
+    try:
+        return _from_kraken_futures()
+    except Exception as e:
+        logger.warning('get_funding_rate Kraken Futures failed: %s — trying Bybit', e)
     try:
         return _from_bybit(symbol, periods)
     except Exception as e:

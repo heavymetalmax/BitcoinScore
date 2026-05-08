@@ -26,6 +26,9 @@ jobs:
       - name: Run scraper
         run: python -m scraper.scraper
 
+      - name: Retry stale metrics
+        run: python tools/retry_stale_metrics.py || true
+
       - name: Generate ICS calendar feed
         run: python tools/generate_ics.py
 

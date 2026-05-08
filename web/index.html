@@ -4,6 +4,14 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Bitcoin Buy Risk</title>
+  <meta name="description" content="A composite index scoring Bitcoin's market risk on a 0–100 scale, aggregating 10+ on-chain and macro indicators updated daily." />
+  <meta property="og:title" content="Bitcoin Buy Risk Index" />
+  <meta property="og:description" content="A composite index scoring Bitcoin's market risk on a 0–100 scale, aggregating 10+ on-chain and macro indicators updated daily." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://heavymetalmax.github.io/BitcoinScore/" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Bitcoin Buy Risk Index" />
+  <meta name="twitter:description" content="A composite index scoring Bitcoin's market risk on a 0–100 scale, aggregating 10+ on-chain and macro indicators updated daily." />
   <style>
     :root {
       --bg:        #0f1117;
@@ -317,6 +325,11 @@
   </div>
 </div>
 
+<div class="section" id="history-section" style="display:none">
+  <div class="section-header"><h2>Score History</h2></div>
+  <canvas id="score-chart" height="140" style="width:100%;display:block;border-radius:6px"></canvas>
+</div>
+
 <div class="section">
   <div class="section-header">
     <h2>On-chain metrics</h2>
@@ -393,15 +406,14 @@
 
 <script>
 function mapNupl(v)  { if(v==null)return null; v=Math.max(-50,Math.min(100,v));    return Math.round(((v+50)/150)*100); }
-function mapMvrv(v)  { if(v==null)return null; v=Math.max(-2,Math.min(10,v));      return Math.round(((v+2)/12)*100); }
-function mapSopr(v)  { if(v==null)return null; v=Math.max(-0.05,Math.min(0.10,v)); return Math.round(((v+0.05)/0.15)*100); }
+function mapMvrv(v)  { if(v==null)return null; v=Math.max(-2,Math.min(5,v));       return Math.round(((v+2)/7)*100); }
 function mapAddr(v)  { if(v==null)return null; v=Math.max(0,Math.min(100,v)); return Math.round(v*(v+5)/105); }
 function mapFG(v)    { if(v==null)return null; const n=typeof v==='object'?(v.avg_7d!=null?v.avg_7d:(v.latest!=null?v.latest:(v.value!=null?v.value:null))):v; return n!=null?Math.round(Math.max(0,Math.min(100,n))):null; }
 function mapM2(v)    { if(v==null)return null; v=Math.max(-5,Math.min(20,v));      return Math.round(((v+5)/25)*100); }
 function mapRealYield(v) { if(v==null)return null; v=Math.max(-2,Math.min(3,v)); return Math.round(((v+2)/5)*100); }
 function mapGPR(v)   { if(v==null)return null; v=Math.max(0,Math.min(350,v));      return Math.round(((350-v)/350)*100); }
 function mapCvdd(v)  { if(v==null)return null; v=Math.max(1,Math.min(5,v)); return Math.round(Math.log10(v)/Math.log10(5)*100); }
-function mapRhodl(v) { if(v==null)return null; v=Math.max(100,Math.min(100000,v)); return Math.round((Math.log10(v)-2)/(5-2)*100); }
+function mapRhodl(v) { if(v==null)return null; v=Math.max(100,Math.min(10000,v));  return Math.round((Math.log10(v)-2)/(4-2)*100); }
 function mapFunding(fr) {
   if(!fr) return null;
   if(typeof fr === 'number') return Math.round(Math.max(0, Math.min(100, (fr + 0.05) / 0.15 * 100)));
@@ -469,8 +481,17 @@ async function init() {
   const m  = data.metrics || {};
   const mv = key => { const x = m[key]; return x != null ? (x.value !== undefined ? x.value : x) : null; };
 
-  if(data.timestamp)
-    document.getElementById('main-ts').textContent = 'Updated: ' + new Date(data.timestamp).toLocaleString();
+  if(data.timestamp) {
+    const tsDate = new Date(data.timestamp);
+    document.getElementById('main-ts').textContent = 'Updated: ' + tsDate.toLocaleString();
+    const ageHours = (Date.now() - tsDate.getTime()) / 3600000;
+    if(ageHours > 36) {
+      const warn = document.createElement('div');
+      warn.style.cssText = 'background:#7a3a00;color:#ffd580;font-size:.78rem;text-align:center;padding:6px 12px;border-radius:6px;margin:8px auto;max-width:420px;';
+      warn.textContent = '⚠️ Data may be outdated (last updated ' + Math.round(ageHours) + 'h ago)';
+      document.getElementById('main-ts').insertAdjacentElement('afterend', warn);
+    }
+  }
 
   // Yesterday / Last 7 days boxes
   if(data.prev_day && data.prev_day.final_score != null)
@@ -509,14 +530,12 @@ async function init() {
   const mvrv  = mv('mvrv');
   const cvdd  = mv('cvdd_ratio');
   const rhodl = mv('rhodl_ratio');
-  const sopr  = mv('sopr');
   const addr  = mv('addresses_in_profit');
 
   setMetric('nupl',  mapNupl(nupl),   nupl  != null ? nupl.toFixed(2)+'%'  : null);
   setMetric('mvrv',  mapMvrv(mvrv),   mvrv  != null ? mvrv.toFixed(4)       : null);
   setMetric('cvdd',  mapCvdd(cvdd),   cvdd  != null ? cvdd.toFixed(4)       : null);
   setMetric('rhodl', mapRhodl(rhodl), rhodl != null ? rhodl.toFixed(2)      : null);
-  setMetric('sopr',  mapSopr(sopr),   sopr  != null ? sopr.toFixed(5)       : null);
   setMetric('addr',  mapAddr(addr),   addr  != null ? addr.toFixed(2)+'%'   : null);
 
   const fr    = mv('funding_rate');
@@ -564,7 +583,7 @@ async function init() {
     return den > 0 ? Math.round(num / den) : null;
   }
 
-  const OC_W = { addr:.25, rhodl:.22, mvrv:.20, cvdd:.18, nupl:.15 };
+  const OC_W = { addr:.25, rhodl:.20, mvrv:.20, cvdd:.20, nupl:.15 };
   const TC_W = { cipherb:.50, pi_cycle:.10, fg:.20, real_yield:.10, m2:.10 };
   const ocVals = { addr:mapAddr(addr), rhodl:mapRhodl(rhodl), mvrv:mapMvrv(mvrv), cvdd:mapCvdd(cvdd), nupl:mapNupl(nupl) };
   const tcVals = { cipherb:cbScore, pi_cycle:pcScore, fg:mapFG(fg), real_yield:mapRealYield(ry), m2:mapM2(m2raw) };
@@ -600,6 +619,78 @@ async function init() {
   }
 
   document.getElementById('footer').textContent = 'Source: data.json \u00B7 ' + (data.timestamp || '');
+
+  // Score history chart
+  if(data.score_history && data.score_history.length >= 2) {
+    const section = document.getElementById('history-section');
+    section.style.display = '';
+    const canvas = document.getElementById('score-chart');
+    const pts = data.score_history.filter(e => e.score != null);
+    if(pts.length >= 2) {
+      const dpr = window.devicePixelRatio || 1;
+      const W = canvas.offsetWidth || 600;
+      const H = 140;
+      canvas.width  = W * dpr;
+      canvas.height = H * dpr;
+      const ctx2 = canvas.getContext('2d');
+      ctx2.scale(dpr, dpr);
+      const PAD = { top: 12, bottom: 28, left: 32, right: 12 };
+      const cw = W - PAD.left - PAD.right;
+      const ch = H - PAD.top - PAD.bottom;
+      const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const bg     = isDark ? '#1a1a1a' : '#f5f5f5';
+      const grid   = isDark ? '#2a2a2a' : '#e0e0e0';
+      const text   = isDark ? '#888' : '#666';
+      ctx2.fillStyle = bg;
+      ctx2.fillRect(0, 0, W, H);
+      // grid lines at 25, 50, 75
+      [25, 50, 75].forEach(v => {
+        const y = PAD.top + ch - (v / 100) * ch;
+        ctx2.strokeStyle = grid;
+        ctx2.lineWidth = 1;
+        ctx2.beginPath(); ctx2.moveTo(PAD.left, y); ctx2.lineTo(W - PAD.right, y); ctx2.stroke();
+        ctx2.fillStyle = text;
+        ctx2.font = '10px sans-serif';
+        ctx2.textAlign = 'right';
+        ctx2.fillText(v, PAD.left - 4, y + 4);
+      });
+      // colored area fill
+      const grad = ctx2.createLinearGradient(0, PAD.top, 0, PAD.top + ch);
+      grad.addColorStop(0,   'rgba(220,50,50,0.35)');
+      grad.addColorStop(0.5, 'rgba(200,180,50,0.25)');
+      grad.addColorStop(1,   'rgba(50,180,80,0.35)');
+      ctx2.beginPath();
+      pts.forEach((e, i) => {
+        const x = PAD.left + (i / (pts.length - 1)) * cw;
+        const y = PAD.top  + ch - (e.score / 100) * ch;
+        i === 0 ? ctx2.moveTo(x, y) : ctx2.lineTo(x, y);
+      });
+      ctx2.lineTo(PAD.left + cw, PAD.top + ch);
+      ctx2.lineTo(PAD.left, PAD.top + ch);
+      ctx2.closePath();
+      ctx2.fillStyle = grad;
+      ctx2.fill();
+      // line
+      ctx2.beginPath();
+      pts.forEach((e, i) => {
+        const x = PAD.left + (i / (pts.length - 1)) * cw;
+        const y = PAD.top  + ch - (e.score / 100) * ch;
+        i === 0 ? ctx2.moveTo(x, y) : ctx2.lineTo(x, y);
+      });
+      ctx2.strokeStyle = '#f7931a';
+      ctx2.lineWidth = 2;
+      ctx2.stroke();
+      // x-axis date labels (first, mid, last)
+      const labelIdxs = [0, Math.floor((pts.length - 1) / 2), pts.length - 1];
+      labelIdxs.forEach(i => {
+        const x = PAD.left + (i / (pts.length - 1)) * cw;
+        ctx2.fillStyle = text;
+        ctx2.font = '10px sans-serif';
+        ctx2.textAlign = i === 0 ? 'left' : (i === pts.length - 1 ? 'right' : 'center');
+        ctx2.fillText(pts[i].date.slice(5), x, H - 6);
+      });
+    }
+  }
 }
 
 init();

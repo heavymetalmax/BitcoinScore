@@ -22,14 +22,14 @@ ICS_OUTPUT     = os.path.join(ROOT, 'web', 'bitcoin_buy_risk.ics')
 
 def zone_label(score: int) -> str:
     if score < 20:
-        return "Капітуляція / Дно"
+        return "Capitulation / Bottom"
     if score < 40:
-        return "Дискаунт / Накопичення"
+        return "Discount / Accumulation"
     if score < 60:
-        return "Нейтральна зона"
+        return "Neutral Zone"
     if score < 75:
-        return "Перегрів / Обережність"
-    return "Екстремальний перегрів / Продаж"
+        return "Overheating / Caution"
+    return "Extreme Overheating / Sell"
 
 
 def load_history() -> list:
@@ -124,6 +124,9 @@ def generate_ics(entries: list) -> str:
             continue
 
         summary = f'BBR {final} [C{oc} | T{tech}]'
+        description = zone_label(final)
+        if price:
+            description += f' · BTC ${price:,}'
 
         uid = f'{date_str}@bitcoin-buy-risk'
 
@@ -132,6 +135,7 @@ def generate_ics(entries: list) -> str:
             f'DTSTART;VALUE=DATE:{date_str}',
             f'DTEND;VALUE=DATE:{next_date}',
             f'SUMMARY:{ics_escape(summary)}',
+            f'DESCRIPTION:{ics_escape(description)}',
             f'UID:{uid}',
             'END:VEVENT',
         ]
@@ -149,7 +153,7 @@ def find_entry_nearest(entries, target_date):
 
 
 def patch_data_json(data: dict, entries: list) -> None:
-    """Add prev_day and prev_week fields to data/data.json."""
+    """Add prev_day, prev_week and score_history fields to data/data.json."""
     today_str = (data.get('timestamp') or '')[:10] or datetime.date.today().isoformat()
     today = datetime.date.fromisoformat(today_str)
 
@@ -170,6 +174,20 @@ def patch_data_json(data: dict, entries: list) -> None:
 
     data['prev_day']  = entry_summary(yesterday)
     data['prev_week'] = entry_summary(week_ago)
+
+    # Embed last 90 days for the score history chart (includes today)
+    cutoff = today - datetime.timedelta(days=89)
+    history_90 = [
+        {
+            'date':  e['date'],
+            'score': e.get('final_score'),
+            'price': e.get('btc_price'),
+        }
+        for e in entries
+        if datetime.date.fromisoformat(e['date']) >= cutoff
+    ]
+    history_90.sort(key=lambda e: e['date'])
+    data['score_history'] = history_90
 
     with open(DATA_JSON, 'w', encoding='utf-8') as f:
         json.dump(data, f, ensure_ascii=False, indent=2)

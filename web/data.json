@@ -135,9 +135,15 @@
       "updated": "2026-05-08T08:39:27Z"
     },
     "funding_rate": {
-      "value": null,
-      "source": "Binance",
-      "updated": "2026-05-08T08:39:26Z"
+      "value": {
+        "latest": 0.00382,
+        "avg_7d": -0.00074,
+        "score": 33,
+        "periods": 21,
+        "source": "Bybit"
+      },
+      "source": "Bybit",
+      "updated": "2026-05-08T15:51:37Z"
     },
     "m2_mom": {
       "value": 4.99,
@@ -160,5 +166,38 @@
     "final_score": 40,
     "onchain_score": 47,
     "tech_score": 34
-  }
+  },
+  "prev_week": null,
+  "score_history": [
+    {
+      "date": "2026-04-27",
+      "score": 40,
+      "price": 77791
+    },
+    {
+      "date": "2026-04-28",
+      "score": 42,
+      "price": 76783
+    },
+    {
+      "date": "2026-04-29",
+      "score": 39,
+      "price": 77021
+    },
+    {
+      "date": "2026-04-30",
+      "score": 41,
+      "price": 76243
+    },
+    {
+      "date": "2026-05-01",
+      "score": 40,
+      "price": 77343
+    },
+    {
+      "date": "2026-05-02",
+      "score": 46,
+      "price": 78408
+    }
+  ]
 }
