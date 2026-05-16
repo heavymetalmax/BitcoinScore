@@ -1,8 +1,8 @@
 {
-  "timestamp": "2026-05-15T09:13:43Z",
-  "btc_price": 80557,
+  "timestamp": "2026-05-16T08:41:03Z",
+  "btc_price": 78444,
   "btc_dominance": null,
-  "fear_greed": 43.0,
+  "fear_greed": 42.0,
   "fear_greed_label": "Fear",
   "nupl": 33.0723,
   "mvrv_z_score": 0.8899,
@@ -14,79 +14,79 @@
   "rainbow_band": {
     "band": "Fire sale!",
     "color": "rgba(68, 114, 196, 0.8)",
-    "price": 81052,
-    "band_upper": 95556.52,
-    "date": "2026-05-14"
+    "price": 79069,
+    "band_upper": 95649.0,
+    "date": "2026-05-15"
   },
   "m2": 4.99,
   "metrics": {
     "nupl": {
       "value": 33.0723,
       "source": "BMP",
-      "updated": "2026-05-15T09:12:33Z"
+      "updated": "2026-05-16T08:40:55Z"
     },
     "mvrv": {
       "value": 0.8899,
       "source": "BMP",
-      "updated": "2026-05-15T09:12:44Z"
+      "updated": "2026-05-16T08:40:55Z"
     },
     "sopr": {
       "value": -0.005283,
       "source": "BMP",
-      "updated": "2026-05-15T09:12:52Z"
+      "updated": "2026-05-16T08:40:55Z"
     },
     "addresses_in_loss": {
       "value": 20.441,
       "source": "BMP",
-      "updated": "2026-05-15T09:13:02Z"
+      "updated": "2026-05-16T08:40:55Z"
     },
     "m2": {
       "value": 4.99,
       "source": "BMP",
-      "updated": "2026-05-15T09:13:05Z"
+      "updated": "2026-05-16T08:40:55Z"
     },
     "real_yield": {
       "value": 1.99,
       "source": "BMP",
-      "updated": "2026-05-15T09:13:07Z"
+      "updated": "2026-05-16T08:40:55Z"
     },
     "geopolitical_risk": {
       "value": 230.7708,
       "source": "BMP",
-      "updated": "2026-05-15T09:13:10Z"
+      "updated": "2026-05-16T08:40:55Z"
     },
     "cvdd_ratio": {
       "value": 1.6929,
       "source": "BMP",
-      "updated": "2026-05-15T09:13:26Z"
+      "updated": "2026-05-16T08:40:55Z"
     },
     "rhodl_ratio": {
       "value": 980.6818,
       "source": "BMP",
-      "updated": "2026-05-15T09:13:35Z"
+      "updated": "2026-05-16T08:40:55Z"
     },
     "rainbow_band": {
       "value": {
         "band": "Fire sale!",
         "color": "rgba(68, 114, 196, 0.8)",
-        "price": 81052,
-        "band_upper": 95556.52,
-        "date": "2026-05-14"
+        "price": 79069,
+        "band_upper": 95649.0,
+        "date": "2026-05-15"
       },
       "source": "BMP",
-      "updated": "2026-05-15T09:13:43Z"
+      "updated": "2026-05-16T08:41:03Z"
     },
     "fear_greed": {
-      "latest": 43,
-      "avg_7d": 43.0,
+      "latest": 31,
+      "avg_7d": 42.0,
       "label": "Fear",
       "source": "Fear",
-      "updated": "2026-05-15T09:13:43Z"
+      "updated": "2026-05-16T08:41:03Z"
     },
     "addresses_in_profit": {
       "value": 79.559,
       "source": "Derived",
-      "updated": "2026-05-15T09:13:43Z"
+      "updated": "2026-05-16T08:41:03Z"
     },
     "cipherb": {
       "value": {
@@ -107,7 +107,7 @@
         "fast_bullish_div": false
       },
       "source": "Local",
-      "updated": "2026-05-15T09:13:43Z"
+      "updated": "2026-05-16T08:41:03Z"
     },
     "smc": {
       "value": {
@@ -121,39 +121,39 @@
         "size": 10
       },
       "source": "Local",
-      "updated": "2026-05-15T09:13:43Z"
+      "updated": "2026-05-16T08:41:03Z"
     },
     "pi_cycle": {
       "value": {
-        "ma111": 73028.0,
-        "ma350x2": 190375.0,
-        "gap_pct": 61.64,
+        "ma111": 72938.0,
+        "ma350x2": 190233.0,
+        "gap_pct": 61.66,
         "score": 38,
         "cross": false
       },
       "source": "Kraken",
-      "updated": "2026-05-15T09:13:43Z"
+      "updated": "2026-05-16T08:41:03Z"
     },
     "funding_rate": {
       "value": {
-        "latest": -0.02241,
-        "avg_7d": -0.02241,
-        "score": 18,
+        "latest": -0.04999,
+        "avg_7d": -0.04999,
+        "score": 0,
         "periods": 1,
         "source": "Kraken Futures"
       },
       "source": "Kraken Futures",
-      "updated": "2026-05-15T09:13:44Z"
+      "updated": "2026-05-16T08:41:03Z"
     },
     "m2_mom": {
       "value": 4.99,
       "source": "Global M2 YoY (BMP)",
-      "updated": "2026-05-15T09:13:44Z"
+      "updated": "2026-05-16T08:41:04Z"
     },
     "dxy": {
       "value": 118.0392,
       "source": "MacroMicro",
-      "updated": "2026-05-15T09:13:47Z"
+      "updated": "2026-05-16T08:41:05Z"
     }
   },
   "m2_mom": 4.99,
@@ -161,13 +161,13 @@
   "tech_score": 55,
   "final_score": 52,
   "prev_day": {
-    "date": "2026-05-14",
+    "date": "2026-05-15",
     "final_score": 52,
     "onchain_score": 50,
     "tech_score": 55
   },
   "prev_week": {
-    "date": "2026-05-08",
+    "date": "2026-05-09",
     "final_score": 50,
     "onchain_score": 50,
     "tech_score": 50
@@ -267,6 +267,11 @@
       "date": "2026-05-15",
       "score": 52,
       "price": 80557
+    },
+    {
+      "date": "2026-05-16",
+      "score": 52,
+      "price": 78444
     }
   ]
 }
