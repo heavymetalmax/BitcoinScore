@@ -34,7 +34,7 @@ OC_WEIGHTS = {
 
 TECH_WEIGHTS = {
     'cipherb':             0.50,   # +bearish_div penalty; основний price/momentum сигнал
-    'pi_cycle':            0.10,   # Pi Cycle Top (111DMA vs 2×350DMA); наближення до cross = max ризик
+    'mayer_multiple':      0.10,   # Mayer Multiple (Price / 200DMA)
     'fear_greed':          0.20,
     'real_yield':          0.10,   # US 10Y TIPS real yield (DFII10, FRED)
     'm2_yoy':              0.10,   # US M2 YoY (пряма логіка: ↑ ліквідність = ↑ ризик)
@@ -93,14 +93,16 @@ def map_real_yield(v):
     v = max(-2, min(3, v))
     return round(((v + 2) / 5) * 100)
 
-def map_pi_cycle(v):
-    """v is pi_cycle dict or pre-computed score int.
-    gap_pct=50% → score=0 (far from top), gap_pct=0% → score=100 (cross).
+def map_mayer_multiple(v):
+    """v is mayer_multiple dict or pre-computed score int.
+    MM <= 0.5 -> score = 0, MM >= 2.1 -> score = 100.
     """
     if v is None: return None
     if isinstance(v, dict):
         return v.get('score')
-    return round(max(0, min(100, v)))
+    v = float(v)
+    v = max(0.5, min(2.1, v))
+    return round((v - 0.5) / 1.6 * 100)
 
 def map_funding(v):
     """v is funding_rate dict or avg_7d float (%).
@@ -138,7 +140,11 @@ def build_slider_map(metrics: dict) -> dict:
     return {metric_name: slider_value (0-100 or None)}.
     """
     def mv(key):
-        return metrics.get(key, {}).get('value')
+        obj = metrics.get(key)
+        if obj is None: return None
+        if isinstance(obj, dict) and 'value' in obj:
+            return obj['value']
+        return obj
 
     georisk_raw = mv('geopolitical_risk')
     georisk_val = georisk_raw[0] if isinstance(georisk_raw, (list, tuple)) else (georisk_raw.get('current') if isinstance(georisk_raw, dict) else georisk_raw)
@@ -151,8 +157,8 @@ def build_slider_map(metrics: dict) -> dict:
         elif cipherb.get('fast_bullish_div'):
             cipherb_score = max(0, cipherb_score - 12)    # oversold signal
 
-    pi_cycle_val = mv('pi_cycle')
-    pi_cycle_score = map_pi_cycle(pi_cycle_val)
+    mayer_val = mv('mayer_multiple')
+    mayer_score = map_mayer_multiple(mayer_val)
 
     return {
         'nupl':                map_nupl(mv('nupl')),
@@ -165,7 +171,7 @@ def build_slider_map(metrics: dict) -> dict:
         'cvdd_ratio':          map_cvdd(mv('cvdd_ratio')),
         'rhodl_ratio':         map_rhodl(mv('rhodl_ratio')),
         'cipherb':             cipherb_score,
-        'pi_cycle':            pi_cycle_score,
+        'mayer_multiple':      mayer_score,
         'funding_rate':        map_funding(mv('funding_rate')),
     }
 

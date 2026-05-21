@@ -25,7 +25,7 @@ from scraper.geopolitical_risk import get_geopolitical_risk_change
 from scraper.utils import human_visit
 from scraper.cipherb import get_cipherb
 from scraper.smc import get_smc
-from scraper import pi_cycle as pi_cycle_mod
+from scraper import mayer_multiple as mayer_multiple_mod
 from scraper import funding_rate as funding_rate_mod
 from scraper.utils import write_json, validate_data
 
@@ -226,7 +226,7 @@ def build_payload():
             'addresses_in_profit': {'value': addresses_in_profit, 'source': 'Derived', 'updated': now_iso()},
             'cipherb': {'value': None, 'source': 'Local', 'updated': now_iso()},
             'smc': {'value': None, 'source': 'Local', 'updated': now_iso()},
-            'pi_cycle': {'value': None, 'source': 'Local', 'updated': now_iso()},
+            'mayer_multiple': {'value': None, 'source': 'Local', 'updated': now_iso()},
             'funding_rate': {'value': None, 'source': 'Binance', 'updated': now_iso()}
         }
     }
@@ -272,15 +272,15 @@ def main():
     except Exception as e:
         print('smc error', e)
 
-    # Populate Pi Cycle Top metric (111DMA vs 2×350DMA on daily)
+    # Populate Mayer Multiple metric (Price / 200DMA on daily)
     try:
-        pc = pi_cycle_mod.get_pi_cycle()
-        if pc is not None:
-            p['metrics']['pi_cycle'] = {'value': pc, 'source': 'Kraken', 'updated': now_iso()}
+        mm = mayer_multiple_mod.get_mayer_multiple()
+        if mm is not None:
+            p['metrics']['mayer_multiple'] = {'value': mm, 'source': 'Kraken', 'updated': now_iso()}
             write_json('data/data.json', p)
-            print(f"Updated data/data.json with pi_cycle: gap={pc['gap_pct']}%  score={pc['score']}  cross={pc['cross']}")
+            print(f"Updated data/data.json with mayer_multiple: val={mm['value']}  score={mm['score']}")
     except Exception as e:
-        print('pi_cycle error', e)
+        print('mayer_multiple error', e)
 
     # Populate Funding Rate metric (Binance Futures, 7-day avg)
     try:

@@ -911,12 +911,12 @@
           <span class="m-num" id="m-cipherb-num">—</span>
         </div>
         <div class="metric-row">
-          <a class="m-name" href="about.html#m-picycle">Pi Cycle</a>
+          <a class="m-name" href="about.html#m-mayer">Mayer Multiple</a>
           <div>
-            <div class="bar-wrap"><div class="bar-fill" id="m-picycle-bar"></div></div>
-            <div class="m-raw" id="m-picycle-raw"></div>
+            <div class="bar-wrap"><div class="bar-fill" id="m-mayer-bar"></div></div>
+            <div class="m-raw" id="m-mayer-raw"></div>
           </div>
-          <span class="m-num" id="m-picycle-num">—</span>
+          <span class="m-num" id="m-mayer-num">—</span>
         </div>
         <div class="metric-row">
           <a class="m-name" href="about.html#m-fg">Fear &amp; Greed</a>
@@ -997,10 +997,10 @@
       return null;
     }
     
-    function mapPiCycle(pc) {
-      if(!pc) return null;
-      if(typeof pc === 'number') return Math.round(Math.max(0, Math.min(100, pc)));
-      return pc.score != null ? pc.score : null;
+    function mapMayerMultiple(mm) {
+      if(!mm) return null;
+      if(typeof mm === 'number') return Math.round(Math.max(0, Math.min(100, (mm - 0.5) / 1.6 * 100)));
+      return mm.score != null ? mm.score : null;
     }
     
     function mapCipherb(cb) {
@@ -1175,14 +1175,14 @@
       // Read tech/macro metrics values
       const fr    = mv('funding_rate');
       const cb    = mv('cipherb');
-      const pc    = mv('pi_cycle');
+      const mm    = mv('mayer_multiple');
       const m2raw = mv('m2_mom') != null ? mv('m2_mom') : mv('m2');
       const fg    = mv('fear_greed');
       const fgLbl = (m['fear_greed']||{}).label || data.fear_greed_label || '';
       const ry    = scalar(mv('real_yield'));
 
       const cbScore  = mapCipherb(cb);
-      const pcScore  = mapPiCycle(pc);
+      const mmScore  = mapMayerMultiple(mm);
 
       setMetric('cipherb', cbScore,
         cb ? 'wt1=' + (cb.wt1!=null?cb.wt1.toFixed(1):'--') + '  score=' + (cb.weekly_score!=null?cb.weekly_score.toFixed(1):'--') : null);
@@ -1208,8 +1208,8 @@
         }
       }
       
-      setMetric('picycle', pcScore,
-        pc ? (pc.cross ? '⚠ CROSS' : 'gap=' + pc.gap_pct.toFixed(1) + '%') : null);
+      setMetric('mayer', mmScore,
+        mm ? 'val=' + mm.value.toFixed(2) + '  200DMA=$' + Math.round(mm.dma_200).toLocaleString() : null);
       setMetric('m2',  mapM2(m2raw), m2raw != null ? m2raw.toFixed(2)+'%' : null);
       
       const fgAvg = fg != null && typeof fg === 'object' ? (fg.avg_7d != null ? fg.avg_7d : fg.latest) : fg;
@@ -1226,7 +1226,7 @@
       if (finalVal != null) {
         const allIndScores = [
           mapAddr(addr), mapRhodl(rhodl), mapMvrv(mvrv), mapCvdd(cvdd), mapNupl(nupl),
-          cbScore, pcScore, mapFG(fg), mapRealYield(ry), mapM2(m2raw)
+          cbScore, mmScore, mapFG(fg), mapRealYield(ry), mapM2(m2raw)
         ].filter(s => s != null);
         const hasContra = allIndScores.some(s =>
           (finalVal <= 40 && s >= 65) || (finalVal >= 60 && s <= 35)
@@ -1244,7 +1244,7 @@
       
       const tcScore = data.tech_score;
       if (tcScore != null) {
-        const tcInds = [cbScore, pcScore, mapFG(fg), mapRealYield(ry), mapM2(m2raw)].filter(s => s != null);
+        const tcInds = [cbScore, mmScore, mapFG(fg), mapRealYield(ry), mapM2(m2raw)].filter(s => s != null);
         const tcContra = tcInds.some(s => (tcScore < 65 && s >= 65) || (tcScore > 35 && s <= 35));
         document.getElementById('tech-warn').style.display = tcContra ? 'inline' : 'none';
       }
