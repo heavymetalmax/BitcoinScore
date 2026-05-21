@@ -752,8 +752,7 @@
       <div class="main-ts" id="main-ts">Updated: —</div>
     </div>
     <div class="nav-menu">
-      <button class="nav-btn active" id="btn-main" onclick="showTab('main')">Risk Index</button>
-      <button class="nav-btn" id="btn-charts" onclick="showTab('charts')">History Charts</button>
+      <button class="nav-btn active" id="btn-main" style="cursor:default;">Risk Index</button>
       <a class="nav-btn" href="about.html">Methodology</a>
       <a class="nav-btn" href="bitcoin_buy_risk.ics">iCal Alerts</a>
     </div>
@@ -953,23 +952,25 @@
         </div>
       </div>
     </div>
-  </div><!-- end tab-main -->
 
-  <!-- Tab 2: History Charts -->
-  <div id="tab-charts" style="display:none">
-    <div class="glass-panel">
-      <div class="section-header">
-        <h2>Score History</h2>
+    <!-- History Chart Panel at the bottom -->
+    <div class="glass-panel" style="margin-top:24px">
+      <div class="section-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+        <h2>History Chart</h2>
+        <div class="chart-legend" style="display:flex; gap:16px; font-size:0.75rem; font-weight:600;">
+          <span style="display:flex; align-items:center; gap:6px; color:#f7931a;">
+            <span style="display:inline-block; width:12px; height:3px; background:#f7931a; border-radius:2px; box-shadow:0 0 6px #f7931a;"></span>
+            Risk Score
+          </span>
+          <span style="display:flex; align-items:center; gap:6px; color:#10b981;">
+            <span style="display:inline-block; width:12px; height:3px; background:#10b981; border-radius:2px; box-shadow:0 0 6px #10b981;"></span>
+            BTC Price
+          </span>
+        </div>
       </div>
-      <canvas id="score-chart" height="180" style="width:100%;display:block;margin-top:12px;"></canvas>
+      <canvas id="history-chart" height="220" style="width:100%;display:block;margin-top:12px;"></canvas>
     </div>
-    <div class="glass-panel" style="margin-top:16px">
-      <div class="section-header">
-        <h2>BTC Price (USD)</h2>
-      </div>
-      <canvas id="price-chart" height="180" style="width:100%;display:block;margin-top:12px;"></canvas>
-    </div>
-  </div>
+  </div><!-- end tab-main -->
 
   <footer id="footer">Source: data.json</footer>
   <p class="disclaimer">
@@ -1250,120 +1251,135 @@
 
       document.getElementById('footer').textContent = 'Source: data.json \u00B7 ' + (data.timestamp ? new Date(data.timestamp).toLocaleString() : '');
 
-      _pendingChartData = data;
+      _chartData = data;
+      drawCharts(data);
     }
 
-    let _pendingChartData = null;
+    let _chartData = null;
 
-    function showTab(name) {
-      const isCharts = name === 'charts';
-      document.getElementById('tab-main').style.display = isCharts ? 'none' : 'block';
-      document.getElementById('tab-charts').style.display = isCharts ? 'block' : 'none';
-      
-      // Update active nav button class
-      const btnMain = document.getElementById('btn-main');
-      const btnCharts = document.getElementById('btn-charts');
-      if (btnMain) btnMain.classList.toggle('active', !isCharts);
-      if (btnCharts) btnCharts.classList.toggle('active', isCharts);
-      
-      if(isCharts && _pendingChartData) {
-        const d = _pendingChartData;
-        _pendingChartData = null;
-        drawCharts(d);
+    window.addEventListener('resize', () => {
+      if (_chartData) {
+        drawCharts(_chartData);
       }
-    }
+    });
 
     function drawCharts(data) {
+      const canvas = document.getElementById('history-chart');
+      if (!canvas) return;
+
       const pts = (data.score_history || []).filter(e => e.score != null);
       if(pts.length < 2) return;
+
       const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       const bg    = 'rgba(0,0,0,0)'; // transparent canvas area
       const grid  = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)';
       const textC = isDark ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.5)';
 
-      renderChart(document.getElementById('score-chart'), pts, {
-        yKey: 'score', yMin: 0, yMax: 100,
-        gridVals: [25, 50, 75], fmtY: v => String(v),
-        lineColor: '#f7931a',
-        gradStops: [[0,'rgba(247,147,26,0.3)'],[1,'rgba(247,147,26,0.02)']],
-        bg, grid, textC
-      });
-
-      const ppts = pts.filter(e => e.price != null);
-      if(ppts.length >= 2) {
-        const prices = ppts.map(e => e.price);
-        const pMin = Math.min(...prices);
-        const pMax = Math.max(...prices);
-        const pad  = (pMax - pMin) * 0.05 || pMin * 0.02;
-        renderChart(document.getElementById('price-chart'), ppts, {
-          yKey: 'price', yMin: pMin - pad, yMax: pMax + pad,
-          gridVals: [pMin, (pMin + pMax) / 2, pMax], fmtY: v => '$' + Math.round(v / 1000) + 'k',
-          lineColor: '#10b981',
-          gradStops: [[0,'rgba(16,185,129,0.25)'],[1,'rgba(16,185,129,0.01)']],
-          bg, grid, textC
-        });
-      }
-    }
-
-    function renderChart(canvas, pts, opts) {
       const dpr = window.devicePixelRatio || 1;
       const W   = canvas.offsetWidth || 600;
-      const H   = parseInt(canvas.getAttribute('height')) || 180;
+      const H   = parseInt(canvas.getAttribute('height')) || 220;
       canvas.width  = W * dpr;
       canvas.height = H * dpr;
       const ctx = canvas.getContext('2d');
       ctx.scale(dpr, dpr);
-      const PAD = { top: 16, bottom: 28, left: 48, right: 16 };
+
+      // Left margin for Risk Score labels, right margin for BTC Price labels
+      const PAD = { top: 16, bottom: 28, left: 40, right: 48 };
       const cw  = W - PAD.left - PAD.right;
       const ch  = H - PAD.top  - PAD.bottom;
-      const { yMin, yMax, gridVals, fmtY, lineColor, gradStops, bg, grid, textC, yKey } = opts;
-      const toY = v => PAD.top + ch - ((v - yMin) / (yMax - yMin)) * ch;
 
-      // Clear the canvas to support transparency
+      // Price bounds
+      const ppts = pts.filter(e => e.price != null);
+      let pMin = 0, pMax = 100000;
+      if (ppts.length >= 2) {
+        const prices = ppts.map(e => e.price);
+        pMin = Math.min(...prices);
+        pMax = Math.max(...prices);
+      }
+      const pad  = (pMax - pMin) * 0.05 || pMin * 0.02;
+      const yMinPrice = pMin - pad;
+      const yMaxPrice = pMax + pad;
+
+      const toYScore = v => PAD.top + ch - (v / 100) * ch;
+      const toYPrice = p => PAD.top + ch - ((p - yMinPrice) / (yMaxPrice - yMinPrice)) * ch;
+
+      // Clear the canvas
       ctx.clearRect(0, 0, W, H);
       ctx.fillStyle = bg;
       ctx.fillRect(0, 0, W, H);
 
-      // Grid lines & labels
+      // Grid lines & labels (based on Risk Score scale: 0, 25, 50, 75, 100)
+      const gridVals = [0, 25, 50, 75, 100];
       gridVals.forEach(v => {
-        const y = toY(v);
-        ctx.strokeStyle = grid; ctx.lineWidth = 1;
-        ctx.beginPath(); ctx.moveTo(PAD.left, y); ctx.lineTo(W - PAD.right, y); ctx.stroke();
+        const y = toYScore(v);
         
+        // Draw grid lines for internal values (25, 50, 75)
+        if (v > 0 && v < 100) {
+          ctx.strokeStyle = grid; 
+          ctx.lineWidth = 1;
+          ctx.beginPath(); 
+          ctx.moveTo(PAD.left, y); 
+          ctx.lineTo(W - PAD.right, y); 
+          ctx.stroke();
+        }
+        
+        // Left Y-axis: Risk Score labels
         ctx.fillStyle = textC; 
         ctx.font = '500 11px Outfit, sans-serif'; 
         ctx.textAlign = 'right';
-        ctx.fillText(fmtY(v), PAD.left - 8, y + 4);
+        ctx.fillText(v, PAD.left - 8, y + 4);
+
+        // Right Y-axis: Price labels corresponding to the same heights
+        const priceVal = yMinPrice + (v / 100) * (yMaxPrice - yMinPrice);
+        const priceText = '$' + Math.round(priceVal / 100) / 10 + 'k';
+        ctx.textAlign = 'left';
+        ctx.fillText(priceText, W - PAD.right + 8, y + 4);
       });
 
-      // Gradient area fill
-      const grad = ctx.createLinearGradient(0, PAD.top, 0, PAD.top + ch);
-      gradStops.forEach(([pos, color]) => grad.addColorStop(pos, color));
+      // 1. Draw Risk Score Fill & Line (Orange)
+      const gradScore = ctx.createLinearGradient(0, PAD.top, 0, PAD.top + ch);
+      gradScore.addColorStop(0, 'rgba(247, 147, 26, 0.18)');
+      gradScore.addColorStop(1, 'rgba(247, 147, 26, 0.005)');
 
       ctx.beginPath();
       pts.forEach((e, i) => {
         const x = PAD.left + (i / (pts.length - 1)) * cw;
-        const y = toY(e[yKey]);
+        const y = toYScore(e.score);
         i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
       });
       ctx.lineTo(PAD.left + cw, PAD.top + ch);
       ctx.lineTo(PAD.left, PAD.top + ch);
       ctx.closePath();
-      ctx.fillStyle = grad; ctx.fill();
+      ctx.fillStyle = gradScore; 
+      ctx.fill();
 
-      // Glowing Neon Line
+      // Glowing Neon Line for Score
       ctx.beginPath();
       pts.forEach((e, i) => {
         const x = PAD.left + (i / (pts.length - 1)) * cw;
-        const y = toY(e[yKey]);
+        const y = toYScore(e.score);
         i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
       });
-      ctx.strokeStyle = lineColor; 
+      ctx.strokeStyle = '#f7931a'; 
       ctx.lineWidth = 2.5;
-      ctx.shadowColor = lineColor;
+      ctx.shadowColor = '#f7931a';
       ctx.shadowBlur = 8;
       ctx.stroke();
-      ctx.shadowBlur = 0; // reset shadow glow
+      ctx.shadowBlur = 0; // Reset shadow
+
+      // 2. Draw BTC Price Line (Emerald Green, no fill to keep it clean)
+      ctx.beginPath();
+      pts.forEach((e, i) => {
+        const x = PAD.left + (i / (pts.length - 1)) * cw;
+        const y = toYPrice(e.price != null ? e.price : yMinPrice);
+        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      });
+      ctx.strokeStyle = '#10b981'; 
+      ctx.lineWidth = 2;
+      ctx.shadowColor = '#10b981';
+      ctx.shadowBlur = 8;
+      ctx.stroke();
+      ctx.shadowBlur = 0; // Reset shadow
 
       // X-axis Dates
       [0, Math.floor((pts.length - 1) / 2), pts.length - 1].forEach(i => {
