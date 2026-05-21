@@ -216,6 +216,20 @@ def compute_cipherb_from_ohlcv(ohlc, channelLength=9, averageLength=12, wtSmaLen
     wt1 = tci
     wt2 = sma([x if x is not None else None for x in wt1], wtSmaLength)
 
+    # Money Flow Index (MFI) calculation
+    mfi_raw = [None]*n
+    for i, c in enumerate(ohlc):
+        denom = c['high'] - c['low']
+        if denom == 0:
+            mfi_raw[i] = 0.0
+        else:
+            mfi_raw[i] = ((c['close'] - c['open']) / denom) * 150.0
+    mfi_sma = sma(mfi_raw, 60)
+    mfi = [None]*n
+    for i in range(n):
+        if mfi_sma[i] is not None:
+            mfi[i] = mfi_sma[i] - 2.5
+
     # prepare output series
     series = []
     for i in range(n):
@@ -224,6 +238,7 @@ def compute_cipherb_from_ohlcv(ohlc, channelLength=9, averageLength=12, wtSmaLen
             'close': ohlc[i]['close'],
             'wt1': wt1[i],
             'wt2': wt2[i],
+            'mfi': mfi[i],
         }
         # signals
         buy = False
@@ -242,6 +257,20 @@ def compute_cipherb_from_ohlcv(ohlc, channelLength=9, averageLength=12, wtSmaLen
                 score = 100.0
             else:
                 score = (wt1[i] - oversoldLevel) / (overboughtLevel - oversoldLevel) * 100.0
+
+        # Compute divergences active at this index
+        bearish_div = False
+        bullish_div = False
+        fast_bear = False
+        fast_bull = False
+        if i >= 30:
+            # We construct a temporary series up to index i to check divergences
+            sub_series = series + [item]
+            bearish_div = _bearish_divergence(sub_series)
+            bullish_div = _bullish_divergence(sub_series)
+            fast_bear   = _fast_divergence(sub_series, kind='bearish')
+            fast_bull   = _fast_divergence(sub_series, kind='bullish')
+
         # green/red dot representation (1/0) and distances
         green_dot = 1 if buy else 0
         red_dot = 1 if sell else 0
@@ -254,7 +283,11 @@ def compute_cipherb_from_ohlcv(ohlc, channelLength=9, averageLength=12, wtSmaLen
             'red_dot': red_dot,
             'weekly_score': score,
             'distance_to_buy': distance_to_buy,
-            'distance_to_sell': distance_to_sell
+            'distance_to_sell': distance_to_sell,
+            'bearish_divergence': bearish_div,
+            'bullish_divergence': bullish_div,
+            'fast_bearish_div': fast_bear,
+            'fast_bullish_div': fast_bull
         })
         series.append(item)
 
@@ -262,16 +295,8 @@ def compute_cipherb_from_ohlcv(ohlc, channelLength=9, averageLength=12, wtSmaLen
     last = None
     for it in reversed(series):
         if it['wt1'] is not None and it['wt2'] is not None:
-            last = it
+            last = it.copy()
             break
-
-    bearish_div = _bearish_divergence(series)
-    bullish_div = _bullish_divergence(series)
-    fast_bear   = _fast_divergence(series, kind='bearish')
-    fast_bull   = _fast_divergence(series, kind='bullish')
-    if last is not None:
-        last = {**last, 'bearish_divergence': bearish_div, 'bullish_divergence': bullish_div,
-                'fast_bearish_div': fast_bear, 'fast_bullish_div': fast_bull}
 
     return {'series': series, 'last': last, 'params': {'channelLength': channelLength, 'averageLength': averageLength, 'wtSmaLength': wtSmaLength, 'oversoldLevel': oversoldLevel, 'overboughtLevel': overboughtLevel}}
 

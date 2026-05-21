@@ -18,7 +18,6 @@ from scraper.alternative_me import get_fear_greed
 from scraper import cmc as cmc_mod
 from scraper.nupl import get_nupl
 from scraper.mvrv import get_mvrv
-from scraper.sopr import get_sopr
 from scraper.addresses_in_loss import get_addresses_in_loss
 from scraper.m2_metric import get_m2
 from scraper.real_yield_metric import get_real_yield
@@ -84,7 +83,6 @@ def build_payload():
     # recent (<=24h) and valid, reuse them instead of live-fetching.
     nupl = None
     mvrv = None
-    profit = None
     prev_metrics = None
     cache_path = 'data/data.json'
     try:
@@ -110,18 +108,14 @@ def build_payload():
                         nupl = cached_nupl
                     if 'mvrv' in prev_metrics and prev_metrics['mvrv'].get('value') is not None:
                         mvrv = prev_metrics['mvrv'].get('value')
-                    if 'sopr' in prev_metrics and prev_metrics['sopr'].get('value') is not None:
-                        profit = prev_metrics['sopr'].get('value')
     except Exception:
         nupl = None
         mvrv = None
-        profit = None
 
     # If not reused from cache, perform live fetches sequentially per metric.
     import random
     from scraper import nupl as nupl_mod
     from scraper import mvrv as mvrv_mod
-    from scraper import sopr as sopr_mod
     from scraper import addresses_in_loss as addr_mod
     from scraper import m2_metric as m2_mod
     from scraper import real_yield_metric as ry_mod
@@ -134,7 +128,6 @@ def build_payload():
     metric_specs = [
         ('nupl', nupl_mod.get_nupl, None, lambda r: r),
         ('mvrv', mvrv_mod.get_mvrv, None, lambda r: r),
-        ('sopr', sopr_mod.get_sopr, None, lambda r: r),
         ('addresses_in_loss', addr_mod.get_addresses_in_loss, None, lambda r: r),
         ('m2', m2_mod.get_m2, None, lambda r: r),
         ('real_yield', ry_mod.get_real_yield, None, lambda r: r),
@@ -179,8 +172,6 @@ def build_payload():
             nupl = val
         if name == 'mvrv':
             mvrv = val
-        if name == 'sopr':
-            profit = val
         if name == 'addresses_in_loss':
             addresses_in_loss = val
         if name == 'm2':
@@ -214,8 +205,6 @@ def build_payload():
     addresses_in_profit = None
     if addresses_in_loss is not None:
         addresses_in_profit = max(0.0, 100.0 - addresses_in_loss)
-    # SOPR value from metrics['sopr']
-    sopr_value = profit  # `profit` holds the cached/live get_sopr() result
     payload = {
         'timestamp': now_iso(),
         'btc_price': price['price'] if price else None,
@@ -224,7 +213,6 @@ def build_payload():
         'fear_greed_label': fg.get('label') if fg else None,
         'nupl': nupl,
         'mvrv_z_score': mvrv,
-        'sopr': sopr_value,
         'addresses_in_loss': addresses_in_loss,
         'addresses_in_profit': addresses_in_profit,
         'cvdd_ratio': cvdd_ratio if 'cvdd_ratio' in locals() else None,
@@ -256,12 +244,6 @@ def main():
         if p['mvrv_z_score'] < -10 or p['mvrv_z_score'] > 20:
             print('Warning: MVRV out of expected range, clamping:', p['mvrv_z_score'])
             p['mvrv_z_score'] = max(-10, min(20, p['mvrv_z_score']))
-    if p.get('sopr') is not None:
-        # SOPR (adjusted) expected in range -0.2..0.5
-        sr = p['sopr']
-        if sr < -0.5 or sr > 1.0:
-            print('Warning: sopr looks invalid, setting to null:', sr)
-            p['sopr'] = None
 
     missing = validate_data(p)
     if missing:

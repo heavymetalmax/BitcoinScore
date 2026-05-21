@@ -120,7 +120,6 @@ def is_valid_metric(name, value):
         thresholds = {
             'nupl': (-50, 100),
             'mvrv': (-10, 20),
-            'sopr': (-0.5, 1.0),  # SOPR adjusted, near 0
             'addresses_in_loss': (0, 100),
             'm2': (None, None),
             'real_yield': (-5, 10),   # FRED DFII10 US 10Y Real Yield (%)

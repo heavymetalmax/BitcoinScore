@@ -56,10 +56,6 @@ def map_mvrv(v):
     v = max(-2, min(5, v))
     return round(((v + 2) / 7) * 100)
 
-def map_sopr(v):
-    if v is None: return None
-    v = max(-0.05, min(0.10, v))
-    return round((v + 0.05) / 0.15 * 100)
 
 def map_addr_profit(v):
     if v is None: return None
@@ -150,9 +146,9 @@ def build_slider_map(metrics: dict) -> dict:
     cipherb = mv('cipherb')
     cipherb_score = round(cipherb['weekly_score']) if isinstance(cipherb, dict) and cipherb.get('weekly_score') is not None else None
     if cipherb_score is not None and isinstance(cipherb, dict):
-        if cipherb.get('bearish_divergence'):
+        if cipherb.get('fast_bearish_div'):
             cipherb_score = min(100, cipherb_score + 12)  # overbought signal
-        elif cipherb.get('bullish_divergence'):
+        elif cipherb.get('fast_bullish_div'):
             cipherb_score = max(0, cipherb_score - 12)    # oversold signal
 
     pi_cycle_val = mv('pi_cycle')
@@ -161,7 +157,6 @@ def build_slider_map(metrics: dict) -> dict:
     return {
         'nupl':                map_nupl(mv('nupl')),
         'mvrv_z_score':        map_mvrv(mv('mvrv')),
-        'sopr':                map_sopr(mv('sopr')),
         'addresses_in_profit': map_addr_profit(mv('addresses_in_profit')),
         'fear_greed':          map_fear_greed(mv('fear_greed')),
         'm2_yoy':              map_m2(mv('m2_mom')),  # field key in data.json still 'm2_mom'

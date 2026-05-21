@@ -15,7 +15,7 @@ import sys, json, math, datetime, urllib.request, ssl, io, time
 sys.path.insert(0, '.')
 
 from scraper.scoring import (
-    map_nupl, map_mvrv, map_sopr, map_addr_profit, map_fear_greed,
+    map_nupl, map_mvrv, map_addr_profit, map_fear_greed,
     map_m2, map_real_yield, map_cvdd, map_rhodl, OC_WEIGHTS, TECH_WEIGHTS, weighted_score
 )
 from scraper.smc import fetch_ohlcv_kraken as fetch_ohlcv_binance, compute_smc
@@ -67,8 +67,6 @@ BMP_CHARTS = {
                 'net unrealised', 1.0),        # multiply by 100 (comes as fraction 0-1)
     'mvrv':   ('https://www.bitcoinmagazinepro.com/charts/mvrv-zscore/',
                 'mvrv z-score', 1.0),
-    'sopr':   ('https://www.bitcoinmagazinepro.com/charts/sopr-spent-output-profit-ratio/',
-                'sopr', 1.0),
     'addr':   ('https://www.bitcoinmagazinepro.com/charts/percent-addresses-in-loss/',
                 'addresses in loss', 1.0),     # will be inverted later
     'rhodl':  ('https://www.bitcoinmagazinepro.com/charts/rhodl-ratio/',
@@ -217,15 +215,20 @@ def fetch_fg_series():
 # ── 4. CipherB (weekly) ──────────────────────────────────────────────────────
 
 def load_cipherb_series():
-    """Return [(date_str, weekly_score), ...] from existing JSON."""
+    """Return [(date_str, adjusted_score), ...] from existing JSON."""
     with open('data/history/cipherb_btcusdt_1w.json') as f:
         data = json.load(f)
     result = []
     for candle in data.get('series', []):
-        if candle.get('weekly_score') is None:
+        score = candle.get('weekly_score')
+        if score is None:
             continue
+        if candle.get('fast_bearish_div'):
+            score = min(100.0, score + 12.0)
+        elif candle.get('fast_bullish_div'):
+            score = max(0.0, score - 12.0)
         d = datetime.datetime.utcfromtimestamp(candle['timestamp']).date().isoformat()
-        result.append((d, candle['weekly_score']))
+        result.append((d, score))
     return result
 
 
@@ -265,38 +268,6 @@ def run():
         'z-score')
     print(f"        {len(mvrv_series)} points")
 
-    print("  [3/7] SOPR from BMP...")
-    sopr_raw = []
-    # BMP has two complementary SOPR traces that alternate non-null values — merge them
-    from playwright.sync_api import sync_playwright as _pw
-    with _pw() as p:
-        br = p.chromium.launch(headless=True)
-        ctx = br.new_context(user_agent=(
-            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) '
-            'AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-        ))
-        pg = ctx.new_page()
-        pg.goto('https://www.bitcoinmagazinepro.com/charts/sopr-spent-output-profit-ratio/',
-                wait_until='networkidle', timeout=90_000)
-        pg.wait_for_timeout(5_000)
-        sopr_raw = pg.evaluate("""() => {
-            const el = document.querySelector('.js-plotly-plot');
-            if (!el || !el._fullData) return [];
-            const merged = {};
-            for (const t of el._fullData) {
-                if (!t.name || !t.name.toLowerCase().includes('sopr')) continue;
-                if (!t.x || !t.y) continue;
-                for (let i = 0; i < t.x.length; i++) {
-                    const v = t.y[i];
-                    if (v !== null && v !== undefined) merged[t.x[i].slice(0,10)] = v;
-                }
-            }
-            return Object.entries(merged).sort((a,b) => a[0] < b[0] ? -1 : 1);
-        }""")
-        br.close()
-    # Values are already delta-format (near 0), no - 1.0 needed
-    sopr_series = [(d, v) for d, v in sopr_raw]
-    print(f"        {len(sopr_series)} points")
 
     print("  [4/7] Addresses in loss + RHODL + CVDD from BMP...")
     addr_series = fetch_bmp_series(
@@ -330,16 +301,15 @@ def run():
     # ── Compute scores at milestones ─────────────────────────────────────────
     print(f"{'Date':<12} {'Label':<22} {'BTC':>8}  "
           f"{'OC':>4} {'Tech':>4} {'Final':>5}  "
-          f"{'NUPL':>4} {'MVRV':>4} {'SOPR':>4} {'Addr':>4} {'RHODL':>5} {'CVDD':>4}  "
+          f"{'NUPL':>4} {'MVRV':>4} {'Addr':>4} {'RHODL':>5} {'CVDD':>4}  "
           f"{'FG':>3} {'RY':>4} {'M2':>4} {'CB':>4} {'SMC':>4}")
-    print("-" * 121)
+    print("-" * 116)
 
     for date_str, label, btc_price in MILESTONES:
         td = parse_date(date_str)
 
         nupl    = closest(nupl_series, td)
         mvrv    = closest(mvrv_series, td)
-        sopr    = closest(sopr_series, td)
         addr    = closest(addr_profit_series, td)
         rhodl   = closest(rhodl_series, td)
         cvdd    = closest(cvdd_series, td)
@@ -353,7 +323,6 @@ def run():
 
         s_nupl  = map_nupl(nupl)
         s_mvrv  = map_mvrv(mvrv)
-        s_sopr  = map_sopr(sopr)
         s_addr  = map_addr_profit(addr)
         s_rhodl = map_rhodl(rhodl)
         s_cvdd  = map_cvdd(cvdd)
@@ -363,7 +332,7 @@ def run():
         s_cb    = round(max(0, min(100, cb))) if cb is not None else None
 
         oc_map = {
-            'nupl': s_nupl, 'mvrv_z_score': s_mvrv, 'sopr': s_sopr,
+            'nupl': s_nupl, 'mvrv_z_score': s_mvrv,
             'addresses_in_profit': s_addr, 'rhodl_ratio': s_rhodl, 'cvdd_ratio': s_cvdd,
         }
         # geopolitical_risk excluded
@@ -389,7 +358,7 @@ def run():
         print(
             f"{date_str:<12} {label:<22} ${btc_price:>7,}  "
             f"{fmt(oc)} {fmt(tech)} {fmt(final)}  "
-            f"{fmt(s_nupl)} {fmt(s_mvrv)} {fmt(s_sopr)} {fmt(s_addr)} {fmt(s_rhodl)} {fmt(s_cvdd)}  "
+            f"{fmt(s_nupl)} {fmt(s_mvrv)} {fmt(s_addr)} {fmt(s_rhodl)} {fmt(s_cvdd)}  "
             f"{fmt(s_fg)} {fmt(s_ry)} {fmt(s_m2)} {fmt(s_cb)} {fmt(s_smc)}"
         )
 

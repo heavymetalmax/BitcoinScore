@@ -63,6 +63,64 @@ def get_bmp_trace(url, trace_name_substr, multiply=1.0, timeout=60000):
     return None
 
 
+def get_bmp_traces(url, trace_names_list, timeout=60000):
+    """Fetch multiple Plotly trace values from a BitcoinMagazinePro chart page in a single page load.
+
+    Args:
+        url: BMP chart URL.
+        trace_names_list: list of substrings to match against trace names (case-insensitive).
+    Returns:
+        dict: {trace_name: float_value} or empty dict on failure.
+    """
+    try:
+        with sync_playwright() as p:
+            browser = p.chromium.launch(headless=True)
+            ctx = browser.new_context()
+            page = ctx.new_page()
+            page.goto(url, wait_until='networkidle', timeout=timeout)
+            page.wait_for_timeout(4000)
+            
+            needles = [name.lower() for name in trace_names_list]
+            js = f"""() => {{
+                const gd = document.querySelector('.js-plotly-plot');
+                if(!gd) return null;
+                const traces = gd.data;
+                if(!traces) return null;
+                const needles = {json.dumps(needles)};
+                const results = {{}};
+                for (const needle of needles) {{
+                    results[needle] = null;
+                    for(const t of traces){{
+                        if((t.name || '').toLowerCase().includes(needle)){{
+                            if(t.y && t.y.length) {{
+                                results[needle] = t.y[t.y.length - 1];
+                                break;
+                            }}
+                        }}
+                    }}
+                }}
+                return results;
+            }}"""
+            res = page.evaluate(js)
+            try:
+                browser.close()
+            except Exception:
+                pass
+            
+            if res is not None:
+                output = {}
+                for name in trace_names_list:
+                    val = res.get(name.lower())
+                    if val is not None:
+                        output[name] = round(float(val), 4)
+                    else:
+                        output[name] = None
+                return output
+    except Exception as e:
+        logger.warning('get_bmp_traces failed for %s (%s): %s', url, trace_names_list, e)
+    return {}
+
+
 def _read_cached_stats_for_metric(metric_key, max_age_seconds=172800):
     """Return parsed JSON from data/debug/ cache for the given metric key, or None.
 

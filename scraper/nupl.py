@@ -1,62 +1,10 @@
 """Scraper for NUPL (Net Unrealized Profit/Loss) metric."""
 import logging
-import requests
-import os
 from scraper.mm_utils import get_bmp_trace
 
 logger = logging.getLogger(__name__)
 
 _BMP_URL = 'https://www.bitcoinmagazinepro.com/charts/relative-unrealized-profit--loss/'
-
-
-def _get_market_cap_coingecko():
-    try:
-        r = requests.get('https://api.coingecko.com/api/v3/coins/bitcoin', timeout=20)
-        if r.status_code == 200:
-            mc = r.json().get('market_data', {}).get('market_cap', {}).get('usd')
-            if mc:
-                return float(mc)
-    except Exception as e:
-        logger.debug('CoinGecko market cap fetch failed: %s', e)
-    return None
-
-
-def _get_realized_cap_from_glassnode():
-    key = os.environ.get('GLASSNODE_API_KEY')
-    if not key:
-        return None
-    try:
-        r = requests.get(
-            'https://api.glassnode.com/v1/metrics/market/realized_cap',
-            params={'api_key': key, 'a': 'BTC', 's': 0},
-            timeout=20,
-        )
-        if r.status_code == 200:
-            j = r.json()
-            if isinstance(j, list) and j:
-                val = j[-1]
-                if isinstance(val, list) and len(val) >= 2:
-                    return float(val[1])
-                if isinstance(val, dict) and 'value' in val:
-                    return float(val['value'])
-    except Exception as e:
-        logger.debug('Glassnode realized_cap fetch failed: %s', e)
-    return None
-
-
-def _get_realized_cap_from_file(path='data/debug/realized_cap.json'):
-    try:
-        if os.path.exists(path):
-            import json
-            with open(path, 'r', encoding='utf-8') as hf:
-                j = json.load(hf)
-                if isinstance(j, dict) and 'realized_cap' in j:
-                    return float(j['realized_cap'])
-                if isinstance(j, (int, float)):
-                    return float(j)
-    except Exception:
-        pass
-    return None
 
 
 def get_nupl():
@@ -70,31 +18,5 @@ def get_nupl():
     return None
 
 
-def get_nupl_computed():
-    """Compute NUPL = (market_cap - realized_cap) / market_cap as percentage."""
-    realized = None
-    try:
-        rc_env = os.environ.get('REALIZED_CAP_OVERRIDE')
-        if rc_env:
-            realized = float(rc_env)
-    except Exception:
-        pass
-    if realized is None:
-        realized = _get_realized_cap_from_file()
-    if realized is None:
-        realized = _get_realized_cap_from_glassnode()
-    market_cap = _get_market_cap_coingecko()
-    if market_cap is None:
-        logger.warning('Computed NUPL failed: market cap unavailable')
-        return None
-    if realized is None:
-        logger.warning('Computed NUPL: realized cap unavailable')
-        return None
-    try:
-        return round((market_cap - realized) / market_cap * 100, 2)
-    except Exception as e:
-        logger.debug('Computed NUPL calculation failed: %s', e)
-        return None
+__all__ = ['get_nupl']
 
-
-__all__ = ['get_nupl', 'get_nupl_computed']

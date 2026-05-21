@@ -38,10 +38,8 @@ DATA_PATH = os.path.join(os.path.dirname(__file__), '..', 'data', 'data.json')
 def _build_metric_specs():
     from scraper import nupl as nupl_mod
     from scraper import mvrv as mvrv_mod
-    from scraper import sopr as sopr_mod
     from scraper import addresses_in_loss as addr_mod
     from scraper import m2_metric as m2_mod
-    from scraper import dxy_metric as dxy_mod
     from scraper import geopolitical_risk as gr_mod
     from scraper import cvdd as cvdd_mod
     from scraper import rhodl as rhodl_mod
@@ -55,14 +53,8 @@ def _build_metric_specs():
     return {
         'nupl': (nupl_mod.get_nupl, lambda r: r),
         'mvrv': (mvrv_mod.get_mvrv, lambda r: r),
-        'sopr': (sopr_mod.get_sopr, lambda r: r),
         'addresses_in_loss': (addr_mod.get_addresses_in_loss, lambda r: r),
         'm2': (m2_mod.get_m2, lambda r: r),
-        'dxy': (
-            dxy_mod.get_dxy_change,
-            lambda r: (r[0] if isinstance(r, (list, tuple)) and len(r) > 0
-                       else (r.get('current') if isinstance(r, dict) else r)),
-        ),
         'geopolitical_risk': (
             gr_mod.get_geopolitical_risk_change,
             lambda r: (r[0] if isinstance(r, (list, tuple)) and len(r) > 0
@@ -191,16 +183,9 @@ def retry_metrics(stale: list[str], data: dict, specs: dict) -> dict[str, bool]:
             data['mvrv_z_score'] = val
             data['metrics']['mvrv'] = {'value': val, 'source': 'MacroMicro', 'updated': now}
 
-        elif name == 'sopr' and val is not None:
-            data['sopr'] = val
-            data['metrics']['sopr'] = {'value': val, 'source': 'MacroMicro', 'updated': now}
-
         elif name == 'm2' and val is not None:
             data['m2'] = val
             data['metrics']['m2'] = {'value': val, 'source': 'BMP', 'updated': now}
-
-        elif name == 'dxy' and val is not None:
-            data['metrics']['dxy'] = {'value': val, 'source': 'MacroMicro', 'updated': now}
 
         elif name == 'geopolitical_risk' and val is not None:
             data['metrics']['geopolitical_risk'] = {'value': val, 'source': 'MacroMicro', 'updated': now}
@@ -256,8 +241,8 @@ def main():
     # Default set of retryable metrics (excludes derived ones computed from others)
     default_metrics = [
         'btc_price', 'fear_greed',
-        'nupl', 'mvrv', 'sopr', 'addresses_in_loss',
-        'm2', 'dxy', 'geopolitical_risk',
+        'nupl', 'mvrv', 'addresses_in_loss',
+        'm2', 'geopolitical_risk',
         'cvdd_ratio', 'rhodl_ratio', 'rainbow_band',
         'cipherb', 'smc', 'funding_rate',
     ]
