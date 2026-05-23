@@ -140,7 +140,8 @@ def build_payload():
         # prefer cached value when available and recent
         cached_val = None
         if prev_metrics and name in prev_metrics and prev_metrics[name].get('value') is not None and 'age' in locals() and age is not None and age <= 86400:
-            cached_val = prev_metrics[name].get('value')
+            if not (name == 'm2' and prev_metrics[name].get('source') == 'BMP'):
+                cached_val = prev_metrics[name].get('value')
         if cached_val is not None:
             val = cached_val
         else:
@@ -188,7 +189,8 @@ def build_payload():
         # save into metrics dict placeholder (later merged into payload)
         if 'metrics' not in locals():
             metrics = {}
-        metrics[name] = {'value': val, 'source': 'BMP' if val is not None else None, 'updated': now_iso()}
+        src = 'MacroMicro' if name == 'm2' else 'BMP'
+        metrics[name] = {'value': val, 'source': src if val is not None else None, 'updated': now_iso()}
 
     # Rainbow band — separate call (returns dict, not scalar)
     rainbow_band = None
@@ -315,7 +317,7 @@ def main():
         mom_val = _get_m2_yoy()
         if 'metrics' not in p:
             p['metrics'] = {}
-        p['metrics']['m2_mom'] = {'value': mom_val, 'source': 'Global M2 YoY (BMP)', 'updated': now_iso()}
+        p['metrics']['m2_mom'] = {'value': mom_val, 'source': 'MacroMicro', 'updated': now_iso()}
         p['m2_mom'] = mom_val
         write_json('data/data.json', p)
         print('Updated data/data.json with M2 MoM')

@@ -39,7 +39,8 @@
       --shadow-glow: 0 0 15px rgba(247, 147, 26, 0.08);
       --shadow-glow-active: 0 0 25px rgba(247, 147, 26, 0.18);
       
-      --glass-blur: blur(20px);
+      --bg-card-knob: #111827;
+      --glass-blur: blur(10px);
     }
     
     @media (prefers-color-scheme: light) {
@@ -64,7 +65,8 @@
         --shadow-glow: 0 4px 12px rgba(0, 0, 0, 0.03);
         --shadow-glow-active: 0 6px 20px rgba(0, 0, 0, 0.08);
         
-        --glass-blur: blur(12px);
+        --bg-card-knob: #ffffff;
+        --glass-blur: blur(6px);
       }
     }
 
@@ -226,21 +228,60 @@
     .score-box.main {
       grid-column: span 4;
       padding: 24px 28px;
+      overflow: hidden; /* prevents glowing background from spilling out of rounded corners */
+    }
+
+    .main-inner {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Full-Screen Canvas Backdrop for Candlestick Waves */
+    #bg-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -1; /* Render behind everything */
+      pointer-events: none;
+      background: transparent;
     }
     
     .hero-top-row {
       display: flex;
-      justify-content: space-between;
+      flex-direction: column;
       align-items: center;
+      justify-content: center;
       width: 100%;
-      gap: 20px;
+      gap: 12px;
     }
     
     .hero-title-area {
       display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      text-align: left;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      text-align: center;
+      width: 100%;
+    }
+    
+    .hero-card-ts {
+      font-size: 0.72rem;
+      color: var(--text-ts);
+      font-weight: 500;
+    }
+    
+    .hero-card-sep {
+      font-size: 0.72rem;
+      color: var(--text-mute);
+    }
+    
+    .hero-card-price {
+      font-size: 0.72rem;
+      color: var(--text);
+      font-weight: 700;
     }
     
     .hero-label {
@@ -254,11 +295,22 @@
     .hero-score-group {
       display: flex;
       align-items: baseline;
+      justify-content: center;
+      flex-wrap: wrap;
       gap: 12px;
-      margin-top: 4px;
+    }
+
+    .hero-centered-score {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      margin-top: 24px;
+      margin-bottom: 0px;
     }
     
     .hero-score-val {
+      display: none;
       font-size: 4rem;
       font-weight: 800;
       line-height: 1;
@@ -266,7 +318,7 @@
     }
     
     .s-trend {
-      font-size: 1.8rem;
+      font-size: 1.3rem;
       font-weight: 700;
       line-height: 1;
     }
@@ -288,70 +340,22 @@
       box-shadow: 0 0 10px rgba(239, 68, 68, 0.05);
       align-self: center;
       margin-left: 4px;
+      animation: float-icon 2.2s infinite ease-in-out;
     }
 
-    .hero-price-area {
-      display: flex;
-      align-items: center;
-    }
-    
-    /* Rainbow band pill */
-    .rb-strip {
-      border-radius: 9999px;
-      padding: 8px 16px;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid var(--border);
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      box-shadow: inset 0 1px 1px rgba(255,255,255,0.05);
-      transition: all 0.3s ease;
-    }
-    @media (prefers-color-scheme: light) {
-      .rb-strip {
-        background: rgba(0, 0, 0, 0.02);
-      }
-    }
-    
-    .rb-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #f7931a;
-      box-shadow: 0 0 8px #f7931a;
-    }
-    
-    .rb-price {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: #ffffff;
-      line-height: 1;
-    }
-    @media (prefers-color-scheme: light) {
-      .rb-price {
-        color: #0f172a;
-      }
-    }
-    
-    .rb-pill-label {
-      font-size: 0.72rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--text-mute);
-    }
+    /* Removed old rainbow band elements */
 
     /* Option 2: Linear Horizontal Slider */
     .risk-track-container {
       width: 100%;
-      margin-top: 40px;
-      margin-bottom: 12px;
+      margin-top: 84px;
+      margin-bottom: 28px;
       position: relative;
     }
     
     .risk-track {
-      height: 12px;
-      border-radius: 9999px;
+      height: 18px;
+      border-radius: 9px;
       background: linear-gradient(to right, 
         #10b981 0%, 
         #10b981 25%, 
@@ -372,8 +376,8 @@
       position: absolute;
       top: 50%;
       transform: translate(-50%, -50%);
-      width: 24px;
-      height: 24px;
+      width: 138px;
+      height: 138px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -382,114 +386,98 @@
     }
     
     .risk-marker-dot {
-      width: 16px;
-      height: 16px;
+      width: 130px;
+      height: 130px;
       border-radius: 50%;
-      background: #ffffff;
-      border: 3px solid var(--marker-color, #eab308);
-      box-shadow: 0 0 12px var(--marker-color, #eab308), inset 0 1px 2px rgba(0, 0, 0, 0.3);
+      background: var(--bg-card-knob, #111827);
+      border: 9px solid var(--marker-color, #eab308);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3), 0 0 25px var(--marker-color, #eab308);
       transition: border-color 0.4s ease, box-shadow 0.4s ease;
-    }
-    
-    .risk-tooltip {
-      position: absolute;
-      bottom: 30px;
-      background: rgba(15, 23, 42, 0.95);
-      border: 1.5px solid var(--marker-color, #eab308);
-      border-radius: 10px;
-      padding: 6px 12px;
       display: flex;
-      flex-direction: column;
       align-items: center;
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5), 0 0 12px rgba(247, 147, 26, 0.15);
-      pointer-events: none;
-      white-space: nowrap;
-      animation: float-marker 3s ease-in-out infinite;
-      transition: border-color 0.4s ease;
-    }
-    @media (prefers-color-scheme: light) {
-      .risk-tooltip {
-        background: #ffffff;
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-      }
+      justify-content: center;
+      color: var(--marker-color, #eab308);
+      font-family: 'Outfit', sans-serif;
+      position: relative;
     }
     
-    .risk-tooltip::after {
-      content: '';
-      position: absolute;
-      bottom: -6px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 0;
-      height: 0;
-      border-left: 6px solid transparent;
-      border-right: 6px solid transparent;
-      border-top: 6px solid var(--marker-color, #eab308);
-      transition: border-top-color 0.4s ease;
-    }
-    
-    @keyframes float-marker {
-      0% { transform: translateY(0px); }
-      50% { transform: translateY(-4px); }
-      100% { transform: translateY(0px); }
-    }
-    
-    .risk-tooltip-value {
-      font-size: 1.3rem;
+    .risk-marker-num {
+      font-size: 64px;
       font-weight: 800;
       line-height: 1;
-      color: #ffffff;
-      font-variant-numeric: tabular-nums;
+    }
+    
+    .risk-marker-lbl {
+      position: absolute;
+      bottom: calc(100% + 12px);
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 13px;
+      font-weight: 800;
+      line-height: 1;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      white-space: nowrap;
+      color: var(--marker-color, #eab308);
+      transition: color 0.4s ease;
+      text-shadow: 0 0 8px rgba(0, 0, 0, 0.4);
     }
     @media (prefers-color-scheme: light) {
-      .risk-tooltip-value {
-        color: #0f172a;
+      .risk-marker-lbl {
+        text-shadow: none;
       }
     }
     
-    .risk-tooltip-label {
-      font-size: 0.65rem;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--text-mute);
-      margin-top: 2px;
+    .hero-status-area {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    
+    .hero-score-label {
+      font-size: 1.15rem;
       font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      transition: color 0.4s ease;
     }
     
     .risk-tick {
       position: absolute;
       top: 50%;
       transform: translateY(-50%);
-      width: 2px;
-      height: 18px;
-      background: rgba(255, 255, 255, 0.35);
+      width: 1.5px;
+      height: 26px;
+      background: var(--text-mute);
       pointer-events: none;
       box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+      z-index: 2;
     }
     @media (prefers-color-scheme: light) {
       .risk-tick {
-        background: rgba(0, 0, 0, 0.2);
+        background: rgba(0, 0, 0, 0.5);
         box-shadow: none;
       }
     }
     
     .risk-track-legend {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 12px;
-      padding: 0 4px;
+      display: grid;
+      grid-template-columns: 1fr 2fr 1fr;
+      text-align: center;
+      margin-top: 70px;
+      padding: 0;
     }
     
     .risk-track-legend span {
-      font-size: 0.72rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-mute);
+      text-transform: capitalize;
+      letter-spacing: normal;
     }
-    
-    .legend-buy { color: #10b981; }
-    .legend-mid { color: #eab308; }
-    .legend-sell { color: #ef4444; }
+
 
     /* Sub-cards styling */
     .score-box .s-label {
@@ -526,6 +514,20 @@
       font-size: 1.1rem;
       cursor: help;
       line-height: 1;
+      display: inline-block;
+      animation: float-icon 2s infinite ease-in-out;
+    }
+
+    @keyframes float-icon {
+      0% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-4px);
+      }
+      100% {
+        transform: translateY(0);
+      }
     }
 
     /* General progress bars inside cards */
@@ -640,6 +642,82 @@
       text-transform: uppercase;
     }
 
+    /* Dynamic tactical highlights (borders & shadows) */
+    .score-box.tactical-buy {
+      border-color: rgba(16, 185, 129, 0.45) !important;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 0 0 22px rgba(16, 185, 129, 0.22) !important;
+    }
+    .score-box.tactical-overheat {
+      border-color: rgba(239, 68, 68, 0.45) !important;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 0 0 22px rgba(239, 68, 68, 0.22) !important;
+    }
+    
+    @media (prefers-color-scheme: light) {
+      .score-box.tactical-buy {
+        border-color: rgba(16, 185, 129, 0.5) !important;
+        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.15) !important;
+      }
+      .score-box.tactical-overheat {
+        border-color: rgba(239, 68, 68, 0.5) !important;
+        box-shadow: 0 6px 20px rgba(239, 68, 68, 0.15) !important;
+      }
+    }
+
+    /* Glowing Index score text styling */
+    #s-final.tactical-buy {
+      color: #10b981 !important;
+      text-shadow: 0 0 15px rgba(16, 185, 129, 0.45);
+    }
+    #s-final.tactical-overheat {
+      color: #ef4444 !important;
+      text-shadow: 0 0 15px rgba(239, 68, 68, 0.45);
+    }
+
+    /* Pulsing animations for the risk track pointer dot */
+    .risk-marker-dot.tactical-buy {
+      animation: pulse-green 2s infinite ease-in-out;
+    }
+    .risk-marker-dot.tactical-overheat {
+      animation: pulse-red 2s infinite ease-in-out;
+    }
+    @keyframes pulse-green {
+      0% { box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2), 0 0 0 0 rgba(16, 185, 129, 0.7); }
+      70% { box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2), 0 0 0 10px rgba(16, 185, 129, 0); }
+      100% { box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2), 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+    @keyframes pulse-red {
+      0% { box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2), 0 0 0 0 rgba(239, 68, 68, 0.7); }
+      70% { box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2), 0 0 0 10px rgba(239, 68, 68, 0); }
+      100% { box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2), 0 0 0 0 rgba(239, 68, 68, 0); }
+    }
+
+    /* Tactical Badge Styling */
+    .tactical-badge {
+      display: inline-flex;
+      align-items: center;
+      font-size: 0.65rem;
+      font-weight: 800;
+      padding: 3.5px 9px;
+      border-radius: 9999px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border: 1px solid transparent;
+      line-height: 1;
+      align-self: center;
+    }
+    .tactical-badge.buy {
+      color: #10b981;
+      background: rgba(16, 185, 129, 0.1);
+      border-color: rgba(16, 185, 129, 0.25);
+      box-shadow: 0 0 8px rgba(16, 185, 129, 0.1);
+    }
+    .tactical-badge.overheat {
+      color: #ef4444;
+      background: rgba(239, 68, 68, 0.1);
+      border-color: rgba(239, 68, 68, 0.25);
+      box-shadow: 0 0 8px rgba(239, 68, 68, 0.1);
+    }
+
     /* Footer styling */
     footer {
       font-size: 0.75rem;
@@ -699,17 +777,39 @@
       
       .hero-top-row {
         flex-direction: column;
-        align-items: flex-start;
-        gap: 12px;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        gap: 8px;
       }
       
-      .hero-price-area {
-        width: 100%;
+      .risk-track-container {
+        margin-top: 76px;
+        margin-bottom: 20px;
       }
       
-      .rb-strip {
-        width: 100%;
-        justify-content: space-between;
+      .risk-track-legend {
+        margin-top: 54px;
+      }
+      
+      .risk-marker {
+        width: 108px;
+        height: 108px;
+      }
+      
+      .risk-marker-dot {
+        width: 100px;
+        height: 100px;
+        border-width: 7px;
+      }
+      
+      .risk-marker-num {
+        font-size: 48px;
+      }
+      
+      .risk-marker-lbl {
+        font-size: 10px;
+        bottom: calc(100% + 8px);
       }
       
       .metric-row {
@@ -742,6 +842,9 @@
 </head>
 <body>
 
+  <!-- Dynamic full-screen canvas backdrop behind frosted glass -->
+  <canvas id="bg-canvas"></canvas>
+
   <!-- Outdated Warning Banner Container -->
   <div id="outdated-warning-container"></div>
 
@@ -749,7 +852,6 @@
   <div class="nav-header">
     <div class="nav-title-group">
       <h1 class="nav-title">Bitcoin Buy Risk Index</h1>
-      <div class="main-ts" id="main-ts">Updated: —</div>
     </div>
     <div class="nav-menu">
       <button class="nav-btn active" id="btn-main" style="cursor:default;">Risk Index</button>
@@ -762,26 +864,24 @@
   <div id="tab-main">
     <div class="scores">
       <!-- Hero Card -->
-      <div class="score-box main">
+      <div class="score-box main" id="main-card">
         <div class="main-inner">
           <div class="hero-top-row">
             <div class="hero-title-area">
               <span class="hero-label">Composite Risk Index</span>
-              <div class="hero-score-group">
-                <span class="hero-score-val" id="s-final">—</span>
-                <span class="s-trend" id="s-trend"></span>
-                <span id="s-warn" class="warning-badge" style="display:none;" title="One or more key indicators contradicts the overall index direction">
-                  ⚠️ Contradiction
-                </span>
-              </div>
+              <span class="hero-card-sep">·</span>
+              <span class="hero-card-ts" id="hero-card-ts">—</span>
+              <span class="hero-card-sep">·</span>
+              <span class="hero-card-price" id="hero-card-price">—</span>
             </div>
-            
-            <div class="hero-price-area">
-              <div class="rb-strip" id="rb-strip">
-                <span class="rb-dot" id="rb-dot"></span>
-                <span class="rb-price" id="s-rainbow">—</span>
-                <span class="rb-pill-label" id="s-rainbow-sub"></span>
-              </div>
+            <div class="hero-status-area">
+              <span class="hero-score-val" id="s-final">—</span>
+              <span class="s-trend" id="s-trend"></span>
+              <span class="hero-score-label" id="s-final-label" style="display:none;">—</span>
+              <span id="main-tactical-badge" class="tactical-badge" style="display:none"></span>
+              <span id="s-warn" class="warning-badge" style="display:none;" title="One or more key indicators contradicts the overall index direction">
+                ⚠️ Contradiction
+              </span>
             </div>
           </div>
           
@@ -790,11 +890,10 @@
             <div class="risk-track" id="risk-track">
               <!-- Floating Neon Marker pointer -->
               <div class="risk-marker" id="risk-marker" style="left: 50%;">
-                <div class="risk-tooltip">
-                  <span class="risk-tooltip-value" id="risk-tooltip-value">—</span>
-                  <span class="risk-tooltip-label" id="risk-tooltip-label">Neutral</span>
+                <div class="risk-marker-dot">
+                  <span class="risk-marker-num" id="marker-num">—</span>
+                  <span class="risk-marker-lbl" id="marker-lbl">—</span>
                 </div>
-                <div class="risk-marker-dot"></div>
               </div>
               <!-- Ticks at 25% and 75% -->
               <div class="risk-tick" style="left: 25%;" title="Buy zone boundary (25)"></div>
@@ -802,9 +901,9 @@
             </div>
             
             <div class="risk-track-legend">
-              <span class="legend-buy">Buy Zone (0–25)</span>
-              <span class="legend-mid">Neutral (25–75)</span>
-              <span class="legend-sell">Sell Zone (75–100)</span>
+              <span>Buy</span>
+              <span>Neutral</span>
+              <span>Sell</span>
             </div>
           </div>
         </div>
@@ -821,12 +920,15 @@
         <div class="s-sub">80% On-Chain + 20% Tech</div>
       </div>
       
-      <div class="score-box">
+      <div class="score-box" id="tech-card">
         <div class="s-label">Tech/Macro Score</div>
         <div class="sub-card-value-container">
           <span id="tech-warn" class="sub-warn-icon" style="display:none" title="One or more tech/macro metrics contradicts the tech subscore">⚠️</span>
           <div class="s-value" id="s-tech">—</div>
           <span id="tech-div-badge" style="display:none"></span>
+        </div>
+        <div id="tech-tactical-badge-container" style="margin-top: 4px; margin-bottom: 2px;">
+          <span id="tech-tactical-badge" class="tactical-badge" style="display:none"></span>
         </div>
         <div class="bar-wrap"><div class="bar-fill" id="b-tech" style="width:0%"></div></div>
         <div class="s-sub">20% On-Chain + 80% Tech</div>
@@ -1079,7 +1181,14 @@
         warnContainer.innerHTML = '';
         if (data.timestamp) {
           const tsDate = new Date(data.timestamp);
-          document.getElementById('main-ts').textContent = 'Updated: ' + tsDate.toLocaleString();
+           const mainTsEl = document.getElementById('main-ts');
+           if (mainTsEl) {
+             mainTsEl.textContent = 'Updated: ' + tsDate.toLocaleString();
+           }
+           const heroCardTs = document.getElementById('hero-card-ts');
+           if (heroCardTs) {
+             heroCardTs.textContent = 'Updated: ' + tsDate.toLocaleString();
+           }
           const ageHours = (Date.now() - tsDate.getTime()) / 3600000;
           if (ageHours > 36) {
             const warn = document.createElement('div');
@@ -1116,47 +1225,38 @@
       setScore('s-oc',    'b-oc',    data.onchain_score);
       setScore('s-tech',  'b-tech',  data.tech_score);
 
-      // Custom Floating Marker positioning for Final Score
+      // Custom Marker positioning and Category Label for Final Score
       const finalVal = data.final_score;
       const marker = document.getElementById('risk-marker');
-      const tooltipVal = document.getElementById('risk-tooltip-value');
-      const tooltipLbl = document.getElementById('risk-tooltip-label');
+      const finalLabelEl = document.getElementById('s-final-label');
       if(marker && finalVal != null) {
         marker.style.left = finalVal + '%';
         const markerColor = scoreColor(finalVal);
         marker.style.setProperty('--marker-color', markerColor);
-        if(tooltipVal) tooltipVal.textContent = finalVal;
-        if(tooltipLbl) {
-          let lbl = 'Neutral';
-          if(finalVal <= 25)      lbl = 'Buy Zone';
-          else if(finalVal <= 40) lbl = 'Accumulate';
-          else if(finalVal <= 60) lbl = 'Neutral';
-          else if(finalVal <= 75) lbl = 'Distribute';
-          else                    lbl = 'Sell Zone';
-          tooltipLbl.textContent = lbl;
+        
+        let lbl = 'Neutral';
+        let shortLbl = 'Neutral';
+        if(finalVal <= 25)      { lbl = 'Buy Zone'; shortLbl = 'Buy'; }
+        else if(finalVal <= 40) { lbl = 'Accumulate'; shortLbl = 'Accumulate'; }
+        else if(finalVal <= 60) { lbl = 'Neutral'; shortLbl = 'Neutral'; }
+        else if(finalVal <= 75) { lbl = 'Distribute'; shortLbl = 'Distribute'; }
+        else                    { lbl = 'Sell Zone'; shortLbl = 'Sell'; }
+        
+        const numEl = document.getElementById('marker-num');
+        const lblEl = document.getElementById('marker-lbl');
+        if (numEl) numEl.textContent = finalVal;
+        if (lblEl) lblEl.textContent = lbl;
+
+        if(finalLabelEl) {
+          finalLabelEl.textContent = lbl;
+          finalLabelEl.style.color = markerColor;
         }
       }
 
-      // Rainbow pricing band
-      const rb = mv('rainbow_band') || data.rainbow_band;
-      if(rb && typeof rb === 'object') {
-        const strip = document.getElementById('rb-strip');
-        if(strip) {
-          strip.style.borderColor = rb.color;
-          // Set a subtle box shadow with the band color
-          strip.style.boxShadow = '0 0 10px ' + rb.color + '40';
-        }
-        
-        const dot = document.getElementById('rb-dot');
-        if (dot) {
-          dot.style.background = rb.color;
-          dot.style.boxShadow = '0 0 8px ' + rb.color;
-        }
-        
-        document.getElementById('s-rainbow').innerHTML = data.btc_price
-          ? '$' + data.btc_price.toLocaleString()
-          : '\u2014';
-        document.getElementById('s-rainbow-sub').textContent = rb.band || '';
+      // Update the inline card price
+      const cardPrice = document.getElementById('hero-card-price');
+      if (cardPrice) {
+        cardPrice.textContent = data.btc_price ? '$' + data.btc_price.toLocaleString() : '\u2014';
       }
 
       // Read on-chain metrics values
@@ -1221,6 +1321,65 @@
       const frScore = mapFunding(fr);
       setMetric('funding', frScore,
         fr ? 'avg7d=' + (fr.avg_7d!=null?fr.avg_7d.toFixed(4):'--') + '%  latest=' + (fr.latest!=null?fr.latest.toFixed(4):'--') + '%' : null);
+
+      // Tactical Highlights (Leverage extremes & capitulation)
+      const mainCard = document.getElementById('main-card');
+      const techCard = document.getElementById('tech-card');
+      const finalScoreEl = document.getElementById('s-final');
+      const markerDot = marker ? marker.querySelector('.risk-marker-dot') : null;
+      const mainBadge = document.getElementById('main-tactical-badge');
+      const techBadge = document.getElementById('tech-tactical-badge');
+
+      window.activeTacticalState = 'neutral';
+      if (finalVal != null && fr && fr.latest != null) {
+        // Reset classes
+        if (mainCard) mainCard.classList.remove('tactical-buy', 'tactical-overheat');
+        if (techCard) techCard.classList.remove('tactical-buy', 'tactical-overheat');
+        if (finalScoreEl) finalScoreEl.classList.remove('tactical-buy', 'tactical-overheat');
+        if (markerDot) markerDot.classList.remove('tactical-buy', 'tactical-overheat');
+        
+        if (mainBadge) { mainBadge.style.display = 'none'; mainBadge.className = 'tactical-badge'; }
+        if (techBadge) { techBadge.style.display = 'none'; techBadge.className = 'tactical-badge'; }
+
+        // Condition 1: Tactical Buy (Capitulation)
+        if (finalVal <= 30 && fr.latest < 0) {
+          if (mainCard) mainCard.classList.add('tactical-buy');
+          if (techCard) techCard.classList.add('tactical-buy');
+          if (finalScoreEl) finalScoreEl.classList.add('tactical-buy');
+          if (markerDot) markerDot.classList.add('tactical-buy');
+          window.activeTacticalState = 'tactical-buy';
+          
+          if (mainBadge) {
+            mainBadge.textContent = 'Buy Confirmed';
+            mainBadge.classList.add('buy');
+            mainBadge.style.display = 'inline-flex';
+          }
+          if (techBadge) {
+            techBadge.textContent = 'Buy Confirmed';
+            techBadge.classList.add('buy');
+            techBadge.style.display = 'inline-flex';
+          }
+        }
+        // Condition 2: Tactical Overheat (Leverage Warning)
+        else if (finalVal >= 50 && fr.latest >= 0.05) {
+          if (mainCard) mainCard.classList.add('tactical-overheat');
+          if (techCard) techCard.classList.add('tactical-overheat');
+          if (finalScoreEl) finalScoreEl.classList.add('tactical-overheat');
+          if (markerDot) markerDot.classList.add('tactical-overheat');
+          window.activeTacticalState = 'tactical-overheat';
+          
+          if (mainBadge) {
+            mainBadge.textContent = 'Leverage Warning';
+            mainBadge.classList.add('overheat');
+            mainBadge.style.display = 'inline-flex';
+          }
+          if (techBadge) {
+            techBadge.textContent = 'Leverage Warning';
+            techBadge.classList.add('overheat');
+            techBadge.style.display = 'inline-flex';
+          }
+        }
+      }
 
       // Contradiction detection: warn if any indicator is in the opposite zone from the final score
       if (finalVal != null) {
@@ -1392,6 +1551,129 @@
     }
 
     init();
+
+    // ── Full-Screen Canvas Candlestick Waves Animation ─────────────────
+    class CandleWave {
+      constructor(baseYRatio, speed, waveFreq, amp, driftAmp) {
+        this.baseYRatio = baseYRatio;
+        this.speed = speed;
+        this.waveFreq = waveFreq;
+        this.amp = amp;
+        this.driftAmp = driftAmp;
+        this.time = Math.random() * 100;
+        this.spacing = 26; 
+        this.width = 10; 
+      }
+      
+      update() {
+        this.time += this.speed;
+      }
+      
+      draw(ctx, w, h, activeState) {
+        this.update();
+        ctx.save();
+        
+        // Calculate the slowly drifting base Y coordinate
+        const drift = Math.sin(this.time * 0.2) * this.driftAmp;
+        const baseY = h * (this.baseYRatio + drift);
+        const candleCount = Math.ceil(w / this.spacing);
+        
+        for (let i = 0; i < candleCount; i++) {
+          const x = i * this.spacing + this.spacing / 2;
+          
+          // 1. Wave contour (local sine wave curve)
+          const waveNoise1 = Math.sin(x * this.waveFreq + this.time * 0.4);
+          const waveNoise2 = Math.cos(x * this.waveFreq * 2.2 - this.time * 0.2);
+          const waveY = baseY + (waveNoise1 * this.amp) + (waveNoise2 * (this.amp * 0.3));
+          
+          // 2. Candle body grows/shrinks dynamically on the fly
+          const tOpen = Math.sin(x * 0.05 + this.time * 0.6) * 14;
+          const tClose = Math.cos(x * 0.07 - this.time * 0.5) * 14;
+          
+          const openY = waveY + tOpen;
+          const closeY = waveY + tClose;
+          
+          const isGreen = closeY < openY;
+          
+          const highY = Math.min(openY, closeY) - 3 - Math.abs(Math.sin(x * 0.12 + this.time * 0.8)) * 8;
+          const lowY = Math.max(openY, closeY) + 3 + Math.abs(Math.cos(x * 0.15 - this.time * 0.7)) * 8;
+          
+          // 3. Solid, crisp glow opacity for dark mode
+          let alpha = 0.09;
+          
+          if (alpha <= 0) continue;
+          
+          // Light mode opacity scaling
+          const isLightMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+          if (isLightMode) {
+            alpha *= 0.65; 
+          }
+          
+          let colorStr;
+          if (activeState === 'tactical-buy') {
+            colorStr = `rgba(16, 185, 129, ${alpha})`;
+          } else if (activeState === 'tactical-overheat') {
+            colorStr = `rgba(239, 68, 68, ${alpha})`;
+          } else {
+            colorStr = isGreen ? `rgba(16, 185, 129, ${alpha})` : `rgba(239, 68, 68, ${alpha})`;
+          }
+          
+          ctx.strokeStyle = colorStr;
+          ctx.fillStyle = colorStr;
+          ctx.lineWidth = 1.5;
+          
+          // Draw wick
+          ctx.beginPath();
+          ctx.moveTo(x, highY);
+          ctx.lineTo(x, lowY);
+          ctx.stroke();
+          
+          // Draw body
+          const rx = x - this.width / 2;
+          const ry = Math.min(openY, closeY);
+          const rHeight = Math.max(2, Math.abs(closeY - openY));
+          ctx.beginPath();
+          ctx.roundRect(rx, ry, this.width, rHeight, 1.5);
+          ctx.fill();
+        }
+        ctx.restore();
+      }
+    }
+
+    const canvas = document.getElementById('bg-canvas');
+    if (canvas) {
+      const ctx = canvas.getContext('2d');
+      let w, h;
+      const waves = [];
+
+      function resizeCanvas() {
+        const dpr = window.devicePixelRatio || 1;
+        w = window.innerWidth;
+        h = window.innerHeight;
+        canvas.width = w * dpr;
+        canvas.height = h * dpr;
+        ctx.scale(dpr, dpr);
+      }
+
+      waves.push(new CandleWave(0.28, 0.008, 0.002, 50, 0.08));
+      waves.push(new CandleWave(0.53, 0.010, 0.003, 60, 0.12));
+      waves.push(new CandleWave(0.78, 0.006, 0.0018, 50, 0.09));
+
+      window.addEventListener('resize', resizeCanvas);
+      resizeCanvas();
+
+      function animate() {
+        ctx.clearRect(0, 0, w, h);
+        const state = window.activeTacticalState || 'neutral';
+        
+        for (let wave of waves) {
+          wave.draw(ctx, w, h, state);
+        }
+        
+        requestAnimationFrame(animate);
+      }
+      animate();
+    }
   </script>
   <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "3f44562f20684f35afabb31abae1a475"}'></script><!-- End Cloudflare Web Analytics -->
 </body>

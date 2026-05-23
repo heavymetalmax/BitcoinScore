@@ -47,7 +47,7 @@ The index is a weighted composite of **10 indicators** across two groups:
 
 ### Metric Mapping & Calibration
 To keep the composite index robust and stable, the macro and technical metrics are mapped directly:
-- **US M2 YoY**: High year-over-year expansion of M2 liquidity indicates stimulative monetary policy (increased system liquidity), pushing asset risk higher (direct mapping: higher YoY M2 = higher risk score).
+- **Global M2 YoY**: High year-over-year expansion of aggregated global M2 liquidity indicates stimulative monetary policy (increased system liquidity), pushing asset risk higher (direct mapping: higher YoY M2 = higher risk score).
 - **Real Yield**: Measured via US 10-Year TIPS Real Yield. Higher real yields represent tight money and higher risk for risk assets like Bitcoin (direct mapping: higher yield = higher risk score).
 
 **Removed indicators (with reasons):**
@@ -100,7 +100,7 @@ The web dashboard implements a modern, premium design system focused on usabilit
 - **This is one person's tool, not financial advice.** Do not make financial decisions based solely on this index.
 - **Weight calibration** is assumption-based, not research-derived.
 - **Cipher B** is an approximation of the original indicator, not an exact reproduction.
-- **Global M2 data** carries a ~6-month reporting lag; a US M2 proxy is used for current readings.
+- **Global M2 data** is scraped live from MacroMicro, tracking the combined M2 YoY change of the four major central banks (Fed, ECB, BOJ, PBOC) denominated in USD.
 - **Past performance** across 8 cycles does not guarantee the index will remain calibrated in future cycles.
 - **Nobody knows** what the market will do tomorrow. Distrust anyone who claims otherwise with confidence.
 
