@@ -317,10 +317,15 @@
       letter-spacing: -0.02em;
     }
     
-    .s-trend {
-      font-size: 1.3rem;
-      font-weight: 700;
-      line-height: 1;
+    .risk-trend-indicator {
+      font-size: 16px;
+      font-weight: 800;
+      height: 16px;
+      line-height: 16px;
+      text-align: center;
+      display: block;
+      transition: opacity 0.3s ease;
+      opacity: 0.85;
     }
     
     .warning-badge {
@@ -394,6 +399,7 @@
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3), 0 0 25px var(--marker-color, #eab308);
       transition: border-color 0.4s ease, box-shadow 0.4s ease;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
       color: var(--marker-color, #eab308);
@@ -409,7 +415,7 @@
     
     .risk-marker-lbl {
       position: absolute;
-      bottom: calc(100% + 12px);
+      bottom: calc(100% + 22px);
       left: 50%;
       transform: translateX(-50%);
       font-size: 13px;
@@ -803,13 +809,19 @@
         border-width: 7px;
       }
       
+      .risk-trend-indicator {
+        font-size: 11px;
+        height: 11px;
+        line-height: 11px;
+      }
+      
       .risk-marker-num {
         font-size: 48px;
       }
       
       .risk-marker-lbl {
         font-size: 10px;
-        bottom: calc(100% + 8px);
+        bottom: calc(100% + 16px);
       }
       
       .metric-row {
@@ -876,7 +888,6 @@
             </div>
             <div class="hero-status-area">
               <span class="hero-score-val" id="s-final">—</span>
-              <span class="s-trend" id="s-trend"></span>
               <span class="hero-score-label" id="s-final-label" style="display:none;">—</span>
               <span id="main-tactical-badge" class="tactical-badge" style="display:none"></span>
               <span id="s-warn" class="warning-badge" style="display:none;" title="One or more key indicators contradicts the overall index direction">
@@ -891,7 +902,9 @@
               <!-- Floating Neon Marker pointer -->
               <div class="risk-marker" id="risk-marker" style="left: 50%;">
                 <div class="risk-marker-dot">
+                  <span class="risk-trend-indicator" id="marker-trend-up"></span>
                   <span class="risk-marker-num" id="marker-num">—</span>
+                  <span class="risk-trend-indicator" id="marker-trend-down"></span>
                   <span class="risk-marker-lbl" id="marker-lbl">—</span>
                 </div>
               </div>
@@ -1070,7 +1083,7 @@
           </span>
         </div>
       </div>
-      <canvas id="history-chart" height="220" style="width:100%;display:block;margin-top:12px;"></canvas>
+      <canvas id="history-chart" height="220" style="width:100%; height:220px; display:block; margin-top:12px;"></canvas>
     </div>
   </div><!-- end tab-main -->
 
@@ -1205,23 +1218,24 @@
       if(data.prev_week && data.prev_week.final_score != null)
         setScore('s-week', 'b-week', data.prev_week.final_score);
 
-      // Trend arrow
+      // Trend arrow inside main circle knob (above/below the score)
       const ref = (data.prev_week && data.prev_week.final_score != null)
         ? data.prev_week.final_score
         : (data.prev_day && data.prev_day.final_score != null ? data.prev_day.final_score : null);
-      const tEl = document.getElementById('s-trend');
-      if(ref != null && data.final_score != null) {
+      const tUpEl = document.getElementById('marker-trend-up');
+      const tDownEl = document.getElementById('marker-trend-down');
+      if(ref != null && data.final_score != null && tUpEl && tDownEl) {
         const diff = data.final_score - ref;
-        if(diff > 0)       { tEl.textContent = '▲'; }
-        else if(diff < 0)  { tEl.textContent = '▼'; }
-        else               { tEl.textContent = ''; }
+        if(diff > 0)       { tUpEl.textContent = '▲'; tDownEl.textContent = ''; }
+        else if(diff < 0)  { tUpEl.textContent = ''; tDownEl.textContent = '▼'; }
+        else               { tUpEl.textContent = ''; tDownEl.textContent = ''; }
       } else {
-        tEl.textContent = '';
+        if (tUpEl) tUpEl.textContent = '';
+        if (tDownEl) tDownEl.textContent = '';
       }
       
       // Update main score values (numerical labels)
       setScore('s-final', 'b-final', data.final_score);
-      if (tEl) tEl.style.color = scoreColor(data.final_score);
       setScore('s-oc',    'b-oc',    data.onchain_score);
       setScore('s-tech',  'b-tech',  data.tech_score);
 
@@ -1439,6 +1453,8 @@
       const H   = parseInt(canvas.getAttribute('height')) || 220;
       canvas.width  = W * dpr;
       canvas.height = H * dpr;
+      canvas.style.width = W + 'px';
+      canvas.style.height = H + 'px';
       const ctx = canvas.getContext('2d');
       ctx.scale(dpr, dpr);
 
