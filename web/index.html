@@ -290,6 +290,7 @@
       letter-spacing: 0.08em;
       color: var(--text-mute);
       font-weight: 700;
+      transition: color 0.4s ease;
     }
     
     .hero-score-group {
@@ -880,7 +881,7 @@
         <div class="main-inner">
           <div class="hero-top-row">
             <div class="hero-title-area">
-              <span class="hero-label">Composite Risk Index</span>
+              <span class="hero-label" id="hero-label">Composite Risk Index</span>
               <span class="hero-card-sep">·</span>
               <span class="hero-card-ts" id="hero-card-ts">—</span>
               <span class="hero-card-sep">·</span>
@@ -1247,6 +1248,11 @@
         marker.style.left = finalVal + '%';
         const markerColor = scoreColor(finalVal);
         marker.style.setProperty('--marker-color', markerColor);
+        
+        const heroLabel = document.getElementById('hero-label');
+        if (heroLabel) {
+          heroLabel.style.color = markerColor;
+        }
         
         let lbl = 'Neutral';
         let shortLbl = 'Neutral';
