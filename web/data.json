@@ -1,15 +1,15 @@
 {
-  "timestamp": "2026-05-23T08:47:58Z",
-  "btc_price": 74371,
+  "timestamp": "2026-05-23T15:51:53Z",
+  "btc_price": 75426,
   "btc_dominance": null,
   "fear_greed": 27.4,
   "fear_greed_label": "Fear",
-  "nupl": 29.9576,
-  "mvrv_z_score": 0.7696,
-  "addresses_in_loss": 22.7807,
-  "addresses_in_profit": 77.2193,
-  "cvdd_ratio": 1.6172,
-  "rhodl_ratio": 949.0163,
+  "nupl": 28.2521,
+  "mvrv_z_score": 0.7068,
+  "addresses_in_loss": 23.8835,
+  "addresses_in_profit": 76.1165,
+  "cvdd_ratio": 1.5747,
+  "rhodl_ratio": 912.3655,
   "rainbow_band": {
     "band": "Fire sale!",
     "color": "rgba(68, 114, 196, 0.8)",
@@ -20,44 +20,44 @@
   "m2": 4.99,
   "metrics": {
     "nupl": {
-      "value": 29.9576,
+      "value": 28.2521,
       "source": "BMP",
-      "updated": "2026-05-23T08:47:51Z"
+      "updated": "2026-05-23T15:51:03Z"
     },
     "mvrv": {
-      "value": 0.7696,
+      "value": 0.7068,
       "source": "BMP",
-      "updated": "2026-05-23T08:47:51Z"
+      "updated": "2026-05-23T15:51:12Z"
     },
     "addresses_in_loss": {
-      "value": 22.7807,
+      "value": 23.8835,
       "source": "BMP",
-      "updated": "2026-05-23T08:47:51Z"
+      "updated": "2026-05-23T15:51:22Z"
     },
     "m2": {
       "value": 4.99,
       "source": "BMP",
-      "updated": "2026-05-23T08:47:51Z"
+      "updated": "2026-05-23T15:51:24Z"
     },
     "real_yield": {
-      "value": 2.0,
+      "value": 2.18,
       "source": "BMP",
-      "updated": "2026-05-23T08:47:51Z"
+      "updated": "2026-05-23T15:51:26Z"
     },
     "geopolitical_risk": {
       "value": 230.7708,
       "source": "BMP",
-      "updated": "2026-05-23T08:47:51Z"
+      "updated": "2026-05-23T15:51:29Z"
     },
     "cvdd_ratio": {
-      "value": 1.6172,
+      "value": 1.5747,
       "source": "BMP",
-      "updated": "2026-05-23T08:47:51Z"
+      "updated": "2026-05-23T15:51:37Z"
     },
     "rhodl_ratio": {
-      "value": 949.0163,
+      "value": 912.3655,
       "source": "BMP",
-      "updated": "2026-05-23T08:47:51Z"
+      "updated": "2026-05-23T15:51:46Z"
     },
     "rainbow_band": {
       "value": {
@@ -68,19 +68,19 @@
         "date": "2026-05-22"
       },
       "source": "BMP",
-      "updated": "2026-05-23T08:47:58Z"
+      "updated": "2026-05-23T15:51:53Z"
     },
     "fear_greed": {
       "latest": 28,
       "avg_7d": 27.4,
       "label": "Fear",
       "source": "Fear",
-      "updated": "2026-05-23T08:47:58Z"
+      "updated": "2026-05-23T15:51:53Z"
     },
     "addresses_in_profit": {
-      "value": 77.2193,
+      "value": 76.1165,
       "source": "Derived",
-      "updated": "2026-05-23T08:47:58Z"
+      "updated": "2026-05-23T15:51:53Z"
     },
     "cipherb": {
       "value": {
@@ -102,7 +102,7 @@
         "fast_bullish_div": false
       },
       "source": "Local",
-      "updated": "2026-05-23T08:47:58Z"
+      "updated": "2026-05-23T15:51:53Z"
     },
     "smc": {
       "value": {
@@ -116,7 +116,7 @@
         "size": 10
       },
       "source": "Local",
-      "updated": "2026-05-23T08:47:59Z"
+      "updated": "2026-05-23T15:51:53Z"
     },
     "mayer_multiple": {
       "value": {
@@ -126,29 +126,29 @@
         "score": 27
       },
       "source": "Kraken",
-      "updated": "2026-05-23T08:47:59Z"
+      "updated": "2026-05-23T15:51:53Z"
     },
     "funding_rate": {
       "value": {
-        "latest": 0.03658,
-        "avg_7d": 0.03658,
-        "score": 58,
+        "latest": 0.02177,
+        "avg_7d": 0.02177,
+        "score": 48,
         "periods": 1,
         "source": "Kraken Futures"
       },
       "source": "Kraken Futures",
-      "updated": "2026-05-23T08:47:59Z"
+      "updated": "2026-05-23T15:51:54Z"
     },
     "m2_mom": {
       "value": 4.99,
       "source": "Global M2 YoY (BMP)",
-      "updated": "2026-05-23T08:48:00Z"
+      "updated": "2026-05-23T15:51:54Z"
     }
   },
   "m2_mom": 4.99,
-  "onchain_score": 48,
+  "onchain_score": 47,
   "tech_score": 50,
-  "final_score": 49,
+  "final_score": 48,
   "prev_day": {
     "date": "2026-05-22",
     "final_score": 49,
@@ -294,8 +294,8 @@
     },
     {
       "date": "2026-05-23",
-      "score": 49,
-      "price": 74371
+      "score": 48,
+      "price": 75426
     }
   ]
 }
