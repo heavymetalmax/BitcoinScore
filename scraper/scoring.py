@@ -13,7 +13,7 @@ Tech/Macro group  (5 metrics, weights sum to 1.0):
   (cipherb — price/momentum осцилятор; +12 penalty при активній bearish divergence;
    smc — ретроспективний, знижено з ×25 → ×10;
    real_yield = US 10Y TIPS real yield (DFII10, FRED), пряма логіка: ↑ реальна ставка = ↑ ризик;
-   m2_yoy = US M2 WM2NS YoY % change (FRED), пряма логіка: ↑ ліквідність = ↑ ризик;
+   m2_yoy = US M2 WM2NS YoY % change (FRED), обернена логіка: ↑ ліквідність = ↓ ризик;
    geopolitical_risk — видалено: <10% поріг, відсутній у backtest)
 
 Index 1 (onchain_score) = 80% OC + 20% Tech
@@ -37,7 +37,7 @@ TECH_WEIGHTS = {
     'mayer_multiple':      0.10,   # Mayer Multiple (Price / 200DMA)
     'fear_greed':          0.20,
     'real_yield':          0.10,   # US 10Y TIPS real yield (DFII10, FRED)
-    'm2_yoy':              0.10,   # US M2 YoY (пряма логіка: ↑ ліквідність = ↑ ризик)
+    'm2_yoy':              0.10,   # US M2 YoY (обернена логіка: ↑ ліквідність = ↓ ризик)
     # geopolitical_risk видалено: <10% поріг, відсутній у backtest
     # smc видалено: 40% false bottom rate, слабка диференціація в ведмедячих трендах
 }
@@ -77,14 +77,14 @@ def map_m2_mom(v):  # legacy — kept for reference only
     return round(((4 - v) / 6) * 100)
 
 
-def map_m2(v):  # US M2 YoY, direct: high expansion = high risk score
+def map_m2(v):  # US M2 YoY, inverted: high expansion = low risk score
     if v is None: return None
     # US M2 year-over-year % change (FRED WM2NS)
-    # HIGH YoY → system flooded with liquidity → market overheated → HIGH score
-    # LOW/negative YoY → liquidity tightening → accumulate → LOW score
-    # Range: -5% to +20% (excludes 2020 COVID QE outlier +27%)
+    # HIGH YoY → system flooded with liquidity → low macro risk → LOW score
+    # LOW/negative YoY → liquidity tightening → high macro risk → HIGH score
+    # Range: -5% to +20%
     v = max(-5, min(20, v))
-    return round(((v + 5) / 25) * 100)
+    return round(((20 - v) / 25) * 100)
 
 def map_real_yield(v):
     # US 10Y Real Yield (DFII10). Direct: high real yield = tight money = high risk

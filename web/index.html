@@ -141,6 +141,7 @@
       background: linear-gradient(135deg, #ffffff 0%, #f7931a 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
+      transition: -webkit-text-fill-color 0.4s ease;
     }
     @media (prefers-color-scheme: light) {
       .nav-title {
@@ -864,7 +865,7 @@
   <!-- Main Navigation Header -->
   <div class="nav-header">
     <div class="nav-title-group">
-      <h1 class="nav-title">Bitcoin Buy Risk Index</h1>
+      <h1 class="nav-title" id="logo-title">BTC Buy Risk Index</h1>
     </div>
     <div class="nav-menu">
       <button class="nav-btn active" id="btn-main" style="cursor:default;">Risk Index</button>
@@ -1249,9 +1250,9 @@
         const markerColor = scoreColor(finalVal);
         marker.style.setProperty('--marker-color', markerColor);
         
-        const heroLabel = document.getElementById('hero-label');
-        if (heroLabel) {
-          heroLabel.style.color = markerColor;
+        const logoTitle = document.getElementById('logo-title');
+        if (logoTitle) {
+          logoTitle.style.webkitTextFillColor = markerColor;
         }
         
         let lbl = 'Neutral';

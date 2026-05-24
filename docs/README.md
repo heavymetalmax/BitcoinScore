@@ -46,8 +46,8 @@ The index is a weighted composite of **10 indicators** across two groups:
 | **Tech / Macro** | 50% | Cipher B ×50%, Fear & Greed ×20%, Pi Cycle Top ×10%, Real Yield ×10%, Global M2 YoY ×10% |
 
 ### Metric Mapping & Calibration
-To keep the composite index robust and stable, the macro and technical metrics are mapped directly:
-- **Global M2 YoY**: High year-over-year expansion of aggregated global M2 liquidity indicates stimulative monetary policy (increased system liquidity), pushing asset risk higher (direct mapping: higher YoY M2 = higher risk score).
+To keep the composite index robust and stable, the macro and technical metrics are mapped:
+- **Global M2 YoY**: High year-over-year expansion of aggregated global M2 liquidity indicates stimulative monetary policy (increased system liquidity), which lowers macro-economic risk for purchasing assets (inverted mapping: higher YoY M2 = lower risk score).
 - **Real Yield**: Measured via US 10-Year TIPS Real Yield. Higher real yields represent tight money and higher risk for risk assets like Bitcoin (direct mapping: higher yield = higher risk score).
 
 **Removed indicators (with reasons):**
@@ -64,24 +64,25 @@ The two groups are also displayed as separate sub-scores for readers who weight 
 
 ## Retrospective Performance (2018–2026)
 
-The table below lists historical risk score outcomes under the updated composite model (which includes the MFI-enhanced Cipher B with fast divergences and removes SOPR/SMC):
+The table below lists historical risk score outcomes under the updated composite model (which includes the MFI-enhanced Cipher B with fast divergences, removes SOPR/SMC, and uses the M2 inverted liquidity logic):
 
 | Date | Event | BTC Price | Final Score |
 |---|---|---|---|
-| **2018-12-15** | Cycle bear bottom | $3,200 | **14** |
+| **2018-12-15** | Cycle bear bottom | $3,200 | **16** |
 | **2020-03-13** | COVID crash | $3,800 | **32** |
-| **2022-06-18** | Capitulation dip | $17,600 | **20** |
-| **2022-11-21** | FTX cycle bottom | $15,500 | **18** |
-| **2021-04-14** | Spring ATH | $63,500 | **91** |
-| **2021-11-10** | Nov 2021 ATH | $69,000 | **86** |
-| **2024-03-14** | 2024 ATH | $73,500 | **85** |
-| **2025-09-29** | 2025 ATH (Intraday) | $129,000 | **72** |
+| **2022-06-18** | Capitulation dip | $17,600 | **21** |
+| **2022-11-21** | FTX cycle bottom | $15,500 | **20** |
+| **2021-04-14** | Spring ATH | $63,500 | **86** |
+| **2021-11-10** | Nov 2021 ATH | $69,000 | **84** |
+| **2024-03-14** | 2024 ATH | $73,500 | **88** |
+| **2025-01-20** | Jan 2025 peak | $109,000 | **85** |
+| **2025-09-29** | 2025 ATH (Intraday) | $129,000 | **74** |
 
-Average score at cycle bottoms (including COVID crash): **21.0 / 100**
-Average score at cycle bottoms (excluding COVID crash): **16.0 / 100**
-Average score at confirmed cycle tops: **83.5 / 100**
+Average score at cycle bottoms (including COVID crash): **22.3 / 100**
+Average score at cycle bottoms (excluding COVID crash): **19.0 / 100**
+Average score at confirmed cycle tops: **85.8 / 100**
 
-The peak scores across cycles (91 → 86 → 85 → 72) reflect a maturing market — lower speculative excess at each top, not a failure of the index. The sell zone is not fixed; it shifts with the market's structure.
+The peak scores across cycles (86 → 84 → 88 → 85 → 74) reflect a maturing market — lower speculative excess at each top, not a failure of the index. The sell zone is not fixed; it shifts with the market's structure.
 
 ---
 

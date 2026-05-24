@@ -21,6 +21,8 @@
       --divider: rgba(255, 255, 255, 0.08);
       --footer: #4b5563;
       --glass-blur: blur(10px);
+      --shadow-glow: 0 0 15px rgba(247, 147, 26, 0.08);
+      --shadow-glow-active: 0 0 25px rgba(247, 147, 26, 0.18);
     }
     
     @media (prefers-color-scheme: light) {
@@ -38,6 +40,8 @@
         --divider: rgba(0, 0, 0, 0.08);
         --footer: #64748b;
         --glass-blur: blur(6px);
+        --shadow-glow: 0 4px 12px rgba(0, 0, 0, 0.03);
+        --shadow-glow-active: 0 6px 20px rgba(0, 0, 0, 0.08);
       }
     }
 
@@ -68,6 +72,11 @@
     .nav-title-group {
       display: flex;
       flex-direction: column;
+    }
+    .nav-title-group a {
+      text-decoration: none;
+      color: inherit;
+      display: inline-block;
     }
     .nav-title {
       font-size: 1.6rem;
@@ -238,11 +247,105 @@
     em { color: var(--text-name); font-style: italic; }
     hr { border: none; border-top: 1px solid var(--divider); margin: 24px 0; }
 
-    .zone-0   { color: #10b981; font-weight: 700; }
-    .zone-25  { color: #10b981; font-weight: 700; }
-    .zone-50  { color: #eab308; font-weight: 700; }
-    .zone-75  { color: #ef4444; font-weight: 700; }
-    .zone-100 { color: #ef4444; font-weight: 700; }
+    .zone-0, .zone-25, .zone-50, .zone-75, .zone-100 {
+      display: inline-block;
+      font-size: 0.76rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+      line-height: 1.1;
+      border: 1px solid transparent;
+      margin: 0 2px;
+      vertical-align: middle;
+    }
+    .zone-0, .zone-25 {
+      color: #10b981;
+      background: rgba(16, 185, 129, 0.08);
+      border-color: rgba(16, 185, 129, 0.2);
+    }
+    .zone-50 {
+      color: #eab308;
+      background: rgba(234, 179, 8, 0.08);
+      border-color: rgba(234, 179, 8, 0.2);
+    }
+    .zone-75, .zone-100 {
+      color: #ef4444;
+      background: rgba(239, 68, 68, 0.08);
+      border-color: rgba(239, 68, 68, 0.2);
+    }
+    .zone-0 strong, .zone-25 strong, .zone-50 strong, .zone-75 strong, .zone-100 strong {
+      color: inherit;
+    }
+
+    /* General Badge highlights */
+    .badge {
+      display: inline-block;
+      font-size: 0.76rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+      line-height: 1.1;
+      border: 1px solid transparent;
+      margin: 0 2px;
+      vertical-align: middle;
+    }
+    .badge.buy {
+      color: #10b981;
+      background: rgba(16, 185, 129, 0.08);
+      border-color: rgba(16, 185, 129, 0.2);
+    }
+    .badge.sell {
+      color: #ef4444;
+      background: rgba(239, 68, 68, 0.08);
+      border-color: rgba(239, 68, 68, 0.2);
+    }
+    .badge.neutral {
+      color: #eab308;
+      background: rgba(234, 179, 8, 0.08);
+      border-color: rgba(234, 179, 8, 0.2);
+    }
+    .badge.info {
+      color: #f7931a;
+      background: rgba(247, 147, 26, 0.08);
+      border-color: rgba(247, 147, 26, 0.2);
+    }
+    @media (prefers-color-scheme: light) {
+      .zone-0, .zone-25 {
+        color: #059669;
+        background: rgba(5, 150, 105, 0.06);
+        border-color: rgba(5, 150, 105, 0.15);
+      }
+      .zone-50 {
+        color: #ca8a04;
+        background: rgba(202, 138, 4, 0.06);
+        border-color: rgba(202, 138, 4, 0.15);
+      }
+      .zone-75, .zone-100 {
+        color: #dc2626;
+        background: rgba(220, 38, 38, 0.06);
+        border-color: rgba(220, 38, 38, 0.15);
+      }
+      .badge.buy {
+        color: #059669;
+        background: rgba(5, 150, 105, 0.06);
+        border-color: rgba(5, 150, 105, 0.15);
+      }
+      .badge.sell {
+        color: #dc2626;
+        background: rgba(220, 38, 38, 0.06);
+        border-color: rgba(220, 38, 38, 0.15);
+      }
+      .badge.neutral {
+        color: #ca8a04;
+        background: rgba(202, 138, 4, 0.06);
+        border-color: rgba(202, 138, 4, 0.15);
+      }
+      .badge.info {
+        color: #b45309;
+        background: rgba(217, 119, 6, 0.06);
+        border-color: rgba(217, 119, 6, 0.15);
+      }
+    }
 
     blockquote {
       border-left: 3px solid #f7931a55;
@@ -256,6 +359,27 @@
     }
     blockquote p { font-size: .84rem; color: var(--text-name); margin-bottom: 6px; font-style: italic; }
     blockquote cite { font-size: .74rem; color: var(--text-mute); font-style: normal; font-weight: 500; }
+
+    /* Glass card container for tables */
+    .glass-card {
+      background: var(--bg-card);
+      backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15), var(--shadow-glow);
+      transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), border-color 0.3s ease, box-shadow 0.3s ease;
+      margin: 20px 0;
+      overflow-x: auto;
+    }
+    .glass-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--border-hover);
+      box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.25), var(--shadow-glow-active);
+    }
+    .glass-card table {
+      margin-bottom: 0;
+    }
 
     table { width: 100%; border-collapse: collapse; font-size: .8rem; margin-bottom: 14px; }
     th {
@@ -342,7 +466,7 @@
   <div class="nav-header">
     <div class="nav-title-group">
       <a href="index.html" style="text-decoration: none;">
-        <h1 class="nav-title">Bitcoin Buy Risk Index</h1>
+        <h1 class="nav-title">BTC Buy Risk Index</h1>
       </a>
     </div>
     <div class="nav-menu">
@@ -386,7 +510,7 @@
 
       <!-- UA -->
       <div class="ua">
-        <h1>&#x20BF; Bitcoin Buy Risk</h1>
+        <h1>Про індикатор</h1>
         <p class="article-meta">Версія: травень 2026 &middot; 10 індикаторів &middot; 16 ключових подій 2018–2026</p>
 
         <h2>Що це таке — і чим воно не є</h2>
@@ -422,13 +546,15 @@
 
         <h2>Як побудований індекс</h2>
         <p>Індекс є зваженою композицією <strong>10 індикаторів</strong> у двох групах:</p>
-        <table class="weights-table">
-          <thead><tr><th>Група</th><th>Вага</th><th>Індикатори</th></tr></thead>
-          <tbody>
-            <tr><td><strong>On-Chain (OC)</strong></td><td>50%</td><td>NUPL, MVRV Z-score, Addr in Profit, RHODL Ratio, CVDD Ratio</td></tr>
-            <tr><td><strong>Tech / Macro</strong></td><td>50%</td><td>Cipher B ×50%, Mayer Multiple ×10%, Fear &amp; Greed (7d avg) ×20%, Real Yield ×10%, Global M2 YoY ×10%</td></tr>
-          </tbody>
-        </table>
+        <div class="glass-card">
+          <table class="weights-table">
+            <thead><tr><th>Група</th><th>Вага</th><th>Індикатори</th></tr></thead>
+            <tbody>
+              <tr><td><strong>On-Chain (OC)</strong></td><td>50%</td><td>NUPL, MVRV Z-score, Addr in Profit, RHODL Ratio, CVDD Ratio</td></tr>
+              <tr><td><strong>Tech / Macro</strong></td><td>50%</td><td>Cipher B ×50%, Mayer Multiple ×10%, Fear &amp; Greed (7d avg) ×20%, Real Yield ×10%, Global M2 YoY ×10%</td></tr>
+            </tbody>
+          </table>
+        </div>
         <p>Обидві групи відображаються як окремі суб-скори з перехресним змішуванням: OC суб-скор = 80% ончейн + 20% техно/макро; Tech суб-скор = 20% ончейн + 80% техно/макро; Final = 50% кожної групи.</p>
 
         <h3>Про розподіл ваг</h3>
@@ -449,7 +575,7 @@
 
       <!-- EN -->
       <div class="en">
-        <h1>&#x20BF; Bitcoin Buy Risk</h1>
+        <h1>About the Index</h1>
         <p class="article-meta">Version: May 2026 &middot; 10 indicators &middot; 16 key events 2018–2026</p>
 
         <h2>What This Is — and What It Is Not</h2>
@@ -485,13 +611,15 @@
 
         <h2>How the Index Is Constructed</h2>
         <p>The index is a weighted composite of <strong>10 indicators</strong> across two groups:</p>
-        <table class="weights-table">
-          <thead><tr><th>Group</th><th>Weight</th><th>Indicators</th></tr></thead>
-          <tbody>
-            <tr><td><strong>On-Chain (OC)</strong></td><td>50%</td><td>NUPL, MVRV Z-score, Addr in Profit, RHODL Ratio, CVDD Ratio</td></tr>
-            <tr><td><strong>Tech / Macro</strong></td><td>50%</td><td>Cipher B (weekly) ×50%, Mayer Multiple ×10%, Fear &amp; Greed (7d avg) ×20%, Real Yield ×10%, Global M2 YoY ×10%</td></tr>
-          </tbody>
-        </table>
+        <div class="glass-card">
+          <table class="weights-table">
+            <thead><tr><th>Group</th><th>Weight</th><th>Indicators</th></tr></thead>
+            <tbody>
+              <tr><td><strong>On-Chain (OC)</strong></td><td>50%</td><td>NUPL, MVRV Z-score, Addr in Profit, RHODL Ratio, CVDD Ratio</td></tr>
+              <tr><td><strong>Tech / Macro</strong></td><td>50%</td><td>Cipher B (weekly) ×50%, Mayer Multiple ×10%, Fear &amp; Greed (7d avg) ×20%, Real Yield ×10%, Global M2 YoY ×10%</td></tr>
+            </tbody>
+          </table>
+        </div>
         <p>Both groups are displayed as separate sub-scores with cross-blending: OC sub-score = 80% on-chain + 20% tech/macro; Tech sub-score = 20% on-chain + 80% tech/macro; Final = 50% each.</p>
 
         <h3>On weight distribution</h3>
@@ -698,117 +826,127 @@
         </ul>
 
         <h2>Повна таблиця мілстоунів 2018–2026</h2>
-        <table>
-          <thead><tr><th>Дата</th><th>Подія</th><th>BTC</th><th>OC</th><th>Tech</th><th>Final</th><th>F&amp;G</th><th>M2</th><th>Mayer</th></tr></thead>
-          <tbody>
-            <tr><td>2018-12-15</td><td>Cycle bear bottom</td><td>$3,200</td><td>17</td><td>13</td><td><strong class="zone-0">15</strong></td><td>11</td><td>33</td><td>1</td></tr>
-            <tr><td>2019-06-26</td><td>Локальний пік</td><td>$13,880</td><td>73</td><td>87</td><td><strong class="zone-100">80</strong></td><td>95</td><td>39</td><td>100</td></tr>
-            <tr><td>2020-03-13</td><td>COVID crash</td><td>$3,800</td><td>29</td><td>25</td><td><strong class="zone-25">27</strong></td><td>10</td><td>54</td><td>9</td></tr>
-            <tr><td>2020-10-01</td><td>Старт булрану</td><td>$10,800</td><td>56</td><td>69</td><td><strong class="zone-75">63</strong></td><td>45</td><td>100</td><td>40</td></tr>
-            <tr><td>2021-04-14</td><td>Spring ATH</td><td>$63,500</td><td>90</td><td>88</td><td><strong class="zone-100">89</strong></td><td>75</td><td>99</td><td>90</td></tr>
-            <tr><td>2021-07-20</td><td>Літній дип</td><td>$29,800</td><td>51</td><td>32</td><td><strong class="zone-50">42</strong></td><td>19</td><td>71</td><td>10</td></tr>
-            <tr><td>2021-11-10</td><td>Nov 2021 ATH</td><td>$69,000</td><td>84</td><td>81</td><td><strong class="zone-100">83</strong></td><td>75</td><td>69</td><td>58</td></tr>
-            <tr><td>2022-06-18</td><td>Капітуляція</td><td>$17,600</td><td>25</td><td>15</td><td><strong class="zone-0">20</strong></td><td>6</td><td>43</td><td>0</td></tr>
-            <tr><td>2022-11-21</td><td>FTX дно</td><td>$15,500</td><td>20</td><td>17</td><td><strong class="zone-0">19</strong></td><td>21</td><td>21</td><td>13</td></tr>
-            <tr><td>2023-01-14</td><td>Початок відновлення</td><td>$21,000</td><td>34</td><td>38</td><td><strong class="zone-25">36</strong></td><td>46</td><td>13</td><td>36</td></tr>
-            <tr><td>2024-03-14</td><td>2024 ATH</td><td>$73,500</td><td>79</td><td>85</td><td><strong class="zone-100">82</strong></td><td>88</td><td>17</td><td>81</td></tr>
-            <tr><td>2025-01-20</td><td>Jan 2025 пік</td><td>$109,000</td><td>76</td><td>82</td><td><strong class="zone-100">79</strong></td><td>76</td><td>35</td><td>54</td></tr>
-            <tr><td>2025-09-26</td><td>Close ATH</td><td>$123,000</td><td>64</td><td>63</td><td><strong class="zone-75">64</strong></td><td>28</td><td>36</td><td>35</td></tr>
-            <tr><td>2025-09-29</td><td>Intraday ATH</td><td>$129,000</td><td>67</td><td>66</td><td><strong class="zone-75">67</strong></td><td>50</td><td>36</td><td>37</td></tr>
-            <tr><td>2025-11-10</td><td>Post-ATH dump</td><td>$94,000</td><td>55</td><td>38</td><td><strong class="zone-50">47</strong></td><td>29</td><td>35</td><td>29</td></tr>
-            <tr><td>2026-05-21</td><td>Сьогодні</td><td>$77,133</td><td>48</td><td>53</td><td><strong class="zone-50">50</strong></td><td>42</td><td>40</td><td>28</td></tr>
-          </tbody>
-        </table>
+        <div class="glass-card">
+          <table>
+            <thead><tr><th>Дата</th><th>Подія</th><th>BTC</th><th>OC</th><th>Tech</th><th>Final</th><th>F&amp;G</th><th>M2</th><th>Mayer</th></tr></thead>
+            <tbody>
+              <tr><td>2018-12-15</td><td>Cycle bear bottom</td><td>$3,200</td><td>16</td><td>17</td><td><strong class="zone-0">16</strong></td><td>11</td><td>67</td><td>1</td></tr>
+              <tr><td>2019-06-26</td><td>Локальний пік</td><td>$13,880</td><td>73</td><td>89</td><td><strong class="zone-100">81</strong></td><td>95</td><td>61</td><td>100</td></tr>
+              <tr><td>2020-03-13</td><td>COVID crash</td><td>$3,800</td><td>32</td><td>32</td><td><strong class="zone-25">32</strong></td><td>10</td><td>46</td><td>9</td></tr>
+              <tr><td>2020-10-01</td><td>Старт булрану</td><td>$10,800</td><td>56</td><td>49</td><td><strong class="zone-50">52</strong></td><td>45</td><td>0</td><td>40</td></tr>
+              <tr><td>2021-04-14</td><td>Spring ATH</td><td>$63,500</td><td>96</td><td>75</td><td><strong class="zone-100">86</strong></td><td>75</td><td>1</td><td>90</td></tr>
+              <tr><td>2021-07-20</td><td>Літній дип</td><td>$29,800</td><td>60</td><td>21</td><td><strong class="zone-25">40</strong></td><td>19</td><td>29</td><td>10</td></tr>
+              <tr><td>2021-11-10</td><td>Nov 2021 ATH</td><td>$69,000</td><td>90</td><td>78</td><td><strong class="zone-100">84</strong></td><td>75</td><td>31</td><td>58</td></tr>
+              <tr><td>2022-06-18</td><td>Капітуляція</td><td>$17,600</td><td>28</td><td>14</td><td><strong class="zone-25">21</strong></td><td>6</td><td>57</td><td>0</td></tr>
+              <tr><td>2022-11-21</td><td>FTX дно</td><td>$15,500</td><td>20</td><td>21</td><td><strong class="zone-25">20</strong></td><td>21</td><td>79</td><td>13</td></tr>
+              <tr><td>2023-01-14</td><td>Початок відновлення</td><td>$21,000</td><td>31</td><td>42</td><td><strong class="zone-25">36</strong></td><td>46</td><td>87</td><td>36</td></tr>
+              <tr><td>2024-03-14</td><td>2024 ATH</td><td>$73,500</td><td>84</td><td>93</td><td><strong class="zone-100">88</strong></td><td>88</td><td>83</td><td>81</td></tr>
+              <tr><td>2025-01-20</td><td>Jan 2025 пік</td><td>$109,000</td><td>82</td><td>88</td><td><strong class="zone-100">85</strong></td><td>76</td><td>65</td><td>54</td></tr>
+              <tr><td>2025-09-26</td><td>Close ATH</td><td>$123,000</td><td>70</td><td>61</td><td><strong class="zone-75">66</strong></td><td>28</td><td>64</td><td>35</td></tr>
+              <tr><td>2025-09-29</td><td>Intraday ATH</td><td>$129,000</td><td>73</td><td>74</td><td><strong class="zone-75">74</strong></td><td>50</td><td>64</td><td>37</td></tr>
+              <tr><td>2025-11-10</td><td>Post-ATH dump</td><td>$94,000</td><td>66</td><td>29</td><td><strong class="zone-50">48</strong></td><td>29</td><td>65</td><td>29</td></tr>
+              <tr><td>2026-05-21</td><td>Сьогодні</td><td>$77,133</td><td>50</td><td>43</td><td><strong class="zone-50">46</strong></td><td>31</td><td>60</td><td>28</td></tr>
+            </tbody>
+          </table>
+        </div>
 
         <hr>
 
         <h2>Ключові висновки</h2>
 
         <h3>1. Індекс чітко розрізняє дна від вершин</h3>
-        <p>Середнє значення на <strong>підтверджених дніх</strong> (4 події: 2018, COVID, Капітуляція, FTX): <strong class="zone-0">20.3</strong><br>
-        Середнє значення на <strong>підтверджених ATH</strong> (4 події: Spring/Nov 2021, 2024, 2025): <strong class="zone-100">83.3</strong><br>
-        Розрив у <strong>~63 пункти</strong> — статистично значуща різниця для бінарного сигналу «купувати / продавати».</p>
+        <p>Середнє значення на <strong>підтверджених дніх</strong> (4 події: 2018, COVID, Капітуляція, FTX): <strong class="zone-25">22.3</strong><br>
+        Середнє значення на <strong>підтверджених ATH</strong> (4 події: Spring/Nov 2021, 2024, 2025): <strong class="zone-100">85.8</strong><br>
+        Розрив у <span class="badge info">~64 пункти</span> — статистично значуща різниця для бінарного сигналу «купувати / продавати».</p>
 
         <h3>2. Ефект спадання піків</h3>
-        <table>
-          <thead><tr><th>Цикл</th><th>ATH</th><th>Bitcoin Buy Risk</th></tr></thead>
-          <tbody>
-            <tr><td>2021 весна</td><td>$63,500</td><td><strong class="zone-100">89</strong></td></tr>
-            <tr><td>2021 осінь</td><td>$69,000</td><td><strong class="zone-100">83</strong></td></tr>
-            <tr><td>2024</td><td>$73,500</td><td><strong class="zone-100">82</strong></td></tr>
-            <tr><td>2025</td><td>$129,000</td><td><strong class="zone-75">67</strong></td></tr>
-          </tbody>
-        </table>
-        <p>Попри новий ціновий максимум у 2025 р. (+76% до 2024 ATH), Bitcoin Buy Risk на піку впав до 67. On-chain метрики (MVRV Z-score ≈ 3.5, RHODL ≈ 8000) більше не досягають екстремумів попередніх циклів. Ринок дорослішає.<br>
-        <strong>Практичний висновок: у 2025 р. зона продажу починається від ~65, а не від ~80, як у 2021 р.</strong></p>
+        <div class="glass-card">
+          <table>
+            <thead><tr><th>Цикл</th><th>ATH</th><th>Bitcoin Buy Risk</th></tr></thead>
+            <tbody>
+              <tr><td>2021 весна</td><td>$63,500</td><td><strong class="zone-100">86</strong></td></tr>
+              <tr><td>2021 осінь</td><td>$69,000</td><td><strong class="zone-100">84</strong></td></tr>
+              <tr><td>2024</td><td>$73,500</td><td><strong class="zone-100">88</strong></td></tr>
+              <tr><td>2025</td><td>$129,000</td><td><strong class="zone-75">74</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Попри новий ціновий максимум у 2025 р. (+76% до 2024 ATH), Bitcoin Buy Risk на піку впав до 74. On-chain метрики (MVRV Z-score ≈ 3.5, RHODL ≈ 8000) більше не досягають екстремумів попередніх циклів. Ринок дорослішає.<br>
+        <strong>Практичний висновок: у 2025 р. зона продажу починається від <span class="badge sell">~70</span>, а не від <span class="badge sell">~85</span>, як у 2021 р.</strong></p>
 
         <h3>3. Mayer Multiple — індикатор перегрітості</h3>
         <p>Mayer Multiple є надійним циклічним індикатором, що вимірює відношення ціни до 200-денної середньої. Він показав високі значення на вершинах 2021 (весна) та 2024 (скор &gt;80), але в пізніших фазах циклу (осінь 2021, січень 2025) його значення були помірнішими (скор ~54–58). На дні циклу (2018, 2022) він опускався до критично низьких рівнів (скор 0–13), що робить його чудовим інструментом для ідентифікації зон довгострокового накопичення.</p>
 
         <h3>4. Fear &amp; Greed: підтверджує екстремуми, але не ATH 2025</h3>
-        <table>
-          <thead><tr><th>Подія</th><th>F&amp;G score</th><th>Позначка</th></tr></thead>
-          <tbody>
-            <tr><td>Дна 2018, 2020, 2022 (avg)</td><td><strong class="zone-0">12</strong></td><td>Extreme Fear</td></tr>
-            <tr><td>ATH 2021 (avg)</td><td><strong class="zone-100">75</strong></td><td>Greed</td></tr>
-            <tr><td>ATH 2024</td><td><strong class="zone-100">88</strong></td><td>Extreme Greed</td></tr>
-            <tr><td>ATH 2025 ($129k)</td><td><strong class="zone-50">50</strong></td><td>Neutral — без роздрібної ейфорії</td></tr>
-          </tbody>
-        </table>
-        <p>F&amp;G на піку 2025 показав лише 50 (Neutral) при ціні $129,000. Причина: великий капітал (ETF, корпорації) рухає ціну без масової роздрібної ейфорії.</p>
+        <div class="glass-card">
+          <table>
+            <thead><tr><th>Подія</th><th>F&amp;G score</th><th>Позначка</th></tr></thead>
+            <tbody>
+              <tr><td>Дна 2018, 2020, 2022 (avg)</td><td><strong class="zone-0">12</strong></td><td>Extreme Fear</td></tr>
+              <tr><td>ATH 2021 (avg)</td><td><strong class="zone-100">75</strong></td><td>Greed</td></tr>
+              <tr><td>ATH 2024</td><td><strong class="zone-100">88</strong></td><td>Extreme Greed</td></tr>
+              <tr><td>ATH 2025 ($129k)</td><td><strong class="zone-50">50</strong></td><td>Neutral — без роздрібної ейфорії</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>F&amp;G на піку 2025 показав лише <span class="badge neutral">50 (Neutral)</span> при ціні $129,000. Причина: великий капітал (ETF, корпорації) рухає ціну без масової роздрібної ейфорії.</p>
 
-        <h3>5. Global M2 YoY: прямий індикатор ліквідності</h3>
-        <p>Висока річна зміна M2 → ринок затоплений ліквідністю → перегрів → <strong>високий</strong> ризик-скор. Низька/від'ємна YoY → монетарне стиснення → накопичення → <strong>низький</strong> скор.<br>
-        Pre-bull жовтень 2020: M2 YoY = <strong class="zone-100">100</strong> (пік COVID QE, +23% YoY — максимальна ліквідність). Весна 2021 ATH: M2 YoY = <strong class="zone-100">99</strong> (~20% YoY). Дно FTX 2022: M2 YoY = <strong class="zone-0">21</strong> (~0.3% YoY — стиснення). 2024 ATH: M2 = <strong>17</strong> (-0.7% YoY — ралі на ETF без монетарної підтримки).</p>
+        <h3>5. Global M2 YoY: індикатор макро-ліквідності</h3>
+        <p>Висока річна зміна M2 → ринок затоплений ліквідністю → низький ризик (паливо є) → <strong>низький</strong> ризик-скор. Низька/від'ємна YoY → монетарне стиснення → дефіцит грошей → <strong>високий</strong> скор.<br>
+        Pre-bull жовтень 2020: M2 YoY = <span class="zone-0">0</span> (пік COVID QE, +23% YoY — максимальна ліквідність, мінімальний ризик). Весна 2021 ATH: M2 YoY = <span class="zone-0">1</span> (~20% YoY). Дно FTX 2022: M2 YoY = <span class="zone-75">79</span> (~0.3% YoY — стиснення). 2024 ATH: M2 = <span class="zone-100">83</span> (-0.7% YoY — ралі на ETF без монетарної підтримки, високий макро-ризик).</p>
 
         <h3>6. On-chain група: найнадійніша в довгостроковому розрізі</h3>
         <ul>
-          <li>OC на дніх: <strong class="zone-0">16–25</strong></li>
-          <li>OC на ATH 2021: <strong class="zone-100">84–90</strong></li>
-          <li>OC на ATH 2024–2025: <strong class="zone-75">64–79</strong> — MVRV Z-score більше не досягає екстремумів 2021 р. через значно вищий Realized cap</li>
+          <li>OC на дніх: <strong class="zone-25">16–32</strong></li>
+          <li>OC на ATH 2021: <strong class="zone-100">90–96</strong></li>
+          <li>OC на ATH 2024–2025: <strong class="zone-100">82–84</strong> — MVRV Z-score більше не досягає екстремумів 2021 р. через значно вищий Realized cap</li>
         </ul>
 
         <h3>7. Tech/Macro: чутлива до короткострокових подій</h3>
         <ul>
-          <li>2022 капітуляція: Tech = <strong class="zone-0">15</strong> (CipherB=0, Mayer=0, F&amp;G=6; M2=43)</li>
-          <li>Pre-bull 2020: Tech = <strong class="zone-75">69</strong> (Mayer=40, CipherB=71, M2=100)</li>
-          <li>Post-ATH dump 2025: Tech = <strong class="zone-25">38</strong> (Mayer=29, CipherB=14, F&amp;G=29)</li>
+          <li>2022 капітуляція: Tech = <strong class="zone-0">14</strong> (CipherB=0, Mayer=0, F&amp;G=6; M2=57)</li>
+          <li>Pre-bull 2020: Tech = <strong class="zone-50">49</strong> (Mayer=40, CipherB=66, M2=0)</li>
+          <li>Post-ATH dump 2025: Tech = <strong class="zone-25">29</strong> (Mayer=29, CipherB=12, F&amp;G=29)</li>
         </ul>
         <p>Tech score швидко реагує на зміну сентименту — корисний для тактичних точок входу.</p>
 
         <hr>
 
         <h2>Поточний стан (травень 2026) — нейтральна зона</h2>
-        <table>
-          <thead><tr><th>Метрика</th><th>Скор</th><th>Сигнал</th></tr></thead>
-          <tbody>
-            <tr><td>OC score</td><td>48</td><td>нейтрально-здоровий</td></tr>
-            <tr><td>Tech score</td><td>53</td><td>помірний</td></tr>
-            <tr><td><strong>Final</strong></td><td><strong class="zone-50">50</strong></td><td>нейтральна зона</td></tr>
-            <tr><td>NUPL</td><td>53</td><td>нейтральний</td></tr>
-            <tr><td>MVRV Z-score</td><td>40</td><td>помірний</td></tr>
-            <tr><td>Mayer Multiple</td><td>28</td><td>val = 0.95, помірна перепроданість</td></tr>
-            <tr><td>CipherB</td><td>61</td><td>помірний сентимент</td></tr>
-            <tr><td>Fear &amp; Greed</td><td>42</td><td>помірний страх</td></tr>
-            <tr><td>Global M2 YoY</td><td>59</td><td>~9.7% YoY, помірна ліквідність</td></tr>
-          </tbody>
-        </table>
-        <p>Поточні показники відповідають <strong>нейтральній зоні</strong>. Ринок технічно здоровий (OC = 48), а сентимент є помірним (Tech = 53).<br>
-        Порівняння: Recovery Jan 2023 ($21k) = <strong>36</strong> &nbsp;&middot;&nbsp; Pre-bull Oct 2020 ($10.8k) = <strong>63</strong>.</p>
+        <div class="glass-card">
+          <table>
+            <thead><tr><th>Метрика</th><th>Скор</th><th>Сигнал</th></tr></thead>
+            <tbody>
+              <tr><td>OC score</td><td>50</td><td>нейтрально-здоровий</td></tr>
+              <tr><td>Tech score</td><td>43</td><td>помірний</td></tr>
+              <tr><td><strong>Final</strong></td><td><strong class="zone-50">46</strong></td><td>нейтральна зона</td></tr>
+              <tr><td>NUPL</td><td>54</td><td>нейтральний</td></tr>
+              <tr><td>MVRV Z-score</td><td>40</td><td>помірний</td></tr>
+              <tr><td>Mayer Multiple</td><td>28</td><td>val = 0.95, помірна перепроданість</td></tr>
+              <tr><td>CipherB</td><td>38</td><td>помірний сентимент</td></tr>
+              <tr><td>Fear &amp; Greed</td><td>31</td><td>помірний страх</td></tr>
+              <tr><td>Global M2 YoY</td><td>60</td><td>~9.7% YoY, помірна ліквідність</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Поточні показники відповідають <strong>нейтральній зоні</strong>. Ринок технічно здоровий (OC = 50), а сентимент є помірним (Tech = 43).<br>
+        Порівняння: Recovery Jan 2023 ($21k) = <strong>36</strong> &nbsp;&middot;&nbsp; Pre-bull Oct 2020 ($10.8k) = <strong>52</strong>.</p>
 
         <hr>
         <h2>Підсумок ефективності</h2>
-        <table>
-          <thead><tr><th>Метрика ефективності</th><th>Значення</th></tr></thead>
-          <tbody>
-            <tr><td>Середній Final на дніх</td><td><strong class="zone-0">20.3 / 100</strong></td></tr>
-            <tr><td>Середній Final на ATH</td><td><strong class="zone-100">83.3 / 100</strong></td></tr>
-            <tr><td>Розрив пік–дно</td><td><strong>~63 пункти</strong></td></tr>
-            <tr><td>Mayer Multiple на підтверджених ATH (avg score)</td><td><strong class="zone-75">71 / 100</strong></td></tr>
-            <tr><td>F&amp;G на дніх (avg)</td><td><strong class="zone-0">12 / 100</strong></td></tr>
-            <tr><td>F&amp;G на ATH 2021–2024 (avg)</td><td><strong class="zone-100">79 / 100</strong></td></tr>
-          </tbody>
-        </table>
+        <div class="glass-card">
+          <table>
+            <thead><tr><th>Метрика ефективності</th><th>Значення</th></tr></thead>
+            <tbody>
+              <tr><td>Середній Final на дніх</td><td><strong class="zone-25">22.3 / 100</strong></td></tr>
+              <tr><td>Середній Final на ATH</td><td><strong class="zone-100">85.8 / 100</strong></td></tr>
+              <tr><td>Розрив пік–дно</td><td><span class="badge info">~64 пункти</span></td></tr>
+              <tr><td>Mayer Multiple на підтверджених ATH (avg score)</td><td><strong class="zone-75">71 / 100</strong></td></tr>
+              <tr><td>F&amp;G на дніх (avg)</td><td><strong class="zone-0">12 / 100</strong></td></tr>
+              <tr><td>F&amp;G на ATH 2021–2024 (avg)</td><td><strong class="zone-100">79 / 100</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
 
         <div class="disclaimer-box">
           <p>Цей інструмент призначений виключно для інформаційних цілей і не є фінансовою порадою. Всі дані збираються автоматично з публічних джерел. Будь-які рішення щодо купівлі або продажу активів приймаються виключно на ваш власний ризик.</p>
@@ -831,117 +969,127 @@
         </ul>
 
         <h2>Full Milestone Table 2018–2026</h2>
-        <table>
-          <thead><tr><th>Date</th><th>Event</th><th>BTC</th><th>OC</th><th>Tech</th><th>Final</th><th>F&amp;G</th><th>M2</th><th>Mayer</th></tr></thead>
-          <tbody>
-            <tr><td>2018-12-15</td><td>Cycle bear bottom</td><td>$3,200</td><td>17</td><td>13</td><td><strong class="zone-0">15</strong></td><td>11</td><td>33</td><td>1</td></tr>
-            <tr><td>2019-06-26</td><td>Local peak</td><td>$13,880</td><td>73</td><td>87</td><td><strong class="zone-100">80</strong></td><td>95</td><td>39</td><td>100</td></tr>
-            <tr><td>2020-03-13</td><td>COVID crash</td><td>$3,800</td><td>29</td><td>25</td><td><strong class="zone-25">27</strong></td><td>10</td><td>54</td><td>9</td></tr>
-            <tr><td>2020-10-01</td><td>Bull run start</td><td>$10,800</td><td>56</td><td>69</td><td><strong class="zone-75">63</strong></td><td>45</td><td>100</td><td>40</td></tr>
-            <tr><td>2021-04-14</td><td>Spring ATH</td><td>$63,500</td><td>90</td><td>88</td><td><strong class="zone-100">89</strong></td><td>75</td><td>99</td><td>90</td></tr>
-            <tr><td>2021-07-20</td><td>Summer dip</td><td>$29,800</td><td>51</td><td>32</td><td><strong class="zone-50">42</strong></td><td>19</td><td>71</td><td>10</td></tr>
-            <tr><td>2021-11-10</td><td>Nov 2021 ATH</td><td>$69,000</td><td>84</td><td>81</td><td><strong class="zone-100">83</strong></td><td>75</td><td>69</td><td>58</td></tr>
-            <tr><td>2022-06-18</td><td>Capitulation</td><td>$17,600</td><td>25</td><td>15</td><td><strong class="zone-0">20</strong></td><td>6</td><td>43</td><td>0</td></tr>
-            <tr><td>2022-11-21</td><td>FTX bottom</td><td>$15,500</td><td>20</td><td>17</td><td><strong class="zone-0">19</strong></td><td>21</td><td>21</td><td>13</td></tr>
-            <tr><td>2023-01-14</td><td>Recovery start</td><td>$21,000</td><td>34</td><td>38</td><td><strong class="zone-25">36</strong></td><td>46</td><td>13</td><td>36</td></tr>
-            <tr><td>2024-03-14</td><td>2024 ATH</td><td>$73,500</td><td>79</td><td>85</td><td><strong class="zone-100">82</strong></td><td>88</td><td>17</td><td>81</td></tr>
-            <tr><td>2025-01-20</td><td>Jan 2025 peak</td><td>$109,000</td><td>76</td><td>82</td><td><strong class="zone-100">79</strong></td><td>76</td><td>35</td><td>54</td></tr>
-            <tr><td>2025-09-26</td><td>Close ATH</td><td>$123,000</td><td>64</td><td>63</td><td><strong class="zone-75">64</strong></td><td>28</td><td>36</td><td>35</td></tr>
-            <tr><td>2025-09-29</td><td>Intraday ATH</td><td>$129,000</td><td>67</td><td>66</td><td><strong class="zone-75">67</strong></td><td>50</td><td>36</td><td>37</td></tr>
-            <tr><td>2025-11-10</td><td>Post-ATH dump</td><td>$94,000</td><td>55</td><td>38</td><td><strong class="zone-50">47</strong></td><td>29</td><td>35</td><td>29</td></tr>
-            <tr><td>2026-05-21</td><td>Today</td><td>$77,133</td><td>48</td><td>53</td><td><strong class="zone-50">50</strong></td><td>42</td><td>40</td><td>28</td></tr>
-          </tbody>
-        </table>
+        <div class="glass-card">
+          <table>
+            <thead><tr><th>Date</th><th>Event</th><th>BTC</th><th>OC</th><th>Tech</th><th>Final</th><th>F&amp;G</th><th>M2</th><th>Mayer</th></tr></thead>
+            <tbody>
+              <tr><td>2018-12-15</td><td>Cycle bear bottom</td><td>$3,200</td><td>16</td><td>17</td><td><strong class="zone-0">16</strong></td><td>11</td><td>67</td><td>1</td></tr>
+              <tr><td>2019-06-26</td><td>Local peak</td><td>$13,880</td><td>73</td><td>89</td><td><strong class="zone-100">81</strong></td><td>95</td><td>61</td><td>100</td></tr>
+              <tr><td>2020-03-13</td><td>COVID crash</td><td>$3,800</td><td>32</td><td>32</td><td><strong class="zone-25">32</strong></td><td>10</td><td>46</td><td>9</td></tr>
+              <tr><td>2020-10-01</td><td>Bull run start</td><td>$10,800</td><td>56</td><td>49</td><td><strong class="zone-50">52</strong></td><td>45</td><td>0</td><td>40</td></tr>
+              <tr><td>2021-04-14</td><td>Spring ATH</td><td>$63,500</td><td>96</td><td>75</td><td><strong class="zone-100">86</strong></td><td>75</td><td>1</td><td>90</td></tr>
+              <tr><td>2021-07-20</td><td>Summer dip</td><td>$29,800</td><td>60</td><td>21</td><td><strong class="zone-25">40</strong></td><td>19</td><td>29</td><td>10</td></tr>
+              <tr><td>2021-11-10</td><td>Nov 2021 ATH</td><td>$69,000</td><td>90</td><td>78</td><td><strong class="zone-100">84</strong></td><td>75</td><td>31</td><td>58</td></tr>
+              <tr><td>2022-06-18</td><td>Capitulation</td><td>$17,600</td><td>28</td><td>14</td><td><strong class="zone-25">21</strong></td><td>6</td><td>57</td><td>0</td></tr>
+              <tr><td>2022-11-21</td><td>FTX bottom</td><td>$15,500</td><td>20</td><td>21</td><td><strong class="zone-25">20</strong></td><td>21</td><td>79</td><td>13</td></tr>
+              <tr><td>2023-01-14</td><td>Recovery start</td><td>$21,000</td><td>31</td><td>42</td><td><strong class="zone-25">36</strong></td><td>46</td><td>87</td><td>36</td></tr>
+              <tr><td>2024-03-14</td><td>2024 ATH</td><td>$73,500</td><td>84</td><td>93</td><td><strong class="zone-100">88</strong></td><td>88</td><td>83</td><td>81</td></tr>
+              <tr><td>2025-01-20</td><td>Jan 2025 peak</td><td>$109,000</td><td>82</td><td>88</td><td><strong class="zone-100">85</strong></td><td>76</td><td>65</td><td>54</td></tr>
+              <tr><td>2025-09-26</td><td>Close ATH</td><td>$123,000</td><td>70</td><td>61</td><td><strong class="zone-75">66</strong></td><td>28</td><td>64</td><td>35</td></tr>
+              <tr><td>2025-09-29</td><td>Intraday ATH</td><td>$129,000</td><td>73</td><td>74</td><td><strong class="zone-75">74</strong></td><td>50</td><td>64</td><td>37</td></tr>
+              <tr><td>2025-11-10</td><td>Post-ATH dump</td><td>$94,000</td><td>66</td><td>29</td><td><strong class="zone-50">48</strong></td><td>29</td><td>65</td><td>29</td></tr>
+              <tr><td>2026-05-21</td><td>Today</td><td>$77,133</td><td>50</td><td>43</td><td><strong class="zone-50">46</strong></td><td>31</td><td>60</td><td>28</td></tr>
+            </tbody>
+          </table>
+        </div>
 
         <hr>
 
         <h2>Key Findings</h2>
 
         <h3>1. The index clearly separates bottoms from tops</h3>
-        <p>Average at <strong>confirmed cycle bottoms</strong> (4 events: 2018, COVID, Capitulation, FTX): <strong class="zone-0">20.3</strong><br>
-        Average at <strong>confirmed ATHs</strong> (4 events: Spring/Nov 2021, 2024, 2025): <strong class="zone-100">83.3</strong><br>
-        A <strong>~63-point gap</strong> — statistically significant for a binary buy/sell signal.</p>
+        <p>Average at <strong>confirmed cycle bottoms</strong> (4 events: 2018, COVID, Capitulation, FTX): <strong class="zone-25">22.3</strong><br>
+        Average at <strong>confirmed ATHs</strong> (4 events: Spring/Nov 2021, 2024, 2025): <strong class="zone-100">85.8</strong><br>
+        A <span class="badge info">~64-point gap</span> — statistically significant for a binary buy/sell signal.</p>
 
         <h3>2. Declining peaks effect</h3>
-        <table>
-          <thead><tr><th>Cycle</th><th>ATH</th><th>Bitcoin Buy Risk</th></tr></thead>
-          <tbody>
-            <tr><td>2021 spring</td><td>$63,500</td><td><strong class="zone-100">89</strong></td></tr>
-            <tr><td>2021 autumn</td><td>$69,000</td><td><strong class="zone-100">83</strong></td></tr>
-            <tr><td>2024</td><td>$73,500</td><td><strong class="zone-100">82</strong></td></tr>
-            <tr><td>2025</td><td>$129,000</td><td><strong class="zone-75">67</strong></td></tr>
-          </tbody>
-        </table>
-        <p>Despite a new price ATH in 2025 (+76% vs 2024 ATH), Bitcoin Buy Risk peaked at only 67. On-chain metrics (MVRV Z-score ≈ 3.5, RHODL ≈ 8000) no longer reach the extremes of prior cycles. The market is maturing.<br>
-        <strong>Practical takeaway: in 2025, the sell zone starts at ~65, not ~80 as in 2021.</strong></p>
+        <div class="glass-card">
+          <table>
+            <thead><tr><th>Cycle</th><th>ATH</th><th>Bitcoin Buy Risk</th></tr></thead>
+            <tbody>
+              <tr><td>2021 spring</td><td>$63,500</td><td><strong class="zone-100">86</strong></td></tr>
+              <tr><td>2021 autumn</td><td>$69,000</td><td><strong class="zone-100">84</strong></td></tr>
+              <tr><td>2024</td><td>$73,500</td><td><strong class="zone-100">88</strong></td></tr>
+              <tr><td>2025</td><td>$129,000</td><td><strong class="zone-75">74</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Despite a new price ATH in 2025 (+76% vs 2024 ATH), Bitcoin Buy Risk peaked at only 74. On-chain metrics (MVRV Z-score ≈ 3.5, RHODL ≈ 8000) no longer reach the extremes of prior cycles. The market is maturing.<br>
+        <strong>Practical takeaway: in 2025, the sell zone starts at <span class="badge sell">~70</span>, not <span class="badge sell">~85</span> as in 2021.</strong></p>
 
         <h3>3. Mayer Multiple — cycle top indicator</h3>
         <p>Mayer Multiple is a reliable cyclical indicator measuring the ratio of price to its 200-day average. It showed high values at the 2021 spring and 2024 tops (score &gt;80), but in later stages of the cycle (autumn 2021, January 2025) its readings were more moderate (score ~54–58). At cycle bottoms (2018, 2022) it dropped to critically low levels (score 0–13), making it an excellent tool for identifying long-term accumulation zones.</p>
 
         <h3>4. Fear &amp; Greed: confirms extremes, but not the 2025 ATH</h3>
-        <table>
-          <thead><tr><th>Event</th><th>F&amp;G score</th><th>Label</th></tr></thead>
-          <tbody>
-            <tr><td>Bottoms 2018, 2020, 2022 (avg)</td><td><strong class="zone-0">12</strong></td><td>Extreme Fear</td></tr>
-            <tr><td>ATH 2021 (avg)</td><td><strong class="zone-100">75</strong></td><td>Greed</td></tr>
-            <tr><td>ATH 2024</td><td><strong class="zone-100">88</strong></td><td>Extreme Greed</td></tr>
-            <tr><td>ATH 2025 ($129k)</td><td><strong class="zone-50">50</strong></td><td>Neutral — no retail euphoria</td></tr>
-          </tbody>
-        </table>
-        <p>F&amp;G showed only 50 (Neutral) at the 2025 ATH. Reason: institutional capital (ETFs, corporations) drove the price without triggering mass retail euphoria.</p>
+        <div class="glass-card">
+          <table>
+            <thead><tr><th>Event</th><th>F&amp;G score</th><th>Label</th></tr></thead>
+            <tbody>
+              <tr><td>Bottoms 2018, 2020, 2022 (avg)</td><td><strong class="zone-0">12</strong></td><td>Extreme Fear</td></tr>
+              <tr><td>ATH 2021 (avg)</td><td><strong class="zone-100">75</strong></td><td>Greed</td></tr>
+              <tr><td>ATH 2024</td><td><strong class="zone-100">88</strong></td><td>Extreme Greed</td></tr>
+              <tr><td>ATH 2025 ($129k)</td><td><strong class="zone-50">50</strong></td><td>Neutral — no retail euphoria</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>F&amp;G showed only <span class="badge neutral">50 (Neutral)</span> at the 2025 ATH. Reason: institutional capital (ETFs, corporations) drove the price without triggering mass retail euphoria.</p>
 
         <h3>5. Global M2 YoY: direct liquidity indicator</h3>
-        <p>High year-over-year M2 growth → market flooded with liquidity → overheating → <strong>high</strong> risk score. Low/negative YoY → monetary contraction → accumulate → <strong>low</strong> score.<br>
-        Pre-bull Oct 2020: M2 YoY = <strong class="zone-100">100</strong> (peak COVID QE, +23% YoY — maximum liquidity). Spring 2021 ATH: M2 YoY = <strong class="zone-100">99</strong> (~20% YoY). FTX bottom 2022: M2 YoY = <strong class="zone-0">21</strong> (~0.3% YoY — contraction). 2024 ATH: M2 = <strong>17</strong> (-0.7% YoY — ETF-driven rally without monetary support).</p>
+        <p>High year-over-year M2 growth → market flooded with liquidity → low risk (fuel exists) → <strong>low</strong> risk score. Low/negative YoY → monetary contraction → liquidity deficit → <strong>high</strong> score.<br>
+        Pre-bull Oct 2020: M2 YoY = <span class="zone-0">0</span> (peak COVID QE, +23% YoY — maximum liquidity, minimum risk). Spring 2021 ATH: M2 YoY = <span class="zone-0">1</span> (~20% YoY). FTX bottom 2022: M2 YoY = <span class="zone-75">79</span> (~0.3% YoY — contraction). 2024 ATH: M2 = <span class="zone-100">83</span> (-0.7% YoY — ETF-driven rally without monetary support, high macro risk).</p>
 
         <h3>6. On-chain group: most reliable long-term</h3>
         <ul>
-          <li>OC at bottoms: <strong class="zone-0">16–25</strong></li>
-          <li>OC at 2021 ATH: <strong class="zone-100">84–90</strong></li>
-          <li>OC at 2024–2025 ATH: <strong class="zone-75">64–79</strong> — MVRV Z-score no longer reaches 2021 extremes due to the much larger Realized cap</li>
+          <li>OC at bottoms: <strong class="zone-25">16–32</strong></li>
+          <li>OC at 2021 ATH: <strong class="zone-100">90–96</strong></li>
+          <li>OC at 2024–2025 ATH: <strong class="zone-100">82–84</strong> — MVRV Z-score no longer reaches 2021 extremes due to the much larger Realized cap</li>
         </ul>
 
         <h3>7. Tech/Macro: sensitive to short-term events</h3>
         <ul>
-          <li>2022 capitulation: Tech = <strong class="zone-0">15</strong> (CipherB=0, Mayer=0, F&amp;G=6; M2=43)</li>
-          <li>Pre-bull 2020: Tech = <strong class="zone-75">69</strong> (Mayer=40, CipherB=71, M2=100)</li>
-          <li>Post-ATH dump 2025: Tech = <strong class="zone-25">38</strong> (Mayer=29, CipherB=14, F&amp;G=29)</li>
+          <li>2022 capitulation: Tech = <strong class="zone-0">14</strong> (CipherB=0, Mayer=0, F&amp;G=6; M2=57)</li>
+          <li>Pre-bull 2020: Tech = <strong class="zone-50">49</strong> (Mayer=40, CipherB=66, M2=0)</li>
+          <li>Post-ATH dump 2025: Tech = <strong class="zone-25">29</strong> (Mayer=29, CipherB=12, F&amp;G=29)</li>
         </ul>
         <p>Tech score reacts quickly to sentiment shifts — useful for identifying tactical entry points.</p>
 
         <hr>
 
         <h2>Current State (May 2026) — Neutral Zone</h2>
-        <table>
-          <thead><tr><th>Metric</th><th>Score</th><th>Signal</th></tr></thead>
-          <tbody>
-            <tr><td>OC score</td><td>48</td><td>neutral-healthy</td></tr>
-            <tr><td>Tech score</td><td>53</td><td>moderate</td></tr>
-            <tr><td><strong>Final</strong></td><td><strong class="zone-50">50</strong></td><td>neutral zone</td></tr>
-            <tr><td>NUPL</td><td>53</td><td>neutral</td></tr>
-            <tr><td>MVRV Z-score</td><td>40</td><td>moderate</td></tr>
-            <tr><td>Mayer Multiple</td><td>28</td><td>val = 0.95, moderate oversold</td></tr>
-            <tr><td>CipherB</td><td>61</td><td>moderate sentiment</td></tr>
-            <tr><td>Fear &amp; Greed</td><td>42</td><td>moderate fear</td></tr>
-            <tr><td>Global M2 YoY</td><td>59</td><td>~9.7% YoY, moderate liquidity</td></tr>
-          </tbody>
-        </table>
-        <p>Current readings correspond to a <strong>neutral zone</strong>. The market is technically healthy (OC = 48) and sentiment is moderate (Tech = 53).<br>
-        Comparisons: Recovery Jan 2023 ($21k) = <strong>36</strong> &nbsp;&middot;&nbsp; Pre-bull Oct 2020 ($10.8k) = <strong>63</strong>.</p>
+        <div class="glass-card">
+          <table>
+            <thead><tr><th>Metric</th><th>Score</th><th>Signal</th></tr></thead>
+            <tbody>
+              <tr><td>OC score</td><td>50</td><td>neutral-healthy</td></tr>
+              <tr><td>Tech score</td><td>43</td><td>moderate</td></tr>
+              <tr><td><strong>Final</strong></td><td><strong class="zone-50">46</strong></td><td>neutral zone</td></tr>
+              <tr><td>NUPL</td><td>54</td><td>neutral</td></tr>
+              <tr><td>MVRV Z-score</td><td>40</td><td>moderate</td></tr>
+              <tr><td>Mayer Multiple</td><td>28</td><td>val = 0.95, moderately oversold</td></tr>
+              <tr><td>CipherB</td><td>38</td><td>moderate sentiment</td></tr>
+              <tr><td>Fear &amp; Greed</td><td>31</td><td>moderate fear</td></tr>
+              <tr><td>Global M2 YoY</td><td>60</td><td>~9.7% YoY, moderate liquidity</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Current readings correspond to a <strong>neutral zone</strong>. The market is technically healthy (OC = 50) and sentiment is moderate (Tech = 43).<br>
+        Comparisons: Recovery Jan 2023 ($21k) = <strong>36</strong> &nbsp;&middot;&nbsp; Pre-bull Oct 2020 ($10.8k) = <strong>52</strong>.</p>
 
         <hr>
         <h2>Performance Summary</h2>
-        <table>
-          <thead><tr><th>Performance metric</th><th>Value</th></tr></thead>
-          <tbody>
-            <tr><td>Avg Final at confirmed bottoms</td><td><strong class="zone-0">20.3 / 100</strong></td></tr>
-            <tr><td>Avg Final at confirmed ATHs</td><td><strong class="zone-100">83.3 / 100</strong></td></tr>
-            <tr><td>Peak–bottom gap</td><td><strong>~63 points</strong></td></tr>
-            <tr><td>Mayer Multiple at confirmed ATHs (avg score)</td><td><strong class="zone-75">71 / 100</strong></td></tr>
-            <tr><td>F&amp;G at bottoms (avg)</td><td><strong class="zone-0">12 / 100</strong></td></tr>
-            <tr><td>F&amp;G at 2021–2024 ATHs (avg)</td><td><strong class="zone-100">79 / 100</strong></td></tr>
-          </tbody>
-        </table>
+        <div class="glass-card">
+          <table>
+            <thead><tr><th>Performance metric</th><th>Value</th></tr></thead>
+            <tbody>
+              <tr><td>Avg Final at confirmed bottoms</td><td><strong class="zone-25">22.3 / 100</strong></td></tr>
+              <tr><td>Avg Final at confirmed ATHs</td><td><strong class="zone-100">85.8 / 100</strong></td></tr>
+              <tr><td>Peak–bottom gap</td><td><span class="badge info">~64 points</span></td></tr>
+              <tr><td>Mayer Multiple at confirmed ATHs (avg score)</td><td><strong class="zone-75">71 / 100</strong></td></tr>
+              <tr><td>F&amp;G at bottoms (avg)</td><td><strong class="zone-0">12 / 100</strong></td></tr>
+              <tr><td>F&amp;G at 2021–2024 ATHs (avg)</td><td><strong class="zone-100">79 / 100</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
 
         <div class="disclaimer-box">
           <p>This tool is for informational purposes only and does not constitute financial advice. All data is automatically collected from public sources. Any decisions to buy or sell assets are made solely at your own risk.</p>
