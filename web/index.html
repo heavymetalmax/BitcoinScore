@@ -1100,7 +1100,7 @@
     function mapMvrv(v)  { if(v==null)return null; v=Math.max(-2,Math.min(5,v));       return Math.round(((v+2)/7)*100); }
     function mapAddr(v)  { if(v==null)return null; v=Math.max(0,Math.min(100,v)); return Math.round(v*(v+5)/105); }
     function mapFG(v)    { if(v==null)return null; const n=typeof v==='object'?(v.avg_7d!=null?v.avg_7d:(v.latest!=null?v.latest:(v.value!=null?v.value:null))):v; return n!=null?Math.round(Math.max(0,Math.min(100,n))):null; }
-    function mapM2(v)    { if(v==null)return null; v=Math.max(-5,Math.min(20,v));      return Math.round(((v+5)/25)*100); }
+    function mapM2(v)    { if(v==null)return null; v=Math.max(-5,Math.min(20,v));      return Math.round(((20-v)/25)*100); }
     function mapRealYield(v) { if(v==null)return null; v=Math.max(-2,Math.min(3,v)); return Math.round(((v+2)/5)*100); }
     function mapGPR(v)   { if(v==null)return null; v=Math.max(0,Math.min(350,v));      return Math.round(((350-v)/350)*100); }
     function mapCvdd(v)  { if(v==null)return null; v=Math.max(1,Math.min(5,v)); return Math.round(Math.log10(v)/Math.log10(5)*100); }
