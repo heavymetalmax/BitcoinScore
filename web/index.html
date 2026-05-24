@@ -1052,7 +1052,7 @@
           <span class="m-num" id="m-m2-num">—</span>
         </div>
         <div class="metric-row">
-          <a class="m-name" href="about.html#m-ry">Real Yield</a>
+          <a class="m-name" href="about.html#m-yc">Yield Curve (10Y-2Y)</a>
           <div>
             <div class="bar-wrap"><div class="bar-fill" id="m-ry-bar"></div></div>
             <div class="m-raw" id="m-ry-raw"></div>
@@ -1101,7 +1101,7 @@
     function mapAddr(v)  { if(v==null)return null; v=Math.max(0,Math.min(100,v)); return Math.round(v*(v+5)/105); }
     function mapFG(v)    { if(v==null)return null; const n=typeof v==='object'?(v.avg_7d!=null?v.avg_7d:(v.latest!=null?v.latest:(v.value!=null?v.value:null))):v; return n!=null?Math.round(Math.max(0,Math.min(100,n))):null; }
     function mapM2(v)    { if(v==null)return null; v=Math.max(-5,Math.min(20,v));      return Math.round(((20-v)/25)*100); }
-    function mapRealYield(v) { if(v==null)return null; v=Math.max(-2,Math.min(3,v)); return Math.round(((v+2)/5)*100); }
+    function mapYieldCurve(v) { if(v==null)return null; v=Math.max(-1.0,Math.min(2.0,v)); return Math.round(((2.0-v)/3.0)*100); }
     function mapGPR(v)   { if(v==null)return null; v=Math.max(0,Math.min(350,v));      return Math.round(((350-v)/350)*100); }
     function mapCvdd(v)  { if(v==null)return null; v=Math.max(1,Math.min(5,v)); return Math.round(Math.log10(v)/Math.log10(5)*100); }
     function mapRhodl(v) { if(v==null)return null; v=Math.max(100,Math.min(10000,v));  return Math.round((Math.log10(v)-2)/(4-2)*100); }
@@ -1300,7 +1300,7 @@
       const m2raw = mv('m2_mom') != null ? mv('m2_mom') : mv('m2');
       const fg    = mv('fear_greed');
       const fgLbl = (m['fear_greed']||{}).label || data.fear_greed_label || '';
-      const ry    = scalar(mv('real_yield'));
+      const yc    = scalar(mv('yield_curve_spread')) != null ? scalar(mv('yield_curve_spread')) : scalar(mv('yield_curve'));
 
       const cbScore  = mapCipherb(cb);
       const mmScore  = mapMayerMultiple(mm);
@@ -1337,7 +1337,7 @@
       const fgToday = fg != null && typeof fg === 'object' ? fg.latest : fg;
       const fgRaw = fgAvg != null ? 'avg7d=' + fgAvg + (fgToday != null && fgToday !== fgAvg ? '  today=' + fgToday : '') + (fgLbl ? '  ' + fgLbl : '') : null;
       setMetric('fg',  mapFG(fg), fgRaw);
-      setMetric('ry',  mapRealYield(ry),  ry    != null ? ry.toFixed(4)+'%'   : null);
+      setMetric('ry',  mapYieldCurve(yc), yc != null ? yc.toFixed(2)+'%' : null);
       
       const frScore = mapFunding(fr);
       setMetric('funding', frScore,
@@ -1406,7 +1406,7 @@
       if (finalVal != null) {
         const allIndScores = [
           mapAddr(addr), mapRhodl(rhodl), mapMvrv(mvrv), mapCvdd(cvdd), mapNupl(nupl),
-          cbScore, mmScore, mapFG(fg), mapRealYield(ry), mapM2(m2raw)
+          cbScore, mmScore, mapFG(fg), mapYieldCurve(yc), mapM2(m2raw)
         ].filter(s => s != null);
         const hasContra = allIndScores.some(s =>
           (finalVal <= 40 && s >= 65) || (finalVal >= 60 && s <= 35)
@@ -1424,7 +1424,7 @@
       
       const tcScore = data.tech_score;
       if (tcScore != null) {
-        const tcInds = [cbScore, mmScore, mapFG(fg), mapRealYield(ry), mapM2(m2raw)].filter(s => s != null);
+        const tcInds = [cbScore, mmScore, mapFG(fg), mapYieldCurve(yc), mapM2(m2raw)].filter(s => s != null);
         const tcContra = tcInds.some(s => (tcScore < 65 && s >= 65) || (tcScore > 35 && s <= 35));
         document.getElementById('tech-warn').style.display = tcContra ? 'inline' : 'none';
       }

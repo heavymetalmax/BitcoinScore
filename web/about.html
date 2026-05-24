@@ -551,7 +551,7 @@
             <thead><tr><th>Група</th><th>Вага</th><th>Індикатори</th></tr></thead>
             <tbody>
               <tr><td><strong>On-Chain (OC)</strong></td><td>50%</td><td>NUPL, MVRV Z-score, Addr in Profit, RHODL Ratio, CVDD Ratio</td></tr>
-              <tr><td><strong>Tech / Macro</strong></td><td>50%</td><td>Cipher B ×50%, Mayer Multiple ×10%, Fear &amp; Greed (7d avg) ×20%, Real Yield ×10%, Global M2 YoY ×10%</td></tr>
+              <tr><td><strong>Tech / Macro</strong></td><td>50%</td><td>Cipher B ×50%, Mayer Multiple ×10%, Fear &amp; Greed (7d avg) ×20%, Yield Curve (10Y-2Y) ×10%, Global M2 YoY ×10%</td></tr>
             </tbody>
           </table>
         </div>
@@ -567,7 +567,7 @@
           <li><strong>Це не фінансова порада.</strong> Не приймайте рішення виключно на основі цього індексу.</li>
           <li><strong>Cipher B</strong> — апроксимація оригінального індикатора (TradingView WaveTrend), а не точне відтворення.</li>
           <li><strong>SMC</strong> видалено з ваг: ретроспективний аналіз виявив ~40% хибних сигналів «дна» у ведмежих ринках.</li>
-          <li><strong>US Real Yield (DFII10, FRED)</strong> — пряма логіка: висока реальна ставка = жорстке грошово-кредитне середовище = високий ризик-скор для BTC.</li>
+          <li><strong>Yield Curve (T10Y2Y, FRED)</strong> — обернена логіка: від'ємний спред (інверсія) = жорстке середовище та дефіцит ліквідності = високий ризик-скор для BTC.</li>
           <li><strong>Ретроспективна ефективність</strong> на 8 подіях не гарантує, що індекс залишатиметься відкаліброваним у майбутніх циклах.</li>
           <li><strong>Ніхто не знає</strong>, що буде з ринком завтра. Не довіряйте тим, хто стверджує, що знає.</li>
         </ul>
@@ -616,7 +616,7 @@
             <thead><tr><th>Group</th><th>Weight</th><th>Indicators</th></tr></thead>
             <tbody>
               <tr><td><strong>On-Chain (OC)</strong></td><td>50%</td><td>NUPL, MVRV Z-score, Addr in Profit, RHODL Ratio, CVDD Ratio</td></tr>
-              <tr><td><strong>Tech / Macro</strong></td><td>50%</td><td>Cipher B (weekly) ×50%, Mayer Multiple ×10%, Fear &amp; Greed (7d avg) ×20%, Real Yield ×10%, Global M2 YoY ×10%</td></tr>
+              <tr><td><strong>Tech / Macro</strong></td><td>50%</td><td>Cipher B (weekly) ×50%, Mayer Multiple ×10%, Fear &amp; Greed (7d avg) ×20%, Yield Curve (10Y-2Y) ×10%, Global M2 YoY ×10%</td></tr>
             </tbody>
           </table>
         </div>
@@ -632,7 +632,7 @@
           <li><strong>This is not financial advice.</strong> Do not make financial decisions based solely on this index.</li>
           <li><strong>Cipher B</strong> is an approximation of the original (TradingView WaveTrend), not an exact reproduction.</li>
           <li><strong>SMC</strong> was removed from the weights: retrospective analysis revealed ~40% false bottom signals in bear markets.</li>
-          <li><strong>US Real Yield (DFII10, FRED)</strong> — direct logic: high real yield = tight monetary policy = high risk score for BTC.</li>
+          <li><strong>Yield Curve (T10Y2Y, FRED)</strong> — inverse logic: negative spread (inversion) = tight monetary policy and liquidity starvation = high risk score for BTC.</li>
           <li><strong>Past performance</strong> across 8 cycle events does not guarantee the index will remain calibrated in future cycles.</li>
           <li><strong>Nobody knows</strong> what the market will do tomorrow. Distrust anyone who claims otherwise with confidence.</li>
         </ul>
@@ -778,16 +778,16 @@
         </div>
       </div>
 
-      <div id="m-ry" style="scroll-margin-top:20px">
+      <div id="m-yc" style="scroll-margin-top:20px">
         <div class="ua">
-          <h3>Real Yield — Реальна дохідність (US 10Y TIPS)</h3>
-          <p>Дохідність 10-річних TIPS-облігацій США (DFII10, FRED) — номінальна ставка мінус інфляційні очікування. Висока реальна ставка = жорстке монетарне середовище = тиск на ризикові активи, включаючи BTC.</p>
-          <p>Пряма логіка: ↑ реальна ставка → ↑ ризик-скор. Шкала: -2% (м'яке середовище) → +3% (жорстке). Поточне ~1.9% = помірно жорстке. Вага: <strong>10%</strong>.</p>
+          <h3>Yield Curve (10Y-2Y Spread)</h3>
+          <p>Спред між 10-річними та 2-річними казначейськими облігаціями США (T10Y2Y, FRED). Класичний макроекономічний індикатор ліквідності та ризику рецесії.</p>
+          <p>Від'ємний спред (інверсія кривої) означає дефіцит ліквідності та високий макроекономічний стрес. Обмеження: -1% (інверсія) → +2% (здорова крута крива). Відповідно, глибока інверсія дає найвищий скор ризику. Вага: <strong>10%</strong>.</p>
         </div>
         <div class="en">
-          <h3>Real Yield — US 10Y Real Yield (TIPS)</h3>
-          <p>Yield on US 10-year TIPS securities (DFII10, FRED) — nominal rate minus inflation expectations. High real yield = tight monetary environment = pressure on risk assets including BTC.</p>
-          <p>Direct logic: ↑ real yield → ↑ risk score. Scale: -2% (easy money) → +3% (tight money). Current ~1.9% = moderately tight. Weight: <strong>10%</strong>.</p>
+          <h3>Yield Curve (10Y-2Y Spread)</h3>
+          <p>The spread between US 10-Year and 2-Year Treasury bonds (T10Y2Y, FRED). A classic macroeconomic indicator of liquidity and recession risk.</p>
+          <p>A negative spread (yield curve inversion) indicates liquidity starvation and high macroeconomic stress. Scale: -1% (deep inversion) → +2% (healthy steep curve). Therefore, a deep inversion yields the highest risk score. Weight: <strong>10%</strong>.</p>
         </div>
       </div>
 

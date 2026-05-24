@@ -12,7 +12,7 @@ Tech/Macro group  (5 metrics, weights sum to 1.0):
   cipherb ×50  smc ×10  fear_greed ×20  real_yield ×10  m2_yoy ×10
   (cipherb — price/momentum осцилятор; +12 penalty при активній bearish divergence;
    smc — ретроспективний, знижено з ×25 → ×10;
-   real_yield = US 10Y TIPS real yield (DFII10, FRED), пряма логіка: ↑ реальна ставка = ↑ ризик;
+   yield_curve_spread = US 10Y-2Y Yield Curve (T10Y2Y, FRED), обернена логіка: ↓ спред (інверсія) = ↑ ризик;
    m2_yoy = US M2 WM2NS YoY % change (FRED), обернена логіка: ↑ ліквідність = ↓ ризик;
    geopolitical_risk — видалено: <10% поріг, відсутній у backtest)
 
@@ -36,7 +36,7 @@ TECH_WEIGHTS = {
     'cipherb':             0.50,   # +bearish_div penalty; основний price/momentum сигнал
     'mayer_multiple':      0.10,   # Mayer Multiple (Price / 200DMA)
     'fear_greed':          0.20,
-    'real_yield':          0.10,   # US 10Y TIPS real yield (DFII10, FRED)
+    'yield_curve_spread':  0.10,   # US 10Y-2Y Spread (T10Y2Y). Inversion (<0) = high risk
     'm2_yoy':              0.10,   # US M2 YoY (обернена логіка: ↑ ліквідність = ↓ ризик)
     # geopolitical_risk видалено: <10% поріг, відсутній у backtest
     # smc видалено: 40% false bottom rate, слабка диференціація в ведмедячих трендах
@@ -86,12 +86,12 @@ def map_m2(v):  # US M2 YoY, inverted: high expansion = low risk score
     v = max(-5, min(20, v))
     return round(((20 - v) / 25) * 100)
 
-def map_real_yield(v):
-    # US 10Y Real Yield (DFII10). Direct: high real yield = tight money = high risk
-    # Range: -2% (stimulative) to +3% (restrictive)
+def map_yield_curve(v):
+    # US 10Y-2Y Yield Curve Spread (T10Y2Y).
+    # Deep inversion (<= -1.0%) = 100 risk. Steep healthy curve (>= +2.0%) = 0 risk.
     if v is None: return None
-    v = max(-2, min(3, v))
-    return round(((v + 2) / 5) * 100)
+    v = max(-1.0, min(2.0, v))
+    return round(((2.0 - v) / 3.0) * 100)
 
 def map_mayer_multiple(v):
     """v is mayer_multiple dict or pre-computed score int.
@@ -166,7 +166,7 @@ def build_slider_map(metrics: dict) -> dict:
         'addresses_in_profit': map_addr_profit(mv('addresses_in_profit')),
         'fear_greed':          map_fear_greed(mv('fear_greed')),
         'm2_yoy':              map_m2(mv('m2_mom')),  # field key in data.json still 'm2_mom'
-        'real_yield':          map_real_yield(mv('real_yield')),
+        'yield_curve_spread':  map_yield_curve(mv('yield_curve')),
         'geopolitical_risk':   map_georisk(georisk_val),
         'cvdd_ratio':          map_cvdd(mv('cvdd_ratio')),
         'rhodl_ratio':         map_rhodl(mv('rhodl_ratio')),

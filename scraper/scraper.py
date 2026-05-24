@@ -20,7 +20,7 @@ from scraper.nupl import get_nupl
 from scraper.mvrv import get_mvrv
 from scraper.addresses_in_loss import get_addresses_in_loss
 from scraper.m2_metric import get_m2
-from scraper.real_yield_metric import get_real_yield
+from scraper.yield_curve_metric import get_yield_curve
 from scraper.geopolitical_risk import get_geopolitical_risk_change
 from scraper.utils import human_visit
 from scraper.cipherb import get_cipherb
@@ -118,7 +118,7 @@ def build_payload():
     from scraper import mvrv as mvrv_mod
     from scraper import addresses_in_loss as addr_mod
     from scraper import m2_metric as m2_mod
-    from scraper import real_yield_metric as ry_mod
+    from scraper import yield_curve_metric as yc_mod
     from scraper import geopolitical_risk as gr_mod
     from scraper import cvdd as cvdd_mod
     from scraper import rhodl as rhodl_mod
@@ -130,7 +130,7 @@ def build_payload():
         ('mvrv', mvrv_mod.get_mvrv, None, lambda r: r),
         ('addresses_in_loss', addr_mod.get_addresses_in_loss, None, lambda r: r),
         ('m2', m2_mod.get_m2, None, lambda r: r),
-        ('real_yield', ry_mod.get_real_yield, None, lambda r: r),
+        ('yield_curve', yc_mod.get_yield_curve, None, lambda r: r),
         ('geopolitical_risk', gr_mod.get_geopolitical_risk_change, None, lambda r: (r[0] if isinstance(r, (list, tuple)) and len(r) > 0 else (r.get('current') if isinstance(r, dict) else None))),
         ('cvdd_ratio', cvdd_mod.get_cvdd_ratio, None, lambda r: r),
         ('rhodl_ratio', rhodl_mod.get_rhodl_ratio, None, lambda r: r),
@@ -177,8 +177,8 @@ def build_payload():
             addresses_in_loss = val
         if name == 'm2':
             m2 = val
-        if name == 'real_yield':
-            real_yield = val
+        if name == 'yield_curve':
+            yield_curve = val
         if name == 'geopolitical_risk':
             georisk = {'current': val, 'prev': None, 'delta': val} if val is not None else None
         if name == 'cvdd_ratio':
@@ -324,22 +324,22 @@ def main():
     except Exception as e:
         print('Failed to compute/include M2 MoM:', e)
 
-    # Append Real Yield snapshot to history for analysis
+    # Append Yield Curve snapshot to history for analysis
     try:
-        ry_val = p.get('metrics', {}).get('real_yield', {}).get('value')
-        hist_ry_path = 'data/history/real_yield.json'
-        os.makedirs(os.path.dirname(hist_ry_path), exist_ok=True)
-        if os.path.exists(hist_ry_path):
-            with open(hist_ry_path, 'r', encoding='utf-8') as hf:
-                ryhist = json.load(hf)
+        yc_val = p.get('metrics', {}).get('yield_curve', {}).get('value')
+        hist_yc_path = 'data/history/yield_curve.json'
+        os.makedirs(os.path.dirname(hist_yc_path), exist_ok=True)
+        if os.path.exists(hist_yc_path):
+            with open(hist_yc_path, 'r', encoding='utf-8') as hf:
+                ychist = json.load(hf)
         else:
-            ryhist = []
-        ryhist.append({'timestamp': p['timestamp'], 'btc_price': p.get('btc_price'), 'real_yield': ry_val})
-        ryhist = ryhist[-730:]
-        write_json(hist_ry_path, ryhist)
-        print('Wrote', hist_ry_path)
+            ychist = []
+        ychist.append({'timestamp': p['timestamp'], 'btc_price': p.get('btc_price'), 'yield_curve': yc_val})
+        ychist = ychist[-730:]
+        write_json(hist_yc_path, ychist)
+        print('Wrote', hist_yc_path)
     except Exception as e:
-        print('Failed to write Real Yield history:', e)
+        print('Failed to write Yield Curve history:', e)
 
     # Append CipherB snapshot to history
     try:
