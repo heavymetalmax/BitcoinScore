@@ -31,7 +31,6 @@ from .mvrv import get_mvrv
 from .addresses_in_loss import get_addresses_in_loss
 from .m2_metric import get_m2
 from .yield_curve_metric import get_yield_curve
-from .geopolitical_risk import get_geopolitical_risk_change
 from .utils import human_visit
 from .cipherb import get_cipherb
 from .smc import get_smc
@@ -129,7 +128,6 @@ def build_payload():
     from . import addresses_in_loss as addr_mod
     from . import m2_metric as m2_mod
     from . import yield_curve_metric as yc_mod
-    from . import geopolitical_risk as gr_mod
     from . import cvdd as cvdd_mod
     from . import rhodl as rhodl_mod
     from . import rainbow as rainbow_mod
@@ -141,7 +139,6 @@ def build_payload():
         ('addresses_in_loss', addr_mod.get_addresses_in_loss, None, lambda r: r),
         ('m2', m2_mod.get_m2, None, lambda r: r),
         ('yield_curve', yc_mod.get_yield_curve, None, lambda r: r),
-        ('geopolitical_risk', gr_mod.get_geopolitical_risk_change, None, lambda r: (r[0] if isinstance(r, (list, tuple)) and len(r) > 0 else (r.get('current') if isinstance(r, dict) else None))),
         ('cvdd_ratio', cvdd_mod.get_cvdd_ratio, None, lambda r: r),
         ('rhodl_ratio', rhodl_mod.get_rhodl_ratio, None, lambda r: r),
     ]
@@ -189,8 +186,6 @@ def build_payload():
             m2 = val
         if name == 'yield_curve':
             yield_curve = val
-        if name == 'geopolitical_risk':
-            georisk = {'current': val, 'prev': None, 'delta': val} if val is not None else None
         if name == 'cvdd_ratio':
             cvdd_ratio = val
         if name == 'rhodl_ratio':

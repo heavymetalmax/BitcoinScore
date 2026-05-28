@@ -12,9 +12,8 @@ Tech/Macro group  (5 metrics, weights sum to 1.0):
   cipherb ×50  smc ×10  fear_greed ×20  real_yield ×10  m2_yoy ×10
   (cipherb — price/momentum осцилятор; +12 penalty при активній bearish divergence;
    smc — ретроспективний, знижено з ×25 → ×10;
-   yield_curve_spread = US 10Y-2Y Yield Curve (T10Y2Y, FRED), обернена логіка: ↓ спред (інверсія) = ↑ ризик;
-   m2_yoy = US M2 WM2NS YoY % change (FRED), обернена логіка: ↑ ліквідність = ↓ ризик;
-   geopolitical_risk — видалено: <10% поріг, відсутній у backtest)
+    yield_curve_spread = US 10Y-2Y Yield Curve (T10Y2Y, FRED), обернена логіка: ↓ спред (інверсія) = ↑ ризик;
+    m2_yoy = US M2 WM2NS YoY % change (FRED), обернена логіка: ↑ ліквідність = ↓ ризик;
 
 Index 1 (onchain_score) = 80% OC + 20% Tech
 Index 2 (tech_score)    = 20% OC + 80% Tech
@@ -38,7 +37,6 @@ TECH_WEIGHTS = {
     'fear_greed':          0.20,
     'yield_curve_spread':  0.10,   # US 10Y-2Y Spread (T10Y2Y). Inversion (<0) = high risk
     'm2_yoy':              0.10,   # US M2 YoY (обернена логіка: ↑ ліквідність = ↓ ризик)
-    # geopolitical_risk видалено: <10% поріг, відсутній у backtest
     # smc видалено: 40% false bottom rate, слабка диференціація в ведмедячих трендах
 }
 
@@ -146,9 +144,6 @@ def build_slider_map(metrics: dict) -> dict:
             return obj['value']
         return obj
 
-    georisk_raw = mv('geopolitical_risk')
-    georisk_val = georisk_raw[0] if isinstance(georisk_raw, (list, tuple)) else (georisk_raw.get('current') if isinstance(georisk_raw, dict) else georisk_raw)
-
     cipherb = mv('cipherb')
     cipherb_score = round(cipherb['weekly_score']) if isinstance(cipherb, dict) and cipherb.get('weekly_score') is not None else None
     if cipherb_score is not None and isinstance(cipherb, dict):
@@ -167,7 +162,6 @@ def build_slider_map(metrics: dict) -> dict:
         'fear_greed':          map_fear_greed(mv('fear_greed')),
         'm2_yoy':              map_m2(mv('m2_mom')),  # field key in data.json still 'm2_mom'
         'yield_curve_spread':  map_yield_curve(mv('yield_curve')),
-        'geopolitical_risk':   map_georisk(georisk_val),
         'cvdd_ratio':          map_cvdd(mv('cvdd_ratio')),
         'rhodl_ratio':         map_rhodl(mv('rhodl_ratio')),
         'cipherb':             cipherb_score,

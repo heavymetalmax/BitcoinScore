@@ -40,7 +40,6 @@ def _build_metric_specs():
     from scraper import mvrv as mvrv_mod
     from scraper import addresses_in_loss as addr_mod
     from scraper import m2_metric as m2_mod
-    from scraper import geopolitical_risk as gr_mod
     from scraper import cvdd as cvdd_mod
     from scraper import rhodl as rhodl_mod
     from scraper import rainbow as rainbow_mod
@@ -55,11 +54,6 @@ def _build_metric_specs():
         'mvrv': (mvrv_mod.get_mvrv, lambda r: r),
         'addresses_in_loss': (addr_mod.get_addresses_in_loss, lambda r: r),
         'm2': (m2_mod.get_m2, lambda r: r),
-        'geopolitical_risk': (
-            gr_mod.get_geopolitical_risk_change,
-            lambda r: (r[0] if isinstance(r, (list, tuple)) and len(r) > 0
-                       else (r.get('current') if isinstance(r, dict) else r)),
-        ),
         'cvdd_ratio': (cvdd_mod.get_cvdd_ratio, lambda r: r),
         'rhodl_ratio': (rhodl_mod.get_rhodl_ratio, lambda r: r),
         'rainbow_band': (rainbow_mod.get_rainbow_band, lambda r: r),
@@ -187,9 +181,6 @@ def retry_metrics(stale: list[str], data: dict, specs: dict) -> dict[str, bool]:
             data['m2'] = val
             data['metrics']['m2'] = {'value': val, 'source': 'BMP', 'updated': now}
 
-        elif name == 'geopolitical_risk' and val is not None:
-            data['metrics']['geopolitical_risk'] = {'value': val, 'source': 'MacroMicro', 'updated': now}
-
         elif name == 'cvdd_ratio' and val is not None:
             data['cvdd_ratio'] = val
             data['metrics']['cvdd_ratio'] = {'value': val, 'source': 'BMP', 'updated': now}
@@ -242,7 +233,7 @@ def main():
     default_metrics = [
         'btc_price', 'fear_greed',
         'nupl', 'mvrv', 'addresses_in_loss',
-        'm2', 'geopolitical_risk',
+        'm2',
         'cvdd_ratio', 'rhodl_ratio', 'rainbow_band',
         'cipherb', 'smc', 'funding_rate',
     ]

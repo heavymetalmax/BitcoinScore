@@ -123,7 +123,6 @@ def is_valid_metric(name, value):
             'addresses_in_loss': (0, 100),
             'm2': (None, None),
             'real_yield': (-5, 10),   # FRED DFII10 US 10Y Real Yield (%)
-            'geopolitical_risk': (0, 2000),  # GPR Index (Caldara & Iacoviello)
             'rhodl_ratio': (0, 500000),  # RHODL Ratio (BMP)
         }
         if name in thresholds:
