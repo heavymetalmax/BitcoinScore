@@ -8,26 +8,36 @@ import datetime
 import os
 import json
 import time
+
+# Allow running this file directly as a script (python scraper/scraper.py)
+# while keeping package-style imports working. When executed as a script,
+# __package__ may be None which breaks absolute imports like "from scraper...".
+if __name__ == '__main__' and __package__ is None:
+    import sys
+    parent = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    if parent not in sys.path:
+        sys.path.insert(0, parent)
+    __package__ = 'scraper'
 try:
     from dotenv import load_dotenv
     load_dotenv()
 except ImportError:
     pass  # python-dotenv not installed yet; run: pip install python-dotenv
-from scraper.coingecko import get_price
-from scraper.alternative_me import get_fear_greed
-from scraper import cmc as cmc_mod
-from scraper.nupl import get_nupl
-from scraper.mvrv import get_mvrv
-from scraper.addresses_in_loss import get_addresses_in_loss
-from scraper.m2_metric import get_m2
-from scraper.yield_curve_metric import get_yield_curve
-from scraper.geopolitical_risk import get_geopolitical_risk_change
-from scraper.utils import human_visit
-from scraper.cipherb import get_cipherb
-from scraper.smc import get_smc
-from scraper import mayer_multiple as mayer_multiple_mod
-from scraper import funding_rate as funding_rate_mod
-from scraper.utils import write_json, validate_data
+from .coingecko import get_price
+from .alternative_me import get_fear_greed
+from . import cmc as cmc_mod
+from .nupl import get_nupl
+from .mvrv import get_mvrv
+from .addresses_in_loss import get_addresses_in_loss
+from .m2_metric import get_m2
+from .yield_curve_metric import get_yield_curve
+from .geopolitical_risk import get_geopolitical_risk_change
+from .utils import human_visit
+from .cipherb import get_cipherb
+from .smc import get_smc
+from . import mayer_multiple as mayer_multiple_mod
+from . import funding_rate as funding_rate_mod
+from .utils import write_json, validate_data
 
 
 def now_iso():
@@ -114,16 +124,16 @@ def build_payload():
 
     # If not reused from cache, perform live fetches sequentially per metric.
     import random
-    from scraper import nupl as nupl_mod
-    from scraper import mvrv as mvrv_mod
-    from scraper import addresses_in_loss as addr_mod
-    from scraper import m2_metric as m2_mod
-    from scraper import yield_curve_metric as yc_mod
-    from scraper import geopolitical_risk as gr_mod
-    from scraper import cvdd as cvdd_mod
-    from scraper import rhodl as rhodl_mod
-    from scraper import rainbow as rainbow_mod
-    from scraper.utils import is_valid_metric
+    from . import nupl as nupl_mod
+    from . import mvrv as mvrv_mod
+    from . import addresses_in_loss as addr_mod
+    from . import m2_metric as m2_mod
+    from . import yield_curve_metric as yc_mod
+    from . import geopolitical_risk as gr_mod
+    from . import cvdd as cvdd_mod
+    from . import rhodl as rhodl_mod
+    from . import rainbow as rainbow_mod
+    from .utils import is_valid_metric
 
     metric_specs = [
         ('nupl', nupl_mod.get_nupl, None, lambda r: r),
@@ -313,7 +323,7 @@ def main():
 
     # Global M2 YoY% — use get_m2() (reads BMP history + US FRED fallback adjustment)
     try:
-        from scraper.m2_metric import get_m2 as _get_m2_yoy
+        from .m2_metric import get_m2 as _get_m2_yoy
         mom_val = _get_m2_yoy()
         if 'metrics' not in p:
             p['metrics'] = {}
@@ -383,7 +393,7 @@ def main():
 
     # Compute decision-matrix scores and write to data.json
     try:
-        from scraper.scoring import compute_scores
+        from .scoring import compute_scores
         scores = compute_scores(p.get('metrics', {}))
         p['onchain_score'] = scores['onchain_score']
         p['tech_score']    = scores['tech_score']

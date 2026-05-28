@@ -8,7 +8,7 @@ Returns price / CVDD ratio:
   >5.0  = approaching cycle top territory
 """
 import logging
-from scraper.mm_utils import get_bmp_traces
+from .mm_utils import get_bmp_traces
 
 logger = logging.getLogger(__name__)
 

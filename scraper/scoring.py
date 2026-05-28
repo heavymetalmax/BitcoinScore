@@ -82,9 +82,9 @@ def map_m2(v):  # US M2 YoY, inverted: high expansion = low risk score
     # US M2 year-over-year % change (FRED WM2NS)
     # HIGH YoY → system flooded with liquidity → low macro risk → LOW score
     # LOW/negative YoY → liquidity tightening → high macro risk → HIGH score
-    # Range: -5% to +20%
-    v = max(-5, min(20, v))
-    return round(((20 - v) / 25) * 100)
+    # Range: -5% to +10%
+    v = max(-5, min(10, v))
+    return round(((10 - v) / 15) * 100)
 
 def map_yield_curve(v):
     # US 10Y-2Y Yield Curve Spread (T10Y2Y).

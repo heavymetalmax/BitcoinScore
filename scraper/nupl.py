@@ -1,6 +1,6 @@
 """Scraper for NUPL (Net Unrealized Profit/Loss) metric."""
 import logging
-from scraper.mm_utils import get_bmp_trace
+from .mm_utils import get_bmp_trace
 
 logger = logging.getLogger(__name__)
 
