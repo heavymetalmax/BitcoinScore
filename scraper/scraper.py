@@ -39,7 +39,7 @@ from .utils import write_json, validate_data
 
 
 def now_iso():
-    return datetime.datetime.utcnow().replace(microsecond=0).isoformat() + 'Z'
+    return datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0, tzinfo=None).isoformat() + 'Z'
 
 
 def build_payload():
@@ -100,7 +100,7 @@ def build_payload():
                 prev_ts = prev.get('timestamp')
                 if prev_ts:
                     prev_dt = datetime.datetime.fromisoformat(prev_ts.replace('Z', '+00:00'))
-                    age = (datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc) - prev_dt).total_seconds()
+                    age = (datetime.datetime.now(datetime.timezone.utc) - prev_dt).total_seconds()
                 else:
                     age = None
                 prev_metrics = prev.get('metrics', {}) if isinstance(prev, dict) else {}
