@@ -63,6 +63,43 @@ def get_bmp_trace(url, trace_name_substr, multiply=1.0, timeout=60000):
     return None
 
 
+def get_bmp_trace_last_n(url, trace_name_substr, n=7, multiply=1.0, timeout=60000):
+    """Fetch the last N values of a Plotly trace from a BitcoinMagazinePro chart page.
+    Returns a list of floats or an empty list.
+    """
+    try:
+        with sync_playwright() as p:
+            browser = p.chromium.launch(headless=True)
+            ctx = browser.new_context()
+            page = ctx.new_page()
+            page.goto(url, wait_until='networkidle', timeout=timeout)
+            page.wait_for_timeout(4000)
+            js = f"""() => {{
+                const gd = document.querySelector('.js-plotly-plot');
+                if(!gd) return null;
+                const traces = gd.data;
+                if(!traces) return null;
+                const needle = {json.dumps(trace_name_substr.lower())};
+                for(const t of traces){{
+                    if((t.name || '').toLowerCase().includes(needle)){{
+                        if(t.y && t.y.length) return t.y.slice(-{n});
+                    }}
+                }}
+                return null;
+            }}"""
+            res = page.evaluate(js)
+            try:
+                browser.close()
+            except Exception:
+                pass
+            if res is not None:
+                return [round(float(v) * multiply, 4) for v in res if v is not None]
+    except Exception as e:
+        logger.warning('get_bmp_trace_last_n failed for %s (%s): %s', url, trace_name_substr, e)
+    return []
+
+
+
 def get_bmp_traces(url, trace_names_list, timeout=60000):
     """Fetch multiple Plotly trace values from a BitcoinMagazinePro chart page in a single page load.
 

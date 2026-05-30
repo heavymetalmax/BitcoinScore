@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Bitcoin Buy Risk — About</title>
+  <title>Bitcoin Buy Risk Index — Methodology</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
@@ -15,14 +15,12 @@
       --border: rgba(255, 255, 255, 0.05);
       --border-hover: rgba(247, 147, 26, 0.25);
       --text: #f3f4f6;
-      --text-name: #9ca3af;
-      --text-mute: #6b7280;
-      --text-sub: #9ca3af;
+      --text-mute: #9ca3af;
+      --text-sub: #d1d5db;
       --divider: rgba(255, 255, 255, 0.08);
-      --footer: #4b5563;
-      --glass-blur: blur(10px);
-      --shadow-glow: 0 0 15px rgba(247, 147, 26, 0.08);
-      --shadow-glow-active: 0 0 25px rgba(247, 147, 26, 0.18);
+      --footer: #6b7280;
+      --glass-blur: blur(12px);
+      --shadow-glow: 0 0 15px rgba(247, 147, 26, 0.04);
     }
     
     @media (prefers-color-scheme: light) {
@@ -32,16 +30,14 @@
         --bg-card: rgba(255, 255, 255, 0.7);
         --bg-card-hover: rgba(255, 255, 255, 0.95);
         --border: rgba(0, 0, 0, 0.06);
-        --border-hover: rgba(247, 147, 26, 0.35);
+        --border-hover: rgba(247, 147, 26, 0.3);
         --text: #0f172a;
-        --text-name: #475569;
         --text-mute: #64748b;
-        --text-sub: #475569;
+        --text-sub: #334155;
         --divider: rgba(0, 0, 0, 0.08);
         --footer: #64748b;
-        --glass-blur: blur(6px);
-        --shadow-glow: 0 4px 12px rgba(0, 0, 0, 0.03);
-        --shadow-glow-active: 0 6px 20px rgba(0, 0, 0, 0.08);
+        --glass-blur: blur(8px);
+        --shadow-glow: 0 4px 12px rgba(0, 0, 0, 0.02);
       }
     }
 
@@ -51,264 +47,194 @@
       font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       background: var(--bg-gradient);
       color: var(--text);
-      padding: 32px 24px 60px;
-      max-width: 860px;
+      padding: 40px 24px 80px;
+      max-width: 680px;
       margin: 0 auto;
       min-height: 100vh;
+      line-height: 1.6;
     }
 
-    /* ── Navigation Header ── */
-    .nav-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 28px;
-      padding-bottom: 20px;
-      border-bottom: 1px solid var(--divider);
-      flex-wrap: wrap;
-      gap: 16px;
-      width: 100%;
-    }
-    .nav-title-group {
-      display: flex;
-      flex-direction: column;
-    }
-    .nav-title-group a {
-      text-decoration: none;
-      color: inherit;
-      display: inline-block;
-    }
-    .nav-title {
-      font-size: 1.6rem;
-      font-weight: 800;
-      letter-spacing: -0.03em;
-      background: linear-gradient(135deg, #ffffff 0%, #f7931a 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      line-height: 1.2;
-    }
-    @media (prefers-color-scheme: light) {
-      .nav-title {
-        background: linear-gradient(135deg, #0f172a 0%, #d97706 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-      }
-    }
-    .nav-menu {
-      display: flex;
-      gap: 6px;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid var(--divider);
-      padding: 4px;
-      border-radius: 9999px;
-      flex-wrap: wrap;
-    }
-    @media (prefers-color-scheme: light) {
-      .nav-menu {
-        background: rgba(0, 0, 0, 0.02);
-      }
-    }
-    .nav-btn {
-      background: transparent;
-      border: none;
-      color: var(--text-mute);
-      cursor: pointer;
-      font-family: inherit;
-      font-size: 0.8rem;
-      font-weight: 600;
-      padding: 8px 18px;
-      border-radius: 9999px;
-      text-decoration: none;
-      transition: all 0.2s ease;
+    /* Back Link */
+    .back-link {
       display: inline-flex;
       align-items: center;
-    }
-    .nav-btn:hover {
-      color: var(--text);
-    }
-    .nav-btn.active {
-      background: rgba(247, 147, 26, 0.12);
-      color: #f7931a;
-      box-shadow: 0 0 12px rgba(247, 147, 26, 0.08);
-    }
-    @media (prefers-color-scheme: light) {
-      .nav-btn.active {
-        background: rgba(217, 119, 6, 0.1);
-        color: #b45309;
-      }
-    }
-
-    /* ── lang toggle ── */
-    .lang-toggle { display: flex; gap: 6px; margin-bottom: 14px; }
-    .lang-btn {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid var(--divider);
-      border-radius: 9999px;
-      color: var(--text-mute);
-      font-size: .72rem;
-      font-weight: 600;
-      padding: 4px 12px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      font-family: inherit;
-    }
-    .lang-btn.active {
-      background: rgba(247, 147, 26, 0.12);
-      border-color: rgba(247, 147, 26, 0.25);
-      color: #f7931a;
-    }
-    @media (prefers-color-scheme: light) {
-      .lang-btn {
-        background: rgba(0, 0, 0, 0.02);
-      }
-      .lang-btn.active {
-        background: rgba(217, 119, 6, 0.1);
-        color: #b45309;
-      }
-    }
-
-    /* ── article layout ── */
-    .article-wrap {
-      display: flex;
-      gap: 40px;
-      max-width: 860px;
-      margin: 0 auto;
-      align-items: flex-start;
-      width: 100%;
-    }
-
-    /* ── sidebar ── */
-    .sidebar {
-      width: 170px;
-      flex-shrink: 0;
-      position: sticky;
-      top: 24px;
-    }
-    .sidebar-title {
-      font-size: .65rem;
-      text-transform: uppercase;
-      letter-spacing: .1em;
-      color: var(--text-mute);
-      margin-bottom: 12px;
-      padding-left: 12px;
-      font-weight: 700;
-    }
-    .nav-link {
-      display: block;
-      font-size: .82rem;
+      gap: 6px;
       color: var(--text-mute);
       text-decoration: none;
-      padding: 7px 12px;
-      border-left: 2px solid transparent;
-      border-radius: 0 4px 4px 0;
-      margin-bottom: 2px;
-      transition: all .2s ease;
-      line-height: 1.3;
+      font-size: 0.85rem;
       font-weight: 500;
+      margin-bottom: 32px;
+      transition: color 0.2s ease;
     }
-    .nav-link:hover { color: var(--text); }
-    .nav-link.active {
+    .back-link:hover {
       color: #f7931a;
-      border-left-color: #f7931a;
-      background: rgba(247, 147, 26, 0.05);
     }
     @media (prefers-color-scheme: light) {
-      .nav-link.active {
-        color: #b45309;
-        border-left-color: #b45309;
-        background: rgba(217, 119, 6, 0.05);
+      .back-link:hover {
+        color: #d97706;
       }
     }
 
-    /* ── content ── */
-    .article-content { flex: 1; min-width: 0; }
-
-    section { margin-bottom: 56px; scroll-margin-top: 24px; }
-
-    h1 { font-size: 1.5rem; color: #f7931a; margin-bottom: 6px; line-height: 1.2; font-weight: 800; }
-    @media (prefers-color-scheme: light) {
-      h1 { color: #d97706; }
+    h1 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--text);
+      line-height: 1.15;
+      margin-bottom: 8px;
     }
-    .article-meta { font-size: .72rem; color: var(--text-mute); margin-bottom: 22px; font-weight: 500; }
+    
+    .subtitle {
+      font-size: 0.95rem;
+      color: var(--text-mute);
+      margin-bottom: 40px;
+      font-weight: 400;
+    }
+
     h2 {
-      font-size: .82rem; text-transform: uppercase; letter-spacing: .09em;
-      color: var(--text); margin: 28px 0 10px;
-      padding-bottom: 8px; border-bottom: 1px solid var(--divider);
+      font-size: 1.25rem;
       font-weight: 700;
+      margin: 40px 0 16px;
+      color: var(--text);
+      letter-spacing: -0.02em;
     }
-    h3 { font-size: .88rem; color: var(--text); margin: 18px 0 6px; font-weight: 700; }
-    p  { font-size: .84rem; color: var(--text-sub); line-height: 1.65; margin-bottom: 10px; }
-    ul, ol { font-size: .84rem; color: var(--text-sub); line-height: 1.75; padding-left: 20px; margin-bottom: 10px; }
-    li { margin-bottom: 3px; }
-    strong { color: #f7931a; font-weight: 700; }
-    @media (prefers-color-scheme: light) {
-      strong { color: #b45309; }
-    }
-    em { color: var(--text-name); font-style: italic; }
-    hr { border: none; border-top: 1px solid var(--divider); margin: 24px 0; }
 
+    h3 {
+      font-size: 1.05rem;
+      color: var(--text);
+      margin: 24px 0 8px;
+      font-weight: 600;
+    }
+
+    p {
+      font-size: 0.9rem;
+      color: var(--text-sub);
+      margin-bottom: 16px;
+    }
+
+    ul, ol {
+      font-size: 0.9rem;
+      color: var(--text-sub);
+      padding-left: 20px;
+      margin-bottom: 20px;
+    }
+
+    li {
+      margin-bottom: 6px;
+    }
+
+    blockquote {
+      border-left: 3px solid #f7931a;
+      padding: 16px 20px;
+      margin: 24px 0;
+      background: var(--bg-card);
+      border-radius: 0 12px 12px 0;
+      border: 1px solid var(--border);
+      border-left: 3px solid #f7931a;
+      backdrop-filter: var(--glass-blur);
+    }
+    blockquote p {
+      font-size: 0.9rem;
+      color: var(--text);
+      margin-bottom: 8px;
+      font-style: italic;
+    }
+    blockquote cite {
+      font-size: 0.78rem;
+      color: var(--text-mute);
+      font-style: normal;
+      font-weight: 500;
+    }
+
+    strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    /* Glass Cards & Tables */
+    .glass-card {
+      background: var(--bg-card);
+      backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1), var(--shadow-glow);
+      margin: 24px 0;
+      overflow-x: auto;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+    
+    th {
+      text-align: left;
+      color: var(--text-mute);
+      font-weight: 600;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--divider);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    
+    td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--divider);
+      color: var(--text-sub);
+    }
+    
+    td:not(:first-child), th:not(:first-child) {
+      text-align: right;
+    }
+    
+    tr:last-child td {
+      border-bottom: none;
+    }
+    
+    tbody tr:hover {
+      background: rgba(255, 255, 255, 0.02);
+    }
+    @media (prefers-color-scheme: light) {
+      tbody tr:hover {
+        background: rgba(0, 0, 0, 0.01);
+      }
+    }
+
+    .weights-table td:first-child {
+      color: var(--text);
+      font-weight: 600;
+    }
+    
+    /* Badges */
     .zone-0, .zone-25, .zone-50, .zone-75, .zone-100 {
       display: inline-block;
-      font-size: 0.76rem;
-      font-weight: 700;
+      font-size: 0.75rem;
+      font-weight: 600;
       padding: 3px 8px;
       border-radius: 6px;
       line-height: 1.1;
       border: 1px solid transparent;
-      margin: 0 2px;
-      vertical-align: middle;
     }
+    
     .zone-0, .zone-25 {
       color: #10b981;
       background: rgba(16, 185, 129, 0.08);
-      border-color: rgba(16, 185, 129, 0.2);
+      border-color: rgba(16, 185, 129, 0.15);
     }
     .zone-50 {
       color: #eab308;
       background: rgba(234, 179, 8, 0.08);
-      border-color: rgba(234, 179, 8, 0.2);
+      border-color: rgba(234, 179, 8, 0.15);
     }
     .zone-75, .zone-100 {
       color: #ef4444;
       background: rgba(239, 68, 68, 0.08);
-      border-color: rgba(239, 68, 68, 0.2);
+      border-color: rgba(239, 68, 68, 0.15);
     }
-    .zone-0 strong, .zone-25 strong, .zone-50 strong, .zone-75 strong, .zone-100 strong {
-      color: inherit;
-    }
-
-    /* General Badge highlights */
-    .badge {
-      display: inline-block;
-      font-size: 0.76rem;
-      font-weight: 700;
-      padding: 3px 8px;
-      border-radius: 6px;
-      line-height: 1.1;
-      border: 1px solid transparent;
-      margin: 0 2px;
-      vertical-align: middle;
-    }
-    .badge.buy {
-      color: #10b981;
-      background: rgba(16, 185, 129, 0.08);
-      border-color: rgba(16, 185, 129, 0.2);
-    }
-    .badge.sell {
-      color: #ef4444;
-      background: rgba(239, 68, 68, 0.08);
-      border-color: rgba(239, 68, 68, 0.2);
-    }
-    .badge.neutral {
-      color: #eab308;
-      background: rgba(234, 179, 8, 0.08);
-      border-color: rgba(234, 179, 8, 0.2);
-    }
-    .badge.info {
-      color: #f7931a;
-      background: rgba(247, 147, 26, 0.08);
-      border-color: rgba(247, 147, 26, 0.2);
-    }
+    
     @media (prefers-color-scheme: light) {
       .zone-0, .zone-25 {
         color: #059669;
@@ -325,821 +251,243 @@
         background: rgba(220, 38, 38, 0.06);
         border-color: rgba(220, 38, 38, 0.15);
       }
-      .badge.buy {
-        color: #059669;
-        background: rgba(5, 150, 105, 0.06);
-        border-color: rgba(5, 150, 105, 0.15);
-      }
-      .badge.sell {
-        color: #dc2626;
-        background: rgba(220, 38, 38, 0.06);
-        border-color: rgba(220, 38, 38, 0.15);
-      }
-      .badge.neutral {
-        color: #ca8a04;
-        background: rgba(202, 138, 4, 0.06);
-        border-color: rgba(202, 138, 4, 0.15);
-      }
-      .badge.info {
-        color: #b45309;
-        background: rgba(217, 119, 6, 0.06);
-        border-color: rgba(217, 119, 6, 0.15);
-      }
     }
-
-    blockquote {
-      border-left: 3px solid #f7931a55;
-      padding: 12px 18px;
-      margin: 16px 0;
-      background: var(--bg-card);
-      border-radius: 0 8px 8px 0;
-      border: 1px solid var(--border);
-      border-left: 3px solid #f7931a;
-      backdrop-filter: var(--glass-blur);
-    }
-    blockquote p { font-size: .84rem; color: var(--text-name); margin-bottom: 6px; font-style: italic; }
-    blockquote cite { font-size: .74rem; color: var(--text-mute); font-style: normal; font-weight: 500; }
-
-    /* Glass card container for tables */
-    .glass-card {
-      background: var(--bg-card);
-      backdrop-filter: var(--glass-blur);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 20px;
-      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15), var(--shadow-glow);
-      transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), border-color 0.3s ease, box-shadow 0.3s ease;
-      margin: 20px 0;
-      overflow-x: auto;
-    }
-    .glass-card:hover {
-      transform: translateY(-2px);
-      border-color: var(--border-hover);
-      box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.25), var(--shadow-glow-active);
-    }
-    .glass-card table {
-      margin-bottom: 0;
-    }
-
-    table { width: 100%; border-collapse: collapse; font-size: .8rem; margin-bottom: 14px; }
-    th {
-      text-align: left; color: var(--text-mute); font-weight: 600;
-      padding: 8px 10px; border-bottom: 1px solid var(--divider);
-      font-size: .76rem; text-transform: uppercase; letter-spacing: .05em;
-    }
-    td { padding: 8px 10px; border-bottom: 1px solid var(--divider); color: var(--text-sub); }
-    td:not(:first-child), th:not(:first-child) { text-align: right; }
-    tr:last-child td { border-bottom: none; }
-    tbody tr {
-      transition: background 0.2s ease;
-    }
-    tbody tr:hover { background: var(--bg-card); }
-
-    .weights-table td:first-child { color: var(--text); font-weight: 600; }
-    .weights-table td:nth-child(2) { color: var(--text-mute); }
 
     .disclaimer-box {
       background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: 12px;
-      padding: 16px 20px;
-      margin-top: 28px;
-      backdrop-filter: var(--glass-blur);
+      padding: 20px;
+      margin-top: 48px;
     }
-    .disclaimer-box p { font-size: .78rem; color: var(--text-mute); margin-bottom: 0; line-height: 1.6; }
+    .disclaimer-box p {
+      font-size: 0.8rem;
+      color: var(--text-mute);
+      margin-bottom: 0;
+      line-height: 1.6;
+    }
+
+    /* TOC styling */
+    .toc-card {
+      background: var(--bg-card);
+      backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px 24px;
+      box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.05), var(--shadow-glow);
+      margin: 24px 0 36px 0;
+    }
+    .toc-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-mute);
+      font-weight: 700;
+      margin-bottom: 12px;
+      border-bottom: 1px solid var(--divider);
+      padding-bottom: 6px;
+    }
+    .toc-list {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+    }
+    .toc-list li {
+      margin-bottom: 8px;
+    }
+    .toc-list li:last-child {
+      margin-bottom: 0;
+    }
+    .toc-list a {
+      color: var(--text-sub);
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 500;
+      transition: color 0.2s ease;
+      display: inline-block;
+    }
+    .toc-list a:hover {
+      color: #f7931a;
+    }
+    @media (prefers-color-scheme: light) {
+      .toc-list a:hover {
+        color: #d97706;
+      }
+    }
+
+    hr {
+      border: none;
+      border-top: 1px solid var(--divider);
+      margin: 32px 0;
+    }
 
     footer {
-      font-size: .7rem; color: var(--footer);
-      text-align: center; margin-top: 40px;
-      max-width: 860px; margin-left: auto; margin-right: auto;
+      font-size: 0.75rem;
+      color: var(--footer);
+      text-align: center;
+      margin-top: 64px;
       border-top: 1px solid var(--divider);
-      padding-top: 16px;
-    }
-
-    /* language switch */
-    body.lang-en .ua { display: none; }
-    body.lang-ua .en { display: none; }
-
-    /* ── responsive ── */
-    @media (max-width: 640px) {
-      .nav-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 12px;
-      }
-      .nav-menu {
-        width: 100%;
-        justify-content: flex-start;
-      }
-      .article-wrap { flex-direction: column; gap: 0; }
-      .sidebar {
-        position: static;
-        width: 100%;
-        display: flex;
-        gap: 6px;
-        overflow-x: auto;
-        padding-bottom: 12px;
-        margin-bottom: 20px;
-      }
-      .sidebar-title { display: none; }
-      .nav-link {
-        white-space: nowrap;
-        border-left: none;
-        border-bottom: 2px solid transparent;
-        border-radius: 4px 4px 0 0;
-        padding: 6px 12px;
-        flex-shrink: 0;
-      }
-      .nav-link.active { border-bottom-color: #f7931a; background: rgba(247, 147, 26, 0.05); }
-      @media (prefers-color-scheme: light) {
-        .nav-link.active { border-bottom-color: #b45309; background: rgba(217, 119, 6, 0.05); }
-      }
-      .lang-toggle { margin-bottom: 0; align-self: center; }
-      table { font-size: .72rem; }
-      td, th { padding: 6px 6px; }
+      padding-top: 24px;
     }
   </style>
 </head>
-<body class="lang-ua">
+<body>
 
-  <!-- Main Navigation Header -->
-  <div class="nav-header">
-    <div class="nav-title-group">
-      <a href="index.html" style="text-decoration: none;">
-        <h1 class="nav-title">BTC Buy Risk Index</h1>
-      </a>
-    </div>
-    <div class="nav-menu">
-      <a class="nav-btn" href="index.html">Risk Index</a>
-      <button class="nav-btn active" style="cursor:default;">Methodology</button>
-      <a class="nav-btn" href="bitcoin_buy_risk.ics">iCal Alerts</a>
-    </div>
+  <a class="back-link" href="index.html">← Back to Dashboard</a>
+
+  <h1>Index Methodology</h1>
+  <div class="subtitle">10 indicators &middot; 16 cycle milestones 2018–2026 &middot; Updated daily</div>
+
+  <div class="toc-card">
+    <div class="toc-title">Table of Contents</div>
+    <ul class="toc-list">
+      <li><a href="#philosophy">1. Philosophy &amp; Concept</a></li>
+      <li><a href="#construction">2. How the Index Is Constructed</a></li>
+      <li><a href="#on-chain">3. On-Chain Indicators (OC)</a></li>
+      <li><a href="#tech-macro">4. Tech / Macro Indicators</a></li>
+      <li><a href="#retro">5. Retrospective Analysis (2018–2026)</a></li>
+      <li><a href="#findings">6. Key Findings</a></li>
+    </ul>
   </div>
 
-<div class="article-wrap">
+  <h2 id="philosophy">Philosophy</h2>
+  <p>There is no single correct way to evaluate the risk of buying Bitcoin. Anyone claiming otherwise is offering certainty where none exists. This index is a mathematical framework designed to minimize emotional biases, news noise, and short-term market psychology.</p>
+  <p>Rather than relying on speculative chart drawing, this index evaluates whether a given moment is <strong>historically cheap</strong> or <strong>historically expensive</strong> based on hard macroeconomic conditions and block-by-block user behavior.</p>
+
+  <blockquote>
+    <p>"Be fearful when others are greedy, and greedy when others are fearful."</p>
+    <cite>— Warren Buffett</cite>
+  </blockquote>
+
+  <h2 id="construction">How the Index Is Constructed</h2>
+  <p>The final index value is a weighted combination of <strong>10 indicators</strong> across two distinct categories. Both sub-scores are calculated independently and cross-blended to build the final reading:</p>
+  
+  <ul>
+    <li><strong>On-Chain (OC) Sub-score</strong> (50% final weight): 80% On-Chain metrics + 20% Tech/Macro metrics.</li>
+    <li><strong>Tech / Macro Sub-score</strong> (50% final weight): 80% Tech/Macro metrics + 20% On-Chain metrics.</li>
+    <li><strong>Final Risk Index</strong>: 50% OC Sub-score + 50% Tech/Macro Sub-score.</li>
+  </ul>
+
+  <div class="glass-card">
+    <table class="weights-table">
+      <thead>
+        <tr>
+          <th>Group &amp; Indicator</th>
+          <th>Group Weight</th>
+          <th>Individual Weight</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>On-Chain (OC)</strong></td><td>50%</td><td>—</td></tr>
+        <tr><td>&bull; NUPL</td><td>—</td><td>30%</td></tr>
+        <tr><td>&bull; MVRV Z-Score</td><td>—</td><td>20%</td></tr>
+        <tr><td>&bull; RHODL Ratio</td><td>—</td><td>20%</td></tr>
+        <tr><td>&bull; CVDD Ratio</td><td>—</td><td>15%</td></tr>
+        <tr><td>&bull; aSOPR (7d SMA)</td><td>—</td><td>15%</td></tr>
+        
+        <tr><td><strong>Tech / Macro</strong></td><td>50%</td><td>—</td></tr>
+        <tr><td>&bull; Cipher B Oscillator</td><td>—</td><td>50%</td></tr>
+        <tr><td>&bull; Mayer Multiple</td><td>—</td><td>20%</td></tr>
+        <tr><td>&bull; Fear &amp; Greed Index</td><td>—</td><td>10%</td></tr>
+        <tr><td>&bull; Yield Curve Spread (10Y-2Y)</td><td>—</td><td>10%</td></tr>
+        <tr><td>&bull; Global M2 YoY Growth</td><td>—</td><td>10%</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2 id="on-chain">On-Chain Indicators (OC)</h2>
+  
+  <h3 id="m-nupl">NUPL — Net Unrealized Profit/Loss (30% weight)</h3>
+  <p>Measures the difference between total market unrealized profit and unrealized loss divided by Bitcoin's market capitalization. It captures the overall emotional state of holders: values &gt;0.75 represent euphoria, while values &lt;0 show total capitulation.</p>
+
+  <h3 id="m-mvrv">MVRV Z-Score (20% weight)</h3>
+  <p>Calculates the standard deviation distance between Bitcoin's market capitalization and realized capitalization (the total cost basis of all moved coins). A high score (e.g., &gt;7) means market price is unsustainably detached from holder value, while values below 0 represent deep value.</p>
+
+  <h3 id="m-rhodl">RHODL Ratio (20% weight)</h3>
+  <p>Compares the amount of coins held for 1 week against those held for 1–2 years. When the ratio surges, it signals that inexperienced new money is rapidly absorbing supply from seasoned holders—a classic cyclical peak behavior.</p>
+
+  <h3 id="m-cvdd">CVDD Ratio (15% weight)</h3>
+  <p>Cumulative Value Days Destroyed divided by the current price. It maps the aggregate destruction of "coin-days" (holding time multiplied by amount). In cyclical downturns, the price hitting this ratio level has historically marked absolute cycle bottoms.</p>
+
+  <h3 id="m-asopr">aSOPR — Adjusted Spent Output Profit Ratio (15% weight)</h3>
+  <p>Measures the average profit multiplier of spent coins (excluding day-trades under 1 hour). To filter noise, we apply a <strong>7-day Simple Moving Average (SMA)</strong>. If aSOPR drops to 1.0 (break-even point) and bounces, the bull market remains intact. We map aSOPR = 0.88 to 0 risk (maximum fear/capitulation) and 1.12 to 100 risk (local market extension).</p>
+
+  <h2 id="tech-macro">Tech / Macro Indicators</h2>
+
+  <h3 id="m-cipherb">Cipher B Oscillator (50% weight of Tech/Macro)</h3>
+  <p>An implementation of the WaveTrend momentum oscillator evaluated on a weekly timeframe. The weekly scale filters out daily noise, pinpointing major momentum shifts: 0 indicates deep correction/capitulation, and 100 represents an overextended bull market.</p>
+
+  <h3 id="m-mayer">Mayer Multiple (20% weight of Tech/Macro)</h3>
+  <p>Calculates the simple ratio between Bitcoin's price and its 200-day moving average (200DMA). It acts as a mean-reverting trigger, mapped linearly: values &le;0.5 represent extreme undervaluation, and &ge;2.1 represent major overvaluation.</p>
+
+  <h3 id="m-fg">Fear &amp; Greed Index (10% weight of Tech/Macro)</h3>
+  <p>A contrarian sentiment proxy measuring social media, search trends, volatility, and volume. We use a <strong>7-day moving average</strong> instead of the daily reading to avoid transient spikes. A lower score (Fear) signals accumulation opportunities; a high score (Greed) alerts to caution.</p>
+
+  <h3 id="m-yc">Yield Curve Spread (10% weight of Tech/Macro)</h3>
+  <p>The spread between US 10-Year and 2-Year Treasury bonds. When the spread goes negative (inversion), it signals systemic liquidity starvation, tightening financial conditions, and high recession risk, which pushes the BTC risk score higher.</p>
+
+  <h3 id="m-m2">Global M2 YoY Growth (10% weight of Tech/Macro)</h3>
+  <p>Tracks the year-over-year rate of change of global money supply (US, EU, China, Japan). High M2 expansion indicates system-wide debasement and liquidity inflows (low risk of asset collapse). Negative M2 growth indicates global monetary contraction (higher risk).</p>
+
+  <h3 id="m-funding">Funding Rate (Display Only)</h3>
+  <p>The 7-day average of Bybit BTCUSDT perpetual futures funding rate. While shown on the dashboard, it is <strong>not included in the weighted risk calculation</strong> due to its high volatility and reduced signal reliability in the institutional ETF era.</p>
+
+  <h2 id="retro">Retrospective Analysis (2018–2026)</h2>
+  <p>To verify the index's utility, the weights were backtested against 16 critical market events from prior cycles. Below are the historical calculated risk scores at each milestone date:</p>
+
+  <div class="glass-card">
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Milestone Event</th>
+          <th>BTC Price</th>
+          <th>OC Score</th>
+          <th>Tech Score</th>
+          <th>Final Index</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>2018-12-15</td><td>Cycle Bear Bottom</td><td>$3,200</td><td>20</td><td>8</td><td><span class="zone-0"><strong>14</strong></span></td></tr>
+        <tr><td>2019-06-26</td><td>Local Top Peak</td><td>$13,880</td><td>66</td><td>90</td><td><span class="zone-100"><strong>78</strong></span></td></tr>
+        <tr><td>2020-03-13</td><td>COVID Crash Low</td><td>$3,800</td><td>39</td><td>28</td><td><span class="zone-25"><strong>34</strong></span></td></tr>
+        <tr><td>2020-10-01</td><td>Pre-Bull Run Start</td><td>$10,800</td><td>54</td><td>54</td><td><span class="zone-50"><strong>54</strong></span></td></tr>
+        <tr><td>2021-04-14</td><td>Spring Cycle ATH</td><td>$63,500</td><td>87</td><td>82</td><td><span class="zone-100"><strong>84</strong></span></td></tr>
+        <tr><td>2021-07-20</td><td>Summer Correction Dip</td><td>$29,800</td><td>60</td><td>18</td><td><span class="zone-25"><strong>39</strong></span></td></tr>
+        <tr><td>2021-11-10</td><td>November Cycle ATH</td><td>$69,000</td><td>80</td><td>82</td><td><span class="zone-100"><strong>81</strong></span></td></tr>
+        <tr><td>2022-06-18</td><td>Capitulation Low</td><td>$17,600</td><td>30</td><td>5</td><td><span class="zone-0"><strong>18</strong></span></td></tr>
+        <tr><td>2022-11-21</td><td>FTX Bankruptcy Bottom</td><td>$15,500</td><td>23</td><td>12</td><td><span class="zone-0"><strong>18</strong></span></td></tr>
+        <tr><td>2023-01-14</td><td>Cycle Recovery Start</td><td>$21,000</td><td>32</td><td>37</td><td><span class="zone-25"><strong>34</strong></span></td></tr>
+        <tr><td>2024-03-14</td><td>March 2024 ATH</td><td>$73,500</td><td>77</td><td>94</td><td><span class="zone-100"><strong>86</strong></span></td></tr>
+        <tr><td>2025-01-20</td><td>January 2025 Top</td><td>$109,000</td><td>73</td><td>88</td><td><span class="zone-100"><strong>80</strong></span></td></tr>
+        <tr><td>2025-09-26</td><td>Close ATH Peak</td><td>$123,000</td><td>64</td><td>60</td><td><span class="zone-75"><strong>62</strong></span></td></tr>
+        <tr><td>2025-09-29</td><td>Intraday ATH Peak</td><td>$129,000</td><td>65</td><td>74</td><td><span class="zone-75"><strong>70</strong></span></td></tr>
+        <tr><td>2025-11-10</td><td>Post-ATH Dump Low</td><td>$94,000</td><td>61</td><td>19</td><td><span class="zone-50"><strong>40</strong></span></td></tr>
+        <tr><td>2026-04-25</td><td>Recent Milestone (Today)</td><td>$77,500</td><td>49</td><td>37</td><td><span class="zone-50"><strong>43</strong></span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2 id="findings">Key Findings</h2>
+  
+  <h3>1. High Separation Gap</h3>
+  <p>The index exhibits a significant separation between market cycle bottoms and tops. The average score at confirmed bottoms (2018, COVID, Capitulation, FTX) is <span class="zone-25"><strong>21</strong></span>. The average score at confirmed tops (2021 spring/autumn, 2024, 2025 tops) is <span class="zone-100"><strong>82.75</strong></span>. A ~62-point separation makes this index highly reliable for long-term positioning.</p>
+
+  <h3>2. Diminishing Peaks Phenomenon</h3>
+  <p>Despite Bitcoin making a new price peak in late 2025 ($129,000, representing +76% over the 2024 high), the risk index only peaked at 70. This demonstrates that as mature, institutional capital (ETFs and corporate balance sheets) drives price, the underling on-chain metrics (such as MVRV Z-score and RHODL waves) do not reach the extreme speculative levels seen in 2018 or 2021. 
+  <strong>Takeaway: The practical cycle exit window starts at ~70+ in the modern era, rather than the ~85+ seen in earlier cycles.</strong></p>
+
+  <h3>3. Complimentary Sentiment</h3>
+  <p>While on-chain metrics are the anchor of cycle-scale trends, technical/macro signals are sensitive to shorter-term events. For example, during the Post-ATH Dump in November 2025, the On-Chain score remained structurally neutral (61), but the Tech/Macro score collapsed to 19, signaling a healthy, low-risk tactical buying window inside a structural trend.</p>
+
+  <div class="disclaimer-box">
+    <p>This methodology document is for educational and informational purposes only. It is not financial advice. All data and calculations are processed automatically and reflect public historical records. Any decisions to trade are made solely at your own risk.</p>
+  </div>
+
+  <footer>
+    <a href="index.html" style="color:var(--footer);text-decoration:none;">← Back to Dashboard</a>
+    &nbsp;&middot;&nbsp; Bitcoin Buy Risk Index &middot; May 2026
+  </footer>
 
-  <!-- ── Sidebar ── -->
-  <nav class="sidebar" id="sidebar">
-    <div class="lang-toggle">
-      <button class="lang-btn active" onclick="setLang('ua')">UA</button>
-      <button class="lang-btn"        onclick="setLang('en')">EN</button>
-    </div>
-    <div class="sidebar-title ua">Розділи</div>
-    <div class="sidebar-title en">Contents</div>
-    <a class="nav-link" href="#about" id="nav-about">
-      <span class="ua">Про індикатор</span>
-      <span class="en">About</span>
-    </a>
-    <a class="nav-link" href="#metrics" id="nav-metrics">
-      <span class="ua">Індикатори</span>
-      <span class="en">Indicators</span>
-    </a>
-    <a class="nav-link" href="#retro" id="nav-retro">
-      <span class="ua">Ретроспективний аналіз</span>
-      <span class="en">Retrospective Analysis</span>
-    </a>
-  </nav>
-
-  <!-- ── Content ── -->
-  <div class="article-content">
-
-    <!-- ════════════════════════════════════════════
-         SECTION 1 — ABOUT
-         ════════════════════════════════════════════ -->
-    <section id="about">
-
-      <!-- UA -->
-      <div class="ua">
-        <h1>Про індикатор</h1>
-        <p class="article-meta">Версія: травень 2026 &middot; 10 індикаторів &middot; 16 ключових подій 2018–2026</p>
-
-        <h2>Що це таке — і чим воно не є</h2>
-        <p>Не існує єдино правильного способу оцінювати ризик купівлі Bitcoin. Кожен вирішує для себе сам. Цей індекс не претендує на роль такого способу.</p>
-        <p>Це структурований інструмент для особистих рішень — зокрема, щоб зменшити вплив емоцій, інформаційного шуму та короткострокової ринкової психології при оцінці того, чи є поточний момент <em>гістрично дешевим</em> чи <em>гістрично дорогим</em> відносно попередніх циклів.</p>
-        <p>Як він поводитиметься у майбутніх циклах — невідомо. Ринки змінюються, учасники змінюються, і сигнали, що спрацьовували у 2018 році, можуть мати меншу вагу у 2030-му.</p>
-        <p>Індекс оновлюється <strong>раз на добу</strong>. Його потенційна цінність — у спокійній торгівлі з горизонтом кілька років, а не у виборі точок входу на день чи тиждень.</p>
-
-        <blockquote>
-          <p>«Бійтесь, коли інші жадібні, і будьте жадібні, коли інші бояться.»</p>
-          <cite>— Воррен Баффет</cite>
-        </blockquote>
-
-        <p>Якщо ви шукаєте інструмент для швидкого заробітку — цей індекс вам не допоможе.</p>
-
-        <hr>
-
-        <h2>Філософія підходу</h2>
-        <p><strong>Все, що відбувається з ціною Bitcoin, відбувається на основі загальноекономічних процесів і поведінкової психології, а не магічних ліній на графіку.</strong></p>
-        <p>Цей проєкт свідомо виключає клас технічного аналізу, який шукає передбачальні лінії, фрактали, гармонійні патерни та аналогічні конструкти. Їхня привабливість зрозуміла: вони пропонують зручну нарративну рамку. Але патерн, що «спрацьовує» у ретроспективі, на обраному вручну графіку, на ринку, керованому емоціями, — це не надійний сигнал, а збіг обставин із переконливою візуалізацією.</p>
-
-        <h3>Технічний аналіз: що залишено і чому</h3>
-        <ul>
-          <li><strong>Cipher B</strong> на тижневому таймфреймі — найбільш поведінково обґрунтований ТА-індикатор у даному контексті. Реалізація тут <em>апроксимує</em> оригінал, але не відтворює його на 100%. Майте це на увазі.</li>
-          <li><strong>Mayer Multiple</strong> — відношення поточної ціни Bitcoin до його 200-денної простої ковзної середньої (200DMA). Використовується для оцінки перегрітості або перепроданості ринку відносно довгострокового тренду.</li>
-        </ul>
-
-        <h3>Ончейн-метрики: більше даних, але не більше визначеності</h3>
-        <p>Ончейн-метрики дають змогу аналізувати реальну економічну поведінку покупців і продавців: за якими цінами придбано монети, яка частка знаходиться в прибутку чи збитку, як обертається ліквідність. Це значно краще, ніж аналіз форми свічок.</p>
-        <p>Разом з тим — це вимір <em>людської</em> поведінки. А отже, вона часто нераціональна, схильна до зворотних зв'язків і погано передбачувана. Включно з вашою власною поведінкою під час читання цих цифр.</p>
-
-        <hr>
-
-        <h2>Як побудований індекс</h2>
-        <p>Індекс є зваженою композицією <strong>10 індикаторів</strong> у двох групах:</p>
-        <div class="glass-card">
-          <table class="weights-table">
-            <thead><tr><th>Група</th><th>Вага</th><th>Індикатори</th></tr></thead>
-            <tbody>
-              <tr><td><strong>On-Chain (OC)</strong></td><td>50%</td><td>NUPL, MVRV Z-score, Addr in Profit, RHODL Ratio, CVDD Ratio</td></tr>
-              <tr><td><strong>Tech / Macro</strong></td><td>50%</td><td>Cipher B ×50%, Mayer Multiple ×10%, Fear &amp; Greed (7d avg) ×20%, Yield Curve (10Y-2Y) ×10%, Global M2 YoY ×10%</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <p>Обидві групи відображаються як окремі суб-скори з перехресним змішуванням: OC суб-скор = 80% ончейн + 20% техно/макро; Tech суб-скор = 20% ончейн + 80% техно/макро; Final = 50% кожної групи.</p>
-
-        <h3>Про розподіл ваг</h3>
-        <p>Відносні ваги між індикаторами <strong>призначені на основі припущень</strong>, а не формальної оптимізації чи дослідження. Вони відображають уявлення про те, як кожен сигнал <em>має</em> впливати на результат — а не висновок, виведений виключно з бектесту. Це відома обмеженість методу.</p>
-
-        <hr>
-
-        <h2>Обмеження методології</h2>
-        <ul>
-          <li><strong>Це не фінансова порада.</strong> Не приймайте рішення виключно на основі цього індексу.</li>
-          <li><strong>Cipher B</strong> — апроксимація оригінального індикатора (TradingView WaveTrend), а не точне відтворення.</li>
-          <li><strong>SMC</strong> видалено з ваг: ретроспективний аналіз виявив ~40% хибних сигналів «дна» у ведмежих ринках.</li>
-          <li><strong>Yield Curve (T10Y2Y, FRED)</strong> — обернена логіка: від'ємний спред (інверсія) = жорстке середовище та дефіцит ліквідності = високий ризик-скор для BTC.</li>
-          <li><strong>Ретроспективна ефективність</strong> на 8 подіях не гарантує, що індекс залишатиметься відкаліброваним у майбутніх циклах.</li>
-          <li><strong>Ніхто не знає</strong>, що буде з ринком завтра. Не довіряйте тим, хто стверджує, що знає.</li>
-        </ul>
-      </div><!-- /ua about -->
-
-      <!-- EN -->
-      <div class="en">
-        <h1>About the Index</h1>
-        <p class="article-meta">Version: May 2026 &middot; 10 indicators &middot; 16 key events 2018–2026</p>
-
-        <h2>What This Is — and What It Is Not</h2>
-        <p>There is no universally correct way to measure the risk of buying Bitcoin. Anyone who claims otherwise is selling something. This index does not attempt to be that.</p>
-        <p>It is a structured, data-driven tool built to inform personal decisions — specifically to reduce the influence of emotion, noise, and short-term market psychology when evaluating whether a given moment is <em>historically cheap</em> or <em>historically expensive</em> relative to past cycles.</p>
-        <p>Whether it will work in future cycles is unknown. Markets evolve, participants evolve, and the signals that mattered in 2018 may matter less in 2030.</p>
-        <p>The index updates <strong>once per day</strong>. Its potential value lies in calm, multi-year positioning — not in timing day-to-day moves.</p>
-
-        <blockquote>
-          <p>"Be fearful when others are greedy, and greedy when others are fearful."</p>
-          <cite>— Warren Buffett</cite>
-        </blockquote>
-
-        <p>If you are looking for a tool to generate quick profits, this index will not help you.</p>
-
-        <hr>
-
-        <h2>Philosophy</h2>
-        <p><strong>Bitcoin price behaviour is rooted in macroeconomics and human psychology — not in patterns drawn on charts.</strong></p>
-        <p>This project deliberately excludes the class of technical analysis that searches for predictive lines, fractals, harmonic patterns, and similar constructs. The draw of such tools is understandable: they offer the comfort of a story. But a pattern that appears to work in hindsight, on a hand-picked chart, in a market driven by emotion, is not a reliable signal — it is a coincidence with a compelling visual.</p>
-
-        <h3>What is kept from TA, and why</h3>
-        <ul>
-          <li><strong>Cipher B</strong> on the weekly timeframe is included as the most behaviourally grounded TA indicator in this context. The implementation here <em>approximates</em> the original but does not reproduce it exactly. Keep that in mind.</li>
-          <li><strong>Mayer Multiple</strong> — the ratio of Bitcoin's current price to its 200-day simple moving average (200DMA), serving as a measure of relative overbought or oversold conditions.</li>
-        </ul>
-
-        <h3>On-chain metrics: more data, not more certainty</h3>
-        <p>On-chain metrics offer a window into the actual economic behaviour of buyers and sellers — what prices people paid, what they are sitting on in profit or loss, how liquidity is rotating. That is meaningfully better than analysing candle shapes.</p>
-        <p>They are also a measure of <em>human</em> behaviour, which means they are frequently irrational, subject to feedback loops, and not reliably predictive — including, notably, your own behaviour when reading these numbers.</p>
-
-        <hr>
-
-        <h2>How the Index Is Constructed</h2>
-        <p>The index is a weighted composite of <strong>10 indicators</strong> across two groups:</p>
-        <div class="glass-card">
-          <table class="weights-table">
-            <thead><tr><th>Group</th><th>Weight</th><th>Indicators</th></tr></thead>
-            <tbody>
-              <tr><td><strong>On-Chain (OC)</strong></td><td>50%</td><td>NUPL, MVRV Z-score, Addr in Profit, RHODL Ratio, CVDD Ratio</td></tr>
-              <tr><td><strong>Tech / Macro</strong></td><td>50%</td><td>Cipher B (weekly) ×50%, Mayer Multiple ×10%, Fear &amp; Greed (7d avg) ×20%, Yield Curve (10Y-2Y) ×10%, Global M2 YoY ×10%</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <p>Both groups are displayed as separate sub-scores with cross-blending: OC sub-score = 80% on-chain + 20% tech/macro; Tech sub-score = 20% on-chain + 80% tech/macro; Final = 50% each.</p>
-
-        <h3>On weight distribution</h3>
-        <p>The relative weights between indicators were <strong>assigned based on informed assumptions</strong>, not on a formal optimisation study. They reflect a view of how each signal <em>should</em> contribute — not a result derived from backtesting alone. This is a known limitation.</p>
-
-        <hr>
-
-        <h2>Limitations</h2>
-        <ul>
-          <li><strong>This is not financial advice.</strong> Do not make financial decisions based solely on this index.</li>
-          <li><strong>Cipher B</strong> is an approximation of the original (TradingView WaveTrend), not an exact reproduction.</li>
-          <li><strong>SMC</strong> was removed from the weights: retrospective analysis revealed ~40% false bottom signals in bear markets.</li>
-          <li><strong>Yield Curve (T10Y2Y, FRED)</strong> — inverse logic: negative spread (inversion) = tight monetary policy and liquidity starvation = high risk score for BTC.</li>
-          <li><strong>Past performance</strong> across 8 cycle events does not guarantee the index will remain calibrated in future cycles.</li>
-          <li><strong>Nobody knows</strong> what the market will do tomorrow. Distrust anyone who claims otherwise with confidence.</li>
-        </ul>
-      </div><!-- /en about -->
-
-    </section>
-
-    <!-- ════════════════════════════════════════════
-         SECTION 2 — INDICATORS
-         ════════════════════════════════════════════ -->
-    <section id="metrics">
-
-      <div class="ua">
-        <h1>Індикатори</h1>
-        <p class="article-meta">10 показників · 5 On-Chain + 5 Tech/Macro</p>
-        <h2>On-Chain метрики</h2>
-      </div>
-      <div class="en">
-        <h1>Indicators</h1>
-        <p class="article-meta">10 indicators · 5 On-Chain + 5 Tech/Macro</p>
-        <h2>On-Chain Metrics</h2>
-      </div>
-
-      <div id="m-addr" style="scroll-margin-top:20px">
-        <div class="ua">
-          <h3>Addr in Profit — Адреси в прибутку</h3>
-          <p>Відсоток Bitcoin-адрес, поточна ринкова ціна яких вища за ціну їх останнього переміщення (нереалізований прибуток). При ATH ≈ 95–99% адрес у прибутку; на циклічному дні ≈ 40–55%.</p>
-          <p>Чим більше адрес у прибутку — тим більше тримачів мають мотивацію продавати. Шкала квадратична (v×(v+5)/105): нижня рідкісна зона стиснута коректно. Вага у On-Chain групі: <strong>25%</strong>.</p>
-        </div>
-        <div class="en">
-          <h3>Addr in Profit — Addresses in Profit</h3>
-          <p>The percentage of Bitcoin addresses whose last-moved price is below the current market price (unrealised profit). At ATH ≈ 95–99% of addresses are in profit; at a cycle bottom ≈ 40–55%.</p>
-          <p>The more addresses in profit, the more holders have an incentive to sell. Score uses a quadratic scale (v×(v+5)/105): the rare low zone (40–55%) is compressed correctly. Weight in On-Chain group: <strong>25%</strong>.</p>
-        </div>
-      </div>
-
-      <div id="m-rhodl" style="scroll-margin-top:20px">
-        <div class="ua">
-          <h3>RHODL Ratio</h3>
-          <p>Realized HODL Ratio — відношення «хвилі» монет, куплених за останні 7 днів, до «хвилі» монет 1–2-річної давності. Різке зростання означає: новий капітал масово заміщує довгострокових тримачів — класичний сигнал вершини циклу.</p>
-          <p>На дні — довгострокові тримачі домінують, нових покупок мало. На ATH — нові покупці «перекуповують» у досвідчених тримачів. Вага: <strong>20%</strong>.</p>
-        </div>
-        <div class="en">
-          <h3>RHODL Ratio</h3>
-          <p>Realized HODL Ratio — the ratio of the 7-day HODL wave to the 1–2 year HODL wave. A sharp rise signals that new capital is massively displacing long-term holders — a classic cycle top indicator.</p>
-          <p>At bottoms, long-term holders dominate and new buying is scarce. At ATHs, new buyers absorb coins from experienced holders. Weight: <strong>20%</strong>.</p>
-        </div>
-      </div>
-
-      <div id="m-mvrv" style="scroll-margin-top:20px">
-        <div class="ua">
-          <h3>MVRV Z-Score</h3>
-          <p>Market Value to Realized Value — Z-score відношення ринкової капіталізації до реалізованої (сума всіх монет × ціна їх останнього переміщення). Z-score нормує результат на волатильність. Значення &gt;7 = ATH-зона, &lt;0 = дно.</p>
-          <p>Коли ринкова капа сильно перевищує реалізовану — ринок перегрітий. Реалізована капа зростає з кожним циклом, тому Z-score на ATH 2024–2025 нижчий, ніж у 2021. Вага: <strong>20%</strong>.</p>
-        </div>
-        <div class="en">
-          <h3>MVRV Z-Score</h3>
-          <p>Market Value to Realized Value — Z-score of the ratio between market cap and realised cap (all coins × price at last move). The Z-score normalises for volatility. Values &gt;7 = ATH territory, &lt;0 = bottom.</p>
-          <p>When market cap greatly exceeds realised cap, the market is overheated. Realised cap grows each cycle, so Z-score at 2024–2025 ATHs is lower than in 2021. Weight: <strong>20%</strong>.</p>
-        </div>
-      </div>
-
-      <div id="m-cvdd" style="scroll-margin-top:20px">
-        <div class="ua">
-          <h3>CVDD Ratio</h3>
-          <p>Cumulative Value Days Destroyed — відношення поточної ціни до накопиченої вартості знищених монетоднів (монети × вік у днях × ціна). Зростання = активний розподіл довгостроковими тримачами; падіння = накопичення.</p>
-          <p>Вимірює «активність» старих монет як прокси поведінки довгострокових інвесторів. Шкала логарифмічна (log₁₀(v)/log₁₀(5)): більшість циклічного часу ratio 1–3, тому лог краще розподіляє середній діапазон. Вага: <strong>20%</strong>.</p>
-        </div>
-        <div class="en">
-          <h3>CVDD Ratio</h3>
-          <p>Cumulative Value Days Destroyed — the ratio of current price to cumulative coin days destroyed (coins × age in days × price). Rising = long-term holders actively distributing; falling = accumulation.</p>
-          <p>Measures the "activity" of old coins as a proxy for long-term investor behaviour. Score uses a logarithmic scale (log₁₀(v)/log₁₀(5)): most of the cycle the ratio stays in 1–3, so the log scale distributes the mid-range better. Weight: <strong>20%</strong>.</p>
-        </div>
-      </div>
-
-      <div id="m-nupl" style="scroll-margin-top:20px">
-        <div class="ua">
-          <h3>NUPL — Net Unrealized Profit/Loss</h3>
-          <p>Різниця між нереалізованим прибутком і збитком усього ринку, поділена на ринкову капіталізацію. Шкала: &gt;0.75 = ейфорія, 0.5–0.75 = жадібність, 0.25–0.5 = оптимізм, 0–0.25 = страх, &lt;0 = капітуляція.</p>
-          <p>Показує колективний «емоційний стан» усього ринку, виражений через дані блокчейну — без анкетувань і соцмедіа. Вага: <strong>15%</strong>.</p>
-        </div>
-        <div class="en">
-          <h3>NUPL — Net Unrealized Profit/Loss</h3>
-          <p>The difference between total unrealised profit and loss, divided by market cap. Scale: &gt;0.75 = euphoria, 0.5–0.75 = greed, 0.25–0.5 = optimism, 0–0.25 = fear, &lt;0 = capitulation.</p>
-          <p>Captures the collective emotional state of the entire market purely through on-chain data — no surveys, no social media. Weight: <strong>15%</strong>.</p>
-        </div>
-      </div>
-
-      <div class="ua"><h2>Tech / Macro метрики</h2></div>
-      <div class="en"><h2>Tech / Macro Metrics</h2></div>
-
-      <div id="m-cipherb" style="scroll-margin-top:20px">
-        <div class="ua">
-          <h3>Cipher B Oscillator</h3>
-          <p>Технічний осцилятор на основі WaveTrend на тижневому таймфреймі. Значення 0 = глибока корекція / капітуляція; 100 = перегрітий бичачий тренд. Реалізація тут <em>апроксимує</em> оригінал (TradingView), але не відтворює його точно.</p>
-          <p>Найбільш поведінково обґрунтований TA-індикатор у цьому контексті. Тижневий таймфрейм фільтрує короткостроковий шум. Вага: <strong>50%</strong>.</p>
-        </div>
-        <div class="en">
-          <h3>Cipher B Oscillator</h3>
-          <p>A technical oscillator based on WaveTrend on the weekly timeframe. 0 = deep correction / capitulation; 100 = overheated bull trend. The implementation here <em>approximates</em> the original (TradingView) but does not reproduce it exactly.</p>
-          <p>The most behaviourally grounded TA indicator in this context. The weekly timeframe filters short-term noise. Weight: <strong>50%</strong>.</p>
-        </div>
-      </div>
-
-      <div id="m-mayer" style="scroll-margin-top:20px">
-        <div class="ua">
-          <h3>Mayer Multiple</h3>
-          <p>Відношення поточної ціни Bitcoin до його 200-денної простої ковзної середньої (200DMA). Вимірює відхилення ціни від довгострокового тренду для виявлення зон перегрітості або перепроданості ринку.</p>
-          <p>Скор лінійний: <code>score = (MM − 0.5) / 1.6 * 100</code> (обмежено діапазоном 0–100). MM &le; 0.5 (історична недооціненість) → score = 0; MM &ge; 2.1 (історична перегрітість) → score = 100. Вага: <strong>10%</strong>.</p>
-        </div>
-        <div class="en">
-          <h3>Mayer Multiple</h3>
-          <p>The ratio of Bitcoin's current price to its 200-day simple moving average (200DMA). It measures the asset's deviation from its long-term trend to identify overbought or oversold conditions.</p>
-          <p>Score is linear: <code>score = (MM − 0.5) / 1.6 * 100</code> (clamped between 0 and 100). MM &le; 0.5 (historical undervaluation) &rarr; score = 0; MM &ge; 2.1 (historical overextension) &rarr; score = 100. Weight: <strong>10%</strong>.</p>
-        </div>
-      </div>
-
-      <div id="m-fg" style="scroll-margin-top:20px">
-        <div class="ua">
-          <h3>Fear &amp; Greed Index</h3>
-          <p>Зважений агрегат: волатильність BTC, об'єм торгів, активність соцмедіа, BTC-домінація і Google Trends. 0 = Extreme Fear, 100 = Extreme Greed. Контрарний індикатор: страх = можлива точка накопичення, жадібність = обережність.</p>
-          <p>Для скорингу використовується <strong>7-денна середня</strong> (а не денний знімок) — для зменшення впливу короткострокових викидів. На сторінці відображається і сьогоднішнє, і середнє значення.</p>
-          <p><strong>Обмеження:</strong> на ATH 2025 ($129k) показав лише 50 (Neutral) — ринок рухався інституційним капіталом (ETF, корпорації) без масової роздрібної ейфорії. Вага: <strong>20%</strong>.</p>
-        </div>
-        <div class="en">
-          <h3>Fear &amp; Greed Index</h3>
-          <p>A weighted aggregate of: BTC volatility, trading volume, social media activity, BTC dominance, and Google Trends. 0 = Extreme Fear, 100 = Extreme Greed. Contrarian: fear = potential accumulation, greed = caution.</p>
-          <p>Scoring uses the <strong>7-day rolling average</strong> (not a daily snapshot) to reduce the impact of short-term spikes. Both today's value and the 7-day average are shown on the dashboard.</p>
-          <p><strong>Limitation:</strong> at the 2025 ATH ($129k) it showed only 50 (Neutral) — the market was driven by institutional capital (ETFs, corporations) without mass retail euphoria. Weight: <strong>20%</strong>.</p>
-        </div>
-      </div>
-
-      <div id="m-m2" style="scroll-margin-top:20px">
-        <div class="ua">
-          <h3>Global M2 YoY</h3>
-          <p>Річна зміна глобальної грошової маси M2 (США + ЄС + Китай + Японія). Висока YoY → ринки переповнені ліквідністю → попит на ризикові активи. Від'ємна YoY → монетарне стиснення → тиск на BTC.</p>
-          <p>Обернена логіка: ↑ ліквідність = ↓ ризик. Обмеження діапазону: -5% → +10%. COVID QE (квіт. 2021): +20% YoY → score 0 (найнижчий ризик). FTX дно (лист. 2022): +0.3% → score 65 (високий ризик). 2024 ETF-ралі: -0.7% YoY → score 71 (високий ризик). Вага: <strong>10%</strong>.</p>
-        </div>
-        <div class="en">
-          <h3>Global M2 YoY</h3>
-          <p>Year-over-year change in global M2 money supply (US + EU + China + Japan). High YoY → markets flooded with liquidity → demand for risk assets. Negative YoY → monetary contraction → pressure on BTC.</p>
-          <p>Inverse logic: ↑ liquidity = ↓ risk. Clamped range: -5% → +10%. COVID QE (Apr 2021): +20% YoY → score 0 (lowest risk). FTX bottom (Nov 2022): +0.3% → score 65 (high risk). 2024 ETF rally: -0.7% YoY → score 71 (high risk). Weight: <strong>10%</strong>.</p>
-        </div>
-      </div>
-
-      <div id="m-yc" style="scroll-margin-top:20px">
-        <div class="ua">
-          <h3>Yield Curve (10Y-2Y Spread)</h3>
-          <p>Спред між 10-річними та 2-річними казначейськими облігаціями США (T10Y2Y, FRED). Класичний макроекономічний індикатор ліквідності та ризику рецесії.</p>
-          <p>Від'ємний спред (інверсія кривої) означає дефіцит ліквідності та високий макроекономічний стрес. Обмеження: -1% (інверсія) → +2% (здорова крута крива). Відповідно, глибока інверсія дає найвищий скор ризику. Вага: <strong>10%</strong>.</p>
-        </div>
-        <div class="en">
-          <h3>Yield Curve (10Y-2Y Spread)</h3>
-          <p>The spread between US 10-Year and 2-Year Treasury bonds (T10Y2Y, FRED). A classic macroeconomic indicator of liquidity and recession risk.</p>
-          <p>A negative spread (yield curve inversion) indicates liquidity starvation and high macroeconomic stress. Scale: -1% (deep inversion) → +2% (healthy steep curve). Therefore, a deep inversion yields the highest risk score. Weight: <strong>10%</strong>.</p>
-        </div>
-      </div>
-
-      <div id="m-funding" style="scroll-margin-top:20px">
-        <div class="ua">
-          <h3>Funding Rate — Ставка фінансування (відображення)</h3>
-          <p>7-денна середня ставки фінансування безстрокових ф'ючерсів BTC на Bybit (BTCUSDT perp). Показується в raw-рядку сторінки, але <strong>не включена до вагових скорів</strong>.</p>
-          <p>Позитивна ставка (+0.05–0.10%/8h) → лонги переплачують, ринок перегрітий. Від'ємна або нульова → лонги не перегріті. <strong>Обмеження:</strong> у 2025 р. BTC досяг $129k при майже нульовому funding rate (ринок рухали ETF і корпоративні покупки, а не ф'ючерсна ейфорія). Через нестабільність цього сигналу в ETF-ері метрика є довідковою.</p>
-        </div>
-        <div class="en">
-          <h3>Funding Rate — Perpetual Futures Rate (display only)</h3>
-          <p>7-day average of Bybit BTCUSDT perpetual futures funding rate. Shown as a raw metric on the dashboard, but <strong>not included in the weighted scores</strong>.</p>
-          <p>Positive rate (+0.05–0.10%/8h) → longs are overheating. Near-zero or negative → no excessive leverage. <strong>Limitation:</strong> in 2025 BTC reached $129k with near-zero funding (price was driven by ETF/corporate buying, not futures euphoria). Due to the signal's unreliability in the ETF era, this metric is informational only.</p>
-        </div>
-      </div>
-
-    </section>
-
-    <!-- ════════════════════════════════════════════
-         SECTION 3 — RETROSPECTIVE ANALYSIS
-         ════════════════════════════════════════════ -->
-    <section id="retro">
-
-      <!-- UA -->
-      <div class="ua">
-        <h1>Ретроспективний аналіз</h1>
-        <p class="article-meta">16 ключових подій 2018–2026 &middot; Дані: BitcoinMagazinePro, FRED, BMP Global Liquidity, Binance</p>
-
-        <h2>Шкала індексу</h2>
-        <ul>
-          <li><span class="zone-0"><strong>0–20</strong></span>: капітуляція / екстремальне дно</li>
-          <li><span class="zone-25"><strong>20–40</strong></span>: дискаунт-зона, накопичення</li>
-          <li><span class="zone-50"><strong>40–60</strong></span>: нейтральна зона, невизначеність</li>
-          <li><span class="zone-75"><strong>60–75</strong></span>: дистрибуція / перегрів, обережність</li>
-          <li><span class="zone-100"><strong>75–100</strong></span>: екстремальний перегрів, зона продажу</li>
-        </ul>
-
-        <h2>Повна таблиця мілстоунів 2018–2026</h2>
-        <div class="glass-card">
-          <table>
-            <thead><tr><th>Дата</th><th>Подія</th><th>BTC</th><th>OC</th><th>Tech</th><th>Final</th><th>F&amp;G</th><th>M2</th><th>Mayer</th></tr></thead>
-            <tbody>
-              <tr><td>2018-12-15</td><td>Cycle bear bottom</td><td>$3,200</td><td>16</td><td>17</td><td><strong class="zone-0">16</strong></td><td>11</td><td>67</td><td>1</td></tr>
-              <tr><td>2019-06-26</td><td>Локальний пік</td><td>$13,880</td><td>73</td><td>89</td><td><strong class="zone-100">81</strong></td><td>95</td><td>61</td><td>100</td></tr>
-              <tr><td>2020-03-13</td><td>COVID crash</td><td>$3,800</td><td>32</td><td>32</td><td><strong class="zone-25">32</strong></td><td>10</td><td>46</td><td>9</td></tr>
-              <tr><td>2020-10-01</td><td>Старт булрану</td><td>$10,800</td><td>56</td><td>49</td><td><strong class="zone-50">52</strong></td><td>45</td><td>0</td><td>40</td></tr>
-              <tr><td>2021-04-14</td><td>Spring ATH</td><td>$63,500</td><td>96</td><td>75</td><td><strong class="zone-100">86</strong></td><td>75</td><td>1</td><td>90</td></tr>
-              <tr><td>2021-07-20</td><td>Літній дип</td><td>$29,800</td><td>60</td><td>21</td><td><strong class="zone-25">40</strong></td><td>19</td><td>29</td><td>10</td></tr>
-              <tr><td>2021-11-10</td><td>Nov 2021 ATH</td><td>$69,000</td><td>90</td><td>78</td><td><strong class="zone-100">84</strong></td><td>75</td><td>31</td><td>58</td></tr>
-              <tr><td>2022-06-18</td><td>Капітуляція</td><td>$17,600</td><td>28</td><td>14</td><td><strong class="zone-25">21</strong></td><td>6</td><td>57</td><td>0</td></tr>
-              <tr><td>2022-11-21</td><td>FTX дно</td><td>$15,500</td><td>20</td><td>21</td><td><strong class="zone-25">20</strong></td><td>21</td><td>79</td><td>13</td></tr>
-              <tr><td>2023-01-14</td><td>Початок відновлення</td><td>$21,000</td><td>31</td><td>42</td><td><strong class="zone-25">36</strong></td><td>46</td><td>87</td><td>36</td></tr>
-              <tr><td>2024-03-14</td><td>2024 ATH</td><td>$73,500</td><td>84</td><td>93</td><td><strong class="zone-100">88</strong></td><td>88</td><td>83</td><td>81</td></tr>
-              <tr><td>2025-01-20</td><td>Jan 2025 пік</td><td>$109,000</td><td>82</td><td>88</td><td><strong class="zone-100">85</strong></td><td>76</td><td>65</td><td>54</td></tr>
-              <tr><td>2025-09-26</td><td>Close ATH</td><td>$123,000</td><td>70</td><td>61</td><td><strong class="zone-75">66</strong></td><td>28</td><td>64</td><td>35</td></tr>
-              <tr><td>2025-09-29</td><td>Intraday ATH</td><td>$129,000</td><td>73</td><td>74</td><td><strong class="zone-75">74</strong></td><td>50</td><td>64</td><td>37</td></tr>
-              <tr><td>2025-11-10</td><td>Post-ATH dump</td><td>$94,000</td><td>66</td><td>29</td><td><strong class="zone-50">48</strong></td><td>29</td><td>65</td><td>29</td></tr>
-              <tr><td>2026-05-21</td><td>Сьогодні</td><td>$77,133</td><td>50</td><td>43</td><td><strong class="zone-50">46</strong></td><td>31</td><td>60</td><td>28</td></tr>
-            </tbody>
-          </table>
-        </div>
-
-        <hr>
-
-        <h2>Ключові висновки</h2>
-
-        <h3>1. Індекс чітко розрізняє дна від вершин</h3>
-        <p>Середнє значення на <strong>підтверджених дніх</strong> (4 події: 2018, COVID, Капітуляція, FTX): <strong class="zone-25">22.3</strong><br>
-        Середнє значення на <strong>підтверджених ATH</strong> (4 події: Spring/Nov 2021, 2024, 2025): <strong class="zone-100">85.8</strong><br>
-        Розрив у <span class="badge info">~64 пункти</span> — статистично значуща різниця для бінарного сигналу «купувати / продавати».</p>
-
-        <h3>2. Ефект спадання піків</h3>
-        <div class="glass-card">
-          <table>
-            <thead><tr><th>Цикл</th><th>ATH</th><th>Bitcoin Buy Risk</th></tr></thead>
-            <tbody>
-              <tr><td>2021 весна</td><td>$63,500</td><td><strong class="zone-100">86</strong></td></tr>
-              <tr><td>2021 осінь</td><td>$69,000</td><td><strong class="zone-100">84</strong></td></tr>
-              <tr><td>2024</td><td>$73,500</td><td><strong class="zone-100">88</strong></td></tr>
-              <tr><td>2025</td><td>$129,000</td><td><strong class="zone-75">74</strong></td></tr>
-            </tbody>
-          </table>
-        </div>
-        <p>Попри новий ціновий максимум у 2025 р. (+76% до 2024 ATH), Bitcoin Buy Risk на піку впав до 74. On-chain метрики (MVRV Z-score ≈ 3.5, RHODL ≈ 8000) більше не досягають екстремумів попередніх циклів. Ринок дорослішає.<br>
-        <strong>Практичний висновок: у 2025 р. зона продажу починається від <span class="badge sell">~70</span>, а не від <span class="badge sell">~85</span>, як у 2021 р.</strong></p>
-
-        <h3>3. Mayer Multiple — індикатор перегрітості</h3>
-        <p>Mayer Multiple є надійним циклічним індикатором, що вимірює відношення ціни до 200-денної середньої. Він показав високі значення на вершинах 2021 (весна) та 2024 (скор &gt;80), але в пізніших фазах циклу (осінь 2021, січень 2025) його значення були помірнішими (скор ~54–58). На дні циклу (2018, 2022) він опускався до критично низьких рівнів (скор 0–13), що робить його чудовим інструментом для ідентифікації зон довгострокового накопичення.</p>
-
-        <h3>4. Fear &amp; Greed: підтверджує екстремуми, але не ATH 2025</h3>
-        <div class="glass-card">
-          <table>
-            <thead><tr><th>Подія</th><th>F&amp;G score</th><th>Позначка</th></tr></thead>
-            <tbody>
-              <tr><td>Дна 2018, 2020, 2022 (avg)</td><td><strong class="zone-0">12</strong></td><td>Extreme Fear</td></tr>
-              <tr><td>ATH 2021 (avg)</td><td><strong class="zone-100">75</strong></td><td>Greed</td></tr>
-              <tr><td>ATH 2024</td><td><strong class="zone-100">88</strong></td><td>Extreme Greed</td></tr>
-              <tr><td>ATH 2025 ($129k)</td><td><strong class="zone-50">50</strong></td><td>Neutral — без роздрібної ейфорії</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <p>F&amp;G на піку 2025 показав лише <span class="badge neutral">50 (Neutral)</span> при ціні $129,000. Причина: великий капітал (ETF, корпорації) рухає ціну без масової роздрібної ейфорії.</p>
-
-        <h3>5. Global M2 YoY: індикатор макро-ліквідності</h3>
-        <p>Висока річна зміна M2 → ринок затоплений ліквідністю → низький ризик (паливо є) → <strong>низький</strong> ризик-скор. Низька/від'ємна YoY → монетарне стиснення → дефіцит грошей → <strong>високий</strong> скор.<br>
-        Pre-bull жовтень 2020: M2 YoY = <span class="zone-0">0</span> (пік COVID QE, +23% YoY — максимальна ліквідність). Весна 2021 ATH: M2 YoY = <span class="zone-0">0</span> (~20% YoY). Дно FTX 2022: M2 YoY = <span class="zone-75">65</span> (~0.3% YoY — стагнація). 2024 ATH: M2 = <span class="zone-75">71</span> (-0.7% YoY — ралі на ETF без монетарної підтримки).</p>
-
-        <h3>6. On-chain група: найнадійніша в довгостроковому розрізі</h3>
-        <ul>
-          <li>OC на дніх: <strong class="zone-25">16–32</strong></li>
-          <li>OC на ATH 2021: <strong class="zone-100">90–96</strong></li>
-          <li>OC на ATH 2024–2025: <strong class="zone-100">82–84</strong> — MVRV Z-score більше не досягає екстремумів 2021 р. через значно вищий Realized cap</li>
-        </ul>
-
-        <h3>7. Tech/Macro: чутлива до короткострокових подій</h3>
-        <ul>
-          <li>2022 капітуляція: Tech = <strong class="zone-0">14</strong> (CipherB=0, Mayer=0, F&amp;G=6; M2=57)</li>
-          <li>Pre-bull 2020: Tech = <strong class="zone-50">49</strong> (Mayer=40, CipherB=66, M2=0)</li>
-          <li>Post-ATH dump 2025: Tech = <strong class="zone-25">29</strong> (Mayer=29, CipherB=12, F&amp;G=29)</li>
-        </ul>
-        <p>Tech score швидко реагує на зміну сентименту — корисний для тактичних точок входу.</p>
-
-        <hr>
-
-        <h2>Поточний стан (травень 2026) — нейтральна зона</h2>
-        <div class="glass-card">
-          <table>
-            <thead><tr><th>Метрика</th><th>Скор</th><th>Сигнал</th></tr></thead>
-            <tbody>
-              <tr><td>OC score</td><td>50</td><td>нейтрально-здоровий</td></tr>
-              <tr><td>Tech score</td><td>43</td><td>помірний</td></tr>
-              <tr><td><strong>Final</strong></td><td><strong class="zone-50">46</strong></td><td>нейтральна зона</td></tr>
-              <tr><td>NUPL</td><td>54</td><td>нейтральний</td></tr>
-              <tr><td>MVRV Z-score</td><td>40</td><td>помірний</td></tr>
-              <tr><td>Mayer Multiple</td><td>28</td><td>val = 0.95, помірна перепроданість</td></tr>
-              <tr><td>CipherB</td><td>38</td><td>помірний сентимент</td></tr>
-              <tr><td>Fear &amp; Greed</td><td>31</td><td>помірний страх</td></tr>
-              <tr><td>Global M2 YoY</td><td>60</td><td>~9.7% YoY, помірна ліквідність</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <p>Поточні показники відповідають <strong>нейтральній зоні</strong>. Ринок технічно здоровий (OC = 50), а сентимент є помірним (Tech = 43).<br>
-        Порівняння: Recovery Jan 2023 ($21k) = <strong>36</strong> &nbsp;&middot;&nbsp; Pre-bull Oct 2020 ($10.8k) = <strong>52</strong>.</p>
-
-        <hr>
-        <h2>Підсумок ефективності</h2>
-        <div class="glass-card">
-          <table>
-            <thead><tr><th>Метрика ефективності</th><th>Значення</th></tr></thead>
-            <tbody>
-              <tr><td>Середній Final на дніх</td><td><strong class="zone-25">22.3 / 100</strong></td></tr>
-              <tr><td>Середній Final на ATH</td><td><strong class="zone-100">85.8 / 100</strong></td></tr>
-              <tr><td>Розрив пік–дно</td><td><span class="badge info">~64 пункти</span></td></tr>
-              <tr><td>Mayer Multiple на підтверджених ATH (avg score)</td><td><strong class="zone-75">71 / 100</strong></td></tr>
-              <tr><td>F&amp;G на дніх (avg)</td><td><strong class="zone-0">12 / 100</strong></td></tr>
-              <tr><td>F&amp;G на ATH 2021–2024 (avg)</td><td><strong class="zone-100">79 / 100</strong></td></tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div class="disclaimer-box">
-          <p>Цей інструмент призначений виключно для інформаційних цілей і не є фінансовою порадою. Всі дані збираються автоматично з публічних джерел. Будь-які рішення щодо купівлі або продажу активів приймаються виключно на ваш власний ризик.</p>
-        </div>
-
-      </div><!-- /ua retro -->
-
-      <!-- EN -->
-      <div class="en">
-        <h1>Retrospective Analysis</h1>
-        <p class="article-meta">16 key events 2018–2026 &middot; Sources: BitcoinMagazinePro, FRED, BMP Global Liquidity, Binance</p>
-
-        <h2>Index Scale</h2>
-        <ul>
-          <li><span class="zone-0"><strong>0–20</strong></span>: capitulation / extreme bottom</li>
-          <li><span class="zone-25"><strong>20–40</strong></span>: discount zone, accumulation</li>
-          <li><span class="zone-50"><strong>40–60</strong></span>: neutral zone, uncertainty</li>
-          <li><span class="zone-75"><strong>60–75</strong></span>: distribution / overheating, caution</li>
-          <li><span class="zone-100"><strong>75–100</strong></span>: extreme overheating, sell zone</li>
-        </ul>
-
-        <h2>Full Milestone Table 2018–2026</h2>
-        <div class="glass-card">
-          <table>
-            <thead><tr><th>Date</th><th>Event</th><th>BTC</th><th>OC</th><th>Tech</th><th>Final</th><th>F&amp;G</th><th>M2</th><th>Mayer</th></tr></thead>
-            <tbody>
-              <tr><td>2018-12-15</td><td>Cycle bear bottom</td><td>$3,200</td><td>16</td><td>17</td><td><strong class="zone-0">16</strong></td><td>11</td><td>67</td><td>1</td></tr>
-              <tr><td>2019-06-26</td><td>Local peak</td><td>$13,880</td><td>73</td><td>89</td><td><strong class="zone-100">81</strong></td><td>95</td><td>61</td><td>100</td></tr>
-              <tr><td>2020-03-13</td><td>COVID crash</td><td>$3,800</td><td>32</td><td>32</td><td><strong class="zone-25">32</strong></td><td>10</td><td>46</td><td>9</td></tr>
-              <tr><td>2020-10-01</td><td>Bull run start</td><td>$10,800</td><td>56</td><td>49</td><td><strong class="zone-50">52</strong></td><td>45</td><td>0</td><td>40</td></tr>
-              <tr><td>2021-04-14</td><td>Spring ATH</td><td>$63,500</td><td>96</td><td>75</td><td><strong class="zone-100">86</strong></td><td>75</td><td>1</td><td>90</td></tr>
-              <tr><td>2021-07-20</td><td>Summer dip</td><td>$29,800</td><td>60</td><td>21</td><td><strong class="zone-25">40</strong></td><td>19</td><td>29</td><td>10</td></tr>
-              <tr><td>2021-11-10</td><td>Nov 2021 ATH</td><td>$69,000</td><td>90</td><td>78</td><td><strong class="zone-100">84</strong></td><td>75</td><td>31</td><td>58</td></tr>
-              <tr><td>2022-06-18</td><td>Capitulation</td><td>$17,600</td><td>28</td><td>14</td><td><strong class="zone-25">21</strong></td><td>6</td><td>57</td><td>0</td></tr>
-              <tr><td>2022-11-21</td><td>FTX bottom</td><td>$15,500</td><td>20</td><td>21</td><td><strong class="zone-25">20</strong></td><td>21</td><td>79</td><td>13</td></tr>
-              <tr><td>2023-01-14</td><td>Recovery start</td><td>$21,000</td><td>31</td><td>42</td><td><strong class="zone-25">36</strong></td><td>46</td><td>87</td><td>36</td></tr>
-              <tr><td>2024-03-14</td><td>2024 ATH</td><td>$73,500</td><td>84</td><td>93</td><td><strong class="zone-100">88</strong></td><td>88</td><td>83</td><td>81</td></tr>
-              <tr><td>2025-01-20</td><td>Jan 2025 peak</td><td>$109,000</td><td>82</td><td>88</td><td><strong class="zone-100">85</strong></td><td>76</td><td>65</td><td>54</td></tr>
-              <tr><td>2025-09-26</td><td>Close ATH</td><td>$123,000</td><td>70</td><td>61</td><td><strong class="zone-75">66</strong></td><td>28</td><td>64</td><td>35</td></tr>
-              <tr><td>2025-09-29</td><td>Intraday ATH</td><td>$129,000</td><td>73</td><td>74</td><td><strong class="zone-75">74</strong></td><td>50</td><td>64</td><td>37</td></tr>
-              <tr><td>2025-11-10</td><td>Post-ATH dump</td><td>$94,000</td><td>66</td><td>29</td><td><strong class="zone-50">48</strong></td><td>29</td><td>65</td><td>29</td></tr>
-              <tr><td>2026-05-21</td><td>Today</td><td>$77,133</td><td>50</td><td>43</td><td><strong class="zone-50">46</strong></td><td>31</td><td>60</td><td>28</td></tr>
-            </tbody>
-          </table>
-        </div>
-
-        <hr>
-
-        <h2>Key Findings</h2>
-
-        <h3>1. The index clearly separates bottoms from tops</h3>
-        <p>Average at <strong>confirmed cycle bottoms</strong> (4 events: 2018, COVID, Capitulation, FTX): <strong class="zone-25">22.3</strong><br>
-        Average at <strong>confirmed ATHs</strong> (4 events: Spring/Nov 2021, 2024, 2025): <strong class="zone-100">85.8</strong><br>
-        A <span class="badge info">~64-point gap</span> — statistically significant for a binary buy/sell signal.</p>
-
-        <h3>2. Declining peaks effect</h3>
-        <div class="glass-card">
-          <table>
-            <thead><tr><th>Cycle</th><th>ATH</th><th>Bitcoin Buy Risk</th></tr></thead>
-            <tbody>
-              <tr><td>2021 spring</td><td>$63,500</td><td><strong class="zone-100">86</strong></td></tr>
-              <tr><td>2021 autumn</td><td>$69,000</td><td><strong class="zone-100">84</strong></td></tr>
-              <tr><td>2024</td><td>$73,500</td><td><strong class="zone-100">88</strong></td></tr>
-              <tr><td>2025</td><td>$129,000</td><td><strong class="zone-75">74</strong></td></tr>
-            </tbody>
-          </table>
-        </div>
-        <p>Despite a new price ATH in 2025 (+76% vs 2024 ATH), Bitcoin Buy Risk peaked at only 74. On-chain metrics (MVRV Z-score ≈ 3.5, RHODL ≈ 8000) no longer reach the extremes of prior cycles. The market is maturing.<br>
-        <strong>Practical takeaway: in 2025, the sell zone starts at <span class="badge sell">~70</span>, not <span class="badge sell">~85</span> as in 2021.</strong></p>
-
-        <h3>3. Mayer Multiple — cycle top indicator</h3>
-        <p>Mayer Multiple is a reliable cyclical indicator measuring the ratio of price to its 200-day average. It showed high values at the 2021 spring and 2024 tops (score &gt;80), but in later stages of the cycle (autumn 2021, January 2025) its readings were more moderate (score ~54–58). At cycle bottoms (2018, 2022) it dropped to critically low levels (score 0–13), making it an excellent tool for identifying long-term accumulation zones.</p>
-
-        <h3>4. Fear &amp; Greed: confirms extremes, but not the 2025 ATH</h3>
-        <div class="glass-card">
-          <table>
-            <thead><tr><th>Event</th><th>F&amp;G score</th><th>Label</th></tr></thead>
-            <tbody>
-              <tr><td>Bottoms 2018, 2020, 2022 (avg)</td><td><strong class="zone-0">12</strong></td><td>Extreme Fear</td></tr>
-              <tr><td>ATH 2021 (avg)</td><td><strong class="zone-100">75</strong></td><td>Greed</td></tr>
-              <tr><td>ATH 2024</td><td><strong class="zone-100">88</strong></td><td>Extreme Greed</td></tr>
-              <tr><td>ATH 2025 ($129k)</td><td><strong class="zone-50">50</strong></td><td>Neutral — no retail euphoria</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <p>F&amp;G showed only <span class="badge neutral">50 (Neutral)</span> at the 2025 ATH. Reason: institutional capital (ETFs, corporations) drove the price without triggering mass retail euphoria.</p>
-
-        <h3>5. Global M2 YoY: direct liquidity indicator</h3>
-        <p>High year-over-year M2 growth → market flooded with liquidity → low risk (fuel exists) → <strong>low</strong> risk score. Low/negative YoY → monetary contraction → liquidity deficit → <strong>high</strong> score.<br>
-        Pre-bull Oct 2020: M2 YoY = <span class="zone-0">0</span> (peak COVID QE, +23% YoY — maximum liquidity). Spring 2021 ATH: M2 YoY = <span class="zone-0">0</span> (~20% YoY). FTX bottom 2022: M2 YoY = <span class="zone-75">65</span> (~0.3% YoY — stagnation). 2024 ATH: M2 = <span class="zone-75">71</span> (-0.7% YoY — ETF-driven rally without monetary support).</p>
-
-        <h3>6. On-chain group: most reliable long-term</h3>
-        <ul>
-          <li>OC at bottoms: <strong class="zone-25">16–32</strong></li>
-          <li>OC at 2021 ATH: <strong class="zone-100">90–96</strong></li>
-          <li>OC at 2024–2025 ATH: <strong class="zone-100">82–84</strong> — MVRV Z-score no longer reaches 2021 extremes due to the much larger Realized cap</li>
-        </ul>
-
-        <h3>7. Tech/Macro: sensitive to short-term events</h3>
-        <ul>
-          <li>2022 capitulation: Tech = <strong class="zone-0">14</strong> (CipherB=0, Mayer=0, F&amp;G=6; M2=57)</li>
-          <li>Pre-bull 2020: Tech = <strong class="zone-50">49</strong> (Mayer=40, CipherB=66, M2=0)</li>
-          <li>Post-ATH dump 2025: Tech = <strong class="zone-25">29</strong> (Mayer=29, CipherB=12, F&amp;G=29)</li>
-        </ul>
-        <p>Tech score reacts quickly to sentiment shifts — useful for identifying tactical entry points.</p>
-
-        <hr>
-
-        <h2>Current State (May 2026) — Neutral Zone</h2>
-        <div class="glass-card">
-          <table>
-            <thead><tr><th>Metric</th><th>Score</th><th>Signal</th></tr></thead>
-            <tbody>
-              <tr><td>OC score</td><td>50</td><td>neutral-healthy</td></tr>
-              <tr><td>Tech score</td><td>43</td><td>moderate</td></tr>
-              <tr><td><strong>Final</strong></td><td><strong class="zone-50">46</strong></td><td>neutral zone</td></tr>
-              <tr><td>NUPL</td><td>54</td><td>neutral</td></tr>
-              <tr><td>MVRV Z-score</td><td>40</td><td>moderate</td></tr>
-              <tr><td>Mayer Multiple</td><td>28</td><td>val = 0.95, moderately oversold</td></tr>
-              <tr><td>CipherB</td><td>38</td><td>moderate sentiment</td></tr>
-              <tr><td>Fear &amp; Greed</td><td>31</td><td>moderate fear</td></tr>
-              <tr><td>Global M2 YoY</td><td>60</td><td>~9.7% YoY, moderate liquidity</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <p>Current readings correspond to a <strong>neutral zone</strong>. The market is technically healthy (OC = 50) and sentiment is moderate (Tech = 43).<br>
-        Comparisons: Recovery Jan 2023 ($21k) = <strong>36</strong> &nbsp;&middot;&nbsp; Pre-bull Oct 2020 ($10.8k) = <strong>52</strong>.</p>
-
-        <hr>
-        <h2>Performance Summary</h2>
-        <div class="glass-card">
-          <table>
-            <thead><tr><th>Performance metric</th><th>Value</th></tr></thead>
-            <tbody>
-              <tr><td>Avg Final at confirmed bottoms</td><td><strong class="zone-25">22.3 / 100</strong></td></tr>
-              <tr><td>Avg Final at confirmed ATHs</td><td><strong class="zone-100">85.8 / 100</strong></td></tr>
-              <tr><td>Peak–bottom gap</td><td><span class="badge info">~64 points</span></td></tr>
-              <tr><td>Mayer Multiple at confirmed ATHs (avg score)</td><td><strong class="zone-75">71 / 100</strong></td></tr>
-              <tr><td>F&amp;G at bottoms (avg)</td><td><strong class="zone-0">12 / 100</strong></td></tr>
-              <tr><td>F&amp;G at 2021–2024 ATHs (avg)</td><td><strong class="zone-100">79 / 100</strong></td></tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div class="disclaimer-box">
-          <p>This tool is for informational purposes only and does not constitute financial advice. All data is automatically collected from public sources. Any decisions to buy or sell assets are made solely at your own risk.</p>
-        </div>
-
-      </div><!-- /en retro -->
-
-    </section>
-
-  </div><!-- /article-content -->
-</div><!-- /article-wrap -->
-
-<footer>
-  <a href="index.html" style="color:var(--footer);text-decoration:none;">← Bitcoin Buy Risk</a>
-  &nbsp;&middot;&nbsp; Version May 2026
-</footer>
-
-<script>
-  // ── Language toggle ──
-  function setLang(lang) {
-    document.body.className = 'lang-' + lang;
-    document.querySelectorAll('.lang-btn').forEach(btn => {
-      btn.classList.toggle('active', btn.textContent.toLowerCase() === lang);
-    });
-    localStorage.setItem('bbr-lang', lang);
-  }
-
-  // restore saved language
-  const saved = localStorage.getItem('bbr-lang');
-  if (saved === 'en') setLang('en');
-
-  // ── Active nav highlight on scroll ──
-  const sections = document.querySelectorAll('section[id]');
-  const navLinks  = { about: document.getElementById('nav-about'), metrics: document.getElementById('nav-metrics'), retro: document.getElementById('nav-retro') };
-
-  const observer = new IntersectionObserver(entries => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        Object.values(navLinks).forEach(l => l && l.classList.remove('active'));
-        const link = navLinks[entry.target.id];
-        if (link) link.classList.add('active');
-      }
-    });
-  }, { rootMargin: '-20% 0px -70% 0px', threshold: 0 });
-
-  sections.forEach(s => observer.observe(s));
-
-  // mark first section active by default
-  if (navLinks.about) navLinks.about.classList.add('active');
-</script>
-<!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "3f44562f20684f35afabb31abae1a475"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>

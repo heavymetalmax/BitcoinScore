@@ -2,11 +2,7 @@
 Decision matrix scoring — shared between report.py and scraper.py.
 
 On-chain group  (5 metrics, weights sum to 1.0):
-  addresses_in_profit ×25  rhodl_ratio ×20  mvrv_z_score ×20  cvdd_ratio ×20  nupl ×15
-  (addr_in_profit — прямий % холдерів у прибутку, найстабільніший;
-   rhodl ↑ — найнадійніший цикловий маркер, не деградує з ростом realized cap;
-   nupl ↓ — корелює з mvrv, зменшено дублювання;
-   sopr — видалено: <10% поріг, шум у циклах 2024–2025)
+  rhodl_ratio ×20  mvrv_z_score ×20  cvdd_ratio ×20  nupl ×20  asopr ×20
 
 Tech/Macro group  (5 metrics, weights sum to 1.0):
   cipherb ×50  smc ×10  fear_greed ×20  real_yield ×10  m2_yoy ×10
@@ -23,18 +19,17 @@ Final score             = 50% OC + 50% Tech
 import math
 
 OC_WEIGHTS = {
-    'addresses_in_profit': 0.25,   # #1 — прямий % холдерів у прибутку
-    'rhodl_ratio':         0.20,   # #2 — не деградує з ростом realized cap
-    'mvrv_z_score':        0.20,   # #3 — нормований на волатильність
-    'cvdd_ratio':          0.20,   # #4
-    'nupl':                0.15,   # #5 — корелює з MVRV, менша вага
-    # sopr видалено: <10% поріг, слабка диференціація в циклах 2024–2025
+    'rhodl_ratio':         0.20,
+    'mvrv_z_score':        0.20,
+    'cvdd_ratio':          0.15,
+    'nupl':                0.30,
+    'asopr':               0.15,
 }
 
 TECH_WEIGHTS = {
     'cipherb':             0.50,   # +bearish_div penalty; основний price/momentum сигнал
-    'mayer_multiple':      0.10,   # Mayer Multiple (Price / 200DMA)
-    'fear_greed':          0.20,
+    'mayer_multiple':      0.20,   # Mayer Multiple (Price / 200DMA)
+    'fear_greed':          0.10,
     'yield_curve_spread':  0.10,   # US 10Y-2Y Spread (T10Y2Y). Inversion (<0) = high risk
     'm2_yoy':              0.10,   # US M2 YoY (обернена логіка: ↑ ліквідність = ↓ ризик)
     # smc видалено: 40% false bottom rate, слабка диференціація в ведмедячих трендах
@@ -54,11 +49,16 @@ def map_mvrv(v):
     v = max(-2, min(5, v))
     return round(((v + 2) / 7) * 100)
 
-
-def map_addr_profit(v):
+def map_asopr(v):
     if v is None: return None
-    v = max(0, min(100, v))
-    return round(v * (v + 5) / 105)
+    MIN = 0.88
+    BASE = 1.00
+    MAX = 1.12
+    if v <= BASE:
+        score = ((v - MIN) / (BASE - MIN)) * 50
+    else:
+        score = 50 + ((v - BASE) / (MAX - BASE)) * 50
+    return round(max(0, min(100, score)))
 
 def map_fear_greed(v):
     if v is None: return None
@@ -158,12 +158,12 @@ def build_slider_map(metrics: dict) -> dict:
     return {
         'nupl':                map_nupl(mv('nupl')),
         'mvrv_z_score':        map_mvrv(mv('mvrv')),
-        'addresses_in_profit': map_addr_profit(mv('addresses_in_profit')),
         'fear_greed':          map_fear_greed(mv('fear_greed')),
         'm2_yoy':              map_m2(mv('m2_mom')),  # field key in data.json still 'm2_mom'
         'yield_curve_spread':  map_yield_curve(mv('yield_curve')),
         'cvdd_ratio':          map_cvdd(mv('cvdd_ratio')),
         'rhodl_ratio':         map_rhodl(mv('rhodl_ratio')),
+        'asopr':               map_asopr(mv('asopr')),
         'cipherb':             cipherb_score,
         'mayer_multiple':      mayer_score,
         'funding_rate':        map_funding(mv('funding_rate')),

@@ -38,7 +38,6 @@ DATA_PATH = os.path.join(os.path.dirname(__file__), '..', 'data', 'data.json')
 def _build_metric_specs():
     from scraper import nupl as nupl_mod
     from scraper import mvrv as mvrv_mod
-    from scraper import addresses_in_loss as addr_mod
     from scraper import m2_metric as m2_mod
     from scraper import cvdd as cvdd_mod
     from scraper import rhodl as rhodl_mod
@@ -52,7 +51,6 @@ def _build_metric_specs():
     return {
         'nupl': (nupl_mod.get_nupl, lambda r: r),
         'mvrv': (mvrv_mod.get_mvrv, lambda r: r),
-        'addresses_in_loss': (addr_mod.get_addresses_in_loss, lambda r: r),
         'm2': (m2_mod.get_m2, lambda r: r),
         'cvdd_ratio': (cvdd_mod.get_cvdd_ratio, lambda r: r),
         'rhodl_ratio': (rhodl_mod.get_rhodl_ratio, lambda r: r),
@@ -163,13 +161,7 @@ def retry_metrics(stale: list[str], data: dict, specs: dict) -> dict[str, bool]:
 
         now = _now_iso()
 
-        if name == 'addresses_in_loss' and val is not None:
-            data['addresses_in_loss'] = val
-            data['addresses_in_profit'] = max(0.0, 100.0 - float(val))
-            data['metrics']['addresses_in_loss'] = {'value': val, 'source': 'BMP', 'updated': now}
-            data['metrics']['addresses_in_profit'] = {'value': data['addresses_in_profit'], 'source': 'Derived', 'updated': now}
-
-        elif name == 'nupl' and val is not None:
+        if name == 'nupl' and val is not None:
             data['nupl'] = val
             data['metrics']['nupl'] = {'value': val, 'source': 'MacroMicro', 'updated': now}
 
@@ -232,7 +224,7 @@ def main():
     # Default set of retryable metrics (excludes derived ones computed from others)
     default_metrics = [
         'btc_price', 'fear_greed',
-        'nupl', 'mvrv', 'addresses_in_loss',
+        'nupl', 'mvrv',
         'm2',
         'cvdd_ratio', 'rhodl_ratio', 'rainbow_band',
         'cipherb', 'smc', 'funding_rate',

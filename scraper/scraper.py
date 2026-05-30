@@ -125,22 +125,22 @@ def build_payload():
     import random
     from . import nupl as nupl_mod
     from . import mvrv as mvrv_mod
-    from . import addresses_in_loss as addr_mod
     from . import m2_metric as m2_mod
     from . import yield_curve_metric as yc_mod
     from . import cvdd as cvdd_mod
     from . import rhodl as rhodl_mod
     from . import rainbow as rainbow_mod
+    from . import asopr as asopr_mod
     from .utils import is_valid_metric
 
     metric_specs = [
         ('nupl', nupl_mod.get_nupl, None, lambda r: r),
         ('mvrv', mvrv_mod.get_mvrv, None, lambda r: r),
-        ('addresses_in_loss', addr_mod.get_addresses_in_loss, None, lambda r: r),
         ('m2', m2_mod.get_m2, None, lambda r: r),
         ('yield_curve', yc_mod.get_yield_curve, None, lambda r: r),
         ('cvdd_ratio', cvdd_mod.get_cvdd_ratio, None, lambda r: r),
         ('rhodl_ratio', rhodl_mod.get_rhodl_ratio, None, lambda r: r),
+        ('asopr', asopr_mod.get_asopr, None, lambda r: r),
     ]
 
     for name, fn, visit_url, extractor in metric_specs:
@@ -180,8 +180,7 @@ def build_payload():
             nupl = val
         if name == 'mvrv':
             mvrv = val
-        if name == 'addresses_in_loss':
-            addresses_in_loss = val
+
         if name == 'm2':
             m2 = val
         if name == 'yield_curve':
@@ -190,6 +189,8 @@ def build_payload():
             cvdd_ratio = val
         if name == 'rhodl_ratio':
             rhodl_ratio = val
+        if name == 'asopr':
+            asopr = val
 
         # save into metrics dict placeholder (later merged into payload)
         if 'metrics' not in locals():
@@ -207,11 +208,6 @@ def build_payload():
         metrics = {}
     metrics['rainbow_band'] = {'value': rainbow_band, 'source': 'BMP', 'updated': now_iso()}
     
-
-    # addresses_in_profit (derived)
-    addresses_in_profit = None
-    if addresses_in_loss is not None:
-        addresses_in_profit = max(0.0, 100.0 - addresses_in_loss)
     payload = {
         'timestamp': now_iso(),
         'btc_price': price['price'] if price else None,
@@ -220,17 +216,15 @@ def build_payload():
         'fear_greed_label': fg.get('label') if fg else None,
         'nupl': nupl,
         'mvrv_z_score': mvrv,
-        'addresses_in_loss': addresses_in_loss,
-        'addresses_in_profit': addresses_in_profit,
         'cvdd_ratio': cvdd_ratio if 'cvdd_ratio' in locals() else None,
         'rhodl_ratio': rhodl_ratio if 'rhodl_ratio' in locals() else None,
+        'asopr': asopr if 'asopr' in locals() else None,
         'rainbow_band': rainbow_band if 'rainbow_band' in locals() else None,
         'm2': m2,
         'metrics': {
             # merge our collected metrics dict with static ones
             **(metrics if 'metrics' in locals() else {}),
             'fear_greed': {'latest': fg.get('latest') if fg else None, 'avg_7d': fg.get('avg_7d') if fg else None, 'label': fg.get('label') if fg else None, 'source': fg.get('label', 'Alternative.me') if fg else None, 'updated': now_iso()},
-            'addresses_in_profit': {'value': addresses_in_profit, 'source': 'Derived', 'updated': now_iso()},
             'cipherb': {'value': None, 'source': 'Local', 'updated': now_iso()},
             'smc': {'value': None, 'source': 'Local', 'updated': now_iso()},
             'mayer_multiple': {'value': None, 'source': 'Local', 'updated': now_iso()},

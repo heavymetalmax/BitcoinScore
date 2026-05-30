@@ -747,6 +747,13 @@
       font-weight: 400;
     }
 
+    #history-chart {
+      width: 100%;
+      height: 220px;
+      display: block;
+      margin-top: 12px;
+    }
+
     /* ── Responsive breakpoints ─────────────────────────────────────────── */
     @media (max-width: 768px) {
       .scores {
@@ -850,6 +857,10 @@
       
       .risk-track-legend span {
         font-size: 0.65rem;
+      }
+      #history-chart {
+        height: auto !important;
+        aspect-ratio: 16 / 9;
       }
     }
   </style>
@@ -971,14 +982,6 @@
       </div>
       <div class="metrics-list">
         <div class="metric-row">
-          <a class="m-name" href="about.html#m-addr">Addr in Profit</a>
-          <div>
-            <div class="bar-wrap"><div class="bar-fill" id="m-addr-bar"></div></div>
-            <div class="m-raw" id="m-addr-raw"></div>
-          </div>
-          <span class="m-num" id="m-addr-num">—</span>
-        </div>
-        <div class="metric-row">
           <a class="m-name" href="about.html#m-rhodl">RHODL Ratio</a>
           <div>
             <div class="bar-wrap"><div class="bar-fill" id="m-rhodl-bar"></div></div>
@@ -1009,6 +1012,14 @@
             <div class="m-raw" id="m-nupl-raw"></div>
           </div>
           <span class="m-num" id="m-nupl-num">—</span>
+        </div>
+        <div class="metric-row">
+          <a class="m-name" href="about.html#m-asopr">aSOPR</a>
+          <div>
+            <div class="bar-wrap"><div class="bar-fill" id="m-asopr-bar"></div></div>
+            <div class="m-raw" id="m-asopr-raw"></div>
+          </div>
+          <span class="m-num" id="m-asopr-num">—</span>
         </div>
       </div>
     </div>
@@ -1085,7 +1096,7 @@
           </span>
         </div>
       </div>
-      <canvas id="history-chart" height="220" style="width:100%; height:220px; display:block; margin-top:12px;"></canvas>
+      <canvas id="history-chart"></canvas>
     </div>
   </div><!-- end tab-main -->
 
@@ -1098,7 +1109,14 @@
     // Slider maps
     function mapNupl(v)  { if(v==null)return null; v=Math.max(-50,Math.min(100,v));    return Math.round(((v+50)/150)*100); }
     function mapMvrv(v)  { if(v==null)return null; v=Math.max(-2,Math.min(5,v));       return Math.round(((v+2)/7)*100); }
-    function mapAddr(v)  { if(v==null)return null; v=Math.max(0,Math.min(100,v)); return Math.round(v*(v+5)/105); }
+    function mapAsopr(v) { 
+      if(v==null) return null; 
+      const MIN = 0.88, BASE = 1.00, MAX = 1.12; 
+      let score;
+      if (v <= BASE) score = ((v - MIN) / (BASE - MIN)) * 50;
+      else score = 50 + ((v - BASE) / (MAX - BASE)) * 50;
+      return Math.round(Math.max(0, Math.min(100, score)));
+    }
     function mapFG(v)    { if(v==null)return null; const n=typeof v==='object'?(v.avg_7d!=null?v.avg_7d:(v.latest!=null?v.latest:(v.value!=null?v.value:null))):v; return n!=null?Math.round(Math.max(0,Math.min(100,n))):null; }
     function mapM2(v)    { if(v==null)return null; v=Math.max(-5,Math.min(10,v));      return Math.round(((10-v)/15)*100); }
     function mapYieldCurve(v) { if(v==null)return null; v=Math.max(-1.0,Math.min(2.0,v)); return Math.round(((2.0-v)/3.0)*100); }
@@ -1284,13 +1302,14 @@
       const mvrv  = mv('mvrv');
       const cvdd  = mv('cvdd_ratio');
       const rhodl = mv('rhodl_ratio');
-      const addr  = mv('addresses_in_profit');
+      const asopr = mv('asopr');
 
       setMetric('nupl',  mapNupl(nupl),   nupl  != null ? nupl.toFixed(2)+'%'  : null);
       setMetric('mvrv',  mapMvrv(mvrv),   mvrv  != null ? mvrv.toFixed(4)       : null);
       setMetric('cvdd',  mapCvdd(cvdd),   cvdd  != null ? cvdd.toFixed(4)       : null);
       setMetric('rhodl', mapRhodl(rhodl), rhodl != null ? rhodl.toFixed(2)      : null);
-      setMetric('addr',  mapAddr(addr),   addr  != null ? addr.toFixed(2)+'%'   : null);
+      setMetric('asopr', mapAsopr(asopr), asopr != null ? asopr.toFixed(3)      : null);
+
 
       // Read tech/macro metrics values
       const fr    = mv('funding_rate');
@@ -1404,7 +1423,7 @@
       // Contradiction detection: warn if any indicator is in the opposite zone from the final score
       if (finalVal != null) {
         const allIndScores = [
-          mapAddr(addr), mapRhodl(rhodl), mapMvrv(mvrv), mapCvdd(cvdd), mapNupl(nupl),
+          mapRhodl(rhodl), mapMvrv(mvrv), mapCvdd(cvdd), mapNupl(nupl), mapAsopr(asopr),
           cbScore, mmScore, mapFG(fg), mapYieldCurve(yc), mapM2(m2raw)
         ].filter(s => s != null);
         const hasContra = allIndScores.some(s =>
@@ -1416,7 +1435,7 @@
       // Per-subscore contradiction warnings
       const ocScore = data.onchain_score;
       if (ocScore != null) {
-        const ocInds = [mapAddr(addr), mapRhodl(rhodl), mapMvrv(mvrv), mapCvdd(cvdd), mapNupl(nupl)].filter(s => s != null);
+        const ocInds = [mapRhodl(rhodl), mapMvrv(mvrv), mapCvdd(cvdd), mapNupl(nupl), mapAsopr(asopr)].filter(s => s != null);
         const ocContra = ocInds.some(s => (ocScore < 65 && s >= 65) || (ocScore > 35 && s <= 35));
         document.getElementById('oc-warn').style.display = ocContra ? 'inline' : 'none';
       }
@@ -1454,9 +1473,13 @@
       const grid  = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)';
       const textC = isDark ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.5)';
 
+      // Reset inline styling dimensions to let the CSS rules/aspect-ratio dictate layout size
+      canvas.style.width = '';
+      canvas.style.height = '';
+
       const dpr = window.devicePixelRatio || 1;
       const W   = canvas.offsetWidth || 600;
-      const H   = parseInt(canvas.getAttribute('height')) || 220;
+      const H   = canvas.offsetHeight || 220;
       canvas.width  = W * dpr;
       canvas.height = H * dpr;
       canvas.style.width = W + 'px';

@@ -15,8 +15,8 @@ import sys, json, math, datetime, urllib.request, ssl, io, time
 sys.path.insert(0, '.')
 
 from scraper.scoring import (
-    map_nupl, map_mvrv, map_addr_profit, map_fear_greed,
-    map_m2, map_real_yield, map_cvdd, map_rhodl, OC_WEIGHTS, TECH_WEIGHTS, weighted_score
+    map_nupl, map_mvrv, map_fear_greed,
+    map_m2, map_yield_curve, map_cvdd, map_rhodl, map_asopr, OC_WEIGHTS, TECH_WEIGHTS, weighted_score
 )
 from scraper.smc import fetch_ohlcv_kraken as fetch_ohlcv_binance, compute_smc
 
@@ -269,13 +269,23 @@ def run():
     print(f"        {len(mvrv_series)} points")
 
 
-    print("  [4/7] Addresses in loss + RHODL + CVDD from BMP...")
-    addr_series = fetch_bmp_series(
-        'https://www.bitcoinmagazinepro.com/charts/percent-addresses-in-loss/',
-        'addresses in loss')
-    # addr_series = fraction 0-1 → profit% = (1 - frac) * 100
-    addr_profit_series = [(d, (1.0 - v) * 100.0) for d, v in addr_series]
-    print(f"        addr: {len(addr_series)} points")
+    asopr_raw = fetch_bmp_series(
+        'https://www.bitcoinmagazinepro.com/charts/sopr-spent-output-profit-ratio/',
+        'sopr')
+    
+    # Process aSOPR: add 1.0 if average is near 0
+    asopr_avg = sum(y for x, y in asopr_raw) / max(1, len(asopr_raw))
+    if abs(asopr_avg) < 0.5:
+        asopr_raw = [(x, y + 1.0) for x, y in asopr_raw]
+        
+    # Calculate 7-day SMA for aSOPR
+    asopr_series = []
+    for i in range(len(asopr_raw)):
+        start_idx = max(0, i - 6)
+        window = [val for _, val in asopr_raw[start_idx:i+1]]
+        sma = sum(window) / len(window)
+        asopr_series.append((asopr_raw[i][0], sma))
+    print(f"        asopr: {len(asopr_series)} points")
 
     rhodl_series = fetch_bmp_series(
         'https://www.bitcoinmagazinepro.com/charts/rhodl-ratio/',
@@ -301,7 +311,7 @@ def run():
     # ── Compute scores at milestones ─────────────────────────────────────────
     print(f"{'Date':<12} {'Label':<22} {'BTC':>8}  "
           f"{'OC':>4} {'Tech':>4} {'Final':>5}  "
-          f"{'NUPL':>4} {'MVRV':>4} {'Addr':>4} {'RHODL':>5} {'CVDD':>4}  "
+          f"{'NUPL':>4} {'MVRV':>4} {'SOPR':>4} {'RHDL':>4} {'CVDD':>4}  "
           f"{'FG':>3} {'RY':>4} {'M2':>4} {'CB':>4} {'SMC':>4}")
     print("-" * 116)
 
@@ -310,7 +320,7 @@ def run():
 
         nupl    = closest(nupl_series, td)
         mvrv    = closest(mvrv_series, td)
-        addr    = closest(addr_profit_series, td)
+        asopr   = closest(asopr_series, td)
         rhodl   = closest(rhodl_series, td)
         cvdd    = closest(cvdd_series, td)
         ry      = closest(ry_series, td)
@@ -323,17 +333,18 @@ def run():
 
         s_nupl  = map_nupl(nupl)
         s_mvrv  = map_mvrv(mvrv)
-        s_addr  = map_addr_profit(addr)
+        s_asopr = map_asopr(asopr)
         s_rhodl = map_rhodl(rhodl)
         s_cvdd  = map_cvdd(cvdd)
-        s_ry    = map_real_yield(ry)
+        s_ry    = map_yield_curve(ry)
         s_m2    = map_m2(m2)
         s_fg    = map_fear_greed(fg)
         s_cb    = round(max(0, min(100, cb))) if cb is not None else None
 
         oc_map = {
             'nupl': s_nupl, 'mvrv_z_score': s_mvrv,
-            'addresses_in_profit': s_addr, 'rhodl_ratio': s_rhodl, 'cvdd_ratio': s_cvdd,
+            'rhodl_ratio': s_rhodl, 'cvdd_ratio': s_cvdd,
+            'asopr': s_asopr
         }
         # geopolitical_risk excluded
         tech_map = {
@@ -358,7 +369,7 @@ def run():
         print(
             f"{date_str:<12} {label:<22} ${btc_price:>7,}  "
             f"{fmt(oc)} {fmt(tech)} {fmt(final)}  "
-            f"{fmt(s_nupl)} {fmt(s_mvrv)} {fmt(s_addr)} {fmt(s_rhodl)} {fmt(s_cvdd)}  "
+            f"{fmt(s_nupl)} {fmt(s_mvrv)} {fmt(s_asopr)} {fmt(s_rhodl)} {fmt(s_cvdd)}  "
             f"{fmt(s_fg)} {fmt(s_ry)} {fmt(s_m2)} {fmt(s_cb)} {fmt(s_smc)}"
         )
 
