@@ -1331,13 +1331,34 @@
       return s != null ? Math.round(Math.max(0, Math.min(100, s))) : null;
     }
 
-    function scoreColor(v) {
+    function scoreColor(v, alpha = 1) {
       if(v == null) return 'var(--text-mute)';
-      if(v <= 25)   return '#10b981'; // Emerald
-      if(v <= 40)   return '#84cc16'; // Lime
-      if(v <= 60)   return '#eab308'; // Yellow
-      if(v <= 75)   return '#f97316'; // Orange
-      return '#ef4444'; // Red
+      const stops = [
+        { val: 0,   r: 16,  g: 185, b: 129 }, // Emerald
+        { val: 30,  r: 132, g: 204, b: 22  }, // Lime
+        { val: 50,  r: 234, g: 179, b: 8   }, // Yellow
+        { val: 75,  r: 249, g: 115, b: 22  }, // Orange
+        { val: 100, r: 239, g: 68,  b: 68  }  // Red
+      ];
+      let r, g, b;
+      if (v <= stops[0].val) {
+        r = stops[0].r; g = stops[0].g; b = stops[0].b;
+      } else if (v >= stops[stops.length - 1].val) {
+        r = stops[stops.length - 1].r; g = stops[stops.length - 1].g; b = stops[stops.length - 1].b;
+      } else {
+        for (let i = 0; i < stops.length - 1; i++) {
+          const s1 = stops[i];
+          const s2 = stops[i+1];
+          if (v >= s1.val && v <= s2.val) {
+            const t = (v - s1.val) / (s2.val - s1.val);
+            r = Math.round(s1.r + t * (s2.r - s1.r));
+            g = Math.round(s1.g + t * (s2.g - s1.g));
+            b = Math.round(s1.b + t * (s2.b - s1.b));
+            break;
+          }
+        }
+      }
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
     }
 
     function setMetric(id, sliderVal, rawText) {
@@ -1349,7 +1370,7 @@
       if(bar) {
         bar.style.width = v+'%';
         bar.style.background = c;
-        bar.style.setProperty('--bar-shadow-color', c + '80');
+        bar.style.setProperty('--bar-shadow-color', scoreColor(sliderVal, 0.5));
       }
       if(num) {
         num.textContent = sliderVal != null ? sliderVal : '\u2014';
@@ -1369,7 +1390,7 @@
       if(bar) {
         bar.style.width = (val||0)+'%';
         bar.style.background = color;
-        bar.style.setProperty('--bar-shadow-color', color + '80');
+        bar.style.setProperty('--bar-shadow-color', scoreColor(val, 0.5));
       }
     }
 
