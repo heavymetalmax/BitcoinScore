@@ -6,6 +6,7 @@ env/
 node_modules/
 data/history/*
 !data/history/scores.json
+!data/history/etf_flows.json
 data/debug/
 .DS_Store
 .env
