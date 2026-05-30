@@ -1078,12 +1078,12 @@
       </div>
       <div class="metrics-list">
         <div class="metric-row">
-          <a class="m-name" href="about.html#m-rhodl">RHODL Ratio</a>
+          <a class="m-name" href="about.html#m-nupl">NUPL</a>
           <div>
-            <div class="bar-wrap"><div class="bar-fill" id="m-rhodl-bar"></div></div>
-            <div class="m-raw" id="m-rhodl-raw"></div>
+            <div class="bar-wrap"><div class="bar-fill" id="m-nupl-bar"></div></div>
+            <div class="m-raw" id="m-nupl-raw"></div>
           </div>
-          <span class="m-num" id="m-rhodl-num">—</span>
+          <span class="m-num" id="m-nupl-num">—</span>
         </div>
         <div class="metric-row">
           <a class="m-name" href="about.html#m-mvrv">MVRV Z-Score</a>
@@ -1094,20 +1094,20 @@
           <span class="m-num" id="m-mvrv-num">—</span>
         </div>
         <div class="metric-row">
+          <a class="m-name" href="about.html#m-rhodl">RHODL Ratio</a>
+          <div>
+            <div class="bar-wrap"><div class="bar-fill" id="m-rhodl-bar"></div></div>
+            <div class="m-raw" id="m-rhodl-raw"></div>
+          </div>
+          <span class="m-num" id="m-rhodl-num">—</span>
+        </div>
+        <div class="metric-row">
           <a class="m-name" href="about.html#m-cvdd">CVDD Ratio</a>
           <div>
             <div class="bar-wrap"><div class="bar-fill" id="m-cvdd-bar"></div></div>
             <div class="m-raw" id="m-cvdd-raw"></div>
           </div>
           <span class="m-num" id="m-cvdd-num">—</span>
-        </div>
-        <div class="metric-row">
-          <a class="m-name" href="about.html#m-nupl">NUPL</a>
-          <div>
-            <div class="bar-wrap"><div class="bar-fill" id="m-nupl-bar"></div></div>
-            <div class="m-raw" id="m-nupl-raw"></div>
-          </div>
-          <span class="m-num" id="m-nupl-num">—</span>
         </div>
         <div class="metric-row">
           <a class="m-name" href="about.html#m-asopr">aSOPR</a>
@@ -1355,7 +1355,7 @@
         num.textContent = sliderVal != null ? sliderVal : '\u2014';
         num.style.color = c;
       }
-      if(raw) raw.textContent = rawText || '';
+      if(raw) raw.innerHTML = rawText || '';
     }
 
     function setScore(id, barId, val) {
