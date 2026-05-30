@@ -54,7 +54,15 @@
       line-height: 1.6;
     }
 
-    /* Back Link */
+    /* Top Navigation bar */
+    .top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 32px;
+      width: 100%;
+    }
+
     .back-link {
       display: inline-flex;
       align-items: center;
@@ -63,7 +71,6 @@
       text-decoration: none;
       font-size: 0.85rem;
       font-weight: 500;
-      margin-bottom: 32px;
       transition: color 0.2s ease;
     }
     .back-link:hover {
@@ -74,6 +81,46 @@
         color: #d97706;
       }
     }
+
+    /* Language switcher */
+    .lang-toggle {
+      display: flex;
+      gap: 4px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 3px;
+      border-radius: 9999px;
+      backdrop-filter: var(--glass-blur);
+    }
+    .lang-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-mute);
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 5px 14px;
+      border-radius: 9999px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.2s ease;
+    }
+    .lang-btn:hover {
+      color: var(--text);
+    }
+    .lang-btn.active {
+      background: rgba(247, 147, 26, 0.12);
+      color: #f7931a;
+    }
+    @media (prefers-color-scheme: light) {
+      .lang-btn.active {
+        background: rgba(217, 119, 6, 0.1);
+        color: #b45309;
+      }
+    }
+
+    /* Multilingual Switch CSS */
+    body.lang-en .ua { display: none; }
+    body.lang-ua .en { display: none; }
 
     h1 {
       font-size: 2.2rem;
@@ -130,7 +177,6 @@
       background: var(--bg-card);
       border-radius: 0 12px 12px 0;
       border: 1px solid var(--border);
-      border-left: 3px solid #f7931a;
       backdrop-filter: var(--glass-blur);
     }
     blockquote p {
@@ -206,6 +252,26 @@
     .weights-table td:first-child {
       color: var(--text);
       font-weight: 600;
+    }
+
+    /* Orientation alert on mobile */
+    .rotation-tip {
+      display: none;
+      font-size: 0.76rem;
+      color: var(--text-mute);
+      border: 1px dashed var(--border);
+      border-radius: 10px;
+      padding: 8px 14px;
+      margin: 16px 0 -8px 0;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.01);
+    }
+
+    @media (max-width: 600px) {
+      .rotation-tip {
+        display: flex;
+      }
     }
     
     /* Badges */
@@ -331,50 +397,132 @@
     }
   </style>
 </head>
-<body>
+<body class="lang-en">
 
-  <a class="back-link" href="index.html">← Back to Dashboard</a>
+  <div class="top-row">
+    <a class="back-link" href="index.html">← Back to Dashboard</a>
+    <div class="lang-toggle">
+      <button class="lang-btn active" id="btn-en" onclick="setLang('en')">EN</button>
+      <button class="lang-btn"        id="btn-ua" onclick="setLang('ua')">UA</button>
+    </div>
+  </div>
 
-  <h1>Index Methodology</h1>
-  <div class="subtitle">10 indicators &middot; 16 cycle milestones 2018–2026 &middot; Updated daily</div>
+  <h1>
+    <span class="en">Index Methodology</span>
+    <span class="ua">Методологія індексу</span>
+  </h1>
+  
+  <div class="subtitle">
+    <span class="en">10 indicators &middot; 16 cycle milestones 2018–2026 &middot; Updated daily</span>
+    <span class="ua">10 індикаторів &middot; 16 ключових подій 2018–2026 &middot; Оновлюється щодня</span>
+  </div>
 
   <div class="toc-card">
-    <div class="toc-title">Table of Contents</div>
+    <div class="toc-title">
+      <span class="en">Table of Contents</span>
+      <span class="ua">Зміст</span>
+    </div>
     <ul class="toc-list">
-      <li><a href="#philosophy">1. Philosophy &amp; Concept</a></li>
-      <li><a href="#construction">2. How the Index Is Constructed</a></li>
-      <li><a href="#on-chain">3. On-Chain Indicators (OC)</a></li>
-      <li><a href="#tech-macro">4. Tech / Macro Indicators</a></li>
-      <li><a href="#retro">5. Retrospective Analysis (2018–2026)</a></li>
-      <li><a href="#findings">6. Key Findings</a></li>
+      <li>
+        <a href="#philosophy">
+          <span class="en">1. Philosophy &amp; Concept</span>
+          <span class="ua">1. Філософія та концепція</span>
+        </a>
+      </li>
+      <li>
+        <a href="#construction">
+          <span class="en">2. How the Index Is Constructed</span>
+          <span class="ua">2. Як побудований індекс</span>
+        </a>
+      </li>
+      <li>
+        <a href="#on-chain">
+          <span class="en">3. On-Chain Indicators (OC)</span>
+          <span class="ua">3. Ончейн-індикатори (OC)</span>
+        </a>
+      </li>
+      <li>
+        <a href="#tech-macro">
+          <span class="en">4. Tech / Macro Indicators</span>
+          <span class="ua">4. Технічні та макро-індикатори</span>
+        </a>
+      </li>
+      <li>
+        <a href="#retro">
+          <span class="en">5. Retrospective Analysis (2018–2026)</span>
+          <span class="ua">5. Ретроспективний аналіз (2018–2026)</span>
+        </a>
+      </li>
+      <li>
+        <a href="#findings">
+          <span class="en">6. Key Findings</span>
+          <span class="ua">6. Ключові висновки</span>
+        </a>
+      </li>
     </ul>
   </div>
 
-  <h2 id="philosophy">Philosophy</h2>
-  <p>There is no single correct way to evaluate the risk of buying Bitcoin. Anyone claiming otherwise is offering certainty where none exists. This index is a mathematical framework designed to minimize emotional biases, news noise, and short-term market psychology.</p>
-  <p>Rather than relying on speculative chart drawing, this index evaluates whether a given moment is <strong>historically cheap</strong> or <strong>historically expensive</strong> based on hard macroeconomic conditions and block-by-block user behavior.</p>
+  <h2 id="philosophy">
+    <span class="en">1. Philosophy &amp; Concept</span>
+    <span class="ua">1. Філософія та концепція</span>
+  </h2>
+  
+  <p class="en">There is no single correct way to evaluate the risk of buying Bitcoin. Anyone claiming otherwise is offering certainty where none exists. This index is a mathematical framework designed to minimize emotional biases, news noise, and short-term market psychology.</p>
+  <p class="ua">Не існує єдиного правильного способу оцінити ризик купівлі Bitcoin. Кожен, хто стверджує зворотне, намагається продати вам ілюзію. Цей індекс є математичною моделлю, створеною для мінімізації емоційних упереджень, новинного шуму та короткострокової ринкової психології.</p>
+
+  <p class="en">Rather than relying on speculative chart drawing, this index evaluates whether a given moment is <strong>historically cheap</strong> or <strong>historically expensive</strong> based on hard macroeconomic conditions and block-by-block user behavior.</p>
+  <p class="ua">Замість того, щоб спиратися на спекулятивне малювання ліній тренду, індекс визначає, чи є поточний момент <strong>історично дешевим</strong> чи <strong>історично дорогим</strong> на основі жорстких макроекономічних умов та ончейн-поведінки користувачів на рівні блоків.</p>
 
   <blockquote>
-    <p>"Be fearful when others are greedy, and greedy when others are fearful."</p>
+    <p class="en">"Be fearful when others are greedy, and greedy when others are fearful."</p>
+    <p class="ua">«Бійтесь, коли інші жадібні, і будьте жадібні, коли інші бояться.»</p>
     <cite>— Warren Buffett</cite>
   </blockquote>
 
-  <h2 id="construction">How the Index Is Constructed</h2>
-  <p>The final index value is a weighted combination of <strong>10 indicators</strong> across two distinct categories. Both sub-scores are calculated independently and cross-blended to build the final reading:</p>
+  <h2 id="construction">
+    <span class="en">2. How the Index Is Constructed</span>
+    <span class="ua">2. Як побудований індекс</span>
+  </h2>
+  
+  <p class="en">The final index value is a weighted combination of <strong>10 indicators</strong> across two distinct categories. Both sub-scores are calculated independently and cross-blended to build the final reading:</p>
+  <p class="ua">Фінальне значення індексу є зваженою комбінацією **10 індикаторів** у двох категоріях. Обидва суб-скори розраховуються незалежно та перехресно змішуються для побудови фінального показника:</p>
   
   <ul>
-    <li><strong>On-Chain (OC) Sub-score</strong> (50% final weight): 80% On-Chain metrics + 20% Tech/Macro metrics.</li>
-    <li><strong>Tech / Macro Sub-score</strong> (50% final weight): 80% Tech/Macro metrics + 20% On-Chain metrics.</li>
-    <li><strong>Final Risk Index</strong>: 50% OC Sub-score + 50% Tech/Macro Sub-score.</li>
+    <li>
+      <span class="en"><strong>On-Chain (OC) Sub-score</strong> (50% final weight): 80% On-Chain metrics + 20% Tech/Macro metrics.</span>
+      <span class="ua"><strong>On-Chain (OC) суб-скор</strong> (50% фінальної ваги): 80% On-Chain показників + 20% Tech/Macro показників.</span>
+    </li>
+    <li>
+      <span class="en"><strong>Tech / Macro Sub-score</strong> (50% final weight): 80% Tech/Macro metrics + 20% On-Chain metrics.</span>
+      <span class="ua"><strong>Tech / Macro суб-скор</strong> (50% фінальної ваги): 80% Tech/Macro показників + 20% On-Chain показників.</span>
+    </li>
+    <li>
+      <span class="en"><strong>Final Risk Index</strong>: 50% OC Sub-score + 50% Tech/Macro Sub-score.</span>
+      <span class="ua"><strong>Фінальний індекс ризику</strong>: 50% OC суб-скору + 50% Tech/Macro суб-скору.</span>
+    </li>
   </ul>
+
+  <div class="rotation-tip">
+    <span class="ua">📱 Порада: поверніть телефон горизонтально для зручного перегляду таблиці ваг.</span>
+    <span class="en">📱 Tip: Rotate your phone to landscape mode to view the weights table comfortably.</span>
+  </div>
 
   <div class="glass-card">
     <table class="weights-table">
       <thead>
         <tr>
-          <th>Group &amp; Indicator</th>
-          <th>Group Weight</th>
-          <th>Individual Weight</th>
+          <th>
+            <span class="en">Group &amp; Indicator</span>
+            <span class="ua">Група та індикатор</span>
+          </th>
+          <th>
+            <span class="en">Group Weight</span>
+            <span class="ua">Вага групи</span>
+          </th>
+          <th>
+            <span class="en">Individual Weight</span>
+            <span class="ua">Індивідуальна вага</span>
+          </th>
         </tr>
       </thead>
       <tbody>
@@ -395,56 +543,95 @@
     </table>
   </div>
 
-  <h2 id="on-chain">On-Chain Indicators (OC)</h2>
+  <h2 id="on-chain">
+    <span class="en">3. On-Chain Indicators (OC)</span>
+    <span class="ua">3. Ончейн-індикатори (OC)</span>
+  </h2>
   
-  <h3 id="m-nupl">NUPL — Net Unrealized Profit/Loss (30% weight)</h3>
-  <p>Measures the difference between total market unrealized profit and unrealized loss divided by Bitcoin's market capitalization. It captures the overall emotional state of holders: values &gt;0.75 represent euphoria, while values &lt;0 show total capitulation.</p>
+  <h3 id="m-nupl">NUPL — Net Unrealized Profit/Loss</h3>
+  <p class="en">Measures the difference between total market unrealized profit and unrealized loss divided by Bitcoin's market capitalization. It captures the overall emotional state of holders: values &gt;0.75 represent euphoria, while values &lt;0 show total capitulation. Weight: <strong>30%</strong>.</p>
+  <p class="ua">Вимірює різницю між нереалізованим прибутком і збитком всього ринку, поділену на ринкову капіталізацію. Відображає загальний емоційний стан холдерів: значення &gt;0.75 вказують на ейфорію, тоді як значення &lt;0 вказують на повну капітуляцію. Вага: <strong>30%</strong>.</p>
 
-  <h3 id="m-mvrv">MVRV Z-Score (20% weight)</h3>
-  <p>Calculates the standard deviation distance between Bitcoin's market capitalization and realized capitalization (the total cost basis of all moved coins). A high score (e.g., &gt;7) means market price is unsustainably detached from holder value, while values below 0 represent deep value.</p>
+  <h3 id="m-mvrv">MVRV Z-Score</h3>
+  <p class="en">Calculates the standard deviation distance between Bitcoin's market capitalization and realized capitalization (the total cost basis of all moved coins). A high score (e.g., &gt;7) means market price is unsustainably detached from holder value, while values below 0 represent deep value. Weight: <strong>20%</strong>.</p>
+  <p class="ua">Визначає відстань у стандартних відхиленнях між ринковою та реалізованою капіталізацією (загальною вартістю придбання всіх монет). Високі значення (&gt;7) свідчать про перегрітість ціни, тоді як значення нижче 0 вказують на глибоку циклічну недооціненість. Вага: <strong>20%</strong>.</p>
 
-  <h3 id="m-rhodl">RHODL Ratio (20% weight)</h3>
-  <p>Compares the amount of coins held for 1 week against those held for 1–2 years. When the ratio surges, it signals that inexperienced new money is rapidly absorbing supply from seasoned holders—a classic cyclical peak behavior.</p>
+  <h3 id="m-rhodl">RHODL Ratio</h3>
+  <p class="en">Compares the amount of coins held for 1 week against those held for 1–2 years. When the ratio surges, it signals that inexperienced new money is rapidly absorbing supply from seasoned holders—a classic cyclical peak behavior. Weight: <strong>20%</strong>.</p>
+  <p class="ua">Порівнює кількість монет, утримуваних 1 тиждень, з тими, що утримуються 1–2 роки. Стрімке зростання коефіцієнта свідчить про те, що нові недосвідчені гроші активно викуповують пропозицію у довгострокових інвесторів — класична поведінка на вершині циклу. Вага: <strong>20%</strong>.</p>
 
-  <h3 id="m-cvdd">CVDD Ratio (15% weight)</h3>
-  <p>Cumulative Value Days Destroyed divided by the current price. It maps the aggregate destruction of "coin-days" (holding time multiplied by amount). In cyclical downturns, the price hitting this ratio level has historically marked absolute cycle bottoms.</p>
+  <h3 id="m-cvdd">CVDD Ratio</h3>
+  <p class="en">Cumulative Value Days Destroyed divided by the current price. It maps the aggregate destruction of "coin-days" (holding time multiplied by amount). In cyclical downturns, the price hitting this ratio level has historically marked absolute cycle bottoms. Weight: <strong>15%</strong>.</p>
+  <p class="ua">Накопичена вартість знищених монетоднів, поділена на поточну ціну. У періоди ведмежих ринків зниження ціни до рівня цього коефіцієнта історично позначало абсолютне макро-дно циклу. Вага: <strong>15%</strong>.</p>
 
-  <h3 id="m-asopr">aSOPR — Adjusted Spent Output Profit Ratio (15% weight)</h3>
-  <p>Measures the average profit multiplier of spent coins (excluding day-trades under 1 hour). To filter noise, we apply a <strong>7-day Simple Moving Average (SMA)</strong>. If aSOPR drops to 1.0 (break-even point) and bounces, the bull market remains intact. We map aSOPR = 0.88 to 0 risk (maximum fear/capitulation) and 1.12 to 100 risk (local market extension).</p>
+  <h3 id="m-asopr">aSOPR — Adjusted Spent Output Profit Ratio</h3>
+  <p class="en">Measures the average profit multiplier of spent coins (excluding day-trades under 1 hour). To filter noise, we apply a <strong>7-day Simple Moving Average (SMA)</strong>. If aSOPR drops to 1.0 (break-even point) and bounces, the bull market remains intact. We map aSOPR = 0.88 to 0 risk (maximum fear/capitulation) and 1.12 to 100 risk (local market extension). Weight: <strong>15%</strong>.</p>
+  <p class="ua">Вимірює середній мультиплікатор прибутку переміщених монет (без урахування транзакцій менше 1 години). Для фільтрації шуму застосовується **7-денна проста ковзна середня (SMA)**. Якщо aSOPR падає до 1.0 (точка беззбитковості) і відскакує вгору — бичачий тренд в силі. Значення 0.88 відповідає 0 ризику (максимальний страх), а 1.12 — 100 ризику (локальний перегрів). Вага: <strong>15%</strong>.</p>
 
-  <h2 id="tech-macro">Tech / Macro Indicators</h2>
+  <h2 id="tech-macro">
+    <span class="en">4. Tech / Macro Indicators</span>
+    <span class="ua">4. Технічні та макро-індикатори</span>
+  </h2>
 
-  <h3 id="m-cipherb">Cipher B Oscillator (50% weight of Tech/Macro)</h3>
-  <p>An implementation of the WaveTrend momentum oscillator evaluated on a weekly timeframe. The weekly scale filters out daily noise, pinpointing major momentum shifts: 0 indicates deep correction/capitulation, and 100 represents an overextended bull market.</p>
+  <h3 id="m-cipherb">Cipher B Oscillator</h3>
+  <p class="en">An implementation of the WaveTrend momentum oscillator evaluated on a weekly timeframe. The weekly scale filters out daily noise, pinpointing major momentum shifts: 0 indicates deep correction/capitulation, and 100 represents an overextended bull market. Weight: <strong>50%</strong> of Tech/Macro.</p>
+  <p class="ua">Реалізація осцилятора WaveTrend на тижневому таймфреймі. Тижневий масштаб фільтрує денний шум, чітко визначаючи зміни імпульсу: 0 вказує на глибоку корекцію/капітуляцію, а 100 — на перегрітий бичачий ринок. Вага: <strong>50%</strong> від Tech/Macro.</p>
 
-  <h3 id="m-mayer">Mayer Multiple (20% weight of Tech/Macro)</h3>
-  <p>Calculates the simple ratio between Bitcoin's price and its 200-day moving average (200DMA). It acts as a mean-reverting trigger, mapped linearly: values &le;0.5 represent extreme undervaluation, and &ge;2.1 represent major overvaluation.</p>
+  <h3 id="m-mayer">Mayer Multiple</h3>
+  <p class="en">Calculates the simple ratio between Bitcoin's price and its 200-day moving average (200DMA). It acts as a mean-reverting trigger, mapped linearly: values &le;0.5 represent extreme undervaluation, and &ge;2.1 represent major overvaluation. Weight: <strong>20%</strong> of Tech/Macro.</p>
+  <p class="ua">Співвідношення між ціною Bitcoin та його 200-денною ковзною середньою (200DMA). Використовується як показник повернення до середнього: значення &le;0.5 вказують на екстремальну недооціненість, а &ge;2.1 — на перегрітість. Вага: <strong>20%</strong> від Tech/Macro.</p>
 
-  <h3 id="m-fg">Fear &amp; Greed Index (10% weight of Tech/Macro)</h3>
-  <p>A contrarian sentiment proxy measuring social media, search trends, volatility, and volume. We use a <strong>7-day moving average</strong> instead of the daily reading to avoid transient spikes. A lower score (Fear) signals accumulation opportunities; a high score (Greed) alerts to caution.</p>
+  <h3 id="m-fg">Fear &amp; Greed Index</h3>
+  <p class="en">A contrarian sentiment proxy measuring social media, search trends, volatility, and volume. We use a <strong>7-day moving average</strong> instead of the daily reading to avoid transient spikes. A lower score (Fear) signals accumulation opportunities; a high score (Greed) alerts to caution. Weight: <strong>10%</strong> of Tech/Macro.</p>
+  <p class="ua">Контрарний показник настроїв, що вимірює згадки в соцмережах, тренди пошуку, волатильність та об'єм. Використовується **7-денне ковзне середнє** для уникнення випадкових сплесків. Низький скор (страх) сигналізує про можливості накопичення; високий (жадібність) — про обережність. Вага: <strong>10%</strong> від Tech/Macro.</p>
 
-  <h3 id="m-yc">Yield Curve Spread (10% weight of Tech/Macro)</h3>
-  <p>The spread between US 10-Year and 2-Year Treasury bonds. When the spread goes negative (inversion), it signals systemic liquidity starvation, tightening financial conditions, and high recession risk, which pushes the BTC risk score higher.</p>
+  <h3 id="m-yc">Yield Curve Spread (10Y-2Y)</h3>
+  <p class="en">The spread between US 10-Year and 2-Year Treasury bonds. When the spread goes negative (inversion), it signals systemic liquidity starvation, tightening financial conditions, and high recession risk, which pushes the BTC risk score higher. Weight: <strong>10%</strong> of Tech/Macro.</p>
+  <p class="ua">Спред між 10-річними та 2-річними державними облігаціями США. Коли спред стає негативним (інверсія), це сигналізує про системний дефіцит ліквідності та високий ризик рецесії, що збільшує скор ризику для BTC. Вага: <strong>10%</strong> від Tech/Macro.</p>
 
-  <h3 id="m-m2">Global M2 YoY Growth (10% weight of Tech/Macro)</h3>
-  <p>Tracks the year-over-year rate of change of global money supply (US, EU, China, Japan). High M2 expansion indicates system-wide debasement and liquidity inflows (low risk of asset collapse). Negative M2 growth indicates global monetary contraction (higher risk).</p>
+  <h3 id="m-m2">Global M2 YoY Growth</h3>
+  <p class="en">Tracks the year-over-year rate of change of global money supply (US, EU, China, Japan). High M2 expansion indicates system-wide debasement and liquidity inflows (low risk of asset collapse). Negative M2 growth indicates global monetary contraction (higher risk). Weight: <strong>10%</strong> of Tech/Macro.</p>
+  <p class="ua">Відстежує річну зміну глобальної грошової маси M2 (США, ЄС, Китай, Японія). Зростання M2 вказує на розширення ліквідності (низький ризик падіння активів), тоді як падіння M2 вказує на монетарне стиснення (вищий ризик). Вага: <strong>10%</strong> від Tech/Macro.</p>
 
   <h3 id="m-funding">Funding Rate (Display Only)</h3>
-  <p>The 7-day average of Bybit BTCUSDT perpetual futures funding rate. While shown on the dashboard, it is <strong>not included in the weighted risk calculation</strong> due to its high volatility and reduced signal reliability in the institutional ETF era.</p>
+  <p class="en">The 7-day average of Bybit BTCUSDT perpetual futures funding rate. While shown on the dashboard, it is <strong>not included in the weighted risk calculation</strong> due to its high volatility and reduced signal reliability in the institutional ETF era.</p>
+  <p class="ua">7-денна середня ставка фінансування ф'ючерсів на Bybit. Відображається на дашборді, але **не входить до розрахунку ризику** через високу волатильність і зниження значущості в еру спотових ETF.</p>
 
-  <h2 id="retro">Retrospective Analysis (2018–2026)</h2>
-  <p>To verify the index's utility, the weights were backtested against 16 critical market events from prior cycles. Below are the historical calculated risk scores at each milestone date:</p>
+  <h2 id="retro">
+    <span class="en">5. Retrospective Analysis (2018–2026)</span>
+    <span class="ua">5. Ретроспективний аналіз (2018–2026)</span>
+  </h2>
+  
+  <p class="en">To verify the index's utility, the weights were backtested against 16 critical market events from prior cycles. Below are the historical calculated risk scores at each milestone date:</p>
+  <p class="ua">Щоб перевірити корисність індексу, ваги було протестовано на 16 критичних ринкових подіях попередніх циклів. Нижче наведено історичні розраховані показники ризику на кожну дату:</p>
+
+  <div class="rotation-tip">
+    <span class="ua">📱 Порада: поверніть телефон горизонтально для зручного перегляду таблиці подій.</span>
+    <span class="en">📱 Tip: Rotate your phone to landscape mode to view the milestone table comfortably.</span>
+  </div>
 
   <div class="glass-card">
     <table>
       <thead>
         <tr>
-          <th>Date</th>
-          <th>Milestone Event</th>
-          <th>BTC Price</th>
+          <th>
+            <span class="en">Date</span>
+            <span class="ua">Дата</span>
+          </th>
+          <th>
+            <span class="en">Milestone Event</span>
+            <span class="ua">Подія</span>
+          </th>
+          <th>
+            <span class="en">BTC Price</span>
+            <span class="ua">Ціна BTC</span>
+          </th>
           <th>OC Score</th>
           <th>Tech Score</th>
-          <th>Final Index</th>
+          <th>
+            <span class="en">Final Index</span>
+            <span class="ua">Фінальний індекс</span>
+          </th>
         </tr>
       </thead>
       <tbody>
@@ -468,26 +655,52 @@
     </table>
   </div>
 
-  <h2 id="findings">Key Findings</h2>
+  <h2 id="findings">
+    <span class="en">6. Key Findings</span>
+    <span class="ua">6. Ключові висновки</span>
+  </h2>
   
-  <h3>1. High Separation Gap</h3>
-  <p>The index exhibits a significant separation between market cycle bottoms and tops. The average score at confirmed bottoms (2018, COVID, Capitulation, FTX) is <span class="zone-25"><strong>21</strong></span>. The average score at confirmed tops (2021 spring/autumn, 2024, 2025 tops) is <span class="zone-100"><strong>82.75</strong></span>. A ~62-point separation makes this index highly reliable for long-term positioning.</p>
+  <h3>1. <span class="en">High Separation Gap</span><span class="ua">Висока роздільна здатність</span></h3>
+  <p class="en">The index exhibits a significant separation between market cycle bottoms and tops. The average score at confirmed bottoms (2018, COVID, Capitulation, FTX) is <span class="zone-25"><strong>21</strong></span>. The average score at confirmed tops (2021 spring/autumn, 2024, 2025 tops) is <span class="zone-100"><strong>82.75</strong></span>. A ~62-point separation makes this index highly reliable for long-term positioning.</p>
+  <p class="ua">Індекс демонструє чітке розділення між макро-вершинами та дном циклів. Середній показник на підтверджених днах становить <span class="zone-25"><strong>21</strong></span>. Середнє значення на підтверджених вершинах (ATH) становить <span class="zone-100"><strong>82.75</strong></span>. Розрив у ~62 пункти робить індекс надійним орієнтиром для довгострокового накопичення.</p>
 
-  <h3>2. Diminishing Peaks Phenomenon</h3>
-  <p>Despite Bitcoin making a new price peak in late 2025 ($129,000, representing +76% over the 2024 high), the risk index only peaked at 70. This demonstrates that as mature, institutional capital (ETFs and corporate balance sheets) drives price, the underling on-chain metrics (such as MVRV Z-score and RHODL waves) do not reach the extreme speculative levels seen in 2018 or 2021. 
+  <h3>2. <span class="en">Diminishing Peaks Phenomenon</span><span class="ua">Ефект згасання піків</span></h3>
+  <p class="en">Despite Bitcoin making a new price peak in late 2025 ($129,000, representing +76% over the 2024 high), the risk index only peaked at 70. This demonstrates that as mature, institutional capital (ETFs and corporate balance sheets) drives price, the underling on-chain metrics (such as MVRV Z-score and RHODL waves) do not reach the extreme speculative levels seen in 2018 or 2021. 
   <strong>Takeaway: The practical cycle exit window starts at ~70+ in the modern era, rather than the ~85+ seen in earlier cycles.</strong></p>
+  <p class="ua">Незважаючи на новий ціновий ATH наприкінці 2025 року ($129,000, що на 76% більше за пік 2024 року), індекс ризику досяг лише 70. Це доводить, що приплив інституційного капіталу (ETF та покупки корпорацій) штовхає ціну вгору без екстремального перегріву ончейн-метрик (таких як MVRV або RHODL), які спостерігалися в 2018 чи 2021 роках.
+  <strong>Практичний висновок: у сучасну епоху зону продажу варто розглядати вже в діапазоні ~70+, а не очікувати ~85+.</strong></p>
 
-  <h3>3. Complimentary Sentiment</h3>
-  <p>While on-chain metrics are the anchor of cycle-scale trends, technical/macro signals are sensitive to shorter-term events. For example, during the Post-ATH Dump in November 2025, the On-Chain score remained structurally neutral (61), but the Tech/Macro score collapsed to 19, signaling a healthy, low-risk tactical buying window inside a structural trend.</p>
+  <h3>3. <span class="en">Complimentary Sentiment</span><span class="ua">Комплементарність сентименту</span></h3>
+  <p class="en">While on-chain metrics are the anchor of cycle-scale trends, technical/macro signals are sensitive to shorter-term events. For example, during the Post-ATH Dump in November 2025, the On-Chain score remained structurally neutral (61), but the Tech/Macro score collapsed to 19, signaling a healthy, low-risk tactical buying window inside a structural trend.</p>
+  <p class="ua">У той час як ончейн-метрики відіграють роль якоря для довгострокових циклів, технічні сигнали швидше реагують на короткострокові події. Наприклад, під час дампу після ATH у листопаді 2025 року ончейн-скор залишався нейтральним (61), але тех-скор упав до 19, вказуючи на чудову тактичну точку входу всередині висхідного тренду.</p>
 
   <div class="disclaimer-box">
-    <p>This methodology document is for educational and informational purposes only. It is not financial advice. All data and calculations are processed automatically and reflect public historical records. Any decisions to trade are made solely at your own risk.</p>
+    <p class="en">This methodology document is for educational and informational purposes only. It is not financial advice. All data and calculations are processed automatically and reflect public historical records. Any decisions to trade are made solely at your own risk.</p>
+    <p class="ua">Цей документ створений виключно з освітньою та інформаційною метою і не є фінансовою порадою. Всі дані збираються автоматично та відображають публічні історичні рекорди. Будь-які рішення про торгівлю приймаються вами на власний ризик.</p>
   </div>
 
   <footer>
-    <a href="index.html" style="color:var(--footer);text-decoration:none;">← Back to Dashboard</a>
+    <a href="index.html" style="color:var(--footer);text-decoration:none;">
+      <span class="en">← Back to Dashboard</span>
+      <span class="ua">← На головну</span>
+    </a>
     &nbsp;&middot;&nbsp; Bitcoin Buy Risk Index &middot; May 2026
   </footer>
+
+  <script>
+    function setLang(lang) {
+      document.body.className = 'lang-' + lang;
+      document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+      document.getElementById('btn-ua').classList.toggle('active', lang === 'ua');
+      localStorage.setItem('bbr-lang', lang);
+    }
+
+    // Automatically detect and restore language
+    const browserLang = (navigator.language || navigator.userLanguage || '').toLowerCase();
+    const defaultLang = browserLang.startsWith('uk') || browserLang.startsWith('ua') ? 'ua' : 'en';
+    const saved = localStorage.getItem('bbr-lang') || defaultLang;
+    setLang(saved);
+  </script>
 
 </body>
 </html>
