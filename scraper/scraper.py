@@ -28,7 +28,6 @@ from .alternative_me import get_fear_greed
 from . import cmc as cmc_mod
 from .nupl import get_nupl
 from .mvrv import get_mvrv
-from .addresses_in_loss import get_addresses_in_loss
 from .m2_metric import get_m2
 from .yield_curve_metric import get_yield_curve
 from .utils import human_visit
@@ -131,6 +130,7 @@ def build_payload():
     from . import rhodl as rhodl_mod
     from . import rainbow as rainbow_mod
     from . import asopr as asopr_mod
+    from . import etf_flows as etf_flows_mod
     from .utils import is_valid_metric
 
     metric_specs = [
@@ -141,6 +141,7 @@ def build_payload():
         ('cvdd_ratio', cvdd_mod.get_cvdd_ratio, None, lambda r: r),
         ('rhodl_ratio', rhodl_mod.get_rhodl_ratio, None, lambda r: r),
         ('asopr', asopr_mod.get_asopr, None, lambda r: r),
+        ('etf_flows', etf_flows_mod.get_etf_flows, None, lambda r: r),
     ]
 
     for name, fn, visit_url, extractor in metric_specs:
@@ -191,11 +192,13 @@ def build_payload():
             rhodl_ratio = val
         if name == 'asopr':
             asopr = val
+        if name == 'etf_flows':
+            etf_flows = val
 
         # save into metrics dict placeholder (later merged into payload)
         if 'metrics' not in locals():
             metrics = {}
-        src = 'MacroMicro' if name == 'm2' else 'BMP'
+        src = 'MacroMicro' if name == 'm2' else 'Farside' if name == 'etf_flows' else 'BMP'
         metrics[name] = {'value': val, 'source': src if val is not None else None, 'updated': now_iso()}
 
     # Rainbow band — separate call (returns dict, not scalar)
@@ -219,6 +222,7 @@ def build_payload():
         'cvdd_ratio': cvdd_ratio if 'cvdd_ratio' in locals() else None,
         'rhodl_ratio': rhodl_ratio if 'rhodl_ratio' in locals() else None,
         'asopr': asopr if 'asopr' in locals() else None,
+        'etf_flows': etf_flows if 'etf_flows' in locals() else None,
         'rainbow_band': rainbow_band if 'rainbow_band' in locals() else None,
         'm2': m2,
         'metrics': {
@@ -379,6 +383,28 @@ def main():
         print('Wrote', hist_s_path)
     except Exception as e:
         print('Failed to write SMC history:', e)
+
+    # Append ETF flows snapshot to history
+    try:
+        etf_val = p.get('metrics', {}).get('etf_flows', {}).get('value')
+        hist_etf_path = 'data/history/etf_flows.json'
+        os.makedirs(os.path.dirname(hist_etf_path), exist_ok=True)
+        if os.path.exists(hist_etf_path):
+            with open(hist_etf_path, 'r', encoding='utf-8') as hf:
+                etfhist = json.load(hf)
+        else:
+            etfhist = []
+        etfhist.append({
+            'timestamp': p['timestamp'],
+            'btc_price': p.get('btc_price'),
+            'etf_flow_14d': etf_val.get('value') if isinstance(etf_val, dict) else etf_val,
+            'etf_flow_daily': etf_val.get('daily_flow') if isinstance(etf_val, dict) else None
+        })
+        etfhist = etfhist[-730:]
+        write_json(hist_etf_path, etfhist)
+        print('Wrote', hist_etf_path)
+    except Exception as e:
+        print('Failed to write ETF flows history:', e)
 
     # Compute decision-matrix scores and write to data.json
     try:

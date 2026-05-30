@@ -27,12 +27,12 @@ OC_WEIGHTS = {
 }
 
 TECH_WEIGHTS = {
-    'cipherb':             0.50,   # +bearish_div penalty; основний price/momentum сигнал
+    'cipherb':             0.40,   # +bearish_div penalty; основний price/momentum сигнал (зменшено з 50% -> 40%)
     'mayer_multiple':      0.20,   # Mayer Multiple (Price / 200DMA)
+    'etf_flows':           0.10,   # Spot ETF flows 14d rolling sum (новий тактичний ліквідний індикатор)
     'fear_greed':          0.10,
     'yield_curve_spread':  0.10,   # US 10Y-2Y Spread (T10Y2Y). Inversion (<0) = high risk
     'm2_yoy':              0.10,   # US M2 YoY (обернена логіка: ↑ ліквідність = ↓ ризик)
-    # smc видалено: 40% false bottom rate, слабка диференціація в ведмедячих трендах
 }
 
 
@@ -131,6 +131,35 @@ def map_rhodl(v):
     v = max(100, min(10000, v))
     return round((math.log10(v) - math.log10(100)) / (math.log10(10000) - math.log10(100)) * 100)
 
+def map_etf_flow(v):
+    """
+    v is etf_flows dict or pre-computed float/int.
+    14d flow sum:
+    <= -2000 -> 0 risk
+    = 750 -> 50 risk
+    >= 4000 -> 100 risk
+    """
+    if v is None: return None
+    if isinstance(v, dict):
+        v = v.get('value')
+    if v is None: return None
+    v = float(v)
+    
+    MIN_VAL = -2000.0
+    MID_VAL = 750.0
+    MAX_VAL = 4000.0
+    
+    if v <= MIN_VAL:
+        score = 0.0
+    elif v >= MAX_VAL:
+        score = 100.0
+    elif v < MID_VAL:
+        score = ((v - MIN_VAL) / (MID_VAL - MIN_VAL)) * 50.0
+    else:
+        score = 50.0 + ((v - MID_VAL) / (MAX_VAL - MID_VAL)) * 50.0
+        
+    return round(max(0.0, min(100.0, score)))
+
 
 def build_slider_map(metrics: dict) -> dict:
     """
@@ -164,6 +193,7 @@ def build_slider_map(metrics: dict) -> dict:
         'cvdd_ratio':          map_cvdd(mv('cvdd_ratio')),
         'rhodl_ratio':         map_rhodl(mv('rhodl_ratio')),
         'asopr':               map_asopr(mv('asopr')),
+        'etf_flows':           map_etf_flow(mv('etf_flows')),
         'cipherb':             cipherb_score,
         'mayer_multiple':      mayer_score,
         'funding_rate':        map_funding(mv('funding_rate')),

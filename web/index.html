@@ -863,9 +863,47 @@
         aspect-ratio: 16 / 9;
       }
     }
+
+    /* Language switcher */
+    .lang-toggle {
+      display: flex;
+      gap: 4px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 3px;
+      border-radius: 9999px;
+      backdrop-filter: var(--glass-blur);
+    }
+    .lang-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-mute);
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 5px 14px;
+      border-radius: 9999px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.2s ease;
+    }
+    .lang-btn:hover {
+      color: var(--text);
+    }
+    .lang-btn.active {
+      background: rgba(247, 147, 26, 0.12);
+      color: #f7931a;
+    }
+    @media (prefers-color-scheme: light) {
+      .lang-btn.active {
+        background: rgba(217, 119, 6, 0.1);
+        color: #b45309;
+      }
+    }
+    body.lang-en .ua { display: none; }
+    body.lang-ua .en { display: none; }
   </style>
 </head>
-<body>
+<body class="lang-en">
 
   <!-- Dynamic full-screen canvas backdrop behind frosted glass -->
   <canvas id="bg-canvas"></canvas>
@@ -876,12 +914,30 @@
   <!-- Main Navigation Header -->
   <div class="nav-header">
     <div class="nav-title-group">
-      <h1 class="nav-title" id="logo-title">BTC Buy Risk Index</h1>
+      <h1 class="nav-title" id="logo-title">
+        <span class="en">BTC Buy Risk Index</span>
+        <span class="ua">Індекс ризику BTC</span>
+      </h1>
     </div>
-    <div class="nav-menu">
-      <button class="nav-btn active" id="btn-main" style="cursor:default;">Risk Index</button>
-      <a class="nav-btn" href="about.html">Methodology</a>
-      <a class="nav-btn" href="bitcoin_buy_risk.ics">iCal Alerts</a>
+    <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+      <div class="nav-menu">
+        <button class="nav-btn active" id="btn-main" style="cursor:default;">
+          <span class="en">Risk Index</span>
+          <span class="ua">Індекс ризику</span>
+        </button>
+        <a class="nav-btn" href="about.html">
+          <span class="en">Methodology</span>
+          <span class="ua">Методологія</span>
+        </a>
+        <a class="nav-btn" href="bitcoin_buy_risk.ics">
+          <span class="en">iCal Alerts</span>
+          <span class="ua">Сповіщення iCal</span>
+        </a>
+      </div>
+      <div class="lang-toggle">
+        <button class="lang-btn active" id="btn-en" onclick="setLang('en')">EN</button>
+        <button class="lang-btn"        id="btn-ua" onclick="setLang('ua')">UA</button>
+      </div>
     </div>
   </div>
 
@@ -893,7 +949,10 @@
         <div class="main-inner">
           <div class="hero-top-row">
             <div class="hero-title-area">
-              <span class="hero-label" id="hero-label">Composite Risk Index</span>
+              <span class="hero-label" id="hero-label">
+                <span class="en">Composite Risk Index</span>
+                <span class="ua">Композитний індекс ризику</span>
+              </span>
               <span class="hero-card-sep">·</span>
               <span class="hero-card-ts" id="hero-card-ts">—</span>
               <span class="hero-card-sep">·</span>
@@ -904,7 +963,8 @@
               <span class="hero-score-label" id="s-final-label" style="display:none;">—</span>
               <span id="main-tactical-badge" class="tactical-badge" style="display:none"></span>
               <span id="s-warn" class="warning-badge" style="display:none;" title="One or more key indicators contradicts the overall index direction">
-                ⚠️ Contradiction
+                <span class="en">⚠️ Contradiction</span>
+                <span class="ua">⚠️ Розбіжність</span>
               </span>
             </div>
           </div>
@@ -927,9 +987,18 @@
             </div>
             
             <div class="risk-track-legend">
-              <span>Buy</span>
-              <span>Neutral</span>
-              <span>Sell</span>
+              <span>
+                <span class="en">Buy</span>
+                <span class="ua">Купувати</span>
+              </span>
+              <span>
+                <span class="en">Neutral</span>
+                <span class="ua">Нейтрально</span>
+              </span>
+              <span>
+                <span class="en">Sell</span>
+                <span class="ua">Продавати</span>
+              </span>
             </div>
           </div>
         </div>
@@ -937,17 +1006,26 @@
 
       <!-- Subscore Cards -->
       <div class="score-box">
-        <div class="s-label">On-Chain Score</div>
+        <div class="s-label">
+          <span class="en">On-Chain Score</span>
+          <span class="ua">Ончейн-оцінка</span>
+        </div>
         <div class="sub-card-value-container">
           <span id="oc-warn" class="sub-warn-icon" style="display:none" title="One or more on-chain metrics contradicts the on-chain subscore">⚠️</span>
           <div class="s-value" id="s-oc">—</div>
         </div>
         <div class="bar-wrap"><div class="bar-fill" id="b-oc" style="width:0%"></div></div>
-        <div class="s-sub">80% On-Chain + 20% Tech</div>
+        <div class="s-sub">
+          <span class="en">80% On-Chain + 20% Tech</span>
+          <span class="ua">80% Ончейн + 20% Тех</span>
+        </div>
       </div>
       
       <div class="score-box" id="tech-card">
-        <div class="s-label">Tech/Macro Score</div>
+        <div class="s-label">
+          <span class="en">Tech/Macro Score</span>
+          <span class="ua">Тех/Макро оцінка</span>
+        </div>
         <div class="sub-card-value-container">
           <span id="tech-warn" class="sub-warn-icon" style="display:none" title="One or more tech/macro metrics contradicts the tech subscore">⚠️</span>
           <div class="s-value" id="s-tech">—</div>
@@ -957,28 +1035,46 @@
           <span id="tech-tactical-badge" class="tactical-badge" style="display:none"></span>
         </div>
         <div class="bar-wrap"><div class="bar-fill" id="b-tech" style="width:0%"></div></div>
-        <div class="s-sub">20% On-Chain + 80% Tech</div>
+        <div class="s-sub">
+          <span class="en">20% On-Chain + 80% Tech</span>
+          <span class="ua">20% Ончейн + 80% Тех</span>
+        </div>
       </div>
       
       <div class="score-box">
-        <div class="s-label">Yesterday</div>
+        <div class="s-label">
+          <span class="en">Yesterday</span>
+          <span class="ua">Вчора</span>
+        </div>
         <div class="s-value" id="s-yesterday">—</div>
         <div class="bar-wrap"><div class="bar-fill" id="b-yesterday" style="width:0%"></div></div>
-        <div class="s-sub">Previous daily score</div>
+        <div class="s-sub">
+          <span class="en">Previous daily score</span>
+          <span class="ua">Попередній денний бал</span>
+        </div>
       </div>
       
       <div class="score-box">
-        <div class="s-label">Last 7 Days</div>
+        <div class="s-label">
+          <span class="en">Last 7 Days</span>
+          <span class="ua">7 днів тому</span>
+        </div>
         <div class="s-value" id="s-week">—</div>
         <div class="bar-wrap"><div class="bar-fill" id="b-week" style="width:0%"></div></div>
-        <div class="s-sub">Score 7 days ago</div>
+        <div class="s-sub">
+          <span class="en">Score 7 days ago</span>
+          <span class="ua">Оцінка 7 днів тому</span>
+        </div>
       </div>
     </div>
 
     <!-- On-Chain Metrics Section -->
     <div class="glass-panel">
       <div class="section-header">
-        <h2>On-Chain Indicators</h2>
+        <h2>
+          <span class="en">On-Chain Indicators</span>
+          <span class="ua">Ончейн-індикатори</span>
+        </h2>
       </div>
       <div class="metrics-list">
         <div class="metric-row">
@@ -1027,7 +1123,10 @@
     <!-- Tech / Macro Metrics Section -->
     <div class="glass-panel">
       <div class="section-header">
-        <h2>Tech / Macro Indicators</h2>
+        <h2>
+          <span class="en">Tech / Macro Indicators</span>
+          <span class="ua">Технічні / Макро індикатори</span>
+        </h2>
       </div>
       <div class="metrics-list">
         <div class="metric-row">
@@ -1047,7 +1146,21 @@
           <span class="m-num" id="m-mayer-num">—</span>
         </div>
         <div class="metric-row">
-          <a class="m-name" href="about.html#m-fg">Fear &amp; Greed</a>
+          <a class="m-name" href="about.html#m-etf">
+            <span class="en">Spot ETF Flows (14d)</span>
+            <span class="ua">Потоки спотових ETF (14д)</span>
+          </a>
+          <div>
+            <div class="bar-wrap"><div class="bar-fill" id="m-etf-bar"></div></div>
+            <div class="m-raw" id="m-etf-raw"></div>
+          </div>
+          <span class="m-num" id="m-etf-num">—</span>
+        </div>
+        <div class="metric-row">
+          <a class="m-name" href="about.html#m-fg">
+            <span class="en">Fear &amp; Greed</span>
+            <span class="ua">Індекс страху та жадібності</span>
+          </a>
           <div>
             <div class="bar-wrap"><div class="bar-fill" id="m-fg-bar"></div></div>
             <div class="m-raw" id="m-fg-raw"></div>
@@ -1055,7 +1168,10 @@
           <span class="m-num" id="m-fg-num">—</span>
         </div>
         <div class="metric-row">
-          <a class="m-name" href="about.html#m-m2">Global M2 YoY</a>
+          <a class="m-name" href="about.html#m-m2">
+            <span class="en">Global M2 YoY</span>
+            <span class="ua">Глобальна ліквідність M2 YoY</span>
+          </a>
           <div>
             <div class="bar-wrap"><div class="bar-fill" id="m-m2-bar"></div></div>
             <div class="m-raw" id="m-m2-raw"></div>
@@ -1063,7 +1179,10 @@
           <span class="m-num" id="m-m2-num">—</span>
         </div>
         <div class="metric-row">
-          <a class="m-name" href="about.html#m-yc">Yield Curve (10Y-2Y)</a>
+          <a class="m-name" href="about.html#m-yc">
+            <span class="en">Yield Curve (10Y-2Y)</span>
+            <span class="ua">Крива доходності (10Y-2Y)</span>
+          </a>
           <div>
             <div class="bar-wrap"><div class="bar-fill" id="m-ry-bar"></div></div>
             <div class="m-raw" id="m-ry-raw"></div>
@@ -1071,7 +1190,10 @@
           <span class="m-num" id="m-ry-num">—</span>
         </div>
         <div class="metric-row">
-          <a class="m-name" href="about.html#m-funding">Funding Rate</a>
+          <a class="m-name" href="about.html#m-funding">
+            <span class="en">Funding Rate</span>
+            <span class="ua">Ставка фінансування</span>
+          </a>
           <div>
             <div class="bar-wrap"><div class="bar-fill" id="m-funding-bar"></div></div>
             <div class="m-raw" id="m-funding-raw"></div>
@@ -1084,15 +1206,20 @@
     <!-- History Chart Panel at the bottom -->
     <div class="glass-panel" style="margin-top:24px">
       <div class="section-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
-        <h2>History Chart</h2>
+        <h2>
+          <span class="en">History Chart</span>
+          <span class="ua">Історичний графік</span>
+        </h2>
         <div class="chart-legend" style="display:flex; gap:16px; font-size:0.75rem; font-weight:600;">
           <span style="display:flex; align-items:center; gap:6px; color:#f7931a;">
             <span style="display:inline-block; width:12px; height:3px; background:#f7931a; border-radius:2px; box-shadow:0 0 6px #f7931a;"></span>
-            Risk Score
+            <span class="en">Risk Score</span>
+            <span class="ua">Оцінка ризику</span>
           </span>
           <span style="display:flex; align-items:center; gap:6px; color:#10b981;">
             <span style="display:inline-block; width:12px; height:3px; background:#10b981; border-radius:2px; box-shadow:0 0 6px #10b981;"></span>
-            BTC Price
+            <span class="en">BTC Price</span>
+            <span class="ua">Ціна BTC</span>
           </span>
         </div>
       </div>
@@ -1102,10 +1229,50 @@
 
   <footer id="footer">Source: data.json</footer>
   <p class="disclaimer">
-    This dashboard is for informational purposes only and does not constitute financial advice. All data is automatically collected from public sources. Any decisions to buy or sell assets are made solely at your own risk.
+    <span class="en">This dashboard is for informational purposes only and does not constitute financial advice. All data is automatically collected from public sources. Any decisions to buy or sell assets are made solely at your own risk.</span>
+    <span class="ua">Цей дашборд створений виключно з інформаційною метою і не є фінансовою порадою. Всі дані збираються автоматично з публічних джерел. Будь-які рішення про купівлю чи продаж активів приймаються вами на власний ризик.</span>
   </p>
 
   <script>
+    // Language switcher
+    function setLang(lang) {
+      document.body.className = 'lang-' + lang;
+      const btnEn = document.getElementById('btn-en');
+      const btnUa = document.getElementById('btn-ua');
+      if (btnEn) btnEn.classList.toggle('active', lang === 'en');
+      if (btnUa) btnUa.classList.toggle('active', lang === 'ua');
+      localStorage.setItem('bbr-lang', lang);
+      document.title = lang === 'ua' ? 'Індекс ризику купівлі Bitcoin' : 'Bitcoin Buy Risk Index';
+
+      // Update tooltips dynamically
+      const sWarn = document.getElementById('s-warn');
+      if (sWarn) {
+        sWarn.title = lang === 'ua' 
+          ? 'Один або кілька індикаторів суперечать загальному напрямку індексу'
+          : 'One or more key indicators contradicts the overall index direction';
+      }
+      
+      const ocWarn = document.getElementById('oc-warn');
+      if (ocWarn) {
+        ocWarn.title = lang === 'ua'
+          ? 'Один або кілька ончейн-показників суперечать загальному балу'
+          : 'One or more on-chain metrics contradicts the on-chain subscore';
+      }
+      
+      const techWarn = document.getElementById('tech-warn');
+      if (techWarn) {
+        techWarn.title = lang === 'ua'
+          ? 'Один або кілька тех/макро показників суперечать загальному балу'
+          : 'One or more tech/macro metrics contradicts the tech subscore';
+      }
+    }
+
+    // Automatically detect and restore language
+    const browserLang = (navigator.language || navigator.userLanguage || '').toLowerCase();
+    const defaultLang = browserLang.startsWith('uk') || browserLang.startsWith('ua') ? 'ua' : 'en';
+    const saved = localStorage.getItem('bbr-lang') || defaultLang;
+    setLang(saved);
+
     // Slider maps
     function mapNupl(v)  { if(v==null)return null; v=Math.max(-50,Math.min(100,v));    return Math.round(((v+50)/150)*100); }
     function mapMvrv(v)  { if(v==null)return null; v=Math.max(-2,Math.min(5,v));       return Math.round(((v+2)/7)*100); }
@@ -1122,6 +1289,27 @@
     function mapYieldCurve(v) { if(v==null)return null; v=Math.max(-1.0,Math.min(2.0,v)); return Math.round(((2.0-v)/3.0)*100); }
     function mapCvdd(v)  { if(v==null)return null; v=Math.max(1,Math.min(5,v)); return Math.round(Math.log10(v)/Math.log10(5)*100); }
     function mapRhodl(v) { if(v==null)return null; v=Math.max(100,Math.min(10000,v));  return Math.round((Math.log10(v)-2)/(4-2)*100); }
+    
+    function mapEtfFlow(v) {
+      if(v == null) return null;
+      const num = typeof v === 'object' ? v.value : v;
+      if(num == null) return null;
+      const f = parseFloat(num);
+      const MIN_VAL = -2000.0;
+      const MID_VAL = 750.0;
+      const MAX_VAL = 4000.0;
+      let score;
+      if (f <= MIN_VAL) {
+        score = 0.0;
+      } else if (f >= MAX_VAL) {
+        score = 100.0;
+      } else if (f < MID_VAL) {
+        score = ((f - MIN_VAL) / (MID_VAL - MIN_VAL)) * 50.0;
+      } else {
+        score = 50.0 + ((f - MID_VAL) / (MAX_VAL - MID_VAL)) * 50.0;
+      }
+      return Math.round(Math.max(0.0, Math.min(100.0, score)));
+    }
     
     function mapFunding(fr) {
       if(!fr) return null;
@@ -1324,7 +1512,8 @@
       const mmScore  = mapMayerMultiple(mm);
 
       setMetric('cipherb', cbScore,
-        cb ? 'wt1=' + (cb.wt1!=null?cb.wt1.toFixed(1):'--') + '  score=' + (cb.weekly_score!=null?cb.weekly_score.toFixed(1):'--') : null);
+        cb ? `<span class="en">wt1=${cb.wt1!=null?cb.wt1.toFixed(1):'--'} &middot; score=${cb.weekly_score!=null?cb.weekly_score.toFixed(1):'--'}</span>` +
+             `<span class="ua">wt1=${cb.wt1!=null?cb.wt1.toFixed(1):'--'} &middot; бал=${cb.weekly_score!=null?cb.weekly_score.toFixed(1):'--'}</span>` : null);
       
       const techDivBadge = document.getElementById('tech-div-badge');
       if(techDivBadge && cb) {
@@ -1334,32 +1523,63 @@
           techDivBadge.style.background = 'rgba(239, 68, 68, 0.1)';
           techDivBadge.style.border = '1px solid rgba(239, 68, 68, 0.2)';
           techDivBadge.style.display = 'inline-block';
-          techDivBadge.title = 'CipherB bearish divergence (1w): price is higher, wt1 is lower';
         } else if(cb.fast_bullish_div) {
           techDivBadge.textContent = '▲ div'; 
           techDivBadge.style.color = '#10b981'; 
           techDivBadge.style.background = 'rgba(16, 185, 129, 0.1)';
           techDivBadge.style.border = '1px solid rgba(16, 185, 129, 0.2)';
           techDivBadge.style.display = 'inline-block';
-          techDivBadge.title = 'CipherB bullish divergence (1w): price is lower, wt1 is higher';
         } else {
           techDivBadge.style.display = 'none';
         }
       }
       
       setMetric('mayer', mmScore,
-        mm ? 'val=' + mm.value.toFixed(2) + '  200DMA=$' + Math.round(mm.dma_200).toLocaleString() : null);
+        mm ? `<span class="en">val=${mm.value.toFixed(2)} &middot; 200DMA=$${Math.round(mm.dma_200).toLocaleString()}</span>` +
+             `<span class="ua">знач=${mm.value.toFixed(2)} &middot; 200DMA=$${Math.round(mm.dma_200).toLocaleString()}</span>` : null);
+      
+      // Spot ETF Flows
+      const etf = mv('etf_flows');
+      const etfScore = mapEtfFlow(etf);
+      const formatFlow = val => {
+        if (val == null) return '--';
+        const sign = val > 0 ? '+' : '';
+        return sign + '$' + Math.round(val).toLocaleString() + 'M';
+      };
+      const etfRaw = etf ? 
+        `<span class="en">14d: ${formatFlow(etf.value)} &middot; daily: ${formatFlow(etf.daily_flow)}</span>` +
+        `<span class="ua">14д: ${formatFlow(etf.value)} &middot; денний: ${formatFlow(etf.daily_flow)}</span>`
+        : null;
+      setMetric('etf', etfScore, etfRaw);
+
       setMetric('m2',  mapM2(m2raw), m2raw != null ? m2raw.toFixed(2)+'%' : null);
       
+      function translateFgLabel(lbl) {
+        if (!lbl) return '';
+        const map = {
+          'Extreme Fear': 'Екстремальний страх',
+          'Fear': 'Страх',
+          'Neutral': 'Нейтрально',
+          'Greed': 'Жадібність',
+          'Extreme Greed': 'Екстремальна жадібність'
+        };
+        return map[lbl] || lbl;
+      }
       const fgAvg = fg != null && typeof fg === 'object' ? (fg.avg_7d != null ? fg.avg_7d : fg.latest) : fg;
       const fgToday = fg != null && typeof fg === 'object' ? fg.latest : fg;
-      const fgRaw = fgAvg != null ? 'avg7d=' + fgAvg + (fgToday != null && fgToday !== fgAvg ? '  today=' + fgToday : '') + (fgLbl ? '  ' + fgLbl : '') : null;
+      const fgRaw = fgAvg != null ? 
+        `<span class="en">avg7d=${fgAvg}${fgToday != null && fgToday !== fgAvg ? '  today=' + fgToday : ''}${fgLbl ? '  ' + fgLbl : ''}</span>` +
+        `<span class="ua">середній7д=${fgAvg}${fgToday != null && fgToday !== fgAvg ? '  сьогодні=' + fgToday : ''}${fgLbl ? '  ' + translateFgLabel(fgLbl) : ''}</span>`
+        : null;
       setMetric('fg',  mapFG(fg), fgRaw);
       setMetric('ry',  mapYieldCurve(yc), yc != null ? yc.toFixed(2)+'%' : null);
       
       const frScore = mapFunding(fr);
-      setMetric('funding', frScore,
-        fr ? 'avg7d=' + (fr.avg_7d!=null?fr.avg_7d.toFixed(4):'--') + '%  latest=' + (fr.latest!=null?fr.latest.toFixed(4):'--') + '%' : null);
+      const frRaw = fr ? 
+        `<span class="en">avg7d=${fr.avg_7d!=null?fr.avg_7d.toFixed(4):'--'}% &middot; latest=${fr.latest!=null?fr.latest.toFixed(4):'--'}%</span>` +
+        `<span class="ua">середній7д=${fr.avg_7d!=null?fr.avg_7d.toFixed(4):'--'}% &middot; поточний=${fr.latest!=null?fr.latest.toFixed(4):'--'}%</span>`
+        : null;
+      setMetric('funding', frScore, frRaw);
 
       // Tactical Highlights (Leverage extremes & capitulation)
       const mainCard = document.getElementById('main-card');
@@ -1389,12 +1609,12 @@
           window.activeTacticalState = 'tactical-buy';
           
           if (mainBadge) {
-            mainBadge.textContent = 'Buy Confirmed';
+            mainBadge.innerHTML = '<span class="en">Buy Confirmed</span><span class="ua">Купівля підтверджена</span>';
             mainBadge.classList.add('buy');
             mainBadge.style.display = 'inline-flex';
           }
           if (techBadge) {
-            techBadge.textContent = 'Buy Confirmed';
+            techBadge.innerHTML = '<span class="en">Buy Confirmed</span><span class="ua">Купівля підтверджена</span>';
             techBadge.classList.add('buy');
             techBadge.style.display = 'inline-flex';
           }
@@ -1408,12 +1628,12 @@
           window.activeTacticalState = 'tactical-overheat';
           
           if (mainBadge) {
-            mainBadge.textContent = 'Leverage Warning';
+            mainBadge.innerHTML = '<span class="en">Leverage Warning</span><span class="ua">Сигнал перегріву</span>';
             mainBadge.classList.add('overheat');
             mainBadge.style.display = 'inline-flex';
           }
           if (techBadge) {
-            techBadge.textContent = 'Leverage Warning';
+            techBadge.innerHTML = '<span class="en">Leverage Warning</span><span class="ua">Сигнал перегріву</span>';
             techBadge.classList.add('overheat');
             techBadge.style.display = 'inline-flex';
           }
@@ -1424,7 +1644,7 @@
       if (finalVal != null) {
         const allIndScores = [
           mapRhodl(rhodl), mapMvrv(mvrv), mapCvdd(cvdd), mapNupl(nupl), mapAsopr(asopr),
-          cbScore, mmScore, mapFG(fg), mapYieldCurve(yc), mapM2(m2raw)
+          cbScore, mmScore, etfScore, mapFG(fg), mapYieldCurve(yc), mapM2(m2raw)
         ].filter(s => s != null);
         const hasContra = allIndScores.some(s =>
           (finalVal <= 40 && s >= 65) || (finalVal >= 60 && s <= 35)
@@ -1442,12 +1662,21 @@
       
       const tcScore = data.tech_score;
       if (tcScore != null) {
-        const tcInds = [cbScore, mmScore, mapFG(fg), mapYieldCurve(yc), mapM2(m2raw)].filter(s => s != null);
+        const tcInds = [cbScore, mmScore, etfScore, mapFG(fg), mapYieldCurve(yc), mapM2(m2raw)].filter(s => s != null);
         const tcContra = tcInds.some(s => (tcScore < 65 && s >= 65) || (tcScore > 35 && s <= 35));
         document.getElementById('tech-warn').style.display = tcContra ? 'inline' : 'none';
       }
 
-      document.getElementById('footer').textContent = 'Source: data.json \u00B7 ' + (data.timestamp ? new Date(data.timestamp).toLocaleString() : '');
+      const dateStr = data.timestamp ? new Date(data.timestamp).toLocaleString() : '';
+      document.getElementById('footer').innerHTML = `
+        <span class="en">Source: data.json &middot; ${dateStr}</span>
+        <span class="ua">Джерело: data.json &middot; ${dateStr}</span>
+      `;
+
+      // Trigger lang update to apply tooltip translations
+      const bLang = (navigator.language || navigator.userLanguage || '').toLowerCase();
+      const defLang = bLang.startsWith('uk') || bLang.startsWith('ua') ? 'ua' : 'en';
+      setLang(localStorage.getItem('bbr-lang') || defLang);
 
       _chartData = data;
       drawCharts(data);

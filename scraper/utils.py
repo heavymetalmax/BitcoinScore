@@ -124,6 +124,7 @@ def is_valid_metric(name, value):
             'm2': (None, None),
             'real_yield': (-5, 10),   # FRED DFII10 US 10Y Real Yield (%)
             'rhodl_ratio': (0, 500000),  # RHODL Ratio (BMP)
+            'etf_flows': (None, None),
         }
         if name in thresholds:
             lo, hi = thresholds[name]

@@ -526,19 +526,20 @@
         </tr>
       </thead>
       <tbody>
-        <tr><td><strong>On-Chain (OC)</strong></td><td>50%</td><td>—</td></tr>
+        <tr><td><strong><span class="en">On-Chain (OC)</span><span class="ua">Ончейн (OC)</span></strong></td><td>50%</td><td>—</td></tr>
         <tr><td>&bull; NUPL</td><td>—</td><td>30%</td></tr>
         <tr><td>&bull; MVRV Z-Score</td><td>—</td><td>20%</td></tr>
         <tr><td>&bull; RHODL Ratio</td><td>—</td><td>20%</td></tr>
         <tr><td>&bull; CVDD Ratio</td><td>—</td><td>15%</td></tr>
         <tr><td>&bull; aSOPR (7d SMA)</td><td>—</td><td>15%</td></tr>
         
-        <tr><td><strong>Tech / Macro</strong></td><td>50%</td><td>—</td></tr>
-        <tr><td>&bull; Cipher B Oscillator</td><td>—</td><td>50%</td></tr>
-        <tr><td>&bull; Mayer Multiple</td><td>—</td><td>20%</td></tr>
-        <tr><td>&bull; Fear &amp; Greed Index</td><td>—</td><td>10%</td></tr>
-        <tr><td>&bull; Yield Curve Spread (10Y-2Y)</td><td>—</td><td>10%</td></tr>
-        <tr><td>&bull; Global M2 YoY Growth</td><td>—</td><td>10%</td></tr>
+        <tr><td><strong><span class="en">Tech / Macro</span><span class="ua">Технічні / Макро</span></strong></td><td>50%</td><td>—</td></tr>
+        <tr><td>&bull; <span class="en">Cipher B Oscillator</span><span class="ua">Осцилятор Cipher B</span></td><td>—</td><td>40%</td></tr>
+        <tr><td>&bull; <span class="en">Mayer Multiple</span><span class="ua">Мультиплікатор Майєра</span></td><td>—</td><td>20%</td></tr>
+        <tr><td>&bull; <span class="en">Spot ETF Flows (14d)</span><span class="ua">Потоки спотових ETF (14д)</span></td><td>—</td><td>10%</td></tr>
+        <tr><td>&bull; <span class="en">Fear &amp; Greed Index</span><span class="ua">Індекс страху та жадібності</span></td><td>—</td><td>10%</td></tr>
+        <tr><td>&bull; <span class="en">Yield Curve Spread (10Y-2Y)</span><span class="ua">Спред кривої доходності (10Y-2Y)</span></td><td>—</td><td>10%</td></tr>
+        <tr><td>&bull; <span class="en">Global M2 YoY Growth</span><span class="ua">Зростання глобального M2 YoY</span></td><td>—</td><td>10%</td></tr>
       </tbody>
     </table>
   </div>
@@ -574,12 +575,16 @@
   </h2>
 
   <h3 id="m-cipherb">Cipher B Oscillator</h3>
-  <p class="en">An implementation of the WaveTrend momentum oscillator evaluated on a weekly timeframe. The weekly scale filters out daily noise, pinpointing major momentum shifts: 0 indicates deep correction/capitulation, and 100 represents an overextended bull market. Weight: <strong>50%</strong> of Tech/Macro.</p>
-  <p class="ua">Реалізація осцилятора WaveTrend на тижневому таймфреймі. Тижневий масштаб фільтрує денний шум, чітко визначаючи зміни імпульсу: 0 вказує на глибоку корекцію/капітуляцію, а 100 — на перегрітий бичачий ринок. Вага: <strong>50%</strong> від Tech/Macro.</p>
+  <p class="en">An implementation of the WaveTrend momentum oscillator evaluated on a weekly timeframe. The weekly scale filters out daily noise, pinpointing major momentum shifts: 0 indicates deep correction/capitulation, and 100 represents an overextended bull market. Weight: <strong>40%</strong> of Tech/Macro.</p>
+  <p class="ua">Реалізація осцилятора WaveTrend на тижневому таймфреймі. Тижневий масштаб фільтрує денний шум, чітко визначаючи зміни імпульсу: 0 вказує на глибоку корекцію/капітуляцію, а 100 — на перегрітий бичачий ринок. Вага: <strong>40%</strong> від Tech/Macro.</p>
 
   <h3 id="m-mayer">Mayer Multiple</h3>
   <p class="en">Calculates the simple ratio between Bitcoin's price and its 200-day moving average (200DMA). It acts as a mean-reverting trigger, mapped linearly: values &le;0.5 represent extreme undervaluation, and &ge;2.1 represent major overvaluation. Weight: <strong>20%</strong> of Tech/Macro.</p>
   <p class="ua">Співвідношення між ціною Bitcoin та його 200-денною ковзною середньою (200DMA). Використовується як показник повернення до середнього: значення &le;0.5 вказують на екстремальну недооціненість, а &ge;2.1 — на перегрітість. Вага: <strong>20%</strong> від Tech/Macro.</p>
+
+  <h3 id="m-etf"><span class="en">Spot ETF Flows (14d)</span><span class="ua">Потоки спотових ETF (14д)</span></h3>
+  <p class="en">Tracks the 14-day rolling sum of net inflows into US Spot Bitcoin ETFs. This represents institutional liquidity momentum. Values &le; -$2.0B represent extreme capitulation/outflows (low risk, 0 points), while values &ge; +$4.0B represent speculative euphoria/overheating (high risk, 100 points). Weight: <strong>10%</strong> of Tech/Macro.</p>
+  <p class="ua">Відстежує 14-денну ковзну суму чистих потоків у спотові Bitcoin ETF у США. Це відображає інституційний імпульс ліквідності. Значення &le; -$2.0B свідчать про капітуляцію та відтік капіталу (низький ризик, 0 балів), тоді як значення &ge; +$4.0B — про ейфорію та локальний перегрів (високий ризик, 100 балів). Вага: <strong>10%</strong> від Tech/Macro.</p>
 
   <h3 id="m-fg">Fear &amp; Greed Index</h3>
   <p class="en">A contrarian sentiment proxy measuring social media, search trends, volatility, and volume. We use a <strong>7-day moving average</strong> instead of the daily reading to avoid transient spikes. A lower score (Fear) signals accumulation opportunities; a high score (Greed) alerts to caution. Weight: <strong>10%</strong> of Tech/Macro.</p>
@@ -635,22 +640,22 @@
         </tr>
       </thead>
       <tbody>
-        <tr><td>2018-12-15</td><td>Cycle Bear Bottom</td><td>$3,200</td><td>20</td><td>8</td><td><span class="zone-0"><strong>14</strong></span></td></tr>
-        <tr><td>2019-06-26</td><td>Local Top Peak</td><td>$13,880</td><td>66</td><td>90</td><td><span class="zone-100"><strong>78</strong></span></td></tr>
-        <tr><td>2020-03-13</td><td>COVID Crash Low</td><td>$3,800</td><td>39</td><td>28</td><td><span class="zone-25"><strong>34</strong></span></td></tr>
-        <tr><td>2020-10-01</td><td>Pre-Bull Run Start</td><td>$10,800</td><td>54</td><td>54</td><td><span class="zone-50"><strong>54</strong></span></td></tr>
-        <tr><td>2021-04-14</td><td>Spring Cycle ATH</td><td>$63,500</td><td>87</td><td>82</td><td><span class="zone-100"><strong>84</strong></span></td></tr>
-        <tr><td>2021-07-20</td><td>Summer Correction Dip</td><td>$29,800</td><td>60</td><td>18</td><td><span class="zone-25"><strong>39</strong></span></td></tr>
-        <tr><td>2021-11-10</td><td>November Cycle ATH</td><td>$69,000</td><td>80</td><td>82</td><td><span class="zone-100"><strong>81</strong></span></td></tr>
-        <tr><td>2022-06-18</td><td>Capitulation Low</td><td>$17,600</td><td>30</td><td>5</td><td><span class="zone-0"><strong>18</strong></span></td></tr>
-        <tr><td>2022-11-21</td><td>FTX Bankruptcy Bottom</td><td>$15,500</td><td>23</td><td>12</td><td><span class="zone-0"><strong>18</strong></span></td></tr>
-        <tr><td>2023-01-14</td><td>Cycle Recovery Start</td><td>$21,000</td><td>32</td><td>37</td><td><span class="zone-25"><strong>34</strong></span></td></tr>
-        <tr><td>2024-03-14</td><td>March 2024 ATH</td><td>$73,500</td><td>77</td><td>94</td><td><span class="zone-100"><strong>86</strong></span></td></tr>
-        <tr><td>2025-01-20</td><td>January 2025 Top</td><td>$109,000</td><td>73</td><td>88</td><td><span class="zone-100"><strong>80</strong></span></td></tr>
-        <tr><td>2025-09-26</td><td>Close ATH Peak</td><td>$123,000</td><td>64</td><td>60</td><td><span class="zone-75"><strong>62</strong></span></td></tr>
-        <tr><td>2025-09-29</td><td>Intraday ATH Peak</td><td>$129,000</td><td>65</td><td>74</td><td><span class="zone-75"><strong>70</strong></span></td></tr>
-        <tr><td>2025-11-10</td><td>Post-ATH Dump Low</td><td>$94,000</td><td>61</td><td>19</td><td><span class="zone-50"><strong>40</strong></span></td></tr>
-        <tr><td>2026-04-25</td><td>Recent Milestone (Today)</td><td>$77,500</td><td>49</td><td>37</td><td><span class="zone-50"><strong>43</strong></span></td></tr>
+        <tr><td>2018-12-15</td><td><span class="en">Cycle Bear Bottom</span><span class="ua">Дно ведмежого ринку</span></td><td>$3,200</td><td>20</td><td>18</td><td><span class="zone-0"><strong>19</strong></span></td></tr>
+        <tr><td>2019-06-26</td><td><span class="en">Local Top Peak</span><span class="ua">Локальний пік</span></td><td>$13,880</td><td>66</td><td>80</td><td><span class="zone-75"><strong>73</strong></span></td></tr>
+        <tr><td>2020-03-13</td><td><span class="en">COVID Crash Low</span><span class="ua">Дно паніки COVID-19</span></td><td>$3,800</td><td>39</td><td>36</td><td><span class="zone-25"><strong>38</strong></span></td></tr>
+        <tr><td>2020-10-01</td><td><span class="en">Pre-Bull Run Start</span><span class="ua">Початок бичачого тренду</span></td><td>$10,800</td><td>54</td><td>58</td><td><span class="zone-50"><strong>56</strong></span></td></tr>
+        <tr><td>2021-04-14</td><td><span class="en">Spring Cycle ATH</span><span class="ua">Весняний пік ATH</span></td><td>$63,500</td><td>87</td><td>78</td><td><span class="zone-100"><strong>82</strong></span></td></tr>
+        <tr><td>2021-07-20</td><td><span class="en">Summer Correction Dip</span><span class="ua">Літня корекція</span></td><td>$29,800</td><td>60</td><td>32</td><td><span class="zone-50"><strong>46</strong></span></td></tr>
+        <tr><td>2021-11-10</td><td><span class="en">November Cycle ATH</span><span class="ua">Осінній ATH пік</span></td><td>$69,000</td><td>80</td><td>79</td><td><span class="zone-100"><strong>80</strong></span></td></tr>
+        <tr><td>2022-06-18</td><td><span class="en">Capitulation Low</span><span class="ua">Дно капітуляції</span></td><td>$17,600</td><td>30</td><td>17</td><td><span class="zone-25"><strong>24</strong></span></td></tr>
+        <tr><td>2022-11-21</td><td><span class="en">FTX Bankruptcy Bottom</span><span class="ua">Дно банкрутства FTX</span></td><td>$15,500</td><td>23</td><td>20</td><td><span class="zone-25"><strong>22</strong></span></td></tr>
+        <tr><td>2023-01-14</td><td><span class="en">Cycle Recovery Start</span><span class="ua">Початок відновлення</span></td><td>$21,000</td><td>32</td><td>39</td><td><span class="zone-25"><strong>36</strong></span></td></tr>
+        <tr><td>2024-03-14</td><td><span class="en">March 2024 ATH</span><span class="ua">Максимум березня 2024</span></td><td>$73,500</td><td>77</td><td>77</td><td><span class="zone-75"><strong>77</strong></span></td></tr>
+        <tr><td>2025-01-20</td><td><span class="en">January 2025 Top</span><span class="ua">Вершина січня 2025</span></td><td>$109,000</td><td>73</td><td>72</td><td><span class="zone-75"><strong>72</strong></span></td></tr>
+        <tr><td>2025-09-26</td><td><span class="en">Close ATH Peak</span><span class="ua">Максимум закриття ATH</span></td><td>$123,000</td><td>64</td><td>49</td><td><span class="zone-50"><strong>56</strong></span></td></tr>
+        <tr><td>2025-09-29</td><td><span class="en">Intraday ATH Peak</span><span class="ua">Абсолютний пік ATH (в межах дня)</span></td><td>$129,000</td><td>65</td><td>60</td><td><span class="zone-75"><strong>62</strong></span></td></tr>
+        <tr><td>2025-11-10</td><td><span class="en">Post-ATH Dump Low</span><span class="ua">Локальне дно дампу</span></td><td>$94,000</td><td>61</td><td>16</td><td><span class="zone-25"><strong>38</strong></span></td></tr>
+        <tr><td>2026-04-25</td><td><span class="en">Recent Milestone (Today)</span><span class="ua">Поточна ситуація</span></td><td>$77,500</td><td>49</td><td>36</td><td><span class="zone-50"><strong>42</strong></span></td></tr>
       </tbody>
     </table>
   </div>
@@ -661,18 +666,18 @@
   </h2>
   
   <h3>1. <span class="en">High Separation Gap</span><span class="ua">Висока роздільна здатність</span></h3>
-  <p class="en">The index exhibits a significant separation between market cycle bottoms and tops. The average score at confirmed bottoms (2018, COVID, Capitulation, FTX) is <span class="zone-25"><strong>21</strong></span>. The average score at confirmed tops (2021 spring/autumn, 2024, 2025 tops) is <span class="zone-100"><strong>82.75</strong></span>. A ~62-point separation makes this index highly reliable for long-term positioning.</p>
-  <p class="ua">Індекс демонструє чітке розділення між макро-вершинами та дном циклів. Середній показник на підтверджених днах становить <span class="zone-25"><strong>21</strong></span>. Середнє значення на підтверджених вершинах (ATH) становить <span class="zone-100"><strong>82.75</strong></span>. Розрив у ~62 пункти робить індекс надійним орієнтиром для довгострокового накопичення.</p>
+  <p class="en">The index exhibits a significant separation between market cycle bottoms and tops. The average score at confirmed bottoms (2018, COVID, Capitulation, FTX) is <span class="zone-25"><strong>22.75</strong></span>. The average score at confirmed tops (2021 spring/autumn, 2024, 2025 tops) is <span class="zone-100"><strong>75.8</strong></span>. A ~53-point separation makes this index highly reliable for long-term positioning.</p>
+  <p class="ua">Індекс демонструє чітке розділення між макро-вершинами та дном циклів. Середній показник на підтверджених днах становить <span class="zone-25"><strong>22.75</strong></span>. Середнє значення на підтверджених вершинах (ATH) становить <span class="zone-100"><strong>75.8</strong></span>. Розрив у ~53 пункти робить індекс надійним орієнтиром для довгострокового накопичення.</p>
 
   <h3>2. <span class="en">Diminishing Peaks Phenomenon</span><span class="ua">Ефект згасання піків</span></h3>
-  <p class="en">Despite Bitcoin making a new price peak in late 2025 ($129,000, representing +76% over the 2024 high), the risk index only peaked at 70. This demonstrates that as mature, institutional capital (ETFs and corporate balance sheets) drives price, the underling on-chain metrics (such as MVRV Z-score and RHODL waves) do not reach the extreme speculative levels seen in 2018 or 2021. 
-  <strong>Takeaway: The practical cycle exit window starts at ~70+ in the modern era, rather than the ~85+ seen in earlier cycles.</strong></p>
-  <p class="ua">Незважаючи на новий ціновий ATH наприкінці 2025 року ($129,000, що на 76% більше за пік 2024 року), індекс ризику досяг лише 70. Це доводить, що приплив інституційного капіталу (ETF та покупки корпорацій) штовхає ціну вгору без екстремального перегріву ончейн-метрик (таких як MVRV або RHODL), які спостерігалися в 2018 чи 2021 роках.
-  <strong>Практичний висновок: у сучасну епоху зону продажу варто розглядати вже в діапазоні ~70+, а не очікувати ~85+.</strong></p>
+  <p class="en">Despite Bitcoin making a new price peak in late 2025 ($129,000, representing +76% over the 2024 high), the risk index only peaked at 62. This demonstrates that as mature, institutional capital (ETFs and corporate balance sheets) drives price, the underling on-chain metrics (such as MVRV Z-score and RHODL waves) do not reach the extreme speculative levels seen in 2018 or 2021. 
+  <strong>Takeaway: The practical cycle exit window starts at ~62+ in the modern era, rather than the ~85+ seen in earlier cycles.</strong></p>
+  <p class="ua">Незважаючи на новий ціновий ATH наприкінці 2025 року ($129,000, що на 76% більше за пік 2024 року), індекс ризику досяг лише 62. Це доводить, що приплив інституційного капіталу (ETF та покупки корпорацій) штовхає ціну вгору без екстремального перегріву ончейн-метрик (таких як MVRV або RHODL), які спостерігалися в 2018 чи 2021 роках.
+  <strong>Практичний висновок: у сучасну епоху зону продажу варто розглядати вже в діапазоні ~62+, а не очікувати ~85+.</strong></p>
 
   <h3>3. <span class="en">Complimentary Sentiment</span><span class="ua">Комплементарність сентименту</span></h3>
-  <p class="en">While on-chain metrics are the anchor of cycle-scale trends, technical/macro signals are sensitive to shorter-term events. For example, during the Post-ATH Dump in November 2025, the On-Chain score remained structurally neutral (61), but the Tech/Macro score collapsed to 19, signaling a healthy, low-risk tactical buying window inside a structural trend.</p>
-  <p class="ua">У той час як ончейн-метрики відіграють роль якоря для довгострокових циклів, технічні сигнали швидше реагують на короткострокові події. Наприклад, під час дампу після ATH у листопаді 2025 року ончейн-скор залишався нейтральним (61), але тех-скор упав до 19, вказуючи на чудову тактичну точку входу всередині висхідного тренду.</p>
+  <p class="en">While on-chain metrics are the anchor of cycle-scale trends, technical/macro signals are sensitive to shorter-term events. For example, during the Post-ATH Dump in November 2025, the On-Chain score remained structurally neutral (61), but the Tech/Macro score collapsed to 16, signaling a healthy, low-risk tactical buying window inside a structural trend.</p>
+  <p class="ua">У той час як ончейн-метрики відіграють роль якоря для довгострокових циклів, технічні сигнали швидше реагують на короткострокові події. Наприклад, під час дампу після ATH у листопаді 2025 року ончейн-скор залишався нейтральним (61), але тех-скор упав до 16, вказуючи на чудову тактичну точку входу всередині висхідного тренду.</p>
 
   <div class="disclaimer-box">
     <p class="en">This methodology document is for educational and informational purposes only. It is not financial advice. All data and calculations are processed automatically and reflect public historical records. Any decisions to trade are made solely at your own risk.</p>

@@ -16,7 +16,7 @@ sys.path.insert(0, '.')
 
 from scraper.scoring import (
     map_nupl, map_mvrv, map_fear_greed,
-    map_m2, map_yield_curve, map_cvdd, map_rhodl, map_asopr, OC_WEIGHTS, TECH_WEIGHTS, weighted_score
+    map_m2, map_yield_curve, map_cvdd, map_rhodl, map_asopr, map_etf_flow, OC_WEIGHTS, TECH_WEIGHTS, weighted_score
 )
 from scraper.smc import fetch_ohlcv_kraken as fetch_ohlcv_binance, compute_smc
 
@@ -232,6 +232,23 @@ def load_cipherb_series():
     return result
 
 
+def load_etf_flows_series():
+    """Return [(date_str, 14d_flow_sum), ...] from data/history/etf_flows.json."""
+    import os
+    path = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', 'data', 'history', 'etf_flows.json'))
+    if not os.path.exists(path):
+        return []
+    with open(path) as f:
+        data = json.load(f)
+    result = []
+    for p in data:
+        date_str = p['timestamp'][:10]
+        val = p.get('etf_flow_14d')
+        result.append((date_str, val))
+    result.sort(key=lambda x: x[0])
+    return result
+
+
 def compute_smc_at_date(ohlcv_series, target_date, size=10):
     """
     Compute SMC position using only candles available up to target_date.
@@ -308,12 +325,16 @@ def run():
     cb_series = load_cipherb_series()
     print(f"  CipherB weekly: {len(cb_series)} points\n")
 
+    print("  [8/8] ETF flows from data/history/etf_flows.json...")
+    etf_series = load_etf_flows_series()
+    print(f"        etf_flows: {len(etf_series)} points\n")
+
     # ── Compute scores at milestones ─────────────────────────────────────────
     print(f"{'Date':<12} {'Label':<22} {'BTC':>8}  "
           f"{'OC':>4} {'Tech':>4} {'Final':>5}  "
           f"{'NUPL':>4} {'MVRV':>4} {'SOPR':>4} {'RHDL':>4} {'CVDD':>4}  "
-          f"{'FG':>3} {'RY':>4} {'M2':>4} {'CB':>4} {'SMC':>4}")
-    print("-" * 116)
+          f"{'FG':>3} {'RY':>4} {'M2':>4} {'CB':>4} {'SMC':>4} {'ETF':>4}")
+    print("-" * 122)
 
     for date_str, label, btc_price in MILESTONES:
         td = parse_date(date_str)
@@ -327,6 +348,7 @@ def run():
         m2      = closest(m2_momentum, td)
         fg      = closest(fg_series, td)
         cb      = closest(cb_series, td)
+        etf_val = closest(etf_series, td)
         s_smc   = compute_smc_at_date(binance_ohlcv, td)
         if s_smc is not None:
             s_smc = round(s_smc)
@@ -340,6 +362,7 @@ def run():
         s_m2    = map_m2(m2)
         s_fg    = map_fear_greed(fg)
         s_cb    = round(max(0, min(100, cb))) if cb is not None else None
+        s_etf   = map_etf_flow(etf_val)
 
         oc_map = {
             'nupl': s_nupl, 'mvrv_z_score': s_mvrv,
@@ -348,8 +371,8 @@ def run():
         }
         # geopolitical_risk excluded
         tech_map = {
-            'cipherb': s_cb, 'm2_yoy': s_m2, 'fear_greed': s_fg, 'real_yield': s_ry,
-            'smc': s_smc,
+            'cipherb': s_cb, 'm2_yoy': s_m2, 'fear_greed': s_fg, 'yield_curve_spread': s_ry,
+            'smc': s_smc, 'etf_flows': s_etf
         }
 
         oc   = weighted_score(OC_WEIGHTS, oc_map)
@@ -370,7 +393,7 @@ def run():
             f"{date_str:<12} {label:<22} ${btc_price:>7,}  "
             f"{fmt(oc)} {fmt(tech)} {fmt(final)}  "
             f"{fmt(s_nupl)} {fmt(s_mvrv)} {fmt(s_asopr)} {fmt(s_rhodl)} {fmt(s_cvdd)}  "
-            f"{fmt(s_fg)} {fmt(s_ry)} {fmt(s_m2)} {fmt(s_cb)} {fmt(s_smc)}"
+            f"{fmt(s_fg)} {fmt(s_ry)} {fmt(s_m2)} {fmt(s_cb)} {fmt(s_smc)} {fmt(s_etf)}"
         )
 
     print("\nNote: Geopolitical Risk excluded (not available historically).")
