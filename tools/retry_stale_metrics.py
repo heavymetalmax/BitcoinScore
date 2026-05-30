@@ -64,7 +64,7 @@ def _build_metric_specs():
 
 
 def _now_iso():
-    return datetime.datetime.utcnow().replace(microsecond=0).isoformat() + 'Z'
+    return datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0, tzinfo=None).isoformat() + 'Z'
 
 
 def _metric_age_hours(metric_entry: dict, data_ts: str) -> float:
