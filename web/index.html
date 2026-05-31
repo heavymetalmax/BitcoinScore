@@ -113,12 +113,13 @@
       --bg-card-hover: #222640;
       --border: rgba(255, 255, 255, 0.10);  /* from 0.03 — visible card outlines */
       --border-hover: rgba(247, 147, 26, 0.40);
-      --text: #eef0f4;
-      --text-name: #a8b2c4;
-      --text-mute: #8892a4;        /* from #6b7280 — more legible */
-      --text-sub: #a8b2c4;
+      /* all fonts = darkest gauge segment colour */
+      --text: #8892a4;
+      --text-name: #8892a4;
+      --text-mute: #8892a4;
+      --text-sub: #8892a4;
       --text-raw: #8892a4;
-      --text-ts: #a8b2c4;
+      --text-ts: #8892a4;
       --bar-bg: rgba(255, 255, 255, 0.08);
       --divider: rgba(255, 255, 255, 0.10);
       --tick: rgba(255, 255, 255, 0.25);
@@ -143,12 +144,13 @@
       --bg-card-hover: #ffffff;
       --border: rgba(0, 0, 0, 0.04);
       --border-hover: rgba(247, 147, 26, 0.35);
-      --text: #0f172a;
-      --text-name: #475569;
-      --text-mute: #64748b;
-      --text-sub: #475569;
-      --text-raw: #64748b;
-      --text-ts: #64748b;
+      /* all fonts = darkest gauge segment colour */
+      --text: #374151;
+      --text-name: #374151;
+      --text-mute: #374151;
+      --text-sub: #374151;
+      --text-raw: #374151;
+      --text-ts: #374151;
       --bar-bg: rgba(0, 0, 0, 0.06);
       --divider: rgba(0, 0, 0, 0.08);
       --tick: rgba(0, 0, 0, 0.15);
@@ -2480,7 +2482,7 @@
       const RIM_GAP      = isSmall ? 2 : 3;
       const TICK_BND_COL = isDark ? '#4a5470' : '#c8cdd4';
       const TICK_CUR_COL = '#f7931a';                        // always max orange
-      const NUM_COL      = isDark ? '#eef0f4' : '#1f2937';
+      const NUM_COL      = isDark ? '#8892a4' : '#374151';  // darkest gauge segment
 
       const dpr    = window.devicePixelRatio || 1;
       const maxW   = isSmall ? 180 : 320;
@@ -2602,19 +2604,52 @@
 
     function redrawAllModernGauges() {
       const style = localStorage.getItem('bbr-style') || 'modern';
-      if (style !== 'modern' || !window._gaugeValues) return;
-      const v = window._gaugeValues;
-      const ocWarn   = document.getElementById('oc-warn');
-      const techWarn = document.getElementById('tech-warn');
-      drawModernGauge(document.getElementById('modern-gauge-canvas'),  v.final,     false, false);
-      drawModernGauge(document.getElementById('gauge-oc'),             v.onchain,   true,  ocWarn   && ocWarn.style.display   !== 'none');
-      drawModernGauge(document.getElementById('gauge-tech'),           v.tech,      true,  techWarn && techWarn.style.display !== 'none');
-      drawModernGauge(document.getElementById('gauge-yesterday'),      v.yesterday, true,  false);
-      drawModernGauge(document.getElementById('gauge-week'),           v.week,      true,  false);
-      // Redraw metric bars
-      document.querySelectorAll('canvas.mbar').forEach(c => {
-        const val = parseFloat(c.dataset.modernValue);
-        if (!isNaN(val)) drawModernBar(c.parentElement, val);
+      const isModern = style === 'modern';
+      if (isModern && window._gaugeValues) {
+        const v = window._gaugeValues;
+        const ocWarn   = document.getElementById('oc-warn');
+        const techWarn = document.getElementById('tech-warn');
+        drawModernGauge(document.getElementById('modern-gauge-canvas'),  v.final,     false, false);
+        drawModernGauge(document.getElementById('gauge-oc'),             v.onchain,   true,  ocWarn   && ocWarn.style.display   !== 'none');
+        drawModernGauge(document.getElementById('gauge-tech'),           v.tech,      true,  techWarn && techWarn.style.display !== 'none');
+        drawModernGauge(document.getElementById('gauge-yesterday'),      v.yesterday, true,  false);
+        drawModernGauge(document.getElementById('gauge-week'),           v.week,      true,  false);
+      }
+
+      // Redraw/toggle metric bars
+      document.querySelectorAll('.metrics-list .bar-wrap').forEach(barWrap => {
+        const fill = barWrap.querySelector('.bar-fill');
+        let cv = barWrap.querySelector('canvas.mbar');
+        if (isModern) {
+          if (fill) fill.style.display = 'none';
+          const v = fill ? parseFloat(fill.dataset.value) || 0 : 0;
+          drawModernBar(barWrap, v);
+          if (cv) cv.style.display = 'block';
+        } else {
+          if (fill) {
+            fill.style.display = 'block';
+            const v = parseFloat(fill.dataset.value) || 0;
+            fill.style.width = v + '%';
+            fill.style.background = scoreColor(v);
+            fill.style.setProperty('--bar-shadow-color', scoreColor(v, 0.5));
+          }
+          if (cv) cv.style.display = 'none';
+        }
+      });
+
+      // Update numbers color
+      document.querySelectorAll('.metric-row').forEach(row => {
+        const num = row.querySelector('.m-num');
+        const fill = row.querySelector('.bar-fill');
+        if (num && fill) {
+          const v = parseFloat(fill.dataset.value) || 0;
+          if (isModern) {
+            const isDarkNum = !document.documentElement.classList.contains('theme-light');
+            num.style.color = (v > 60) ? '#f7931a' : (isDarkNum ? '#8892a4' : '#374151');
+          } else {
+            num.style.color = scoreColor(v);
+          }
+        }
       });
     }
 
@@ -2943,6 +2978,7 @@
       const num = document.getElementById('m-'+id+'-num');
       const raw = document.getElementById('m-'+id+'-raw');
       if (bar) {
+        bar.dataset.value = v;
         const isModern = (localStorage.getItem('bbr-style') || 'modern') === 'modern';
         if (isModern) {
           drawModernBar(bar.parentElement, v);
