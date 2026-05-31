@@ -249,6 +249,12 @@
       background: transparent !important;
       overflow: visible !important;
     }
+    html.style-modern .m-raw {
+      margin-top: 8px;
+    }
+    html.style-modern .score-box .s-sub {
+      margin-top: 12px;
+    }
     /* Modern gauge canvas containers */
     .modern-main-gauge-wrap {
       display: flex;
@@ -956,7 +962,7 @@
       }
       
       .nav-menu {
-        width: 100%;
+        width: fit-content;
         justify-content: flex-start;
       }
       
@@ -1895,8 +1901,8 @@
 
       <div class="score-box">
         <div class="s-label">
-          <span class="en">Last 7 Days</span>
-          <span class="ua">7 днів тому</span>
+          <span class="en">7-day Average</span>
+          <span class="ua">Середнє за 7 днів</span>
         </div>
         <div class="sub-card-value-container">
           <div class="s-value" id="s-week">—</div>
@@ -1906,8 +1912,8 @@
         </div>
         <div class="bar-wrap"><div class="bar-fill" id="b-week" style="width:0%"></div></div>
         <div class="s-sub">
-          <span class="en">Score 7 days ago</span>
-          <span class="ua">Оцінка 7 днів тому</span>
+          <span class="en">7 days average score</span>
+          <span class="ua">Середня оцінка за 7 днів</span>
         </div>
       </div>
     </div>
@@ -2978,8 +2984,8 @@
       const pad = num => String(num).padStart(2, '0');
       
       const timerHtml = `<span class="countdown-icon" style="font-size: 0.85rem; display: inline-block; vertical-align: middle; margin-right: 4px; line-height: 1;">⟳</span>` +
-        `<span class="en">${pad(hours)}h ${pad(minutes)}m ${pad(seconds)}s</span>` +
-        `<span class="ua">${pad(hours)}г ${pad(minutes)}хв ${pad(seconds)}с</span>`;
+        `<span class="en">${pad(hours)}h ${pad(minutes)}m</span>` +
+        `<span class="ua">${pad(hours)}г ${pad(minutes)}хв</span>`;
       
       countdownEl.innerHTML = timerHtml;
     }
@@ -3022,11 +3028,22 @@
         }
       }
 
-      // Yesterday / Last 7 days boxes
+      // Yesterday / 7-day average boxes
       if(data.prev_day && data.prev_day.final_score != null)
         setScore('s-yesterday', 'b-yesterday', data.prev_day.final_score);
-      if(data.prev_week && data.prev_week.final_score != null)
+
+      let avg7d = null;
+      const validHistory = (data.score_history || []).filter(e => e.score != null);
+      if (validHistory.length > 0) {
+        const last7 = validHistory.slice(-7);
+        const sum = last7.reduce((acc, curr) => acc + curr.score, 0);
+        avg7d = Math.round(sum / last7.length);
+      }
+      if (avg7d != null) {
+        setScore('s-week', 'b-week', avg7d);
+      } else if (data.prev_week && data.prev_week.final_score != null) {
         setScore('s-week', 'b-week', data.prev_week.final_score);
+      }
 
       // Trend arrow inside main circle knob (above/below the score)
       const ref = (data.prev_week && data.prev_week.final_score != null)
