@@ -2673,16 +2673,14 @@
         ctx.beginPath(); ctx.moveTo(0, EXT + BAR_H + 2); ctx.lineTo(fillX, EXT + BAR_H + 2); ctx.stroke();
       }
 
-      // 3. Tick at current value — crosses through bar + extensions
-      if (v > 0 && v < 100) {
-        const tickX = (v / 100) * W;
-        ctx.strokeStyle = zoneColor;
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(tickX, 0);
-        ctx.lineTo(tickX, H);
-        ctx.stroke();
-      }
+      // 3. Tick at current value — crosses through bar + extensions (visible at edges)
+      const tickX = Math.max(1, Math.min(W - 1, (v / 100) * W));
+      ctx.strokeStyle = zoneColor;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(tickX, 0);
+      ctx.lineTo(tickX, H);
+      ctx.stroke();
     }
 
     // Modern Chart Rendering with interactive Hover details
