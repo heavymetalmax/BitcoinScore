@@ -967,12 +967,16 @@
         gap: 12px;
       }
       
-      .nav-actions {
+      html.style-classic .nav-menu {
+        width: 100%;
+        justify-content: flex-start;
+      }
+      
+      html.style-modern .nav-actions {
         width: 100%;
         justify-content: space-between;
       }
-      
-      .nav-menu {
+      html.style-modern .nav-menu {
         width: fit-content;
         justify-content: flex-start;
       }
