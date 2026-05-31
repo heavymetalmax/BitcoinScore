@@ -341,6 +341,12 @@
       -webkit-text-fill-color: var(--index-color, #f7931a);
       transition: color 0.4s ease;
     }
+    .nav-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
 
     .main-ts {
       font-size: 0.72rem;
@@ -959,6 +965,11 @@
         flex-direction: column;
         align-items: flex-start;
         gap: 12px;
+      }
+      
+      .nav-actions {
+        width: 100%;
+        justify-content: space-between;
       }
       
       .nav-menu {
@@ -1736,7 +1747,7 @@
         <span class="ua">Індекс ризику <span class="logo-accent">BTC</span></span>
       </h1>
     </div>
-    <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+    <div class="nav-actions">
       <div class="nav-menu">
         <button class="nav-btn active" id="btn-main" style="cursor:default;">
           <span class="en">Risk Index</span>
