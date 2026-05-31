@@ -1,0 +1,990 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=YOUR_GA_MEASUREMENT_ID"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'YOUR_GA_MEASUREMENT_ID');
+  </script>
+
+  <script>
+    (function() {
+      const style = localStorage.getItem('bbr-style') || 'modern';
+      const mode = localStorage.getItem('bbr-mode') || 'auto';
+      let theme = 'dark';
+      if (mode === 'auto') {
+        const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+        theme = prefersLight ? 'light' : 'dark';
+      }
+      document.documentElement.className = 'style-' + style + ' theme-' + theme;
+    })();
+  </script>
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bitcoin Buy Risk Index vs. Fear &amp; Greed vs. CBBI — Compared</title>
+  <meta name="description" content="How the Bitcoin Buy Risk Index works: 10+ on-chain & macro indicators (MVRV Z-Score, NUPL, RHODL, Mayer Multiple) combined into one 0–100 score." />
+  <link rel="canonical" href="https://btcbri.com/compare.html" />
+  <meta name="theme-color" content="#f7931a" />
+  <meta property="og:site_name" content="Bitcoin Buy Risk Index" />
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:locale:alternate" content="uk_UA" />
+  <meta property="og:title" content="Bitcoin Buy Risk Index vs. Fear & Greed vs. CBBI" />
+  <meta property="og:description" content="Detailed methodology of the Bitcoin Buy Risk Index. Learn how 10+ on-chain and macro indicators are combined to score BTC risk." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://btcbri.com/compare.html" />
+  <meta property="og:image" content="https://btcbri.com/og_preview.jpg" />
+  <meta property="og:image:type" content="image/jpeg" />
+  <meta property="og:image:width" content="1024" />
+  <meta property="og:image:height" content="1024" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Bitcoin Buy Risk Index vs. Fear & Greed vs. CBBI" />
+  <meta name="twitter:description" content="Detailed methodology of the Bitcoin Buy Risk Index. Learn how 10+ on-chain and macro indicators are combined to score BTC risk." />
+  <meta name="twitter:image" content="https://btcbri.com/og_preview.jpg" />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #030712;
+      --bg-gradient: radial-gradient(circle at top, #0b1120 0%, #030712 100%);
+      --bg-card: rgba(17, 24, 39, 0.55);
+      --bg-card-hover: rgba(17, 24, 39, 0.75);
+      --border: rgba(255, 255, 255, 0.05);
+      --border-hover: rgba(247, 147, 26, 0.25);
+      --text: #f3f4f6;
+      --text-mute: #9ca3af;
+      --text-sub: #d1d5db;
+      --divider: rgba(255, 255, 255, 0.08);
+      --footer: #6b7280;
+      --glass-blur: blur(12px);
+      --shadow-glow: 0 0 15px rgba(247, 147, 26, 0.04);
+
+      --index-color: #f7931a;
+      --index-color-bg: rgba(247, 147, 26, 0.12);
+      --index-color-glow: rgba(247, 147, 26, 0.08);
+    }
+    
+    /* Classic Light */
+    html.style-classic.theme-light {
+      --bg: #f8fafc;
+      --bg-gradient: linear-gradient(180deg, #f1f5f9 0%, #f8fafc 100%);
+      --bg-card: rgba(255, 255, 255, 0.7);
+      --bg-card-hover: rgba(255, 255, 255, 0.95);
+      --border: rgba(0, 0, 0, 0.06);
+      --border-hover: rgba(247, 147, 26, 0.35);
+      --text: #0f172a;
+      --text-mute: #64748b;
+      --text-sub: #475569;
+      --divider: rgba(0, 0, 0, 0.08);
+      --footer: #64748b;
+      
+      --shadow-glow: 0 4px 12px rgba(0, 0, 0, 0.03);
+      
+      --glass-blur: blur(6px);
+
+      --index-color: #b45309;
+      --index-color-glow: rgba(217, 119, 6, 0.05);
+    }    /* Modern Dark */
+    html.style-modern.theme-dark {
+      --bg: #0d0f18;
+      --bg-gradient: #0d0f18;
+      --bg-card: #1c2030;
+      --bg-card-hover: #222640;
+      --border: rgba(255, 255, 255, 0.10);
+      --border-hover: rgba(247, 147, 26, 0.40);
+      /* all fonts = darkest gauge segment colour */
+      --text: #8892a4;
+      --text-mute: #8892a4;
+      --text-sub: #8892a4;
+      --divider: rgba(255, 255, 255, 0.10);
+      --footer: #8892a4;
+
+      --shadow-glow: 0 8px 32px rgba(0, 0, 0, 0.5);
+
+      --glass-blur: blur(20px);
+
+      --index-color: #f7931a;
+      --index-color-bg: rgba(247, 147, 26, 0.14);
+      --index-color-glow: rgba(247, 147, 26, 0.10);
+    }
+    
+    /* Modern Light */
+    html.style-modern.theme-light {
+      --bg: #f8fafc;
+      --bg-gradient: #f4f5f6;
+      --bg-card: #ffffff;
+      --bg-card-hover: #ffffff;
+      --border: rgba(0, 0, 0, 0.04);
+      --border-hover: rgba(247, 147, 26, 0.35);
+      /* all fonts = darkest gauge segment colour */
+      --text: #374151;
+      --text-mute: #374151;
+      --text-sub: #374151;
+      --divider: rgba(0, 0, 0, 0.08);
+      --footer: #374151;
+
+      --shadow-glow: 0 10px 40px rgba(0, 0, 0, 0.03);
+
+      --glass-blur: blur(20px);
+
+      --index-color: #f7931a;
+      --index-color-bg: rgba(247, 147, 26, 0.14);
+      --index-color-glow: rgba(247, 147, 26, 0.10);
+    }
+
+    html.style-classic body {
+      background-size: initial;
+    }
+    html.style-modern .toc-card, html.style-modern .disclaimer-box {
+      border-radius: 24px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg-gradient);
+      color: var(--text);
+      padding: 40px 24px 80px;
+      max-width: 680px;
+      margin: 0 auto;
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    /* Top Navigation bar */
+    .top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 32px;
+      width: 100%;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-mute);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 500;
+      transition: color 0.2s ease;
+    }
+    .back-link:hover {
+      color: var(--index-color, #f7931a);
+    }
+    .theme-light .back-link:hover {
+      color: color-mix(in srgb, var(--index-color, #f7931a) 70%, #000 30%);
+    }
+
+    /* Language switcher */
+    .lang-toggle {
+      display: flex;
+      gap: 4px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 3px;
+      border-radius: 9999px;
+      backdrop-filter: var(--glass-blur);
+    }
+    .lang-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-mute);
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 5px 14px;
+      border-radius: 9999px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.2s ease;
+    }
+    .lang-btn:hover {
+      color: var(--text);
+    }
+    .lang-btn.active {
+      background: var(--index-color-bg, rgba(247, 147, 26, 0.12));
+      color: var(--index-color, #f7931a);
+    }
+    .theme-light .lang-btn.active {
+      background: color-mix(in srgb, var(--index-color, #f7931a) 10%, transparent);
+      color: color-mix(in srgb, var(--index-color, #f7931a) 70%, #000 30%);
+    }
+
+    /* Menu Styles for Footer Switcher */
+    .nav-menu {
+      display: flex;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--divider);
+      padding: 4px;
+      border-radius: 9999px;
+      flex-wrap: wrap;
+    }
+    .theme-light .nav-menu {
+      background: rgba(0, 0, 0, 0.02);
+    }
+    .nav-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-mute);
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 8px 18px;
+      border-radius: 9999px;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+    }
+    .nav-btn:hover {
+      color: var(--text);
+    }
+    .nav-btn.active {
+      background: var(--index-color-bg, rgba(247, 147, 26, 0.12));
+      color: var(--index-color, #f7931a);
+      box-shadow: 0 0 12px var(--index-color-glow, rgba(247, 147, 26, 0.08));
+    }
+    .theme-light .nav-btn.active {
+      background: color-mix(in srgb, var(--index-color, #f7931a) 10%, transparent);
+      color: color-mix(in srgb, var(--index-color, #f7931a) 70%, #000 30%);
+      box-shadow: 0 0 12px color-mix(in srgb, var(--index-color, #f7931a) 5%, transparent);
+    }
+
+    /* Multilingual Switch CSS */
+    body.lang-en .ua { display: none; }
+    body.lang-ua .en { display: none; }
+
+    h1 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--text);
+      line-height: 1.15;
+      margin-bottom: 8px;
+    }
+    
+    .subtitle {
+      font-size: 0.95rem;
+      color: var(--text-mute);
+      margin-bottom: 40px;
+      font-weight: 400;
+    }
+
+    h2 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin: 40px 0 16px;
+      color: var(--text);
+      letter-spacing: -0.02em;
+    }
+
+    h3 {
+      font-size: 1.05rem;
+      color: var(--text);
+      margin: 24px 0 8px;
+      font-weight: 600;
+    }
+
+    p {
+      font-size: 0.9rem;
+      color: var(--text-sub);
+      margin-bottom: 16px;
+    }
+
+    ul, ol {
+      font-size: 0.9rem;
+      color: var(--text-sub);
+      padding-left: 20px;
+      margin-bottom: 20px;
+    }
+
+    li {
+      margin-bottom: 6px;
+    }
+
+    blockquote {
+      border-left: 3px solid var(--index-color, #f7931a);
+      padding: 16px 20px;
+      margin: 24px 0;
+      background: var(--bg-card);
+      border-radius: 0 12px 12px 0;
+      border: 1px solid var(--border);
+      backdrop-filter: var(--glass-blur);
+    }
+    blockquote p {
+      font-size: 0.9rem;
+      color: var(--text);
+      margin-bottom: 8px;
+      font-style: italic;
+    }
+    blockquote cite {
+      font-size: 0.78rem;
+      color: var(--text-mute);
+      font-style: normal;
+      font-weight: 500;
+    }
+
+    strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    /* Glass Cards & Tables */
+    .glass-card {
+      background: var(--bg-card);
+      backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1), var(--shadow-glow);
+      margin: 24px 0;
+      overflow-x: auto;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+    
+    th {
+      text-align: left;
+      color: var(--text-mute);
+      font-weight: 600;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--divider);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    
+    td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--divider);
+      color: var(--text-sub);
+    }
+    
+    td:not(:first-child), th:not(:first-child) {
+      text-align: right;
+    }
+    
+    tr:last-child td {
+      border-bottom: none;
+    }
+    
+    tbody tr:hover {
+      background: rgba(255, 255, 255, 0.02);
+    }
+    .theme-light tbody tr:hover {
+      background: rgba(0, 0, 0, 0.01);
+    }
+
+    .weights-table td:first-child {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    /* Orientation alert on mobile */
+    .rotation-tip {
+      display: none;
+      font-size: 0.76rem;
+      color: var(--text-mute);
+      border: 1px dashed var(--border);
+      border-radius: 10px;
+      padding: 8px 14px;
+      margin: 16px 0 -8px 0;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.01);
+    }
+
+    @media (max-width: 600px) {
+      .rotation-tip {
+        display: flex;
+      }
+    }
+    
+    /* Badges */
+    .zone-0, .zone-25, .zone-50, .zone-75, .zone-100 {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 6px;
+      line-height: 1.1;
+      border: 1px solid transparent;
+    }
+    
+    .zone-0, .zone-25 {
+      color: #10b981;
+      background: rgba(16, 185, 129, 0.08);
+      border-color: rgba(16, 185, 129, 0.15);
+    }
+    .zone-50 {
+      color: #eab308;
+      background: rgba(234, 179, 8, 0.08);
+      border-color: rgba(234, 179, 8, 0.15);
+    }
+    .zone-75, .zone-100 {
+      color: #ef4444;
+      background: rgba(239, 68, 68, 0.08);
+      border-color: rgba(239, 68, 68, 0.15);
+    }
+    
+      .theme-light .zone-0, .theme-light .zone-25 {
+        color: #059669;
+        background: rgba(5, 150, 105, 0.06);
+        border-color: rgba(5, 150, 105, 0.15);
+      }
+      .theme-light .zone-50 {
+        color: #ca8a04;
+        background: rgba(202, 138, 4, 0.06);
+        border-color: rgba(202, 138, 4, 0.15);
+      }
+      .theme-light .zone-75, .theme-light .zone-100 {
+        color: #dc2626;
+        background: rgba(220, 38, 38, 0.06);
+        border-color: rgba(220, 38, 38, 0.15);
+      }
+
+    .disclaimer-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 48px;
+    }
+    .disclaimer-box p {
+      font-size: 0.8rem;
+      color: var(--text-mute);
+      margin-bottom: 0;
+      line-height: 1.6;
+    }
+
+    /* TOC styling */
+    .toc-card {
+      background: var(--bg-card);
+      backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px 24px;
+      box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.05), var(--shadow-glow);
+      margin: 24px 0 36px 0;
+    }
+    .toc-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-mute);
+      font-weight: 700;
+      margin-bottom: 12px;
+      border-bottom: 1px solid var(--divider);
+      padding-bottom: 6px;
+    }
+    .toc-list {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+    }
+    .toc-list li {
+      margin-bottom: 8px;
+    }
+    .toc-list li:last-child {
+      margin-bottom: 0;
+    }
+    .toc-list a {
+      color: var(--text-sub);
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 500;
+      transition: color 0.2s ease;
+      display: inline-block;
+    }
+    .toc-list a:hover {
+      color: var(--index-color, #f7931a);
+    }
+    .theme-light .toc-list a:hover {
+      color: color-mix(in srgb, var(--index-color, #f7931a) 70%, #000 30%);
+    }
+
+    hr {
+      border: none;
+      border-top: 1px solid var(--divider);
+      margin: 32px 0;
+    }
+
+    footer {
+      font-size: 0.75rem;
+      color: var(--footer);
+      text-align: center;
+      margin-top: 64px;
+      border-top: 1px solid var(--divider);
+      padding-top: 24px;
+    }
+    
+    /* --- Modern Style Styling for About page --- */
+    html.style-modern {
+      background: #f4f5f6;
+    }
+    html.style-modern.theme-dark {
+      background: #0b0c10;
+    }
+    
+    html.style-modern body {
+      background: transparent;
+      padding: 40px 20px;
+      max-width: 100%;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      font-family: 'Outfit', sans-serif;
+    }
+    
+    /* Modern wrapper */
+    .about-wrapper {
+      width: 100%;
+      max-width: 720px;
+      box-sizing: border-box;
+      transition: all 0.3s ease;
+      z-index: 10;
+    }
+    html.style-modern .about-wrapper {
+      background: #ffffff;
+      border-radius: 28px;
+      padding: 36px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02), 0 1px 3px rgba(0, 0, 0, 0.01);
+      border: 1px solid rgba(0, 0, 0, 0.02);
+    }
+    html.style-modern.theme-dark .about-wrapper {
+      background: #121318;
+      border: 1px solid rgba(255, 255, 255, 0.02);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+    }
+    
+    /* Background elements for about page */
+    .modern-bg-elements {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+      overflow: hidden;
+    }
+    html.style-modern .modern-bg-elements {
+      display: none;
+    }
+    .modern-bg-elements::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background-image: 
+        linear-gradient(rgba(0, 0, 0, 0.015) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 0, 0, 0.015) 1px, transparent 1px);
+      background-size: 40px 40px;
+      transform: rotate(15deg);
+      opacity: 0.8;
+    }
+    html.style-modern.theme-dark .modern-bg-elements::before {
+      background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.01) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.01) 1px, transparent 1px);
+    }
+
+    .bg-diagonal-line {
+      position: absolute;
+      background: rgba(0, 0, 0, 0.025);
+      height: 1px;
+      width: 200%;
+      top: 50%;
+      left: -50%;
+      transform: rotate(-25deg);
+    }
+    html.style-modern.theme-dark .bg-diagonal-line {
+      background: rgba(255, 255, 255, 0.015);
+    }
+    .bg-diagonal-line.line-2 {
+      transform: rotate(35deg);
+      top: 25%;
+    }
+
+    .bg-text {
+      position: absolute;
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: rgba(0, 0, 0, 0.03);
+      user-select: none;
+    }
+    html.style-modern.theme-dark .bg-text {
+      color: rgba(255, 255, 255, 0.015);
+    }
+    .text-btc {
+      top: 35%;
+      left: 8%;
+      transform: rotate(-15deg) skewX(-10deg);
+    }
+    .text-vol {
+      top: 48%;
+      right: 8%;
+      transform: rotate(12deg) skewX(10deg);
+      font-size: 1.4rem;
+    }
+    .text-val {
+      top: 75%;
+      left: 15%;
+      transform: rotate(-8deg);
+      font-size: 1.2rem;
+    }
+    .text-pts {
+      top: 70%;
+      left: 23%;
+      transform: rotate(-8deg);
+      font-size: 1.0rem;
+      font-weight: 600;
+    }
+
+    .bg-perspective-chart {
+      position: absolute;
+      width: 250px;
+      height: 180px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+      opacity: 0.15;
+      pointer-events: none;
+    }
+    html.style-modern.theme-dark .bg-perspective-chart {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+      opacity: 0.08;
+    }
+    .bpc-1 {
+      top: 55%;
+      left: 10%;
+      transform: perspective(400px) rotateX(30deg) rotateY(-20deg) rotateZ(10deg);
+      background: repeating-linear-gradient(90deg, transparent, transparent 15px, rgba(0, 0, 0, 0.02) 15px, rgba(0, 0, 0, 0.02) 16px);
+    }
+    .bpc-2 {
+      top: 20%;
+      right: 12%;
+      transform: perspective(400px) rotateX(20deg) rotateY(30deg) rotateZ(-15deg);
+      background: repeating-linear-gradient(90deg, transparent, transparent 20px, rgba(0, 0, 0, 0.02) 20px, rgba(0, 0, 0, 0.02) 21px);
+    }
+
+    html.style-modern .top-row {
+      margin-bottom: 24px;
+    }
+    html.style-modern .toc-card,
+    html.style-modern .disclaimer-box {
+      border-radius: 20px;
+      background: var(--bg-card);
+    }
+  </style>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What is the difference between the Bitcoin Buy Risk Index and the Fear & Greed Index?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The Crypto Fear & Greed Index measures market sentiment (crowd emotion) using signals like volatility, momentum, social media and dominance. The Bitcoin Buy Risk Index instead measures valuation risk using on-chain and macro fundamentals such as MVRV Z-Score, NUPL, RHODL, the Mayer Multiple and ETF flows. Sentiment tells you how the crowd feels; the Buy Risk Index tells you whether Bitcoin is historically cheap or expensive."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What is CBBI and how does it compare?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "CBBI (the Bitcoin Bull Run / Confidence Index) combines around nine on-chain and price models to estimate how close Bitcoin is to a cycle top, scored 0-100. It is excellent for cycle-top timing. The Bitcoin Buy Risk Index covers a broader question - overall buy risk across the whole range - and adds macro inputs like global M2 growth and the yield curve."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Which Bitcoin index should I use to decide when to buy?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "They answer different questions and work well together. Use the Fear & Greed Index to gauge crowd emotion, CBBI to judge how close a cycle top may be, and the Bitcoin Buy Risk Index for a fundamentals-based read on whether current prices represent low or high buy risk."
+        }
+      }
+    ]
+  }
+  </script>
+</head>
+<body class="lang-en">
+
+  <!-- Faded background grid and line elements for Modern theme -->
+  <div class="modern-bg-elements">
+    <div class="bg-diagonal-line line-1"></div>
+    <div class="bg-diagonal-line line-2"></div>
+    <div class="bg-text text-btc">BTC/USD</div>
+    <div class="bg-text text-vol">24h vol</div>
+    <div class="bg-text text-val">2,617,728</div>
+    <div class="bg-text text-pts">+1.5 pts</div>
+    <div class="bg-perspective-chart bpc-1"></div>
+    <div class="bg-perspective-chart bpc-2"></div>
+  </div>
+
+  <div class="about-wrapper">
+    <div class="top-row">
+    <a class="back-link" href="index.html">← Back to Dashboard</a>
+    <!-- Language is inherited from the index page (localStorage) -->
+  </div>
+
+  <h1>
+    <span class="en">Bitcoin Buy Risk Index vs. Fear &amp; Greed vs. CBBI</span>
+    <span class="ua">Індекс ризику купівлі Bitcoin проти Fear &amp; Greed та CBBI</span>
+  </h1>
+
+  <div class="subtitle">
+    <span class="en">Three popular 0–100 Bitcoin indicators &middot; what each measures &middot; which to use</span>
+    <span class="ua">Три популярні Bitcoin-індикатори 0–100 &middot; що вимірює кожен &middot; який обрати</span>
+  </div>
+
+  <p>
+    <span class="en">If you are trying to decide whether it is a good time to buy Bitcoin, you have probably seen three different 0–100 gauges: the <strong>Crypto Fear &amp; Greed Index</strong>, <strong>CBBI</strong> (the Bitcoin Bull Run / Confidence Index), and the <strong>Bitcoin Buy Risk Index</strong>. They look similar but answer very different questions. Here is how they compare.</span>
+    <span class="ua">Якщо ви вирішуєте, чи вдалий зараз момент купити Bitcoin, ви, ймовірно, бачили три різні шкали 0–100: <strong>Crypto Fear &amp; Greed Index</strong>, <strong>CBBI</strong> (Bitcoin Bull Run / Confidence Index) та <strong>Індекс ризику купівлі Bitcoin</strong>. Вони схожі, але відповідають на дуже різні питання. Ось як вони порівнюються.</span>
+  </p>
+
+  <div class="glass-card">
+  <table>
+    <thead>
+      <tr>
+        <th><span class="en">Dimension</span><span class="ua">Параметр</span></th>
+        <th>Bitcoin Buy Risk Index</th>
+        <th><span class="en">Fear &amp; Greed Index</span><span class="ua">Fear &amp; Greed</span></th>
+        <th>CBBI</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="en">What it measures</span><span class="ua">Що вимірює</span></td>
+        <td><span class="en">Buy/sell <strong>valuation risk</strong></span><span class="ua"><strong>Ризик оцінки</strong> купівлі/продажу</span></td>
+        <td><span class="en">Market <strong>sentiment</strong> (emotion)</span><span class="ua"><strong>Настрій</strong> ринку (емоції)</span></td>
+        <td><span class="en">Proximity to a <strong>cycle top</strong></span><span class="ua">Близькість до <strong>піку циклу</strong></span></td>
+      </tr>
+      <tr>
+        <td><span class="en">Scale</span><span class="ua">Шкала</span></td>
+        <td><span class="en">0–100 (0 = low risk)</span><span class="ua">0–100 (0 = низький ризик)</span></td>
+        <td><span class="en">0–100 (0 = extreme fear)</span><span class="ua">0–100 (0 = крайній страх)</span></td>
+        <td><span class="en">0–100 (100 = cycle top)</span><span class="ua">0–100 (100 = пік циклу)</span></td>
+      </tr>
+      <tr>
+        <td><span class="en">Core inputs</span><span class="ua">Основні дані</span></td>
+        <td><span class="en">10+ on-chain &amp; macro: MVRV Z-Score, NUPL, RHODL, aSOPR, Mayer Multiple, ETF flows, M2, yield curve</span><span class="ua">10+ ончейн та макро: MVRV Z-Score, NUPL, RHODL, aSOPR, Mayer Multiple, потоки ETF, M2, крива дохідності</span></td>
+        <td><span class="en">5 sentiment signals: volatility, momentum/volume, social media, dominance, trends</span><span class="ua">5 сигналів настрою: волатильність, моментум/обсяг, соцмережі, домінація, тренди</span></td>
+        <td><span class="en">~9 on-chain/price models: Pi Cycle, RUPL, RHODL, Puell, MVRV, Reserve Risk…</span><span class="ua">~9 ончейн/цінових моделей: Pi Cycle, RUPL, RHODL, Puell, MVRV, Reserve Risk…</span></td>
+      </tr>
+      <tr>
+        <td><span class="en">Asset</span><span class="ua">Актив</span></td>
+        <td>Bitcoin</td>
+        <td><span class="en">Crypto market (BTC-weighted)</span><span class="ua">Крипторинок (з вагою BTC)</span></td>
+        <td>Bitcoin</td>
+      </tr>
+      <tr>
+        <td><span class="en">Based on</span><span class="ua">Базується на</span></td>
+        <td><span class="en">Valuation fundamentals</span><span class="ua">Фундаментальній оцінці</span></td>
+        <td><span class="en">Crowd emotion</span><span class="ua">Емоціях натовпу</span></td>
+        <td><span class="en">Cycle-top models</span><span class="ua">Моделях піку циклу</span></td>
+      </tr>
+      <tr>
+        <td><span class="en">Best for</span><span class="ua">Найкраще для</span></td>
+        <td><span class="en">“Is BTC cheap or expensive now?”</span><span class="ua">«BTC зараз дешевий чи дорогий?»</span></td>
+        <td><span class="en">“What is the crowd mood?”</span><span class="ua">«Який настрій натовпу?»</span></td>
+        <td><span class="en">“Are we near the top?”</span><span class="ua">«Чи близько ми до піку?»</span></td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h2>
+    <span class="en">Bitcoin Buy Risk Index</span>
+    <span class="ua">Індекс ризику купівлі Bitcoin</span>
+  </h2>
+  <p>
+    <span class="en">The <a href="index.html">Bitcoin Buy Risk Index</a> focuses on <strong>valuation</strong>: is Bitcoin historically cheap or expensive right now? It blends on-chain metrics (MVRV Z-Score, NUPL, RHODL, aSOPR) with macro inputs (Spot ETF flows, global M2 growth, the yield curve) into on-chain and tech/macro subscores. Because it spans the full range, a low reading flags potential accumulation zones and a high reading flags elevated risk — see the <a href="about.html">full methodology</a>.</span>
+    <span class="ua"><a href="index.html">Індекс ризику купівлі Bitcoin</a> зосереджений на <strong>оцінці</strong>: Bitcoin зараз історично дешевий чи дорогий? Він поєднує ончейн-метрики (MVRV Z-Score, NUPL, RHODL, aSOPR) з макроданими (потоки спотових ETF, зростання глобального M2, крива дохідності) в ончейн- та тех/макро підоцінки. Оскільки він охоплює весь діапазон, низьке значення вказує на можливі зони накопичення, а високе — на підвищений ризик; див. <a href="about.html">повну методологію</a>.</span>
+  </p>
+
+  <h2>
+    <span class="en">Crypto Fear &amp; Greed Index</span>
+    <span class="ua">Crypto Fear &amp; Greed Index</span>
+  </h2>
+  <p>
+    <span class="en">The Fear &amp; Greed Index is a <strong>sentiment</strong> gauge. It combines volatility, market momentum and volume, social media activity, Bitcoin dominance and search trends into a single 0–100 emotion reading. It is great for spotting when the crowd is euphoric or panicking — but sentiment can stay extreme for a long time and does not, by itself, tell you whether Bitcoin is fundamentally cheap or expensive.</span>
+    <span class="ua">Fear &amp; Greed Index — це шкала <strong>настрою</strong>. Вона поєднує волатильність, ринковий моментум та обсяг, активність у соцмережах, домінацію Bitcoin і пошукові тренди в єдине значення емоцій 0–100. Вона чудово показує, коли натовп ейфорійний чи панікує, — але настрій може залишатися екстремальним довго і сам по собі не каже, чи Bitcoin фундаментально дешевий або дорогий.</span>
+  </p>
+
+  <h2>
+    <span class="en">CBBI (Bitcoin Bull Run Index)</span>
+    <span class="ua">CBBI (Bitcoin Bull Run Index)</span>
+  </h2>
+  <p>
+    <span class="en">CBBI aggregates around nine on-chain and price models (Pi Cycle Top, RUPL/NUPL, RHODL, Puell Multiple, MVRV, Reserve Risk and others) into a confidence score that Bitcoin is approaching a <strong>cycle top</strong>. It is purpose-built for top-timing. The Bitcoin Buy Risk Index overlaps on several on-chain inputs but adds macro context and frames the result as overall buy risk rather than only top proximity.</span>
+    <span class="ua">CBBI агрегує близько дев’яти ончейн- та цінових моделей (Pi Cycle Top, RUPL/NUPL, RHODL, Puell Multiple, MVRV, Reserve Risk та інші) у показник упевненості, що Bitcoin наближається до <strong>піку циклу</strong>. Він створений саме для визначення піку. Індекс ризику купівлі Bitcoin перетинається з кількома ончейн-входами, але додає макроконтекст і подає результат як загальний ризик купівлі, а не лише близькість до піку.</span>
+  </p>
+
+  <h2>
+    <span class="en">Which one should you use?</span>
+    <span class="ua">Який обрати?</span>
+  </h2>
+  <p>
+    <span class="en">They are complementary, not competing. Use the <strong>Fear &amp; Greed Index</strong> to read crowd emotion, <strong>CBBI</strong> to judge how close a cycle top may be, and the <strong>Bitcoin Buy Risk Index</strong> for a fundamentals-based view of whether today’s price is low or high buy risk. A simple workflow: check valuation first (Buy Risk Index), confirm cycle stage (CBBI), then time entries against sentiment extremes (Fear &amp; Greed).</span>
+    <span class="ua">Вони доповнюють, а не конкурують. Використовуйте <strong>Fear &amp; Greed Index</strong> для настрою натовпу, <strong>CBBI</strong> — щоб оцінити близькість піку циклу, а <strong>Індекс ризику купівлі Bitcoin</strong> — для фундаментального погляду, чи сьогоднішня ціна означає низький чи високий ризик купівлі. Простий підхід: спершу оцінка (Buy Risk Index), потім стадія циклу (CBBI), далі вхід проти крайнощів настрою (Fear &amp; Greed).</span>
+  </p>
+
+  <p style="margin-top:24px;">
+    <span class="en">→ <a href="index.html"><strong>See today’s Bitcoin Buy Risk Index score</strong></a></span>
+    <span class="ua">→ <a href="index.html"><strong>Дивитися сьогоднішню оцінку Індексу ризику купівлі Bitcoin</strong></a></span>
+  </p>
+
+  <div class="disclaimer-box">
+    <p class="en">This methodology document is for educational and informational purposes only. It is not financial advice. All data and calculations are processed automatically and reflect public historical records. Any decisions to trade are made solely at your own risk.</p>
+    <p class="ua">Цей документ створений виключно з освітньою та інформаційною метою і не є фінансовою порадою. Всі дані збираються автоматично та відображають публічні історичні рекорди. Будь-які рішення про торгівлю приймаються вами на власний ризик.</p>
+  </div>
+
+  <!-- Theme & mode are inherited from the index page (localStorage) -->
+
+  <footer>
+    <a href="index.html" style="color:var(--footer);text-decoration:none;">
+      <span class="en">← Back to Dashboard</span>
+      <span class="ua">← На головну</span>
+    </a>
+    &nbsp;&middot;&nbsp; Bitcoin Buy Risk Index &middot; May 2026
+  </footer>
+  </div><!-- end about-wrapper -->
+
+  <script>
+    function setLang(lang) {
+      document.body.className = 'lang-' + lang;
+      const en = document.getElementById('btn-en');
+      const ua = document.getElementById('btn-ua');
+      if (en) en.classList.toggle('active', lang === 'en');
+      if (ua) ua.classList.toggle('active', lang === 'ua');
+      localStorage.setItem('bbr-lang', lang);
+    }
+
+    // Automatically detect and restore language
+    const browserLang = (navigator.language || navigator.userLanguage || '').toLowerCase();
+    const defaultLang = browserLang.startsWith('uk') || browserLang.startsWith('ua') ? 'ua' : 'en';
+    const saved = localStorage.getItem('bbr-lang') || defaultLang;
+    setLang(saved);
+
+    function scoreColor(v, alpha = 1) {
+      if(v == null) return 'var(--text-mute)';
+      const stops = [
+        { val: 0,   r: 16,  g: 185, b: 129 }, // Emerald
+        { val: 30,  r: 132, g: 204, b: 22  }, // Lime
+        { val: 50,  r: 234, g: 179, b: 8   }, // Yellow
+        { val: 75,  r: 249, g: 115, b: 22  }, // Orange
+        { val: 100, r: 239, g: 68,  b: 68  }  // Red
+      ];
+      let r, g, b;
+      if (v <= stops[0].val) {
+        r = stops[0].r; g = stops[0].g; b = stops[0].b;
+      } else if (v >= stops[stops.length - 1].val) {
+        r = stops[stops.length - 1].r; g = stops[stops.length - 1].g; b = stops[stops.length - 1].b;
+      } else {
+        for (let i = 0; i < stops.length - 1; i++) {
+          const s1 = stops[i];
+          const s2 = stops[i+1];
+          if (v >= s1.val && v <= s2.val) {
+            const t = (v - s1.val) / (s2.val - s1.val);
+            r = Math.round(s1.r + t * (s2.r - s1.r));
+            g = Math.round(s1.g + t * (s2.g - s1.g));
+            b = Math.round(s1.b + t * (s2.b - s1.b));
+            break;
+          }
+        }
+      }
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+
+    async function loadIndexColor() {
+      try {
+        const res = await fetch('data.json');
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data && data.final_score != null) {
+          const finalVal = data.final_score;
+          // Modern theme keeps a fixed orange accent; Classic uses dynamic score colour
+          const isModern = (localStorage.getItem('bbr-style') || 'modern') === 'modern';
+          if (isModern) {
+            document.documentElement.style.setProperty('--index-color', '#f7931a');
+            document.documentElement.style.setProperty('--index-color-bg', 'rgba(247,147,26,0.14)');
+            document.documentElement.style.setProperty('--index-color-glow', 'rgba(247,147,26,0.10)');
+          } else {
+            document.documentElement.style.setProperty('--index-color', scoreColor(finalVal));
+            document.documentElement.style.setProperty('--index-color-bg', scoreColor(finalVal, 0.12));
+            document.documentElement.style.setProperty('--index-color-glow', scoreColor(finalVal, 0.08));
+          }
+        }
+      } catch (e) {
+        console.error('Failed to load index color:', e);
+      }
+    }
+    function updateThemeClass() {
+      const style = localStorage.getItem('bbr-style') || 'modern';
+      const mode = localStorage.getItem('bbr-mode') || 'auto';
+      
+      let theme = 'dark';
+      if (mode === 'auto') {
+        const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+        theme = prefersLight ? 'light' : 'dark';
+      }
+      
+      document.documentElement.className = 'style-' + style + ' theme-' + theme;
+      
+      // Update active states for buttons
+      const btnClassic = document.getElementById('btn-style-classic');
+      const btnModern = document.getElementById('btn-style-modern');
+      if (btnClassic) btnClassic.classList.toggle('active', style === 'classic');
+      if (btnModern) btnModern.classList.toggle('active', style === 'modern');
+      
+      const btnNight = document.getElementById('btn-mode-night');
+      const btnAuto = document.getElementById('btn-mode-auto');
+      if (btnNight) btnNight.classList.toggle('active', mode === 'night');
+      if (btnAuto) btnAuto.classList.toggle('active', mode === 'auto');
+    }
+
+    function setStyle(style) {
+      localStorage.setItem('bbr-style', style);
+      updateThemeClass();
+    }
+
+    function setMode(mode) {
+      localStorage.setItem('bbr-mode', mode);
+      updateThemeClass();
+    }
+
+    window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => {
+      const mode = localStorage.getItem('bbr-mode') || 'auto';
+      if (mode === 'auto') {
+        updateThemeClass();
+      }
+    });
+
+    // Initialize theme on load
+    updateThemeClass();
+
+    loadIndexColor();
+  </script>
+
+</body>
+</html>
