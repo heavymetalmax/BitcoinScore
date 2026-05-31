@@ -13,8 +13,8 @@
 
   <script>
     (function() {
-      const style = localStorage.getItem('bbr-style') || 'classic';
-      const mode = localStorage.getItem('bbr-mode') || 'night';
+      const style = localStorage.getItem('bbr-style') || 'modern';
+      const mode = localStorage.getItem('bbr-mode') || 'auto';
       let theme = 'dark';
       if (mode === 'auto') {
         const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
@@ -2261,8 +2261,8 @@
   <script>
     // Theme switcher handlers
     function updateThemeClass() {
-      const style = localStorage.getItem('bbr-style') || 'classic';
-      const mode = localStorage.getItem('bbr-mode') || 'night';
+      const style = localStorage.getItem('bbr-style') || 'modern';
+      const mode = localStorage.getItem('bbr-mode') || 'auto';
       
       let theme = 'dark';
       if (mode === 'auto') {
@@ -2345,7 +2345,7 @@
     }
 
     window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => {
-      const mode = localStorage.getItem('bbr-mode') || 'night';
+      const mode = localStorage.getItem('bbr-mode') || 'auto';
       if (mode === 'auto') {
         updateThemeClass();
       }
@@ -2557,7 +2557,7 @@
     }
 
     function redrawAllModernGauges() {
-      const style = localStorage.getItem('bbr-style') || 'classic';
+      const style = localStorage.getItem('bbr-style') || 'modern';
       if (style !== 'modern' || !window._gaugeValues) return;
       const v = window._gaugeValues;
       const ocWarn   = document.getElementById('oc-warn');
@@ -2844,7 +2844,7 @@
     function scoreColor(v, alpha = 1) {
       if(v == null) return 'var(--text-mute)';
       // Modern: same 5-zone palette as gauge (темносірий→помаранчевий)
-      if ((localStorage.getItem('bbr-style') || 'classic') === 'modern') {
+      if ((localStorage.getItem('bbr-style') || 'modern') === 'modern') {
         const lm = document.documentElement.classList.contains('theme-light');
         if (v <= 20) return lm ? `rgba(55,65,81,${alpha})`   : `rgba(107,114,128,${alpha})`;  // dark gray
         if (v <= 40) return lm ? `rgba(107,114,128,${alpha})` : `rgba(156,163,175,${alpha})`; // gray
@@ -2887,7 +2887,7 @@
       const num = document.getElementById('m-'+id+'-num');
       const raw = document.getElementById('m-'+id+'-raw');
       if (bar) {
-        const isModern = (localStorage.getItem('bbr-style') || 'classic') === 'modern';
+        const isModern = (localStorage.getItem('bbr-style') || 'modern') === 'modern';
         if (isModern) {
           drawModernBar(bar.parentElement, v);
         } else {
@@ -2898,7 +2898,7 @@
       }
       if(num) {
         num.textContent = sliderVal != null ? sliderVal : '\u2014';
-        const isModernNum = (localStorage.getItem('bbr-style') || 'classic') === 'modern';
+        const isModernNum = (localStorage.getItem('bbr-style') || 'modern') === 'modern';
         if (isModernNum) {
           const isDarkNum = !document.documentElement.classList.contains('theme-light');
           num.style.color = (v > 60)
@@ -3066,7 +3066,7 @@
         marker.style.setProperty('--marker-color', markerColor);
         
         // Modern theme always uses orange accent; Classic uses dynamic score colour
-        const isModernAccent = (localStorage.getItem('bbr-style') || 'classic') === 'modern';
+        const isModernAccent = (localStorage.getItem('bbr-style') || 'modern') === 'modern';
         const accentColor = isModernAccent ? '#f7931a' : markerColor;
         document.documentElement.style.setProperty('--index-color',      accentColor);
         document.documentElement.style.setProperty('--index-color-bg',   isModernAccent ? 'rgba(247,147,26,0.12)' : scoreColor(finalVal, 0.12));
@@ -3430,7 +3430,7 @@
       const toYPrice = p => PAD.top + ch - ((p - yMinPrice) / (yMaxPrice - yMinPrice)) * ch;
 
       // Line colours — defined early so grid labels can reference them
-      const isModernChart = (localStorage.getItem('bbr-style') || 'classic') === 'modern';
+      const isModernChart = (localStorage.getItem('bbr-style') || 'modern') === 'modern';
       const priceLineCol  = isModernChart ? (isDark ? '#6b7280' : '#9ca3af') : '#10b981';
 
       // Clear the canvas
