@@ -178,22 +178,39 @@
     html.style-modern .score-box {
       border-radius: 24px;
     }
-    /* Bell icon button in nav */
+    /* Bell icon button in nav — always orange */
     .nav-bell-btn {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 36px;
-      height: 36px;
+      width: 32px;
+      height: 32px;
       border-radius: 50%;
-      color: var(--text-mute);
+      color: var(--index-color, #f7931a);
       text-decoration: none;
-      transition: color 0.2s, background 0.2s;
+      transition: background 0.2s;
       flex-shrink: 0;
     }
     .nav-bell-btn:hover {
-      color: var(--index-color, #f7931a);
-      background: var(--index-color-bg, rgba(247,147,26,0.10));
+      background: var(--index-color-bg, rgba(247,147,26,0.12));
+    }
+
+    /* Modern: all menus same compact style; gray background like page */
+    html.style-modern .nav-menu,
+    html.style-modern .lang-toggle {
+      background: var(--bar-bg);
+      border: 1px solid var(--border);
+      gap: 4px;
+      padding: 3px;
+    }
+    html.style-modern .nav-btn {
+      font-size: 0.72rem;
+      padding: 5px 14px;
+    }
+
+    /* Gauge canvas must not overflow sub-card width */
+    html.style-modern .modern-sub-gauge-wrap {
+      overflow: hidden;
     }
     /* Nav active button — pure orange, no color-mix, no transparency */
     html.style-modern .nav-btn.active {
