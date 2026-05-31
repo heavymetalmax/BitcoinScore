@@ -105,36 +105,36 @@
       --index-color-glow: rgba(217, 119, 6, 0.05);
     }
     
-    /* Modern Dark */
+        /* Modern Dark */
     html.style-modern.theme-dark {
-      --bg: #0b0c10;
-      --bg-gradient: linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
-                     linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px),
-                     radial-gradient(circle at top, #161a24 0%, #0b0c10 100%);
-      --bg-card: rgba(20, 24, 33, 0.85);
-      --bg-card-hover: rgba(25, 30, 41, 0.98);
-      --border: rgba(255, 255, 255, 0.06);
-      --border-hover: rgba(247, 147, 26, 0.35);
-      --text: #f3f4f6;
-      --text-name: #9ca3af;
-      --text-mute: #6b7280;
-      --text-sub: #9ca3af;
-      --text-raw: #6b7280;
-      --text-ts: #9ca3af;
-      --bar-bg: rgba(255, 255, 255, 0.06);
-      --divider: rgba(255, 255, 255, 0.08);
-      --tick: rgba(255, 255, 255, 0.2);
-      --footer: #4b5563;
-      
-      --shadow-glow: 0 4px 20px rgba(0, 0, 0, 0.4);
-      --shadow-glow-active: 0 10px 30px rgba(247, 147, 26, 0.05);
-      
-      --bg-card-knob: #1a1f2c;
+      --bg: #0d0f18;
+      --bg-gradient: linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+                     linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+                     radial-gradient(circle at top, #181d2e 0%, #0d0f18 100%);
+      --bg-card: #1c2030;          /* lifted from #121318 — clear step above bg */
+      --bg-card-hover: #222640;
+      --border: rgba(255, 255, 255, 0.10);  /* from 0.03 — visible card outlines */
+      --border-hover: rgba(247, 147, 26, 0.40);
+      --text: #eef0f4;
+      --text-name: #a8b2c4;
+      --text-mute: #8892a4;        /* from #6b7280 — more legible */
+      --text-sub: #a8b2c4;
+      --text-raw: #8892a4;
+      --text-ts: #a8b2c4;
+      --bar-bg: rgba(255, 255, 255, 0.08);
+      --divider: rgba(255, 255, 255, 0.10);
+      --tick: rgba(255, 255, 255, 0.25);
+      --footer: #60708a;
+
+      --shadow-glow: 0 8px 32px rgba(0, 0, 0, 0.5);
+      --shadow-glow-active: 0 12px 40px rgba(247, 147, 26, 0.08);
+
+      --bg-card-knob: #222640;
       --glass-blur: blur(20px);
 
       --index-color: #f7931a;
-      --index-color-bg: rgba(247, 147, 26, 0.12);
-      --index-color-glow: rgba(247, 147, 26, 0.08);
+      --index-color-bg: rgba(247, 147, 26, 0.14);
+      --index-color-glow: rgba(247, 147, 26, 0.10);
     }
     
     /* Modern Light */
@@ -143,9 +143,9 @@
       --bg-gradient: linear-gradient(rgba(0, 0, 0, 0.02) 1px, transparent 1px),
                      linear-gradient(90deg, rgba(0, 0, 0, 0.02) 1px, transparent 1px),
                      linear-gradient(180deg, #f1f5f9 0%, #f8fafc 100%);
-      --bg-card: rgba(255, 255, 255, 0.85);
-      --bg-card-hover: rgba(255, 255, 255, 0.98);
-      --border: rgba(0, 0, 0, 0.06);
+      --bg-card: #ffffff;
+      --bg-card-hover: #ffffff;
+      --border: rgba(0, 0, 0, 0.04);
       --border-hover: rgba(247, 147, 26, 0.35);
       --text: #0f172a;
       --text-name: #475569;
@@ -158,8 +158,8 @@
       --tick: rgba(0, 0, 0, 0.15);
       --footer: #64748b;
       
-      --shadow-glow: 0 4px 20px rgba(0, 0, 0, 0.03);
-      --shadow-glow-active: 0 10px 30px rgba(0, 0, 0, 0.06);
+      --shadow-glow: 0 10px 40px rgba(0, 0, 0, 0.03);
+      --shadow-glow-active: 0 15px 50px rgba(0, 0, 0, 0.06);
       
       --bg-card-knob: #ffffff;
       --glass-blur: blur(20px);
@@ -174,6 +174,86 @@
     }
     html.style-classic body {
       background-size: initial;
+    }
+    html.style-modern .score-box {
+      border-radius: 24px;
+    }
+    /* Bell icon button in nav */
+    .nav-bell-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      color: var(--text-mute);
+      text-decoration: none;
+      transition: color 0.2s, background 0.2s;
+      flex-shrink: 0;
+    }
+    .nav-bell-btn:hover {
+      color: var(--index-color, #f7931a);
+      background: var(--index-color-bg, rgba(247,147,26,0.10));
+    }
+    /* Nav active button — pure orange, no color-mix, no transparency */
+    html.style-modern .nav-btn.active {
+      background: rgba(247, 147, 26, 0.14);
+      color: #f7931a !important;
+      box-shadow: none;
+    }
+    html.style-modern .glass-panel {
+      border-radius: 20px;
+    }
+    html.style-modern .score-box.main {
+      border-radius: 28px;
+    }
+
+    /* Modern sub-card gauge layout */
+    .modern-sub-gauge-wrap {
+      display: none;
+      justify-content: center;
+      width: 100%;
+    }
+    html.style-modern .modern-sub-gauge-wrap {
+      display: flex;
+    }
+    html.style-modern .sub-card-value-container .s-value {
+      display: none;
+    }
+    /* In Modern mode, canvas draws the warn icon — hide the HTML one */
+    html.style-modern .sub-card-value-container .sub-warn-icon {
+      display: none !important;
+    }
+    /* Main warn badge — orange in Modern theme */
+    html.style-modern #s-warn {
+      color: #f7931a;
+      background: rgba(247, 147, 26, 0.08);
+      border-color: rgba(247, 147, 26, 0.3);
+      box-shadow: none;
+    }
+    html.style-modern .score-box > .bar-wrap {
+      display: none;
+    }
+    /* Metric bars in Modern: canvas draws everything, wrap is just a container */
+    html.style-modern .glass-panel .bar-wrap {
+      background: transparent !important;
+      height: 8px !important;
+      overflow: visible !important;
+      border-radius: 0 !important;
+    }
+    html.style-modern .score-box .s-sub {
+      margin-top: 4px;
+    }
+    /* Modern gauge canvas containers */
+    .modern-main-gauge-wrap {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+    }
+    #modern-gauge-canvas,
+    .modern-sub-gauge-canvas {
+      display: block;
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -243,12 +323,11 @@
       font-weight: 800;
       letter-spacing: -0.03em;
       color: var(--text-mute);
-      -webkit-text-fill-color: var(--text-mute);
       background: none;
-      -webkit-background-clip: initial;
     }
     .logo-accent {
       color: var(--index-color, #f7931a);
+      -webkit-text-fill-color: var(--index-color, #f7931a);
       transition: color 0.4s ease;
     }
 
@@ -619,10 +698,10 @@
     
     .sub-warn-icon {
       color: #ef4444;
-      font-size: 1.1rem;
       cursor: help;
       line-height: 1;
-      display: inline-block;
+      display: inline-flex;
+      align-items: center;
       animation: float-icon 2s infinite ease-in-out;
     }
 
@@ -996,6 +1075,595 @@
     }
     
     /* Theme switcher styling is not needed as we reuse navigation styles */
+    /* --- Modern Theme Layout & Elements Styling --- */
+    
+    html.style-modern {
+      background: #f4f5f6;
+      overflow-x: hidden;
+    }
+    html.style-modern.theme-dark {
+      background: #0d0f18;
+    }
+
+    html.style-modern #bg-canvas,
+    html.style-modern .modern-theme-container {
+      display: none !important;
+    }
+
+    /* Modern Theme Container — always hidden, phone UI unused */
+    .modern-theme-container {
+      display: none;
+    }
+
+    /* 3D background elements */
+    .modern-bg-elements {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+      overflow: hidden;
+    }
+    .modern-bg-elements::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background-image: 
+        linear-gradient(rgba(0, 0, 0, 0.015) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 0, 0, 0.015) 1px, transparent 1px);
+      background-size: 40px 40px;
+      transform: rotate(15deg);
+      opacity: 0.8;
+    }
+    html.style-modern.theme-dark .modern-bg-elements::before {
+      background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.01) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.01) 1px, transparent 1px);
+    }
+
+    .bg-diagonal-line {
+      position: absolute;
+      background: rgba(0, 0, 0, 0.025);
+      height: 1px;
+      width: 200%;
+      top: 50%;
+      left: -50%;
+      transform: rotate(-25deg);
+    }
+    html.style-modern.theme-dark .bg-diagonal-line {
+      background: rgba(255, 255, 255, 0.015);
+    }
+    .bg-diagonal-line.line-2 {
+      transform: rotate(35deg);
+      top: 25%;
+    }
+
+    .bg-text {
+      position: absolute;
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: rgba(0, 0, 0, 0.03);
+      user-select: none;
+      font-family: 'Outfit', sans-serif;
+    }
+    html.style-modern.theme-dark .bg-text {
+      color: rgba(255, 255, 255, 0.015);
+    }
+    .text-btc {
+      top: 35%;
+      left: 8%;
+      transform: rotate(-15deg) skewX(-10deg);
+    }
+    .text-vol {
+      top: 48%;
+      right: 8%;
+      transform: rotate(12deg) skewX(10deg);
+      font-size: 1.4rem;
+    }
+    .text-val {
+      top: 75%;
+      left: 15%;
+      transform: rotate(-8deg);
+      font-size: 1.2rem;
+    }
+    .text-pts {
+      top: 70%;
+      left: 23%;
+      transform: rotate(-8deg);
+      font-size: 1.0rem;
+      font-weight: 600;
+    }
+
+    .bg-perspective-chart {
+      position: absolute;
+      width: 250px;
+      height: 180px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+      opacity: 0.15;
+      pointer-events: none;
+    }
+    html.style-modern.theme-dark .bg-perspective-chart {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+      opacity: 0.08;
+    }
+    .bpc-1 {
+      top: 55%;
+      left: 10%;
+      transform: perspective(400px) rotateX(30deg) rotateY(-20deg) rotateZ(10deg);
+      background: repeating-linear-gradient(90deg, transparent, transparent 15px, rgba(0, 0, 0, 0.02) 15px, rgba(0, 0, 0, 0.02) 16px);
+    }
+    .bpc-2 {
+      top: 20%;
+      right: 12%;
+      transform: perspective(400px) rotateX(20deg) rotateY(30deg) rotateZ(-15deg);
+      background: repeating-linear-gradient(90deg, transparent, transparent 20px, rgba(0, 0, 0, 0.02) 20px, rgba(0, 0, 0, 0.02) 21px);
+    }
+
+    /* Smartphone Mockup Frame */
+    .phone-mockup {
+      width: 365px;
+      height: 760px;
+      background: #ffffff;
+      border-radius: 46px;
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.12), 
+                  0 0 0 12px #ffffff, 
+                  0 0 0 14px rgba(0, 0, 0, 0.04);
+      position: relative;
+      overflow: hidden;
+      z-index: 10;
+      transition: background-color 0.3s, box-shadow 0.3s;
+    }
+    html.style-modern.theme-dark .phone-mockup {
+      background: #121318;
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.45), 
+                  0 0 0 12px #121318, 
+                  0 0 0 14px rgba(255, 255, 255, 0.04);
+    }
+
+    /* Smartphone Screen */
+    .phone-screen {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      background: #f8fafc;
+      overflow-y: auto;
+      overflow-x: hidden;
+      scrollbar-width: none;
+    }
+    .phone-screen::-webkit-scrollbar {
+      display: none;
+    }
+    html.style-modern.theme-dark .phone-screen {
+      background: #0b0c10;
+    }
+
+    /* Status Bar */
+    .phone-status-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 24px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #475569;
+      letter-spacing: -0.01em;
+      user-select: none;
+    }
+    html.style-modern.theme-dark .phone-status-bar {
+      color: #94a3b8;
+    }
+    .status-icons {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+    }
+
+    /* Phone Header */
+    .phone-app-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 20px;
+      position: relative;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+      user-select: none;
+    }
+    html.style-modern.theme-dark .phone-app-header {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    }
+
+    .phone-menu-btn, .phone-bell-btn {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      border-radius: 50%;
+      transition: background-color 0.2s;
+    }
+    .phone-menu-btn:hover, .phone-bell-btn:hover {
+      background: rgba(0, 0, 0, 0.03);
+    }
+    html.style-modern.theme-dark .phone-menu-btn:hover,
+    html.style-modern.theme-dark .phone-bell-btn:hover {
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .phone-menu-btn svg, .phone-bell-btn svg {
+      width: 20px;
+      height: 20px;
+      fill: #475569;
+      transition: fill 0.2s;
+    }
+    html.style-modern.theme-dark .phone-menu-btn svg, 
+    html.style-modern.theme-dark .phone-bell-btn svg {
+      fill: #94a3b8;
+    }
+
+    .phone-app-logo {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: 0.05em;
+    }
+    html.style-modern.theme-dark .phone-app-logo {
+      color: #f8fafc;
+    }
+    .logo-wave-icon {
+      width: 14px;
+      height: 14px;
+      fill: #f7931a;
+    }
+
+    /* Drawer Sidebar Menu inside Phone */
+    .phone-drawer-menu {
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 85%;
+      height: 100%;
+      background: #ffffff;
+      z-index: 100;
+      box-shadow: 15px 0 35px rgba(0, 0, 0, 0.06);
+      display: flex;
+      flex-direction: column;
+      padding: 24px;
+      box-sizing: border-box;
+      transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    html.style-modern.theme-dark .phone-drawer-menu {
+      background: #121318;
+      box-shadow: 15px 0 35px rgba(0, 0, 0, 0.4);
+      border-right: 1px solid rgba(255, 255, 255, 0.03);
+    }
+    .phone-drawer-menu.open {
+      left: 0;
+    }
+
+    .drawer-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+    .drawer-header h3 {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--text);
+    }
+    .drawer-close-btn {
+      background: transparent;
+      border: none;
+      font-size: 1.25rem;
+      cursor: pointer;
+      color: var(--text-mute);
+      padding: 4px;
+      line-height: 1;
+    }
+
+    .drawer-links {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: auto;
+    }
+    .drawer-link {
+      display: flex;
+      align-items: center;
+      background: transparent;
+      border: none;
+      text-align: left;
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-mute);
+      padding: 12px 16px;
+      border-radius: 12px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .drawer-link:hover, .drawer-link.active {
+      background: rgba(247, 147, 26, 0.08);
+      color: #f7931a;
+    }
+    html.style-modern.theme-dark .drawer-link:hover, 
+    html.style-modern.theme-dark .drawer-link.active {
+      background: rgba(247, 147, 26, 0.12);
+    }
+
+    .drawer-settings {
+      border-top: 1px solid var(--divider);
+      padding-top: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .drawer-settings h4 {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-mute);
+      margin-bottom: 4px;
+    }
+    .settings-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .settings-group label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--text-mute);
+    }
+    .settings-buttons {
+      display: flex;
+      gap: 4px;
+      background: rgba(0, 0, 0, 0.02);
+      border: 1px solid var(--border);
+      padding: 3px;
+      border-radius: 9999px;
+    }
+    html.style-modern.theme-dark .settings-buttons {
+      background: rgba(255, 255, 255, 0.03);
+    }
+    .settings-buttons button {
+      flex: 1;
+      background: transparent;
+      border: none;
+      font-family: inherit;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 6px;
+      border-radius: 9999px;
+      color: var(--text-mute);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .settings-buttons button.active {
+      background: #ffffff;
+      color: #0f172a;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    }
+    html.style-modern.theme-dark .settings-buttons button.active {
+      background: #1e293b;
+      color: #f8fafc;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Screen Content */
+    .phone-screen-content {
+      flex: 1;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      z-index: 5;
+    }
+
+    .modern-app-title {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -0.01em;
+      text-align: center;
+      margin-top: 4px;
+      margin-bottom: 4px;
+    }
+    html.style-modern.theme-dark .modern-app-title {
+      color: #f8fafc;
+    }
+
+    /* Modern Rounded Cards */
+    .modern-phone-card {
+      background: #ffffff;
+      border-radius: 28px;
+      padding: 24px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02), 0 1px 3px rgba(0, 0, 0, 0.01);
+      border: 1px solid rgba(0, 0, 0, 0.02);
+      box-sizing: border-box;
+      transition: background-color 0.3s, border-color 0.3s;
+    }
+    html.style-modern.theme-dark .modern-phone-card {
+      background: #121318;
+      border: 1px solid rgba(255, 255, 255, 0.02);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+    }
+
+    /* Gauge Card Elements */
+    .gauge-card {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .modern-gauge-svg-wrap {
+      position: relative;
+      width: 220px;
+      height: 135px;
+      display: flex;
+      justify-content: center;
+    }
+    .gauge-base-path {
+      stroke: #eef2f6;
+    }
+    html.style-modern.theme-dark .gauge-base-path {
+      stroke: #1e293b;
+    }
+    .modern-gauge-center-content {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .phone-gauge-score {
+      font-size: 3.5rem;
+      font-weight: 800;
+      line-height: 1;
+      color: #0f172a;
+      letter-spacing: -0.02em;
+    }
+    html.style-modern.theme-dark .phone-gauge-score {
+      color: #f8fafc;
+    }
+    .phone-gauge-status {
+      font-size: 0.95rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #f7931a;
+      margin-top: 4px;
+    }
+    .phone-gauge-lbl {
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-top: 2px;
+    }
+    html.style-modern.theme-dark .phone-gauge-lbl {
+      color: #64748b;
+    }
+    .phone-gauge-badge-wrap {
+      margin-top: 8px;
+    }
+    .phone-gauge-badge {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #f7931a;
+      border: 1px solid rgba(247, 147, 26, 0.25);
+      padding: 3px 12px;
+      border-radius: 9999px;
+      background: rgba(247, 147, 26, 0.06);
+    }
+    html.style-modern.theme-dark .phone-gauge-badge {
+      background: rgba(247, 147, 26, 0.12);
+      border: 1px solid rgba(247, 147, 26, 0.35);
+    }
+
+    /* Index Overview Card */
+    .overview-card {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .overview-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      user-select: none;
+    }
+    .overview-header h3 {
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: 0.06em;
+    }
+    html.style-modern.theme-dark .overview-header h3 {
+      color: #f8fafc;
+    }
+    .overview-header .chart-icon {
+      width: 16px;
+      height: 16px;
+      fill: #94a3b8;
+    }
+    .modern-chart-container {
+      width: 100%;
+      height: 140px;
+      position: relative;
+    }
+    .modern-change-badge-wrap {
+      display: flex;
+      justify-content: center;
+      margin-top: 4px;
+      user-select: none;
+    }
+    .modern-change-badge {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #0f172a;
+      background: #eef2f6;
+      padding: 5px 14px;
+      border-radius: 9999px;
+    }
+    html.style-modern.theme-dark .modern-change-badge {
+      color: #f8fafc;
+      background: #1e293b;
+    }
+
+    /* Outside layout styles */
+    .modern-outside-footer {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      width: 100%;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 600px) {
+      .phone-mockup {
+        width: 100%;
+        height: auto;
+        min-height: 100vh;
+        border-radius: 0;
+        box-shadow: none;
+        background: transparent;
+      }
+      .phone-screen {
+        height: auto;
+        min-height: 100vh;
+        overflow: visible;
+      }
+      .modern-theme-container {
+        padding: 0;
+      }
+      .modern-outside-footer {
+        padding: 24px;
+      }
+    }
+
     body.lang-en .ua { display: none; }
     body.lang-ua .en { display: none; }
   </style>
@@ -1067,16 +1735,10 @@
           <span class="en">Methodology</span>
           <span class="ua">Методологія</span>
         </a>
-        <a class="nav-btn" href="bitcoin_buy_risk.ics">
-          <span class="en">iCal Alerts</span>
-          <span class="ua">Сповіщення iCal</span>
-        </a>
       </div>
-      <!-- Theme toggle is moved to the footer -->
-      <div class="lang-toggle">
-        <button class="lang-btn active" id="btn-en" onclick="setLang('en')">EN</button>
-        <button class="lang-btn"        id="btn-ua" onclick="setLang('ua')">UA</button>
-      </div>
+      <a href="bitcoin_buy_risk.ics" class="nav-bell-btn" title="iCal Alerts">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 5a2 2 0 1 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6"/><path d="M9 17v1a3 3 0 0 0 6 0v-1"/></svg>
+      </a>
     </div>
   </div>
 
@@ -1108,12 +1770,28 @@
               <span class="hero-score-label" id="s-final-label" style="display:none;">—</span>
               <span id="main-tactical-badge" class="tactical-badge" style="display:none"></span>
               <span id="s-warn" class="warning-badge" style="display:none;" title="One or more key indicators contradicts the overall index direction">
-                <span class="en">⚠️ Contradiction</span>
-                <span class="ua">⚠️ Розбіжність</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 9v4"/><path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0"/><path d="M12 16h.01"/></svg><span class="en">Contradiction</span>
+                <span class="ua">Розбіжність</span>
               </span>
             </div>
           </div>
           
+          <!-- Modern Style Canvas Gauge -->
+          <div class="modern-gauge-container" style="display: none; flex-direction: column; align-items: center; margin: 8px 0 4px;">
+            <div class="modern-main-gauge-wrap">
+              <canvas id="modern-gauge-canvas" style="max-width: 320px; width: 100%;"></canvas>
+            </div>
+            <div id="modern-gauge-status" style="font-size: 1rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: var(--index-color); margin-top: 2px;">
+              <span class="en" id="modern-gauge-status-en">—</span>
+              <span class="ua" id="modern-gauge-status-ua">—</span>
+            </div>
+            <div style="font-size: 0.62rem; font-weight: 700; color: var(--text-mute); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 2px;">
+              <span class="en">Current Status</span>
+              <span class="ua">Поточний статус</span>
+            </div>
+            <span id="modern-gauge-badge" style="display:none">— / 100</span>
+          </div>
+
           <!-- Option 2: Horizontal Risk Pointer Track -->
           <div class="risk-track-container">
             <div class="risk-track" id="risk-track">
@@ -1156,8 +1834,11 @@
           <span class="ua">Ончейн-оцінка</span>
         </div>
         <div class="sub-card-value-container">
-          <span id="oc-warn" class="sub-warn-icon" style="display:none" title="One or more on-chain metrics contradicts the on-chain subscore">⚠️</span>
+          <span id="oc-warn" class="sub-warn-icon" style="display:none" title="One or more on-chain metrics contradicts the on-chain subscore"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 9v4"/><path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0"/><path d="M12 16h.01"/></svg></span>
           <div class="s-value" id="s-oc">—</div>
+        </div>
+        <div class="modern-sub-gauge-wrap">
+          <canvas id="gauge-oc" class="modern-sub-gauge-canvas"></canvas>
         </div>
         <div class="bar-wrap"><div class="bar-fill" id="b-oc" style="width:0%"></div></div>
         <div class="s-sub">
@@ -1165,16 +1846,19 @@
           <span class="ua">80% Ончейн + 20% Тех</span>
         </div>
       </div>
-      
+
       <div class="score-box" id="tech-card">
         <div class="s-label">
           <span class="en">Tech/Macro Score</span>
           <span class="ua">Тех/Макро оцінка</span>
         </div>
         <div class="sub-card-value-container">
-          <span id="tech-warn" class="sub-warn-icon" style="display:none" title="One or more tech/macro metrics contradicts the tech subscore">⚠️</span>
+          <span id="tech-warn" class="sub-warn-icon" style="display:none" title="One or more tech/macro metrics contradicts the tech subscore"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 9v4"/><path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0"/><path d="M12 16h.01"/></svg></span>
           <div class="s-value" id="s-tech">—</div>
           <span id="tech-div-badge" style="display:none"></span>
+        </div>
+        <div class="modern-sub-gauge-wrap">
+          <canvas id="gauge-tech" class="modern-sub-gauge-canvas"></canvas>
         </div>
         <div id="tech-tactical-badge-container" style="margin-top: 4px; margin-bottom: 2px;">
           <span id="tech-tactical-badge" class="tactical-badge" style="display:none"></span>
@@ -1185,26 +1869,36 @@
           <span class="ua">20% Ончейн + 80% Тех</span>
         </div>
       </div>
-      
+
       <div class="score-box">
         <div class="s-label">
           <span class="en">Yesterday</span>
           <span class="ua">Вчора</span>
         </div>
-        <div class="s-value" id="s-yesterday">—</div>
+        <div class="sub-card-value-container">
+          <div class="s-value" id="s-yesterday">—</div>
+        </div>
+        <div class="modern-sub-gauge-wrap">
+          <canvas id="gauge-yesterday" class="modern-sub-gauge-canvas"></canvas>
+        </div>
         <div class="bar-wrap"><div class="bar-fill" id="b-yesterday" style="width:0%"></div></div>
         <div class="s-sub">
           <span class="en">Previous daily score</span>
           <span class="ua">Попередній денний бал</span>
         </div>
       </div>
-      
+
       <div class="score-box">
         <div class="s-label">
           <span class="en">Last 7 Days</span>
           <span class="ua">7 днів тому</span>
         </div>
-        <div class="s-value" id="s-week">—</div>
+        <div class="sub-card-value-container">
+          <div class="s-value" id="s-week">—</div>
+        </div>
+        <div class="modern-sub-gauge-wrap">
+          <canvas id="gauge-week" class="modern-sub-gauge-canvas"></canvas>
+        </div>
         <div class="bar-wrap"><div class="bar-fill" id="b-week" style="width:0%"></div></div>
         <div class="s-sub">
           <span class="en">Score 7 days ago</span>
@@ -1346,8 +2040,8 @@
             <span class="en">Risk Score</span>
             <span class="ua">Оцінка ризику</span>
           </span>
-          <span style="display:flex; align-items:center; gap:6px; color:#10b981;">
-            <span style="display:inline-block; width:12px; height:3px; background:#10b981; border-radius:2px; box-shadow:0 0 6px #10b981;"></span>
+          <span id="btc-price-legend" style="display:flex; align-items:center; gap:6px; color:#10b981;">
+            <span id="btc-price-legend-dot" style="display:inline-block; width:12px; height:3px; background:#10b981; border-radius:2px; box-shadow:0 0 6px #10b981;"></span>
             <span class="en">BTC Price</span>
             <span class="ua">Ціна BTC</span>
           </span>
@@ -1357,7 +2051,182 @@
     </div>
   </div><!-- end tab-main -->
 
+  <!-- Modern Style Container (Hidden by default, shown when style === 'modern') -->
+  <div class="modern-theme-container">
+    <div class="modern-bg-elements">
+      <!-- Faded background grid, diagonal lines, and perspective charts -->
+      <div class="bg-diagonal-line line-1"></div>
+      <div class="bg-diagonal-line line-2"></div>
+      <div class="bg-text text-btc">BTC/USD</div>
+      <div class="bg-text text-vol">24h vol</div>
+      <div class="bg-text text-val">2,617,728</div>
+      <div class="bg-text text-pts">+1.5 pts</div>
+      <div class="bg-perspective-chart bpc-1"></div>
+      <div class="bg-perspective-chart bpc-2"></div>
+    </div>
+    
+    <div class="modern-content-wrapper">
+        <!-- Status Bar -->
+        <div class="phone-status-bar">
+          <div class="status-time" id="modern-status-time">10:14 AM</div>
+          <div class="status-icons">
+            <span class="status-signal">📶</span>
+            <span class="status-wifi">📶</span>
+            <span class="status-battery-pct">88%</span>
+            <span class="status-battery-icon">🔋</span>
+          </div>
+        </div>
+        
+        <!-- App Header -->
+        <div class="phone-app-header">
+          <button class="phone-menu-btn" onclick="toggleModernMenu()">
+            <svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+          </button>
+          <div class="phone-app-logo">
+            <svg class="logo-wave-icon" viewBox="0 0 24 24">
+              <path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L3 15.66z"/>
+            </svg>
+            <span>TRADING APP</span>
+          </div>
+          <button class="phone-bell-btn">
+            <svg viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+          </button>
+        </div>
+        
+        <!-- Sidebar Drawer Menu (Within the viewport, fixed to screen) -->
+        <div class="phone-drawer-menu" id="modern-drawer-menu">
+          <div class="drawer-header">
+            <h3>Menu</h3>
+            <button class="drawer-close-btn" onclick="toggleModernMenu()">✕</button>
+          </div>
+          <div class="drawer-links">
+            <button class="drawer-link active" onclick="navigateModern('dashboard')">
+              <span class="en">Dashboard</span>
+              <span class="ua">Панель</span>
+            </button>
+            <a class="drawer-link" href="about.html">
+              <span class="en">Methodology</span>
+              <span class="ua">Методологія</span>
+            </a>
+            <a class="drawer-link" href="bitcoin_buy_risk.ics">
+              <span class="en">iCal Alerts</span>
+              <span class="ua">Сповіщення iCal</span>
+            </a>
+          </div>
+          <div class="drawer-settings">
+            <h4>Settings</h4>
+            
+            <div class="settings-group">
+              <label>Style Theme</label>
+              <div class="settings-buttons">
+                <button id="drawer-btn-style-classic" onclick="setStyle('classic'); toggleModernMenu();">Classic</button>
+                <button id="drawer-btn-style-modern" onclick="setStyle('modern'); toggleModernMenu();">Modern</button>
+              </div>
+            </div>
+            
+            <div class="settings-group">
+              <label>Color Mode</label>
+              <div class="settings-buttons">
+                <button id="drawer-btn-mode-night" onclick="setMode('night')">Night</button>
+                <button id="drawer-btn-mode-auto" onclick="setMode('auto')">Auto</button>
+              </div>
+            </div>
+            
+            <div class="settings-group">
+              <label>Language</label>
+              <div class="settings-buttons">
+                <button id="drawer-btn-lang-en" onclick="setLang('en')">EN</button>
+                <button id="drawer-btn-lang-ua" onclick="setLang('ua')">UA</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Screen Content -->
+        <div class="phone-screen-content">
+          <h2 class="modern-app-title">BITCOIN BUY RISK INDEX</h2>
+          
+          <!-- Gauge Card -->
+          <div class="modern-phone-card gauge-card">
+            <div class="modern-gauge-svg-wrap">
+              <svg width="220" height="130" viewBox="0 0 220 130">
+                <!-- Base track arc -->
+                <path d="M 20 120 A 90 90 0 0 1 200 120" fill="none" stroke="#eef2f6" stroke-width="14" stroke-linecap="round" class="gauge-base-path" />
+                <!-- Active colored arc -->
+                <path id="phone-gauge-arc" d="M 20 120 A 90 90 0 0 1 200 120" fill="none" stroke="#f7931a" stroke-width="14" stroke-linecap="round" stroke-dasharray="282.7" stroke-dashoffset="282.7" style="transition: stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1);" />
+              </svg>
+              <div class="modern-gauge-center-content">
+                <div class="phone-gauge-score" id="phone-gauge-score">—</div>
+                <div class="phone-gauge-status" id="phone-gauge-status">—</div>
+                <div class="phone-gauge-lbl">
+                  <span class="en">CURRENT STATUS</span>
+                  <span class="ua">ПОТОЧНИЙ СТАТУС</span>
+                </div>
+                <div class="phone-gauge-badge-wrap">
+                  <span class="phone-gauge-badge" id="phone-gauge-badge">— / 100</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Index Overview Card -->
+          <div class="modern-phone-card overview-card">
+            <div class="overview-header">
+              <h3>
+                <span class="en">INDEX OVERVIEW</span>
+                <span class="ua">ОГЛЯД ІНДЕКСУ</span>
+              </h3>
+              <svg class="chart-icon" viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg>
+            </div>
+            <div class="modern-chart-container">
+              <canvas id="phone-history-chart"></canvas>
+            </div>
+            <div class="modern-change-badge-wrap">
+              <span class="modern-change-badge" id="phone-change-badge">—</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    <!-- Outside controls for modern view on desktop/mobile -->
+    <div class="modern-outside-footer" style="margin-top: 40px; display: flex; flex-direction: column; align-items: center; gap: 16px; width: 100%; max-width: 600px; z-index: 5;">
+      <div class="footer-controls" style="display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; margin-bottom: 0;">
+        <div class="nav-menu">
+          <button class="nav-btn" id="modern-footer-btn-style-classic" onclick="setStyle('classic')">
+            <span class="en">Classic</span>
+            <span class="ua">Класична</span>
+          </button>
+          <button class="nav-btn active" id="modern-footer-btn-style-modern" onclick="setStyle('modern')">
+            <span class="en">Modern</span>
+            <span class="ua">Сучасна</span>
+          </button>
+        </div>
+
+        <div class="nav-menu">
+          <button class="nav-btn" id="modern-footer-btn-mode-night" onclick="setMode('night')">
+            <span class="en">Night</span>
+            <span class="ua">Ніч</span>
+          </button>
+          <button class="nav-btn" id="modern-footer-btn-mode-auto" onclick="setMode('auto')">
+            <span class="en">Auto</span>
+            <span class="ua">Авто</span>
+          </button>
+        </div>
+      </div>
+      
+      <p class="disclaimer" style="display: block; margin: 0; max-width: 500px; text-align: center; font-size: 0.72rem; color: var(--text-mute); opacity: 0.85;">
+        <span class="en">This dashboard is for informational purposes only and does not constitute financial advice. All data is automatically collected from public sources. Any decisions to buy or sell assets are made solely at your own risk.</span>
+        <span class="ua">Цей дашборд створений виключно з інформаційною метою і не є фінансовою порадою. Всі дані збираються автоматично з публічних джерел. Будь-які рішення про купівлю чи продаж активів приймаються вами на власний ризик.</span>
+      </p>
+    </div>
+  </div>
+
   <div class="footer-controls" style="display: flex; justify-content: center; gap: 16px; margin-bottom: 28px; flex-wrap: wrap;">
+    <!-- Language Switcher (moved from nav) -->
+    <div class="lang-toggle">
+      <button class="lang-btn active" id="btn-en" onclick="setLang('en')">EN</button>
+      <button class="lang-btn"        id="btn-ua" onclick="setLang('ua')">UA</button>
+    </div>
     <!-- Theme Style Switcher -->
     <div class="nav-menu">
       <button class="nav-btn active" id="btn-style-classic" onclick="setStyle('classic')">
@@ -1402,21 +2271,67 @@
       }
       
       document.documentElement.className = 'style-' + style + ' theme-' + theme;
+
+      // Toggle Hero Card Layout Elements in Classic
+      const mContainer = document.querySelector('.modern-gauge-container');
+      const hContainer = document.querySelector('.risk-track-container');
+      const hStatus = document.querySelector('.hero-status-area');
+      const heroLabel = document.getElementById('hero-label');
+      
+      if (style === 'modern') {
+        if (mContainer) mContainer.style.display = 'flex';
+        if (hContainer) hContainer.style.display = 'none';
+        if (hStatus) hStatus.style.display = 'none';
+        if (heroLabel) {
+          heroLabel.innerHTML = `
+            <span class="en">Bitcoin Buy Risk Index</span>
+            <span class="ua">Індекс ризику Bitcoin</span>
+          `;
+        }
+      } else {
+        if (mContainer) mContainer.style.display = 'none';
+        if (hContainer) hContainer.style.display = 'block';
+        if (hStatus) hStatus.style.display = 'flex';
+        if (heroLabel) {
+          heroLabel.innerHTML = `
+            <span class="en">Composite Risk Index</span>
+            <span class="ua">Композитний індекс ризику</span>
+          `;
+        }
+      }
       
       // Update active states for buttons
-      const btnClassic = document.getElementById('btn-style-classic');
-      const btnModern = document.getElementById('btn-style-modern');
-      if (btnClassic) btnClassic.classList.toggle('active', style === 'classic');
-      if (btnModern) btnModern.classList.toggle('active', style === 'modern');
-      
-      const btnNight = document.getElementById('btn-mode-night');
-      const btnAuto = document.getElementById('btn-mode-auto');
-      if (btnNight) btnNight.classList.toggle('active', mode === 'night');
-      if (btnAuto) btnAuto.classList.toggle('active', mode === 'auto');
+      const toggleActive = (id, condition) => {
+        const el = document.getElementById(id);
+        if (el) el.classList.toggle('active', condition);
+      };
+
+      // Classic dashboard buttons
+      toggleActive('btn-style-classic', style === 'classic');
+      toggleActive('btn-style-modern', style === 'modern');
+      toggleActive('btn-mode-night', mode === 'night');
+      toggleActive('btn-mode-auto', mode === 'auto');
+
+      // Modern outside footer buttons
+      toggleActive('modern-footer-btn-style-classic', style === 'classic');
+      toggleActive('modern-footer-btn-style-modern', style === 'modern');
+      toggleActive('modern-footer-btn-mode-night', mode === 'night');
+      toggleActive('modern-footer-btn-mode-auto', mode === 'auto');
+
+      // Modern drawer settings buttons
+      toggleActive('drawer-btn-style-classic', style === 'classic');
+      toggleActive('drawer-btn-style-modern', style === 'modern');
+      toggleActive('drawer-btn-mode-night', mode === 'night');
+      toggleActive('drawer-btn-mode-auto', mode === 'auto');
+
+      const lang = localStorage.getItem('bbr-lang') || 'en';
+      toggleActive('drawer-btn-lang-en', lang === 'en');
+      toggleActive('drawer-btn-lang-ua', lang === 'ua');
 
       if (typeof _chartData !== 'undefined' && _chartData) {
         drawCharts(_chartData);
       }
+      redrawAllModernGauges();
     }
 
     function setStyle(style) {
@@ -1424,7 +2339,6 @@
       updateThemeClass();
     }
 
-    // Dynamic color variable updates for custom elements when scoring changes
     function setMode(mode) {
       localStorage.setItem('bbr-mode', mode);
       updateThemeClass();
@@ -1444,6 +2358,12 @@
       const btnUa = document.getElementById('btn-ua');
       if (btnEn) btnEn.classList.toggle('active', lang === 'en');
       if (btnUa) btnUa.classList.toggle('active', lang === 'ua');
+
+      const dBtnEn = document.getElementById('drawer-btn-lang-en');
+      const dBtnUa = document.getElementById('drawer-btn-lang-ua');
+      if (dBtnEn) dBtnEn.classList.toggle('active', lang === 'en');
+      if (dBtnUa) dBtnUa.classList.toggle('active', lang === 'ua');
+
       localStorage.setItem('bbr-lang', lang);
       document.title = lang === 'ua' ? 'Індекс ризику купівлі Bitcoin' : 'Bitcoin Buy Risk Index';
 
@@ -1475,6 +2395,393 @@
     const defaultLang = browserLang.startsWith('uk') || browserLang.startsWith('ua') ? 'ua' : 'en';
     const saved = localStorage.getItem('bbr-lang') || defaultLang;
     setLang(saved);
+
+    // Modern View Navigation & Settings drawer
+    function toggleModernMenu() {
+      const drawer = document.getElementById('modern-drawer-menu');
+      if (drawer) {
+        drawer.classList.toggle('open');
+      }
+    }
+    
+    function navigateModern(tab) {
+      toggleModernMenu();
+    }
+
+    // Modern Status Bar Clock
+    function updateModernClock() {
+      const clockEl = document.getElementById('modern-status-time');
+      if (!clockEl) return;
+      const now = new Date();
+      let hours = now.getHours();
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      hours = hours % 12;
+      hours = hours ? hours : 12;
+      clockEl.textContent = hours + ':' + minutes + ' ' + ampm;
+    }
+    setInterval(updateModernClock, 1000);
+    updateModernClock();
+
+    // ── Modern Canvas Gauge ──────────────────────────────────────────────────
+    // 5 zones (0→100): darkGray → gray → lightGray → lightOrange → orange
+    // Fill: 0..value = bright zone colour; value..100 = uniform dim
+    // At current value: tick crossing the arc
+    // 0..value: parallel arc outlines on inner & outer rim
+    function drawModernGauge(canvas, value, isSmall, showWarn = false) {
+      if (!canvas || value == null) return;
+      const isDark = !document.documentElement.classList.contains('theme-light');
+
+      // bright zone colours left→right (темносірий…помаранчевий)
+      const ZONE_BRIGHT = isDark
+        ? ['#8892a4', '#b0baca', '#d4d8df', '#fbbf24', '#f7931a']  // brighter on dark bg
+        : ['#374151', '#6b7280', '#c8cdd4', '#fdba74', '#f7931a'];
+      const ZONE_DIM = ZONE_BRIGHT;   // no dimming — all zones show at full colour
+      const RIM_COL      = '#f7931a';                       // always max orange
+      const RIM_GAP      = isSmall ? 2 : 3;
+      const TICK_BND_COL = isDark ? '#4a5470' : '#c8cdd4';
+      const TICK_CUR_COL = '#f7931a';                        // always max orange
+      const NUM_COL      = isDark ? '#eef0f4' : '#1f2937';
+
+      const dpr = window.devicePixelRatio || 1;
+      const W   = Math.min(canvas.parentElement.clientWidth || (isSmall ? 180 : 320), isSmall ? 180 : 320);
+      const H   = isSmall ? 98 : 185;
+
+      canvas.width  = W * dpr;
+      canvas.height = H * dpr;
+      canvas.style.width  = W + 'px';
+      canvas.style.height = H + 'px';
+
+      const ctx = canvas.getContext('2d');
+      ctx.scale(dpr, dpr);
+
+      const cx     = W / 2;
+      const cy     = H;
+      const R_out  = Math.min(W * 0.46, H - (isSmall ? 10 : 14));
+      const ringW  = isSmall ? 13 : 22;
+      const R_in   = R_out - ringW;
+
+      // helper: canvas angle for risk value v (0→π left, 100→2π right)
+      const toAngle = v => Math.PI + (v / 100) * Math.PI;
+
+      // ── 1. Draw 5 continuous zone segments (no gaps) ─────────────────────
+      for (let i = 0; i < 5; i++) {
+        const a0 = toAngle(i * 20);
+        const a1 = toAngle((i + 1) * 20);
+        ctx.beginPath();
+        ctx.arc(cx, cy, R_out, a0, a1, false);
+        ctx.arc(cx, cy, R_in,  a1, a0, true);
+        ctx.closePath();
+        ctx.fillStyle = ZONE_BRIGHT[i];
+        ctx.fill();
+      }
+
+      // ── 2. Parallel arc outlines on filled portion (0 → value) ──────────
+      if (value > 0) {
+        const fillEnd = toAngle(value);
+        ctx.lineWidth = isSmall ? 1.5 : 2;
+        ctx.strokeStyle = RIM_COL;
+        ctx.setLineDash([]);
+
+        ctx.beginPath();
+        ctx.arc(cx, cy, R_out + RIM_GAP, Math.PI, fillEnd, false); // outer rim (gap from arc)
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(cx, cy, R_in - RIM_GAP,  Math.PI, fillEnd, false); // inner rim (gap from arc)
+        ctx.stroke();
+      }
+
+      // ── 3. Current-value tick — crosses through the arc ──────────────────
+      if (value > 0 && value < 100) {
+        const ca   = toAngle(value);
+        const ext  = isSmall ? 3 : 5;
+        ctx.beginPath();
+        ctx.moveTo(cx + (R_in  - ext) * Math.cos(ca), cy + (R_in  - ext) * Math.sin(ca));
+        ctx.lineTo(cx + (R_out + ext) * Math.cos(ca), cy + (R_out + ext) * Math.sin(ca));
+        ctx.strokeStyle = TICK_CUR_COL;
+        ctx.lineWidth   = isSmall ? 2 : 2.5;
+        ctx.stroke();
+      }
+
+      // ── 5. Score number — inside arc, lower position ──────────────────────
+      const numY = cy - R_in * (isSmall ? 0.34 : 0.32);
+      const numStr = String(Math.round(value));
+      ctx.fillStyle    = NUM_COL;
+      ctx.textAlign    = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.font = `800 ${isSmall ? '24px' : '50px'} Outfit, sans-serif`;
+      ctx.fillText(numStr, cx, numY);
+
+      // ── 6. Warning icon — drawn to the left of the number ─────────────────
+      if (showWarn) {
+        const numW   = ctx.measureText(numStr).width;
+        const iSz    = isSmall ? 12 : 18;        // icon bounding size
+        const iGap   = 4;
+        const ix     = cx - numW / 2 - iGap - iSz;  // right edge of icon
+        const iy     = numY;                          // vertically centred with number
+        const WARN   = '#f7931a';                     // orange in Modern theme
+        const lw     = isSmall ? 1.5 : 2;
+        const triH   = iSz * 0.866;
+
+        ctx.save();
+        ctx.strokeStyle = WARN;
+        ctx.fillStyle   = WARN;
+        ctx.lineWidth   = lw;
+        ctx.lineCap     = 'round';
+        ctx.lineJoin    = 'round';
+
+        // triangle (centred on ix + iSz/2, iy)
+        const tx = ix + iSz / 2;
+        const ty = iy - triH / 2;
+        ctx.beginPath();
+        ctx.moveTo(tx,           ty);
+        ctx.lineTo(tx + iSz/2,  ty + triH);
+        ctx.lineTo(tx - iSz/2,  ty + triH);
+        ctx.closePath();
+        ctx.stroke();
+
+        // exclamation line
+        ctx.beginPath();
+        ctx.moveTo(tx, ty + triH * 0.28);
+        ctx.lineTo(tx, ty + triH * 0.60);
+        ctx.stroke();
+
+        // dot
+        ctx.beginPath();
+        ctx.arc(tx, ty + triH * 0.76, lw * 0.7, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.restore();
+      }
+    }
+
+    function redrawAllModernGauges() {
+      const style = localStorage.getItem('bbr-style') || 'classic';
+      if (style !== 'modern' || !window._gaugeValues) return;
+      const v = window._gaugeValues;
+      const ocWarn   = document.getElementById('oc-warn');
+      const techWarn = document.getElementById('tech-warn');
+      drawModernGauge(document.getElementById('modern-gauge-canvas'),  v.final,     false, false);
+      drawModernGauge(document.getElementById('gauge-oc'),             v.onchain,   true,  ocWarn   && ocWarn.style.display   !== 'none');
+      drawModernGauge(document.getElementById('gauge-tech'),           v.tech,      true,  techWarn && techWarn.style.display !== 'none');
+      drawModernGauge(document.getElementById('gauge-yesterday'),      v.yesterday, true,  false);
+      drawModernGauge(document.getElementById('gauge-week'),           v.week,      true,  false);
+      // Redraw metric bars
+      document.querySelectorAll('canvas.mbar').forEach(c => {
+        const val = parseFloat(c.dataset.modernValue);
+        if (!isNaN(val)) drawModernBar(c.parentElement, val);
+      });
+    }
+
+    // ── Straightened gauge bar for metric rows ────────────────────────────
+    function drawModernBar(barWrap, value) {
+      if (!barWrap || value == null) return;
+      const isDark = !document.documentElement.classList.contains('theme-light');
+
+      const ZONE_BRIGHT = isDark
+        ? ['#8892a4', '#b0baca', '#d4d8df', '#fbbf24', '#f7931a']
+        : ['#374151', '#6b7280', '#c8cdd4', '#fdba74', '#f7931a'];
+      const ZONE_DIM = ZONE_BRIGHT;   // no dimming — all zones show at full colour
+
+      const v         = Math.max(0, Math.min(100, value || 0));
+      const zoneColor = '#f7931a';   // outlines & tick always max orange
+
+      const dpr   = window.devicePixelRatio || 1;
+      const W     = barWrap.clientWidth || 200;
+      const BAR_H = 8;   // bar visual height
+      const EXT   = 4;   // tick extension above/below bar
+      const H     = BAR_H + EXT * 2; // canvas total height
+
+      // Get or create canvas
+      let cv = barWrap.querySelector('canvas.mbar');
+      if (!cv) {
+        cv = document.createElement('canvas');
+        cv.className = 'mbar';
+        cv.style.display = 'block';
+        cv.style.marginTop  = `-${EXT}px`;
+        cv.style.marginBottom = `-${EXT}px`;
+        const fill = barWrap.querySelector('.bar-fill');
+        if (fill) fill.style.display = 'none';
+        barWrap.appendChild(cv);
+      }
+      cv.dataset.modernValue = v;
+      cv.width  = W * dpr;
+      cv.height = H * dpr;
+      cv.style.width  = W + 'px';
+      cv.style.height = H + 'px';
+
+      const ctx = cv.getContext('2d');
+      ctx.scale(dpr, dpr);
+      ctx.clearRect(0, 0, W, H);
+
+      // 1. Draw 5 zone segments (vertically centred in canvas)
+      for (let i = 0; i < 5; i++) {
+        const x0 = (i * 20 / 100) * W;
+        const x1 = ((i + 1) * 20 / 100) * W;
+        ctx.fillStyle = ZONE_BRIGHT[i];
+        ctx.fillRect(x0, EXT, x1 - x0, BAR_H);
+      }
+
+      // 2. Outlines top & bottom — 2px gap from bar edge
+      if (v > 0) {
+        const fillX = (v / 100) * W;
+        ctx.strokeStyle = zoneColor;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.moveTo(0, EXT - 2);         ctx.lineTo(fillX, EXT - 2);         ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(0, EXT + BAR_H + 2); ctx.lineTo(fillX, EXT + BAR_H + 2); ctx.stroke();
+      }
+
+      // 3. Tick at current value — crosses through bar + extensions
+      if (v > 0 && v < 100) {
+        const tickX = (v / 100) * W;
+        ctx.strokeStyle = zoneColor;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(tickX, 0);
+        ctx.lineTo(tickX, H);
+        ctx.stroke();
+      }
+    }
+
+    // Modern Chart Rendering with interactive Hover details
+    function drawPhoneHistoryChart(data, hoverIndex) {
+      const canvas = document.getElementById('phone-history-chart');
+      if (!canvas) return;
+
+      const pts = (data.score_history || []).filter(e => e.score != null);
+      if(pts.length < 2) return;
+
+      const isDark = !document.documentElement.classList.contains('theme-light');
+      const bg    = 'rgba(0,0,0,0)'; 
+      const grid  = isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.035)';
+      const textC = isDark ? 'rgba(255, 255, 255, 0.35)' : 'rgba(0, 0, 0, 0.4)';
+
+      const container = canvas.parentElement;
+      const dpr = window.devicePixelRatio || 1;
+      const W   = container.clientWidth || 300;
+      const H   = container.clientHeight || 140;
+      canvas.width  = W * dpr;
+      canvas.height = H * dpr;
+      canvas.style.width = W + 'px';
+      canvas.style.height = H + 'px';
+      const ctx = canvas.getContext('2d');
+      ctx.scale(dpr, dpr);
+
+      const PAD = { top: 15, bottom: 20, left: 30, right: 10 };
+      const cw  = W - PAD.left - PAD.right;
+      const ch  = H - PAD.top  - PAD.bottom;
+
+      const toYScore = v => PAD.top + ch - (v / 100) * ch;
+
+      ctx.clearRect(0, 0, W, H);
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, W, H);
+
+      // Grid lines
+      const gridVals = [0, 25, 50, 75, 100];
+      gridVals.forEach(v => {
+        const y = toYScore(v);
+        if (v > 0 && v < 100) {
+          ctx.strokeStyle = grid;
+          ctx.lineWidth = 1;
+          ctx.setLineDash([4, 4]);
+          ctx.beginPath();
+          ctx.moveTo(PAD.left, y);
+          ctx.lineTo(W - PAD.right, y);
+          ctx.stroke();
+          ctx.setLineDash([]);
+        }
+
+        ctx.fillStyle = textC;
+        ctx.font = '700 9px Outfit, sans-serif';
+        ctx.textAlign = 'right';
+        ctx.fillText(v, PAD.left - 6, y + 3);
+      });
+
+      // Area fill
+      const grad = ctx.createLinearGradient(0, PAD.top, 0, PAD.top + ch);
+      grad.addColorStop(0, isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)');
+      grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+
+      ctx.beginPath();
+      pts.forEach((e, i) => {
+        const x = PAD.left + (i / (pts.length - 1)) * cw;
+        const y = toYScore(e.score);
+        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      });
+      ctx.lineTo(PAD.left + cw, PAD.top + ch);
+      ctx.lineTo(PAD.left, PAD.top + ch);
+      ctx.closePath();
+      ctx.fillStyle = grad;
+      ctx.fill();
+
+      // Trend line
+      ctx.beginPath();
+      pts.forEach((e, i) => {
+        const x = PAD.left + (i / (pts.length - 1)) * cw;
+        const y = toYScore(e.score);
+        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      });
+      ctx.strokeStyle = isDark ? '#94a3b8' : '#64748b';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Interactive Hover elements
+      const idx = hoverIndex !== null ? hoverIndex : pts.length - 1;
+      if (idx >= 0 && idx < pts.length) {
+        const targetX = PAD.left + (idx / (pts.length - 1)) * cw;
+        const targetY = toYScore(pts[idx].score);
+
+        // Vertical orange dotted tracker
+        ctx.strokeStyle = '#f7931a';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([3, 3]);
+        ctx.beginPath();
+        ctx.moveTo(targetX, targetY);
+        ctx.lineTo(targetX, PAD.top + ch);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Interactive dot marker
+        ctx.fillStyle = '#f7931a';
+        ctx.beginPath();
+        ctx.arc(targetX, targetY, 5, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(targetX, targetY, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Draw Tooltip
+        const scoreStr = pts[idx].score.toFixed(1) + ' pts';
+        ctx.font = '700 9px Outfit, sans-serif';
+        const textWidth = ctx.measureText(scoreStr).width;
+        const ttW = textWidth + 12;
+        const ttH = 18;
+        const ttX = Math.max(PAD.left, Math.min(W - PAD.right - ttW, targetX - ttW / 2));
+        const ttY = targetY - ttH - 6;
+
+        ctx.fillStyle = isDark ? '#1e293b' : '#0f172a';
+        ctx.beginPath();
+        ctx.roundRect(ttX, ttY, ttW, ttH, 4);
+        ctx.fill();
+
+        // Tri pointer
+        ctx.beginPath();
+        ctx.moveTo(targetX - 3, ttY + ttH);
+        ctx.lineTo(targetX + 3, ttY + ttH);
+        ctx.lineTo(targetX, ttY + ttH + 3);
+        ctx.closePath();
+        ctx.fill();
+
+        // Tooltip text
+        ctx.fillStyle = '#ffffff';
+        ctx.textAlign = 'center';
+        ctx.fillText(scoreStr, ttX + ttW / 2, ttY + 12);
+      }
+    }
 
     // Slider maps
     function mapNupl(v)  { if(v==null)return null; v=Math.max(-50,Math.min(100,v));    return Math.round(((v+50)/150)*100); }
@@ -1536,6 +2843,15 @@
 
     function scoreColor(v, alpha = 1) {
       if(v == null) return 'var(--text-mute)';
+      // Modern: same 5-zone palette as gauge (темносірий→помаранчевий)
+      if ((localStorage.getItem('bbr-style') || 'classic') === 'modern') {
+        const lm = document.documentElement.classList.contains('theme-light');
+        if (v <= 20) return lm ? `rgba(55,65,81,${alpha})`   : `rgba(107,114,128,${alpha})`;  // dark gray
+        if (v <= 40) return lm ? `rgba(107,114,128,${alpha})` : `rgba(156,163,175,${alpha})`; // gray
+        if (v <= 60) return lm ? `rgba(200,205,212,${alpha})` : `rgba(200,205,212,${alpha})`; // light gray
+        if (v <= 80) return lm ? `rgba(253,186,116,${alpha})` : `rgba(245,158,11,${alpha})`;  // light orange
+        return `rgba(247,147,26,${alpha})`;                                                     // orange
+      }
       const stops = [
         { val: 0,   r: 16,  g: 185, b: 129 }, // Emerald
         { val: 30,  r: 132, g: 204, b: 22  }, // Lime
@@ -1570,14 +2886,27 @@
       const bar = document.getElementById('m-'+id+'-bar');
       const num = document.getElementById('m-'+id+'-num');
       const raw = document.getElementById('m-'+id+'-raw');
-      if(bar) {
-        bar.style.width = v+'%';
-        bar.style.background = c;
-        bar.style.setProperty('--bar-shadow-color', scoreColor(sliderVal, 0.5));
+      if (bar) {
+        const isModern = (localStorage.getItem('bbr-style') || 'classic') === 'modern';
+        if (isModern) {
+          drawModernBar(bar.parentElement, v);
+        } else {
+          bar.style.width = v+'%';
+          bar.style.background = c;
+          bar.style.setProperty('--bar-shadow-color', scoreColor(sliderVal, 0.5));
+        }
       }
       if(num) {
         num.textContent = sliderVal != null ? sliderVal : '\u2014';
-        num.style.color = c;
+        const isModernNum = (localStorage.getItem('bbr-style') || 'classic') === 'modern';
+        if (isModernNum) {
+          const isDarkNum = !document.documentElement.classList.contains('theme-light');
+          num.style.color = (v > 60)
+            ? '#f7931a'
+            : (isDarkNum ? '#8892a4' : '#374151');
+        } else {
+          num.style.color = c;
+        }
       }
       if(raw) raw.innerHTML = rawText || '';
     }
@@ -1696,8 +3025,39 @@
       setScore('s-oc',    'b-oc',    data.onchain_score);
       setScore('s-tech',  'b-tech',  data.tech_score);
 
-      // Custom Marker positioning and Category Label for Final Score
       const finalVal = data.final_score;
+
+      // Update Modern Canvas Gauges
+      if (finalVal != null) {
+        // Status label
+        let modernStatusEn = finalVal <= 25 ? 'Low Risk'
+          : finalVal <= 60 ? 'Neutral'
+          : finalVal <= 75 ? 'High Risk' : 'High Risk';
+        let modernStatusUa = finalVal <= 25 ? 'Низький ризик'
+          : finalVal <= 60 ? 'Нейтрально'
+          : 'Високий ризик';
+
+        const mStatusEnEl = document.getElementById('modern-gauge-status-en');
+        const mStatusUaEl = document.getElementById('modern-gauge-status-ua');
+        if (mStatusEnEl) mStatusEnEl.textContent = modernStatusEn;
+        if (mStatusUaEl) mStatusUaEl.textContent = modernStatusUa;
+
+        const mBadgeEl = document.getElementById('modern-gauge-badge');
+        if (mBadgeEl) mBadgeEl.textContent = finalVal + ' / 100';
+
+        // Store values and draw all canvas gauges
+        window._gaugeValues = {
+          final:     finalVal,
+          onchain:   data.onchain_score,
+          tech:      data.tech_score,
+          yesterday: data.prev_day  ? data.prev_day.final_score  : null,
+          week:      data.prev_week ? data.prev_week.final_score : null,
+        };
+        redrawAllModernGauges();
+
+      }
+
+      // Custom Marker positioning and Category Label for Final Score
       const marker = document.getElementById('risk-marker');
       const finalLabelEl = document.getElementById('s-final-label');
       if(marker && finalVal != null) {
@@ -1705,9 +3065,12 @@
         const markerColor = scoreColor(finalVal);
         marker.style.setProperty('--marker-color', markerColor);
         
-        document.documentElement.style.setProperty('--index-color', markerColor);
-        document.documentElement.style.setProperty('--index-color-bg', scoreColor(finalVal, 0.12));
-        document.documentElement.style.setProperty('--index-color-glow', scoreColor(finalVal, 0.08));
+        // Modern theme always uses orange accent; Classic uses dynamic score colour
+        const isModernAccent = (localStorage.getItem('bbr-style') || 'classic') === 'modern';
+        const accentColor = isModernAccent ? '#f7931a' : markerColor;
+        document.documentElement.style.setProperty('--index-color',      accentColor);
+        document.documentElement.style.setProperty('--index-color-bg',   isModernAccent ? 'rgba(247,147,26,0.12)' : scoreColor(finalVal, 0.12));
+        document.documentElement.style.setProperty('--index-color-glow', isModernAccent ? 'rgba(247,147,26,0.08)' : scoreColor(finalVal, 0.08));
         
         // logo-accent updates automatically via CSS variable --index-color
         
@@ -1933,7 +3296,81 @@
       setLang(localStorage.getItem('bbr-lang') || defLang);
 
       _chartData = data;
+      
       drawCharts(data);
+
+      // --- Setup Hover Event Listeners for Phone History Chart ---
+      const phoneCanvas = document.getElementById('phone-history-chart');
+      if (phoneCanvas) {
+        let activeHoverIndex = null;
+        
+        const onMouseMove = (e) => {
+          if (!phoneCanvas || !_chartData) return;
+          const rect = phoneCanvas.getBoundingClientRect();
+          const clientX = (e.touches && e.touches[0] ? e.touches[0].clientX : e.clientX);
+          const x = clientX - rect.left;
+          
+          const pts = (_chartData.score_history || []).filter(item => item.score != null);
+          if (pts.length < 2) return;
+          
+          const PAD_LEFT = 30;
+          const PAD_RIGHT = 10;
+          const cw = rect.width - PAD_LEFT - PAD_RIGHT;
+          
+          const relX = (x - PAD_LEFT) / cw;
+          const index = Math.max(0, Math.min(pts.length - 1, Math.round(relX * (pts.length - 1))));
+          
+          if (index !== activeHoverIndex) {
+            activeHoverIndex = index;
+            drawPhoneHistoryChart(_chartData, activeHoverIndex);
+            
+            const changeEl = document.getElementById('phone-change-badge');
+            if (changeEl) {
+              const pt = pts[index];
+              const dateStr = new Date(pt.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+              const scoreVal = pt.score.toFixed(1);
+              changeEl.innerHTML = `
+                <span>${dateStr} &middot; <strong>${scoreVal} pts</strong></span>
+              `;
+            }
+          }
+        };
+        
+        const onMouseLeave = () => {
+          activeHoverIndex = null;
+          if (_chartData) {
+            drawPhoneHistoryChart(_chartData, null);
+            
+            const finalVal = _chartData.final_score;
+            const changeEl = document.getElementById('phone-change-badge');
+            if (changeEl && _chartData.prev_day && _chartData.prev_day.final_score != null) {
+              const diff = finalVal - _chartData.prev_day.final_score;
+              const diffStr = (diff >= 0 ? '+' : '') + diff.toFixed(1);
+              let trendEn = 'Stable';
+              let trendUa = 'Стабільний';
+              if (Math.abs(diff) > 1.5) {
+                if (diff > 0) {
+                  trendEn = 'Rising';
+                  trendUa = 'Зростає';
+                } else {
+                  trendEn = 'Falling';
+                  trendUa = 'Спадає';
+                }
+              }
+              changeEl.innerHTML = `
+                <span class="en">DAILY CHANGE: ${diffStr} pts (${trendEn})</span>
+                <span class="ua">ДЕННА ЗМІНА: ${diffStr} балів (${trendUa})</span>
+              `;
+            }
+          }
+        };
+
+        phoneCanvas.addEventListener('mousemove', onMouseMove);
+        phoneCanvas.addEventListener('mouseleave', onMouseLeave);
+        phoneCanvas.addEventListener('touchstart', onMouseMove);
+        phoneCanvas.addEventListener('touchmove', onMouseMove);
+        phoneCanvas.addEventListener('touchend', onMouseLeave);
+      }
 
       updateCountdown();
       setInterval(updateCountdown, 1000);
@@ -1942,9 +3379,8 @@
     let _chartData = null;
 
     window.addEventListener('resize', () => {
-      if (_chartData) {
-        drawCharts(_chartData);
-      }
+      if (_chartData) drawCharts(_chartData);
+      redrawAllModernGauges();
     });
 
     function drawCharts(data) {
@@ -1993,6 +3429,10 @@
       const toYScore = v => PAD.top + ch - (v / 100) * ch;
       const toYPrice = p => PAD.top + ch - ((p - yMinPrice) / (yMaxPrice - yMinPrice)) * ch;
 
+      // Line colours — defined early so grid labels can reference them
+      const isModernChart = (localStorage.getItem('bbr-style') || 'classic') === 'modern';
+      const priceLineCol  = isModernChart ? (isDark ? '#6b7280' : '#9ca3af') : '#10b981';
+
       // Clear the canvas
       ctx.clearRect(0, 0, W, H);
       ctx.fillStyle = bg;
@@ -2013,15 +3453,16 @@
           ctx.stroke();
         }
         
-        // Left Y-axis: Risk Score labels
-        ctx.fillStyle = textC; 
-        ctx.font = '500 11px Outfit, sans-serif'; 
+        // Left Y-axis: Risk Score labels — orange to match the line
+        ctx.fillStyle = '#f7931a';
+        ctx.font = '600 11px Outfit, sans-serif';
         ctx.textAlign = 'right';
         ctx.fillText(v, PAD.left - 8, y + 4);
 
-        // Right Y-axis: Price labels corresponding to the same heights
+        // Right Y-axis: Price labels — use BTC price line colour
         const priceVal = yMinPrice + (v / 100) * (yMaxPrice - yMinPrice);
         const priceText = '$' + Math.round(priceVal / 100) / 10 + 'k';
+        ctx.fillStyle = priceLineCol;
         ctx.textAlign = 'left';
         ctx.fillText(priceText, W - PAD.right + 8, y + 4);
       });
@@ -2057,19 +3498,28 @@
       ctx.stroke();
       ctx.shadowBlur = 0; // Reset shadow
 
-      // 2. Draw BTC Price Line (Emerald Green, no fill to keep it clean)
+      // 2. Draw BTC Price Line — gray in Modern mode, green in Classic
+
+      // Update legend colour to match
+      const legendEl  = document.getElementById('btc-price-legend');
+      const legendDot = document.getElementById('btc-price-legend-dot');
+      if (legendEl)  legendEl.style.color = priceLineCol;
+      if (legendDot) {
+        legendDot.style.background = priceLineCol;
+        legendDot.style.boxShadow  = isModernChart ? 'none' : `0 0 6px ${priceLineCol}`;
+      }
       ctx.beginPath();
       pts.forEach((e, i) => {
         const x = PAD.left + (i / (pts.length - 1)) * cw;
         const y = toYPrice(e.price != null ? e.price : yMinPrice);
         i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
       });
-      ctx.strokeStyle = '#10b981'; 
+      ctx.strokeStyle = priceLineCol;
       ctx.lineWidth = 2;
-      ctx.shadowColor = '#10b981';
-      ctx.shadowBlur = 8;
+      ctx.shadowColor = priceLineCol;
+      ctx.shadowBlur = isModernChart ? 0 : 8;
       ctx.stroke();
-      ctx.shadowBlur = 0; // Reset shadow
+      ctx.shadowBlur = 0;
 
       // X-axis Dates
       [0, Math.floor((pts.length - 1) / 2), pts.length - 1].forEach(i => {

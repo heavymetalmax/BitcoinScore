@@ -81,17 +81,15 @@
 
       --index-color: #b45309;
       --index-color-glow: rgba(217, 119, 6, 0.05);
-    }
-    
-    /* Modern Dark */
+    }    /* Modern Dark */
     html.style-modern.theme-dark {
       --bg: #0b0c10;
       --bg-gradient: linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
                      linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px),
                      radial-gradient(circle at top, #161a24 0%, #0b0c10 100%);
-      --bg-card: rgba(20, 24, 33, 0.85);
-      --bg-card-hover: rgba(25, 30, 41, 0.98);
-      --border: rgba(255, 255, 255, 0.06);
+      --bg-card: #121318;
+      --bg-card-hover: #16181f;
+      --border: rgba(255, 255, 255, 0.03);
       --border-hover: rgba(247, 147, 26, 0.35);
       --text: #f3f4f6;
       --text-mute: #6b7280;
@@ -99,7 +97,7 @@
       --divider: rgba(255, 255, 255, 0.08);
       --footer: #4b5563;
       
-      --shadow-glow: 0 4px 20px rgba(0, 0, 0, 0.4);
+      --shadow-glow: 0 10px 40px rgba(0, 0, 0, 0.4);
       
       --glass-blur: blur(20px);
  
@@ -114,9 +112,9 @@
       --bg-gradient: linear-gradient(rgba(0, 0, 0, 0.02) 1px, transparent 1px),
                      linear-gradient(90deg, rgba(0, 0, 0, 0.02) 1px, transparent 1px),
                      linear-gradient(180deg, #f1f5f9 0%, #f8fafc 100%);
-      --bg-card: rgba(255, 255, 255, 0.85);
-      --bg-card-hover: rgba(255, 255, 255, 0.98);
-      --border: rgba(0, 0, 0, 0.06);
+      --bg-card: #ffffff;
+      --bg-card-hover: #ffffff;
+      --border: rgba(0, 0, 0, 0.04);
       --border-hover: rgba(247, 147, 26, 0.35);
       --text: #0f172a;
       --text-mute: #64748b;
@@ -124,10 +122,10 @@
       --divider: rgba(0, 0, 0, 0.08);
       --footer: #64748b;
       
-      --shadow-glow: 0 4px 20px rgba(0, 0, 0, 0.03);
+      --shadow-glow: 0 10px 40px rgba(0, 0, 0, 0.03);
       
       --glass-blur: blur(20px);
-
+ 
       --index-color: #b45309;
       --index-color-bg: rgba(217, 119, 6, 0.1);
       --index-color-glow: rgba(217, 119, 6, 0.05);
@@ -138,6 +136,10 @@
     }
     html.style-classic body {
       background-size: initial;
+    }
+    html.style-modern .toc-card, html.style-modern .disclaimer-box {
+      border-radius: 24px;
+    }
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -526,6 +528,169 @@
       border-top: 1px solid var(--divider);
       padding-top: 24px;
     }
+    
+    /* --- Modern Style Styling for About page --- */
+    html.style-modern {
+      background: #f4f5f6;
+    }
+    html.style-modern.theme-dark {
+      background: #0b0c10;
+    }
+    
+    html.style-modern body {
+      background: transparent;
+      padding: 40px 20px;
+      max-width: 100%;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      font-family: 'Outfit', sans-serif;
+    }
+    
+    /* Modern wrapper */
+    .about-wrapper {
+      width: 100%;
+      max-width: 720px;
+      box-sizing: border-box;
+      transition: all 0.3s ease;
+      z-index: 10;
+    }
+    html.style-modern .about-wrapper {
+      background: #ffffff;
+      border-radius: 28px;
+      padding: 36px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02), 0 1px 3px rgba(0, 0, 0, 0.01);
+      border: 1px solid rgba(0, 0, 0, 0.02);
+    }
+    html.style-modern.theme-dark .about-wrapper {
+      background: #121318;
+      border: 1px solid rgba(255, 255, 255, 0.02);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+    }
+    
+    /* Background elements for about page */
+    .modern-bg-elements {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+      overflow: hidden;
+    }
+    html.style-modern .modern-bg-elements {
+      display: block;
+    }
+    .modern-bg-elements::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background-image: 
+        linear-gradient(rgba(0, 0, 0, 0.015) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 0, 0, 0.015) 1px, transparent 1px);
+      background-size: 40px 40px;
+      transform: rotate(15deg);
+      opacity: 0.8;
+    }
+    html.style-modern.theme-dark .modern-bg-elements::before {
+      background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.01) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.01) 1px, transparent 1px);
+    }
+
+    .bg-diagonal-line {
+      position: absolute;
+      background: rgba(0, 0, 0, 0.025);
+      height: 1px;
+      width: 200%;
+      top: 50%;
+      left: -50%;
+      transform: rotate(-25deg);
+    }
+    html.style-modern.theme-dark .bg-diagonal-line {
+      background: rgba(255, 255, 255, 0.015);
+    }
+    .bg-diagonal-line.line-2 {
+      transform: rotate(35deg);
+      top: 25%;
+    }
+
+    .bg-text {
+      position: absolute;
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: rgba(0, 0, 0, 0.03);
+      user-select: none;
+    }
+    html.style-modern.theme-dark .bg-text {
+      color: rgba(255, 255, 255, 0.015);
+    }
+    .text-btc {
+      top: 35%;
+      left: 8%;
+      transform: rotate(-15deg) skewX(-10deg);
+    }
+    .text-vol {
+      top: 48%;
+      right: 8%;
+      transform: rotate(12deg) skewX(10deg);
+      font-size: 1.4rem;
+    }
+    .text-val {
+      top: 75%;
+      left: 15%;
+      transform: rotate(-8deg);
+      font-size: 1.2rem;
+    }
+    .text-pts {
+      top: 70%;
+      left: 23%;
+      transform: rotate(-8deg);
+      font-size: 1.0rem;
+      font-weight: 600;
+    }
+
+    .bg-perspective-chart {
+      position: absolute;
+      width: 250px;
+      height: 180px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+      opacity: 0.15;
+      pointer-events: none;
+    }
+    html.style-modern.theme-dark .bg-perspective-chart {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+      opacity: 0.08;
+    }
+    .bpc-1 {
+      top: 55%;
+      left: 10%;
+      transform: perspective(400px) rotateX(30deg) rotateY(-20deg) rotateZ(10deg);
+      background: repeating-linear-gradient(90deg, transparent, transparent 15px, rgba(0, 0, 0, 0.02) 15px, rgba(0, 0, 0, 0.02) 16px);
+    }
+    .bpc-2 {
+      top: 20%;
+      right: 12%;
+      transform: perspective(400px) rotateX(20deg) rotateY(30deg) rotateZ(-15deg);
+      background: repeating-linear-gradient(90deg, transparent, transparent 20px, rgba(0, 0, 0, 0.02) 20px, rgba(0, 0, 0, 0.02) 21px);
+    }
+
+    html.style-modern .top-row {
+      margin-bottom: 24px;
+    }
+    html.style-modern .toc-card,
+    html.style-modern .disclaimer-box {
+      border-radius: 20px;
+      background: var(--bg-card);
+    }
   </style>
   <script type="application/ld+json">
   {
@@ -578,7 +743,20 @@
 </head>
 <body class="lang-en">
 
-  <div class="top-row">
+  <!-- Faded background grid and line elements for Modern theme -->
+  <div class="modern-bg-elements">
+    <div class="bg-diagonal-line line-1"></div>
+    <div class="bg-diagonal-line line-2"></div>
+    <div class="bg-text text-btc">BTC/USD</div>
+    <div class="bg-text text-vol">24h vol</div>
+    <div class="bg-text text-val">2,617,728</div>
+    <div class="bg-text text-pts">+1.5 pts</div>
+    <div class="bg-perspective-chart bpc-1"></div>
+    <div class="bg-perspective-chart bpc-2"></div>
+  </div>
+
+  <div class="about-wrapper">
+    <div class="top-row">
     <a class="back-link" href="index.html">← Back to Dashboard</a>
     <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
       <!-- Theme toggle is moved to the footer -->
@@ -899,6 +1077,7 @@
     </a>
     &nbsp;&middot;&nbsp; Bitcoin Buy Risk Index &middot; May 2026
   </footer>
+  </div><!-- end about-wrapper -->
 
   <script>
     function setLang(lang) {
