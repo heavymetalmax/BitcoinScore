@@ -16,9 +16,7 @@
       const style = localStorage.getItem('bbr-style') || 'classic';
       const mode = localStorage.getItem('bbr-mode') || 'night';
       let theme = 'dark';
-      if (style === 'modern') {
-        theme = 'light';
-      } else if (mode === 'auto') {
+      if (mode === 'auto') {
         const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
         theme = prefersLight ? 'light' : 'dark';
       }
@@ -107,6 +105,37 @@
       --index-color-glow: rgba(217, 119, 6, 0.05);
     }
     
+    /* Modern Dark */
+    html.style-modern.theme-dark {
+      --bg: #0b0c10;
+      --bg-gradient: linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+                     linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+                     radial-gradient(circle at top, #161a24 0%, #0b0c10 100%);
+      --bg-card: rgba(20, 24, 33, 0.85);
+      --bg-card-hover: rgba(25, 30, 41, 0.98);
+      --border: rgba(255, 255, 255, 0.06);
+      --border-hover: rgba(247, 147, 26, 0.35);
+      --text: #f3f4f6;
+      --text-name: #9ca3af;
+      --text-mute: #6b7280;
+      --text-sub: #9ca3af;
+      --text-raw: #6b7280;
+      --text-ts: #9ca3af;
+      --bar-bg: rgba(255, 255, 255, 0.06);
+      --divider: rgba(255, 255, 255, 0.08);
+      --tick: rgba(255, 255, 255, 0.2);
+      --footer: #4b5563;
+      
+      --shadow-glow: 0 4px 20px rgba(0, 0, 0, 0.4);
+      --shadow-glow-active: 0 10px 30px rgba(247, 147, 26, 0.05);
+      
+      --bg-card-knob: #1a1f2c;
+      --glass-blur: blur(20px);
+
+      --index-color: #f7931a;
+      --index-color-bg: rgba(247, 147, 26, 0.12);
+      --index-color-glow: rgba(247, 147, 26, 0.08);
+    }
     
     /* Modern Light */
     html.style-modern.theme-light {
@@ -1369,9 +1398,7 @@
       const mode = localStorage.getItem('bbr-mode') || 'night';
       
       let theme = 'dark';
-      if (style === 'modern') {
-        theme = 'light';
-      } else if (mode === 'auto') {
+      if (mode === 'auto') {
         const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
         theme = prefersLight ? 'light' : 'dark';
       }
