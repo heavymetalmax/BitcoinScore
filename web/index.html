@@ -2108,6 +2108,10 @@
         </h2>
       </div>
       <div class="about-index-body" style="font-size:0.9rem; line-height:1.7; color:var(--text-sub); max-width:68ch;">
+        <p style="margin-bottom:12px; font-weight:600; color:var(--text);">
+          <span class="en">As of the latest daily update, the Bitcoin Buy Risk Index reads <strong id="seo-score">—</strong> / 100 — <span id="seo-status-en">—</span>.</span>
+          <span class="ua">Станом на останнє щоденне оновлення Індекс ризику купівлі Bitcoin становить <strong id="seo-score-ua">—</strong> / 100 — <span id="seo-status-ua">—</span>.</span>
+        </p>
         <p style="margin-bottom:12px;">
           <span class="en">The <strong>Bitcoin Buy Risk Index</strong> answers a single question: <strong>is it a good time to buy Bitcoin?</strong> It condenses 10+ on-chain and macro indicators into one <strong>0–100 score</strong>, updated daily. A low score reflects historically low risk — zones where Bitcoin has often been undervalued — while a high score reflects elevated risk and historically expensive territory.</span>
           <span class="ua">Цей <strong>Індекс ризику купівлі Bitcoin</strong> відповідає на одне питання: <strong>чи вдалий зараз момент купувати Bitcoin?</strong> Він зводить 10+ ончейн- та макропоказників в єдину оцінку <strong>0–100</strong>, що оновлюється щодня. Низька оцінка означає історично низький ризик — зони, де Bitcoin часто був недооціненим, — а висока оцінка означає підвищений ризик та історично дорогу зону.</span>
@@ -3176,6 +3180,16 @@
         const mStatusUaEl = document.getElementById('modern-gauge-status-ua');
         if (mStatusEnEl) mStatusEnEl.textContent = modernStatusEn;
         if (mStatusUaEl) mStatusUaEl.textContent = modernStatusUa;
+
+        // Crawlable SEO score line (text, readable by search engines)
+        const seoScore   = document.getElementById('seo-score');
+        const seoScoreUa = document.getElementById('seo-score-ua');
+        const seoStEn    = document.getElementById('seo-status-en');
+        const seoStUa    = document.getElementById('seo-status-ua');
+        if (seoScore)   seoScore.textContent   = finalVal;
+        if (seoScoreUa) seoScoreUa.textContent = finalVal;
+        if (seoStEn)    seoStEn.textContent    = modernStatusEn;
+        if (seoStUa)    seoStUa.textContent    = modernStatusUa;
 
         const mBadgeEl = document.getElementById('modern-gauge-badge');
         if (mBadgeEl) mBadgeEl.textContent = finalVal + ' / 100';
