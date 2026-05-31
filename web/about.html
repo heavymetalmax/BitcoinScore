@@ -758,13 +758,7 @@
   <div class="about-wrapper">
     <div class="top-row">
     <a class="back-link" href="index.html">← Back to Dashboard</a>
-    <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
-      <!-- Theme toggle is moved to the footer -->
-      <div class="lang-toggle">
-        <button class="lang-btn active" id="btn-en" onclick="setLang('en')">EN</button>
-        <button class="lang-btn"        id="btn-ua" onclick="setLang('ua')">UA</button>
-      </div>
-    </div>
+    <!-- Language is inherited from the index page (localStorage) -->
   </div>
 
   <h1>
@@ -1058,8 +1052,10 @@
   <script>
     function setLang(lang) {
       document.body.className = 'lang-' + lang;
-      document.getElementById('btn-en').classList.toggle('active', lang === 'en');
-      document.getElementById('btn-ua').classList.toggle('active', lang === 'ua');
+      const en = document.getElementById('btn-en');
+      const ua = document.getElementById('btn-ua');
+      if (en) en.classList.toggle('active', lang === 'en');
+      if (ua) ua.classList.toggle('active', lang === 'ua');
       localStorage.setItem('bbr-lang', lang);
     }
 
