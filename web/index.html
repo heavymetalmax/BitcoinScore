@@ -201,9 +201,9 @@
       padding: 5px 14px;
     }
 
-    /* Gauge canvas must not overflow sub-card width */
-    html.style-modern .modern-sub-gauge-wrap {
-      overflow: hidden;
+    /* Gauge canvas never wider than its card */
+    .modern-sub-gauge-canvas {
+      max-width: 100%;
     }
     /* Nav active button — pure orange, no color-mix, no transparency */
     html.style-modern .nav-btn.active {
@@ -386,7 +386,7 @@
     /* Cards Grid */
     .scores {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 16px;
       margin-bottom: 32px;
     }
@@ -937,7 +937,7 @@
     /* ── Responsive breakpoints ─────────────────────────────────────────── */
     @media (max-width: 768px) {
       .scores {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
       .score-box.main {
         grid-column: span 2;
@@ -961,7 +961,7 @@
       }
       
       .scores {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
         gap: 12px;
       }
       
