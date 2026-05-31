@@ -850,6 +850,46 @@
   <p class="en">The further price drifts from equilibrium, the <strong>stronger the restoring force</strong> that pulls it back — yet the same distance also builds <strong>inertia</strong>. Momentum, crowd conviction and reflexive leverage all grow with the move, so the market routinely overshoots the balance point in both directions before it snaps back. This index is an attempt to measure that tension: how far we are from balance, and therefore how much latent force is stored on either side.</p>
   <p class="ua">Чим далі ціна відхиляється від рівноваги, тим <strong>більша сила повернення</strong> діє на те, щоб повернути її назад — але разом із відстанню зростає й <strong>інерція</strong>. Моментум, переконаність натовпу та рефлексивне плече посилюються разом із рухом, тож ринок регулярно «перелітає» точку балансу в обидва боки, перш ніж відскочити назад. Цей індекс — спроба виміряти це напруження: наскільки далеко ми від балансу, а отже, яка прихована сила накопичена з кожного боку.</p>
 
+  <figure class="glass-card" style="margin:24px 0; padding:20px;">
+    <svg viewBox="0 0 640 250" width="100%" style="display:block; height:auto; overflow:visible;" role="img" aria-label="Diagram: price overshooting a balance line with restoring-force arrows that grow with distance">
+      <defs>
+        <marker id="rf-arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="var(--index-color, #f7931a)"></path>
+        </marker>
+      </defs>
+
+      <!-- Equilibrium / balance line -->
+      <line x1="8" y1="130" x2="632" y2="130" stroke="var(--text-mute, #9ca3af)" stroke-width="1.5" stroke-dasharray="6 5"></line>
+      <text x="632" y="148" text-anchor="end" font-size="12" font-weight="600" fill="var(--text-mute, #9ca3af)" font-family="Outfit, sans-serif">
+        <tspan class="en">Mathematical point of balance</tspan><tspan class="ua">Математична точка балансу</tspan>
+      </text>
+
+      <!-- Restoring-force arrows (length grows with distance from the line) -->
+      <line x1="160" y1="52" x2="160" y2="116" stroke="var(--index-color, #f7931a)" stroke-width="2" marker-end="url(#rf-arrow)" opacity="0.85"></line>
+      <line x1="380" y1="188" x2="380" y2="146" stroke="var(--index-color, #f7931a)" stroke-width="2" marker-end="url(#rf-arrow)" opacity="0.85"></line>
+      <line x1="560" y1="106" x2="560" y2="123" stroke="var(--index-color, #f7931a)" stroke-width="2" marker-end="url(#rf-arrow)" opacity="0.85"></line>
+      <text x="172" y="84" font-size="11.5" font-weight="600" fill="var(--index-color, #f7931a)" font-family="Outfit, sans-serif">
+        <tspan class="en">restoring force grows with distance</tspan><tspan class="ua">сила повернення росте з відстанню</tspan>
+      </text>
+
+      <!-- Price path: overshoots the line in both directions, then converges -->
+      <path d="M20,130 C80,130 110,42 160,42 C210,42 230,130 270,130 C320,130 340,198 380,198 C430,198 440,130 480,130 C520,130 530,98 560,98 C590,98 600,130 620,130"
+            fill="none" stroke="var(--index-color, #f7931a)" stroke-width="2.5" stroke-linecap="round"></path>
+      <!-- markers at the extremes -->
+      <circle cx="160" cy="42" r="3.5" fill="var(--index-color, #f7931a)"></circle>
+      <circle cx="380" cy="198" r="3.5" fill="var(--index-color, #f7931a)"></circle>
+
+      <!-- price label -->
+      <text x="20" y="120" font-size="11.5" font-weight="600" fill="var(--text-sub, #475569)" font-family="Outfit, sans-serif">
+        <tspan class="en">price</tspan><tspan class="ua">ціна</tspan>
+      </text>
+    </svg>
+    <figcaption style="font-size:0.8rem; color:var(--text-mute); margin-top:8px; text-align:center; line-height:1.5;">
+      <span class="en">Price overshoots the balance point in both directions; the further it strays, the stronger the restoring force — while momentum (inertia) carries it past the line before it reverses.</span>
+      <span class="ua">Ціна перелітає точку балансу в обидва боки; чим далі вона відходить, тим сильніша сила повернення — а моментум (інерція) проносить її за лінію, перш ніж вона розвернеться.</span>
+    </figcaption>
+  </figure>
+
   <p class="en">Keeping the model simple and transparent is intentional — every input and weight is visible, with no black box to trust blindly. In the future I intend to research whether <strong>machine learning and AI</strong> can be integrated so the index can read market structure and risk with more nuance than fixed weights allow — ideally without sacrificing that transparency.</p>
   <p class="ua">Простота й прозорість моделі — це свідомий вибір: кожен вхідний показник і його вага видимі, тут немає «чорної скриньки», якій треба сліпо довіряти. У майбутньому я планую дослідити, чи можливо інтегрувати <strong>машинне навчання та ШІ</strong>, щоб індекс міг оцінювати структуру ринку й ризик тонше, ніж дозволяють фіксовані ваги, — в ідеалі не жертвуючи цією прозорістю.</p>
 
