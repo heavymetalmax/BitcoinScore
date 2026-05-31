@@ -13,10 +13,14 @@
 
   <script>
     (function() {
-      const savedTheme = localStorage.getItem('bbr-theme');
-      const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
-      const theme = savedTheme || (prefersLight ? 'light' : 'classic');
-      document.documentElement.className = 'theme-' + theme;
+      const style = localStorage.getItem('bbr-style') || 'classic';
+      const mode = localStorage.getItem('bbr-mode') || 'night';
+      let theme = 'dark';
+      if (mode === 'auto') {
+        const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+        theme = prefersLight ? 'light' : 'dark';
+      }
+      document.documentElement.className = 'style-' + style + ' theme-' + theme;
     })();
   </script>
 
@@ -69,7 +73,72 @@
       --index-color-glow: rgba(247, 147, 26, 0.08);
     }
     
-    html.theme-light {
+    /* Style-specific and appearance-specific CSS Variables */
+    
+    /* Classic Light */
+    html.style-classic.theme-light {
+      --bg: #f8fafc;
+      --bg-gradient: linear-gradient(180deg, #f1f5f9 0%, #f8fafc 100%);
+      --bg-card: rgba(255, 255, 255, 0.7);
+      --bg-card-hover: rgba(255, 255, 255, 0.95);
+      --border: rgba(0, 0, 0, 0.06);
+      --border-hover: rgba(247, 147, 26, 0.35);
+      --text: #0f172a;
+      --text-name: #475569;
+      --text-mute: #64748b;
+      --text-sub: #475569;
+      --text-raw: #64748b;
+      --text-ts: #64748b;
+      --bar-bg: rgba(0, 0, 0, 0.06);
+      --divider: rgba(0, 0, 0, 0.08);
+      --tick: rgba(0, 0, 0, 0.15);
+      --footer: #64748b;
+      
+      --shadow-glow: 0 4px 12px rgba(0, 0, 0, 0.03);
+      --shadow-glow-active: 0 6px 20px rgba(0, 0, 0, 0.08);
+      
+      --bg-card-knob: #ffffff;
+      --glass-blur: blur(6px);
+
+      --index-color: #b45309;
+      --index-color-bg: rgba(217, 119, 6, 0.1);
+      --index-color-glow: rgba(217, 119, 6, 0.05);
+    }
+    
+    /* Modern Dark */
+    html.style-modern.theme-dark {
+      --bg: #0b0c10;
+      --bg-gradient: linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+                     linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+                     radial-gradient(circle at top, #161a24 0%, #0b0c10 100%);
+      --bg-card: rgba(20, 24, 33, 0.85);
+      --bg-card-hover: rgba(25, 30, 41, 0.98);
+      --border: rgba(255, 255, 255, 0.06);
+      --border-hover: rgba(247, 147, 26, 0.35);
+      --text: #f3f4f6;
+      --text-name: #9ca3af;
+      --text-mute: #6b7280;
+      --text-sub: #9ca3af;
+      --text-raw: #6b7280;
+      --text-ts: #9ca3af;
+      --bar-bg: rgba(255, 255, 255, 0.06);
+      --divider: rgba(255, 255, 255, 0.08);
+      --tick: rgba(255, 255, 255, 0.2);
+      --footer: #4b5563;
+      
+      --shadow-glow: 0 4px 20px rgba(0, 0, 0, 0.4);
+      --shadow-glow-active: 0 10px 30px rgba(247, 147, 26, 0.05);
+      
+      --bg-card-knob: #1a1f2c;
+      --glass-blur: blur(20px);
+
+      --index-color: #f7931a;
+      --index-color-bg: rgba(247, 147, 26, 0.12);
+      --index-color-glow: rgba(247, 147, 26, 0.08);
+    }
+    
+    /* Modern Light */
+    html.style-modern.theme-light {
       --bg: #f8fafc;
       --bg-gradient: linear-gradient(rgba(0, 0, 0, 0.02) 1px, transparent 1px),
                      linear-gradient(90deg, rgba(0, 0, 0, 0.02) 1px, transparent 1px),
@@ -99,8 +168,12 @@
       --index-color-bg: rgba(217, 119, 6, 0.1);
       --index-color-glow: rgba(217, 119, 6, 0.05);
     }
-    html.theme-light body {
+    
+    html.style-modern body {
       background-size: 40px 40px, 40px 40px, 100% 100%;
+    }
+    html.style-classic body {
+      background-size: initial;
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -924,39 +997,7 @@
       color: color-mix(in srgb, var(--index-color, #f7931a) 70%, #000 30%);
     }
     
-    /* Theme switcher */
-    .theme-toggle {
-      display: flex;
-      gap: 4px;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      padding: 3px;
-      border-radius: 9999px;
-      backdrop-filter: var(--glass-blur);
-    }
-    .theme-btn {
-      background: transparent;
-      border: none;
-      color: var(--text-mute);
-      font-size: 0.72rem;
-      font-weight: 600;
-      padding: 5px 14px;
-      border-radius: 9999px;
-      cursor: pointer;
-      font-family: inherit;
-      transition: all 0.2s ease;
-    }
-    .theme-btn:hover {
-      color: var(--text);
-    }
-    .theme-btn.active {
-      background: var(--index-color-bg, rgba(247, 147, 26, 0.12));
-      color: var(--index-color, #f7931a);
-    }
-    .theme-light .theme-btn.active {
-      background: color-mix(in srgb, var(--index-color, #f7931a) 10%, transparent);
-      color: color-mix(in srgb, var(--index-color, #f7931a) 70%, #000 30%);
-    }
+    /* Theme switcher styling is not needed as we reuse navigation styles */
     body.lang-en .ua { display: none; }
     body.lang-ua .en { display: none; }
   </style>
@@ -1033,16 +1074,7 @@
           <span class="ua">Сповіщення iCal</span>
         </a>
       </div>
-      <div class="theme-toggle">
-        <button class="theme-btn active" id="btn-theme-classic" onclick="setTheme('classic')">
-          <span class="en">Classic</span>
-          <span class="ua">Класична</span>
-        </button>
-        <button class="theme-btn" id="btn-theme-light" onclick="setTheme('light')">
-          <span class="en">Light</span>
-          <span class="ua">Світла</span>
-        </button>
-      </div>
+      <!-- Theme toggle is moved to the footer -->
       <div class="lang-toggle">
         <button class="lang-btn active" id="btn-en" onclick="setLang('en')">EN</button>
         <button class="lang-btn"        id="btn-ua" onclick="setLang('ua')">UA</button>
@@ -1327,6 +1359,32 @@
     </div>
   </div><!-- end tab-main -->
 
+  <div class="footer-controls" style="display: flex; justify-content: center; gap: 16px; margin-bottom: 28px; flex-wrap: wrap;">
+    <!-- Theme Style Switcher -->
+    <div class="nav-menu">
+      <button class="nav-btn active" id="btn-style-classic" onclick="setStyle('classic')">
+        <span class="en">Classic</span>
+        <span class="ua">Класична</span>
+      </button>
+      <button class="nav-btn" id="btn-style-modern" onclick="setStyle('modern')">
+        <span class="en">Modern</span>
+        <span class="ua">Сучасна</span>
+      </button>
+    </div>
+
+    <!-- Color Mode Switcher -->
+    <div class="nav-menu">
+      <button class="nav-btn active" id="btn-mode-night" onclick="setMode('night')">
+        <span class="en">Night</span>
+        <span class="ua">Ніч</span>
+      </button>
+      <button class="nav-btn" id="btn-mode-auto" onclick="setMode('auto')">
+        <span class="en">Auto</span>
+        <span class="ua">Авто</span>
+      </button>
+    </div>
+  </div>
+
   <footer id="footer">Source: data.json</footer>
   <p class="disclaimer">
     <span class="en">This dashboard is for informational purposes only and does not constitute financial advice. All data is automatically collected from public sources. Any decisions to buy or sell assets are made solely at your own risk.</span>
@@ -1334,21 +1392,52 @@
   </p>
 
   <script>
-    // Theme switcher
-    function setTheme(theme) {
-      document.documentElement.className = 'theme-' + theme;
+    // Theme switcher handlers
+    function updateThemeClass() {
+      const style = localStorage.getItem('bbr-style') || 'classic';
+      const mode = localStorage.getItem('bbr-mode') || 'night';
       
-      const btnClassic = document.getElementById('btn-theme-classic');
-      const btnLight = document.getElementById('btn-theme-light');
-      if (btnClassic) btnClassic.classList.toggle('active', theme === 'classic');
-      if (btnLight) btnLight.classList.toggle('active', theme === 'light');
+      let theme = 'dark';
+      if (mode === 'auto') {
+        const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+        theme = prefersLight ? 'light' : 'dark';
+      }
       
-      localStorage.setItem('bbr-theme', theme);
+      document.documentElement.className = 'style-' + style + ' theme-' + theme;
       
+      // Update active states for buttons
+      const btnClassic = document.getElementById('btn-style-classic');
+      const btnModern = document.getElementById('btn-style-modern');
+      if (btnClassic) btnClassic.classList.toggle('active', style === 'classic');
+      if (btnModern) btnModern.classList.toggle('active', style === 'modern');
+      
+      const btnNight = document.getElementById('btn-mode-night');
+      const btnAuto = document.getElementById('btn-mode-auto');
+      if (btnNight) btnNight.classList.toggle('active', mode === 'night');
+      if (btnAuto) btnAuto.classList.toggle('active', mode === 'auto');
+
       if (typeof _chartData !== 'undefined' && _chartData) {
         drawCharts(_chartData);
       }
     }
+
+    function setStyle(style) {
+      localStorage.setItem('bbr-style', style);
+      updateThemeClass();
+    }
+
+    // Dynamic color variable updates for custom elements when scoring changes
+    function setMode(mode) {
+      localStorage.setItem('bbr-mode', mode);
+      updateThemeClass();
+    }
+
+    window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => {
+      const mode = localStorage.getItem('bbr-mode') || 'night';
+      if (mode === 'auto') {
+        updateThemeClass();
+      }
+    });
 
     // Language switcher
     function setLang(lang) {
@@ -1838,10 +1927,7 @@
       `;
 
       // Initialize theme on load (sets button states)
-      const savedTheme = localStorage.getItem('bbr-theme');
-      const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
-      const initialTheme = savedTheme || (prefersLight ? 'light' : 'classic');
-      setTheme(initialTheme);
+      updateThemeClass();
 
       // Trigger lang update to apply tooltip translations
       const bLang = (navigator.language || navigator.userLanguage || '').toLowerCase();
