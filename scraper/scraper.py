@@ -418,6 +418,67 @@ def main():
     except Exception as e:
         print('Failed to compute scores:', e)
 
+    # ── Append the FULL daily indicator vector to history ──────────────────────
+    # Builds the per-day training matrix (raw inputs + mapped 0-100 scores +
+    # group scores) needed for any future weight-calibration / ML work.
+    # See tools/ml_weight_probe.py for why this matters.
+    try:
+        from .scoring import build_slider_map
+        m = p.get('metrics', {})
+        def raw(key):
+            o = m.get(key)
+            return o.get('value') if isinstance(o, dict) and 'value' in o else o
+        def sclr(o, *keys):
+            """Flatten a possibly-nested metric to a single representative scalar."""
+            if isinstance(o, dict):
+                for k in keys:
+                    if o.get(k) is not None:
+                        return o[k]
+                return None
+            return o
+        mapped = build_slider_map(m)
+        row = {
+            'date':        p['timestamp'][:10],
+            'timestamp':   p['timestamp'],
+            'btc_price':   p.get('btc_price'),
+            'onchain_score': p.get('onchain_score'),
+            'tech_score':    p.get('tech_score'),
+            'final_score':   p.get('final_score'),
+            # raw indicator values (flattened to scalars)
+            'raw': {
+                'nupl':           sclr(raw('nupl')),
+                'mvrv':           sclr(raw('mvrv')),
+                'cvdd_ratio':     sclr(raw('cvdd_ratio')),
+                'rhodl_ratio':    sclr(raw('rhodl_ratio')),
+                'asopr':          sclr(raw('asopr')),
+                'cipherb':        sclr(raw('cipherb'), 'weekly_score'),
+                'mayer_multiple': sclr(raw('mayer_multiple'), 'value'),
+                'etf_flows':      sclr(raw('etf_flows'), 'value'),
+                'fear_greed':     p.get('fear_greed'),
+                'yield_curve':    sclr(raw('yield_curve')),
+                'm2_yoy':         p.get('m2_mom', raw('m2_mom')),
+                'funding_rate':   sclr(raw('funding_rate'), 'avg_7d', 'latest'),
+                'smc':            sclr(raw('smc'), 'position'),
+            },
+            # mapped 0-100 risk scores per indicator (what the weights act on)
+            'mapped': mapped,
+        }
+        dv_path = 'data/history/daily_vector.json'
+        os.makedirs(os.path.dirname(dv_path), exist_ok=True)
+        if os.path.exists(dv_path):
+            with open(dv_path, 'r', encoding='utf-8') as hf:
+                dv = json.load(hf)
+        else:
+            dv = []
+        # de-dup: replace any existing entry for the same date
+        dv = [r for r in dv if r.get('date') != row['date']]
+        dv.append(row)
+        dv.sort(key=lambda r: r.get('date', ''))
+        write_json(dv_path, dv)
+        print(f"Wrote {dv_path} ({len(dv)} daily vectors)")
+    except Exception as e:
+        print('Failed to write daily vector history:', e)
+
 
 if __name__ == '__main__':
     main()
