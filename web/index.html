@@ -1,6 +1,16 @@
 <!doctype html>
 <html lang="en">
 <head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=YOUR_GA_MEASUREMENT_ID"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'YOUR_GA_MEASUREMENT_ID');
+  </script>
+
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Bitcoin Buy Risk Index</title>
@@ -41,6 +51,10 @@
       
       --bg-card-knob: #111827;
       --glass-blur: blur(10px);
+
+      --index-color: #f7931a;
+      --index-color-bg: rgba(247, 147, 26, 0.12);
+      --index-color-glow: rgba(247, 147, 26, 0.08);
     }
     
     @media (prefers-color-scheme: light) {
@@ -67,6 +81,10 @@
         
         --bg-card-knob: #ffffff;
         --glass-blur: blur(6px);
+
+        --index-color: #b45309;
+        --index-color-bg: rgba(217, 119, 6, 0.1);
+        --index-color-glow: rgba(217, 119, 6, 0.05);
       }
     }
 
@@ -189,14 +207,15 @@
       color: var(--text);
     }
     .nav-btn.active {
-      background: rgba(247, 147, 26, 0.12);
-      color: #f7931a;
-      box-shadow: 0 0 12px rgba(247, 147, 26, 0.08);
+      background: var(--index-color-bg, rgba(247, 147, 26, 0.12));
+      color: var(--index-color, #f7931a);
+      box-shadow: 0 0 12px var(--index-color-glow, rgba(247, 147, 26, 0.08));
     }
     @media (prefers-color-scheme: light) {
       .nav-btn.active {
-        background: rgba(217, 119, 6, 0.1);
-        color: #b45309;
+        background: color-mix(in srgb, var(--index-color, #f7931a) 10%, transparent);
+        color: color-mix(in srgb, var(--index-color, #f7931a) 70%, #000 30%);
+        box-shadow: 0 0 12px color-mix(in srgb, var(--index-color, #f7931a) 5%, transparent);
       }
     }
 
@@ -358,6 +377,7 @@
       margin-top: 84px;
       margin-bottom: 28px;
       position: relative;
+      padding: 0 45px;
     }
     
     .risk-track {
@@ -801,6 +821,7 @@
       .risk-track-container {
         margin-top: 76px;
         margin-bottom: 20px;
+        padding: 0 35px;
       }
       
       .risk-track-legend {
@@ -890,18 +911,59 @@
       color: var(--text);
     }
     .lang-btn.active {
-      background: rgba(247, 147, 26, 0.12);
-      color: #f7931a;
+      background: var(--index-color-bg, rgba(247, 147, 26, 0.12));
+      color: var(--index-color, #f7931a);
     }
     @media (prefers-color-scheme: light) {
       .lang-btn.active {
-        background: rgba(217, 119, 6, 0.1);
-        color: #b45309;
+        background: color-mix(in srgb, var(--index-color, #f7931a) 10%, transparent);
+        color: color-mix(in srgb, var(--index-color, #f7931a) 70%, #000 30%);
       }
     }
     body.lang-en .ua { display: none; }
     body.lang-ua .en { display: none; }
   </style>
+  <script type="application/ld+json">
+  [
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Bitcoin Buy Risk Index",
+      "url": "https://heavymetalmax.github.io/BitcoinScore/",
+      "description": "A composite index scoring Bitcoin's market risk on a 0–100 scale, aggregating 10+ on-chain and macro indicators updated daily."
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Dataset",
+      "name": "Bitcoin Buy Risk Index Historical Data",
+      "description": "Daily historical and live data points for the Bitcoin Buy Risk Index, tracking composite risk scores, MVRV Z-Score, Net Unrealized Profit/Loss (NUPL), RHODL ratio, aSOPR, Mayer Multiple, Spot ETF flows, and macroeconomic indicators.",
+      "url": "https://heavymetalmax.github.io/BitcoinScore/",
+      "creator": {
+        "@type": "Organization",
+        "name": "Bitcoin Buy Risk Index"
+      },
+      "distribution": [
+        {
+          "@type": "DataDownload",
+          "encodingFormat": "application/json",
+          "contentUrl": "https://heavymetalmax.github.io/BitcoinScore/data.json"
+        }
+      ],
+      "variableMeasured": [
+        "Composite Risk Score",
+        "MVRV Z-Score",
+        "NUPL",
+        "RHODL Ratio",
+        "aSOPR",
+        "Mayer Multiple",
+        "Spot ETF Flows",
+        "Fear & Greed Index",
+        "Yield Curve Spread",
+        "Global M2 YoY Growth"
+      ]
+    }
+  ]
+  </script>
 </head>
 <body class="lang-en">
 
@@ -1460,6 +1522,10 @@
         marker.style.left = finalVal + '%';
         const markerColor = scoreColor(finalVal);
         marker.style.setProperty('--marker-color', markerColor);
+        
+        document.documentElement.style.setProperty('--index-color', markerColor);
+        document.documentElement.style.setProperty('--index-color-bg', scoreColor(finalVal, 0.12));
+        document.documentElement.style.setProperty('--index-color-glow', scoreColor(finalVal, 0.08));
         
         const logoTitle = document.getElementById('logo-title');
         if (logoTitle) {

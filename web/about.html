@@ -1,9 +1,27 @@
 <!doctype html>
 <html lang="en">
 <head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=YOUR_GA_MEASUREMENT_ID"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'YOUR_GA_MEASUREMENT_ID');
+  </script>
+
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Bitcoin Buy Risk Index — Methodology</title>
+  <meta name="description" content="Detailed methodology of the Bitcoin Buy Risk Index. Learn how 10+ on-chain and macro indicators (MVRV Z-Score, NUPL, RHODL, Mayer Multiple, etc.) are combined to score BTC risk." />
+  <meta property="og:title" content="Bitcoin Buy Risk Index — Methodology" />
+  <meta property="og:description" content="Detailed methodology of the Bitcoin Buy Risk Index. Learn how 10+ on-chain and macro indicators are combined to score BTC risk." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://heavymetalmax.github.io/BitcoinScore/about.html" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Bitcoin Buy Risk Index — Methodology" />
+  <meta name="twitter:description" content="Detailed methodology of the Bitcoin Buy Risk Index. Learn how 10+ on-chain and macro indicators are combined to score BTC risk." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
@@ -21,6 +39,10 @@
       --footer: #6b7280;
       --glass-blur: blur(12px);
       --shadow-glow: 0 0 15px rgba(247, 147, 26, 0.04);
+
+      --index-color: #f7931a;
+      --index-color-bg: rgba(247, 147, 26, 0.12);
+      --index-color-glow: rgba(247, 147, 26, 0.08);
     }
     
     @media (prefers-color-scheme: light) {
@@ -38,6 +60,10 @@
         --footer: #64748b;
         --glass-blur: blur(8px);
         --shadow-glow: 0 4px 12px rgba(0, 0, 0, 0.02);
+
+        --index-color: #b45309;
+        --index-color-bg: rgba(217, 119, 6, 0.1);
+        --index-color-glow: rgba(217, 119, 6, 0.05);
       }
     }
 
@@ -74,11 +100,11 @@
       transition: color 0.2s ease;
     }
     .back-link:hover {
-      color: #f7931a;
+      color: var(--index-color, #f7931a);
     }
     @media (prefers-color-scheme: light) {
       .back-link:hover {
-        color: #d97706;
+        color: color-mix(in srgb, var(--index-color, #f7931a) 70%, #000 30%);
       }
     }
 
@@ -108,13 +134,13 @@
       color: var(--text);
     }
     .lang-btn.active {
-      background: rgba(247, 147, 26, 0.12);
-      color: #f7931a;
+      background: var(--index-color-bg, rgba(247, 147, 26, 0.12));
+      color: var(--index-color, #f7931a);
     }
     @media (prefers-color-scheme: light) {
       .lang-btn.active {
-        background: rgba(217, 119, 6, 0.1);
-        color: #b45309;
+        background: color-mix(in srgb, var(--index-color, #f7931a) 10%, transparent);
+        color: color-mix(in srgb, var(--index-color, #f7931a) 70%, #000 30%);
       }
     }
 
@@ -171,7 +197,7 @@
     }
 
     blockquote {
-      border-left: 3px solid #f7931a;
+      border-left: 3px solid var(--index-color, #f7931a);
       padding: 16px 20px;
       margin: 24px 0;
       background: var(--bg-card);
@@ -373,11 +399,11 @@
       display: inline-block;
     }
     .toc-list a:hover {
-      color: #f7931a;
+      color: var(--index-color, #f7931a);
     }
     @media (prefers-color-scheme: light) {
       .toc-list a:hover {
-        color: #d97706;
+        color: color-mix(in srgb, var(--index-color, #f7931a) 70%, #000 30%);
       }
     }
 
@@ -396,6 +422,54 @@
       padding-top: 24px;
     }
   </style>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What is the Bitcoin Buy Risk Index?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The Bitcoin Buy Risk Index is a mathematical framework designed to evaluate whether Bitcoin is historically cheap or historically expensive. It scores Bitcoin's market risk on a 0–100 scale, helping minimize emotional biases, news noise, and short-term market psychology."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How is the Bitcoin Buy Risk Index calculated?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The final index score is calculated as a 50/50 weighted combination of two sub-scores: the On-Chain (OC) sub-score and the Technical/Macro sub-score. Each sub-score aggregates several indicators with specific cycle-based weights."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What On-Chain indicators are included in the risk score?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The On-Chain sub-score includes NUPL (Net Unrealized Profit/Loss), MVRV Z-Score, RHODL Ratio, CVDD Ratio, and the 7-day Simple Moving Average (SMA) of adjusted Spent Output Profit Ratio (aSOPR)."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What Technical and Macro indicators are tracked?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The Technical/Macro sub-score tracks the WaveTrend Cipher B momentum oscillator on a weekly scale, Mayer Multiple, Spot ETF Flows (14-day rolling net sum), Fear & Greed Index (7-day moving average), US Yield Curve Spread (10Y-2Y), and Global M2 YoY Growth."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is the Bitcoin Buy Risk Index financial advice?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No, this index and the methodology documentation are for educational and informational purposes only. It is not financial advice. All data and calculations are processed automatically and reflect public historical records."
+        }
+      }
+    ]
+  }
+  </script>
 </head>
 <body class="lang-en">
 
@@ -705,6 +779,54 @@
     const defaultLang = browserLang.startsWith('uk') || browserLang.startsWith('ua') ? 'ua' : 'en';
     const saved = localStorage.getItem('bbr-lang') || defaultLang;
     setLang(saved);
+
+    function scoreColor(v, alpha = 1) {
+      if(v == null) return 'var(--text-mute)';
+      const stops = [
+        { val: 0,   r: 16,  g: 185, b: 129 }, // Emerald
+        { val: 30,  r: 132, g: 204, b: 22  }, // Lime
+        { val: 50,  r: 234, g: 179, b: 8   }, // Yellow
+        { val: 75,  r: 249, g: 115, b: 22  }, // Orange
+        { val: 100, r: 239, g: 68,  b: 68  }  // Red
+      ];
+      let r, g, b;
+      if (v <= stops[0].val) {
+        r = stops[0].r; g = stops[0].g; b = stops[0].b;
+      } else if (v >= stops[stops.length - 1].val) {
+        r = stops[stops.length - 1].r; g = stops[stops.length - 1].g; b = stops[stops.length - 1].b;
+      } else {
+        for (let i = 0; i < stops.length - 1; i++) {
+          const s1 = stops[i];
+          const s2 = stops[i+1];
+          if (v >= s1.val && v <= s2.val) {
+            const t = (v - s1.val) / (s2.val - s1.val);
+            r = Math.round(s1.r + t * (s2.r - s1.r));
+            g = Math.round(s1.g + t * (s2.g - s1.g));
+            b = Math.round(s1.b + t * (s2.b - s1.b));
+            break;
+          }
+        }
+      }
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+
+    async function loadIndexColor() {
+      try {
+        const res = await fetch('data.json');
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data && data.final_score != null) {
+          const finalVal = data.final_score;
+          const markerColor = scoreColor(finalVal);
+          document.documentElement.style.setProperty('--index-color', markerColor);
+          document.documentElement.style.setProperty('--index-color-bg', scoreColor(finalVal, 0.12));
+          document.documentElement.style.setProperty('--index-color-glow', scoreColor(finalVal, 0.08));
+        }
+      } catch (e) {
+        console.error('Failed to load index color:', e);
+      }
+    }
+    loadIndexColor();
   </script>
 
 </body>
