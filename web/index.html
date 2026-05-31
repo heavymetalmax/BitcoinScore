@@ -156,16 +156,15 @@
       font-size: 1.6rem;
       font-weight: 800;
       letter-spacing: -0.03em;
-      background: linear-gradient(135deg, #ffffff 0%, #f7931a 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      transition: -webkit-text-fill-color 0.4s ease;
+      color: var(--text);
+    }
+    .logo-accent {
+      color: var(--index-color, #f7931a);
+      transition: color 0.4s ease;
     }
     @media (prefers-color-scheme: light) {
-      .nav-title {
-        background: linear-gradient(135deg, #0f172a 0%, #d97706 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+      .logo-accent {
+        color: color-mix(in srgb, var(--index-color, #f7931a) 70%, #000 30%);
       }
     }
     .main-ts {
@@ -983,8 +982,8 @@
   <div class="nav-header">
     <div class="nav-title-group">
       <h1 class="nav-title" id="logo-title">
-        <span class="en">BTC Buy Risk Index</span>
-        <span class="ua">Індекс ризику BTC</span>
+        <span class="en"><span class="logo-accent">BTC</span> Buy Risk Index</span>
+        <span class="ua">Індекс ризику <span class="logo-accent">BTC</span></span>
       </h1>
     </div>
     <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
@@ -1565,10 +1564,7 @@
         document.documentElement.style.setProperty('--index-color-bg', scoreColor(finalVal, 0.12));
         document.documentElement.style.setProperty('--index-color-glow', scoreColor(finalVal, 0.08));
         
-        const logoTitle = document.getElementById('logo-title');
-        if (logoTitle) {
-          logoTitle.style.webkitTextFillColor = markerColor;
-        }
+        // logo-accent updates automatically via CSS variable --index-color
         
         let lbl = 'Neutral';
         let shortLbl = 'Neutral';
