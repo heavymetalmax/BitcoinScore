@@ -2615,13 +2615,12 @@
         ctx.stroke();
       }
 
-      // ── 3. Current-value tick — crosses through the arc ──────────────────
+      // ── 3. Current-value tick — bridges the two rim outlines flush (no overhang)
       if (value > 0 && value < 100) {
-        const ca   = toAngle(value);
-        const ext  = isSmall ? 3 : 5;
+        const ca = toAngle(value);
         ctx.beginPath();
-        ctx.moveTo(cx + (R_in  - ext) * Math.cos(ca), cy + (R_in  - ext) * Math.sin(ca));
-        ctx.lineTo(cx + (R_out + ext) * Math.cos(ca), cy + (R_out + ext) * Math.sin(ca));
+        ctx.moveTo(cx + (R_in  - RIM_GAP) * Math.cos(ca), cy + (R_in  - RIM_GAP) * Math.sin(ca));
+        ctx.lineTo(cx + (R_out + RIM_GAP) * Math.cos(ca), cy + (R_out + RIM_GAP) * Math.sin(ca));
         ctx.strokeStyle = TICK_CUR_COL;
         ctx.lineWidth   = isSmall ? 2 : 2.5;
         ctx.stroke();
@@ -2788,13 +2787,13 @@
         ctx.beginPath(); ctx.moveTo(0, EXT + BAR_H + 2); ctx.lineTo(fillX, EXT + BAR_H + 2); ctx.stroke();
       }
 
-      // 3. Tick at current value — crosses through bar + extensions (visible at edges)
+      // 3. Tick at current value — bridges the two outlines flush (no overhang)
       const tickX = Math.max(1, Math.min(W - 1, (v / 100) * W));
       ctx.strokeStyle = zoneColor;
       ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.moveTo(tickX, 0);
-      ctx.lineTo(tickX, H);
+      ctx.moveTo(tickX, EXT - 2);
+      ctx.lineTo(tickX, EXT + BAR_H + 2);
       ctx.stroke();
     }
 
