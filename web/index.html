@@ -3579,7 +3579,7 @@
       redrawAllModernGauges();
     });
 
-    function drawCharts(data) {
+    function drawCharts(data, hoverIndex) {
       const canvas = document.getElementById('history-chart');
       if (!canvas) return;
 
@@ -3721,11 +3721,97 @@
       // X-axis Dates
       [0, Math.floor((pts.length - 1) / 2), pts.length - 1].forEach(i => {
         const x = PAD.left + (i / (pts.length - 1)) * cw;
-        ctx.fillStyle = textC; 
+        ctx.fillStyle = textC;
         ctx.font = '500 11px Outfit, sans-serif';
         ctx.textAlign = i === 0 ? 'left' : (i === pts.length - 1 ? 'right' : 'center');
         ctx.fillText(pts[i].date.slice(5), x, H - 6);
       });
+
+      // ── Hover crosshair: vertical line + value badges at the curve crossings ──
+      if (hoverIndex != null && hoverIndex >= 0 && hoverIndex < pts.length) {
+        const e  = pts[hoverIndex];
+        const x  = PAD.left + (hoverIndex / (pts.length - 1)) * cw;
+        const yScore = toYScore(e.score);
+        const hasPrice = e.price != null;
+        const yPrice = toYPrice(hasPrice ? e.price : yMinPrice);
+        const dotEdge = isDark ? '#0d0f18' : '#ffffff';
+
+        // vertical dashed line
+        ctx.strokeStyle = isDark ? 'rgba(255,255,255,0.28)' : 'rgba(0,0,0,0.22)';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([4, 4]);
+        ctx.beginPath(); ctx.moveTo(x, PAD.top); ctx.lineTo(x, PAD.top + ch); ctx.stroke();
+        ctx.setLineDash([]);
+
+        // date label at top
+        ctx.fillStyle = textC;
+        ctx.font = '600 10px Outfit, sans-serif';
+        ctx.textAlign = (x > W - PAD.right - 40) ? 'right' : (x < PAD.left + 40 ? 'left' : 'center');
+        ctx.fillText(e.date.slice(5), x, PAD.top - 4);
+
+        // intersection dots
+        const dot = (yy, col) => {
+          ctx.beginPath(); ctx.arc(x, yy, 4, 0, Math.PI * 2);
+          ctx.fillStyle = col; ctx.fill();
+          ctx.lineWidth = 2; ctx.strokeStyle = dotEdge; ctx.stroke();
+        };
+        if (hasPrice) dot(yPrice, priceLineCol);
+        dot(yScore, '#f7931a');
+
+        // value badge near a point
+        const badge = (text, yy, col) => {
+          ctx.font = '700 11px Outfit, sans-serif';
+          const tw = ctx.measureText(text).width;
+          const padX = 6, bh = 18, bw = tw + padX * 2;
+          let bx = x + 9;
+          if (bx + bw > W - PAD.right) bx = x - 9 - bw;
+          let by = Math.max(PAD.top, Math.min(PAD.top + ch - bh, yy - bh / 2));
+          ctx.beginPath();
+          if (ctx.roundRect) ctx.roundRect(bx, by, bw, bh, 5);
+          else ctx.rect(bx, by, bw, bh);
+          ctx.fillStyle = isDark ? '#1c2030' : '#ffffff';
+          ctx.fill();
+          ctx.lineWidth = 1; ctx.strokeStyle = col; ctx.stroke();
+          ctx.fillStyle = col; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+          ctx.fillText(text, bx + padX, by + bh / 2);
+          ctx.textBaseline = 'alphabetic';
+        };
+        if (hasPrice) badge('$' + Math.round(e.price).toLocaleString(), yPrice, priceLineCol);
+        badge(Math.round(e.score) + ' / 100', yScore, '#f7931a');
+      }
+
+      // ── Bind hover listeners once ──
+      if (!canvas._hoverBound) {
+        canvas._hoverBound = true;
+        const idxFromEvent = (ev) => {
+          const rect = canvas.getBoundingClientRect();
+          const clientX = (ev.touches && ev.touches[0]) ? ev.touches[0].clientX : ev.clientX;
+          const mx = clientX - rect.left;
+          const p = (_chartData && _chartData.score_history || []).filter(d => d.score != null);
+          if (p.length < 2) return null;
+          const cwid = rect.width - PAD.left - PAD.right;
+          const rel = (mx - PAD.left) / cwid;
+          return Math.max(0, Math.min(p.length - 1, Math.round(rel * (p.length - 1))));
+        };
+        const onMove = (ev) => {
+          if (!_chartData) return;
+          const idx = idxFromEvent(ev);
+          if (idx != null && idx !== canvas._hoverIdx) {
+            canvas._hoverIdx = idx;
+            drawCharts(_chartData, idx);
+          }
+          if (ev.cancelable && ev.type.startsWith('touch')) ev.preventDefault();
+        };
+        const onLeave = () => {
+          canvas._hoverIdx = null;
+          if (_chartData) drawCharts(_chartData, null);
+        };
+        canvas.addEventListener('mousemove', onMove);
+        canvas.addEventListener('mouseleave', onLeave);
+        canvas.addEventListener('touchstart', onMove, { passive: false });
+        canvas.addEventListener('touchmove', onMove, { passive: false });
+        canvas.addEventListener('touchend', onLeave);
+      }
     }
 
     init();
