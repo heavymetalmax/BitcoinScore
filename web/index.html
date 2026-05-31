@@ -206,7 +206,8 @@
       max-width: 100%;
     }
     /* Nav active button — pure orange, no color-mix, no transparency */
-    html.style-modern .nav-btn.active {
+    html.style-modern .nav-btn.active,
+    html.style-modern .lang-btn.active {
       background: rgba(247, 147, 26, 0.14);
       color: #f7931a !important;
       box-shadow: none;
@@ -1104,10 +1105,12 @@
     .lang-btn.active {
       background: var(--index-color-bg, rgba(247, 147, 26, 0.12));
       color: var(--index-color, #f7931a);
+      box-shadow: 0 0 12px var(--index-color-glow, rgba(247, 147, 26, 0.08));
     }
     .theme-light .lang-btn.active {
       background: color-mix(in srgb, var(--index-color, #f7931a) 10%, transparent);
       color: color-mix(in srgb, var(--index-color, #f7931a) 70%, #000 30%);
+      box-shadow: 0 0 12px color-mix(in srgb, var(--index-color, #f7931a) 5%, transparent);
     }
     
     /* Theme switcher styling is not needed as we reuse navigation styles */
