@@ -2847,8 +2847,22 @@
     
     function mapCipherb(cb) {
       if(!cb) return null;
-      const s = cb.weekly_score != null ? cb.weekly_score : cb.distance_to_buy;
-      return s != null ? Math.round(Math.max(0, Math.min(100, s))) : null;
+      let w = cb.weekly_score;
+      let d = cb.daily_score;
+      if (w == null) return null;
+      
+      // Apply weekly divergence adjustments
+      if(cb.fast_bearish_div) w = Math.min(100, w + 12);
+      else if(cb.fast_bullish_div) w = Math.max(0, w - 12);
+      
+      if(d != null) {
+        // Apply daily divergence adjustments
+        if(cb.daily_fast_bearish_div) d = Math.min(100, d + 12);
+        else if(cb.daily_fast_bullish_div) d = Math.max(0, d - 12);
+        
+        return Math.round(0.8 * w + 0.2 * d);
+      }
+      return Math.round(w);
     }
 
     function scoreColor(v, alpha = 1) {
@@ -3136,19 +3150,26 @@
       const mmScore  = mapMayerMultiple(mm);
 
       setMetric('cipherb', cbScore,
-        cb ? `<span class="en">wt1=${cb.wt1!=null?cb.wt1.toFixed(1):'--'} &middot; score=${cb.weekly_score!=null?cb.weekly_score.toFixed(1):'--'}</span>` +
-             `<span class="ua">wt1=${cb.wt1!=null?cb.wt1.toFixed(1):'--'} &middot; бал=${cb.weekly_score!=null?cb.weekly_score.toFixed(1):'--'}</span>` : null);
+        cb ? (cb.daily_score !== undefined ?
+          `<span class="en">1w: ${cb.weekly_score!=null?cb.weekly_score.toFixed(0):'--'} &middot; 1d: ${cb.daily_score!=null?cb.daily_score.toFixed(0):'--'}</span>` +
+          `<span class="ua">1т: ${cb.weekly_score!=null?cb.weekly_score.toFixed(0):'--'} &middot; 1д: ${cb.daily_score!=null?cb.daily_score.toFixed(0):'--'}</span>`
+          :
+          `<span class="en">wt1=${cb.wt1!=null?cb.wt1.toFixed(1):'--'} &middot; score=${cb.weekly_score!=null?cb.weekly_score.toFixed(1):'--'}</span>` +
+          `<span class="ua">wt1=${cb.wt1!=null?cb.wt1.toFixed(1):'--'} &middot; бал=${cb.weekly_score!=null?cb.weekly_score.toFixed(1):'--'}</span>`
+        ) : null);
       
       const techDivBadge = document.getElementById('tech-div-badge');
       if(techDivBadge && cb) {
-        if(cb.fast_bearish_div) {
-          techDivBadge.textContent = '▼ div'; 
+        if(cb.fast_bearish_div || cb.daily_fast_bearish_div) {
+          const type = cb.fast_bearish_div && cb.daily_fast_bearish_div ? '1w+1d' : (cb.fast_bearish_div ? '1w' : '1d');
+          techDivBadge.textContent = `▼ div (${type})`; 
           techDivBadge.style.color = '#ef4444'; 
           techDivBadge.style.background = 'rgba(239, 68, 68, 0.1)';
           techDivBadge.style.border = '1px solid rgba(239, 68, 68, 0.2)';
           techDivBadge.style.display = 'inline-block';
-        } else if(cb.fast_bullish_div) {
-          techDivBadge.textContent = '▲ div'; 
+        } else if(cb.fast_bullish_div || cb.daily_fast_bullish_div) {
+          const type = cb.fast_bullish_div && cb.daily_fast_bullish_div ? '1w+1d' : (cb.fast_bullish_div ? '1w' : '1d');
+          techDivBadge.textContent = `▲ div (${type})`; 
           techDivBadge.style.color = '#10b981'; 
           techDivBadge.style.background = 'rgba(16, 185, 129, 0.1)';
           techDivBadge.style.border = '1px solid rgba(16, 185, 129, 0.2)';

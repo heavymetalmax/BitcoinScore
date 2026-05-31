@@ -6,8 +6,12 @@ from datetime import datetime
 
 def fetch_ohlcv_kraken(symbol='BTCUSDT', interval='1w', limit=500):
     # Kraken public API — no geo-blocking on GitHub Actions
-    # interval: '1w' -> 10080 minutes
-    kraken_interval = 10080 if interval == '1w' else 60
+    if interval == '1w':
+        kraken_interval = 10080
+    elif interval == '1d':
+        kraken_interval = 1440
+    else:
+        kraken_interval = 60
     url = 'https://api.kraken.com/0/public/OHLC'
     params = {'pair': 'XBTUSD', 'interval': kraken_interval}
     r = requests.get(url, params=params, timeout=20)
@@ -302,8 +306,33 @@ def compute_cipherb_from_ohlcv(ohlc, channelLength=9, averageLength=12, wtSmaLen
 
 
 def get_cipherb(symbol='BTCUSDT'):
-    ohlc = fetch_ohlcv_kraken(symbol=symbol, interval='1w', limit=500)
-    return compute_cipherb_from_ohlcv(ohlc)
+    ohlc_w = fetch_ohlcv_kraken(symbol=symbol, interval='1w', limit=500)
+    ohlc_d = fetch_ohlcv_kraken(symbol=symbol, interval='1d', limit=500)
+    
+    res_w = compute_cipherb_from_ohlcv(ohlc_w)
+    res_d = compute_cipherb_from_ohlcv(ohlc_d)
+    
+    last_w = res_w.get('last')
+    last_d = res_d.get('last')
+    
+    if not last_w or not last_d:
+        raise ValueError("Failed to calculate Cipher B for weekly or daily timeframes.")
+        
+    last = {
+        'timestamp': last_w['timestamp'],
+        'close': last_w['close'],
+        'wt1': last_w['wt1'],
+        'wt2': last_w['wt2'],
+        'mfi': last_w['mfi'],
+        'weekly_score': last_w['weekly_score'],
+        'fast_bearish_div': last_w['fast_bearish_div'],
+        'fast_bullish_div': last_w['fast_bullish_div'],
+        'daily_score': last_d['weekly_score'],
+        'daily_fast_bearish_div': last_d['fast_bearish_div'],
+        'daily_fast_bullish_div': last_d['fast_bullish_div'],
+    }
+    
+    return {'series': res_w.get('series'), 'last': last, 'params': res_w.get('params')}
 
 
 if __name__ == '__main__':

@@ -174,12 +174,24 @@ def build_slider_map(metrics: dict) -> dict:
         return obj
 
     cipherb = mv('cipherb')
-    cipherb_score = round(cipherb['weekly_score']) if isinstance(cipherb, dict) and cipherb.get('weekly_score') is not None else None
-    if cipherb_score is not None and isinstance(cipherb, dict):
-        if cipherb.get('fast_bearish_div'):
-            cipherb_score = min(100, cipherb_score + 12)  # overbought signal
-        elif cipherb.get('fast_bullish_div'):
-            cipherb_score = max(0, cipherb_score - 12)    # oversold signal
+    cipherb_score = None
+    if isinstance(cipherb, dict):
+        w_score = cipherb.get('weekly_score')
+        d_score = cipherb.get('daily_score')
+        if w_score is not None:
+            if cipherb.get('fast_bearish_div'):
+                w_score = min(100.0, w_score + 12)
+            elif cipherb.get('fast_bullish_div'):
+                w_score = max(0.0, w_score - 12)
+            
+            if d_score is not None:
+                if cipherb.get('daily_fast_bearish_div'):
+                    d_score = min(100.0, d_score + 12)
+                elif cipherb.get('daily_fast_bullish_div'):
+                    d_score = max(0.0, d_score - 12)
+                cipherb_score = round(0.8 * w_score + 0.2 * d_score)
+            else:
+                cipherb_score = round(w_score)
 
     mayer_val = mv('mayer_multiple')
     mayer_score = map_mayer_multiple(mayer_val)
