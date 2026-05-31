@@ -83,63 +83,57 @@
       --index-color-glow: rgba(217, 119, 6, 0.05);
     }    /* Modern Dark */
     html.style-modern.theme-dark {
-      --bg: #0b0c10;
-      --bg-gradient: linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
-                     linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px),
-                     radial-gradient(circle at top, #161a24 0%, #0b0c10 100%);
-      --bg-card: #121318;
-      --bg-card-hover: #16181f;
-      --border: rgba(255, 255, 255, 0.03);
-      --border-hover: rgba(247, 147, 26, 0.35);
-      --text: #f3f4f6;
-      --text-mute: #6b7280;
-      --text-sub: #9ca3af;
-      --divider: rgba(255, 255, 255, 0.08);
-      --footer: #4b5563;
-      
-      --shadow-glow: 0 10px 40px rgba(0, 0, 0, 0.4);
-      
+      --bg: #0d0f18;
+      --bg-gradient: #0d0f18;
+      --bg-card: #1c2030;
+      --bg-card-hover: #222640;
+      --border: rgba(255, 255, 255, 0.10);
+      --border-hover: rgba(247, 147, 26, 0.40);
+      /* all fonts = darkest gauge segment colour */
+      --text: #8892a4;
+      --text-mute: #8892a4;
+      --text-sub: #8892a4;
+      --divider: rgba(255, 255, 255, 0.10);
+      --footer: #8892a4;
+
+      --shadow-glow: 0 8px 32px rgba(0, 0, 0, 0.5);
+
       --glass-blur: blur(20px);
- 
+
       --index-color: #f7931a;
-      --index-color-bg: rgba(247, 147, 26, 0.12);
-      --index-color-glow: rgba(247, 147, 26, 0.08);
+      --index-color-bg: rgba(247, 147, 26, 0.14);
+      --index-color-glow: rgba(247, 147, 26, 0.10);
     }
     
     /* Modern Light */
     html.style-modern.theme-light {
       --bg: #f8fafc;
-      --bg-gradient: linear-gradient(rgba(0, 0, 0, 0.02) 1px, transparent 1px),
-                     linear-gradient(90deg, rgba(0, 0, 0, 0.02) 1px, transparent 1px),
-                     linear-gradient(180deg, #f1f5f9 0%, #f8fafc 100%);
+      --bg-gradient: #f4f5f6;
       --bg-card: #ffffff;
       --bg-card-hover: #ffffff;
       --border: rgba(0, 0, 0, 0.04);
       --border-hover: rgba(247, 147, 26, 0.35);
-      --text: #0f172a;
-      --text-mute: #64748b;
-      --text-sub: #475569;
+      /* all fonts = darkest gauge segment colour */
+      --text: #374151;
+      --text-mute: #374151;
+      --text-sub: #374151;
       --divider: rgba(0, 0, 0, 0.08);
-      --footer: #64748b;
-      
+      --footer: #374151;
+
       --shadow-glow: 0 10px 40px rgba(0, 0, 0, 0.03);
-      
+
       --glass-blur: blur(20px);
- 
-      --index-color: #b45309;
-      --index-color-bg: rgba(217, 119, 6, 0.1);
-      --index-color-glow: rgba(217, 119, 6, 0.05);
+
+      --index-color: #f7931a;
+      --index-color-bg: rgba(247, 147, 26, 0.14);
+      --index-color-glow: rgba(247, 147, 26, 0.10);
     }
-    
-    html.style-modern body {
-      background-size: 40px 40px, 40px 40px, 100% 100%;
-    }
+
     html.style-classic body {
       background-size: initial;
     }
     html.style-modern .toc-card, html.style-modern .disclaimer-box {
       border-radius: 24px;
-    }
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -584,7 +578,7 @@
       overflow: hidden;
     }
     html.style-modern .modern-bg-elements {
-      display: block;
+      display: none;
     }
     .modern-bg-elements::before {
       content: '';
@@ -1102,10 +1096,17 @@
         const data = await res.json();
         if (data && data.final_score != null) {
           const finalVal = data.final_score;
-          const markerColor = scoreColor(finalVal);
-          document.documentElement.style.setProperty('--index-color', markerColor);
-          document.documentElement.style.setProperty('--index-color-bg', scoreColor(finalVal, 0.12));
-          document.documentElement.style.setProperty('--index-color-glow', scoreColor(finalVal, 0.08));
+          // Modern theme keeps a fixed orange accent; Classic uses dynamic score colour
+          const isModern = (localStorage.getItem('bbr-style') || 'modern') === 'modern';
+          if (isModern) {
+            document.documentElement.style.setProperty('--index-color', '#f7931a');
+            document.documentElement.style.setProperty('--index-color-bg', 'rgba(247,147,26,0.14)');
+            document.documentElement.style.setProperty('--index-color-glow', 'rgba(247,147,26,0.10)');
+          } else {
+            document.documentElement.style.setProperty('--index-color', scoreColor(finalVal));
+            document.documentElement.style.setProperty('--index-color-bg', scoreColor(finalVal, 0.12));
+            document.documentElement.style.setProperty('--index-color-glow', scoreColor(finalVal, 0.08));
+          }
         }
       } catch (e) {
         console.error('Failed to load index color:', e);
