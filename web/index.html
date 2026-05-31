@@ -734,6 +734,16 @@
       }
     }
 
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+    .blink-colon {
+      animation: blink 1s infinite;
+      display: inline-block;
+      margin: 0 1px;
+    }
+
     /* General progress bars inside cards */
     .bar-wrap {
       background: var(--bar-bg);
@@ -2999,8 +3009,8 @@
       const pad = num => String(num).padStart(2, '0');
       
       const timerHtml = `<span class="countdown-icon" style="font-size: 0.85rem; display: inline-block; vertical-align: middle; margin-right: 4px; line-height: 1;">⟳</span>` +
-        `<span class="en">${pad(hours)}h ${pad(minutes)}m</span>` +
-        `<span class="ua">${pad(hours)}г ${pad(minutes)}хв</span>`;
+        `<span class="en">${pad(hours)}h <span class="blink-colon">:</span> ${pad(minutes)}m</span>` +
+        `<span class="ua">${pad(hours)}г <span class="blink-colon">:</span> ${pad(minutes)}хв</span>`;
       
       countdownEl.innerHTML = timerHtml;
     }
