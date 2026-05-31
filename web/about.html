@@ -16,7 +16,9 @@
       const style = localStorage.getItem('bbr-style') || 'classic';
       const mode = localStorage.getItem('bbr-mode') || 'night';
       let theme = 'dark';
-      if (mode === 'auto') {
+      if (style === 'modern') {
+        theme = 'light';
+      } else if (mode === 'auto') {
         const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
         theme = prefersLight ? 'light' : 'dark';
       }
@@ -82,31 +84,6 @@
       --index-color: #b45309;
       --index-color-bg: rgba(217, 119, 6, 0.1);
       --index-color-glow: rgba(217, 119, 6, 0.05);
-    }
-    
-    /* Modern Dark */
-    html.style-modern.theme-dark {
-      --bg: #0b0c10;
-      --bg-gradient: linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
-                     linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px),
-                     radial-gradient(circle at top, #161a24 0%, #0b0c10 100%);
-      --bg-card: rgba(20, 24, 33, 0.85);
-      --bg-card-hover: rgba(25, 30, 41, 0.98);
-      --border: rgba(255, 255, 255, 0.06);
-      --border-hover: rgba(247, 147, 26, 0.35);
-      --text: #f3f4f6;
-      --text-mute: #6b7280;
-      --text-sub: #9ca3af;
-      --divider: rgba(255, 255, 255, 0.08);
-      --footer: #4b5563;
-      
-      --shadow-glow: 0 4px 20px rgba(0, 0, 0, 0.4);
-      
-      --glass-blur: blur(20px);
-
-      --index-color: #f7931a;
-      --index-color-bg: rgba(247, 147, 26, 0.12);
-      --index-color-glow: rgba(247, 147, 26, 0.08);
     }
     
     /* Modern Light */
@@ -966,7 +943,9 @@
       const mode = localStorage.getItem('bbr-mode') || 'night';
       
       let theme = 'dark';
-      if (mode === 'auto') {
+      if (style === 'modern') {
+        theme = 'light';
+      } else if (mode === 'auto') {
         const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
         theme = prefersLight ? 'light' : 'dark';
       }
