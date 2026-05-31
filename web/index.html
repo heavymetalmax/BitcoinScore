@@ -254,12 +254,7 @@
     /* Metric bars in Modern: canvas draws everything, wrap is just a container */
     html.style-modern .glass-panel .bar-wrap {
       background: transparent !important;
-      height: 8px !important;
       overflow: visible !important;
-      border-radius: 0 !important;
-    }
-    html.style-modern .score-box .s-sub {
-      margin-top: 4px;
     }
     /* Modern gauge canvas containers */
     .modern-main-gauge-wrap {
@@ -2611,7 +2606,7 @@
 
       const dpr   = window.devicePixelRatio || 1;
       const W     = barWrap.clientWidth || 200;
-      const BAR_H = 8;   // bar visual height
+      const BAR_H = 6;   // match Classic bar-wrap height
       const EXT   = 4;   // tick extension above/below bar
       const H     = BAR_H + EXT * 2; // canvas total height
 
