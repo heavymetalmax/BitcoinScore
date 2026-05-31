@@ -802,7 +802,47 @@
       color: var(--text-name);
       font-weight: 700;
     }
-    
+
+    /* Collapsible "About" section — no card, click title to expand */
+    .about-index {
+      margin-top: 28px;
+      border-top: 1px solid var(--divider);
+    }
+    .about-index-summary {
+      list-style: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 16px 0;
+      user-select: none;
+    }
+    .about-index-summary::-webkit-details-marker { display: none; }
+    .about-index-summary h2 {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-name);
+      font-weight: 700;
+      margin: 0;
+    }
+    .about-chevron {
+      color: var(--text-mute);
+      flex-shrink: 0;
+      transition: transform 0.25s ease, color 0.2s ease;
+    }
+    .about-index[open] .about-chevron { transform: rotate(180deg); }
+    .about-index-summary:hover h2,
+    .about-index-summary:hover .about-chevron { color: var(--index-color); }
+    .about-index-body {
+      font-size: 0.9rem;
+      line-height: 1.7;
+      color: var(--text-sub);
+      max-width: 68ch;
+      padding-bottom: 8px;
+    }
+
     .metrics-list {
       display: flex;
       flex-direction: column;
@@ -2100,14 +2140,15 @@
     </div>
 
     <!-- About / SEO content (crawlable prose) -->
-    <section class="glass-panel about-index" style="margin-top:24px">
-      <div class="section-header">
+    <details class="about-index">
+      <summary class="about-index-summary">
         <h2>
           <span class="en">About the Bitcoin Buy Risk Index</span>
           <span class="ua">Про Індекс ризику купівлі Bitcoin</span>
         </h2>
-      </div>
-      <div class="about-index-body" style="font-size:0.9rem; line-height:1.7; color:var(--text-sub); max-width:68ch;">
+        <svg class="about-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+      </summary>
+      <div class="about-index-body">
         <p style="margin-bottom:12px; font-weight:600; color:var(--text);">
           <span class="en">As of the latest daily update, the Bitcoin Buy Risk Index reads <strong id="seo-score">—</strong> / 100 — <span id="seo-status-en">—</span>.</span>
           <span class="ua">Станом на останнє щоденне оновлення Індекс ризику купівлі Bitcoin становить <strong id="seo-score-ua">—</strong> / 100 — <span id="seo-status-ua">—</span>.</span>
@@ -2125,7 +2166,7 @@
           <span class="ua">Використовуйте його як обґрунтовану даними противагу ринковим емоціям — а не як фінансову пораду. <a href="about.html" style="color:var(--index-color); font-weight:600;">Читати повну методологію</a>, щоб побачити, як саме обчислюється та зважується кожен показник, або як він <a href="compare.html" style="color:var(--index-color); font-weight:600;">порівнюється з Fear &amp; Greed Index та CBBI</a>.</span>
         </p>
       </div>
-    </section>
+    </details>
   </div><!-- end tab-main -->
 
   <!-- Modern Style Container (Hidden by default, shown when style === 'modern') -->
