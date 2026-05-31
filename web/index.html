@@ -1027,8 +1027,9 @@
               <span class="hero-card-price" id="hero-card-price">—</span>
               <span class="hero-card-sep">·</span>
               <span class="hero-card-countdown" id="hero-card-countdown">
-                <span class="en">Next update: —</span>
-                <span class="ua">Оновлення через: —</span>
+                <span class="countdown-icon" style="font-size: 0.85rem; display: inline-block; vertical-align: middle; margin-right: 4px; line-height: 1;">⟳</span>
+                <span class="en">—</span>
+                <span class="ua">—</span>
               </span>
             </div>
             <div class="hero-status-area">
@@ -1479,13 +1480,11 @@
       
       const pad = num => String(num).padStart(2, '0');
       
-      const enText = `Next update: ${pad(hours)}h ${pad(minutes)}m ${pad(seconds)}s`;
-      const uaText = `Оновлення через: ${pad(hours)}г ${pad(minutes)}хв ${pad(seconds)}с`;
+      const timerHtml = `<span class="countdown-icon" style="font-size: 0.85rem; display: inline-block; vertical-align: middle; margin-right: 4px; line-height: 1;">⟳</span>` +
+        `<span class="en">${pad(hours)}h ${pad(minutes)}m ${pad(seconds)}s</span>` +
+        `<span class="ua">${pad(hours)}г ${pad(minutes)}хв ${pad(seconds)}с</span>`;
       
-      countdownEl.innerHTML = `
-        <span class="en">${enText}</span>
-        <span class="ua">${uaText}</span>
-      `;
+      countdownEl.innerHTML = timerHtml;
     }
 
     async function init() {
