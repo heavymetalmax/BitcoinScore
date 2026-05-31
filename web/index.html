@@ -2460,9 +2460,14 @@
       const TICK_CUR_COL = '#f7931a';                        // always max orange
       const NUM_COL      = isDark ? '#eef0f4' : '#1f2937';
 
-      const dpr = window.devicePixelRatio || 1;
-      const W   = Math.min(canvas.parentElement.clientWidth || (isSmall ? 180 : 320), isSmall ? 180 : 320);
-      const H   = isSmall ? 98 : 185;
+      const dpr    = window.devicePixelRatio || 1;
+      const maxW   = isSmall ? 180 : 320;
+      // For small gauges, derive width from the score-box card (minus its 40px padding)
+      // so the canvas never exceeds the card content area regardless of clientWidth timing
+      const scoreBox = isSmall ? canvas.closest('.score-box') : null;
+      const boxW     = scoreBox ? scoreBox.clientWidth - 40 : 0;
+      const W        = Math.min(boxW > 0 ? boxW : (canvas.parentElement.clientWidth || maxW), maxW);
+      const H        = isSmall ? 98 : 185;
 
       canvas.width  = W * dpr;
       canvas.height = H * dpr;
