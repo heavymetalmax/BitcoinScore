@@ -11,6 +11,15 @@
     gtag('config', 'YOUR_GA_MEASUREMENT_ID');
   </script>
 
+  <script>
+    (function() {
+      const savedTheme = localStorage.getItem('bbr-theme');
+      const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+      const theme = savedTheme || (prefersLight ? 'light' : 'classic');
+      document.documentElement.className = 'theme-' + theme;
+    })();
+  </script>
+
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Bitcoin Buy Risk Index — Methodology</title>
@@ -46,28 +55,29 @@
       --index-color: #f7931a;
       --index-color-bg: rgba(247, 147, 26, 0.12);
       --index-color-glow: rgba(247, 147, 26, 0.08);
-    }
-    
-    @media (prefers-color-scheme: light) {
-      :root {
-        --bg: #f8fafc;
-        --bg-gradient: linear-gradient(180deg, #f1f5f9 0%, #f8fafc 100%);
-        --bg-card: rgba(255, 255, 255, 0.7);
-        --bg-card-hover: rgba(255, 255, 255, 0.95);
-        --border: rgba(0, 0, 0, 0.06);
-        --border-hover: rgba(247, 147, 26, 0.3);
-        --text: #0f172a;
-        --text-mute: #64748b;
-        --text-sub: #334155;
-        --divider: rgba(0, 0, 0, 0.08);
-        --footer: #64748b;
-        --glass-blur: blur(8px);
-        --shadow-glow: 0 4px 12px rgba(0, 0, 0, 0.02);
+    }    html.theme-light {
+      --bg: #f8fafc;
+      --bg-gradient: linear-gradient(rgba(0, 0, 0, 0.02) 1px, transparent 1px),
+                     linear-gradient(90deg, rgba(0, 0, 0, 0.02) 1px, transparent 1px),
+                     linear-gradient(180deg, #f1f5f9 0%, #f8fafc 100%);
+      --bg-card: rgba(255, 255, 255, 0.85);
+      --bg-card-hover: rgba(255, 255, 255, 0.98);
+      --border: rgba(0, 0, 0, 0.06);
+      --border-hover: rgba(247, 147, 26, 0.3);
+      --text: #0f172a;
+      --text-mute: #64748b;
+      --text-sub: #334155;
+      --divider: rgba(0, 0, 0, 0.08);
+      --footer: #64748b;
+      --glass-blur: blur(20px);
+      --shadow-glow: 0 4px 20px rgba(0, 0, 0, 0.03);
 
-        --index-color: #b45309;
-        --index-color-bg: rgba(217, 119, 6, 0.1);
-        --index-color-glow: rgba(217, 119, 6, 0.05);
-      }
+      --index-color: #b45309;
+      --index-color-bg: rgba(217, 119, 6, 0.1);
+      --index-color-glow: rgba(217, 119, 6, 0.05);
+    }
+    html.theme-light body {
+      background-size: 40px 40px, 40px 40px, 100% 100%;
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -105,10 +115,8 @@
     .back-link:hover {
       color: var(--index-color, #f7931a);
     }
-    @media (prefers-color-scheme: light) {
-      .back-link:hover {
-        color: color-mix(in srgb, var(--index-color, #f7931a) 70%, #000 30%);
-      }
+    .theme-light .back-link:hover {
+      color: color-mix(in srgb, var(--index-color, #f7931a) 70%, #000 30%);
     }
 
     /* Language switcher */
@@ -140,11 +148,43 @@
       background: var(--index-color-bg, rgba(247, 147, 26, 0.12));
       color: var(--index-color, #f7931a);
     }
-    @media (prefers-color-scheme: light) {
-      .lang-btn.active {
-        background: color-mix(in srgb, var(--index-color, #f7931a) 10%, transparent);
-        color: color-mix(in srgb, var(--index-color, #f7931a) 70%, #000 30%);
-      }
+    .theme-light .lang-btn.active {
+      background: color-mix(in srgb, var(--index-color, #f7931a) 10%, transparent);
+      color: color-mix(in srgb, var(--index-color, #f7931a) 70%, #000 30%);
+    }
+
+    /* Theme switcher */
+    .theme-toggle {
+      display: flex;
+      gap: 4px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 3px;
+      border-radius: 9999px;
+      backdrop-filter: var(--glass-blur);
+    }
+    .theme-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-mute);
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 5px 14px;
+      border-radius: 9999px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.2s ease;
+    }
+    .theme-btn:hover {
+      color: var(--text);
+    }
+    .theme-btn.active {
+      background: var(--index-color-bg, rgba(247, 147, 26, 0.12));
+      color: var(--index-color, #f7931a);
+    }
+    .theme-light .theme-btn.active {
+      background: color-mix(in srgb, var(--index-color, #f7931a) 10%, transparent);
+      color: color-mix(in srgb, var(--index-color, #f7931a) 70%, #000 30%);
     }
 
     /* Multilingual Switch CSS */
@@ -272,10 +312,8 @@
     tbody tr:hover {
       background: rgba(255, 255, 255, 0.02);
     }
-    @media (prefers-color-scheme: light) {
-      tbody tr:hover {
-        background: rgba(0, 0, 0, 0.01);
-      }
+    .theme-light tbody tr:hover {
+      background: rgba(0, 0, 0, 0.01);
     }
 
     .weights-table td:first-child {
@@ -330,23 +368,21 @@
       border-color: rgba(239, 68, 68, 0.15);
     }
     
-    @media (prefers-color-scheme: light) {
-      .zone-0, .zone-25 {
+      .theme-light .zone-0, .theme-light .zone-25 {
         color: #059669;
         background: rgba(5, 150, 105, 0.06);
         border-color: rgba(5, 150, 105, 0.15);
       }
-      .zone-50 {
+      .theme-light .zone-50 {
         color: #ca8a04;
         background: rgba(202, 138, 4, 0.06);
         border-color: rgba(202, 138, 4, 0.15);
       }
-      .zone-75, .zone-100 {
+      .theme-light .zone-75, .theme-light .zone-100 {
         color: #dc2626;
         background: rgba(220, 38, 38, 0.06);
         border-color: rgba(220, 38, 38, 0.15);
       }
-    }
 
     .disclaimer-box {
       background: var(--bg-card);
@@ -404,10 +440,8 @@
     .toc-list a:hover {
       color: var(--index-color, #f7931a);
     }
-    @media (prefers-color-scheme: light) {
-      .toc-list a:hover {
-        color: color-mix(in srgb, var(--index-color, #f7931a) 70%, #000 30%);
-      }
+    .theme-light .toc-list a:hover {
+      color: color-mix(in srgb, var(--index-color, #f7931a) 70%, #000 30%);
     }
 
     hr {
@@ -478,9 +512,21 @@
 
   <div class="top-row">
     <a class="back-link" href="index.html">← Back to Dashboard</a>
-    <div class="lang-toggle">
-      <button class="lang-btn active" id="btn-en" onclick="setLang('en')">EN</button>
-      <button class="lang-btn"        id="btn-ua" onclick="setLang('ua')">UA</button>
+    <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+      <div class="theme-toggle">
+        <button class="theme-btn active" id="btn-about-theme-classic" onclick="setTheme('classic')">
+          <span class="en">Classic</span>
+          <span class="ua">Класична</span>
+        </button>
+        <button class="theme-btn" id="btn-about-theme-light" onclick="setTheme('light')">
+          <span class="en">Light</span>
+          <span class="ua">Світла</span>
+        </button>
+      </div>
+      <div class="lang-toggle">
+        <button class="lang-btn active" id="btn-en" onclick="setLang('en')">EN</button>
+        <button class="lang-btn"        id="btn-ua" onclick="setLang('ua')">UA</button>
+      </div>
     </div>
   </div>
 
@@ -829,6 +875,21 @@
         console.error('Failed to load index color:', e);
       }
     }
+    function setTheme(theme) {
+      document.documentElement.className = 'theme-' + theme;
+      const btnClassic = document.getElementById('btn-about-theme-classic');
+      const btnLight = document.getElementById('btn-about-theme-light');
+      if (btnClassic) btnClassic.classList.toggle('active', theme === 'classic');
+      if (btnLight) btnLight.classList.toggle('active', theme === 'light');
+      localStorage.setItem('bbr-theme', theme);
+    }
+    
+    // Initialize theme on load
+    const savedTheme = localStorage.getItem('bbr-theme');
+    const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+    const initialTheme = savedTheme || (prefersLight ? 'light' : 'classic');
+    setTheme(initialTheme);
+
     loadIndexColor();
   </script>
 

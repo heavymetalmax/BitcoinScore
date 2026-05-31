@@ -11,6 +11,15 @@
     gtag('config', 'YOUR_GA_MEASUREMENT_ID');
   </script>
 
+  <script>
+    (function() {
+      const savedTheme = localStorage.getItem('bbr-theme');
+      const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+      const theme = savedTheme || (prefersLight ? 'light' : 'classic');
+      document.documentElement.className = 'theme-' + theme;
+    })();
+  </script>
+
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Bitcoin Buy Risk Index</title>
@@ -60,35 +69,38 @@
       --index-color-glow: rgba(247, 147, 26, 0.08);
     }
     
-    @media (prefers-color-scheme: light) {
-      :root {
-        --bg: #f8fafc;
-        --bg-gradient: linear-gradient(180deg, #f1f5f9 0%, #f8fafc 100%);
-        --bg-card: rgba(255, 255, 255, 0.7);
-        --bg-card-hover: rgba(255, 255, 255, 0.95);
-        --border: rgba(0, 0, 0, 0.06);
-        --border-hover: rgba(247, 147, 26, 0.35);
-        --text: #0f172a;
-        --text-name: #475569;
-        --text-mute: #64748b;
-        --text-sub: #475569;
-        --text-raw: #64748b;
-        --text-ts: #64748b;
-        --bar-bg: rgba(0, 0, 0, 0.06);
-        --divider: rgba(0, 0, 0, 0.08);
-        --tick: rgba(0, 0, 0, 0.15);
-        --footer: #64748b;
-        
-        --shadow-glow: 0 4px 12px rgba(0, 0, 0, 0.03);
-        --shadow-glow-active: 0 6px 20px rgba(0, 0, 0, 0.08);
-        
-        --bg-card-knob: #ffffff;
-        --glass-blur: blur(6px);
+    html.theme-light {
+      --bg: #f8fafc;
+      --bg-gradient: linear-gradient(rgba(0, 0, 0, 0.02) 1px, transparent 1px),
+                     linear-gradient(90deg, rgba(0, 0, 0, 0.02) 1px, transparent 1px),
+                     linear-gradient(180deg, #f1f5f9 0%, #f8fafc 100%);
+      --bg-card: rgba(255, 255, 255, 0.85);
+      --bg-card-hover: rgba(255, 255, 255, 0.98);
+      --border: rgba(0, 0, 0, 0.06);
+      --border-hover: rgba(247, 147, 26, 0.35);
+      --text: #0f172a;
+      --text-name: #475569;
+      --text-mute: #64748b;
+      --text-sub: #475569;
+      --text-raw: #64748b;
+      --text-ts: #64748b;
+      --bar-bg: rgba(0, 0, 0, 0.06);
+      --divider: rgba(0, 0, 0, 0.08);
+      --tick: rgba(0, 0, 0, 0.15);
+      --footer: #64748b;
+      
+      --shadow-glow: 0 4px 20px rgba(0, 0, 0, 0.03);
+      --shadow-glow-active: 0 10px 30px rgba(0, 0, 0, 0.06);
+      
+      --bg-card-knob: #ffffff;
+      --glass-blur: blur(20px);
 
-        --index-color: #b45309;
-        --index-color-bg: rgba(217, 119, 6, 0.1);
-        --index-color-glow: rgba(217, 119, 6, 0.05);
-      }
+      --index-color: #b45309;
+      --index-color-bg: rgba(217, 119, 6, 0.1);
+      --index-color-glow: rgba(217, 119, 6, 0.05);
+    }
+    html.theme-light body {
+      background-size: 40px 40px, 40px 40px, 100% 100%;
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -126,12 +138,10 @@
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1), inset 0 1px 1px rgba(255, 255, 255, 0.05);
       animation: pulse-border 2.5s infinite ease-in-out;
     }
-    @media (prefers-color-scheme: light) {
-      .outdated-banner {
-        background: linear-gradient(135deg, #fef3c7 0%, #ffedd5 100%);
-        border: 1px solid rgba(245, 158, 11, 0.4);
-        color: #b45309;
-      }
+    .theme-light .outdated-banner {
+      background: linear-gradient(135deg, #fef3c7 0%, #ffedd5 100%);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      color: #b45309;
     }
     
     @keyframes pulse-border {
@@ -168,10 +178,8 @@
       color: var(--index-color, #f7931a);
       transition: color 0.4s ease;
     }
-    @media (prefers-color-scheme: light) {
-      .logo-accent {
-        color: color-mix(in srgb, var(--index-color, #f7931a) 70%, #000 30%);
-      }
+    .theme-light .logo-accent {
+      color: color-mix(in srgb, var(--index-color, #f7931a) 70%, #000 30%);
     }
     .main-ts {
       font-size: 0.72rem;
@@ -188,10 +196,8 @@
       border-radius: 9999px;
       flex-wrap: wrap;
     }
-    @media (prefers-color-scheme: light) {
-      .nav-menu {
-        background: rgba(0, 0, 0, 0.02);
-      }
+    .theme-light .nav-menu {
+      background: rgba(0, 0, 0, 0.02);
     }
     .nav-btn {
       background: transparent;
@@ -216,12 +222,10 @@
       color: var(--index-color, #f7931a);
       box-shadow: 0 0 12px var(--index-color-glow, rgba(247, 147, 26, 0.08));
     }
-    @media (prefers-color-scheme: light) {
-      .nav-btn.active {
-        background: color-mix(in srgb, var(--index-color, #f7931a) 10%, transparent);
-        color: color-mix(in srgb, var(--index-color, #f7931a) 70%, #000 30%);
-        box-shadow: 0 0 12px color-mix(in srgb, var(--index-color, #f7931a) 5%, transparent);
-      }
+    .theme-light .nav-btn.active {
+      background: color-mix(in srgb, var(--index-color, #f7931a) 10%, transparent);
+      color: color-mix(in srgb, var(--index-color, #f7931a) 70%, #000 30%);
+      box-shadow: 0 0 12px color-mix(in srgb, var(--index-color, #f7931a) 5%, transparent);
     }
 
     /* Cards Grid */
@@ -404,10 +408,8 @@
       position: relative;
       box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
     }
-    @media (prefers-color-scheme: light) {
-      .risk-track {
-        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.15);
-      }
+    .theme-light .risk-track {
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.15);
     }
     
     .risk-marker {
@@ -461,10 +463,8 @@
       transition: color 0.4s ease;
       text-shadow: 0 0 8px rgba(0, 0, 0, 0.4);
     }
-    @media (prefers-color-scheme: light) {
-      .risk-marker-lbl {
-        text-shadow: none;
-      }
+    .theme-light .risk-marker-lbl {
+      text-shadow: none;
     }
     
     .hero-status-area {
@@ -494,11 +494,9 @@
       box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
       z-index: 2;
     }
-    @media (prefers-color-scheme: light) {
-      .risk-tick {
-        background: rgba(0, 0, 0, 0.5);
-        box-shadow: none;
-      }
+    .theme-light .risk-tick {
+      background: rgba(0, 0, 0, 0.5);
+      box-shadow: none;
     }
     
     .risk-track-legend {
@@ -637,10 +635,8 @@
       background: rgba(255, 255, 255, 0.02);
       transform: translateX(4px);
     }
-    @media (prefers-color-scheme: light) {
-      .metric-row:hover {
-        background: rgba(0, 0, 0, 0.01);
-      }
+    .theme-light .metric-row:hover {
+      background: rgba(0, 0, 0, 0.01);
     }
     
     .m-name {
@@ -691,15 +687,13 @@
       box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 0 0 22px rgba(239, 68, 68, 0.22) !important;
     }
     
-    @media (prefers-color-scheme: light) {
-      .score-box.tactical-buy {
-        border-color: rgba(16, 185, 129, 0.5) !important;
-        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.15) !important;
-      }
-      .score-box.tactical-overheat {
-        border-color: rgba(239, 68, 68, 0.5) !important;
-        box-shadow: 0 6px 20px rgba(239, 68, 68, 0.15) !important;
-      }
+    .theme-light .score-box.tactical-buy {
+      border-color: rgba(16, 185, 129, 0.5) !important;
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.15) !important;
+    }
+    .theme-light .score-box.tactical-overheat {
+      border-color: rgba(239, 68, 68, 0.5) !important;
+      box-shadow: 0 6px 20px rgba(239, 68, 68, 0.15) !important;
     }
 
     /* Glowing Index score text styling */
@@ -925,11 +919,43 @@
       background: var(--index-color-bg, rgba(247, 147, 26, 0.12));
       color: var(--index-color, #f7931a);
     }
-    @media (prefers-color-scheme: light) {
-      .lang-btn.active {
-        background: color-mix(in srgb, var(--index-color, #f7931a) 10%, transparent);
-        color: color-mix(in srgb, var(--index-color, #f7931a) 70%, #000 30%);
-      }
+    .theme-light .lang-btn.active {
+      background: color-mix(in srgb, var(--index-color, #f7931a) 10%, transparent);
+      color: color-mix(in srgb, var(--index-color, #f7931a) 70%, #000 30%);
+    }
+    
+    /* Theme switcher */
+    .theme-toggle {
+      display: flex;
+      gap: 4px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 3px;
+      border-radius: 9999px;
+      backdrop-filter: var(--glass-blur);
+    }
+    .theme-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-mute);
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 5px 14px;
+      border-radius: 9999px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.2s ease;
+    }
+    .theme-btn:hover {
+      color: var(--text);
+    }
+    .theme-btn.active {
+      background: var(--index-color-bg, rgba(247, 147, 26, 0.12));
+      color: var(--index-color, #f7931a);
+    }
+    .theme-light .theme-btn.active {
+      background: color-mix(in srgb, var(--index-color, #f7931a) 10%, transparent);
+      color: color-mix(in srgb, var(--index-color, #f7931a) 70%, #000 30%);
     }
     body.lang-en .ua { display: none; }
     body.lang-ua .en { display: none; }
@@ -1006,6 +1032,16 @@
           <span class="en">iCal Alerts</span>
           <span class="ua">Сповіщення iCal</span>
         </a>
+      </div>
+      <div class="theme-toggle">
+        <button class="theme-btn active" id="btn-theme-classic" onclick="setTheme('classic')">
+          <span class="en">Classic</span>
+          <span class="ua">Класична</span>
+        </button>
+        <button class="theme-btn" id="btn-theme-light" onclick="setTheme('light')">
+          <span class="en">Light</span>
+          <span class="ua">Світла</span>
+        </button>
       </div>
       <div class="lang-toggle">
         <button class="lang-btn active" id="btn-en" onclick="setLang('en')">EN</button>
@@ -1298,6 +1334,22 @@
   </p>
 
   <script>
+    // Theme switcher
+    function setTheme(theme) {
+      document.documentElement.className = 'theme-' + theme;
+      
+      const btnClassic = document.getElementById('btn-theme-classic');
+      const btnLight = document.getElementById('btn-theme-light');
+      if (btnClassic) btnClassic.classList.toggle('active', theme === 'classic');
+      if (btnLight) btnLight.classList.toggle('active', theme === 'light');
+      
+      localStorage.setItem('bbr-theme', theme);
+      
+      if (typeof _chartData !== 'undefined' && _chartData) {
+        drawCharts(_chartData);
+      }
+    }
+
     // Language switcher
     function setLang(lang) {
       document.body.className = 'lang-' + lang;
@@ -1785,6 +1837,12 @@
         <span class="ua">Джерело: data.json &middot; ${dateStr}</span>
       `;
 
+      // Initialize theme on load (sets button states)
+      const savedTheme = localStorage.getItem('bbr-theme');
+      const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+      const initialTheme = savedTheme || (prefersLight ? 'light' : 'classic');
+      setTheme(initialTheme);
+
       // Trigger lang update to apply tooltip translations
       const bLang = (navigator.language || navigator.userLanguage || '').toLowerCase();
       const defLang = bLang.startsWith('uk') || bLang.startsWith('ua') ? 'ua' : 'en';
@@ -1812,7 +1870,7 @@
       const pts = (data.score_history || []).filter(e => e.score != null);
       if(pts.length < 2) return;
 
-      const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const isDark = !document.documentElement.classList.contains('theme-light');
       const bg    = 'rgba(0,0,0,0)'; // transparent canvas area
       const grid  = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)';
       const textC = isDark ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.5)';
@@ -1993,7 +2051,7 @@
           if (alpha <= 0) continue;
           
           // Light mode opacity scaling
-          const isLightMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+          const isLightMode = document.documentElement.classList.contains('theme-light');
           if (isLightMode) {
             alpha *= 0.65; 
           }
