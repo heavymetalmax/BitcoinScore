@@ -2071,15 +2071,15 @@
           <span class="ua">Історичний графік</span>
         </h2>
         <div class="chart-legend" style="display:flex; gap:16px; font-size:0.75rem; font-weight:600;">
-          <span style="display:flex; align-items:center; gap:6px; color:#f7931a;">
-            <span style="display:inline-block; width:12px; height:3px; background:#f7931a; border-radius:2px; box-shadow:0 0 6px #f7931a;"></span>
-            <span class="en">Risk Score</span>
-            <span class="ua">Оцінка ризику</span>
-          </span>
           <span id="btc-price-legend" style="display:flex; align-items:center; gap:6px; color:#10b981;">
             <span id="btc-price-legend-dot" style="display:inline-block; width:12px; height:3px; background:#10b981; border-radius:2px; box-shadow:0 0 6px #10b981;"></span>
             <span class="en">BTC Price</span>
             <span class="ua">Ціна BTC</span>
+          </span>
+          <span style="display:flex; align-items:center; gap:6px; color:#f7931a;">
+            <span style="display:inline-block; width:12px; height:3px; background:#f7931a; border-radius:2px; box-shadow:0 0 6px #f7931a;"></span>
+            <span class="en">Risk Score</span>
+            <span class="ua">Оцінка ризику</span>
           </span>
         </div>
       </div>
@@ -3480,8 +3480,8 @@
       const ctx = canvas.getContext('2d');
       ctx.scale(dpr, dpr);
 
-      // Left margin for Risk Score labels, right margin for BTC Price labels
-      const PAD = { top: 16, bottom: 28, left: 40, right: 48 };
+      // Left margin for BTC Price labels, right margin for Risk Score labels
+      const PAD = { top: 16, bottom: 28, left: 48, right: 40 };
       const cw  = W - PAD.left - PAD.right;
       const ch  = H - PAD.top  - PAD.bottom;
 
@@ -3524,18 +3524,19 @@
           ctx.stroke();
         }
         
-        // Left Y-axis: Risk Score labels — orange to match the line
-        ctx.fillStyle = '#f7931a';
-        ctx.font = '600 11px Outfit, sans-serif';
-        ctx.textAlign = 'right';
-        ctx.fillText(v, PAD.left - 8, y + 4);
-
-        // Right Y-axis: Price labels — use BTC price line colour
+        // Left Y-axis: Price labels — use BTC price line colour
         const priceVal = yMinPrice + (v / 100) * (yMaxPrice - yMinPrice);
         const priceText = '$' + Math.round(priceVal / 100) / 10 + 'k';
         ctx.fillStyle = priceLineCol;
+        ctx.font = '600 11px Outfit, sans-serif';
+        ctx.textAlign = 'right';
+        ctx.fillText(priceText, PAD.left - 8, y + 4);
+
+        // Right Y-axis: Risk Score labels — orange to match the line
+        ctx.fillStyle = '#f7931a';
+        ctx.font = '600 11px Outfit, sans-serif';
         ctx.textAlign = 'left';
-        ctx.fillText(priceText, W - PAD.right + 8, y + 4);
+        ctx.fillText(v, W - PAD.right + 8, y + 4);
       });
 
       // 1. Draw Risk Score Fill & Line (Orange)
