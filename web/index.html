@@ -3758,26 +3758,55 @@
         if (hasPrice) dot(yPrice, priceLineCol);
         dot(yScore, '#f7931a');
 
-        // value badge near a point
-        const badge = (text, yy, col) => {
-          ctx.font = '700 11px Outfit, sans-serif';
-          const tw = ctx.measureText(text).width;
-          const padX = 6, bh = 18, bw = tw + padX * 2;
-          let bx = x + 9;
-          if (bx + bw > W - PAD.right) bx = x - 9 - bw;
-          let by = Math.max(PAD.top, Math.min(PAD.top + ch - bh, yy - bh / 2));
+        // value badges — stacked vertically so they never overlap;
+        // the higher point sits on top, ties give the index priority.
+        ctx.font = '700 11px Outfit, sans-serif';
+        const padX = 6, bh = 18, gap = 5;
+        const badges = [
+          // rank 0 = index (wins ties → drawn on top)
+          { text: Math.round(e.score) + ' / 100', y: yScore, col: '#f7931a', rank: 0 }
+        ];
+        if (hasPrice) badges.push({ text: '$' + Math.round(e.price).toLocaleString(), y: yPrice, col: priceLineCol, rank: 1 });
+        badges.forEach(b => { b.w = ctx.measureText(b.text).width + padX * 2; });
+
+        // choose a single side (right, or flip left near the right edge)
+        const maxW = Math.max(...badges.map(b => b.w));
+        const side = (x + 9 + maxW > W - PAD.right) ? -1 : 1;
+
+        // assign non-overlapping centre Y values
+        if (badges.length === 2) {
+          let [a, c] = badges;
+          let top, bot;
+          const TIE = 6; // points within ~6px = "same place" → index on top
+          if (Math.abs(a.y - c.y) <= TIE) {
+            if (a.rank < c.rank) { top = a; bot = c; } else { top = c; bot = a; }
+          } else if (a.y < c.y) { top = a; bot = c; }
+          else { top = c; bot = a; }
+          let topC = top.y, botC = bot.y;
+          const minSep = bh + gap;
+          if (botC - topC < minSep) {
+            const mid = (top.y + bot.y) / 2;
+            topC = mid - minSep / 2;
+            botC = mid + minSep / 2;
+          }
+          top.cy = topC; bot.cy = botC;
+        } else {
+          badges[0].cy = badges[0].y;
+        }
+
+        badges.forEach(b => {
+          const by = Math.max(PAD.top, Math.min(PAD.top + ch - bh, b.cy - bh / 2));
+          const bx = side === 1 ? x + 9 : x - 9 - b.w;
           ctx.beginPath();
-          if (ctx.roundRect) ctx.roundRect(bx, by, bw, bh, 5);
-          else ctx.rect(bx, by, bw, bh);
+          if (ctx.roundRect) ctx.roundRect(bx, by, b.w, bh, 5);
+          else ctx.rect(bx, by, b.w, bh);
           ctx.fillStyle = isDark ? '#1c2030' : '#ffffff';
           ctx.fill();
-          ctx.lineWidth = 1; ctx.strokeStyle = col; ctx.stroke();
-          ctx.fillStyle = col; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-          ctx.fillText(text, bx + padX, by + bh / 2);
+          ctx.lineWidth = 1; ctx.strokeStyle = b.col; ctx.stroke();
+          ctx.fillStyle = b.col; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+          ctx.fillText(b.text, bx + padX, by + bh / 2);
           ctx.textBaseline = 'alphabetic';
-        };
-        if (hasPrice) badge('$' + Math.round(e.price).toLocaleString(), yPrice, priceLineCol);
-        badge(Math.round(e.score) + ' / 100', yScore, '#f7931a');
+        });
       }
 
       // ── Bind hover listeners once ──
