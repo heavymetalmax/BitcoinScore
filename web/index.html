@@ -304,6 +304,12 @@
       font-weight: 700;
     }
     
+    .hero-card-countdown {
+      font-size: 0.72rem;
+      color: var(--text-ts);
+      font-weight: 500;
+    }
+    
     .hero-label {
       font-size: 0.72rem;
       text-transform: uppercase;
@@ -1019,6 +1025,11 @@
               <span class="hero-card-ts" id="hero-card-ts">—</span>
               <span class="hero-card-sep">·</span>
               <span class="hero-card-price" id="hero-card-price">—</span>
+              <span class="hero-card-sep">·</span>
+              <span class="hero-card-countdown" id="hero-card-countdown">
+                <span class="en">Next update: —</span>
+                <span class="ua">Оновлення через: —</span>
+              </span>
             </div>
             <div class="hero-status-area">
               <span class="hero-score-val" id="s-final">—</span>
@@ -1449,6 +1460,34 @@
       return null;
     }
 
+    function updateCountdown() {
+      const countdownEl = document.getElementById('hero-card-countdown');
+      if (!countdownEl) return;
+      
+      const now = new Date();
+      let target = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 8, 0, 0));
+      
+      if (now >= target) {
+        target.setUTCDate(target.getUTCDate() + 1);
+      }
+      
+      const diffMs = target - now;
+      const diffSecs = Math.floor(diffMs / 1000);
+      const hours = Math.floor(diffSecs / 3600);
+      const minutes = Math.floor((diffSecs % 3600) / 60);
+      const seconds = diffSecs % 60;
+      
+      const pad = num => String(num).padStart(2, '0');
+      
+      const enText = `Next update: ${pad(hours)}h ${pad(minutes)}m ${pad(seconds)}s`;
+      const uaText = `Оновлення через: ${pad(hours)}г ${pad(minutes)}хв ${pad(seconds)}с`;
+      
+      countdownEl.innerHTML = `
+        <span class="en">${enText}</span>
+        <span class="ua">${uaText}</span>
+      `;
+    }
+
     async function init() {
       let data;
       try {
@@ -1752,6 +1791,9 @@
 
       _chartData = data;
       drawCharts(data);
+
+      updateCountdown();
+      setInterval(updateCountdown, 1000);
     }
 
     let _chartData = null;
