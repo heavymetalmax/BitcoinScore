@@ -13,8 +13,8 @@
 
   <script>
     (function() {
-      const style = localStorage.getItem('bbr-style') || 'classic';
-      const mode = localStorage.getItem('bbr-mode') || 'night';
+      const style = localStorage.getItem('bbr-style') || 'modern';
+      const mode = localStorage.getItem('bbr-mode') || 'auto';
       let theme = 'dark';
       if (mode === 'auto') {
         const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
@@ -1044,31 +1044,7 @@
     <p class="ua">Цей документ створений виключно з освітньою та інформаційною метою і не є фінансовою порадою. Всі дані збираються автоматично та відображають публічні історичні рекорди. Будь-які рішення про торгівлю приймаються вами на власний ризик.</p>
   </div>
 
-  <div class="footer-controls" style="display: flex; justify-content: center; gap: 16px; margin-bottom: 28px; flex-wrap: wrap;">
-    <!-- Theme Style Switcher -->
-    <div class="nav-menu">
-      <button class="nav-btn active" id="btn-style-classic" onclick="setStyle('classic')">
-        <span class="en">Classic</span>
-        <span class="ua">Класична</span>
-      </button>
-      <button class="nav-btn" id="btn-style-modern" onclick="setStyle('modern')">
-        <span class="en">Modern</span>
-        <span class="ua">Сучасна</span>
-      </button>
-    </div>
-
-    <!-- Color Mode Switcher -->
-    <div class="nav-menu">
-      <button class="nav-btn active" id="btn-mode-night" onclick="setMode('night')">
-        <span class="en">Night</span>
-        <span class="ua">Ніч</span>
-      </button>
-      <button class="nav-btn" id="btn-mode-auto" onclick="setMode('auto')">
-        <span class="en">Auto</span>
-        <span class="ua">Авто</span>
-      </button>
-    </div>
-  </div>
+  <!-- Theme & mode are inherited from the index page (localStorage) -->
 
   <footer>
     <a href="index.html" style="color:var(--footer);text-decoration:none;">
@@ -1140,8 +1116,8 @@
       }
     }
     function updateThemeClass() {
-      const style = localStorage.getItem('bbr-style') || 'classic';
-      const mode = localStorage.getItem('bbr-mode') || 'night';
+      const style = localStorage.getItem('bbr-style') || 'modern';
+      const mode = localStorage.getItem('bbr-mode') || 'auto';
       
       let theme = 'dark';
       if (mode === 'auto') {
@@ -1174,7 +1150,7 @@
     }
 
     window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => {
-      const mode = localStorage.getItem('bbr-mode') || 'night';
+      const mode = localStorage.getItem('bbr-mode') || 'auto';
       if (mode === 'auto') {
         updateThemeClass();
       }
