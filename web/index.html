@@ -813,19 +813,20 @@
       cursor: pointer;
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      gap: 12px;
+      justify-content: center;
+      gap: 8px;
       padding: 16px 0;
       user-select: none;
     }
     .about-index-summary::-webkit-details-marker { display: none; }
     .about-index-summary h2 {
-      font-size: 0.85rem;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
+      font-size: 1rem;
+      text-transform: none;
+      letter-spacing: -0.01em;
       color: var(--text-name);
       font-weight: 700;
       margin: 0;
+      text-align: center;
     }
     .about-chevron {
       color: var(--text-mute);
@@ -2339,7 +2340,7 @@
     </div>
   </div>
 
-  <div class="footer-controls" style="display: flex; justify-content: center; gap: 16px; margin-bottom: 28px; flex-wrap: wrap;">
+  <div class="footer-controls" style="display: flex; justify-content: center; gap: 16px; margin-bottom: 28px; padding-top: 28px; border-top: 1px solid var(--divider); flex-wrap: wrap;">
     <!-- Language Switcher (moved from nav) -->
     <div class="lang-toggle">
       <button class="lang-btn active" id="btn-en" onclick="setLang('en')">EN</button>
