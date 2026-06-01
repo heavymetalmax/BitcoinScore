@@ -237,6 +237,11 @@
     }
     html.style-modern .modern-sub-gauge-wrap {
       display: flex;
+      margin-top: -12px;   /* pull the arc up under the heading (kills the empty gap) */
+    }
+    /* Modern sub-cards: tighten the heading -> arc gap */
+    html.style-modern .score-box .s-label {
+      margin-bottom: 0;
     }
     html.style-modern .sub-card-value-container .s-value {
       display: none;
@@ -2600,7 +2605,7 @@
       const scoreBox = isSmall ? canvas.closest('.score-box') : null;
       const boxW     = scoreBox ? scoreBox.clientWidth - 40 : 0;
       const W        = Math.min(boxW > 0 ? boxW : (canvas.parentElement.clientWidth || maxW), maxW);
-      const H        = isSmall ? 96 : 162;
+      const H        = isSmall ? 90 : 162;
 
       canvas.width  = W * dpr;
       canvas.height = H * dpr;
