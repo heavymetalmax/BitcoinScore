@@ -24,6 +24,7 @@ METRICS = {
     'rhodl': ('data/history/rhodl_history.json', scoring.map_rhodl, True),
     'asopr': ('data/history/asopr_history.json', scoring.map_asopr, True),
     'cvdd':  ('data/history/cvdd_history.json',  scoring.map_cvdd,  True),
+    'mayer': ('data/history/mayer_history.json', scoring.map_mayer_multiple, True),
 }
 
 WIN_YEARS = 4          # trailing window for the adaptive percentile
