@@ -41,7 +41,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git remote set-url origin "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
-          git add data/data.json web/data.json data/history/scores.json data/history/etf_flows.json web/bitcoin_buy_risk.ics
+          git add -u
           git commit -m "chore: update data.json [skip ci]" || echo "No changes to commit"
           git pull --rebase --strategy-option=theirs origin main
           git push
