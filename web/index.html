@@ -2722,6 +2722,67 @@
     function redrawAllModernGauges() {
       const style = localStorage.getItem('bbr-style') || 'modern';
       const isModern = style === 'modern';
+      const isDark = !document.documentElement.classList.contains('theme-light');
+
+      // Update root accent CSS variables dynamically
+      if (window._gaugeValues) {
+        const finalVal = window._gaugeValues.final;
+        if (finalVal != null) {
+          const markerColor = scoreColor(finalVal);
+          const marker = document.getElementById('risk-marker');
+          if (marker) {
+            marker.style.setProperty('--marker-color', markerColor);
+          }
+          const finalLabelEl = document.getElementById('s-final-label');
+          if (finalLabelEl) {
+            finalLabelEl.style.color = markerColor;
+          }
+          
+          const isModernAccent = isModern;
+          const accentColor = isModernAccent ? '#f7931a' : markerColor;
+          document.documentElement.style.setProperty('--index-color',      accentColor);
+          document.documentElement.style.setProperty('--index-color-bg',   isModernAccent ? 'rgba(247,147,26,0.12)' : scoreColor(finalVal, 0.12));
+          document.documentElement.style.setProperty('--index-color-glow', isModernAccent ? 'rgba(247,147,26,0.08)' : scoreColor(finalVal, 0.08));
+        }
+      }
+
+      // Update subscore text colors & classic progress bars
+      if (window._gaugeValues) {
+        const v = window._gaugeValues;
+
+        // Update subscore text colors
+        const subscoreTextItems = [
+          { id: 's-final', val: v.final },
+          { id: 's-oc',    val: v.onchain },
+          { id: 's-tech',   val: v.tech },
+          { id: 's-yesterday', val: v.yesterday },
+          { id: 's-week',   val: v.week }
+        ];
+        subscoreTextItems.forEach(item => {
+          const el = document.getElementById(item.id);
+          if (el && item.val != null) {
+            el.style.color = scoreColor(item.val);
+          }
+        });
+
+        // Update Classic subscore progress bars
+        const subscoreBars = [
+          { id: 'b-final', val: v.final },
+          { id: 'b-oc',    val: v.onchain },
+          { id: 'b-tech',   val: v.tech },
+          { id: 'b-yesterday', val: v.yesterday },
+          { id: 'b-week',   val: v.week }
+        ];
+        subscoreBars.forEach(item => {
+          const bar = document.getElementById(item.id);
+          if (bar && item.val != null) {
+            bar.style.width = item.val + '%';
+            bar.style.background = scoreColor(item.val);
+            bar.style.setProperty('--bar-shadow-color', scoreColor(item.val, 0.5));
+          }
+        });
+      }
+
       if (isModern && window._gaugeValues) {
         const v = window._gaugeValues;
         const ocWarn   = document.getElementById('oc-warn');
@@ -2761,8 +2822,7 @@
         if (num && fill) {
           const v = parseFloat(fill.dataset.value) || 0;
           if (isModern) {
-            const isDarkNum = !document.documentElement.classList.contains('theme-light');
-            num.style.color = (v > 60) ? '#f7931a' : (isDarkNum ? '#8892a4' : '#374151');
+            num.style.color = (v > 60) ? '#f7931a' : (isDark ? '#8892a4' : '#374151');
           } else {
             num.style.color = scoreColor(v);
           }
@@ -3314,17 +3374,6 @@
       const finalLabelEl = document.getElementById('s-final-label');
       if(marker && finalVal != null) {
         marker.style.left = finalVal + '%';
-        const markerColor = scoreColor(finalVal);
-        marker.style.setProperty('--marker-color', markerColor);
-        
-        // Modern theme always uses orange accent; Classic uses dynamic score colour
-        const isModernAccent = (localStorage.getItem('bbr-style') || 'modern') === 'modern';
-        const accentColor = isModernAccent ? '#f7931a' : markerColor;
-        document.documentElement.style.setProperty('--index-color',      accentColor);
-        document.documentElement.style.setProperty('--index-color-bg',   isModernAccent ? 'rgba(247,147,26,0.12)' : scoreColor(finalVal, 0.12));
-        document.documentElement.style.setProperty('--index-color-glow', isModernAccent ? 'rgba(247,147,26,0.08)' : scoreColor(finalVal, 0.08));
-        
-        // logo-accent updates automatically via CSS variable --index-color
         
         let lbl = 'Neutral';
         let shortLbl = 'Neutral';
@@ -3341,7 +3390,6 @@
 
         if(finalLabelEl) {
           finalLabelEl.textContent = lbl;
-          finalLabelEl.style.color = markerColor;
         }
       }
 
