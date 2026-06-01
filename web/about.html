@@ -830,6 +830,12 @@
           <span class="ua">6. Ключові висновки</span>
         </a>
       </li>
+      <li>
+        <a href="#adaptive">
+          <span class="en">7. Adaptive Calibration (v2)</span>
+          <span class="ua">7. Адаптивне калібрування (v2)</span>
+        </a>
+      </li>
     </ul>
   </div>
 
@@ -1101,6 +1107,49 @@
   <h3>3. <span class="en">Complimentary Sentiment</span><span class="ua">Комплементарність сентименту</span></h3>
   <p class="en">While on-chain metrics are the anchor of cycle-scale trends, technical/macro signals are sensitive to shorter-term events. For example, during the Post-ATH Dump in November 2025, the On-Chain score remained structurally neutral (61), but the Tech/Macro score collapsed to 16, signaling a healthy, low-risk tactical buying window inside a structural trend.</p>
   <p class="ua">У той час як ончейн-метрики відіграють роль якоря для довгострокових циклів, технічні сигнали швидше реагують на короткострокові події. Наприклад, під час дампу після ATH у листопаді 2025 року ончейн-скор залишався нейтральним (61), але тех-скор упав до 16, вказуючи на чудову тактичну точку входу всередині висхідного тренду.</p>
+
+  <h2 id="adaptive">
+    <span class="en">7. Adaptive Calibration (v2)</span>
+    <span class="ua">7. Адаптивне калібрування (v2)</span>
+  </h2>
+
+  <p class="en">The "diminishing peaks" effect above is not a curiosity — left unaddressed it slowly breaks any <em>fixed</em> threshold. If a metric's cycle peak shrinks every cycle, a static "this level = maximum risk" mapping becomes progressively unreachable, so the index quietly <strong>under-reads risk at modern tops</strong> (and, symmetrically, over-reads it at modern bottoms, which keep rising). Measured across 2010–2026 on-chain history, the compression is stark:</p>
+  <p class="ua">Ефект «згасання піків» вище — не курйоз: якщо його не враховувати, він поступово ламає будь-який <em>фіксований</em> поріг. Коли пік метрики стискається щоцикл, статичний маппінг «цей рівень = максимальний ризик» стає недосяжним, і індекс тихо <strong>недооцінює ризик на сучасних вершинах</strong> (і симетрично переоцінює його на сучасних днах, які піднімаються). За історією 2010–2026 стиснення разюче:</p>
+
+  <div class="glass-card">
+  <table>
+    <thead>
+      <tr>
+        <th><span class="en">Cycle peak</span><span class="ua">Пік циклу</span></th>
+        <th>NUPL</th><th>MVRV&nbsp;Z</th><th>RHODL</th><th>CVDD</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>2013</td><td>0.83</td><td>10.5</td><td>212k</td><td>22.2</td></tr>
+      <tr><td>2017</td><td>0.79</td><td>10.0</td><td>106k</td><td>11.6</td></tr>
+      <tr><td>2021</td><td>0.75</td><td>7.1</td><td>15k</td><td>7.8</td></tr>
+      <tr><td>2024–26</td><td><strong>0.64</strong></td><td><strong>3.4</strong></td><td><strong>13k</strong></td><td><strong>3.7</strong></td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p class="en">To keep the score calibrated as Bitcoin matures, the two metrics whose <em>linear</em> mappings age fastest — <strong>NUPL</strong> and <strong>MVRV Z-Score</strong> — now use a <strong>blended</strong> reading:</p>
+  <p class="ua">Щоб оцінка лишалась каліброваною з дозріванням Bitcoin, дві метрики, чиї <em>лінійні</em> маппінги старіють найшвидше — <strong>NUPL</strong> та <strong>MVRV Z-Score</strong> — тепер використовують <strong>блендоване</strong> зчитування:</p>
+
+  <blockquote>
+    <p class="en">score = 50% × <strong>rolling percentile</strong> (4-year window) + 50% × <strong>fixed map</strong></p>
+    <p class="ua">оцінка = 50% × <strong>ковзний перцентиль</strong> (4-річне вікно) + 50% × <strong>фіксований маппінг</strong></p>
+  </blockquote>
+
+  <p class="en">The percentile term tracks where today's value sits relative to its own recent range, so it stays calibrated even as the absolute range shrinks. The fixed term is the <strong>anchor</strong>: it never lets a genuinely large absolute reading (a 2017-scale spike) be normalized away, and it guarantees that a higher raw value always maps to at least as much risk. The two together are deliberately conservative.</p>
+  <p class="ua">Перцентильний член показує, де сьогоднішнє значення відносно власного недавнього діапазону, тож лишається каліброваним навіть коли абсолютний діапазон стискається. Фіксований член — це <strong>якір</strong>: він не дає занормалізувати справді велике абсолютне значення (сплеск масштабу 2017-го) і гарантує, що більше сире значення завжди дає принаймні не менший ризик. Разом вони навмисно консервативні.</p>
+
+  <h3><span class="en">Why not every indicator</span><span class="ua">Чому не кожен індикатор</span></h3>
+  <p class="en">Adaptation is applied <em>selectively</em>, not blindly. <strong>RHODL</strong> and <strong>CVDD</strong> already use logarithmic maps — and log-space naturally absorbs multiplicative compression, so their fixed maps still read modern tops well (they only drift at the bottom). <strong>aSOPR</strong>, the Fear &amp; Greed Index and funding are <em>oscillators</em> around a stable mean (aSOPR's 7-day envelope has held ~0.97–1.05 across every cycle); applying a percentile to them would amplify noise rather than fix anything. So those metrics keep their fixed mappings.</p>
+  <p class="ua">Адаптація застосовується <em>вибірково</em>, не сліпо. <strong>RHODL</strong> та <strong>CVDD</strong> уже використовують логарифмічні маппінги — а лог-простір природно поглинає мультиплікативне стиснення, тож їхні фіксовані маппінги ще добре читають сучасні вершини (зсув лише на дні). <strong>aSOPR</strong>, Індекс страху та жадібності й funding — це <em>осцилятори</em> навколо стабільного середнього (7-денна обвідна aSOPR трималась ~0.97–1.05 у кожному циклі); перцентиль лише підсилив би шум. Тож ці метрики лишають фіксовані маппінги.</p>
+
+  <p class="en">For transparency, the live <code>data.json</code> carries an <code>adaptive_calibration</code> block showing the fixed, adaptive and blended value for each affected metric — nothing is hidden behind a black box. This is an evolving "v2" calibration; the longer the daily indicator history grows, the sharper the percentile windows become.</p>
+  <p class="ua">Для прозорості живий <code>data.json</code> містить блок <code>adaptive_calibration</code> із фіксованим, адаптивним і блендованим значенням для кожної задіяної метрики — нічого не сховано в чорну скриньку. Це еволюційне калібрування «v2»; що довша щоденна історія індикаторів, то точніші перцентильні вікна.</p>
 
   <div class="disclaimer-box">
     <p class="en">This methodology document is for educational and informational purposes only. It is not financial advice. All data and calculations are processed automatically and reflect public historical records. Any decisions to trade are made solely at your own risk.</p>
