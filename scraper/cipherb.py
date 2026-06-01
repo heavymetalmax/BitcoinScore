@@ -191,7 +191,16 @@ def _fast_divergence(series, kind='bearish', lookback=20, peak_window=1, max_pea
     return detected and (n - 1 - last_i) <= max_peak_age
 
 
-def compute_cipherb_from_ohlcv(ohlc, channelLength=9, averageLength=12, wtSmaLength=3, oversoldLevel=-60, overboughtLevel=60):
+def compute_cipherb_from_ohlcv(ohlc, channelLength=9, averageLength=12, wtSmaLength=3,
+                               oversoldLevel=-60, overboughtLevel=60,
+                               scoreLow=-65, scoreHigh=90):
+    # NOTE: the buy/sell SIGNAL thresholds (oversoldLevel/overboughtLevel = ±60)
+    # are kept classic. The continuous risk SCORE is normalized over a separate,
+    # wider+asymmetric band [scoreLow, scoreHigh] = [-65, +90] (≈ empirical
+    # p5/p95 of weekly WT1). Reason (backtested on 2014-2026 weekly history):
+    # the ±60 band saturated 33% of weeks at 0/100 and read ordinary bull
+    # momentum as max risk; [-65,+90] cuts saturation to ~9% and matches WT1's
+    # real, asymmetric dynamic range. See tools/cipherb_band_backtest.py.
     # ohlc: list of dicts with keys timestamp, open, high, low, close, volume
     n = len(ohlc)
     hlc3 = [None]*n
@@ -252,15 +261,15 @@ def compute_cipherb_from_ohlcv(ohlc, channelLength=9, averageLength=12, wtSmaLen
                 buy = True
             if wt1[i-1] > wt2[i-1] and wt1[i] < wt2[i] and wt1[i] > overboughtLevel:
                 sell = True
-        # weekly score normalization
+        # weekly score normalization — wider, asymmetric band (decoupled from signals)
         score = None
         if wt1[i] is not None:
-            if wt1[i] <= oversoldLevel:
+            if wt1[i] <= scoreLow:
                 score = 0.0
-            elif wt1[i] >= overboughtLevel:
+            elif wt1[i] >= scoreHigh:
                 score = 100.0
             else:
-                score = (wt1[i] - oversoldLevel) / (overboughtLevel - oversoldLevel) * 100.0
+                score = (wt1[i] - scoreLow) / (scoreHigh - scoreLow) * 100.0
 
         # Compute divergences active at this index
         bearish_div = False
@@ -302,7 +311,7 @@ def compute_cipherb_from_ohlcv(ohlc, channelLength=9, averageLength=12, wtSmaLen
             last = it.copy()
             break
 
-    return {'series': series, 'last': last, 'params': {'channelLength': channelLength, 'averageLength': averageLength, 'wtSmaLength': wtSmaLength, 'oversoldLevel': oversoldLevel, 'overboughtLevel': overboughtLevel}}
+    return {'series': series, 'last': last, 'params': {'channelLength': channelLength, 'averageLength': averageLength, 'wtSmaLength': wtSmaLength, 'oversoldLevel': oversoldLevel, 'overboughtLevel': overboughtLevel, 'scoreLow': scoreLow, 'scoreHigh': scoreHigh}}
 
 
 def get_cipherb(symbol='BTCUSDT'):
