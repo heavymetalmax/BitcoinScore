@@ -413,8 +413,12 @@ def main():
         p['onchain_score'] = scores['onchain_score']
         p['tech_score']    = scores['tech_score']
         p['final_score']   = scores['final_score']
+        if scores.get('adaptive'):
+            p['adaptive_calibration'] = scores['adaptive']  # transparency: fixed vs blended per metric
         write_json('data/data.json', p)
         print(f"Scores: onchain={scores['onchain_score']}  tech={scores['tech_score']}  final={scores['final_score']}")
+        for mk, mv in (scores.get('adaptive') or {}).items():
+            print(f"  adaptive[{mk}]: fixed={mv['fixed']} adaptive={mv.get('adaptive')} -> blended={mv['blended']}")
     except Exception as e:
         print('Failed to compute scores:', e)
 

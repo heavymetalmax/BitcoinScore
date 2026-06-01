@@ -17,6 +17,77 @@ Final score             = 50% OC + 50% Tech
 """
 
 import math
+import os
+import json
+import datetime
+
+# ── Adaptive normalization ("v2 calibration") ───────────────────────────────
+# Valuation metrics whose cyclical extremes COMPRESS as Bitcoin matures get a
+# blended risk score:  w·(rolling-percentile) + (1-w)·(fixed map).
+# Only linear-mapped valuation metrics that age fastest are included; log/floor
+# metrics (rhodl, cvdd) and oscillators (asopr, fear_greed, funding) keep their
+# fixed maps — applying a percentile to a stable-envelope oscillator would
+# inject noise. Evidence: tools/adaptive_norm_probe.py (NUPL peaks 0.87→0.64,
+# MVRV Z 11→3.4; fixed under-reads modern tops and over-reads modern bottoms).
+ADAPTIVE_METRICS   = {'nupl', 'mvrv'}   # history key -> blended
+ADAPTIVE_BLEND     = 0.5                 # weight on the adaptive (percentile) part
+ADAPTIVE_WIN_YEARS = 4                   # trailing window for the percentile
+ADAPTIVE_DEBUG     = {}                  # per-run breakdown for transparency
+_HIST_CACHE        = {}
+
+def _load_metric_history(metric):
+    """Return [(date, value)] from the backfilled seed + recent daily vectors."""
+    if metric in _HIST_CACHE:
+        return _HIST_CACHE[metric]
+    pts = []
+    seed = f'data/history/{metric}_history.json'
+    try:
+        if os.path.exists(seed):
+            d = json.load(open(seed, encoding='utf-8'))
+            pts = [(r[0], float(r[1])) for r in d.get('series', []) if r[1] is not None]
+    except Exception:
+        pts = []
+    try:  # refine the tail with the growing daily vector log
+        dv = 'data/history/daily_vector.json'
+        if os.path.exists(dv):
+            for row in json.load(open(dv, encoding='utf-8')):
+                v = (row.get('raw') or {}).get(metric)
+                if v is not None:
+                    pts.append((row['date'], float(v)))
+    except Exception:
+        pass
+    pts.sort(key=lambda r: r[0])
+    _HIST_CACHE[metric] = pts
+    return pts
+
+def _percentile_score(metric, value):
+    """0-100 rolling percentile of `value` within the trailing window, or None."""
+    if value is None:
+        return None
+    pts = _load_metric_history(metric)
+    if len(pts) < 24:                       # need a couple of years of context
+        return None
+    lo = (datetime.date.fromisoformat(pts[-1][0][:10])
+          - datetime.timedelta(days=int(ADAPTIVE_WIN_YEARS * 365))).isoformat()
+    win = [v for (d, v) in pts if d[:10] >= lo]
+    if len(win) < 12:
+        return None
+    le = sum(1 for v in win if v <= value)  # nupl/mvrv: higher value = higher risk
+    return round(le / len(win) * 100)
+
+def _adaptive(metric, value, fixed_score):
+    """Blend the fixed score with the rolling percentile; record the breakdown.
+    Falls back to the pure fixed score when history is insufficient."""
+    if fixed_score is None or metric not in ADAPTIVE_METRICS:
+        return fixed_score
+    pct = _percentile_score(metric, value)
+    if pct is None:
+        ADAPTIVE_DEBUG[metric] = {'fixed': fixed_score, 'adaptive': None, 'blended': fixed_score}
+        return fixed_score
+    blended = round(ADAPTIVE_BLEND * pct + (1 - ADAPTIVE_BLEND) * fixed_score)
+    ADAPTIVE_DEBUG[metric] = {'fixed': fixed_score, 'adaptive': pct, 'blended': blended,
+                              'win_years': ADAPTIVE_WIN_YEARS, 'blend_w': ADAPTIVE_BLEND}
+    return blended
 
 OC_WEIGHTS = {
     'rhodl_ratio':         0.20,
@@ -166,6 +237,8 @@ def build_slider_map(metrics: dict) -> dict:
     Given metrics dict (from data.json['metrics']),
     return {metric_name: slider_value (0-100 or None)}.
     """
+    ADAPTIVE_DEBUG.clear()
+
     def mv(key):
         obj = metrics.get(key)
         if obj is None: return None
@@ -197,8 +270,8 @@ def build_slider_map(metrics: dict) -> dict:
     mayer_score = map_mayer_multiple(mayer_val)
 
     return {
-        'nupl':                map_nupl(mv('nupl')),
-        'mvrv_z_score':        map_mvrv(mv('mvrv')),
+        'nupl':                _adaptive('nupl', mv('nupl'), map_nupl(mv('nupl'))),
+        'mvrv_z_score':        _adaptive('mvrv', mv('mvrv'), map_mvrv(mv('mvrv'))),
         'fear_greed':          map_fear_greed(mv('fear_greed')),
         'm2_yoy':              map_m2(mv('m2_mom')),  # field key in data.json still 'm2_mom'
         'yield_curve_spread':  map_yield_curve(mv('yield_curve')),
@@ -245,4 +318,5 @@ def compute_scores(metrics: dict) -> dict:
         'onchain_score':  blend(oc_avg, tech_avg, 0.80),
         'tech_score':     blend(oc_avg, tech_avg, 0.20),
         'final_score':    blend(oc_avg, tech_avg, 0.50),
+        'adaptive':       dict(ADAPTIVE_DEBUG),   # per-metric fixed/adaptive/blended breakdown
     }
