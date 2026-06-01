@@ -29,7 +29,9 @@ import datetime
 # fixed maps — applying a percentile to a stable-envelope oscillator would
 # inject noise. Evidence: tools/adaptive_norm_probe.py (NUPL peaks 0.87→0.64,
 # MVRV Z 11→3.4; fixed under-reads modern tops and over-reads modern bottoms).
-ADAPTIVE_METRICS   = {'nupl', 'mvrv'}   # history key -> blended
+ADAPTIVE_METRICS   = {'nupl', 'mvrv', 'mayer'}  # linear valuation maps that age fastest
+# daily_vector raw key differs from the adaptive metric name for some metrics
+_DV_KEY            = {'mayer': 'mayer_multiple'}
 ADAPTIVE_BLEND     = 0.5                 # weight on the adaptive (percentile) part
 ADAPTIVE_WIN_YEARS = 4                   # trailing window for the percentile
 ADAPTIVE_DEBUG     = {}                  # per-run breakdown for transparency
@@ -50,8 +52,9 @@ def _load_metric_history(metric):
     try:  # refine the tail with the growing daily vector log
         dv = 'data/history/daily_vector.json'
         if os.path.exists(dv):
+            dv_key = _DV_KEY.get(metric, metric)
             for row in json.load(open(dv, encoding='utf-8')):
-                v = (row.get('raw') or {}).get(metric)
+                v = (row.get('raw') or {}).get(dv_key)
                 if v is not None:
                     pts.append((row['date'], float(v)))
     except Exception:
@@ -267,7 +270,8 @@ def build_slider_map(metrics: dict) -> dict:
                 cipherb_score = round(w_score)
 
     mayer_val = mv('mayer_multiple')
-    mayer_score = map_mayer_multiple(mayer_val)
+    mayer_ratio = mayer_val.get('value') if isinstance(mayer_val, dict) else mayer_val
+    mayer_score = _adaptive('mayer', mayer_ratio, map_mayer_multiple(mayer_val))
 
     return {
         'nupl':                _adaptive('nupl', mv('nupl'), map_nupl(mv('nupl'))),

@@ -24,6 +24,7 @@ SOURCES = {
     'rhodl': ('https://www.bitcoinmagazinepro.com/charts/rhodl-ratio/',                       'rhodl ratio', 1.0),
     'cvdd':  ('https://www.bitcoinmagazinepro.com/charts/bitcoin-price-prediction/',          'cvdd',        1.0),
     'asopr': ('https://www.bitcoinmagazinepro.com/charts/sopr-spent-output-profit-ratio/',    'adjusted',    1.0),
+    'mayer': ('https://www.bitcoinmagazinepro.com/charts/mayer-multiple/',                    'mayer',       1.0),
 }
 
 def main(metrics):
