@@ -63,6 +63,49 @@ def get_bmp_trace(url, trace_name_substr, multiply=1.0, timeout=60000):
     return None
 
 
+def get_bmp_trace_full(url, trace_name_substr, multiply=1.0, timeout=90000):
+    """Fetch the ENTIRE historical series of a BMP Plotly trace.
+
+    Returns a list of [date_str, value] pairs (date = 'YYYY-MM-DD'), or [].
+    Same source/mechanism as get_bmp_trace, but returns the whole x/y arrays
+    instead of only the last point — used for one-off history backfills
+    (e.g. tools/backfill_onchain_history.py).
+    """
+    try:
+        with sync_playwright() as p:
+            browser = p.chromium.launch(headless=True)
+            ctx = browser.new_context()
+            page = ctx.new_page()
+            page.goto(url, wait_until='networkidle', timeout=timeout)
+            page.wait_for_timeout(4000)
+            js = f"""() => {{
+                const gd = document.querySelector('.js-plotly-plot');
+                if(!gd || !gd.data) return null;
+                const needle = {json.dumps(trace_name_substr.lower())};
+                for(const t of gd.data){{
+                    if((t.name || '').toLowerCase().includes(needle) && t.x && t.y && t.y.length > 50){{
+                        return {{x: t.x, y: t.y}};
+                    }}
+                }}
+                return null;
+            }}"""
+            res = page.evaluate(js)
+            try:
+                browser.close()
+            except Exception:
+                pass
+            if res and res.get('x') and res.get('y'):
+                out = []
+                for d, v in zip(res['x'], res['y']):
+                    if v is None:
+                        continue
+                    out.append([str(d)[:10], round(float(v) * multiply, 6)])
+                return out
+    except Exception as e:
+        logger.warning('get_bmp_trace_full failed for %s (%s): %s', url, trace_name_substr, e)
+    return []
+
+
 def get_bmp_trace_last_n(url, trace_name_substr, n=7, multiply=1.0, timeout=60000):
     """Fetch the last N values of a Plotly trace from a BitcoinMagazinePro chart page.
     Returns a list of floats or an empty list.
