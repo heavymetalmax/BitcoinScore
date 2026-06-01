@@ -883,6 +883,7 @@
   <script>
     function setLang(lang) {
       document.body.className = 'lang-' + lang;
+      document.documentElement.lang = (lang === 'ua') ? 'uk' : 'en';  // ISO 639-1
       const en = document.getElementById('btn-en');
       const ua = document.getElementById('btn-ua');
       if (en) en.classList.toggle('active', lang === 'en');

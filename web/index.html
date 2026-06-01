@@ -2512,6 +2512,7 @@
     // Language switcher
     function setLang(lang) {
       document.body.className = 'lang-' + lang;
+      document.documentElement.lang = (lang === 'ua') ? 'uk' : 'en';  // ISO 639-1
       const btnEn = document.getElementById('btn-en');
       const btnUa = document.getElementById('btn-ua');
       if (btnEn) btnEn.classList.toggle('active', lang === 'en');
