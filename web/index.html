@@ -245,6 +245,35 @@
     html.style-modern .sub-card-value-container .sub-warn-icon {
       display: none !important;
     }
+    /* Modern: the value container is empty (number is on the canvas) — collapse it
+       to tighten the gap between the card title and the top of the arc */
+    html.style-modern .sub-card-value-container {
+      display: none;
+    }
+    /* Index meta line moved above the index card */
+    .index-meta {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+      font-size: 0.78rem;
+      color: var(--text-ts);
+      font-weight: 500;
+    }
+    /* Risk status under sub-card gauges (shown in Modern only) */
+    .sub-gauge-status { display: none; }
+    html.style-modern .sub-gauge-status {
+      display: block;
+      text-align: center;
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--index-color);
+      margin-top: 2px;
+    }
     /* Main warn badge — orange in Modern theme */
     html.style-modern #s-warn {
       color: #f7931a;
@@ -1833,6 +1862,17 @@
 
   <!-- Tab 1: Main Dashboard -->
   <div id="tab-main">
+    <!-- Index meta line (above the index card) -->
+    <div class="index-meta">
+      <span class="hero-card-ts" id="hero-card-ts">—</span>
+      <span class="hero-card-sep">·</span>
+      <span class="hero-card-price" id="hero-card-price">—</span>
+      <span class="hero-card-sep">·</span>
+      <span class="hero-card-countdown" id="hero-card-countdown">
+        <span class="en">—</span>
+        <span class="ua">—</span>
+      </span>
+    </div>
     <div class="scores">
       <!-- Hero Card -->
       <div class="score-box main" id="main-card">
@@ -1842,16 +1882,6 @@
               <span class="hero-label" id="hero-label">
                 <span class="en">Composite Risk Index</span>
                 <span class="ua">Композитний індекс ризику</span>
-              </span>
-              <span class="hero-card-sep">·</span>
-              <span class="hero-card-ts" id="hero-card-ts">—</span>
-              <span class="hero-card-sep">·</span>
-              <span class="hero-card-price" id="hero-card-price">—</span>
-              <span class="hero-card-sep">·</span>
-              <span class="hero-card-countdown" id="hero-card-countdown">
-                <span class="countdown-icon" style="font-size: 0.85rem; display: inline-block; vertical-align: middle; margin-right: 4px; line-height: 1;">⟳</span>
-                <span class="en">—</span>
-                <span class="ua">—</span>
               </span>
             </div>
             <div class="hero-status-area">
@@ -1866,7 +1896,7 @@
           </div>
           
           <!-- Modern Style Canvas Gauge -->
-          <div class="modern-gauge-container" style="display: none; flex-direction: column; align-items: center; margin: 8px 0 4px;">
+          <div class="modern-gauge-container" style="display: none; flex-direction: column; align-items: center; margin: -10px 0 4px;">
             <div class="modern-main-gauge-wrap">
               <canvas id="modern-gauge-canvas" style="max-width: 320px; width: 100%;"></canvas>
             </div>
@@ -1875,8 +1905,8 @@
               <span class="ua" id="modern-gauge-status-ua">—</span>
             </div>
             <div style="font-size: 0.62rem; font-weight: 700; color: var(--text-mute); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 2px;">
-              <span class="en">Current Status</span>
-              <span class="ua">Поточний статус</span>
+              <span class="en">50% On-Chain + 50% Tech</span>
+              <span class="ua">50% Ончейн + 50% Тех</span>
             </div>
             <span id="modern-gauge-badge" style="display:none">— / 100</span>
           </div>
@@ -1929,6 +1959,7 @@
         <div class="modern-sub-gauge-wrap">
           <canvas id="gauge-oc" class="modern-sub-gauge-canvas"></canvas>
         </div>
+        <div class="sub-gauge-status" id="oc-status">—</div>
         <div class="bar-wrap"><div class="bar-fill" id="b-oc" style="width:0%"></div></div>
         <div class="s-sub">
           <span class="en">80% On-Chain + 20% Tech</span>
@@ -1949,6 +1980,7 @@
         <div class="modern-sub-gauge-wrap">
           <canvas id="gauge-tech" class="modern-sub-gauge-canvas"></canvas>
         </div>
+        <div class="sub-gauge-status" id="tech-status">—</div>
         <div id="tech-tactical-badge-container" style="margin-top: 4px; margin-bottom: 2px;">
           <span id="tech-tactical-badge" class="tactical-badge" style="display:none"></span>
         </div>
@@ -2568,7 +2600,7 @@
       const scoreBox = isSmall ? canvas.closest('.score-box') : null;
       const boxW     = scoreBox ? scoreBox.clientWidth - 40 : 0;
       const W        = Math.min(boxW > 0 ? boxW : (canvas.parentElement.clientWidth || maxW), maxW);
-      const H        = isSmall ? 98 : 185;
+      const H        = isSmall ? 96 : 162;
 
       canvas.width  = W * dpr;
       canvas.height = H * dpr;
@@ -3105,27 +3137,27 @@
     function updateCountdown() {
       const countdownEl = document.getElementById('hero-card-countdown');
       if (!countdownEl) return;
-      
+
       const now = new Date();
-      let target = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 8, 0, 0));
-      
-      if (now >= target) {
-        target.setUTCDate(target.getUTCDate() + 1);
+      let target;
+      if (window._dataTimestamp) {
+        // Reset relative to the actual last update (timestamp + 24h), not a fixed
+        // clock time — so the counter restarts only when fresh data arrives.
+        target = new Date(new Date(window._dataTimestamp).getTime() + 24 * 3600 * 1000);
+        while (now >= target) target = new Date(target.getTime() + 24 * 3600 * 1000);
+      } else {
+        target = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 8, 0, 0));
+        if (now >= target) target.setUTCDate(target.getUTCDate() + 1);
       }
-      
-      const diffMs = target - now;
-      const diffSecs = Math.floor(diffMs / 1000);
+
+      const diffSecs = Math.max(0, Math.floor((target - now) / 1000));
       const hours = Math.floor(diffSecs / 3600);
       const minutes = Math.floor((diffSecs % 3600) / 60);
-      const seconds = diffSecs % 60;
-      
       const pad = num => String(num).padStart(2, '0');
-      
-      const timerHtml = `<span class="countdown-icon" style="font-size: 0.85rem; display: inline-block; vertical-align: middle; margin-right: 4px; line-height: 1;">⟳</span>` +
-        `<span class="en">${pad(hours)}h <span class="blink-colon">:</span> ${pad(minutes)}m</span>` +
-        `<span class="ua">${pad(hours)}г <span class="blink-colon">:</span> ${pad(minutes)}хв</span>`;
-      
-      countdownEl.innerHTML = timerHtml;
+
+      countdownEl.innerHTML =
+        `<span class="en">next in: ${pad(hours)}h <span class="blink-colon">:</span> ${pad(minutes)}m</span>` +
+        `<span class="ua">наступне за: ${pad(hours)}г <span class="blink-colon">:</span> ${pad(minutes)}хв</span>`;
     }
 
     async function init() {
@@ -3148,6 +3180,8 @@
         warnContainer.innerHTML = '';
         if (data.timestamp) {
           const tsDate = new Date(data.timestamp);
+          window._dataTimestamp = data.timestamp;   // countdown resets from the real update
+          updateCountdown();
            const mainTsEl = document.getElementById('main-ts');
            if (mainTsEl) {
              mainTsEl.textContent = 'Updated: ' + tsDate.toLocaleString();
@@ -3203,6 +3237,20 @@
       setScore('s-final', 'b-final', data.final_score);
       setScore('s-oc',    'b-oc',    data.onchain_score);
       setScore('s-tech',  'b-tech',  data.tech_score);
+
+      // Risk label helper (same thresholds as the main gauge)
+      const riskLabel = v => v == null ? {en:'—', ua:'—'}
+        : v <= 25 ? {en:'Low Risk',  ua:'Низький ризик'}
+        : v <= 60 ? {en:'Neutral',   ua:'Нейтрально'}
+        :           {en:'High Risk', ua:'Високий ризик'};
+      const setSubStatus = (id, v) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const L = riskLabel(v);
+        el.innerHTML = `<span class="en">${L.en}</span><span class="ua">${L.ua}</span>`;
+      };
+      setSubStatus('oc-status',   data.onchain_score);
+      setSubStatus('tech-status', data.tech_score);
 
       const finalVal = data.final_score;
 
