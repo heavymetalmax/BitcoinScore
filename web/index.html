@@ -2008,6 +2008,7 @@
         <div class="modern-sub-gauge-wrap">
           <canvas id="gauge-yesterday" class="modern-sub-gauge-canvas"></canvas>
         </div>
+        <div class="sub-gauge-status" id="yesterday-status">—</div>
         <div class="bar-wrap"><div class="bar-fill" id="b-yesterday" style="width:0%"></div></div>
         <div class="s-sub">
           <span class="en">Previous daily score</span>
@@ -2026,6 +2027,7 @@
         <div class="modern-sub-gauge-wrap">
           <canvas id="gauge-week" class="modern-sub-gauge-canvas"></canvas>
         </div>
+        <div class="sub-gauge-status" id="week-status">—</div>
         <div class="bar-wrap"><div class="bar-fill" id="b-week" style="width:0%"></div></div>
         <div class="s-sub">
           <span class="en">7 days average score</span>
@@ -3255,8 +3257,10 @@
         const L = riskLabel(v);
         el.innerHTML = `<span class="en">${L.en}</span><span class="ua">${L.ua}</span>`;
       };
-      setSubStatus('oc-status',   data.onchain_score);
-      setSubStatus('tech-status', data.tech_score);
+      setSubStatus('oc-status',        data.onchain_score);
+      setSubStatus('tech-status',      data.tech_score);
+      setSubStatus('yesterday-status', data.prev_day ? data.prev_day.final_score : null);
+      setSubStatus('week-status',      (avg7d != null) ? avg7d : (data.prev_week ? data.prev_week.final_score : null));
 
       const finalVal = data.final_score;
 
