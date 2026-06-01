@@ -3240,7 +3240,7 @@
           onchain:   data.onchain_score,
           tech:      data.tech_score,
           yesterday: data.prev_day  ? data.prev_day.final_score  : null,
-          week:      data.prev_week ? data.prev_week.final_score : null,
+          week:      (avg7d != null) ? avg7d : (data.prev_week ? data.prev_week.final_score : null),
         };
         redrawAllModernGauges();
 
