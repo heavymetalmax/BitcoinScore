@@ -611,11 +611,11 @@
     .risk-track {
       height: 18px;
       border-radius: 9px;
-      background: linear-gradient(to right, 
-        #10b981 0%, 
-        #10b981 25%, 
-        #eab308 50%, 
-        #ef4444 75%, 
+      background: linear-gradient(to right,
+        #10b981 0%,
+        #10b981 20%,
+        #eab308 50%,
+        #ef4444 80%,
         #ef4444 100%
       );
       position: relative;
@@ -1930,8 +1930,8 @@
                 </div>
               </div>
               <!-- Ticks at 25% and 75% -->
-              <div class="risk-tick" style="left: 25%;" title="Buy zone boundary (25)"></div>
-              <div class="risk-tick" style="left: 75%;" title="Sell zone boundary (75)"></div>
+              <div class="risk-tick" style="left: 20%;" title="Buy zone boundary (20)"></div>
+              <div class="risk-tick" style="left: 80%;" title="Sell zone boundary (80)"></div>
             </div>
             
             <div class="risk-track-legend">
@@ -3327,10 +3327,10 @@
         
         let lbl = 'Neutral';
         let shortLbl = 'Neutral';
-        if(finalVal <= 25)      { lbl = 'Buy Zone'; shortLbl = 'Buy'; }
+        if(finalVal <= 20)      { lbl = 'Buy Zone'; shortLbl = 'Buy'; }
         else if(finalVal <= 40) { lbl = 'Accumulate'; shortLbl = 'Accumulate'; }
         else if(finalVal <= 60) { lbl = 'Neutral'; shortLbl = 'Neutral'; }
-        else if(finalVal <= 75) { lbl = 'Distribute'; shortLbl = 'Distribute'; }
+        else if(finalVal <= 80) { lbl = 'Distribute'; shortLbl = 'Distribute'; }
         else                    { lbl = 'Sell Zone'; shortLbl = 'Sell'; }
         
         const numEl = document.getElementById('marker-num');
