@@ -3190,13 +3190,17 @@
           const tsDate = new Date(data.timestamp);
           window._dataTimestamp = data.timestamp;   // countdown resets from the real update
           updateCountdown();
+           const tsStr = tsDate.toLocaleString(undefined, {
+             day: '2-digit', month: '2-digit', year: 'numeric',
+             hour: '2-digit', minute: '2-digit', hour12: false
+           });
            const mainTsEl = document.getElementById('main-ts');
            if (mainTsEl) {
-             mainTsEl.textContent = 'Updated: ' + tsDate.toLocaleString();
+             mainTsEl.textContent = 'Updated: ' + tsStr;
            }
            const heroCardTs = document.getElementById('hero-card-ts');
            if (heroCardTs) {
-             heroCardTs.textContent = 'Updated: ' + tsDate.toLocaleString();
+             heroCardTs.textContent = 'Updated: ' + tsStr;
            }
           const ageHours = (Date.now() - tsDate.getTime()) / 3600000;
           if (ageHours > 36) {
