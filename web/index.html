@@ -3164,8 +3164,8 @@
       const pad = num => String(num).padStart(2, '0');
 
       countdownEl.innerHTML =
-        `<span class="en">next in: ${pad(hours)}h <span class="blink-colon">:</span> ${pad(minutes)}m</span>` +
-        `<span class="ua">наступне за: ${pad(hours)}г <span class="blink-colon">:</span> ${pad(minutes)}хв</span>`;
+        `<span class="en">next in: ${pad(hours)}<span class="blink-colon">:</span>${pad(minutes)}</span>` +
+        `<span class="ua">наступне за: ${pad(hours)}<span class="blink-colon">:</span>${pad(minutes)}</span>`;
     }
 
     async function init() {
