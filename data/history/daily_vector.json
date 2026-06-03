@@ -109,5 +109,42 @@
       "mayer_multiple": 24,
       "funding_rate": 0
     }
+  },
+  {
+    "date": "2026-06-03",
+    "timestamp": "2026-06-03T09:47:06Z",
+    "btc_price": 66633,
+    "onchain_score": 33,
+    "tech_score": 29,
+    "final_score": 31,
+    "raw": {
+      "nupl": 19.2296,
+      "mvrv": 0.424,
+      "cvdd_ratio": 1.3877,
+      "rhodl_ratio": 1247.5041,
+      "asopr": null,
+      "cipherb": 47.01732215180906,
+      "mayer_multiple": 0.841,
+      "etf_flows": -2695.0999999999995,
+      "fear_greed": 22.7,
+      "yield_curve": null,
+      "m2_yoy": null,
+      "funding_rate": -0.02369,
+      "smc": 21.06
+    },
+    "mapped": {
+      "nupl": 33,
+      "mvrv_z_score": 28,
+      "fear_greed": 23,
+      "m2_yoy": null,
+      "yield_curve_spread": null,
+      "cvdd_ratio": 20,
+      "rhodl_ratio": 55,
+      "asopr": null,
+      "etf_flows": 0,
+      "cipherb": 38,
+      "mayer_multiple": 20,
+      "funding_rate": 18
+    }
   }
 ]
