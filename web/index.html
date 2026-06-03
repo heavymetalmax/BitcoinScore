@@ -3595,10 +3595,12 @@
         document.getElementById('tech-warn').style.display = tcContra ? 'inline' : 'none';
       }
 
-      const dateStr = data.timestamp ? new Date(data.timestamp).toLocaleString() : '';
+      const dateStr = data.timestamp ? new Date(data.timestamp).toLocaleString(undefined, {
+        day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false
+      }) : '';
       document.getElementById('footer').innerHTML = `
-        <span class="en">Source: data.json &middot; ${dateStr}</span>
-        <span class="ua">Джерело: data.json &middot; ${dateStr}</span>
+        <span class="en">Source: data.json &middot; ${dateStr} &middot; <a href="https://github.com/heavymetalmax/BitcoinScore/issues" target="_blank" rel="noopener" style="color:var(--index-color);text-decoration:none;font-weight:600;">Feedback &amp; suggestions on GitHub</a></span>
+        <span class="ua">Джерело: data.json &middot; ${dateStr} &middot; <a href="https://github.com/heavymetalmax/BitcoinScore/issues" target="_blank" rel="noopener" style="color:var(--index-color);text-decoration:none;font-weight:600;">Відгуки та пропозиції на GitHub</a></span>
       `;
 
       // Initialize theme on load (sets button states)
