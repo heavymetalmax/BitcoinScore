@@ -46,6 +46,13 @@ def get_bmp_trace(url, trace_name_substr, multiply=1.0, timeout=60000):
                 const needle = {json.dumps(trace_name_substr.lower())};
                 for(const t of traces){{
                     if((t.name || '').toLowerCase().includes(needle)){{
+                        if(t.y && t.y.length && t.y[t.y.length - 1] !== null && t.y[t.y.length - 1] !== undefined){{
+                            return t.y[t.y.length - 1];
+                        }}
+                    }}
+                }}
+                for(const t of traces){{
+                    if((t.name || '').toLowerCase().includes(needle)){{
                         if(t.y && t.y.length) return t.y[t.y.length - 1];
                     }}
                 }}
@@ -125,6 +132,16 @@ def get_bmp_trace_last_n(url, trace_name_substr, n=7, multiply=1.0, timeout=6000
                 const needle = {json.dumps(trace_name_substr.lower())};
                 for(const t of traces){{
                     if((t.name || '').toLowerCase().includes(needle)){{
+                        if(t.y && t.y.length){{
+                            const slice = t.y.slice(-{n});
+                            if (slice.some(v => v !== null && v !== undefined)) {{
+                                return slice;
+                            }}
+                        }}
+                    }}
+                }}
+                for(const t of traces){{
+                    if((t.name || '').toLowerCase().includes(needle)){{
                         if(t.y && t.y.length) return t.y.slice(-{n});
                     }}
                 }}
@@ -172,9 +189,19 @@ def get_bmp_traces(url, trace_names_list, timeout=60000):
                     results[needle] = null;
                     for(const t of traces){{
                         if((t.name || '').toLowerCase().includes(needle)){{
-                            if(t.y && t.y.length) {{
+                            if(t.y && t.y.length && t.y[t.y.length - 1] !== null && t.y[t.y.length - 1] !== undefined) {{
                                 results[needle] = t.y[t.y.length - 1];
                                 break;
+                            }}
+                        }}
+                    }}
+                    if (results[needle] === null) {{
+                        for(const t of traces){{
+                            if((t.name || '').toLowerCase().includes(needle)){{
+                                if(t.y && t.y.length) {{
+                                    results[needle] = t.y[t.y.length - 1];
+                                    break;
+                                }}
                             }}
                         }}
                     }}

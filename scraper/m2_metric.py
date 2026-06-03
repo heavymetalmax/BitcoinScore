@@ -95,12 +95,25 @@ def get_m2():
             return _fetch_fred_fallback()
             
         last_rows = json.loads(last_rows_str)
-        # Series 1 is YoY in USD (M2 Supply of Four Major Central Banks (USD, YoY, R))
-        if len(last_rows) < 2 or not last_rows[1]:
+        # Dynamically find the YoY series (it has smaller values, typically < 100,
+        # whereas the absolute volume series is in the tens of thousands)
+        yoy_series = None
+        for series in last_rows:
+            if not series:
+                continue
+            try:
+                val = float(series[-1][1])
+                if abs(val) < 100:
+                    yoy_series = series
+                    break
+            except (ValueError, TypeError, IndexError):
+                continue
+
+        if not yoy_series:
             logger.warning('get_m2: YoY USD series missing or empty in series_last_rows.')
             return _fetch_fred_fallback()
             
-        latest_point = last_rows[1][-1]  # [date, value]
+        latest_point = yoy_series[-1]  # [date, value]
         latest_date = latest_point[0]
         latest_val = float(latest_point[1])
         

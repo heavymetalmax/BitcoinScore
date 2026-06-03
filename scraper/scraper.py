@@ -147,7 +147,7 @@ def build_payload():
     for name, fn, visit_url, extractor in metric_specs:
         # prefer cached value when available and recent
         cached_val = None
-        if prev_metrics and name in prev_metrics and prev_metrics[name].get('value') is not None and 'age' in locals() and age is not None and age <= 86400:
+        if prev_metrics and name in prev_metrics and prev_metrics[name].get('value') is not None and 'age' in locals() and age is not None and age <= 86400 and os.environ.get('FORCE_LIVE') != '1':
             if not (name == 'm2' and prev_metrics[name].get('source') == 'BMP'):
                 cached_val = prev_metrics[name].get('value')
         if cached_val is not None:
@@ -172,6 +172,11 @@ def build_payload():
             # validate
             if not is_valid_metric(name, val):
                 val = None
+
+            # Fallback to cached value (even if stale) on live fetch failure
+            if val is None and prev_metrics and name in prev_metrics and prev_metrics[name].get('value') is not None:
+                val = prev_metrics[name].get('value')
+                print(f"Warning: live fetch failed for {name}, fell back to cached value: {val}")
 
             # short randomized pause between scrapers
             time.sleep(1 + random.random() * 2)

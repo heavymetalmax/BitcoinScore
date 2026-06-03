@@ -20,10 +20,23 @@ def get_yield_curve():
         rows = list(csv.reader(io.StringIO(text)))
         vals = [float(row[1]) for row in rows[1:] if row[1] not in ('.', '')]
         if not vals:
-            return None
+            raise ValueError("No values found in CSV")
         return round(vals[-1], 4)
     except Exception as e:
-        logger.warning('get_yield_curve failed: %s', e)
+        logger.warning('get_yield_curve failed: %s. Trying history fallback...', e)
+        try:
+            import json
+            import os
+            hist_path = 'data/history/yield_curve.json'
+            if os.path.exists(hist_path):
+                with open(hist_path, 'r', encoding='utf-8') as hf:
+                    hist = json.load(hf)
+                for entry in reversed(hist):
+                    if entry.get('yield_curve') is not None:
+                        logger.info('get_yield_curve: recovered last value from history: %s', entry['yield_curve'])
+                        return entry['yield_curve']
+        except Exception as he:
+            logger.warning('get_yield_curve history fallback failed: %s', he)
         return None
 
 
