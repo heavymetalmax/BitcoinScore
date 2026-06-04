@@ -2322,6 +2322,7 @@
               <div class="settings-buttons">
                 <button id="drawer-btn-style-classic" onclick="setStyle('classic'); toggleModernMenu();">Classic</button>
                 <button id="drawer-btn-style-modern" onclick="setStyle('modern'); toggleModernMenu();">Modern</button>
+                <button id="drawer-btn-style-spatial" onclick="setStyle('spatial'); toggleModernMenu();">Spatial</button>
               </div>
             </div>
             
@@ -2400,6 +2401,10 @@
           <button class="nav-btn active" id="modern-footer-btn-style-modern" onclick="setStyle('modern')">
             <span class="en">Modern</span>
             <span class="ua">Сучасна</span>
+          </button>
+          <button class="nav-btn" id="modern-footer-btn-style-spatial" onclick="setStyle('spatial')">
+            <span class="en">Spatial</span>
+            <span class="ua">Просторова</span>
           </button>
         </div>
 
@@ -2516,12 +2521,14 @@
       // Modern outside footer buttons
       toggleActive('modern-footer-btn-style-classic', style === 'classic');
       toggleActive('modern-footer-btn-style-modern', style === 'modern');
+      toggleActive('modern-footer-btn-style-spatial', style === 'spatial');
       toggleActive('modern-footer-btn-mode-night', mode === 'night');
       toggleActive('modern-footer-btn-mode-auto', mode === 'auto');
 
       // Modern drawer settings buttons
       toggleActive('drawer-btn-style-classic', style === 'classic');
       toggleActive('drawer-btn-style-modern', style === 'modern');
+      toggleActive('drawer-btn-style-spatial', style === 'spatial');
       toggleActive('drawer-btn-mode-night', mode === 'night');
       toggleActive('drawer-btn-mode-auto', mode === 'auto');
 
@@ -2538,6 +2545,8 @@
     function setStyle(style) {
       if (style === 'classic') {
         location.href = 'classic.html';
+      } else if (style === 'spatial') {
+        location.href = 'spatial.html';
       } else {
         localStorage.setItem('bbr-style', 'modern');
         updateThemeClass();

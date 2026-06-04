@@ -1,0 +1,1310 @@
+<!doctype html>
+<html lang="en">
+<head>
+
+  <script>
+    (function() {
+      localStorage.setItem('bbr-style', 'spatial');
+      const style = 'spatial';
+      const mode = localStorage.getItem('bbr-mode') || 'auto';
+      let theme = 'dark';
+      if (mode === 'auto') {
+        const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+        theme = prefersLight ? 'light' : 'dark';
+      }
+      document.documentElement.className = 'style-' + style + ' theme-' + theme;
+    })();
+  </script>
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bitcoin Buy Risk Index — Spatial UI</title>
+  <meta name="description" content="A phone-lockscreen inspired Bento Spatial dashboard for the Bitcoin Buy Risk Index." />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg-dark: #060608;
+      --bg-card: rgba(12, 12, 14, 0.85);
+      --bg-card-hover: rgba(18, 18, 22, 0.9);
+      --border: rgba(255, 255, 255, 0.08);
+      --border-hover: rgba(255, 255, 255, 0.16);
+      --text: #f3f4f6;
+      --text-mute: #9ca3af;
+      --text-sub: #6b7280;
+      
+      --accent-green: #10b981;
+      --accent-amber: #eab308;
+      --accent-red: #ef4444;
+      --index-color: var(--accent-green);
+      
+      --glow-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: 'Inter', -apple-system, sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text);
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    /* Localization styling */
+    body.lang-en .ua { display: none !important; }
+    body.lang-ua .en { display: none !important; }
+
+    /* --- Background Layering (Depth Effect) --- */
+    .lockscreen-wrapper {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      padding: 24px;
+      z-index: 10;
+    }
+
+    .wallpaper-container {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .wallpaper-bg {
+      position: absolute;
+      inset: -20px; /* buffer for parallax translations */
+      background-size: cover;
+      background-position: center;
+      transition: transform 0.1s ease-out, filter 0.8s ease-in-out;
+      transform: scale(1.05);
+    }
+
+    .wallpaper-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, 
+        rgba(6, 6, 8, 0.5) 0%, 
+        rgba(6, 6, 8, 0.2) 50%, 
+        rgba(6, 6, 8, 0.7) 100%
+      );
+      z-index: 2;
+    }
+
+    .wallpaper-fog {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at center, rgba(255,255,255,0.02) 0%, transparent 70%);
+      z-index: 3;
+      pointer-events: none;
+      mix-blend-mode: screen;
+      opacity: 0.8;
+      transition: transform 0.15s ease-out;
+    }
+
+    /* --- Top Status Bar --- */
+    .status-bar {
+      width: 100%;
+      max-width: 500px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 20;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      color: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(10px);
+      background: rgba(12, 12, 14, 0.3);
+      padding: 10px 20px;
+      border-radius: 9999px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .status-left {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .status-right {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 700;
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--index-color);
+      box-shadow: 0 0 8px var(--index-color);
+      display: inline-block;
+    }
+
+    /* --- Center Display Area (Giant Clock Style) --- */
+    .center-display {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 20;
+      text-align: center;
+      margin-top: -20px;
+      transition: transform 0.12s ease-out;
+    }
+
+    .display-title {
+      font-size: 0.7rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.25em;
+      color: rgba(255, 255, 255, 0.55);
+      margin-bottom: 2px;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .display-score-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .display-score {
+      font-family: 'Outfit', sans-serif;
+      font-size: 8.5rem;
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: -0.04em;
+      color: var(--text);
+      text-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
+      background: linear-gradient(180deg, #ffffff 30%, rgba(255,255,255,0.7) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      transition: color 0.5s ease;
+    }
+
+    .display-score-accent {
+      position: absolute;
+      font-size: 2.2rem;
+      top: 15px;
+      right: -32px;
+      color: var(--index-color);
+      opacity: 0.85;
+      text-shadow: 0 0 15px var(--index-color);
+    }
+
+    .display-status {
+      font-size: 1.1rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--index-color);
+      margin-top: -5px;
+      text-shadow: 0 2px 15px rgba(0, 0, 0, 0.5);
+    }
+
+    /* --- Bento Widgets Container --- */
+    .bento-widgets {
+      width: 100%;
+      max-width: 500px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      z-index: 20;
+      margin-bottom: 12px;
+    }
+
+    .widget {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--glow-shadow);
+      transition: transform 0.25s cubic-bezier(0.25, 0.8, 0.25, 1), 
+                  border-color 0.25s ease, 
+                  box-shadow 0.25s ease;
+    }
+
+    .widget:hover {
+      transform: translateY(-2px);
+      border-color: rgba(255, 255, 255, 0.15);
+      box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.4), 0 0 15px rgba(255, 255, 255, 0.02);
+    }
+
+    .widget-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+    }
+
+    .widget-title {
+      font-size: 0.65rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-mute);
+    }
+
+    .widget-icon {
+      color: var(--text-sub);
+      opacity: 0.7;
+    }
+
+    .widget-value-row {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      margin-top: 14px;
+      margin-bottom: 2px;
+    }
+
+    .widget-score {
+      font-family: 'Outfit', sans-serif;
+      font-size: 2.2rem;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .widget-status {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .widget-sub {
+      font-size: 0.65rem;
+      color: var(--text-sub);
+      font-weight: 500;
+    }
+
+    /* Small full-width widgets */
+    .widget.full-width {
+      grid-column: span 2;
+      flex-direction: row;
+      align-items: center;
+      padding: 14px 20px;
+    }
+
+    .widget.full-width .widget-value-row {
+      margin: 0;
+    }
+
+    .widget.full-width .widget-score {
+      font-size: 1.4rem;
+    }
+
+    /* --- Interactive Gear Button --- */
+    .settings-gear {
+      position: fixed;
+      top: 24px;
+      right: 24px;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: rgba(12, 12, 14, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      z-index: 90;
+      color: var(--text);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), background 0.3s ease;
+    }
+
+    .settings-gear:hover {
+      transform: rotate(45deg);
+      background: rgba(12, 12, 14, 0.6);
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    /* --- Settings Drawer (Slide-out) --- */
+    .settings-drawer {
+      position: fixed;
+      top: 0;
+      right: -320px;
+      width: 300px;
+      height: 100%;
+      background: rgba(10, 10, 12, 0.96);
+      border-left: 1px solid var(--border);
+      backdrop-filter: blur(30px);
+      -webkit-backdrop-filter: blur(30px);
+      z-index: 100;
+      padding: 32px 24px;
+      box-shadow: -10px 0 40px rgba(0, 0, 0, 0.6);
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+      transition: right 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    .settings-drawer.open {
+      right: 0;
+    }
+
+    .drawer-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 16px;
+    }
+
+    .drawer-title {
+      font-size: 1rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .drawer-close {
+      background: none;
+      border: none;
+      color: var(--text-mute);
+      cursor: pointer;
+      font-size: 1.2rem;
+    }
+
+    .settings-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .settings-label {
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-mute);
+    }
+
+    .settings-options {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      background: rgba(255, 255, 255, 0.03);
+      padding: 4px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    /* Layout override for 2-option grids */
+    .settings-options.two-cols {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .option-btn {
+      background: none;
+      border: none;
+      color: var(--text-mute);
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 8px 0;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .option-btn:hover {
+      color: var(--text);
+    }
+
+    .option-btn.active {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    /* --- iOS-like Details Sheet (Slide-up) --- */
+    .details-sheet-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      z-index: 70;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .details-sheet-backdrop.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .details-sheet {
+      position: fixed;
+      bottom: -100%;
+      left: 0;
+      right: 0;
+      height: 70%;
+      max-height: 550px;
+      background: rgba(10, 10, 12, 0.95);
+      border-top: 1px solid var(--border);
+      border-top-left-radius: 32px;
+      border-top-right-radius: 32px;
+      backdrop-filter: blur(35px);
+      -webkit-backdrop-filter: blur(35px);
+      z-index: 80;
+      padding: 16px 24px 32px;
+      box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.7);
+      display: flex;
+      flex-direction: column;
+      transition: bottom 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    .details-sheet.open {
+      bottom: 0;
+    }
+
+    .sheet-handle {
+      width: 40px;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 99px;
+      align-self: center;
+      margin-bottom: 20px;
+      cursor: pointer;
+    }
+
+    .sheet-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .sheet-title-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sheet-label {
+      font-size: 0.65rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-mute);
+    }
+
+    .sheet-title {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .sheet-close {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: var(--text-mute);
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .sheet-close:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text);
+    }
+
+    .sheet-content {
+      flex: 1;
+      overflow-y: auto;
+      padding-right: 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    /* Custom Scrollbar for sheet content */
+    .sheet-content::-webkit-scrollbar {
+      width: 4px;
+    }
+    .sheet-content::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .sheet-content::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 99px;
+    }
+
+    /* --- Indicator Card inside Sheet --- */
+    .ind-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      padding: 14px 18px;
+      border-radius: 18px;
+    }
+
+    .ind-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .ind-name {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .ind-value-box {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .ind-score {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 800;
+    }
+
+    .ind-raw {
+      font-size: 0.72rem;
+      color: var(--text-mute);
+    }
+
+    .ind-bar-wrap {
+      height: 6px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 99px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .ind-bar-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 99px;
+      transition: width 0.8s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    /* Mobile adjustments */
+    @media (max-width: 600px) {
+      .display-score {
+        font-size: 7rem;
+      }
+      .display-score-accent {
+        font-size: 1.8rem;
+        right: -24px;
+        top: 10px;
+      }
+      .status-bar {
+        font-size: 0.7rem;
+        padding: 8px 16px;
+      }
+      .details-sheet {
+        height: 80%;
+        max-height: none;
+        border-top-left-radius: 24px;
+        border-top-right-radius: 24px;
+      }
+    }
+  </style>
+</head>
+<body class="lang-en">
+
+  <!-- Interactive Background Wallpaper (Depth effect layers) -->
+  <div class="wallpaper-container">
+    <div class="wallpaper-bg" id="wallpaper-bg"></div>
+    <div class="wallpaper-overlay"></div>
+    <div class="wallpaper-fog" id="wallpaper-fog"></div>
+  </div>
+
+  <div class="lockscreen-wrapper">
+    <!-- Top System Status Bar -->
+    <div class="status-bar">
+      <div class="status-left">
+        <span class="status-dot"></span>
+        <span id="hero-card-ts">—</span>
+      </div>
+      <div class="status-right" id="hero-card-price">
+        —
+      </div>
+    </div>
+
+    <!-- Center Display (iOS Clock Style Risk Value) -->
+    <div class="center-display" id="center-display">
+      <span class="display-title">
+        <span class="en">Composite Risk Index</span>
+        <span class="ua">Композитний індекс ризику</span>
+      </span>
+      <div class="display-score-wrap">
+        <span class="display-score" id="s-final">—</span>
+        <span class="display-score-accent">₿</span>
+      </div>
+      <span class="display-status" id="main-status">—</span>
+    </div>
+
+    <!-- Bento Score Widgets -->
+    <div class="bento-widgets">
+      <!-- Widget 1: On-Chain Score -->
+      <div class="widget" onclick="openDetails('onchain')">
+        <div class="widget-header">
+          <span class="widget-title">
+            <span class="en">On-Chain</span>
+            <span class="ua">Ончейн</span>
+          </span>
+          <span class="widget-icon">🔗</span>
+        </div>
+        <div>
+          <div class="widget-value-row">
+            <span class="widget-score" id="s-oc">—</span>
+            <span class="widget-status" id="oc-status-label">—</span>
+          </div>
+          <span class="widget-sub">
+            <span class="en">5 metrics analyzed</span>
+            <span class="ua">5 показників оцінено</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- Widget 2: Tech/Macro Score -->
+      <div class="widget" onclick="openDetails('tech')">
+        <div class="widget-header">
+          <span class="widget-title">
+            <span class="en">Tech &amp; Macro</span>
+            <span class="ua">Технічні &amp; Макро</span>
+          </span>
+          <span class="widget-icon">📊</span>
+        </div>
+        <div>
+          <div class="widget-value-row">
+            <span class="widget-score" id="s-tech">—</span>
+            <span class="widget-status" id="tech-status-label">—</span>
+          </div>
+          <span class="widget-sub">
+            <span class="en">6 metrics analyzed</span>
+            <span class="ua">6 показників оцінено</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- Widget 3: Historic Yesterday & Week -->
+      <div class="widget full-width" style="cursor: default;">
+        <div style="display: flex; flex: 1; justify-content: space-between; border-right: 1px solid rgba(255,255,255,0.06); padding-right: 16px;">
+          <div style="display:flex; flex-direction:column; gap:2px;">
+            <span class="widget-title">
+              <span class="en">Yesterday</span>
+              <span class="ua">Вчора</span>
+            </span>
+            <div class="widget-value-row">
+              <span class="widget-score" id="s-yesterday" style="font-size: 1.5rem; font-weight:700;">—</span>
+            </div>
+          </div>
+          <div style="text-align: right; display:flex; flex-direction:column; justify-content:center;">
+            <span class="widget-status" id="yesterday-status" style="font-size:0.65rem;">—</span>
+          </div>
+        </div>
+        <div style="display: flex; flex: 1; justify-content: space-between; padding-left: 20px;">
+          <div style="display:flex; flex-direction:column; gap:2px;">
+            <span class="widget-title">
+              <span class="en">7d Average</span>
+              <span class="ua">Середній 7д</span>
+            </span>
+            <div class="widget-value-row">
+              <span class="widget-score" id="s-week" style="font-size: 1.5rem; font-weight:700;">—</span>
+            </div>
+          </div>
+          <div style="text-align: right; display:flex; flex-direction:column; justify-content:center;">
+            <span class="widget-status" id="week-status" style="font-size:0.65rem;">—</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Gear Floating Button -->
+  <button class="settings-gear" onclick="toggleDrawer(true)">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z"/><path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0"/></svg>
+  </button>
+
+  <!-- Settings Drawer -->
+  <div class="settings-drawer" id="settings-drawer">
+    <div class="drawer-header">
+      <span class="drawer-title">
+        <span class="en">Settings</span>
+        <span class="ua">Налаштування</span>
+      </span>
+      <button class="drawer-close" onclick="toggleDrawer(false)">✕</button>
+    </div>
+
+    <!-- Theme Switch -->
+    <div class="settings-group">
+      <span class="settings-label">
+        <span class="en">Theme Style</span>
+        <span class="ua">Стиль теми</span>
+      </span>
+      <div class="settings-options">
+        <button id="drawer-btn-style-classic" class="option-btn" onclick="setStyle('classic')">Classic</button>
+        <button id="drawer-btn-style-modern" class="option-btn" onclick="setStyle('modern')">Modern</button>
+        <button id="drawer-btn-style-spatial" class="option-btn active" onclick="setStyle('spatial')">Spatial</button>
+      </div>
+    </div>
+
+    <!-- Color Mode -->
+    <div class="settings-group">
+      <span class="settings-label">
+        <span class="en">Color Mode</span>
+        <span class="ua">Колірний режим</span>
+      </span>
+      <div class="settings-options two-cols">
+        <button id="drawer-btn-mode-night" class="option-btn active" onclick="setMode('night')">Night</button>
+        <button id="drawer-btn-mode-auto" class="option-btn" onclick="setMode('auto')">Auto</button>
+      </div>
+    </div>
+
+    <!-- Language -->
+    <div class="settings-group">
+      <span class="settings-label">
+        <span class="en">Language</span>
+        <span class="ua">Мова</span>
+      </span>
+      <div class="settings-options two-cols">
+        <button id="drawer-btn-lang-en" class="option-btn" onclick="setLang('en')">EN</button>
+        <button id="drawer-btn-lang-ua" class="option-btn" onclick="setLang('ua')">UA</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Details Sheet Backdrop -->
+  <div class="details-sheet-backdrop" id="sheet-backdrop" onclick="closeDetails()"></div>
+
+  <!-- iOS-like Details Sheet -->
+  <div class="details-sheet" id="details-sheet">
+    <div class="sheet-handle" onclick="closeDetails()"></div>
+    
+    <div class="sheet-header">
+      <div class="sheet-title-group">
+        <span class="sheet-label" id="sheet-sub-label">—</span>
+        <span class="sheet-title" id="sheet-title">—</span>
+      </div>
+      <button class="sheet-close" onclick="closeDetails()">✕</button>
+    </div>
+
+    <div class="sheet-content" id="sheet-content">
+      <!-- Dynamic list of metrics will be inserted here -->
+    </div>
+  </div>
+
+  <script>
+    // Theme switching integration
+    function setStyle(style) {
+      if (style === 'classic') {
+        location.href = 'classic.html';
+      } else if (style === 'modern') {
+        location.href = 'index.html';
+      } else {
+        localStorage.setItem('bbr-style', 'spatial');
+        updateThemeClass();
+      }
+    }
+
+    function setMode(mode) {
+      localStorage.setItem('bbr-mode', mode);
+      updateThemeClass();
+      const btnNight = document.getElementById('drawer-btn-mode-night');
+      const btnAuto = document.getElementById('drawer-btn-mode-auto');
+      if (btnNight) btnNight.classList.toggle('active', mode === 'night');
+      if (btnAuto) btnAuto.classList.toggle('active', mode === 'auto');
+    }
+
+    function updateThemeClass() {
+      const mode = localStorage.getItem('bbr-mode') || 'auto';
+      let theme = 'dark';
+      if (mode === 'auto') {
+        const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+        theme = prefersLight ? 'light' : 'dark';
+      }
+      document.documentElement.className = 'style-spatial theme-' + theme;
+    }
+
+    // Toggle Drawer
+    function toggleDrawer(open) {
+      const drawer = document.getElementById('settings-drawer');
+      if (drawer) {
+        drawer.classList.toggle('open', open);
+      }
+    }
+
+    // Global Language Toggle
+    function setLang(lang) {
+      document.body.className = 'lang-' + lang;
+      document.documentElement.lang = (lang === 'ua') ? 'uk' : 'en';
+      
+      const dBtnEn = document.getElementById('drawer-btn-lang-en');
+      const dBtnUa = document.getElementById('drawer-btn-lang-ua');
+      if (dBtnEn) dBtnEn.classList.toggle('active', lang === 'en');
+      if (dBtnUa) dBtnUa.classList.toggle('active', lang === 'ua');
+
+      localStorage.setItem('bbr-lang', lang);
+      document.title = lang === 'ua' ? 'Індекс ризику Bitcoin — Spatial UI' : 'Bitcoin Buy Risk Index — Spatial UI';
+
+      // Update current sheet strings if it is active
+      if (window.activeSheetType) {
+        renderSheetContent(window.activeSheetType);
+      }
+    }
+
+    // Curated high-res wallpaper sets based on final score
+    const Wallpapers = {
+      low: [
+        'https://images.unsplash.com/photo-1470076896136-117f6d1700c2?q=80&w=1200&auto=format&fit=crop', // Calm lake & misty mountains
+        'https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=1200&auto=format&fit=crop', // Calm turquoise mountain lake
+        'https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?q=80&w=1200&auto=format&fit=crop', // Peaceful green forest river
+        'https://images.unsplash.com/photo-1469474968028-56623f02e42e?q=80&w=1200&auto=format&fit=crop'  // Deep green mountain lake valley
+      ],
+      neutral: [
+        'https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1200&auto=format&fit=crop', // Soft valley meadows at sunrise
+        'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=1200&auto=format&fit=crop', // Rolling high landscape hills
+        'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1200&auto=format&fit=crop', // Autumn grasslands & quiet hills
+        'https://images.unsplash.com/photo-1472214222541-d510753a4907?q=80&w=1200&auto=format&fit=crop'  // Calm evening meadows
+      ],
+      high: [
+        'https://images.unsplash.com/photo-1513151233558-d860c5398176?q=80&w=1200&auto=format&fit=crop', // Festive celebration sparklers & night lights
+        'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?q=80&w=1200&auto=format&fit=crop', // Neon city streets and skyscrapers at night
+        'https://images.unsplash.com/photo-1496568818309-53d7f7553a3b?q=80&w=1200&auto=format&fit=crop', // Energetic amusement park Ferris wheel at night
+        'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=1200&auto=format&fit=crop'  // Vibrant night concert lights
+      ]
+    };
+
+    function loadWallpaper(score) {
+      let category = 'neutral';
+      if (score != null) {
+        if (score <= 40) category = 'low';
+        else if (score >= 60) category = 'high';
+      }
+      
+      const set = Wallpapers[category];
+      const selectedUrl = set[Math.floor(Math.random() * set.length)];
+      
+      const bg = document.getElementById('wallpaper-bg');
+      if (bg) {
+        bg.style.backgroundImage = `url('${selectedUrl}')`;
+      }
+    }
+
+    // Color interpolation matching the dashboard's design
+    function scoreColor(v, alpha = 1) {
+      if(v == null) return 'var(--text-mute)';
+      const stops = [
+        { val: 0,   r: 16,  g: 185, b: 129 }, // Emerald
+        { val: 30,  r: 132, g: 204, b: 22  }, // Lime
+        { val: 50,  r: 234, g: 179, b: 8   }, // Yellow
+        { val: 75,  r: 249, g: 115, b: 22  }, // Orange
+        { val: 100, r: 239, g: 68,  b: 68  }  // Red
+      ];
+      let r, g, b;
+      if (v <= stops[0].val) {
+        r = stops[0].r; g = stops[0].g; b = stops[0].b;
+      } else if (v >= stops[stops.length - 1].val) {
+        r = stops[stops.length - 1].r; g = stops[stops.length - 1].g; b = stops[stops.length - 1].b;
+      } else {
+        for (let i = 0; i < stops.length - 1; i++) {
+          const s1 = stops[i];
+          const s2 = stops[i+1];
+          if (v >= s1.val && v <= s2.val) {
+            const t = (v - s1.val) / (s2.val - s1.val);
+            r = Math.round(s1.r + t * (s2.r - s1.r));
+            g = Math.round(s1.g + t * (s2.g - s1.g));
+            b = Math.round(s1.b + t * (s2.b - s1.b));
+            break;
+          }
+        }
+      }
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+
+    // Stereoscopic Parallax Depth Effect (moves background and details dynamically)
+    document.addEventListener('mousemove', (e) => {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      const x = (e.clientX - w / 2) / (w / 2); // range -1 to 1
+      const y = (e.clientY - h / 2) / (h / 2); // range -1 to 1
+
+      // Background moves slightly to follow cursor
+      const bg = document.getElementById('wallpaper-bg');
+      if (bg) {
+        bg.style.transform = `scale(1.05) translate3d(${x * 12}px, ${y * 12}px, 0)`;
+      }
+
+      // Foreground center text parallax offset (moves opposite direction for depth)
+      const center = document.getElementById('center-display');
+      if (center) {
+        center.style.transform = `translate3d(${-x * 8}px, ${-y * 8}px, 0)`;
+      }
+
+      // Volumetric fog layer moves faster to enhance 3D parallax layers
+      const fog = document.getElementById('wallpaper-fog');
+      if (fog) {
+        fog.style.transform = `translate3d(${x * 18}px, ${y * 18}px, 0)`;
+      }
+    });
+
+    // Device Tilt Gyroscope support for mobile screens
+    if (window.DeviceOrientationEvent) {
+      window.addEventListener('deviceorientation', (e) => {
+        if (e.beta == null || e.gamma == null) return;
+        
+        // Clamping beta (-30 to 30) and gamma (-30 to 30)
+        const y = Math.max(-30, Math.min(30, e.beta)) / 30; // normalized
+        const x = Math.max(-30, Math.min(30, e.gamma)) / 30;
+
+        const bg = document.getElementById('wallpaper-bg');
+        if (bg) {
+          bg.style.transform = `scale(1.05) translate3d(${x * 15}px, ${y * 15}px, 0)`;
+        }
+        const center = document.getElementById('center-display');
+        if (center) {
+          center.style.transform = `translate3d(${-x * 10}px, ${-y * 10}px, 0)`;
+        }
+        const fog = document.getElementById('wallpaper-fog');
+        if (fog) {
+          fog.style.transform = `translate3d(${x * 22}px, ${y * 22}px, 0)`;
+        }
+      });
+    }
+
+    // Interactive details sheet rendering
+    window.dataStore = null;
+    window.activeSheetType = null;
+
+    function openDetails(type) {
+      window.activeSheetType = type;
+      renderSheetContent(type);
+      
+      document.getElementById('sheet-backdrop').classList.add('open');
+      document.getElementById('details-sheet').classList.add('open');
+    }
+
+    function closeDetails() {
+      document.getElementById('sheet-backdrop').classList.remove('open');
+      document.getElementById('details-sheet').classList.remove('open');
+      window.activeSheetType = null;
+    }
+
+    function renderSheetContent(type) {
+      if (!window.dataStore) return;
+      
+      const sheetSubLabel = document.getElementById('sheet-sub-label');
+      const sheetTitle = document.getElementById('sheet-title');
+      const sheetContent = document.getElementById('sheet-content');
+      
+      const lang = localStorage.getItem('bbr-lang') || 'en';
+      const m = window.dataStore.metrics || {};
+      const mv = key => { const x = m[key]; return x != null ? (x.value !== undefined ? x.value : x) : null; };
+
+      const getMetricScore = (key, mapper) => {
+        const raw = mv(key);
+        return raw != null ? mapper(raw) : null;
+      };
+
+      // Mappers copied directly from core index logic
+      const mapNupl = v => v == null ? null : Math.round(Math.max(0, Math.min(100, (v + 0.1) * 100)));
+      const mapMvrv = v => v == null ? null : Math.round(Math.max(0, Math.min(100, (v + 0.5) * (100 / 3.5))));
+      const mapRhodl = v => v == null ? null : Math.round(Math.max(0, Math.min(100, (Math.log10(v) - 1.5) * (100 / 3))));
+      const mapCvdd = v => {
+        if(v == null) return null;
+        if(v <= 1) return Math.round(Math.max(0, v * 30));
+        return Math.round(Math.min(100, 30 + (v - 1) * 70));
+      };
+      const mapAsopr = v => {
+        if(v == null) return null;
+        const norm = (v - 0.9) / 0.2;
+        return Math.round(Math.max(0, Math.min(100, norm * 100)));
+      };
+      
+      const mapFunding = v => {
+        if(!v) return null;
+        const rate = v.avg_7d != null ? v.avg_7d : (v.latest != null ? v.latest : 0);
+        if(rate <= 0) return Math.round(Math.max(0, (rate + 0.05) * 1000));
+        return Math.round(Math.min(100, 50 + rate * 500));
+      };
+      const mapFG = v => v != null ? Math.round(v) : null;
+      const mapYieldCurve = v => {
+        if (v == null) return null;
+        if (v < -1.5) return 100;
+        if (v > 1.5) return 0;
+        return Math.round(((1.5 - v) / 3.0) * 100);
+      };
+      const mapM2 = v => {
+        if(v == null) return null;
+        const norm = (v - (-5)) / 25;
+        return Math.round(Math.max(0, Math.min(100, (1 - norm) * 100)));
+      };
+
+      let metricsList = [];
+
+      if (type === 'onchain') {
+        sheetSubLabel.innerHTML = `<span class="en">ON-CHAIN CORE SUB-SCORE</span><span class="ua">ОНЧЕЙН СУБ-ПОКАЗНИК</span>`;
+        sheetTitle.innerHTML = `<span class="en">On-Chain Metrics</span><span class="ua">Ончейн-індикатори</span>`;
+
+        metricsList = [
+          {
+            name: { en: 'NUPL (Net Unrealized Profit/Loss)', ua: 'NUPL (Нереалізований прибуток/збиток)' },
+            score: getMetricScore('nupl', mapNupl),
+            raw: mv('nupl') != null ? mv('nupl').toFixed(2) + '%' : '—'
+          },
+          {
+            name: { en: 'MVRV Z-Score', ua: 'MVRV Z-Score (Справедлива оцінка)' },
+            score: getMetricScore('mvrv', mapMvrv),
+            raw: mv('mvrv') != null ? mv('mvrv').toFixed(4) : '—'
+          },
+          {
+            name: { en: 'RHODL Ratio', ua: 'RHODL Ratio (Співвідношення тримачів)' },
+            score: getMetricScore('rhodl', mapRhodl),
+            raw: mv('rhodl') != null ? mv('rhodl').toFixed(2) : '—'
+          },
+          {
+            name: { en: 'CVDD Ratio', ua: 'CVDD Ratio (Собівартість руйнування днів)' },
+            score: getMetricScore('cvdd_ratio', mapCvdd),
+            raw: mv('cvdd_ratio') != null ? mv('cvdd_ratio').toFixed(4) : '—'
+          },
+          {
+            name: { en: 'aSOPR (Spent Output Profit Ratio)', ua: 'aSOPR (Коефіцієнт прибутковості виходів)' },
+            score: getMetricScore('asopr', mapAsopr),
+            raw: mv('asopr') != null ? mv('asopr').toFixed(4) : '—'
+          }
+        ];
+      } else {
+        sheetSubLabel.innerHTML = `<span class="en">TECH &amp; MACRO SUB-SCORE</span><span class="ua">ТЕХНІЧНИЙ &amp; МАКРО СУБ-ПОКАЗНИК</span>`;
+        sheetTitle.innerHTML = `<span class="en">Tech &amp; Macro Metrics</span><span class="ua">Технічні &amp; Макро індикатори</span>`;
+
+        // Derived variables matching dashboard calculations
+        const mm = mv('mayer_multiple');
+        const mmScore = mm != null ? Math.round(Math.max(0, Math.min(100, (mm - 0.5) * (100 / 1.9)))) : null;
+        
+        const etf = mv('etf_flows_14d');
+        const etfScore = etf != null ? Math.round(Math.max(0, Math.min(100, (1 - (etf + 1000) / 4000) * 100))) : null;
+        
+        const cb = mv('cipher_b');
+        const cbScore = cb != null ? Math.round(Math.max(0, Math.min(100, (cb + 100) * (100 / 200)))) : null;
+        
+        const fr = m['funding_rate'];
+
+        metricsList = [
+          {
+            name: { en: 'Cipher B Oscillator', ua: 'Осцилятор Cipher B' },
+            score: cbScore,
+            raw: cb != null ? Math.round(cb) : '—'
+          },
+          {
+            name: { en: 'Mayer Multiple', ua: 'Кратне Майєра (Mayer Multiple)' },
+            score: mmScore,
+            raw: mm != null ? mm.toFixed(2) : '—'
+          },
+          {
+            name: { en: 'Spot ETF Flows (14d)', ua: 'Притоки у Спотові ETF (14д)' },
+            score: etfScore,
+            raw: etf != null ? (etf > 0 ? '+' : '') + Math.round(etf) + 'M' : '—'
+          },
+          {
+            name: { en: 'Fear & Greed Index', ua: 'Індекс страху та жадібності' },
+            score: getMetricScore('fear_greed', mapFG),
+            raw: mv('fear_greed') != null ? Math.round(mv('fear_greed')) : '—'
+          },
+          {
+            name: { en: 'Yield Curve Spread (10Y-2Y)', ua: 'Спред кривої дохідності (10Y-2Y)' },
+            score: getMetricScore('yield_curve', mapYieldCurve),
+            raw: mv('yield_curve') != null ? mv('yield_curve').toFixed(2) + '%' : '—'
+          },
+          {
+            name: { en: 'Global M2 YoY Growth', ua: 'Річний приріст глобальної маси M2' },
+            score: getMetricScore('m2_growth', mapM2),
+            raw: mv('m2_growth') != null ? mv('m2_growth').toFixed(2) + '%' : '—'
+          }
+        ];
+      }
+
+      sheetContent.innerHTML = '';
+      metricsList.forEach(m => {
+        const card = document.createElement('div');
+        card.className = 'ind-row';
+        
+        const color = scoreColor(m.score);
+        const nameText = lang === 'ua' ? m.name.ua : m.name.en;
+        const valText = m.score != null ? m.score : '—';
+        
+        card.innerHTML = `
+          <div class="ind-meta">
+            <span class="ind-name">${nameText}</span>
+            <div class="ind-value-box">
+              <span class="ind-score" style="color: ${color}">${valText}</span>
+              <span class="ind-raw">${m.raw}</span>
+            </div>
+          </div>
+          <div class="ind-bar-wrap">
+            <div class="ind-bar-fill" style="width: ${m.score || 0}%; background: ${color};"></div>
+          </div>
+        `;
+        sheetContent.appendChild(card);
+      });
+    }
+
+    // App Initialization
+    async function init() {
+      // Restore Mode & Lang configurations
+      const lang = localStorage.getItem('bbr-lang') || 'en';
+      setLang(lang);
+      const mode = localStorage.getItem('bbr-mode') || 'auto';
+      setMode(mode);
+
+      let data;
+      try {
+        const r = await fetch('data.json', { cache: 'no-store' });
+        if(!r.ok) throw new Error('HTTP ' + r.status);
+        data = await r.json();
+      } catch(e) {
+        document.getElementById('hero-card-ts').textContent = 'Error loading data';
+        return;
+      }
+
+      window.dataStore = data;
+
+      // Render wallpapers based on the score
+      loadWallpaper(data.final_score);
+
+      // Render Header Details
+      if (data.timestamp) {
+        const tsDate = new Date(data.timestamp);
+        const tsStr = tsDate.toLocaleString(undefined, {
+          day: '2-digit', month: '2-digit', year: 'numeric',
+          hour: '2-digit', minute: '2-digit', hour12: false
+        });
+        document.getElementById('hero-card-ts').textContent = 'UPDATED: ' + tsStr;
+      }
+
+      if (data.price_usd != null) {
+        document.getElementById('hero-card-price').innerHTML = `BTC: $${Math.round(data.price_usd).toLocaleString()} <span class="status-dot"></span>`;
+      }
+
+      // Update Center Score
+      const finalColor = scoreColor(data.final_score);
+      const displayScore = document.getElementById('s-final');
+      if (displayScore) {
+        displayScore.textContent = data.final_score != null ? data.final_score : '—';
+        displayScore.style.background = `linear-gradient(180deg, #ffffff 40%, ${finalColor} 100%)`;
+        displayScore.style.webkitBackgroundClip = 'text';
+      }
+      
+      const displayAccent = document.querySelector('.display-score-accent');
+      if (displayAccent) {
+        displayAccent.style.color = finalColor;
+        displayAccent.style.textShadow = `0 0 15px ${finalColor}`;
+      }
+
+      // Update index status rating text
+      const mainStatus = document.getElementById('main-status');
+      if (mainStatus) {
+        let statusText = { en: 'Neutral', ua: 'Нейтрально' };
+        if (data.final_score != null) {
+          if (data.final_score <= 25) statusText = { en: 'Low Risk / Accumulation', ua: 'Низький ризик / Накопичення' };
+          else if (data.final_score >= 60) statusText = { en: 'High Risk / Distribution', ua: 'Високий ризик / Розподіл' };
+        }
+        mainStatus.innerHTML = `<span class="en">${statusText.en}</span><span class="ua">${statusText.ua}</span>`;
+        mainStatus.style.color = finalColor;
+        mainStatus.style.textShadow = `0 2px 15px ${scoreColor(data.final_score, 0.4)}`;
+      }
+
+      // Update Widgets scores
+      const setWidgetVal = (id, scoreId, val) => {
+        const scoreEl = document.getElementById(scoreId);
+        const labelEl = document.getElementById(id + '-status-label');
+        if (scoreEl) {
+          scoreEl.textContent = val != null ? val : '—';
+          scoreEl.style.color = scoreColor(val);
+        }
+        if (labelEl) {
+          let label = { en: 'Neutral', ua: 'Нейтрально' };
+          if (val != null) {
+            if (val <= 25) label = { en: 'Buy', ua: 'Купівля' };
+            else if (val >= 60) label = { en: 'Sell', ua: 'Продаж' };
+          }
+          labelEl.innerHTML = `<span class="en">${label.en}</span><span class="ua">${label.ua}</span>`;
+          labelEl.style.color = scoreColor(val);
+        }
+      };
+
+      setWidgetVal('oc', 's-oc', data.onchain_score);
+      setWidgetVal('tech', 's-tech', data.tech_score);
+
+      // Yesterday and 7d averages
+      if (data.prev_day && data.prev_day.final_score != null) {
+        const val = data.prev_day.final_score;
+        const el = document.getElementById('s-yesterday');
+        const st = document.getElementById('yesterday-status');
+        if (el) { el.textContent = val; el.style.color = scoreColor(val); }
+        if (st) {
+          let lbl = val <= 25 ? {en:'Buy', ua:'Купівля'} : val >= 60 ? {en:'Sell', ua:'Продаж'} : {en:'Neutral', ua:'Нейтрально'};
+          st.innerHTML = `<span class="en">${lbl.en}</span><span class="ua">${lbl.ua}</span>`;
+          st.style.color = scoreColor(val);
+        }
+      }
+
+      let avg7d = null;
+      const validHistory = (data.score_history || []).filter(e => e.score != null);
+      if (validHistory.length > 0) {
+        const last7 = validHistory.slice(-7);
+        const sum = last7.reduce((acc, curr) => acc + curr.score, 0);
+        avg7d = Math.round(sum / last7.length);
+      }
+      const weekVal = (avg7d != null) ? avg7d : (data.prev_week ? data.prev_week.final_score : null);
+      if (weekVal != null) {
+        const el = document.getElementById('s-week');
+        const st = document.getElementById('week-status');
+        if (el) { el.textContent = weekVal; el.style.color = scoreColor(weekVal); }
+        if (st) {
+          let lbl = weekVal <= 25 ? {en:'Buy', ua:'Купівля'} : weekVal >= 60 ? {en:'Sell', ua:'Продаж'} : {en:'Neutral', ua:'Нейтрально'};
+          st.innerHTML = `<span class="en">${lbl.en}</span><span class="ua">${lbl.ua}</span>`;
+          st.style.color = scoreColor(weekVal);
+        }
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>

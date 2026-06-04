@@ -989,6 +989,15 @@
     updateThemeClass();
 
     loadIndexColor();
+
+    // Dynamic back-to-dashboard routing based on active style
+    const savedStyle = localStorage.getItem('bbr-style');
+    if (savedStyle === 'classic' || savedStyle === 'spatial') {
+      const targetPage = savedStyle === 'classic' ? 'classic.html' : 'spatial.html';
+      document.querySelectorAll('a[href="index.html"]').forEach(el => {
+        el.href = targetPage;
+      });
+    }
   </script>
 
   <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "2512d38212e24b948b0c4fb20bef5125"}'></script><!-- End Cloudflare Web Analytics -->
