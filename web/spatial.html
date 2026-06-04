@@ -75,7 +75,7 @@
       overflow: hidden;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
+      justify-content: flex-start;
       align-items: center;
       padding: 24px;
       z-index: 10;
@@ -164,103 +164,191 @@
     }
 
     /* --- Center Display Area (Giant Clock Style) --- */
+    /* --- Center Display Area (New Premium Glass Column/Row Layout) --- */
     .center-display {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       z-index: 20;
-      text-align: center;
-      margin-top: -10px;
-      transition: transform 0.12s ease-out;
+      margin-top: 14vh; /* raised high up like iOS clock */
+      padding: 30px 48px;
+      border-radius: 32px;
+      background: rgba(255, 255, 255, 0);
+      border: 1px solid rgba(255, 255, 255, 0);
+      backdrop-filter: blur(0px);
+      -webkit-backdrop-filter: blur(0px);
+      box-shadow: none;
+      transition: transform 0.12s ease-out,
+                  background 0.3s cubic-bezier(0.25, 0.8, 0.25, 1),
+                  border-color 0.3s cubic-bezier(0.25, 0.8, 0.25, 1),
+                  backdrop-filter 0.3s cubic-bezier(0.25, 0.8, 0.25, 1),
+                  -webkit-backdrop-filter 0.3s cubic-bezier(0.25, 0.8, 0.25, 1),
+                  box-shadow 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    .center-display:hover {
+      background: rgba(12, 12, 14, 0.22);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
     }
 
     .display-title {
-      font-size: 0.72rem;
-      font-weight: 900;
+      font-size: 0.95rem;
+      font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.25em;
-      color: rgba(255, 255, 255, 0.55);
+      letter-spacing: 0.22em;
+      color: rgba(255, 255, 255, 0.65);
       margin-bottom: 2px;
-      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
     }
 
-    .display-score-wrap {
-      position: relative;
+    .display-status {
+      font-size: 1.15rem;
+      font-weight: 500;
+      text-transform: lowercase;
+      color: rgba(255, 255, 255, 0.5);
+      margin-bottom: 24px;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+    }
+
+    .display-main-row {
       display: flex;
       align-items: center;
-      justify-content: center;
+      gap: 30px;
+      margin-bottom: 24px;
     }
 
-    /* Premium Matte Glass Text Effect (Grayscale only) */
+    .display-score-section {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .alert-icon-wrap {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #ef5350; /* contradiction warn color */
+      margin-top: 15px; /* offset to align vertically with the giant numbers */
+      flex-shrink: 0;
+      cursor: help;
+      transition: transform 0.2s ease;
+    }
+
+    .alert-icon-wrap:hover {
+      transform: scale(1.1);
+    }
+
+    .alert-svg {
+      width: 44px;
+      height: 44px;
+      filter: drop-shadow(0 0 12px rgba(239, 83, 80, 0.6));
+    }
+
     .display-score {
       font-family: 'Outfit', sans-serif;
       font-size: 11rem;
       font-weight: 900;
-      line-height: 1;
-      letter-spacing: -0.04em;
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.2) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      -webkit-text-stroke: 1px rgba(255, 255, 255, 0.3);
-      filter: drop-shadow(0 8px 30px rgba(0, 0, 0, 0.45));
-      transition: color 0.5s ease;
-    }
-
-    .display-score-accent {
-      position: absolute;
-      font-size: 2.2rem;
-      top: 25px;
-      right: -32px;
-      color: rgba(255, 255, 255, 0.7);
-      text-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
-    }
-
-    .display-status {
-      font-size: 1.1rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
+      line-height: 0.9;
       color: #ffffff;
-      margin-top: -12px;
-      text-shadow: 0 2px 15px rgba(0, 0, 0, 0.5);
+      margin: 0;
+      padding: 0;
+      letter-spacing: -0.03em;
+      filter: drop-shadow(0 8px 30px rgba(0, 0, 0, 0.45));
     }
 
-    /* --- Inline History Row under index value --- */
-    .lockscreen-history {
+    .display-history-column {
       display: flex;
-      align-items: center;
-      gap: 14px;
-      margin-top: 10px;
-      background: rgba(12, 12, 14, 0.35);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      padding: 6px 16px;
-      border-radius: 99px;
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 6px;
+      padding-left: 10px;
     }
 
     .history-item {
       display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.75rem;
+      flex-direction: column;
+      align-items: flex-start;
+      line-height: 1.1;
     }
 
     .history-label {
-      font-weight: 600;
-      color: var(--text-mute);
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.6);
+      text-transform: lowercase;
     }
 
     .history-value {
-      font-weight: 800;
       font-family: 'Outfit', sans-serif;
+      font-size: 3rem;
+      font-weight: 800;
       color: #ffffff;
+      line-height: 1;
     }
 
-    .history-separator {
-      color: rgba(255, 255, 255, 0.15);
-      font-size: 0.75rem;
+    .history-divider {
+      width: 48px;
+      height: 1px;
+      background-color: rgba(255, 255, 255, 0.4);
+      margin: 2px 0;
+    }
+
+    .display-sub-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 40px;
+      width: 100%;
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
+      padding-top: 20px;
+    }
+
+    .sub-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 150px;
+      text-align: left;
+    }
+
+    .sub-label-col {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      line-height: 1.1;
+    }
+
+    .sub-value {
+      font-family: 'Outfit', sans-serif;
+      font-size: 3rem;
+      font-weight: 800;
+      color: #ffffff;
+      line-height: 1;
+    }
+
+    .sub-title {
+      font-size: 1.1rem;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.85);
+      text-transform: lowercase;
+    }
+
+    .sub-status {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.55);
+      text-transform: lowercase;
+      margin-top: 4px;
+    }
+
+    .sub-divider {
+      width: 1px;
+      height: 48px;
+      background-color: rgba(255, 255, 255, 0.25);
     }
 
     /* --- Bento Widgets Container --- */
@@ -274,36 +362,63 @@
       margin-bottom: 12px;
     }
 
-    .widget {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
+    /* 3D Flipping Bento Widget Cards */
+    .widget-card {
+      background: transparent;
+      perspective: 1000px;
+      height: 320px;
+      width: 100%;
+    }
+    .widget-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      text-align: left;
+      transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      transform-style: preserve-3d;
+    }
+    .widget-inner.flipped {
+      transform: rotateY(180deg);
+    }
+    .widget-front, .widget-back {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
       border-radius: 24px;
       padding: 20px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);
+      background: rgba(255, 255, 255, 0.03); /* glass widget with very light opacity */
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      transition: border-color 0.25s, background 0.25s, box-shadow 0.25s;
       cursor: pointer;
-      position: relative;
-      overflow: hidden;
-      box-shadow: var(--glow-shadow);
-      transition: transform 0.25s cubic-bezier(0.25, 0.8, 0.25, 1), 
-                  border-color 0.25s ease, 
-                  box-shadow 0.25s ease;
     }
-
-    .widget:hover {
-      transform: translateY(-2px);
-      border-color: rgba(255, 255, 255, 0.15);
-      box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.4), 0 0 15px rgba(255, 255, 255, 0.02);
+    .widget-front:hover, .widget-back:hover {
+      border-color: rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.06);
+      box-shadow: 0 12px 30px 0 rgba(0, 0, 0, 0.2), 0 0 15px rgba(255, 255, 255, 0.02);
     }
-
+    .widget-back {
+      transform: rotateY(180deg);
+      justify-content: flex-start;
+      gap: 12px;
+      cursor: pointer;
+    }
+    
     .widget-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       width: 100%;
     }
-
     .widget-title {
       font-size: 0.65rem;
       font-weight: 800;
@@ -311,42 +426,124 @@
       letter-spacing: 0.12em;
       color: var(--text-mute);
     }
-
     .widget-icon {
       color: #ffffff;
       display: flex;
       align-items: center;
       justify-content: center;
     }
-
-    .widget-value-row {
+    .widget-value-area {
+      margin-top: auto;
+      margin-bottom: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .widget-score-wrap {
       display: flex;
       align-items: baseline;
-      gap: 8px;
-      margin-top: 14px;
-      margin-bottom: 2px;
+      gap: 2px;
     }
-
     .widget-score {
-      font-family: 'Outfit', sans-serif;
       font-size: 2.2rem;
       font-weight: 800;
+      font-family: 'Outfit', sans-serif;
+      color: #ffffff;
       line-height: 1;
-      color: #ffffff !important;
     }
-
-    .widget-status {
-      font-size: 0.72rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      color: #ffffff !important;
-    }
-
-    .widget-sub {
-      font-size: 0.65rem;
-      color: var(--text-sub);
+    .widget-score-total {
+      font-size: 0.9rem;
+      color: var(--text-mute);
       font-weight: 500;
+    }
+    .widget-bar-wrap {
+      width: 100%;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .widget-bar-fill {
+      height: 100%;
+      background: #ffffff;
+      border-radius: 99px;
+      width: 0%;
+      transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .widget-footer-label {
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: var(--text-mute);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* Mini Indicators List inside Back face */
+    .mini-indicators-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      overflow-y: auto;
+      flex: 1;
+      padding-right: 4px;
+      width: 100%;
+    }
+    .mini-indicators-list::-webkit-scrollbar {
+      width: 4px;
+    }
+    .mini-indicators-list::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .mini-indicators-list::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 99px;
+    }
+    .mini-indicator-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      width: 100%;
+    }
+    .mini-indicator-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: var(--text-mute);
+      gap: 8px;
+    }
+    .mini-indicator-name {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex: 1;
+    }
+    .mini-indicator-val-box {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+    .mini-indicator-score {
+      font-weight: 800;
+      font-family: 'Outfit', sans-serif;
+      color: #ffffff;
+    }
+    .mini-indicator-raw {
+      font-size: 0.6rem;
+      color: var(--text-sub);
+    }
+    .mini-indicator-track {
+      width: 100%;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .mini-indicator-fill {
+      height: 100%;
+      background: #ffffff;
+      border-radius: 99px;
     }
 
     /* --- Interactive Gear Button --- */
@@ -475,177 +672,48 @@
     }
 
     /* --- iOS-like Details Sheet (Slide-up) --- */
-    .details-sheet-backdrop {
+    /* --- Drawer Backdrop --- */
+    .drawer-backdrop {
       position: fixed;
       inset: 0;
       background: rgba(0, 0, 0, 0.4);
-      backdrop-filter: blur(4px);
-      -webkit-backdrop-filter: blur(4px);
-      z-index: 70;
+      backdrop-filter: blur(2px);
+      -webkit-backdrop-filter: blur(2px);
+      z-index: 99;
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.3s ease;
     }
-
-    .details-sheet-backdrop.open {
+    .drawer-backdrop.open {
       opacity: 1;
       pointer-events: auto;
     }
 
-    .details-sheet {
-      position: fixed;
-      bottom: -100%;
-      left: 0;
-      right: 0;
-      height: 70%;
-      max-height: 550px;
-      background: rgba(10, 10, 12, 0.95);
-      border-top: 1px solid var(--border);
-      border-top-left-radius: 32px;
-      border-top-right-radius: 32px;
-      backdrop-filter: blur(35px);
-      -webkit-backdrop-filter: blur(35px);
-      z-index: 80;
-      padding: 16px 24px 32px;
-      box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.7);
-      display: flex;
-      flex-direction: column;
-      transition: bottom 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-    }
-
-    .details-sheet.open {
-      bottom: 0;
-    }
-
-    .sheet-handle {
-      width: 40px;
-      height: 5px;
-      background: rgba(255, 255, 255, 0.15);
-      border-radius: 99px;
-      align-self: center;
-      margin-bottom: 20px;
-      cursor: pointer;
-    }
-
-    .sheet-header {
-      display: flex;
-      justify-content: space-between;
+    /* Navigation list item styles inside settings */
+    .drawer-nav-item {
+      display: flex !important;
       align-items: center;
-      margin-bottom: 24px;
-    }
-
-    .sheet-title-group {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .sheet-label {
-      font-size: 0.65rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: var(--text-mute);
-    }
-
-    .sheet-title {
-      font-size: 1.2rem;
-      font-weight: 800;
-      color: var(--text);
-    }
-
-    .sheet-close {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      color: var(--text-mute);
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-
-    .sheet-close:hover {
-      background: rgba(255, 255, 255, 0.1);
-      color: var(--text);
-    }
-
-    .sheet-content {
-      flex: 1;
-      overflow-y: auto;
-      padding-right: 4px;
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
-    }
-
-    /* Custom Scrollbar for sheet content */
-    .sheet-content::-webkit-scrollbar {
-      width: 4px;
-    }
-    .sheet-content::-webkit-scrollbar-track {
-      background: transparent;
-    }
-    .sheet-content::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 99px;
-    }
-
-    /* --- Indicator Card inside Sheet --- */
-    .ind-row {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid rgba(255, 255, 255, 0.03);
-      padding: 14px 18px;
-      border-radius: 18px;
-    }
-
-    .ind-meta {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .ind-name {
+      gap: 10px;
+      text-decoration: none;
       font-size: 0.85rem;
-      font-weight: 700;
-      color: var(--text);
-    }
-
-    .ind-value-box {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .ind-score {
-      font-family: 'Outfit', sans-serif;
-      font-size: 1.1rem;
-      font-weight: 800;
-    }
-
-    .ind-raw {
-      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 10px 14px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border);
       color: var(--text-mute);
+      transition: all 0.2s ease;
     }
-
-    .ind-bar-wrap {
-      height: 6px;
-      background: rgba(255, 255, 255, 0.05);
-      border-radius: 99px;
-      overflow: hidden;
-      position: relative;
+    .drawer-nav-item:hover {
+      background: rgba(255, 255, 255, 0.08) !important;
+      border-color: rgba(255, 255, 255, 0.16) !important;
+      color: var(--text) !important;
     }
-
-    .ind-bar-fill {
-      height: 100%;
-      width: 0%;
-      border-radius: 99px;
-      transition: width 0.8s cubic-bezier(0.25, 0.8, 0.25, 1);
+    .drawer-nav-item.active {
+      background: rgba(255, 255, 255, 0.1) !important;
+      border-color: rgba(255, 255, 255, 0.2) !important;
+      color: #ffffff !important;
+      font-weight: 700 !important;
     }
 
     /* Mobile adjustments */
@@ -662,11 +730,13 @@
         font-size: 0.7rem;
         padding: 8px 16px;
       }
-      .details-sheet {
-        height: 80%;
-        max-height: none;
-        border-top-left-radius: 24px;
-        border-top-right-radius: 24px;
+      .bento-widgets {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        max-width: 320px;
+      }
+      .widget-card {
+        height: 280px;
       }
     }
   </style>
@@ -692,86 +762,63 @@
       </div>
     </div>
 
-    <!-- Center Display (iOS Clock Style Risk Value) -->
+    <!-- Center Display (New Premium Glass Layout) -->
     <div class="center-display" id="center-display">
+      <!-- Title and Status Rating -->
       <span class="display-title">
-        <span class="en">Composite Risk Index</span>
-        <span class="ua">Композитний індекс ризику</span>
+        <span class="en">Bitcoin Buy Risk Index</span>
+        <span class="ua">Індекс ризику купівлі Bitcoin</span>
       </span>
-      <div class="display-score-wrap">
-        <span class="display-score" id="s-final">—</span>
-        <span class="display-score-accent">₿</span>
-      </div>
       <span class="display-status" id="main-status">—</span>
-      
-      <!-- Lockscreen Inline History Row -->
-      <div class="lockscreen-history">
-        <div class="history-item">
-          <span class="history-label">
-            <span class="en">Yesterday:</span>
-            <span class="ua">Вчора:</span>
-          </span>
-          <span class="history-value" id="s-yesterday">—</span>
+
+      <!-- Top Row: Alert Bell, Main Score, and Yesterday/7d Stack -->
+      <div class="display-main-row">
+        <div class="display-score-section">
+          <div id="s-warn" class="alert-icon-wrap" style="display:none;" title="One or more key indicators contradicts the overall index direction">
+            <svg class="alert-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+              <path d="M12 9v4" />
+              <path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0" />
+              <path d="M12 16h.01" />
+            </svg>
+          </div>
+          <span class="display-score" id="s-final">—</span>
         </div>
-        <span class="history-separator">|</span>
-        <div class="history-item">
-          <span class="history-label">
-            <span class="en">7d Avg:</span>
-            <span class="ua">Середній 7д:</span>
-          </span>
-          <span class="history-value" id="s-week">—</span>
+        
+        <div class="display-history-column">
+          <div class="history-item">
+            <span class="history-label"><span class="ua">вчора</span><span class="en">yesterday</span></span>
+            <span class="history-value" id="s-yesterday">—</span>
+          </div>
+          <div class="history-divider"></div>
+          <div class="history-item">
+            <span class="history-value" id="s-week">—</span>
+            <span class="history-label"><span class="ua">7 днів</span><span class="en">7 days</span></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Row: On-Chain and Tech/Macro Sub-Indices -->
+      <div class="display-sub-row">
+        <div class="sub-item">
+          <span class="sub-value" id="s-oc-center">—</span>
+          <div class="sub-label-col">
+            <span class="sub-title"><span class="ua">ончейн</span><span class="en">on-chain</span></span>
+            <span class="sub-status" id="s-oc-status-center">—</span>
+          </div>
+        </div>
+        <div class="sub-divider"></div>
+        <div class="sub-item">
+          <span class="sub-value" id="s-tech-center">—</span>
+          <div class="sub-label-col">
+            <span class="sub-title"><span class="ua">тех/макро</span><span class="en">tech/macro</span></span>
+            <span class="sub-status" id="s-tech-status-center">—</span>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Bento Score Widgets -->
-    <div class="bento-widgets">
-      <!-- Widget 1: On-Chain Score -->
-      <div class="widget" onclick="openDetails('onchain')">
-        <div class="widget-header">
-          <span class="widget-title">
-            <span class="en">On-Chain</span>
-            <span class="ua">Ончейн</span>
-          </span>
-          <span class="widget-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5"/><path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5"/></svg>
-          </span>
-        </div>
-        <div>
-          <div class="widget-value-row">
-            <span class="widget-score" id="s-oc">—</span>
-            <span class="widget-status" id="oc-status-label">—</span>
-          </div>
-          <span class="widget-sub">
-            <span class="en">5 metrics analyzed</span>
-            <span class="ua">5 показників оцінено</span>
-          </span>
-        </div>
-      </div>
 
-      <!-- Widget 2: Tech/Macro Score -->
-      <div class="widget" onclick="openDetails('tech')">
-        <div class="widget-header">
-          <span class="widget-title">
-            <span class="en">Tech &amp; Macro</span>
-            <span class="ua">Технічні &amp; Макро</span>
-          </span>
-          <span class="widget-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M20 18v-4a2 2 0 0 0 -2 -2h-2a2 2 0 0 0 -2 2v4"/><path d="M12 18v-7a2 2 0 0 0 -2 -2h-2a2 2 0 0 0 -2 2v4"/></svg>
-          </span>
-        </div>
-        <div>
-          <div class="widget-value-row">
-            <span class="widget-score" id="s-tech">—</span>
-            <span class="widget-status" id="tech-status-label">—</span>
-          </div>
-          <span class="widget-sub">
-            <span class="en">6 metrics analyzed</span>
-            <span class="ua">6 показників оцінено</span>
-          </span>
-        </div>
-      </div>
-    </div>
   </div>
 
   <!-- Settings Gear Floating Button -->
@@ -787,6 +834,29 @@
         <span class="ua">Налаштування</span>
       </span>
       <button class="drawer-close" onclick="toggleDrawer(false)">&times;</button>
+    </div>
+
+    <!-- Navigation Group -->
+    <div class="settings-group">
+      <span class="settings-label">
+        <span class="en">Navigation</span>
+        <span class="ua">Навігація</span>
+      </span>
+      <a id="nav-btn-index" href="spatial.html" class="drawer-nav-item active">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        <span class="en">Risk Index</span>
+        <span class="ua">Індекс ризику</span>
+      </a>
+      <a id="nav-btn-about" href="about.html" class="drawer-nav-item">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8h.01"/><path d="M11 12h1v4h1"/><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2z"/></svg>
+        <span class="en">Methodology</span>
+        <span class="ua">Методологія</span>
+      </a>
+      <a id="nav-btn-compare" href="compare.html" class="drawer-nav-item">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"/><path d="M8 21H3v-5"/><path d="M12 12L3 21"/><path d="M21 3l-9 9"/><path d="M21 16v5h-5"/><path d="M3 8V3h5"/><path d="M3 3l9 9"/><path d="M12 12l9 9"/></svg>
+        <span class="en">Compare Indices</span>
+        <span class="ua">Порівняти індекси</span>
+      </a>
     </div>
 
     <!-- Theme Switch -->
@@ -845,25 +915,8 @@
     </div>
   </div>
 
-  <!-- Details Sheet Backdrop -->
-  <div class="details-sheet-backdrop" id="sheet-backdrop" onclick="closeDetails()"></div>
-
-  <!-- iOS-like Details Sheet -->
-  <div class="details-sheet" id="details-sheet">
-    <div class="sheet-handle" onclick="closeDetails()"></div>
-    
-    <div class="sheet-header">
-      <div class="sheet-title-group">
-        <span class="sheet-label" id="sheet-sub-label">—</span>
-        <span class="sheet-title" id="sheet-title">—</span>
-      </div>
-      <button class="sheet-close" onclick="closeDetails()">&times;</button>
-    </div>
-
-    <div class="sheet-content" id="sheet-content">
-      <!-- Dynamic list of metrics will be inserted here -->
-    </div>
-  </div>
+  <!-- Drawer Backdrop -->
+  <div class="drawer-backdrop" id="drawer-backdrop" onclick="toggleDrawer(false)"></div>
 
   <script>
     // Theme switching integration
@@ -912,9 +965,9 @@
     // Toggle Drawer
     function toggleDrawer(open) {
       const drawer = document.getElementById('settings-drawer');
-      if (drawer) {
-        drawer.classList.toggle('open', open);
-      }
+      const backdrop = document.getElementById('drawer-backdrop');
+      if (drawer) drawer.classList.toggle('open', open);
+      if (backdrop) backdrop.classList.toggle('open', open);
     }
 
     // Global Language Toggle
@@ -929,12 +982,8 @@
 
       localStorage.setItem('bbr-lang', lang);
       document.title = lang === 'ua' ? 'Індекс ризику Bitcoin — Spatial UI' : 'Bitcoin Buy Risk Index — Spatial UI';
-
-      // Update current sheet strings if it is active
-      if (window.activeSheetType) {
-        renderSheetContent(window.activeSheetType);
-      }
     }
+
 
     // Curated high-res wallpaper sets: Real (Landscape) vs Abstract (Artwork)
     const WallpapersReal = {
@@ -982,15 +1031,24 @@
         if (score <= 25) category = 'low';
         else if (score >= 75) category = 'high';
       }
-      
+
       const wpType = localStorage.getItem('bbr-wp-type') || 'real';
-      const set = (wpType === 'abstract') ? WallpapersAbstract[category] : WallpapersReal[category];
-      const selectedUrl = set[Math.floor(Math.random() * set.length)];
-      
       const bg = document.getElementById('wallpaper-bg');
-      if (bg) {
+      if (!bg) return;
+
+      // 1) Try local Pexels wallpaper (downloaded by scraper after each update)
+      const localFile = wpType === 'abstract' ? 'wallpaper-abstract.jpg' : 'wallpaper-real.jpg';
+      const img = new Image();
+      img.onload = () => {
+        bg.style.backgroundImage = `url('${localFile}')`;
+      };
+      img.onerror = () => {
+        // 2) Fallback: Unsplash curated set
+        const set = (wpType === 'abstract') ? WallpapersAbstract[category] : WallpapersReal[category];
+        const selectedUrl = set[Math.floor(Math.random() * set.length)];
         bg.style.backgroundImage = `url('${selectedUrl}')`;
-      }
+      };
+      img.src = localFile;
     }
 
     // Grayscale Score Color Helper (All UI elements are rendered monochrome)
@@ -1048,181 +1106,103 @@
       });
     }
 
-    // Interactive details sheet rendering
     window.dataStore = null;
-    window.activeSheetType = null;
 
-    function openDetails(type) {
-      window.activeSheetType = type;
-      renderSheetContent(type);
-      
-      document.getElementById('sheet-backdrop').classList.add('open');
-      document.getElementById('details-sheet').classList.add('open');
+    // 3D flip card toggle
+    function flipCard(type) {
+      const inner = document.getElementById('widget-inner-' + type);
+      if (inner) inner.classList.toggle('flipped');
     }
 
-    function closeDetails() {
-      document.getElementById('sheet-backdrop').classList.remove('open');
-      document.getElementById('details-sheet').classList.remove('open');
-      window.activeSheetType = null;
+    // iOS arc gauge drawing (for main 60px canvas)
+    function drawIosGauge(canvas, value) {
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const cx = canvas.width / 2;
+      const cy = canvas.height / 2;
+      const radius = cx - 4;
+      const startAngle = 0.75 * Math.PI;
+      const endAngle = 2.25 * Math.PI;
+      const norm = Math.min(Math.max(value, 0), 100) / 100;
+      const curAngle = startAngle + norm * (endAngle - startAngle);
+      // Track
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius, startAngle, endAngle);
+      ctx.lineWidth = 4; ctx.lineCap = 'round';
+      ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.stroke();
+      // Fill
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius, startAngle, curAngle);
+      ctx.lineWidth = 4; ctx.lineCap = 'round';
+      ctx.strokeStyle = 'rgba(255,255,255,0.8)'; ctx.stroke();
+      // Dot
+      const dotX = cx + radius * Math.cos(curAngle);
+      const dotY = cy + radius * Math.sin(curAngle);
+      ctx.beginPath(); ctx.arc(dotX, dotY, 4.5, 0, 2 * Math.PI);
+      ctx.fillStyle = '#ffffff'; ctx.shadowColor = 'rgba(0,0,0,0.4)'; ctx.shadowBlur = 4; ctx.fill(); ctx.shadowBlur = 0;
+      ctx.beginPath(); ctx.arc(dotX, dotY, 4.5, 0, 2 * Math.PI);
+      ctx.lineWidth = 1; ctx.strokeStyle = 'rgba(255,255,255,0.6)'; ctx.stroke();
     }
 
-    function renderSheetContent(type) {
-      if (!window.dataStore) return;
-      
-      const sheetSubLabel = document.getElementById('sheet-sub-label');
-      const sheetTitle = document.getElementById('sheet-title');
-      const sheetContent = document.getElementById('sheet-content');
-      
-      const lang = localStorage.getItem('bbr-lang') || 'en';
-      const m = window.dataStore.metrics || {};
-      const mv = key => { const x = m[key]; return x != null ? (x.value !== undefined ? x.value : x) : null; };
+    // Mini arc gauge drawing (for 44px yesterday/week canvases)
+    function drawMiniGauge(canvas, value) {
+      if (!canvas || value == null) return;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const cx = canvas.width / 2;
+      const cy = canvas.height / 2;
+      const radius = cx - 3;
+      const startAngle = 0.75 * Math.PI;
+      const endAngle = 2.25 * Math.PI;
+      const norm = Math.min(Math.max(value, 0), 100) / 100;
+      const curAngle = startAngle + norm * (endAngle - startAngle);
+      // Track
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius, startAngle, endAngle);
+      ctx.lineWidth = 3; ctx.lineCap = 'round';
+      ctx.strokeStyle = 'rgba(255,255,255,0.1)'; ctx.stroke();
+      // Fill
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius, startAngle, curAngle);
+      ctx.lineWidth = 3; ctx.lineCap = 'round';
+      ctx.strokeStyle = 'rgba(255,255,255,0.65)'; ctx.stroke();
+      // Dot
+      const dotX = cx + radius * Math.cos(curAngle);
+      const dotY = cy + radius * Math.sin(curAngle);
+      ctx.beginPath(); ctx.arc(dotX, dotY, 3, 0, 2 * Math.PI);
+      ctx.fillStyle = '#ffffff'; ctx.shadowColor = 'rgba(0,0,0,0.3)'; ctx.shadowBlur = 3; ctx.fill(); ctx.shadowBlur = 0;
+    }
 
-      const getMetricScore = (key, mapper) => {
-        const raw = mv(key);
-        return raw != null ? mapper(raw) : null;
-      };
-
-      // Mappers copied directly from core index logic
-      const mapNupl = v => v == null ? null : Math.round(Math.max(0, Math.min(100, (v + 0.1) * 100)));
-      const mapMvrv = v => v == null ? null : Math.round(Math.max(0, Math.min(100, (v + 0.5) * (100 / 3.5))));
-      const mapRhodl = v => v == null ? null : Math.round(Math.max(0, Math.min(100, (Math.log10(v) - 1.5) * (100 / 3))));
-      const mapCvdd = v => {
-        if(v == null) return null;
-        if(v <= 1) return Math.round(Math.max(0, v * 30));
-        return Math.round(Math.min(100, 30 + (v - 1) * 70));
-      };
-      const mapAsopr = v => {
-        if(v == null) return null;
-        const norm = (v - 0.9) / 0.2;
-        return Math.round(Math.max(0, Math.min(100, norm * 100)));
-      };
-      
-      const mapFunding = v => {
-        if(!v) return null;
-        const rate = v.avg_7d != null ? v.avg_7d : (v.latest != null ? v.latest : 0);
-        if(rate <= 0) return Math.round(Math.max(0, (rate + 0.05) * 1000));
-        return Math.round(Math.min(100, 50 + rate * 500));
-      };
-      const mapFG = v => v != null ? Math.round(v) : null;
-      const mapYieldCurve = v => {
-        if (v == null) return null;
-        if (v < -1.5) return 100;
-        if (v > 1.5) return 0;
-        return Math.round(((1.5 - v) / 3.0) * 100);
-      };
-      const mapM2 = v => {
-        if(v == null) return null;
-        const norm = (v - (-5)) / 25;
-        return Math.round(Math.max(0, Math.min(100, (1 - norm) * 100)));
-      };
-
-      let metricsList = [];
-
-      if (type === 'onchain') {
-        sheetSubLabel.innerHTML = `<span class="en">ON-CHAIN CORE SUB-SCORE</span><span class="ua">ОНЧЕЙН СУБ-ПОКАЗНИК</span>`;
-        sheetTitle.innerHTML = `<span class="en">On-Chain Metrics</span><span class="ua">Ончейн-індикатори</span>`;
-
-        metricsList = [
-          {
-            name: { en: 'NUPL (Net Unrealized Profit/Loss)', ua: 'NUPL (Нереалізований прибуток/збиток)' },
-            score: getMetricScore('nupl', mapNupl),
-            raw: mv('nupl') != null ? mv('nupl').toFixed(2) + '%' : '—'
-          },
-          {
-            name: { en: 'MVRV Z-Score', ua: 'MVRV Z-Score (Справедлива оцінка)' },
-            score: getMetricScore('mvrv', mapMvrv),
-            raw: mv('mvrv') != null ? mv('mvrv').toFixed(4) : '—'
-          },
-          {
-            name: { en: 'RHODL Ratio', ua: 'RHODL Ratio (Співвідношення тримачів)' },
-            score: getMetricScore('rhodl', mapRhodl),
-            raw: mv('rhodl') != null ? mv('rhodl').toFixed(2) : '—'
-          },
-          {
-            name: { en: 'CVDD Ratio', ua: 'CVDD Ratio (Собівартість руйнування днів)' },
-            score: getMetricScore('cvdd_ratio', mapCvdd),
-            raw: mv('cvdd_ratio') != null ? mv('cvdd_ratio').toFixed(4) : '—'
-          },
-          {
-            name: { en: 'aSOPR (Spent Output Profit Ratio)', ua: 'aSOPR (Коефіцієнт прибутковості виходів)' },
-            score: getMetricScore('asopr', mapAsopr),
-            raw: mv('asopr') != null ? mv('asopr').toFixed(4) : '—'
-          }
-        ];
-      } else {
-        sheetSubLabel.innerHTML = `<span class="en">TECH &amp; MACRO SUB-SCORE</span><span class="ua">ТЕХНІЧНИЙ &amp; МАКРО СУБ-ПОКАЗНИК</span>`;
-        sheetTitle.innerHTML = `<span class="en">Tech &amp; Macro Metrics</span><span class="ua">Технічні &amp; Макро індикатори</span>`;
-
-        // Derived variables matching dashboard calculations
-        const mm = mv('mayer_multiple');
-        const mmScore = mm != null ? Math.round(Math.max(0, Math.min(100, (mm - 0.5) * (100 / 1.9)))) : null;
-        
-        const etf = mv('etf_flows_14d');
-        const etfScore = etf != null ? Math.round(Math.max(0, Math.min(100, (1 - (etf + 1000) / 4000) * 100))) : null;
-        
-        const cb = mv('cipher_b');
-        const cbScore = cb != null ? Math.round(Math.max(0, Math.min(100, (cb + 100) * (100 / 200)))) : null;
-
-        metricsList = [
-          {
-            name: { en: 'Cipher B Oscillator', ua: 'Осцилятор Cipher B' },
-            score: cbScore,
-            raw: cb != null ? Math.round(cb) : '—'
-          },
-          {
-            name: { en: 'Mayer Multiple', ua: 'Кратне Майєра (Mayer Multiple)' },
-            score: mmScore,
-            raw: mm != null ? mm.toFixed(2) : '—'
-          },
-          {
-            name: { en: 'Spot ETF Flows (14d)', ua: 'Притоки у Спотові ETF (14д)' },
-            score: etfScore,
-            raw: etf != null ? (etf > 0 ? '+' : '') + Math.round(etf) + 'M' : '—'
-          },
-          {
-            name: { en: 'Fear & Greed Index', ua: 'Індекс страху та жадібності' },
-            score: getMetricScore('fear_greed', mapFG),
-            raw: mv('fear_greed') != null ? Math.round(mv('fear_greed')) : '—'
-          },
-          {
-            name: { en: 'Yield Curve Spread (10Y-2Y)', ua: 'Спред кривої дохідності (10Y-2Y)' },
-            score: getMetricScore('yield_curve', mapYieldCurve),
-            raw: mv('yield_curve') != null ? mv('yield_curve').toFixed(2) + '%' : '—'
-          },
-          {
-            name: { en: 'Global M2 YoY Growth', ua: 'Річний приріст глобальної маси M2' },
-            score: getMetricScore('m2_growth', mapM2),
-            raw: mv('m2_growth') != null ? mv('m2_growth').toFixed(2) + '%' : '—'
-          }
-        ];
-      }
-
-      sheetContent.innerHTML = '';
-      metricsList.forEach(m => {
-        const card = document.createElement('div');
-        card.className = 'ind-row';
-        
-        const color = '#ffffff'; // 100% monochrome bar fill
-        const nameText = lang === 'ua' ? m.name.ua : m.name.en;
+    // Populate back face of a flipping card with indicator rows
+    function populateBackCard(containerId, metrics) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      container.innerHTML = '';
+      metrics.forEach(m => {
+        const row = document.createElement('div');
+        row.className = 'mini-indicator-row';
         const valText = m.score != null ? m.score : '—';
-        
-        card.innerHTML = `
-          <div class="ind-meta">
-            <span class="ind-name">${nameText}</span>
-            <div class="ind-value-box">
-              <span class="ind-score" style="color: ${color}">${valText}</span>
-              <span class="ind-raw">${m.raw}</span>
+        const rawText = m.raw != null ? m.raw : '';
+        row.innerHTML = `
+          <div class="mini-indicator-info">
+            <span class="mini-indicator-name">${m.name}</span>
+            <div class="mini-indicator-val-box">
+              <span class="mini-indicator-score">${valText}</span>
+              <span class="mini-indicator-raw">${rawText}</span>
             </div>
           </div>
-          <div class="ind-bar-wrap">
-            <div class="ind-bar-fill" style="width: ${m.score || 0}%; background: ${color};"></div>
-          </div>
-        `;
-        sheetContent.appendChild(card);
+          <div class="mini-indicator-track">
+            <div class="mini-indicator-fill" style="width:${m.score || 0}%"></div>
+          </div>`;
+        container.appendChild(row);
       });
     }
 
     // App Initialization
+
     async function init() {
       // Restore Mode, Lang & Wallpaper configurations
       const lang = localStorage.getItem('bbr-lang') || 'en';
@@ -1302,25 +1282,163 @@
       setWidgetVal('oc', 's-oc', data.onchain_score);
       setWidgetVal('tech', 's-tech', data.tech_score);
 
-      // Yesterday and 7d averages in Lockscreen row
-      if (data.prev_day && data.prev_day.final_score != null) {
-        const val = data.prev_day.final_score;
+      // Populate center sub-indices
+      const setCenterSubVal = (val, scoreElId, statusElId) => {
+        const scoreEl = document.getElementById(scoreElId);
+        const statusEl = document.getElementById(statusElId);
+        if (scoreEl) {
+          scoreEl.textContent = val != null ? val : '—';
+        }
+        if (statusEl) {
+          let label = { en: 'neutral', ua: 'нейтрально' };
+          if (val != null) {
+            if (val <= 25) label = { en: 'buy', ua: 'купівля' };
+            else if (val >= 75) label = { en: 'sell', ua: 'продаж' };
+          }
+          statusEl.innerHTML = `<span class="en">${label.en}</span><span class="ua">${label.ua}</span>`;
+        }
+      };
+      setCenterSubVal(data.onchain_score, 's-oc-center', 's-oc-status-center');
+      setCenterSubVal(data.tech_score, 's-tech-center', 's-tech-status-center');
+
+      // Update widget bar fills
+      const pbOc = document.getElementById('pb-oc');
+      if (pbOc && data.onchain_score != null) pbOc.style.width = data.onchain_score + '%';
+      const pbTech = document.getElementById('pb-tech');
+      if (pbTech && data.tech_score != null) pbTech.style.width = data.tech_score + '%';
+
+      // Draw main iOS gauge (safe fallback if canvas exists)
+      const mainCanvas = document.getElementById('ios-gauge-canvas');
+      if (mainCanvas && data.final_score != null) {
+        drawIosGauge(mainCanvas, data.final_score);
+      }
+
+      // Yesterday and 7d averages
+      const yesterdayVal = data.prev_day ? data.prev_day.final_score : null;
+      if (yesterdayVal != null) {
         const el = document.getElementById('s-yesterday');
-        if (el) { el.textContent = val; }
+        if (el) el.textContent = yesterdayVal;
+        const yCanvas = document.getElementById('gauge-yesterday-canvas');
+        if (yCanvas) drawMiniGauge(yCanvas, yesterdayVal);
       }
 
       let avg7d = null;
       const validHistory = (data.score_history || []).filter(e => e.score != null);
       if (validHistory.length > 0) {
         const last7 = validHistory.slice(-7);
-        const sum = last7.reduce((acc, curr) => acc + curr.score, 0);
-        avg7d = Math.round(sum / last7.length);
+        avg7d = Math.round(last7.reduce((acc, cur) => acc + cur.score, 0) / last7.length);
       }
-      const weekVal = (avg7d != null) ? avg7d : (data.prev_week ? data.prev_week.final_score : null);
+      const weekVal = avg7d != null ? avg7d : (data.prev_week ? data.prev_week.final_score : null);
       if (weekVal != null) {
         const el = document.getElementById('s-week');
-        if (el) { el.textContent = weekVal; }
+        if (el) el.textContent = weekVal;
+        const wCanvas = document.getElementById('gauge-week-canvas');
+        if (wCanvas) drawMiniGauge(wCanvas, weekVal);
       }
+
+      // Populate back cards with indicator details
+      const m = data.metrics || {};
+      const mv = key => { const x = m[key]; return x != null ? (x.value !== undefined ? x.value : x) : null; };
+      const mapNupl  = v => v == null ? null : Math.round(Math.max(0, Math.min(100, (v + 0.1) * 100)));
+      const mapMvrv  = v => v == null ? null : Math.round(Math.max(0, Math.min(100, (v + 0.5) * (100/3.5))));
+      const mapRhodl = v => v == null ? null : Math.round(Math.max(0, Math.min(100, (Math.log10(v) - 1.5) * (100/3))));
+      const mapCvdd  = v => { if(v==null)return null; return v<=1?Math.round(Math.max(0,v*30)):Math.round(Math.min(100,30+(v-1)*70)); };
+      const mapAsopr = v => v == null ? null : Math.round(Math.max(0, Math.min(100, ((v - 0.9)/0.2)*100)));
+      const mapFG    = v => v != null ? Math.round(v) : null;
+      const mapYC    = v => { if(v==null)return null; if(v<-1.5)return 100; if(v>1.5)return 0; return Math.round(((1.5-v)/3)*100); };
+      const mapM2    = v => { if(v==null)return null; return Math.round(Math.max(0,Math.min(100,(1-(v-(-5))/25)*100))); };
+
+      const nupl  = mv('nupl');  const mvrv  = mv('mvrv');
+      const rhodl = mv('rhodl_ratio') || mv('rhodl');
+      const cvdd  = mv('cvdd_ratio'); const asopr = mv('asopr');
+      const mm    = mv('mayer_multiple'); const cb = mv('cipherb') || mv('cipher_b');
+      const etf   = mv('etf_flows');  const fg = mv('fear_greed');
+      const yc    = mv('yield_curve_spread') || mv('yield_curve');
+      const m2raw = mv('m2_mom') || mv('m2') || mv('m2_growth');
+      const mmVal  = mm != null ? (typeof mm === 'object' ? mm.value : mm) : null;
+      const cbVal  = cb != null ? (typeof cb === 'object' ? (cb.weekly_score || cb.value) : cb) : null;
+      const etfVal = etf != null ? (typeof etf === 'object' ? etf.value : etf) : null;
+      const fgVal  = fg != null ? (typeof fg === 'object' ? (fg.avg_7d != null ? fg.avg_7d : fg.latest) : fg) : null;
+
+      const mmScore  = mmVal  != null ? Math.round(Math.max(0,Math.min(100,(mmVal-0.5)*(100/1.9)))) : null;
+      const cbScore  = cbVal  != null ? Math.round(Math.max(0,Math.min(100,(cbVal+100)*(100/200)))) : null;
+      const etfScore = etfVal != null ? Math.round(Math.max(0,Math.min(100,(1-(etfVal+1000)/4000)*100))) : null;
+      const n = (obj) => lang === 'ua' ? obj.ua : obj.en;
+
+      // Contradiction and Tactical Alerts detection
+      const warnEl = document.getElementById('s-warn');
+      if (warnEl && data.final_score != null) {
+        const COIN_SVG = '<svg class="alert-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M9 8h4.09c1.055 0 1.91 .895 1.91 2s-.855 2 -1.91 2c1.055 0 1.91 .895 1.91 2s-.855 2 -1.91 2h-4.09"/><path d="M10 12h4"/><path d="M10 7v10v-9"/><path d="M13 7v1"/><path d="M13 16v1"/></svg>';
+        const FLAME_SVG = '<svg class="alert-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M14.8 9a2 2 0 0 0 -1.8 -1h-2a2 2 0 1 0 0 4h2a2 2 0 1 1 0 4h-2a2 2 0 0 1 -1.8 -1"/><path d="M12 7v10"/></svg>';
+        const WARN_SVG = '<svg class="alert-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 9v4" /><path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0" /><path d="M12 16h.01" /></svg>';
+
+        const fr = mv('funding_rate');
+        let icon = null, color = null, tip = null;
+
+        // 1) Check Tactical Signals (Leverage capitulation or crowded longs)
+        if (fr && fr.latest != null) {
+          if (data.final_score <= 30 && fr.latest < 0) {
+            icon = COIN_SVG;
+            color = '#f7931a'; // Bitcoin orange
+            tip = lang === 'ua' 
+              ? 'Тактична купівля: низький індекс + відʼємний funding (капітуляція плеча)' 
+              : 'Tactical buy: low index + negative funding (leverage capitulation)';
+          } else if (data.final_score >= 50 && fr.latest >= 0.05) {
+            icon = FLAME_SVG;
+            color = '#ef5350'; // Overheat red
+            tip = lang === 'ua'
+              ? 'Перегрів плеча: високий індекс + перегріті лонги'
+              : 'Leverage overheat: high index + crowded long funding';
+          }
+        }
+
+        // 2) Fallback to Contradiction Warning
+        if (!icon) {
+          const allIndScores = [
+            mapNupl(nupl), mapMvrv(mvrv), mapRhodl(rhodl), mapCvdd(cvdd), mapAsopr(asopr),
+            cbScore, mmScore, etfScore, mapFG(fgVal), mapYC(yc), mapM2(m2raw)
+          ].filter(s => s != null);
+          const hasContra = allIndScores.some(s =>
+            (data.final_score <= 40 && s >= 65) || (data.final_score >= 60 && s <= 35)
+          );
+          if (hasContra) {
+            icon = WARN_SVG;
+            color = '#ef5350';
+            tip = lang === 'ua'
+              ? 'Розбіжність: один або кілька індикаторів суперечать загальному тренду'
+              : 'Contradiction: one or more key indicators contradicts the overall index direction';
+          }
+        }
+
+        if (icon) {
+          warnEl.innerHTML = icon;
+          warnEl.style.color = color;
+          warnEl.style.display = 'inline-flex';
+          warnEl.title = tip;
+          const shadowColor = color === '#f7931a' ? 'rgba(247, 147, 26, 0.6)' : 'rgba(239, 83, 80, 0.6)';
+          const svgEl = warnEl.querySelector('.alert-svg');
+          if (svgEl) svgEl.style.filter = `drop-shadow(0 0 12px ${shadowColor})`;
+        } else {
+          warnEl.style.display = 'none';
+        }
+      }
+
+      populateBackCard('list-onchain-back', [
+        { name: n({en:'NUPL', ua:'NUPL'}), score: mapNupl(nupl), raw: nupl != null ? nupl.toFixed(2)+'%' : null },
+        { name: n({en:'MVRV Z-Score', ua:'MVRV Z-Score'}), score: mapMvrv(mvrv), raw: mvrv != null ? mvrv.toFixed(3) : null },
+        { name: n({en:'RHODL', ua:'RHODL'}), score: mapRhodl(rhodl), raw: rhodl != null ? rhodl.toFixed(1) : null },
+        { name: n({en:'CVDD Ratio', ua:'CVDD Ratio'}), score: mapCvdd(cvdd), raw: cvdd != null ? cvdd.toFixed(3) : null },
+        { name: n({en:'aSOPR', ua:'aSOPR'}), score: mapAsopr(asopr), raw: asopr != null ? asopr.toFixed(3) : null }
+      ]);
+
+      populateBackCard('list-tech-back', [
+        { name: n({en:'Cipher B', ua:'Cipher B'}), score: cbScore, raw: cbVal != null ? Math.round(cbVal) : null },
+        { name: n({en:'Mayer Multiple', ua:'Mayer Multiple'}), score: mmScore, raw: mmVal != null ? mmVal.toFixed(2) : null },
+        { name: n({en:'ETF Flows (14d)', ua:'ETF Flows (14d)'}), score: etfScore, raw: etfVal != null ? (etfVal>0?'+':'')+Math.round(etfVal)+'M' : null },
+        { name: n({en:'Fear & Greed', ua:'Індекс страху'}), score: mapFG(fgVal), raw: fgVal != null ? Math.round(fgVal) : null },
+        { name: n({en:'Yield Curve', ua:'Крива дохідності'}), score: mapYC(yc), raw: yc != null ? yc.toFixed(2)+'%' : null },
+        { name: n({en:'Global M2', ua:'Глобальний M2'}), score: mapM2(m2raw), raw: m2raw != null ? m2raw.toFixed(2)+'%' : null }
+      ]);
     }
 
     document.addEventListener('DOMContentLoaded', init);

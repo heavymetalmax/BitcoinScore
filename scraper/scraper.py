@@ -526,6 +526,13 @@ def main():
     except Exception as e:
         print('Failed to write daily vector history:', e)
 
+    # ── Download fresh Pexels wallpapers (real + abstract) ───────────────────
+    try:
+        from .wallpaper import update_wallpapers
+        update_wallpapers(final_score=p.get('final_score'), web_dir='web')
+    except Exception as e:
+        print('Wallpaper update failed:', e)
+
 
 if __name__ == '__main__':
     main()

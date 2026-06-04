@@ -1346,441 +1346,175 @@
       background: repeating-linear-gradient(90deg, transparent, transparent 20px, rgba(0, 0, 0, 0.02) 20px, rgba(0, 0, 0, 0.02) 21px);
     }
 
-    /* Smartphone Mockup Frame */
-    .phone-mockup {
-      width: 365px;
-      height: 760px;
-      background: #ffffff;
-      border-radius: 46px;
-      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.12), 
-                  0 0 0 12px #ffffff, 
-                  0 0 0 14px rgba(0, 0, 0, 0.04);
-      position: relative;
-      overflow: hidden;
-      z-index: 10;
-      transition: background-color 0.3s, box-shadow 0.3s;
-    }
-    html.style-modern.theme-dark .phone-mockup {
-      background: #121318;
-      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.45), 
-                  0 0 0 12px #121318, 
-                  0 0 0 14px rgba(255, 255, 255, 0.04);
-    }
-
-    /* Smartphone Screen */
-    .phone-screen {
-      width: 100%;
-      height: 100%;
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      background: #f8fafc;
-      overflow-y: auto;
-      overflow-x: hidden;
-      scrollbar-width: none;
-    }
-    .phone-screen::-webkit-scrollbar {
-      display: none;
-    }
-    html.style-modern.theme-dark .phone-screen {
-      background: #0b0c10;
-    }
-
-    /* Status Bar */
-    .phone-status-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 12px 24px;
-      font-size: 0.72rem;
-      font-weight: 700;
-      color: #475569;
-      letter-spacing: -0.01em;
-      user-select: none;
-    }
-    html.style-modern.theme-dark .phone-status-bar {
-      color: #94a3b8;
-    }
-    .status-icons {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.75rem;
-    }
-
-    /* Phone Header */
-    .phone-app-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 12px 20px;
-      position: relative;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.03);
-      user-select: none;
-    }
-    html.style-modern.theme-dark .phone-app-header {
-      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-    }
-
-    .phone-menu-btn, .phone-bell-btn {
-      background: transparent;
-      border: none;
+    /* Settings Gear Button */
+    .settings-gear-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-mute);
       cursor: pointer;
-      width: 32px;
-      height: 32px;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 0;
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
-      transition: background-color 0.2s;
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      transition: all 0.2s ease;
     }
-    .phone-menu-btn:hover, .phone-bell-btn:hover {
-      background: rgba(0, 0, 0, 0.03);
-    }
-    html.style-modern.theme-dark .phone-menu-btn:hover,
-    html.style-modern.theme-dark .phone-bell-btn:hover {
-      background: rgba(255, 255, 255, 0.03);
-    }
-
-    .phone-menu-btn svg, .phone-bell-btn svg {
-      width: 20px;
-      height: 20px;
-      fill: #475569;
-      transition: fill 0.2s;
-    }
-    html.style-modern.theme-dark .phone-menu-btn svg, 
-    html.style-modern.theme-dark .phone-bell-btn svg {
-      fill: #94a3b8;
+    .settings-gear-btn:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--border-hover);
+      color: var(--text);
+      transform: rotate(45deg);
     }
 
-    .phone-app-logo {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.75rem;
-      font-weight: 800;
-      color: #0f172a;
-      letter-spacing: 0.05em;
-    }
-    html.style-modern.theme-dark .phone-app-logo {
-      color: #f8fafc;
-    }
-    .logo-wave-icon {
-      width: 14px;
-      height: 14px;
-      fill: #f7931a;
-    }
-
-    /* Drawer Sidebar Menu inside Phone */
-    .phone-drawer-menu {
-      position: absolute;
+    /* --- Settings Drawer (Slide-out) --- */
+    .settings-drawer {
+      position: fixed;
       top: 0;
-      left: -100%;
-      width: 85%;
+      right: -320px;
+      width: 300px;
       height: 100%;
-      background: #ffffff;
-      z-index: 100;
-      box-shadow: 15px 0 35px rgba(0, 0, 0, 0.06);
+      background: var(--bg-card);
+      border-left: 1px solid var(--border);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      z-index: 1000;
+      padding: 32px 24px;
+      box-shadow: -10px 0 40px rgba(0, 0, 0, 0.3);
       display: flex;
       flex-direction: column;
-      padding: 24px;
-      box-sizing: border-box;
-      transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      gap: 24px;
+      transition: right 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
     }
-    html.style-modern.theme-dark .phone-drawer-menu {
-      background: #121318;
-      box-shadow: 15px 0 35px rgba(0, 0, 0, 0.4);
-      border-right: 1px solid rgba(255, 255, 255, 0.03);
+    .settings-drawer.open {
+      right: 0;
     }
-    .phone-drawer-menu.open {
-      left: 0;
-    }
-
     .drawer-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 24px;
+      border-bottom: 1px solid var(--divider);
+      padding-bottom: 16px;
+      user-select: none;
     }
-    .drawer-header h3 {
-      font-size: 1.1rem;
+    .drawer-title {
+      font-size: 1rem;
       font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
       color: var(--text);
     }
-    .drawer-close-btn {
-      background: transparent;
+    .drawer-close {
+      background: none;
       border: none;
+      color: var(--text-mute);
+      cursor: pointer;
       font-size: 1.25rem;
-      cursor: pointer;
-      color: var(--text-mute);
-      padding: 4px;
-      line-height: 1;
+      transition: color 0.2s;
     }
-
-    .drawer-links {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      margin-bottom: auto;
-    }
-    .drawer-link {
-      display: flex;
-      align-items: center;
-      background: transparent;
-      border: none;
-      text-align: left;
-      font-family: inherit;
-      font-size: 0.95rem;
-      font-weight: 600;
-      color: var(--text-mute);
-      padding: 12px 16px;
-      border-radius: 12px;
-      text-decoration: none;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .drawer-link:hover, .drawer-link.active {
-      background: rgba(247, 147, 26, 0.08);
-      color: #f7931a;
-    }
-    html.style-modern.theme-dark .drawer-link:hover, 
-    html.style-modern.theme-dark .drawer-link.active {
-      background: rgba(247, 147, 26, 0.12);
-    }
-
-    .drawer-settings {
-      border-top: 1px solid var(--divider);
-      padding-top: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-    .drawer-settings h4 {
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--text-mute);
-      margin-bottom: 4px;
+    .drawer-close:hover {
+      color: var(--text);
     }
     .settings-group {
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 8px;
     }
-    .settings-group label {
+    .settings-label {
       font-size: 0.72rem;
-      font-weight: 600;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
       color: var(--text-mute);
+      user-select: none;
     }
-    .settings-buttons {
-      display: flex;
-      gap: 4px;
-      background: rgba(0, 0, 0, 0.02);
+    .settings-options {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      background: rgba(0, 0, 0, 0.1);
+      padding: 4px;
+      border-radius: 12px;
       border: 1px solid var(--border);
-      padding: 3px;
-      border-radius: 9999px;
     }
-    html.style-modern.theme-dark .settings-buttons {
-      background: rgba(255, 255, 255, 0.03);
+    .theme-light .settings-options {
+      background: rgba(0, 0, 0, 0.03);
     }
-    .settings-buttons button {
-      flex: 1;
-      background: transparent;
+    .settings-options.two-cols {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .option-btn {
+      background: none;
       border: none;
-      font-family: inherit;
-      font-size: 0.7rem;
-      font-weight: 700;
-      padding: 6px;
-      border-radius: 9999px;
       color: var(--text-mute);
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 8px 0;
+      border-radius: 8px;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: background 0.2s, color 0.2s;
+      font-family: inherit;
     }
-    .settings-buttons button.active {
+    .option-btn:hover {
+      color: var(--text);
+    }
+    .option-btn.active {
+      background: var(--bg-card-hover);
+      color: var(--text);
+      border: 1px solid var(--border);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+    .theme-light .option-btn.active {
       background: #ffffff;
-      color: #0f172a;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-    }
-    html.style-modern.theme-dark .settings-buttons button.active {
-      background: #1e293b;
-      color: #f8fafc;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     }
 
-    /* Screen Content */
-    .phone-screen-content {
-      flex: 1;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-      z-index: 5;
+    /* --- Drawer Backdrop --- */
+    .drawer-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(2px);
+      -webkit-backdrop-filter: blur(2px);
+      z-index: 999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .drawer-backdrop.open {
+      opacity: 1;
+      pointer-events: auto;
     }
 
-    .modern-app-title {
-      font-size: 1.1rem;
-      font-weight: 800;
-      color: #0f172a;
-      letter-spacing: -0.01em;
-      text-align: center;
-      margin-top: 4px;
-      margin-bottom: 4px;
-    }
-    html.style-modern.theme-dark .modern-app-title {
-      color: #f8fafc;
-    }
-
-    /* Modern Rounded Cards */
-    .modern-phone-card {
-      background: #ffffff;
-      border-radius: 28px;
-      padding: 24px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02), 0 1px 3px rgba(0, 0, 0, 0.01);
-      border: 1px solid rgba(0, 0, 0, 0.02);
-      box-sizing: border-box;
-      transition: background-color 0.3s, border-color 0.3s;
-    }
-    html.style-modern.theme-dark .modern-phone-card {
-      background: #121318;
-      border: 1px solid rgba(255, 255, 255, 0.02);
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
-    }
-
-    /* Gauge Card Elements */
-    .gauge-card {
-      display: flex;
-      justify-content: center;
+    /* Navigation list item styles inside settings */
+    .drawer-nav-item {
+      display: flex !important;
       align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 10px 14px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border);
+      color: var(--text-mute);
+      transition: all 0.2s ease;
     }
-    .modern-gauge-svg-wrap {
-      position: relative;
-      width: 220px;
-      height: 135px;
-      display: flex;
-      justify-content: center;
+    .theme-light .drawer-nav-item {
+      background: rgba(0, 0, 0, 0.01);
     }
-    .gauge-base-path {
-      stroke: #eef2f6;
+    .drawer-nav-item:hover {
+      background: var(--bg-card-hover) !important;
+      border-color: var(--border-hover) !important;
+      color: var(--text) !important;
     }
-    html.style-modern.theme-dark .gauge-base-path {
-      stroke: #1e293b;
-    }
-    .modern-gauge-center-content {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .phone-gauge-score {
-      font-size: 3.5rem;
-      font-weight: 800;
-      line-height: 1;
-      color: #0f172a;
-      letter-spacing: -0.02em;
-    }
-    html.style-modern.theme-dark .phone-gauge-score {
-      color: #f8fafc;
-    }
-    .phone-gauge-status {
-      font-size: 0.95rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      color: #f7931a;
-      margin-top: 4px;
-    }
-    .phone-gauge-lbl {
-      font-size: 0.65rem;
-      font-weight: 700;
-      color: #94a3b8;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      margin-top: 2px;
-    }
-    html.style-modern.theme-dark .phone-gauge-lbl {
-      color: #64748b;
-    }
-    .phone-gauge-badge-wrap {
-      margin-top: 8px;
-    }
-    .phone-gauge-badge {
-      display: inline-block;
-      font-size: 0.7rem;
-      font-weight: 700;
-      color: #f7931a;
-      border: 1px solid rgba(247, 147, 26, 0.25);
-      padding: 3px 12px;
-      border-radius: 9999px;
-      background: rgba(247, 147, 26, 0.06);
-    }
-    html.style-modern.theme-dark .phone-gauge-badge {
-      background: rgba(247, 147, 26, 0.12);
-      border: 1px solid rgba(247, 147, 26, 0.35);
-    }
-
-    /* Index Overview Card */
-    .overview-card {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-    .overview-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      user-select: none;
-    }
-    .overview-header h3 {
-      font-size: 0.8rem;
-      font-weight: 800;
-      color: #0f172a;
-      letter-spacing: 0.06em;
-    }
-    html.style-modern.theme-dark .overview-header h3 {
-      color: #f8fafc;
-    }
-    .overview-header .chart-icon {
-      width: 16px;
-      height: 16px;
-      fill: #94a3b8;
-    }
-    .modern-chart-container {
-      width: 100%;
-      height: 140px;
-      position: relative;
-    }
-    .modern-change-badge-wrap {
-      display: flex;
-      justify-content: center;
-      margin-top: 4px;
-      user-select: none;
-    }
-    .modern-change-badge {
-      display: inline-block;
-      font-size: 0.72rem;
-      font-weight: 700;
-      color: #0f172a;
-      background: #eef2f6;
-      padding: 5px 14px;
-      border-radius: 9999px;
-    }
-    html.style-modern.theme-dark .modern-change-badge {
-      color: #f8fafc;
-      background: #1e293b;
-    }
-
-    /* Outside layout styles */
-    .modern-outside-footer {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 16px;
-      width: 100%;
+    .drawer-nav-item.active {
+      background: var(--index-color-bg, rgba(247, 147, 26, 0.12)) !important;
+      border-color: rgba(247, 147, 26, 0.25) !important;
+      color: var(--index-color, #f7931a) !important;
+      font-weight: 700 !important;
     }
 
     /* Responsive adjustments */
@@ -1863,24 +1597,16 @@
   <div class="nav-header">
     <div class="nav-title-group">
       <h1 class="nav-title" id="logo-title">
-        <span class="en"><span class="logo-accent">BTC</span> Buy Risk Index</span>
-        <span class="ua">Індекс ризику <span class="logo-accent">BTC</span></span>
+        <a id="logo-link" href="index.html" style="color: inherit; text-decoration: none;">
+          <span class="en"><span class="logo-accent">BTC</span> Buy Risk Index</span>
+          <span class="ua">Індекс ризику <span class="logo-accent">BTC</span></span>
+        </a>
       </h1>
     </div>
     <div class="nav-actions">
-      <div class="nav-menu">
-        <button class="nav-btn active" id="btn-main" style="cursor:default;">
-          <span class="en">Risk Index</span>
-          <span class="ua">Індекс ризику</span>
-        </button>
-        <a class="nav-btn" href="about.html">
-          <span class="en">Methodology</span>
-          <span class="ua">Методологія</span>
-        </a>
-      </div>
-      <a href="bitcoin_buy_risk.ics" class="nav-bell-btn" title="iCal Alerts">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 5a2 2 0 1 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6"/><path d="M9 17v1a3 3 0 0 0 6 0v-1"/></svg>
-      </a>
+      <button class="settings-gear-btn" onclick="toggleDrawer(true)" title="Settings">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z"/><path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0"/></svg>
+      </button>
     </div>
   </div>
 
@@ -2252,209 +1978,87 @@
     </details>
   </div><!-- end tab-main -->
 
-  <!-- Modern Style Container (Hidden by default, shown when style === 'modern') -->
-  <div class="modern-theme-container">
-    <div class="modern-bg-elements">
-      <!-- Faded background grid, diagonal lines, and perspective charts -->
-      <div class="bg-diagonal-line line-1"></div>
-      <div class="bg-diagonal-line line-2"></div>
-      <div class="bg-text text-btc">BTC/USD</div>
-      <div class="bg-text text-vol">24h vol</div>
-      <div class="bg-text text-val">2,617,728</div>
-      <div class="bg-text text-pts">+1.5 pts</div>
-      <div class="bg-perspective-chart bpc-1"></div>
-      <div class="bg-perspective-chart bpc-2"></div>
+  <!-- Settings Drawer Backdrop -->
+  <div class="drawer-backdrop" id="drawer-backdrop" onclick="toggleDrawer(false)"></div>
+
+  <!-- Settings Drawer -->
+  <div class="settings-drawer" id="settings-drawer">
+    <div class="drawer-header">
+      <span class="drawer-title">
+        <span class="en">Settings &amp; Menu</span>
+        <span class="ua">Налаштування та меню</span>
+      </span>
+      <button class="drawer-close" onclick="toggleDrawer(false)">&times;</button>
     </div>
-    
-    <div class="modern-content-wrapper">
-        <!-- Status Bar -->
-        <div class="phone-status-bar">
-          <div class="status-time" id="modern-status-time">10:14 AM</div>
-          <div class="status-icons">
-            <span class="status-signal" style="display:inline-flex;align-items:center;"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><rect x="2" y="16" width="3" height="5" rx="0.5"/><rect x="7" y="12" width="3" height="9" rx="0.5"/><rect x="12" y="8" width="3" height="13" rx="0.5"/><rect x="17" y="3" width="3" height="18" rx="0.5"/></svg></span>
-            <span class="status-wifi" style="display:inline-flex;align-items:center;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20" stroke-width="3"/></svg></span>
-            <span class="status-battery-pct">88%</span>
-            <span class="status-battery-icon" style="display:inline-flex;align-items:center;margin-left:2px;"><svg width="15" height="10" viewBox="0 0 24 16" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="2" width="18" height="12" rx="2"/><path d="M21 5v6" stroke-linecap="round"/><rect x="3" y="4" width="8" height="8" rx="1" fill="currentColor"/></svg></span>
-          </div>
-        </div>
-        
-        <!-- App Header -->
-        <div class="phone-app-header">
-          <button class="phone-menu-btn" onclick="toggleModernMenu()">
-            <svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
-          </button>
-          <div class="phone-app-logo">
-            <svg class="logo-wave-icon" viewBox="0 0 24 24">
-              <path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L3 15.66z"/>
-            </svg>
-            <span>TRADING APP</span>
-          </div>
-          <button class="phone-bell-btn">
-            <svg viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
-          </button>
-        </div>
-        
-        <!-- Sidebar Drawer Menu (Within the viewport, fixed to screen) -->
-        <div class="phone-drawer-menu" id="modern-drawer-menu">
-          <div class="drawer-header">
-            <h3>Menu</h3>
-            <button class="drawer-close-btn" onclick="toggleModernMenu()">✕</button>
-          </div>
-          <div class="drawer-links">
-            <button class="drawer-link active" onclick="navigateModern('dashboard')">
-              <span class="en">Dashboard</span>
-              <span class="ua">Панель</span>
-            </button>
-            <a class="drawer-link" href="about.html">
-              <span class="en">Methodology</span>
-              <span class="ua">Методологія</span>
-            </a>
-            <a class="drawer-link" href="bitcoin_buy_risk.ics">
-              <span class="en">iCal Alerts</span>
-              <span class="ua">Сповіщення iCal</span>
-            </a>
-          </div>
-          <div class="drawer-settings">
-            <h4>Settings</h4>
-            
-            <div class="settings-group">
-              <label>Style Theme</label>
-              <div class="settings-buttons">
-                <button id="drawer-btn-style-classic" onclick="setStyle('classic'); toggleModernMenu();">Classic</button>
-                <button id="drawer-btn-style-modern" onclick="setStyle('modern'); toggleModernMenu();">Modern</button>
-                <button id="drawer-btn-style-spatial" onclick="setStyle('spatial'); toggleModernMenu();">Spatial</button>
-              </div>
-            </div>
-            
-            <div class="settings-group">
-              <label>Color Mode</label>
-              <div class="settings-buttons">
-                <button id="drawer-btn-mode-night" onclick="setMode('night')">Night</button>
-                <button id="drawer-btn-mode-auto" onclick="setMode('auto')">Auto</button>
-              </div>
-            </div>
-            
-            <div class="settings-group">
-              <label>Language</label>
-              <div class="settings-buttons">
-                <button id="drawer-btn-lang-en" onclick="setLang('en')">EN</button>
-                <button id="drawer-btn-lang-ua" onclick="setLang('ua')">UA</button>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Screen Content -->
-        <div class="phone-screen-content">
-          <h2 class="modern-app-title">BITCOIN BUY RISK INDEX</h2>
-          
-          <!-- Gauge Card -->
-          <div class="modern-phone-card gauge-card">
-            <div class="modern-gauge-svg-wrap">
-              <svg width="220" height="130" viewBox="0 0 220 130">
-                <!-- Base track arc -->
-                <path d="M 20 120 A 90 90 0 0 1 200 120" fill="none" stroke="#eef2f6" stroke-width="14" stroke-linecap="round" class="gauge-base-path" />
-                <!-- Active colored arc -->
-                <path id="phone-gauge-arc" d="M 20 120 A 90 90 0 0 1 200 120" fill="none" stroke="#f7931a" stroke-width="14" stroke-linecap="round" stroke-dasharray="282.7" stroke-dashoffset="282.7" style="transition: stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1);" />
-              </svg>
-              <div class="modern-gauge-center-content">
-                <div class="phone-gauge-score" id="phone-gauge-score">—</div>
-                <div class="phone-gauge-status" id="phone-gauge-status">—</div>
-                <div class="phone-gauge-lbl">
-                  <span class="en">CURRENT STATUS</span>
-                  <span class="ua">ПОТОЧНИЙ СТАТУС</span>
-                </div>
-                <div class="phone-gauge-badge-wrap">
-                  <span class="phone-gauge-badge" id="phone-gauge-badge">— / 100</span>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Index Overview Card -->
-          <div class="modern-phone-card overview-card">
-            <div class="overview-header">
-              <h3>
-                <span class="en">INDEX OVERVIEW</span>
-                <span class="ua">ОГЛЯД ІНДЕКСУ</span>
-              </h3>
-              <svg class="chart-icon" viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg>
-            </div>
-            <div class="modern-chart-container">
-              <canvas id="phone-history-chart"></canvas>
-            </div>
-            <div class="modern-change-badge-wrap">
-              <span class="modern-change-badge" id="phone-change-badge">—</span>
-            </div>
-          </div>
-        </div>
+
+    <!-- Navigation Group -->
+    <div class="settings-group">
+      <span class="settings-label">
+        <span class="en">Menu</span>
+        <span class="ua">Меню</span>
+      </span>
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <a id="nav-btn-index" href="index.html" class="drawer-nav-item">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/><path d="M15 3v18"/><path d="M3 9h18"/><path d="M3 15h18"/></svg>
+          <span class="en">Risk Index</span>
+          <span class="ua">Індекс ризику</span>
+        </a>
+        <a id="nav-btn-about" href="about.html" class="drawer-nav-item">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8h.01"/><path d="M11 12h1v4h1"/><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2z"/></svg>
+          <span class="en">Methodology</span>
+          <span class="ua">Методологія</span>
+        </a>
+        <a id="nav-btn-compare" href="compare.html" class="drawer-nav-item">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"/><path d="M8 21H3v-5"/><path d="M12 12L3 21"/><path d="M21 3l-9 9"/><path d="M21 16v5h-5"/><path d="M3 8V3h5"/><path d="M3 3l9 9"/><path d="M12 12l9 9"/></svg>
+          <span class="en">Compare Indices</span>
+          <span class="ua">Порівняти індекси</span>
+        </a>
+        <a id="nav-btn-alerts" href="bitcoin_buy_risk.ics" class="drawer-nav-item" style="justify-content: space-between;">
+          <span style="display: flex; align-items: center; gap: 10px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 5a2 2 0 1 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6"/><path d="M9 17v1a3 3 0 0 0 6 0v-1"/></svg>
+            <span class="en">iCal Alerts</span>
+            <span class="ua">Сповіщення iCal</span>
+          </span>
+          <span style="font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; background: rgba(255, 255, 255, 0.08); border: 1px solid var(--border); color: var(--text-mute);">ICS</span>
+        </a>
       </div>
+    </div>
 
-    <!-- Outside controls for modern view on desktop/mobile -->
-    <div class="modern-outside-footer" style="margin-top: 40px; display: flex; flex-direction: column; align-items: center; gap: 16px; width: 100%; max-width: 600px; z-index: 5;">
-      <div class="footer-controls" style="display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; margin-bottom: 0;">
-        <div class="nav-menu">
-          <button class="nav-btn" id="modern-footer-btn-style-classic" onclick="setStyle('classic')">
-            <span class="en">Classic</span>
-            <span class="ua">Класична</span>
-          </button>
-          <button class="nav-btn active" id="modern-footer-btn-style-modern" onclick="setStyle('modern')">
-            <span class="en">Modern</span>
-            <span class="ua">Сучасна</span>
-          </button>
-          <button class="nav-btn" id="modern-footer-btn-style-spatial" onclick="setStyle('spatial')">
-            <span class="en">Spatial</span>
-            <span class="ua">Просторова</span>
-          </button>
-        </div>
-
-        <div class="nav-menu">
-          <button class="nav-btn" id="modern-footer-btn-mode-night" onclick="setMode('night')">
-            <span class="en">Night</span>
-            <span class="ua">Ніч</span>
-          </button>
-          <button class="nav-btn" id="modern-footer-btn-mode-auto" onclick="setMode('auto')">
-            <span class="en">Auto</span>
-            <span class="ua">Авто</span>
-          </button>
-        </div>
+    <!-- Theme Style Switch -->
+    <div class="settings-group">
+      <span class="settings-label">
+        <span class="en">Theme Style</span>
+        <span class="ua">Стиль теми</span>
+      </span>
+      <div class="settings-options">
+        <button id="drawer-btn-style-classic" class="option-btn" onclick="setStyle('classic')">Classic</button>
+        <button id="drawer-btn-style-modern" class="option-btn" onclick="setStyle('modern')">Modern</button>
+        <button id="drawer-btn-style-spatial" class="option-btn" onclick="setStyle('spatial')">Spatial</button>
       </div>
-      
-      <p class="disclaimer" style="display: block; margin: 0; max-width: 500px; text-align: center; font-size: 0.72rem; color: var(--text-mute); opacity: 0.85;">
-        <span class="en">This dashboard is for informational purposes only and does not constitute financial advice. All data is automatically collected from public sources. Any decisions to buy or sell assets are made solely at your own risk.</span>
-        <span class="ua">Цей дашборд створений виключно з інформаційною метою і не є фінансовою порадою. Всі дані збираються автоматично з публічних джерел. Будь-які рішення про купівлю чи продаж активів приймаються вами на власний ризик.</span>
-      </p>
-    </div>
-  </div>
-
-  <div class="footer-controls" style="display: flex; justify-content: center; gap: 16px; margin-bottom: 28px; padding-top: 28px; border-top: 1px solid var(--divider); flex-wrap: wrap;">
-    <!-- Language Switcher (moved from nav) -->
-    <div class="lang-toggle">
-      <button class="lang-btn active" id="btn-en" onclick="setLang('en')">EN</button>
-      <button class="lang-btn"        id="btn-ua" onclick="setLang('ua')">UA</button>
-    </div>
-    <!-- Theme Style Switcher -->
-    <div class="nav-menu">
-      <button class="nav-btn active" id="btn-style-classic" onclick="setStyle('classic')">
-        <span class="en">Classic</span>
-        <span class="ua">Класична</span>
-      </button>
-      <button class="nav-btn" id="btn-style-modern" onclick="setStyle('modern')">
-        <span class="en">Modern</span>
-        <span class="ua">Сучасна</span>
-      </button>
     </div>
 
-    <!-- Color Mode Switcher -->
-    <div class="nav-menu">
-      <button class="nav-btn active" id="btn-mode-night" onclick="setMode('night')">
-        <span class="en">Night</span>
-        <span class="ua">Ніч</span>
-      </button>
-      <button class="nav-btn" id="btn-mode-auto" onclick="setMode('auto')">
-        <span class="en">Auto</span>
-        <span class="ua">Авто</span>
-      </button>
+    <!-- Color Mode -->
+    <div class="settings-group">
+      <span class="settings-label">
+        <span class="en">Color Mode</span>
+        <span class="ua">Колірний режим</span>
+      </span>
+      <div class="settings-options two-cols">
+        <button id="drawer-btn-mode-night" class="option-btn" onclick="setMode('night')">Night</button>
+        <button id="drawer-btn-mode-auto" class="option-btn" onclick="setMode('auto')">Auto</button>
+      </div>
+    </div>
+
+    <!-- Language -->
+    <div class="settings-group">
+      <span class="settings-label">
+        <span class="en">Language</span>
+        <span class="ua">Мова</span>
+      </span>
+      <div class="settings-options two-cols">
+        <button id="drawer-btn-lang-en" class="option-btn" onclick="setLang('en')">EN</button>
+        <button id="drawer-btn-lang-ua" class="option-btn" onclick="setLang('ua')">UA</button>
+      </div>
     </div>
   </div>
 
@@ -2540,6 +2144,7 @@
         drawCharts(_chartData);
       }
       redrawAllModernGauges();
+      updateIndexLinks();
     }
 
     function setStyle(style) {
@@ -2611,16 +2216,25 @@
     const saved = localStorage.getItem('bbr-lang') || defaultLang;
     setLang(saved);
 
-    // Modern View Navigation & Settings drawer
-    function toggleModernMenu() {
-      const drawer = document.getElementById('modern-drawer-menu');
-      if (drawer) {
-        drawer.classList.toggle('open');
-      }
+    // Settings drawer toggling & dynamic routing
+    function toggleDrawer(open) {
+      const drawer = document.getElementById('settings-drawer');
+      const backdrop = document.getElementById('drawer-backdrop');
+      if (drawer) drawer.classList.toggle('open', open);
+      if (backdrop) backdrop.classList.toggle('open', open);
     }
-    
-    function navigateModern(tab) {
-      toggleModernMenu();
+
+    function updateIndexLinks() {
+      const style = localStorage.getItem('bbr-style') || 'modern';
+      let href = 'index.html';
+      if (style === 'classic') href = 'classic.html';
+      if (style === 'spatial') href = 'spatial.html';
+      
+      const logoLink = document.getElementById('logo-link');
+      if (logoLink) logoLink.href = href;
+      
+      const navBtnIndex = document.getElementById('nav-btn-index');
+      if (navBtnIndex) navBtnIndex.href = href;
     }
 
     // Modern Status Bar Clock
@@ -4147,11 +3761,24 @@
       const ctx = canvas.getContext('2d');
       let w, h;
       const waves = [];
+      let lastWidth = window.innerWidth;
+      let lastHeight = window.innerHeight;
 
       function resizeCanvas() {
+        const currentWidth = window.innerWidth;
+        const currentHeight = window.innerHeight;
+        
+        // Only resize if width changed or height changed significantly (e.g. orientation shift)
+        if (Math.abs(currentHeight - lastHeight) < 100 && currentWidth === lastWidth) {
+          return;
+        }
+        
+        lastWidth = currentWidth;
+        lastHeight = currentHeight;
+
         const dpr = window.devicePixelRatio || 1;
-        w = window.innerWidth;
-        h = window.innerHeight;
+        w = currentWidth;
+        h = currentHeight;
         canvas.width = w * dpr;
         canvas.height = h * dpr;
         ctx.scale(dpr, dpr);
