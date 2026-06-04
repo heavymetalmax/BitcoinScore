@@ -29,18 +29,19 @@
   <style>
     :root {
       --bg-dark: #060608;
-      --bg-card: rgba(12, 12, 14, 0.85);
-      --bg-card-hover: rgba(18, 18, 22, 0.9);
+      --bg-card: rgba(12, 12, 14, 0.82);
+      --bg-card-hover: rgba(18, 18, 22, 0.88);
       --border: rgba(255, 255, 255, 0.08);
       --border-hover: rgba(255, 255, 255, 0.16);
       --text: #f3f4f6;
       --text-mute: #9ca3af;
       --text-sub: #6b7280;
       
-      --accent-green: #10b981;
-      --accent-amber: #eab308;
-      --accent-red: #ef4444;
-      --index-color: var(--accent-green);
+      /* Pure monochrome theme (no color accents in widgets/bars) */
+      --accent-green: #ffffff;
+      --accent-amber: #ffffff;
+      --accent-red: #ffffff;
+      --index-color: #ffffff;
       
       --glow-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
     }
@@ -103,9 +104,9 @@
       position: absolute;
       inset: 0;
       background: linear-gradient(to bottom, 
-        rgba(6, 6, 8, 0.5) 0%, 
-        rgba(6, 6, 8, 0.2) 50%, 
-        rgba(6, 6, 8, 0.7) 100%
+        rgba(6, 6, 8, 0.55) 0%, 
+        rgba(6, 6, 8, 0.25) 50%, 
+        rgba(6, 6, 8, 0.75) 100%
       );
       z-index: 2;
     }
@@ -157,8 +158,8 @@
       width: 6px;
       height: 6px;
       border-radius: 50%;
-      background: var(--index-color);
-      box-shadow: 0 0 8px var(--index-color);
+      background: #ffffff;
+      box-shadow: 0 0 8px #ffffff;
       display: inline-block;
     }
 
@@ -170,12 +171,12 @@
       justify-content: center;
       z-index: 20;
       text-align: center;
-      margin-top: -20px;
+      margin-top: -10px;
       transition: transform 0.12s ease-out;
     }
 
     .display-title {
-      font-size: 0.7rem;
+      font-size: 0.72rem;
       font-weight: 900;
       text-transform: uppercase;
       letter-spacing: 0.25em;
@@ -191,28 +192,28 @@
       justify-content: center;
     }
 
+    /* Premium Matte Glass Text Effect (Grayscale only) */
     .display-score {
       font-family: 'Outfit', sans-serif;
-      font-size: 8.5rem;
+      font-size: 11rem;
       font-weight: 900;
       line-height: 1;
       letter-spacing: -0.04em;
-      color: var(--text);
-      text-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
-      background: linear-gradient(180deg, #ffffff 30%, rgba(255,255,255,0.7) 100%);
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.2) 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
+      -webkit-text-stroke: 1px rgba(255, 255, 255, 0.3);
+      filter: drop-shadow(0 8px 30px rgba(0, 0, 0, 0.45));
       transition: color 0.5s ease;
     }
 
     .display-score-accent {
       position: absolute;
       font-size: 2.2rem;
-      top: 15px;
+      top: 25px;
       right: -32px;
-      color: var(--index-color);
-      opacity: 0.85;
-      text-shadow: 0 0 15px var(--index-color);
+      color: rgba(255, 255, 255, 0.7);
+      text-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
     }
 
     .display-status {
@@ -220,9 +221,46 @@
       font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 0.08em;
-      color: var(--index-color);
-      margin-top: -5px;
+      color: #ffffff;
+      margin-top: -12px;
       text-shadow: 0 2px 15px rgba(0, 0, 0, 0.5);
+    }
+
+    /* --- Inline History Row under index value --- */
+    .lockscreen-history {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-top: 10px;
+      background: rgba(12, 12, 14, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 6px 16px;
+      border-radius: 99px;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    .history-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+    }
+
+    .history-label {
+      font-weight: 600;
+      color: var(--text-mute);
+    }
+
+    .history-value {
+      font-weight: 800;
+      font-family: 'Outfit', sans-serif;
+      color: #ffffff;
+    }
+
+    .history-separator {
+      color: rgba(255, 255, 255, 0.15);
+      font-size: 0.75rem;
     }
 
     /* --- Bento Widgets Container --- */
@@ -275,8 +313,10 @@
     }
 
     .widget-icon {
-      color: var(--text-sub);
-      opacity: 0.7;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .widget-value-row {
@@ -292,6 +332,7 @@
       font-size: 2.2rem;
       font-weight: 800;
       line-height: 1;
+      color: #ffffff !important;
     }
 
     .widget-status {
@@ -299,28 +340,13 @@
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.04em;
+      color: #ffffff !important;
     }
 
     .widget-sub {
       font-size: 0.65rem;
       color: var(--text-sub);
       font-weight: 500;
-    }
-
-    /* Small full-width widgets */
-    .widget.full-width {
-      grid-column: span 2;
-      flex-direction: row;
-      align-items: center;
-      padding: 14px 20px;
-    }
-
-    .widget.full-width .widget-value-row {
-      margin: 0;
-    }
-
-    .widget.full-width .widget-score {
-      font-size: 1.4rem;
     }
 
     /* --- Interactive Gear Button --- */
@@ -625,7 +651,7 @@
     /* Mobile adjustments */
     @media (max-width: 600px) {
       .display-score {
-        font-size: 7rem;
+        font-size: 8.5rem;
       }
       .display-score-accent {
         font-size: 1.8rem;
@@ -677,6 +703,25 @@
         <span class="display-score-accent">₿</span>
       </div>
       <span class="display-status" id="main-status">—</span>
+      
+      <!-- Lockscreen Inline History Row -->
+      <div class="lockscreen-history">
+        <div class="history-item">
+          <span class="history-label">
+            <span class="en">Yesterday:</span>
+            <span class="ua">Вчора:</span>
+          </span>
+          <span class="history-value" id="s-yesterday">—</span>
+        </div>
+        <span class="history-separator">|</span>
+        <div class="history-item">
+          <span class="history-label">
+            <span class="en">7d Avg:</span>
+            <span class="ua">Середній 7д:</span>
+          </span>
+          <span class="history-value" id="s-week">—</span>
+        </div>
+      </div>
     </div>
 
     <!-- Bento Score Widgets -->
@@ -688,7 +733,9 @@
             <span class="en">On-Chain</span>
             <span class="ua">Ончейн</span>
           </span>
-          <span class="widget-icon">🔗</span>
+          <span class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5"/><path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5"/></svg>
+          </span>
         </div>
         <div>
           <div class="widget-value-row">
@@ -709,7 +756,9 @@
             <span class="en">Tech &amp; Macro</span>
             <span class="ua">Технічні &amp; Макро</span>
           </span>
-          <span class="widget-icon">📊</span>
+          <span class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M20 18v-4a2 2 0 0 0 -2 -2h-2a2 2 0 0 0 -2 2v4"/><path d="M12 18v-7a2 2 0 0 0 -2 -2h-2a2 2 0 0 0 -2 2v4"/></svg>
+          </span>
         </div>
         <div>
           <div class="widget-value-row">
@@ -720,38 +769,6 @@
             <span class="en">6 metrics analyzed</span>
             <span class="ua">6 показників оцінено</span>
           </span>
-        </div>
-      </div>
-
-      <!-- Widget 3: Historic Yesterday & Week -->
-      <div class="widget full-width" style="cursor: default;">
-        <div style="display: flex; flex: 1; justify-content: space-between; border-right: 1px solid rgba(255,255,255,0.06); padding-right: 16px;">
-          <div style="display:flex; flex-direction:column; gap:2px;">
-            <span class="widget-title">
-              <span class="en">Yesterday</span>
-              <span class="ua">Вчора</span>
-            </span>
-            <div class="widget-value-row">
-              <span class="widget-score" id="s-yesterday" style="font-size: 1.5rem; font-weight:700;">—</span>
-            </div>
-          </div>
-          <div style="text-align: right; display:flex; flex-direction:column; justify-content:center;">
-            <span class="widget-status" id="yesterday-status" style="font-size:0.65rem;">—</span>
-          </div>
-        </div>
-        <div style="display: flex; flex: 1; justify-content: space-between; padding-left: 20px;">
-          <div style="display:flex; flex-direction:column; gap:2px;">
-            <span class="widget-title">
-              <span class="en">7d Average</span>
-              <span class="ua">Середній 7д</span>
-            </span>
-            <div class="widget-value-row">
-              <span class="widget-score" id="s-week" style="font-size: 1.5rem; font-weight:700;">—</span>
-            </div>
-          </div>
-          <div style="text-align: right; display:flex; flex-direction:column; justify-content:center;">
-            <span class="widget-status" id="week-status" style="font-size:0.65rem;">—</span>
-          </div>
         </div>
       </div>
     </div>
@@ -769,7 +786,7 @@
         <span class="en">Settings</span>
         <span class="ua">Налаштування</span>
       </span>
-      <button class="drawer-close" onclick="toggleDrawer(false)">✕</button>
+      <button class="drawer-close" onclick="toggleDrawer(false)">&times;</button>
     </div>
 
     <!-- Theme Switch -->
@@ -782,6 +799,24 @@
         <button id="drawer-btn-style-classic" class="option-btn" onclick="setStyle('classic')">Classic</button>
         <button id="drawer-btn-style-modern" class="option-btn" onclick="setStyle('modern')">Modern</button>
         <button id="drawer-btn-style-spatial" class="option-btn active" onclick="setStyle('spatial')">Spatial</button>
+      </div>
+    </div>
+
+    <!-- Wallpaper Type Switch -->
+    <div class="settings-group">
+      <span class="settings-label">
+        <span class="en">Background Wallpaper</span>
+        <span class="ua">Фонові шпалери</span>
+      </span>
+      <div class="settings-options two-cols">
+        <button id="drawer-btn-wp-real" class="option-btn active" onclick="setWpType('real')">
+          <span class="en">Real</span>
+          <span class="ua">Реальні</span>
+        </button>
+        <button id="drawer-btn-wp-abstract" class="option-btn" onclick="setWpType('abstract')">
+          <span class="en">Abstract</span>
+          <span class="ua">Абстракція</span>
+        </button>
       </div>
     </div>
 
@@ -822,7 +857,7 @@
         <span class="sheet-label" id="sheet-sub-label">—</span>
         <span class="sheet-title" id="sheet-title">—</span>
       </div>
-      <button class="sheet-close" onclick="closeDetails()">✕</button>
+      <button class="sheet-close" onclick="closeDetails()">&times;</button>
     </div>
 
     <div class="sheet-content" id="sheet-content">
@@ -850,6 +885,18 @@
       const btnAuto = document.getElementById('drawer-btn-mode-auto');
       if (btnNight) btnNight.classList.toggle('active', mode === 'night');
       if (btnAuto) btnAuto.classList.toggle('active', mode === 'auto');
+    }
+
+    function setWpType(wpType) {
+      localStorage.setItem('bbr-wp-type', wpType);
+      const btnReal = document.getElementById('drawer-btn-wp-real');
+      const btnAbstract = document.getElementById('drawer-btn-wp-abstract');
+      if (btnReal) btnReal.classList.toggle('active', wpType === 'real');
+      if (btnAbstract) btnAbstract.classList.toggle('active', wpType === 'abstract');
+      
+      if (window.dataStore) {
+        loadWallpaper(window.dataStore.final_score);
+      }
     }
 
     function updateThemeClass() {
@@ -889,8 +936,8 @@
       }
     }
 
-    // Curated high-res wallpaper sets based on final score
-    const Wallpapers = {
+    // Curated high-res wallpaper sets: Real (Landscape) vs Abstract (Artwork)
+    const WallpapersReal = {
       low: [
         'https://images.unsplash.com/photo-1470076896136-117f6d1700c2?q=80&w=1200&auto=format&fit=crop', // Calm lake & misty mountains
         'https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=1200&auto=format&fit=crop', // Calm turquoise mountain lake
@@ -911,6 +958,24 @@
       ]
     };
 
+    const WallpapersAbstract = {
+      low: [
+        'https://images.unsplash.com/photo-1541701494587-cb58502866ab?q=80&w=1200&auto=format&fit=crop', // Flowing teal/blue abstract
+        'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=1200&auto=format&fit=crop', // Sleek dark gradient waves
+        'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1200&auto=format&fit=crop'  // Cool abstract 3d shapes
+      ],
+      neutral: [
+        'https://images.unsplash.com/photo-1618005198143-e5283b519a7f?q=80&w=1200&auto=format&fit=crop', // Smooth beige/gold flowing wave
+        'https://images.unsplash.com/photo-1604871000636-074fa5117945?q=80&w=1200&auto=format&fit=crop', // Abstract golden/brown composition
+        'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?q=80&w=1200&auto=format&fit=crop'  // Abstract shapes with warm golden textures
+      ],
+      high: [
+        'https://images.unsplash.com/photo-1504333631130-c81215f17845?q=80&w=1200&auto=format&fit=crop', // Vibrant hot neon glowing shapes
+        'https://images.unsplash.com/photo-1549490349-8643362247b5?q=80&w=1200&auto=format&fit=crop', // Hot pink/red abstract flowing canvas
+        'https://images.unsplash.com/photo-1533158326339-7f3cf2404354?q=80&w=1200&auto=format&fit=crop'  // Abstract red/dark liquid smoke
+      ]
+    };
+
     function loadWallpaper(score) {
       let category = 'neutral';
       if (score != null) {
@@ -918,7 +983,8 @@
         else if (score >= 75) category = 'high';
       }
       
-      const set = Wallpapers[category];
+      const wpType = localStorage.getItem('bbr-wp-type') || 'real';
+      const set = (wpType === 'abstract') ? WallpapersAbstract[category] : WallpapersReal[category];
       const selectedUrl = set[Math.floor(Math.random() * set.length)];
       
       const bg = document.getElementById('wallpaper-bg');
@@ -927,35 +993,9 @@
       }
     }
 
-    // Color interpolation matching the dashboard's design
+    // Grayscale Score Color Helper (All UI elements are rendered monochrome)
     function scoreColor(v, alpha = 1) {
-      if(v == null) return 'var(--text-mute)';
-      const stops = [
-        { val: 0,   r: 16,  g: 185, b: 129 }, // Emerald
-        { val: 30,  r: 132, g: 204, b: 22  }, // Lime
-        { val: 50,  r: 234, g: 179, b: 8   }, // Yellow
-        { val: 75,  r: 249, g: 115, b: 22  }, // Orange
-        { val: 100, r: 239, g: 68,  b: 68  }  // Red
-      ];
-      let r, g, b;
-      if (v <= stops[0].val) {
-        r = stops[0].r; g = stops[0].g; b = stops[0].b;
-      } else if (v >= stops[stops.length - 1].val) {
-        r = stops[stops.length - 1].r; g = stops[stops.length - 1].g; b = stops[stops.length - 1].b;
-      } else {
-        for (let i = 0; i < stops.length - 1; i++) {
-          const s1 = stops[i];
-          const s2 = stops[i+1];
-          if (v >= s1.val && v <= s2.val) {
-            const t = (v - s1.val) / (s2.val - s1.val);
-            r = Math.round(s1.r + t * (s2.r - s1.r));
-            g = Math.round(s1.g + t * (s2.g - s1.g));
-            b = Math.round(s1.b + t * (s2.b - s1.b));
-            break;
-          }
-        }
-      }
-      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+      return `rgba(255, 255, 255, ${alpha})`;
     }
 
     // Stereoscopic Parallax Depth Effect (moves background and details dynamically)
@@ -1122,8 +1162,6 @@
         
         const cb = mv('cipher_b');
         const cbScore = cb != null ? Math.round(Math.max(0, Math.min(100, (cb + 100) * (100 / 200)))) : null;
-        
-        const fr = m['funding_rate'];
 
         metricsList = [
           {
@@ -1164,7 +1202,7 @@
         const card = document.createElement('div');
         card.className = 'ind-row';
         
-        const color = scoreColor(m.score);
+        const color = '#ffffff'; // 100% monochrome bar fill
         const nameText = lang === 'ua' ? m.name.ua : m.name.en;
         const valText = m.score != null ? m.score : '—';
         
@@ -1186,11 +1224,13 @@
 
     // App Initialization
     async function init() {
-      // Restore Mode & Lang configurations
+      // Restore Mode, Lang & Wallpaper configurations
       const lang = localStorage.getItem('bbr-lang') || 'en';
       setLang(lang);
       const mode = localStorage.getItem('bbr-mode') || 'auto';
       setMode(mode);
+      const wpType = localStorage.getItem('bbr-wp-type') || 'real';
+      setWpType(wpType);
 
       let data;
       try {
@@ -1221,22 +1261,13 @@
         document.getElementById('hero-card-price').innerHTML = `BTC: $${Math.round(data.price_usd).toLocaleString()} <span class="status-dot"></span>`;
       }
 
-      // Update Center Score
-      const finalColor = scoreColor(data.final_score);
+      // Update Center Score (Frosted Glass style)
       const displayScore = document.getElementById('s-final');
       if (displayScore) {
         displayScore.textContent = data.final_score != null ? data.final_score : '—';
-        displayScore.style.background = `linear-gradient(180deg, #ffffff 40%, ${finalColor} 100%)`;
-        displayScore.style.webkitBackgroundClip = 'text';
-      }
-      
-      const displayAccent = document.querySelector('.display-score-accent');
-      if (displayAccent) {
-        displayAccent.style.color = finalColor;
-        displayAccent.style.textShadow = `0 0 15px ${finalColor}`;
       }
 
-      // Update index status rating text
+      // Update index status rating text (monochrome styling)
       const mainStatus = document.getElementById('main-status');
       if (mainStatus) {
         let statusText = { en: 'Neutral', ua: 'Нейтрально' };
@@ -1245,8 +1276,8 @@
           else if (data.final_score >= 75) statusText = { en: 'High Risk / Distribution', ua: 'Високий ризик / Розподіл' };
         }
         mainStatus.innerHTML = `<span class="en">${statusText.en}</span><span class="ua">${statusText.ua}</span>`;
-        mainStatus.style.color = finalColor;
-        mainStatus.style.textShadow = `0 2px 15px ${scoreColor(data.final_score, 0.4)}`;
+        mainStatus.style.color = '#ffffff';
+        mainStatus.style.textShadow = `0 2px 15px rgba(255, 255, 255, 0.15)`;
       }
 
       // Update Widgets scores
@@ -1255,7 +1286,7 @@
         const labelEl = document.getElementById(id + '-status-label');
         if (scoreEl) {
           scoreEl.textContent = val != null ? val : '—';
-          scoreEl.style.color = scoreColor(val);
+          scoreEl.style.color = '#ffffff';
         }
         if (labelEl) {
           let label = { en: 'Neutral', ua: 'Нейтрально' };
@@ -1264,24 +1295,18 @@
             else if (val >= 75) label = { en: 'Sell', ua: 'Продаж' };
           }
           labelEl.innerHTML = `<span class="en">${label.en}</span><span class="ua">${label.ua}</span>`;
-          labelEl.style.color = scoreColor(val);
+          labelEl.style.color = '#ffffff';
         }
       };
 
       setWidgetVal('oc', 's-oc', data.onchain_score);
       setWidgetVal('tech', 's-tech', data.tech_score);
 
-      // Yesterday and 7d averages
+      // Yesterday and 7d averages in Lockscreen row
       if (data.prev_day && data.prev_day.final_score != null) {
         const val = data.prev_day.final_score;
         const el = document.getElementById('s-yesterday');
-        const st = document.getElementById('yesterday-status');
-        if (el) { el.textContent = val; el.style.color = scoreColor(val); }
-        if (st) {
-          let lbl = val <= 25 ? {en:'Buy', ua:'Купівля'} : val >= 75 ? {en:'Sell', ua:'Продаж'} : {en:'Neutral', ua:'Нейтрально'};
-          st.innerHTML = `<span class="en">${lbl.en}</span><span class="ua">${lbl.ua}</span>`;
-          st.style.color = scoreColor(val);
-        }
+        if (el) { el.textContent = val; }
       }
 
       let avg7d = null;
@@ -1294,13 +1319,7 @@
       const weekVal = (avg7d != null) ? avg7d : (data.prev_week ? data.prev_week.final_score : null);
       if (weekVal != null) {
         const el = document.getElementById('s-week');
-        const st = document.getElementById('week-status');
-        if (el) { el.textContent = weekVal; el.style.color = scoreColor(weekVal); }
-        if (st) {
-          let lbl = weekVal <= 25 ? {en:'Buy', ua:'Купівля'} : weekVal >= 75 ? {en:'Sell', ua:'Продаж'} : {en:'Neutral', ua:'Нейтрально'};
-          st.innerHTML = `<span class="en">${lbl.en}</span><span class="ua">${lbl.ua}</span>`;
-          st.style.color = scoreColor(weekVal);
-        }
+        if (el) { el.textContent = weekVal; }
       }
     }
 
