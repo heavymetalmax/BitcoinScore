@@ -993,79 +993,19 @@
       text-transform: uppercase;
     }
 
-    /* Dynamic tactical highlights (borders & shadows) */
-    .score-box.tactical-buy {
-      border-color: rgba(16, 185, 129, 0.45) !important;
-      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 0 0 22px rgba(16, 185, 129, 0.22) !important;
-    }
-    .score-box.tactical-overheat {
-      border-color: rgba(239, 68, 68, 0.45) !important;
-      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 0 0 22px rgba(239, 68, 68, 0.22) !important;
-    }
-    
-    .theme-light .score-box.tactical-buy {
-      border-color: rgba(16, 185, 129, 0.5) !important;
-      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.15) !important;
-    }
-    .theme-light .score-box.tactical-overheat {
-      border-color: rgba(239, 68, 68, 0.5) !important;
-      box-shadow: 0 6px 20px rgba(239, 68, 68, 0.15) !important;
-    }
-
-    /* Glowing Index score text styling */
-    #s-final.tactical-buy {
-      color: #10b981 !important;
-      text-shadow: 0 0 15px rgba(16, 185, 129, 0.45);
-    }
-    #s-final.tactical-overheat {
-      color: #ef4444 !important;
-      text-shadow: 0 0 15px rgba(239, 68, 68, 0.45);
-    }
-
-    /* Pulsing animations for the risk track pointer dot */
-    .risk-marker-dot.tactical-buy {
-      animation: pulse-green 2s infinite ease-in-out;
-    }
-    .risk-marker-dot.tactical-overheat {
-      animation: pulse-red 2s infinite ease-in-out;
-    }
-    @keyframes pulse-green {
-      0% { box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2), 0 0 0 0 rgba(16, 185, 129, 0.7); }
-      70% { box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2), 0 0 0 10px rgba(16, 185, 129, 0); }
-      100% { box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2), 0 0 0 0 rgba(16, 185, 129, 0); }
-    }
-    @keyframes pulse-red {
-      0% { box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2), 0 0 0 0 rgba(239, 68, 68, 0.7); }
-      70% { box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2), 0 0 0 10px rgba(239, 68, 68, 0); }
-      100% { box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2), 0 0 0 0 rgba(239, 68, 68, 0); }
-    }
-
-    /* Tactical Badge Styling */
+    /* Tactical mark: a small icon next to the score (no pill, no glow) */
     .tactical-badge {
       display: inline-flex;
       align-items: center;
-      font-size: 0.65rem;
-      font-weight: 800;
-      padding: 3.5px 9px;
-      border-radius: 9999px;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      border: 1px solid transparent;
+      justify-content: center;
       line-height: 1;
       align-self: center;
+      cursor: help;
     }
-    .tactical-badge.buy {
-      color: #10b981;
-      background: rgba(16, 185, 129, 0.1);
-      border-color: rgba(16, 185, 129, 0.25);
-      box-shadow: 0 0 8px rgba(16, 185, 129, 0.1);
-    }
-    .tactical-badge.overheat {
-      color: #ef4444;
-      background: rgba(239, 68, 68, 0.1);
-      border-color: rgba(239, 68, 68, 0.25);
-      box-shadow: 0 0 8px rgba(239, 68, 68, 0.1);
-    }
+    .tactical-badge svg { width: 16px; height: 16px; }
+    .tactical-badge.buy { color: #16a34a; }
+    .theme-dark .tactical-badge.buy { color: #4ade80; }
+    .tactical-badge.overheat { color: #ef4444; }
 
     /* Footer styling */
     footer {
@@ -2073,6 +2013,7 @@
         </div>
         <div class="sub-card-value-container">
           <span id="tech-warn" class="sub-warn-icon" style="display:none" title="One or more tech/macro metrics contradicts the tech subscore"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 9v4"/><path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0"/><path d="M12 16h.01"/></svg></span>
+          <span id="tech-tactical-badge" class="tactical-badge" style="display:none"></span>
           <div class="s-value" id="s-tech">—</div>
           <span id="tech-div-badge" style="display:none"></span>
         </div>
@@ -2080,9 +2021,6 @@
           <canvas id="gauge-tech" class="modern-sub-gauge-canvas"></canvas>
         </div>
         <div class="sub-gauge-status" id="tech-status">—</div>
-        <div id="tech-tactical-badge-container" style="margin-top: 4px; margin-bottom: 2px;">
-          <span id="tech-tactical-badge" class="tactical-badge" style="display:none"></span>
-        </div>
         <div class="bar-wrap"><div class="bar-fill" id="b-tech" style="width:0%"></div></div>
         <div class="s-sub">
           <span class="en">20% On-Chain + 80% Tech</span>
@@ -2680,7 +2618,7 @@
     // Fill: 0..value = bright zone colour; value..100 = uniform dim
     // At current value: tick crossing the arc
     // 0..value: parallel arc outlines on inner & outer rim
-    function drawModernGauge(canvas, value, isSmall, showWarn = false) {
+    function drawModernGauge(canvas, value, isSmall, showWarn = false, tactical = null) {
       if (!canvas || value == null) return;
       const isDark = !document.documentElement.classList.contains('theme-light');
 
@@ -2821,6 +2759,30 @@
 
         ctx.restore();
       }
+
+      // ── 7. Tactical mark — bitcoin coin (buy) / flame (overheat), right of number ──
+      if (tactical) {
+        ctx.font = `800 ${isSmall ? '24px' : '50px'} Outfit, sans-serif`;
+        const numW2 = ctx.measureText(numStr).width;
+        const iSz   = isSmall ? 14 : 20;
+        const gap   = isSmall ? 4 : 6;
+        const ix    = cx + numW2 / 2 + gap;     // left edge of icon
+        const iy    = numY - iSz / 2;           // top edge (centred on the number)
+        const COIN  = 'M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0M9 8h4.09c1.055 0 1.91 .895 1.91 2s-.855 2 -1.91 2c1.055 0 1.91 .895 1.91 2s-.855 2 -1.91 2h-4.09M10 12h4M10 7v10v-9M13 7v1M13 16v1';
+        const FLAME = 'M12 12c2 -2.96 0 -7 -1 -8c0 3.038 -1.773 4.741 -3 6c-1.226 1.26 -2 3.24 -2 5a6 6 0 1 0 12 0c0 -1.532 -1.056 -3.94 -2 -5c-1.786 3 -2.791 3 -4 2z';
+        const path  = new Path2D(tactical === 'overheat' ? FLAME : COIN);
+        const col   = tactical === 'overheat' ? '#ef4444' : (isDark ? '#4ade80' : '#16a34a');
+        const s     = iSz / 24;
+        ctx.save();
+        ctx.translate(ix, iy);
+        ctx.scale(s, s);
+        ctx.strokeStyle = col;
+        ctx.lineWidth   = 2;
+        ctx.lineCap     = 'round';
+        ctx.lineJoin    = 'round';
+        ctx.stroke(path);
+        ctx.restore();
+      }
     }
 
     function redrawAllModernGauges() {
@@ -2891,9 +2853,10 @@
         const v = window._gaugeValues;
         const ocWarn   = document.getElementById('oc-warn');
         const techWarn = document.getElementById('tech-warn');
-        drawModernGauge(document.getElementById('modern-gauge-canvas'),  v.final,     false, false);
+        const tac = window._tacticalSignal || null;
+        drawModernGauge(document.getElementById('modern-gauge-canvas'),  v.final,     false, false, tac);
         drawModernGauge(document.getElementById('gauge-oc'),             v.onchain,   true,  ocWarn   && ocWarn.style.display   !== 'none');
-        drawModernGauge(document.getElementById('gauge-tech'),           v.tech,      true,  techWarn && techWarn.style.display !== 'none');
+        drawModernGauge(document.getElementById('gauge-tech'),           v.tech,      true,  techWarn && techWarn.style.display !== 'none', tac);
         drawModernGauge(document.getElementById('gauge-yesterday'),      v.yesterday, true,  false);
         drawModernGauge(document.getElementById('gauge-week'),           v.week,      true,  false);
       }
@@ -3642,54 +3605,32 @@
       const mainBadge = document.getElementById('main-tactical-badge');
       const techBadge = document.getElementById('tech-tactical-badge');
 
+      // Tactical mark: a small icon next to the score (no card glow, no badge).
+      // Buy  = bitcoin coin  (low index + negative funding = leverage capitulation)
+      // Heat = flame         (high index + crowded long funding)
       window.activeTacticalState = 'neutral';
+      window._tacticalSignal = null;   // 'buy' | 'overheat' | null — drawn on the modern gauge
+      const COIN_SVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M9 8h4.09c1.055 0 1.91 .895 1.91 2s-.855 2 -1.91 2c1.055 0 1.91 .895 1.91 2s-.855 2 -1.91 2h-4.09"/><path d="M10 12h4"/><path d="M10 7v10v-9"/><path d="M13 7v1"/><path d="M13 16v1"/></svg>';
+      const FLAME_SVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 12c2 -2.96 0 -7 -1 -8c0 3.038 -1.773 4.741 -3 6c-1.226 1.26 -2 3.24 -2 5a6 6 0 1 0 12 0c0 -1.532 -1.056 -3.94 -2 -5c-1.786 3 -2.791 3 -4 2z"/></svg>';
+      [mainBadge, techBadge].forEach(b => { if (b) { b.style.display = 'none'; b.className = 'tactical-badge'; b.removeAttribute('title'); } });
       if (finalVal != null && fr && fr.latest != null) {
-        // Reset classes
-        if (mainCard) mainCard.classList.remove('tactical-buy', 'tactical-overheat');
-        if (techCard) techCard.classList.remove('tactical-buy', 'tactical-overheat');
-        if (finalScoreEl) finalScoreEl.classList.remove('tactical-buy', 'tactical-overheat');
-        if (markerDot) markerDot.classList.remove('tactical-buy', 'tactical-overheat');
-        
-        if (mainBadge) { mainBadge.style.display = 'none'; mainBadge.className = 'tactical-badge'; }
-        if (techBadge) { techBadge.style.display = 'none'; techBadge.className = 'tactical-badge'; }
-
-        // Condition 1: Tactical Buy (Capitulation)
+        let icon = null, cls = null, tip = null;
         if (finalVal <= 30 && fr.latest < 0) {
-          if (mainCard) mainCard.classList.add('tactical-buy');
-          if (techCard) techCard.classList.add('tactical-buy');
-          if (finalScoreEl) finalScoreEl.classList.add('tactical-buy');
-          if (markerDot) markerDot.classList.add('tactical-buy');
-          window.activeTacticalState = 'tactical-buy';
-          
-          if (mainBadge) {
-            mainBadge.innerHTML = '<span class="en">Buy Confirmed</span><span class="ua">Купівля підтверджена</span>';
-            mainBadge.classList.add('buy');
-            mainBadge.style.display = 'inline-flex';
-          }
-          if (techBadge) {
-            techBadge.innerHTML = '<span class="en">Buy Confirmed</span><span class="ua">Купівля підтверджена</span>';
-            techBadge.classList.add('buy');
-            techBadge.style.display = 'inline-flex';
-          }
+          icon = COIN_SVG; cls = 'buy';
+          tip = 'Tactical buy: low index + negative funding (leverage capitulation) · Тактична купівля: низький індекс + відʼємний funding (капітуляція плеча)';
+        } else if (finalVal >= 50 && fr.latest >= 0.05) {
+          icon = FLAME_SVG; cls = 'overheat';
+          tip = 'Leverage overheat: high index + crowded long funding · Перегрів плеча: високий індекс + перегріті лонги';
         }
-        // Condition 2: Tactical Overheat (Leverage Warning)
-        else if (finalVal >= 50 && fr.latest >= 0.05) {
-          if (mainCard) mainCard.classList.add('tactical-overheat');
-          if (techCard) techCard.classList.add('tactical-overheat');
-          if (finalScoreEl) finalScoreEl.classList.add('tactical-overheat');
-          if (markerDot) markerDot.classList.add('tactical-overheat');
-          window.activeTacticalState = 'tactical-overheat';
-          
-          if (mainBadge) {
-            mainBadge.innerHTML = '<span class="en">Leverage Warning</span><span class="ua">Сигнал перегріву</span>';
-            mainBadge.classList.add('overheat');
-            mainBadge.style.display = 'inline-flex';
-          }
-          if (techBadge) {
-            techBadge.innerHTML = '<span class="en">Leverage Warning</span><span class="ua">Сигнал перегріву</span>';
-            techBadge.classList.add('overheat');
-            techBadge.style.display = 'inline-flex';
-          }
+        if (icon) {
+          window._tacticalSignal = cls;   // for the canvas-drawn modern gauge
+          [mainBadge, techBadge].forEach(b => {
+            if (!b) return;
+            b.innerHTML = icon;
+            b.classList.add(cls);
+            b.title = tip;
+            b.style.display = 'inline-flex';
+          });
         }
       }
 
