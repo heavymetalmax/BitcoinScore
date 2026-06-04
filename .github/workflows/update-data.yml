@@ -7,6 +7,8 @@ on:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+  ZYTE_API_KEY: ${{ secrets.ZYTE_API_KEY }}
+  CMC_API_KEY: ${{ secrets.CMC_API_KEY }}
 
 jobs:
   update:
