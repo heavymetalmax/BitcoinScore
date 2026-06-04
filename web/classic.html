@@ -543,8 +543,14 @@
     .zone-side.buy .zone-side-num  { color: #10b981; }        /* buy-zone segment colour */
     .theme-dark .zone-side.buy .zone-side-num { color: #10b981; }
     .zone-side.sell .zone-side-num { color: #ef4444; }        /* sell-zone segment colour */
-    .zone-gauge-mid { flex: 0 0 auto; width: min(300px, 54%); }
-    .zone-gauge-mid canvas { display: block; margin: 0 auto; }
+    .main-back .zone-side.buy {
+      align-items: flex-start;
+      text-align: left;
+    }
+    .main-back .zone-side.sell {
+      align-items: flex-end;
+      text-align: right;
+    }
     .zone-disclaimer {
       font-size: 0.66rem;
       line-height: 1.5;
@@ -875,6 +881,7 @@
       margin-top: 8px;
       overflow: hidden;
       position: relative;
+      flex-shrink: 0;
     }
     
     .bar-fill {
@@ -895,6 +902,7 @@
       color: var(--text-mute);
       text-transform: uppercase;
       letter-spacing: 0.05em;
+      flex-shrink: 0;
     }
     .bar-legend > span {
       position: absolute;
@@ -1962,24 +1970,37 @@
 
         <!-- Secret back face: zone-price inversion (click card to flip) -->
         <div class="main-back" aria-hidden="true">
-          <div class="zone-back-title">
+          <div class="s-label">
             <span class="en">Not a price prediction</span>
             <span class="ua">Це не прогноз ціни</span>
           </div>
-          <div class="zone-gauge-row">
+          <div class="sub-card-value-container" style="width: 100%; justify-content: space-between; margin-bottom: 2px;">
             <div class="zone-side buy">
               <span class="zone-side-num" id="zone-buy-price">—</span>
               <span class="zone-side-lbl"><span class="en">Buy</span><span class="ua">Купівля</span></span>
             </div>
-            <div class="zone-gauge-mid">
-              <canvas id="zone-gauge-canvas"></canvas>
-            </div>
+            <div class="s-value" id="s-final-back">—</div>
             <div class="zone-side sell">
               <span class="zone-side-num" id="zone-sell-price">—</span>
               <span class="zone-side-lbl"><span class="en">Sell</span><span class="ua">Продаж</span></span>
             </div>
           </div>
-          <div class="zone-disclaimer">
+          <div class="bar-wrap" style="width: 100%;"><div class="bar-fill" id="b-final-back" style="width:0%"></div></div>
+          <div class="bar-legend" style="width: 100%;">
+            <span style="left: 10%;">
+              <span class="en">Buy</span>
+              <span class="ua">Купівля</span>
+            </span>
+            <span style="left: 50%;">
+              <span class="en">Neutral</span>
+              <span class="ua">Нейтрально</span>
+            </span>
+            <span style="left: 90%;">
+              <span class="en">Sell</span>
+              <span class="ua">Продаж</span>
+            </span>
+          </div>
+          <div class="zone-disclaimer" style="margin-top: 4px;">
             <span class="en">The index read <em>backwards</em>: holding today's on-chain cost basis fixed, the formula is solved for the price at which the score would reach each zone, assuming momentum and sentiment move with price as they usually do.</span>
             <span class="ua">Це індекс, прочитаний <em>навпаки</em>: тримаючи сьогоднішню ончейн-собівартість незмінною, формула розв'язується щодо ціни, за якої бал дійшов би до кожної зони, припускаючи, що моментум і настрої рухаються разом із ціною, як зазвичай.</span>
           </div>
@@ -2836,6 +2857,7 @@
         // Update subscore text colors
         const subscoreTextItems = [
           { id: 's-final', val: v.final },
+          { id: 's-final-back', val: v.final },
           { id: 's-oc',    val: v.onchain },
           { id: 's-tech',   val: v.tech },
           { id: 's-yesterday', val: v.yesterday },
@@ -2851,6 +2873,7 @@
         // Update Classic subscore progress bars
         const subscoreBars = [
           { id: 'b-final', val: v.final },
+          { id: 'b-final-back', val: v.final },
           { id: 'b-oc',    val: v.onchain },
           { id: 'b-tech',   val: v.tech },
           { id: 'b-yesterday', val: v.yesterday },
@@ -2878,7 +2901,6 @@
           drawModernGauge(document.getElementById('gauge-yesterday'),      v.yesterday, true,  false);
           drawModernGauge(document.getElementById('gauge-week'),           v.week,      true,  false);
         }
-        drawModernGauge(document.getElementById('zone-gauge-canvas'),    v.final,     false, false, null);   // back of the flip card
       }
 
       // Redraw/toggle metric bars
@@ -3395,6 +3417,7 @@
       
       // Update main score values (numerical labels)
       setScore('s-final', 'b-final', data.final_score);
+      setScore('s-final-back', 'b-final-back', data.final_score);
       setScore('s-oc',    'b-oc',    data.onchain_score);
       setScore('s-tech',  'b-tech',  data.tech_score);
 
