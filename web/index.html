@@ -398,14 +398,12 @@
     .nav-menu {
       display: flex;
       gap: 6px;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid var(--divider);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
       padding: 4px;
       border-radius: 9999px;
+      backdrop-filter: var(--glass-blur);
       flex-wrap: wrap;
-    }
-    .theme-light .nav-menu {
-      background: rgba(0, 0, 0, 0.02);
     }
     .nav-btn {
       background: transparent;
@@ -1076,7 +1074,7 @@
       }
       
       html.style-classic .nav-menu {
-        width: 100%;
+        width: fit-content;
         justify-content: flex-start;
       }
       
@@ -3793,7 +3791,11 @@
 
       const dpr = window.devicePixelRatio || 1;
       const isMobile = window.innerWidth <= 768;
-      const W   = canvas.parentElement.clientWidth || 600;
+      const parent = canvas.parentElement;
+      const pStyle = window.getComputedStyle(parent);
+      const pLeft  = parseFloat(pStyle.paddingLeft) || 0;
+      const pRight = parseFloat(pStyle.paddingRight) || 0;
+      const W      = (parent.clientWidth - pLeft - pRight) || 600;
       const H   = isMobile ? Math.round(W * 9 / 16) : 220;
       canvas.width  = W * dpr;
       canvas.height = H * dpr;
