@@ -469,6 +469,80 @@
       z-index: 1;
     }
 
+    /* ── Secret flip: click the index card to reveal the zone-price inversion ── */
+    #main-card { perspective: 1800px; cursor: pointer; }
+    .main-flip {
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.7s cubic-bezier(0.45, 0.05, 0.2, 1);
+    }
+    #main-card.flipped .main-flip { transform: rotateY(180deg); }
+    .main-inner { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+    .main-back {
+      position: absolute;
+      inset: 0;
+      transform: rotateY(180deg);
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      padding: 8px 6px;
+      z-index: 2;
+    }
+    .zone-back-title {
+      font-size: 0.7rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--text-mute);
+    }
+    .zone-rows { display: flex; flex-direction: column; gap: 12px; width: min(420px, 92%); }
+    .zone-row {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      align-items: baseline;
+      gap: 10px;
+      padding: 12px 16px;
+      border-radius: 14px;
+      background: var(--bg-card-2, rgba(127,127,127,0.08));
+      border: 1px solid var(--border);
+    }
+    .zone-name { text-align: left; font-weight: 700; font-size: 0.92rem; color: var(--text); }
+    .zone-name small {
+      display: block; font-weight: 700; font-size: 0.62rem;
+      letter-spacing: 0.08em; color: var(--text-mute); margin-top: 2px;
+    }
+    .zone-price { font-size: 1.32rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+    .zone-row.buy .zone-price  { color: #16a34a; }
+    .zone-row.sell .zone-price { color: var(--index-color, #f7931a); }
+    .theme-dark .zone-row.buy .zone-price { color: #4ade80; }
+    .zone-pct { font-size: 0.82rem; font-weight: 700; color: var(--text-mute); font-variant-numeric: tabular-nums; }
+    .zone-anchor { font-size: 0.72rem; color: var(--text-mute); font-weight: 600; }
+    .zone-disclaimer {
+      font-size: 0.66rem;
+      line-height: 1.5;
+      color: var(--text-mute);
+      max-width: min(440px, 94%);
+      text-align: center;
+      opacity: 0.85;
+    }
+    .zone-disclaimer em { font-style: italic; opacity: 0.95; }
+    .flip-hint {
+      position: absolute;
+      bottom: 12px;
+      right: 14px;
+      z-index: 3;
+      opacity: 0.22;
+      transition: opacity 0.25s ease, transform 0.4s ease;
+      pointer-events: none;
+      color: var(--text-mute);
+    }
+    #main-card:hover .flip-hint { opacity: 0.6; }
+    #main-card.flipped .flip-hint { transform: rotate(180deg); }
+
     /* Full-Screen Canvas Backdrop for Candlestick Waves */
     #bg-canvas {
       position: fixed;
@@ -1879,7 +1953,8 @@
     </div>
     <div class="scores">
       <!-- Hero Card -->
-      <div class="score-box main" id="main-card">
+      <div class="score-box main" id="main-card" title="Click to flip">
+        <div class="main-flip">
         <div class="main-inner">
           <div class="hero-top-row">
             <div class="hero-title-area">
@@ -1947,7 +2022,42 @@
               </span>
             </div>
           </div>
+        </div><!-- /.main-inner (front) -->
+
+        <!-- Secret back face: zone-price inversion (click card to flip) -->
+        <div class="main-back" aria-hidden="true">
+          <div class="zone-back-title">
+            <span class="en">Zone Inversion</span>
+            <span class="ua">Інверсія зон</span>
+          </div>
+          <div class="zone-rows">
+            <div class="zone-row buy">
+              <span class="zone-name">
+                <span class="en">Buy zone</span><span class="ua">Зона купівлі</span>
+                <small>index &le; 20</small>
+              </span>
+              <span class="zone-price" id="zone-buy-price">—</span>
+              <span class="zone-pct" id="zone-buy-pct"></span>
+            </div>
+            <div class="zone-row sell">
+              <span class="zone-name">
+                <span class="en">Sell zone</span><span class="ua">Зона продажу</span>
+                <small>index &ge; 80</small>
+              </span>
+              <span class="zone-price" id="zone-sell-price">—</span>
+              <span class="zone-pct" id="zone-sell-pct"></span>
+            </div>
+          </div>
+          <div class="zone-anchor" id="zone-anchor"></div>
+          <div class="zone-disclaimer">
+            <span class="en">Not a price prediction. This is the index read <em>backwards</em>: holding today's on-chain cost basis fixed, it solves the exact formula for the price at which the score would reach each zone, assuming momentum and sentiment move with price as they usually do. The map, not the territory.</span>
+            <span class="ua">Це не прогноз ціни. Це індекс, прочитаний <em>навпаки</em>: тримаючи сьогоднішню ончейн-собівартість незмінною, формула розв'язується щодо ціни, за якої бал дійшов би до кожної зони, припускаючи, що моментум і настрої рухаються разом із ціною, як зазвичай. Це карта, а не територія.</span>
+          </div>
         </div>
+        </div><!-- /.main-flip -->
+        <span class="flip-hint" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M19.95 11a8 8 0 1 0 -.5 4m.5 5v-5h-5"/></svg>
+        </span>
       </div>
 
       <!-- Subscore Cards -->
@@ -3407,6 +3517,34 @@
       if (cardPrice) {
         cardPrice.textContent = data.btc_price ? '$' + data.btc_price.toLocaleString() : '\u2014';
       }
+
+      // \u2500\u2500 Secret flip: populate the zone-price inversion + bind the click \u2500\u2500
+      (function () {
+        const zf = data.zone_forecast;
+        const fmtP = (p) => (p != null) ? '$' + Math.round(p).toLocaleString() : '\u2014';
+        const fmtPct = (v) => (v == null) ? '' : (v > 0 ? '+' : '') + Math.round(v) + '%';
+        const set = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
+        if (zf) {
+          set('zone-buy-price',  zf.buy  && zf.buy.price  ? fmtP(zf.buy.price)  : '\u2014');
+          set('zone-buy-pct',    zf.buy  ? fmtPct(zf.buy.pct)  : '');
+          set('zone-sell-price', zf.sell && zf.sell.price ? fmtP(zf.sell.price) : '\u2014');
+          set('zone-sell-pct',   zf.sell ? fmtPct(zf.sell.pct) : '');
+          const anchor = document.getElementById('zone-anchor');
+          if (anchor && zf.realized_price) {
+            anchor.innerHTML =
+              '<span class="en">Network cost basis (realized price): ' + fmtP(zf.realized_price) + '</span>' +
+              '<span class="ua">\u0421\u043e\u0431\u0456\u0432\u0430\u0440\u0442\u0456\u0441\u0442\u044c \u043c\u0435\u0440\u0435\u0436\u0456 (realized price): ' + fmtP(zf.realized_price) + '</span>';
+          }
+        }
+        const card = document.getElementById('main-card');
+        if (card && !card._flipBound) {
+          card._flipBound = true;
+          card.addEventListener('click', () => {
+            if (window.getSelection && String(window.getSelection()).length) return; // don't flip mid-selection
+            card.classList.toggle('flipped');
+          });
+        }
+      })();
 
       // Read on-chain metrics values
       const nupl  = mv('nupl');

@@ -370,5 +370,19 @@
       "score": 32,
       "price": 67043.89195648434
     }
-  ]
+  ],
+  "zone_forecast": {
+    "buy": {
+      "price": 54496,
+      "pct": -18.7
+    },
+    "sell": {
+      "price": 175322,
+      "pct": 161.5
+    },
+    "buy_threshold": 20,
+    "sell_threshold": 80,
+    "realized_price": 54152,
+    "ref_price": 67044
+  }
 }

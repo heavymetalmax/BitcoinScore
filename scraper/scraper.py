@@ -420,6 +420,15 @@ def main():
         p['final_score']   = scores['final_score']
         if scores.get('adaptive'):
             p['adaptive_calibration'] = scores['adaptive']  # transparency: fixed vs blended per metric
+        # Invert the index -> Buy/Sell zone prices (not a forecast; see zone_forecast.py)
+        try:
+            from .zone_forecast import compute_zone_forecast
+            zf = compute_zone_forecast(p.get('metrics', {}), p.get('btc_price'))
+            if zf:
+                p['zone_forecast'] = zf
+                print(f"Zone prices: buy={zf['buy']['price']}  sell={zf['sell']['price']}  (realized={zf['realized_price']})")
+        except Exception as e:
+            print('Failed to compute zone forecast:', e)
         write_json('data/data.json', p)
         print(f"Scores: onchain={scores['onchain_score']}  tech={scores['tech_score']}  final={scores['final_score']}")
         for mk, mv in (scores.get('adaptive') or {}).items():
@@ -453,6 +462,10 @@ def main():
             'onchain_score': p.get('onchain_score'),
             'tech_score':    p.get('tech_score'),
             'final_score':   p.get('final_score'),
+            # inverted zone prices logged daily, to backtest these against the
+            # actual future price once enough history accumulates
+            'buy_zone_price':  (p.get('zone_forecast') or {}).get('buy', {}).get('price'),
+            'sell_zone_price': (p.get('zone_forecast') or {}).get('sell', {}).get('price'),
             # raw indicator values (flattened to scalars)
             'raw': {
                 'nupl':           sclr(raw('nupl')),
