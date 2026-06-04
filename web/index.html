@@ -469,8 +469,8 @@
       z-index: 1;
     }
 
-    /* ── Secret flip: click the index card to reveal the zone-price inversion ── */
-    #main-card { perspective: 1800px; cursor: pointer; }
+    /* ── Secret flip (easter egg): click the index card to reveal the zone-price inversion ── */
+    #main-card { perspective: 1800px; }
     .main-flip {
       position: relative;
       transform-style: preserve-3d;
@@ -530,18 +530,6 @@
       opacity: 0.85;
     }
     .zone-disclaimer em { font-style: italic; opacity: 0.95; }
-    .flip-hint {
-      position: absolute;
-      bottom: 12px;
-      right: 14px;
-      z-index: 3;
-      opacity: 0.22;
-      transition: opacity 0.25s ease, transform 0.4s ease;
-      pointer-events: none;
-      color: var(--text-mute);
-    }
-    #main-card:hover .flip-hint { opacity: 0.6; }
-    #main-card.flipped .flip-hint { transform: rotate(180deg); }
 
     /* Full-Screen Canvas Backdrop for Candlestick Waves */
     #bg-canvas {
@@ -1953,7 +1941,7 @@
     </div>
     <div class="scores">
       <!-- Hero Card -->
-      <div class="score-box main" id="main-card" title="Click to flip">
+      <div class="score-box main" id="main-card">
         <div class="main-flip">
         <div class="main-inner">
           <div class="hero-top-row">
@@ -2055,9 +2043,6 @@
           </div>
         </div>
         </div><!-- /.main-flip -->
-        <span class="flip-hint" aria-hidden="true">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M19.95 11a8 8 0 1 0 -.5 4m.5 5v-5h-5"/></svg>
-        </span>
       </div>
 
       <!-- Subscore Cards -->
