@@ -140,51 +140,51 @@
       "updated": "2026-06-04T05:13:27Z"
     },
     "m2_mom": {
-      "value": null,
-      "source": "MacroMicro",
-      "updated": "2026-06-04T05:13:58Z"
+      "value": 5.18,
+      "source": "MacroMicro (cached: live fetch failed)",
+      "updated": "2026-06-04T05:13:26Z"
     }
   },
-  "m2_mom": null,
-  "onchain_score": 34,
+  "m2_mom": 5.18,
+  "onchain_score": 35,
   "tech_score": 27,
-  "final_score": 30,
+  "final_score": 31,
   "adaptive_calibration": {
     "mayer": {
       "fixed": 19,
-      "adaptive": 15,
-      "blended": 17,
+      "adaptive": 17,
+      "blended": 18,
       "win_years": 4,
       "blend_w": 0.5
     },
     "nupl": {
       "fixed": 46,
-      "adaptive": 21,
+      "adaptive": 23,
       "blended": 34,
       "win_years": 4,
       "blend_w": 0.5
     },
     "mvrv": {
       "fixed": 35,
-      "adaptive": 23,
-      "blended": 29,
+      "adaptive": 25,
+      "blended": 30,
       "win_years": 4,
       "blend_w": 0.5
     }
   },
   "zone_forecast": {
     "buy": {
-      "price": 52829,
-      "pct": -17.1
+      "price": 51712,
+      "pct": -18.9
     },
     "sell": {
-      "price": 134598,
-      "pct": 111.1
+      "price": 154057,
+      "pct": 141.6
     },
     "buy_threshold": 20,
     "sell_threshold": 80,
-    "realized_price": 51499,
-    "ref_price": 63760
+    "realized_price": 51498,
+    "ref_price": 63759
   },
   "prev_day": {
     "date": "2026-06-03",

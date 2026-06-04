@@ -323,12 +323,37 @@ def main():
     try:
         from .m2_metric import get_m2 as _get_m2_yoy
         mom_val = _get_m2_yoy()
+        m2_src = 'MacroMicro'
+        if mom_val is None:
+            # Both MacroMicro and FRED failed. M2 YoY moves slowly, so reuse the
+            # last known good value rather than writing None: a missing metric
+            # silently drops out of the index average and skews every score.
+            last_good = None
+            pm = (prev_metrics or {}).get('m2_mom') if prev_metrics else None
+            if isinstance(pm, dict) and pm.get('value') is not None:
+                last_good = pm['value']
+            if last_good is None:
+                try:
+                    with open('data/history/daily_vector.json', encoding='utf-8') as hf:
+                        for row in reversed(json.load(hf)):
+                            v = (row.get('raw') or {}).get('m2_yoy')
+                            if v is not None:
+                                last_good = v
+                                break
+                except Exception:
+                    pass
+            if last_good is not None:
+                mom_val = last_good
+                m2_src = 'MacroMicro (cached: live fetch failed)'
+                print(f'M2 live fetch failed; reused last known M2 YoY = {last_good}')
+            else:
+                print('M2 live fetch failed and no cached value found; leaving None')
         if 'metrics' not in p:
             p['metrics'] = {}
-        p['metrics']['m2_mom'] = {'value': mom_val, 'source': 'MacroMicro', 'updated': now_iso()}
+        p['metrics']['m2_mom'] = {'value': mom_val, 'source': m2_src, 'updated': now_iso()}
         p['m2_mom'] = mom_val
         write_json('data/data.json', p)
-        print('Updated data/data.json with M2 MoM')
+        print(f'Updated data/data.json with M2 MoM = {mom_val} ({m2_src})')
     except Exception as e:
         print('Failed to compute/include M2 MoM:', e)
 
