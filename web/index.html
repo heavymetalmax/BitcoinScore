@@ -1003,9 +1003,8 @@
       cursor: help;
     }
     .tactical-badge svg { width: 16px; height: 16px; }
-    .tactical-badge.buy { color: #16a34a; }
-    .theme-dark .tactical-badge.buy { color: #4ade80; }
-    .tactical-badge.overheat { color: #ef4444; }
+    .tactical-badge.buy,
+    .tactical-badge.overheat { color: #f7931a; }   /* bitcoin orange */
 
     /* Footer styling */
     footer {
@@ -2760,18 +2759,22 @@
         ctx.restore();
       }
 
-      // ── 7. Tactical mark — bitcoin coin (buy) / flame (overheat), right of number ──
+      // ── 7. Tactical mark — coin to the LEFT of the number (where the alert sits) ──
+      // buy = bitcoin coin, overheat = plain coin; both bitcoin-orange
       if (tactical) {
         ctx.font = `800 ${isSmall ? '24px' : '50px'} Outfit, sans-serif`;
         const numW2 = ctx.measureText(numStr).width;
         const iSz   = isSmall ? 14 : 20;
         const gap   = isSmall ? 4 : 6;
-        const ix    = cx + numW2 / 2 + gap;     // left edge of icon
+        // sit just left of the number; if the alert is also shown, step left of it
+        let rightEdge = cx - numW2 / 2 - gap;
+        if (showWarn) { const warnW = isSmall ? 12 : 18; rightEdge = cx - numW2 / 2 - 4 - warnW - gap; }
+        const ix    = rightEdge - iSz;          // left edge of icon
         const iy    = numY - iSz / 2;           // top edge (centred on the number)
-        const COIN  = 'M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0M9 8h4.09c1.055 0 1.91 .895 1.91 2s-.855 2 -1.91 2c1.055 0 1.91 .895 1.91 2s-.855 2 -1.91 2h-4.09M10 12h4M10 7v10v-9M13 7v1M13 16v1';
-        const FLAME = 'M12 12c2 -2.96 0 -7 -1 -8c0 3.038 -1.773 4.741 -3 6c-1.226 1.26 -2 3.24 -2 5a6 6 0 1 0 12 0c0 -1.532 -1.056 -3.94 -2 -5c-1.786 3 -2.791 3 -4 2z';
-        const path  = new Path2D(tactical === 'overheat' ? FLAME : COIN);
-        const col   = tactical === 'overheat' ? '#ef4444' : (isDark ? '#4ade80' : '#16a34a');
+        const BTC_COIN = 'M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0M9 8h4.09c1.055 0 1.91 .895 1.91 2s-.855 2 -1.91 2c1.055 0 1.91 .895 1.91 2s-.855 2 -1.91 2h-4.09M10 12h4M10 7v10v-9M13 7v1M13 16v1';
+        const GEN_COIN = 'M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0M14.8 9a2 2 0 0 0 -1.8 -1h-2a2 2 0 1 0 0 4h2a2 2 0 1 1 0 4h-2a2 2 0 0 1 -1.8 -1M12 7v10';
+        const path  = new Path2D(tactical === 'overheat' ? GEN_COIN : BTC_COIN);
+        const col   = '#f7931a';                // bitcoin orange (theme accent)
         const s     = iSz / 24;
         ctx.save();
         ctx.translate(ix, iy);
@@ -3607,11 +3610,11 @@
 
       // Tactical mark: a small icon next to the score (no card glow, no badge).
       // Buy  = bitcoin coin  (low index + negative funding = leverage capitulation)
-      // Heat = flame         (high index + crowded long funding)
+      // Heat = plain coin     (high index + crowded long funding); both bitcoin-orange
       window.activeTacticalState = 'neutral';
       window._tacticalSignal = null;   // 'buy' | 'overheat' | null — drawn on the modern gauge
       const COIN_SVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M9 8h4.09c1.055 0 1.91 .895 1.91 2s-.855 2 -1.91 2c1.055 0 1.91 .895 1.91 2s-.855 2 -1.91 2h-4.09"/><path d="M10 12h4"/><path d="M10 7v10v-9"/><path d="M13 7v1"/><path d="M13 16v1"/></svg>';
-      const FLAME_SVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 12c2 -2.96 0 -7 -1 -8c0 3.038 -1.773 4.741 -3 6c-1.226 1.26 -2 3.24 -2 5a6 6 0 1 0 12 0c0 -1.532 -1.056 -3.94 -2 -5c-1.786 3 -2.791 3 -4 2z"/></svg>';
+      const FLAME_SVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M14.8 9a2 2 0 0 0 -1.8 -1h-2a2 2 0 1 0 0 4h2a2 2 0 1 1 0 4h-2a2 2 0 0 1 -1.8 -1"/><path d="M12 7v10"/></svg>';
       [mainBadge, techBadge].forEach(b => { if (b) { b.style.display = 'none'; b.className = 'tactical-badge'; b.removeAttribute('title'); } });
       if (finalVal != null && fr && fr.latest != null) {
         let icon = null, cls = null, tip = null;
