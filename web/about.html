@@ -973,6 +973,43 @@
     </table>
   </div>
 
+  <h3 id="tactical-signals" style="margin-top: 32px;">
+    <span class="en">Tactical Signals &amp; Warning Badges</span>
+    <span class="ua">Тактичні сигнали та значки попередження</span>
+  </h3>
+  <p class="en">To provide deeper insight into current market conditions and anomalous behaviors, the main index card displays real-time badges next to the risk score under specific conditions:</p>
+  <p class="ua">Для детальнішого аналізу поточного ринкового стану та аномальних явищ, головна картка індексу динамічно виводить спеціальні значки поруч із числовим значенням за певних умов:</p>
+  
+  <ul style="list-style-type: none; padding-left: 0; margin-bottom: 32px;">
+    <li style="margin-bottom: 20px;">
+      <strong>
+        <svg style="width:16px;height:16px;vertical-align:middle;margin-right:6px;color:#f7931a;position:relative;top:-1px;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M9 8h4.09c1.055 0 1.91 .895 1.91 2s-.855 2 -1.91 2c1.055 0 1.91 .895 1.91 2s-.855 2 -1.91 2h-4.09"/><path d="M10 12h4"/><path d="M10 7v10v-9"/><path d="M13 7v1"/><path d="M13 16v1"/></svg>
+        <span class="en">Bitcoin Coin Badge (Tactical Buy)</span>
+        <span class="ua">Значок монетки біткоїна (Тактична купівля)</span>
+      </strong>
+      <div class="en" style="margin-top: 6px; padding-left: 24px; color: var(--text-mute); font-size: 0.92rem; line-height: 1.5;">Appears when the final risk score is low (≤ 30) AND the 8h leverage funding rate is negative (< 0). This signals a leverage capitulation event, indicating futures traders are aggressively shorting at a long-term cyclical floor—historically a high-probability window for spot accumulation.</div>
+      <div class="ua" style="margin-top: 6px; padding-left: 24px; color: var(--text-mute); font-size: 0.92rem; line-height: 1.5;">З'являється, коли фінальне значення індексу низьке (≤ 30) ТА 8-годинна ставка фінансування (funding rate) є від'ємною (< 0). Це сигналізує про капітуляцію маржинального плеча, показуючи, що ф'ючерсні трейдери агресивно відкривають шорти на довгостроковому циклічному дні, що історично є сприятливим часом для спотового накопичення.</div>
+    </li>
+    <li style="margin-bottom: 20px;">
+      <strong>
+        <svg style="width:16px;height:16px;vertical-align:middle;margin-right:6px;color:#f7931a;position:relative;top:-1px;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M14.8 9a2 2 0 0 0 -1.8 -1h-2a2 2 0 1 0 0 4h2a2 2 0 1 1 0 4h-2a2 2 0 0 1 -1.8 -1"/><path d="M12 7v10"/></svg>
+        <span class="en">Dollar Coin Badge (Leverage Overheat)</span>
+        <span class="ua">Значок монетки долара (Перегрів плеча)</span>
+      </strong>
+      <div class="en" style="margin-top: 6px; padding-left: 24px; color: var(--text-mute); font-size: 0.92rem; line-height: 1.5;">Appears when the final risk score is high (≥ 50) AND the leverage funding rate is heavily positive (≥ 0.05%). This flags a leverage overheat state, meaning long positions on futures are highly crowded and expensive to hold, warning of an elevated risk of a cascading long-squeeze.</div>
+      <div class="ua" style="margin-top: 6px; padding-left: 24px; color: var(--text-mute); font-size: 0.92rem; line-height: 1.5;">З'являється, коли фінальне значення індексу високе (≥ 50) ТА ставка фінансування є суттєво позитивною (≥ 0.05%). Це вказує на перегрів маржинального ринку, тобто лонг-позиції на ф'ючерсах переповнені і дорогі в утриманні, що попереджає про підвищений ризик лавиноподібного лонг-сквізу.</div>
+    </li>
+    <li style="margin-bottom: 20px;">
+      <strong>
+        <svg style="width:16px;height:16px;vertical-align:middle;margin-right:6px;color:#ef4444;position:relative;top:-1px;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 9v4"/><path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0"/><path d="M12 16h.01"/></svg>
+        <span class="en">Red Warning Triangle (Divergence Warning)</span>
+        <span class="ua">Червоний трикутник попередження (Сигнал розбіжності)</span>
+      </strong>
+      <div class="en" style="margin-top: 6px; padding-left: 24px; color: var(--text-mute); font-size: 0.92rem; line-height: 1.5;">Appears next to the main index or subscores when one or more key underlying indicators strongly contradict the overall index value. It is triggered if the overall index points to accumulation (≤ 40) but some metric is in the risk zone (≥ 65), or if the index is high (≥ 60) but some metric remains deeply in the accumulation zone (≤ 35). This alerts the user to structural divergences across different on-chain or macro dimensions.</div>
+      <div class="ua" style="margin-top: 6px; padding-left: 24px; color: var(--text-mute); font-size: 0.92rem; line-height: 1.5;">З'являється поруч із основним індексом або суб-показниками, коли один або кілька ключових базових індикаторів сильно суперечать загальному значенню індексу. Він активується, якщо загальний індекс вказує на накопичення (≤ 40), але деякі показники перебувають у зоні високого ризику (≥ 65), або навпаки (індекс високий ≥ 60, але показник залишається глибоко в зоні накопичення ≤ 35). Це попереджає користувача про структурні розбіжності між різними ончейн- та макро-параметрами.</div>
+    </li>
+  </ul>
+
   <h2 id="on-chain">
     <span class="en">3. On-Chain Indicators (OC)</span>
     <span class="ua">3. Ончейн-індикатори (OC)</span>
