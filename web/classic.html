@@ -4,8 +4,8 @@
 
   <script>
     (function() {
-      localStorage.setItem('bbr-style', 'modern');
-      const style = 'modern';
+      localStorage.setItem('bbr-style', 'classic');
+      const style = 'classic';
       const mode = localStorage.getItem('bbr-mode') || 'auto';
       let theme = 'dark';
       if (mode === 'auto') {
@@ -536,9 +536,9 @@
       letter-spacing: 0.1em;
       color: var(--text-mute);
     }
-    .zone-side.buy .zone-side-num  { color: #374151; }        /* buy-zone segment colour */
-    .theme-dark .zone-side.buy .zone-side-num { color: #8892a4; }
-    .zone-side.sell .zone-side-num { color: #f7931a; }        /* sell-zone segment colour */
+    .zone-side.buy .zone-side-num  { color: #10b981; }        /* buy-zone segment colour */
+    .theme-dark .zone-side.buy .zone-side-num { color: #10b981; }
+    .zone-side.sell .zone-side-num { color: #ef4444; }        /* sell-zone segment colour */
     .zone-gauge-mid { flex: 0 0 auto; width: min(300px, 54%); }
     .zone-gauge-mid canvas { display: block; margin: 0 auto; }
     .zone-disclaimer {
@@ -1903,71 +1903,24 @@
       <div class="score-box main" id="main-card">
         <div class="main-flip">
         <div class="main-inner">
-          <div class="hero-top-row">
-            <div class="hero-title-area">
-              <span class="hero-label" id="hero-label">
-                <span class="en">Composite Risk Index</span>
-                <span class="ua">Композитний індекс ризику</span>
-              </span>
-            </div>
-            <div class="hero-status-area">
-              <span class="hero-score-val" id="s-final">—</span>
-              <span class="hero-score-label" id="s-final-label" style="display:none;">—</span>
-              <span id="main-tactical-badge" class="tactical-badge" style="display:none"></span>
-              <span id="s-warn" class="warning-badge" style="display:none;" title="One or more key indicators contradicts the overall index direction">
-                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 9v4"/><path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0"/><path d="M12 16h.01"/></svg><span class="en">Contradiction</span>
-                <span class="ua">Розбіжність</span>
-              </span>
-            </div>
+          <div class="s-label">
+            <span class="en">Composite Risk Index</span>
+            <span class="ua">Композитний індекс ризику</span>
           </div>
-          
-          <!-- Modern Style Canvas Gauge -->
-          <div class="modern-gauge-container" style="display: none; flex-direction: column; align-items: center; margin: 2px 0 4px;">
-            <div class="modern-main-gauge-wrap">
-              <canvas id="modern-gauge-canvas" style="max-width: 320px; width: 100%;"></canvas>
-            </div>
-            <div id="modern-gauge-status" style="font-size: 1rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: var(--index-color); margin-top: 2px;">
-              <span class="en" id="modern-gauge-status-en">—</span>
-              <span class="ua" id="modern-gauge-status-ua">—</span>
-            </div>
-            <div style="font-size: 0.62rem; font-weight: 700; color: var(--text-mute); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 2px;">
-              <span class="en">50% On-Chain + 50% Tech</span>
-              <span class="ua">50% Ончейн + 50% Тех</span>
-            </div>
-            <span id="modern-gauge-badge" style="display:none">— / 100</span>
+          <div class="sub-card-value-container">
+            <span id="s-warn" class="sub-warn-icon" style="display:none" title="One or more key indicators contradicts the overall index direction"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 9v4"/><path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0"/><path d="M12 16h.01"/></svg></span>
+            <span id="main-tactical-badge" class="tactical-badge" style="display:none"></span>
+            <div class="s-value" id="s-final">—</div>
+            <span id="main-div-badge" style="display:none"></span>
           </div>
-
-          <!-- Option 2: Horizontal Risk Pointer Track -->
-          <div class="risk-track-container">
-            <div class="risk-track" id="risk-track">
-              <!-- Floating Neon Marker pointer -->
-              <div class="risk-marker" id="risk-marker" style="left: 50%;">
-                <div class="risk-marker-dot">
-                  <span class="risk-trend-indicator" id="marker-trend-up"></span>
-                  <span class="risk-marker-num" id="marker-num">—</span>
-                  <span class="risk-trend-indicator" id="marker-trend-down"></span>
-                  <span class="risk-marker-lbl" id="marker-lbl">—</span>
-                </div>
-              </div>
-              <!-- Ticks at 25% and 75% -->
-              <div class="risk-tick" style="left: 20%;" title="Buy zone boundary (20)"></div>
-              <div class="risk-tick" style="left: 80%;" title="Sell zone boundary (80)"></div>
-            </div>
-            
-            <div class="risk-track-legend">
-              <span>
-                <span class="en">Buy</span>
-                <span class="ua">Купувати</span>
-              </span>
-              <span>
-                <span class="en">Neutral</span>
-                <span class="ua">Нейтрально</span>
-              </span>
-              <span>
-                <span class="en">Sell</span>
-                <span class="ua">Продавати</span>
-              </span>
-            </div>
+          <div class="modern-sub-gauge-wrap" style="display:none;">
+            <canvas id="gauge-main" class="modern-sub-gauge-canvas"></canvas>
+          </div>
+          <div class="sub-gauge-status" id="main-status">—</div>
+          <div class="bar-wrap"><div class="bar-fill" id="b-final" style="width:0%"></div></div>
+          <div class="s-sub">
+            <span class="en">50% On-Chain + 50% Tech</span>
+            <span class="ua">50% Ончейн + 50% Тех</span>
           </div>
         </div><!-- /.main-inner (front) -->
 
@@ -2463,7 +2416,7 @@
   <script>
     // Theme switcher handlers
     function updateThemeClass() {
-      const style = 'modern';
+      const style = 'classic';
       const mode = localStorage.getItem('bbr-mode') || 'auto';
       
       let theme = 'dark';
@@ -2537,10 +2490,10 @@
     }
 
     function setStyle(style) {
-      if (style === 'classic') {
-        location.href = 'classic.html';
+      if (style === 'modern') {
+        location.href = 'index.html';
       } else {
-        localStorage.setItem('bbr-style', 'modern');
+        localStorage.setItem('bbr-style', 'classic');
         updateThemeClass();
       }
     }
@@ -2638,17 +2591,24 @@
     function drawModernGauge(canvas, value, isSmall, showWarn = false, tactical = null) {
       if (!canvas || value == null) return;
       const isDark = !document.documentElement.classList.contains('theme-light');
+      const style = 'classic';
 
-      // bright zone colours left→right (темносірий…помаранчевий)
-      const ZONE_BRIGHT = isDark
-        ? ['#8892a4', '#b0baca', '#d4d8df', '#fbbf24', '#f7931a']  // brighter on dark bg
-        : ['#374151', '#6b7280', '#c8cdd4', '#fdba74', '#f7931a'];
+      // bright zone colours left→right
+      const ZONE_BRIGHT = (style === 'classic')
+        ? ['#10b981', '#84cc16', '#eab308', '#f97316', '#ef4444'] // Classic Emerald, Lime, Yellow, Orange, Red
+        : (isDark
+            ? ['#8892a4', '#b0baca', '#d4d8df', '#fbbf24', '#f7931a']  // brighter on dark bg
+            : ['#374151', '#6b7280', '#c8cdd4', '#fdba74', '#f7931a']
+          );
       const ZONE_DIM = ZONE_BRIGHT;   // no dimming — all zones show at full colour
-      const RIM_COL      = '#f7931a';                       // always max orange
+      
+      const RIM_COL      = (style === 'classic') ? scoreColor(value) : '#f7931a';
       const RIM_GAP      = isSmall ? 2 : 3;
       const TICK_BND_COL = isDark ? '#4a5470' : '#c8cdd4';
-      const TICK_CUR_COL = '#f7931a';                        // always max orange
-      const NUM_COL      = isDark ? '#8892a4' : '#374151';  // darkest gauge segment
+      const TICK_CUR_COL = (style === 'classic') ? scoreColor(value) : '#f7931a';
+      const NUM_COL      = (style === 'classic') ? scoreColor(value) : (isDark ? '#8892a4' : '#374151');
+      
+      const fontName     = (style === 'classic') ? 'sans-serif' : 'Outfit, sans-serif';
 
       const dpr    = window.devicePixelRatio || 1;
       const maxW   = isSmall ? 180 : 320;
@@ -2711,7 +2671,7 @@
       if (value > 0 && value < 100) {
         const ca = toAngle(value);
         const fs = isSmall ? 24 : 50;
-        ctx.font = `800 ${fs}px Outfit, sans-serif`;
+        ctx.font = `800 ${fs}px ${fontName}`;
         const halfW = ctx.measureText(String(Math.round(value))).width / 2;
         const capHalf = fs * 0.38;                              // ~half the digit cap-height
         const numDist = R_in * (isSmall ? 0.34 : 0.32);        // centre -> number centre
@@ -2732,7 +2692,7 @@
       ctx.fillStyle    = NUM_COL;
       ctx.textAlign    = 'center';
       ctx.textBaseline = 'middle';
-      ctx.font = `800 ${isSmall ? '24px' : '50px'} Outfit, sans-serif`;
+      ctx.font = `800 ${isSmall ? '24px' : '50px'} ${fontName}`;
       ctx.fillText(numStr, cx, numY);
 
       // ── 6. Warning icon — drawn to the left of the number ─────────────────
@@ -2742,7 +2702,7 @@
         const iGap   = 4;
         const ix     = cx - numW / 2 - iGap - iSz;  // right edge of icon
         const iy     = numY;                          // vertically centred with number
-        const WARN   = '#f7931a';                     // orange in Modern theme
+        const WARN   = (style === 'classic') ? scoreColor(value) : '#f7931a';
         const lw     = isSmall ? 1.5 : 2;
         const triH   = iSz * 0.866;
 
@@ -2778,9 +2738,9 @@
       }
 
       // ── 7. Tactical mark — coin to the LEFT of the number (where the alert sits) ──
-      // buy = bitcoin coin, overheat = plain coin; both bitcoin-orange
+      // buy = bitcoin coin, overheat = plain coin
       if (tactical) {
-        ctx.font = `800 ${isSmall ? '24px' : '50px'} Outfit, sans-serif`;
+        ctx.font = `800 ${isSmall ? '24px' : '50px'} ${fontName}`;
         const numW2 = ctx.measureText(numStr).width;
         const iSz   = isSmall ? 14 : 20;
         const gap   = isSmall ? 4 : 6;
@@ -2792,7 +2752,7 @@
         const BTC_COIN = 'M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0M9 8h4.09c1.055 0 1.91 .895 1.91 2s-.855 2 -1.91 2c1.055 0 1.91 .895 1.91 2s-.855 2 -1.91 2h-4.09M10 12h4M10 7v10v-9M13 7v1M13 16v1';
         const GEN_COIN = 'M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0M14.8 9a2 2 0 0 0 -1.8 -1h-2a2 2 0 1 0 0 4h2a2 2 0 1 1 0 4h-2a2 2 0 0 1 -1.8 -1M12 7v10';
         const path  = new Path2D(tactical === 'overheat' ? GEN_COIN : BTC_COIN);
-        const col   = '#f7931a';                // bitcoin orange (theme accent)
+        const col   = (style === 'classic') ? scoreColor(value) : '#f7931a';
         const s     = iSz / 24;
         ctx.save();
         ctx.translate(ix, iy);
@@ -2807,7 +2767,7 @@
     }
 
     function redrawAllModernGauges() {
-      const style = 'modern';
+      const style = 'classic';
       const isModern = style === 'modern';
       const isDark = !document.documentElement.classList.contains('theme-light');
 
@@ -2870,17 +2830,19 @@
         });
       }
 
-      if (isModern && window._gaugeValues) {
+      if (window._gaugeValues) {
         const v = window._gaugeValues;
         const ocWarn   = document.getElementById('oc-warn');
         const techWarn = document.getElementById('tech-warn');
         const tac = window._tacticalSignal || null;
-        drawModernGauge(document.getElementById('modern-gauge-canvas'),  v.final,     false, false, tac);
+        if (isModern) {
+          drawModernGauge(document.getElementById('modern-gauge-canvas'),  v.final,     false, false, tac);
+          drawModernGauge(document.getElementById('gauge-oc'),             v.onchain,   true,  ocWarn   && ocWarn.style.display   !== 'none');
+          drawModernGauge(document.getElementById('gauge-tech'),           v.tech,      true,  techWarn && techWarn.style.display !== 'none', tac);
+          drawModernGauge(document.getElementById('gauge-yesterday'),      v.yesterday, true,  false);
+          drawModernGauge(document.getElementById('gauge-week'),           v.week,      true,  false);
+        }
         drawModernGauge(document.getElementById('zone-gauge-canvas'),    v.final,     false, false, null);   // back of the flip card
-        drawModernGauge(document.getElementById('gauge-oc'),             v.onchain,   true,  ocWarn   && ocWarn.style.display   !== 'none');
-        drawModernGauge(document.getElementById('gauge-tech'),           v.tech,      true,  techWarn && techWarn.style.display !== 'none', tac);
-        drawModernGauge(document.getElementById('gauge-yesterday'),      v.yesterday, true,  false);
-        drawModernGauge(document.getElementById('gauge-week'),           v.week,      true,  false);
       }
 
       // Redraw/toggle metric bars
@@ -3201,7 +3163,7 @@
     function scoreColor(v, alpha = 1) {
       if(v == null) return 'var(--text-mute)';
       // Modern: same 5-zone palette as gauge (темносірий→помаранчевий)
-      if (true) {
+      if (false) {
         const lm = document.documentElement.classList.contains('theme-light');
         if (v <= 20) return lm ? `rgba(55,65,81,${alpha})`   : `rgba(107,114,128,${alpha})`;  // dark gray
         if (v <= 40) return lm ? `rgba(107,114,128,${alpha})` : `rgba(156,163,175,${alpha})`; // gray
@@ -3245,7 +3207,7 @@
       const raw = document.getElementById('m-'+id+'-raw');
       if (bar) {
         bar.dataset.value = v;
-        const isModern = true;
+        const isModern = false;
         if (isModern) {
           drawModernBar(bar.parentElement, v);
         } else {
@@ -3256,7 +3218,7 @@
       }
       if(num) {
         num.textContent = sliderVal != null ? sliderVal : '\u2014';
-        const isModernNum = true;
+        const isModernNum = false;
         if (isModernNum) {
           const isDarkNum = !document.documentElement.classList.contains('theme-light');
           num.style.color = (v > 60)
@@ -3411,6 +3373,7 @@
         const L = riskLabel(v);
         el.innerHTML = `<span class="en">${L.en}</span><span class="ua">${L.ua}</span>`;
       };
+      setSubStatus('main-status',      data.final_score);
       setSubStatus('oc-status',        data.onchain_score);
       setSubStatus('tech-status',      data.tech_score);
       setSubStatus('yesterday-status', data.prev_day ? data.prev_day.final_score : null);
@@ -3626,7 +3589,14 @@
       window._tacticalSignal = null;   // 'buy' | 'overheat' | null — drawn on the modern gauge
       const COIN_SVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M9 8h4.09c1.055 0 1.91 .895 1.91 2s-.855 2 -1.91 2c1.055 0 1.91 .895 1.91 2s-.855 2 -1.91 2h-4.09"/><path d="M10 12h4"/><path d="M10 7v10v-9"/><path d="M13 7v1"/><path d="M13 16v1"/></svg>';
       const FLAME_SVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M14.8 9a2 2 0 0 0 -1.8 -1h-2a2 2 0 1 0 0 4h2a2 2 0 1 1 0 4h-2a2 2 0 0 1 -1.8 -1"/><path d="M12 7v10"/></svg>';
-      [mainBadge, techBadge].forEach(b => { if (b) { b.style.display = 'none'; b.className = 'tactical-badge'; b.removeAttribute('title'); } });
+      [mainBadge, techBadge].forEach(b => {
+        if (b) {
+          b.style.display = 'none';
+          b.className = 'tactical-badge';
+          b.removeAttribute('title');
+          b.style.color = '';
+        }
+      });
       if (finalVal != null && fr && fr.latest != null) {
         let icon = null, cls = null, tip = null;
         if (finalVal <= 30 && fr.latest < 0) {
@@ -3644,6 +3614,11 @@
             b.classList.add(cls);
             b.title = tip;
             b.style.display = 'inline-flex';
+            const style = 'classic';
+            if (true) {
+              const currentScore = (b === mainBadge) ? finalVal : data.tech_score;
+              b.style.color = scoreColor(currentScore);
+            }
           });
         }
       }
@@ -3823,7 +3798,7 @@
       const toYPrice = p => PAD.top + ch - ((p - yMinPrice) / (yMaxPrice - yMinPrice)) * ch;
 
       // Line colours — defined early so grid labels can reference them
-      const isModernChart = true;
+      const isModernChart = false;
       const priceLineCol  = isModernChart ? (isDark ? '#6b7280' : '#9ca3af') : '#10b981';
 
       // Clear the canvas
