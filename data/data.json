@@ -1,9 +1,9 @@
 {
-  "timestamp": "2026-06-03T10:05:14Z",
-  "btc_price": 67043.89195648434,
-  "btc_dominance": 58.01,
-  "fear_greed": 32.1,
-  "fear_greed_label": "CMC",
+  "timestamp": "2026-06-04T05:13:26Z",
+  "btc_price": 63759,
+  "btc_dominance": null,
+  "fear_greed": 22.7,
+  "fear_greed_label": "Extreme Fear",
   "nupl": 19.2296,
   "mvrv_z_score": 0.424,
   "cvdd_ratio": 1.3877,
@@ -27,37 +27,37 @@
     "nupl": {
       "value": 19.2296,
       "source": "BMP",
-      "updated": "2026-06-03T10:04:02Z"
+      "updated": "2026-06-04T05:12:39Z"
     },
     "mvrv": {
       "value": 0.424,
       "source": "BMP",
-      "updated": "2026-06-03T10:04:02Z"
+      "updated": "2026-06-04T05:12:39Z"
     },
     "m2": {
       "value": 9.47,
       "source": "MacroMicro",
-      "updated": "2026-06-03T10:04:07Z"
+      "updated": "2026-06-04T05:12:39Z"
     },
     "yield_curve": {
       "value": 0.48,
       "source": "BMP",
-      "updated": "2026-06-03T10:04:39Z"
+      "updated": "2026-06-04T05:12:39Z"
     },
     "cvdd_ratio": {
       "value": 1.3877,
       "source": "BMP",
-      "updated": "2026-06-03T10:04:39Z"
+      "updated": "2026-06-04T05:12:39Z"
     },
     "rhodl_ratio": {
       "value": 1247.5041,
       "source": "BMP",
-      "updated": "2026-06-03T10:04:39Z"
+      "updated": "2026-06-04T05:12:39Z"
     },
     "asopr": {
       "value": 0.9905285714285714,
       "source": "BMP",
-      "updated": "2026-06-03T10:05:02Z"
+      "updated": "2026-06-04T05:12:39Z"
     },
     "etf_flows": {
       "value": {
@@ -67,7 +67,7 @@
         "date": "2026-06-02"
       },
       "source": "Farside",
-      "updated": "2026-06-03T10:05:02Z"
+      "updated": "2026-06-04T05:12:39Z"
     },
     "rainbow_band": {
       "value": {
@@ -78,23 +78,23 @@
         "date": "2026-06-02"
       },
       "source": "BMP",
-      "updated": "2026-06-03T10:05:14Z"
+      "updated": "2026-06-04T05:13:26Z"
     },
     "fear_greed": {
-      "latest": 25.0,
-      "avg_7d": 32.1,
-      "label": "CMC",
-      "source": "CMC",
-      "updated": "2026-06-03T10:05:14Z"
+      "latest": 11,
+      "avg_7d": 22.7,
+      "label": "Extreme Fear",
+      "source": "Extreme Fear",
+      "updated": "2026-06-04T05:13:26Z"
     },
     "cipherb": {
       "value": {
-        "timestamp": 1779321600,
-        "close": 74337.1,
-        "wt1": 7.876849335304039,
-        "wt2": 9.913378318392722,
-        "mfi": 1.01181956150347,
-        "weekly_score": 47.01732215180906,
+        "timestamp": 1779926400,
+        "close": 64035.8,
+        "wt1": -12.028626004621847,
+        "wt2": 2.8943186100548997,
+        "mfi": -1.4602546304777735,
+        "weekly_score": 34.17507999701816,
         "fast_bearish_div": false,
         "fast_bullish_div": false,
         "daily_score": 0.0,
@@ -102,7 +102,7 @@
         "daily_fast_bullish_div": false
       },
       "source": "Local",
-      "updated": "2026-06-03T10:05:15Z"
+      "updated": "2026-06-04T05:13:27Z"
     },
     "smc": {
       "value": {
@@ -111,49 +111,49 @@
         "swing_low": 60500.0,
         "swing_low_ts": 1770249600,
         "equilibrium": 93349.05,
-        "current_price": 74337.1,
-        "position": 21.06,
+        "current_price": 64035.8,
+        "position": 5.38,
         "size": 10
       },
       "source": "Local",
-      "updated": "2026-06-03T10:05:15Z"
+      "updated": "2026-06-04T05:13:27Z"
     },
     "mayer_multiple": {
       "value": {
-        "value": 0.841,
-        "dma_200": 79242.2,
-        "current_price": 66669.7,
-        "score": 21
+        "value": 0.81,
+        "dma_200": 79084.7,
+        "current_price": 64035.8,
+        "score": 19
       },
       "source": "Kraken",
-      "updated": "2026-06-03T10:05:15Z"
+      "updated": "2026-06-04T05:13:27Z"
     },
     "funding_rate": {
       "value": {
-        "latest": -0.00952,
-        "avg_7d": -0.00952,
-        "score": 27,
+        "latest": -0.13454,
+        "avg_7d": -0.13454,
+        "score": 0,
         "periods": 1,
         "source": "Kraken Futures"
       },
       "source": "Kraken Futures",
-      "updated": "2026-06-03T10:05:15Z"
+      "updated": "2026-06-04T05:13:27Z"
     },
     "m2_mom": {
-      "value": 9.47,
+      "value": null,
       "source": "MacroMicro",
-      "updated": "2026-06-03T10:05:17Z"
+      "updated": "2026-06-04T05:13:58Z"
     }
   },
-  "m2_mom": 9.47,
-  "onchain_score": 35,
-  "tech_score": 30,
-  "final_score": 32,
+  "m2_mom": null,
+  "onchain_score": 34,
+  "tech_score": 27,
+  "final_score": 30,
   "adaptive_calibration": {
     "mayer": {
-      "fixed": 21,
-      "adaptive": 21,
-      "blended": 21,
+      "fixed": 19,
+      "adaptive": 15,
+      "blended": 17,
       "win_years": 4,
       "blend_w": 0.5
     },
@@ -172,17 +172,31 @@
       "blend_w": 0.5
     }
   },
+  "zone_forecast": {
+    "buy": {
+      "price": 52829,
+      "pct": -17.1
+    },
+    "sell": {
+      "price": 134598,
+      "pct": 111.1
+    },
+    "buy_threshold": 20,
+    "sell_threshold": 80,
+    "realized_price": 51499,
+    "ref_price": 63760
+  },
   "prev_day": {
-    "date": "2026-06-02",
-    "final_score": 36,
-    "onchain_score": 40,
-    "tech_score": 33
+    "date": "2026-06-03",
+    "final_score": 32,
+    "onchain_score": 35,
+    "tech_score": 30
   },
   "prev_week": {
-    "date": "2026-05-27",
-    "final_score": 48,
-    "onchain_score": 47,
-    "tech_score": 49
+    "date": "2026-05-28",
+    "final_score": 46,
+    "onchain_score": 46,
+    "tech_score": 47
   },
   "score_history": [
     {
@@ -369,20 +383,11 @@
       "date": "2026-06-03",
       "score": 32,
       "price": 67043.89195648434
+    },
+    {
+      "date": "2026-06-04",
+      "score": 30,
+      "price": 63759
     }
-  ],
-  "zone_forecast": {
-    "buy": {
-      "price": 54496,
-      "pct": -18.7
-    },
-    "sell": {
-      "price": 175322,
-      "pct": 161.5
-    },
-    "buy_threshold": 20,
-    "sell_threshold": 80,
-    "realized_price": 54152,
-    "ref_price": 67044
-  }
+  ]
 }
