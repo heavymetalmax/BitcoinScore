@@ -914,8 +914,8 @@
     function loadWallpaper(score) {
       let category = 'neutral';
       if (score != null) {
-        if (score <= 40) category = 'low';
-        else if (score >= 60) category = 'high';
+        if (score <= 25) category = 'low';
+        else if (score >= 75) category = 'high';
       }
       
       const set = Wallpapers[category];
@@ -1242,7 +1242,7 @@
         let statusText = { en: 'Neutral', ua: 'Нейтрально' };
         if (data.final_score != null) {
           if (data.final_score <= 25) statusText = { en: 'Low Risk / Accumulation', ua: 'Низький ризик / Накопичення' };
-          else if (data.final_score >= 60) statusText = { en: 'High Risk / Distribution', ua: 'Високий ризик / Розподіл' };
+          else if (data.final_score >= 75) statusText = { en: 'High Risk / Distribution', ua: 'Високий ризик / Розподіл' };
         }
         mainStatus.innerHTML = `<span class="en">${statusText.en}</span><span class="ua">${statusText.ua}</span>`;
         mainStatus.style.color = finalColor;
@@ -1261,7 +1261,7 @@
           let label = { en: 'Neutral', ua: 'Нейтрально' };
           if (val != null) {
             if (val <= 25) label = { en: 'Buy', ua: 'Купівля' };
-            else if (val >= 60) label = { en: 'Sell', ua: 'Продаж' };
+            else if (val >= 75) label = { en: 'Sell', ua: 'Продаж' };
           }
           labelEl.innerHTML = `<span class="en">${label.en}</span><span class="ua">${label.ua}</span>`;
           labelEl.style.color = scoreColor(val);
@@ -1278,7 +1278,7 @@
         const st = document.getElementById('yesterday-status');
         if (el) { el.textContent = val; el.style.color = scoreColor(val); }
         if (st) {
-          let lbl = val <= 25 ? {en:'Buy', ua:'Купівля'} : val >= 60 ? {en:'Sell', ua:'Продаж'} : {en:'Neutral', ua:'Нейтрально'};
+          let lbl = val <= 25 ? {en:'Buy', ua:'Купівля'} : val >= 75 ? {en:'Sell', ua:'Продаж'} : {en:'Neutral', ua:'Нейтрально'};
           st.innerHTML = `<span class="en">${lbl.en}</span><span class="ua">${lbl.ua}</span>`;
           st.style.color = scoreColor(val);
         }
@@ -1297,7 +1297,7 @@
         const st = document.getElementById('week-status');
         if (el) { el.textContent = weekVal; el.style.color = scoreColor(weekVal); }
         if (st) {
-          let lbl = weekVal <= 25 ? {en:'Buy', ua:'Купівля'} : weekVal >= 60 ? {en:'Sell', ua:'Продаж'} : {en:'Neutral', ua:'Нейтрально'};
+          let lbl = weekVal <= 25 ? {en:'Buy', ua:'Купівля'} : weekVal >= 75 ? {en:'Sell', ua:'Продаж'} : {en:'Neutral', ua:'Нейтрально'};
           st.innerHTML = `<span class="en">${lbl.en}</span><span class="ua">${lbl.ua}</span>`;
           st.style.color = scoreColor(weekVal);
         }
