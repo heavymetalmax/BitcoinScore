@@ -173,6 +173,12 @@
       gap: 6px;
     }
 
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0; }
+    }
+    .blink-colon { animation: blink 1s step-start infinite; }
+
     .status-right {
       display: flex;
       align-items: center;
@@ -932,6 +938,7 @@
       <div class="status-left">
         <span class="status-dot"></span>
         <span id="hero-card-ts">—</span>
+        <span id="hero-card-countdown" style="opacity:0.6"></span>
       </div>
       <div class="status-right" id="hero-card-price">
         —
@@ -1473,6 +1480,27 @@
 
     // App Initialization
 
+    function updateCountdown() {
+      const el = document.getElementById('hero-card-countdown');
+      if (!el) return;
+      const now = new Date();
+      let target;
+      if (window._dataTimestamp) {
+        target = new Date(new Date(window._dataTimestamp).getTime() + 24 * 3600 * 1000);
+        while (now >= target) target = new Date(target.getTime() + 24 * 3600 * 1000);
+      } else {
+        target = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 8, 0, 0));
+        if (now >= target) target.setUTCDate(target.getUTCDate() + 1);
+      }
+      const diffSecs = Math.max(0, Math.floor((target - now) / 1000));
+      const h = Math.floor(diffSecs / 3600);
+      const m = Math.floor((diffSecs % 3600) / 60);
+      const pad = n => String(n).padStart(2, '0');
+      el.innerHTML =
+        `· <span class="en">next in: ${pad(h)}<span class="blink-colon">:</span>${pad(m)}</span>` +
+        `<span class="ua">· за: ${pad(h)}<span class="blink-colon">:</span>${pad(m)}</span>`;
+    }
+
     async function init() {
       // Restore Mode, Lang & Wallpaper configurations
       const lang = localStorage.getItem('bbr-lang') || 'en';
@@ -1499,12 +1527,14 @@
 
       // Render Header Details
       if (data.timestamp) {
+        window._dataTimestamp = data.timestamp;
         const tsDate = new Date(data.timestamp);
         const tsStr = tsDate.toLocaleString(undefined, {
           day: '2-digit', month: '2-digit', year: 'numeric',
           hour: '2-digit', minute: '2-digit', hour12: false
         });
         document.getElementById('hero-card-ts').textContent = 'UPDATED: ' + tsStr;
+        updateCountdown();
       }
 
       const priceVal = data.btc_price ?? data.price_usd;
@@ -1722,7 +1752,7 @@
       ]);
     }
 
-    document.addEventListener('DOMContentLoaded', init);
+    document.addEventListener('DOMContentLoaded', () => { init(); setInterval(updateCountdown, 60000); });
   </script>
 </body>
 </html>
