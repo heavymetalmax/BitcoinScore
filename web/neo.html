@@ -284,75 +284,31 @@ html.style-modern .hero-status-area {
   justify-content: flex-end;
   flex-shrink: 0;
 }
-/* ── Main card: same layout as sub-cards ── */
-html.style-modern .score-box.main .main-flip,
-html.style-modern .score-box.main .main-inner {
-  display: contents;
-}
-html.style-modern .score-box.main {
+/* ── All cards: label left + number right grid layout ── */
+html.style-modern .score-box {
   display: grid !important;
   grid-template-columns: 1fr auto;
 }
-html.style-modern .hero-top-row {
-  display: contents;
-}
-html.style-modern .hero-title-area {
+
+/* ── Grid placement for all cards ── */
+html.style-modern .score-box > .s-label {
   grid-column: 1;
   grid-row: 1;
   align-self: start;
-  justify-content: flex-start;
 }
-html.style-modern .hero-status-area {
+html.style-modern .score-box > .sub-card-value-container {
   grid-column: 2;
   grid-row: 1;
-  align-items: flex-start;
-  justify-content: flex-end;
-  flex-shrink: 0;
+  align-self: start;
 }
-html.style-modern .zone-gauge-row,
-html.style-modern .zone-disclaimer,
-html.style-modern .risk-track-container,
-html.style-modern .index-meta-card,
-html.style-modern #modern-gauge-status,
-html.style-modern .main-back {
-  display: none !important;
-}
-html.style-modern .modern-gauge-container {
-  position: absolute !important;
-  inset: 0 !important;
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: flex-end !important;
-  justify-content: flex-end !important;
-  pointer-events: none;
-  z-index: 0;
-  margin: 0 !important;
-}
-html.style-modern .modern-main-gauge-wrap {
-  position: absolute !important;
-  inset: 0 !important;
-  display: flex !important;
-  align-items: flex-end !important;
-  justify-content: center !important;
-}
-html.style-modern .hero-score-val {
-  display: block;
-  font-size: 5.5rem;
-  font-weight: 900;
-  line-height: 0.85;
-  letter-spacing: -0.04em;
-  color: #0A0A0A !important;
-}
-html.style-modern.theme-dark .hero-score-val {
-  color: #EEEEEE !important;
-}
-html.style-modern #s-final-label,
-html.style-modern #main-tactical-badge,
-html.style-modern #s-warn {
-  display: none !important;
+html.style-modern .score-box > .modern-sub-gauge-wrap,
+html.style-modern .score-box > .sub-gauge-status,
+html.style-modern .score-box > .bar-wrap,
+html.style-modern .score-box > .s-sub {
+  grid-column: 1 / -1;
 }
 
-/* ── Big number: sub-cards ── */
+/* ── Big number ── */
 html.style-modern .sub-card-value-container {
   display: flex !important;
   justify-content: flex-end;
@@ -369,28 +325,6 @@ html.style-modern .sub-card-value-container .s-value {
 }
 html.style-modern.theme-dark .sub-card-value-container .s-value {
   color: #EEEEEE !important;
-}
-
-/* ── Sub-card top row: label left + number right (grid) ── */
-html.style-modern .score-box:not(.main) {
-  display: grid;
-  grid-template-columns: 1fr auto;
-}
-html.style-modern .score-box:not(.main) > .s-label {
-  grid-column: 1;
-  grid-row: 1;
-  align-self: start;
-}
-html.style-modern .score-box:not(.main) > .sub-card-value-container {
-  grid-column: 2;
-  grid-row: 1;
-  align-self: start;
-}
-html.style-modern .score-box:not(.main) > .modern-sub-gauge-wrap,
-html.style-modern .score-box:not(.main) > .sub-gauge-status,
-html.style-modern .score-box:not(.main) > .bar-wrap,
-html.style-modern .score-box:not(.main) > .s-sub {
-  grid-column: 1 / -1;
 }
 
 html.style-modern .score-box .s-sub {
@@ -449,17 +383,9 @@ html.style-modern .score-box .s-sub {
     html.style-modern .score-box .s-label {
       margin-bottom: 0;
     }
-    html.style-modern .sub-card-value-container .s-value {
-      display: none;
-    }
     /* In Modern mode, canvas draws the warn icon — hide the HTML one */
     html.style-modern .sub-card-value-container .sub-warn-icon {
       display: none !important;
-    }
-    /* Modern: the value container is empty (number is on the canvas) — collapse it
-       to tighten the gap between the card title and the top of the arc */
-    html.style-modern .sub-card-value-container {
-      display: none;
     }
     /* Index meta line moved above the index card */
     .index-meta {
@@ -1831,103 +1757,49 @@ html.style-modern .score-box .s-sub {
       </span>
     </div>
     <div class="scores">
-      <!-- Hero Card -->
+      <!-- Hero Card: on-chain style clone showing composite risk score -->
       <div class="score-box main" id="main-card">
-        <div class="main-flip">
-        <div class="main-inner">
-          <div class="hero-top-row">
-            <div class="hero-title-area">
-              <span class="hero-label" id="hero-label">
-                <span class="en">Composite<br>Risk Index</span>
-                <span class="ua">Композитний<br>індекс ризику</span>
-              </span>
-            </div>
-            <div class="hero-status-area">
-              <span class="hero-score-val" id="s-final">—</span>
-              <span class="hero-score-label" id="s-final-label" style="display:none;">—</span>
-              <span id="main-tactical-badge" class="tactical-badge" style="display:none"></span>
-              <span id="s-warn" class="warning-badge" style="display:none;" title="One or more key indicators contradicts the overall index direction">
-                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 9v4"/><path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0"/><path d="M12 16h.01"/></svg><span class="en">Contradiction</span>
-                <span class="ua">Розбіжність</span>
-              </span>
-            </div>
-          </div>
-          
-          <!-- Modern Style Canvas Gauge -->
-          <div class="modern-gauge-container" style="display: none; flex-direction: column; align-items: center; margin: 2px 0 4px;">
-            <div class="modern-main-gauge-wrap">
-              <canvas id="modern-gauge-canvas" style="max-width: 320px; width: 100%;"></canvas>
-            </div>
-            <div id="modern-gauge-status" style="font-size: 1rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: var(--index-color); margin-top: 2px;">
-              <span class="en" id="modern-gauge-status-en">—</span>
-              <span class="ua" id="modern-gauge-status-ua">—</span>
-            </div>
-            <div style="font-size: 0.62rem; font-weight: 700; color: var(--text-mute); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 2px;">
-              <span class="en">50% On-Chain + 50% Tech</span>
-              <span class="ua">50% Ончейн + 50% Тех</span>
-            </div>
-            <span id="modern-gauge-badge" style="display:none">— / 100</span>
-          </div>
-
-          <!-- Option 2: Horizontal Risk Pointer Track -->
-          <div class="risk-track-container">
-            <div class="risk-track" id="risk-track">
-              <!-- Floating Neon Marker pointer -->
-              <div class="risk-marker" id="risk-marker" style="left: 50%;">
-                <div class="risk-marker-dot">
-                  <span class="risk-trend-indicator" id="marker-trend-up"></span>
-                  <span class="risk-marker-num" id="marker-num">—</span>
-                  <span class="risk-trend-indicator" id="marker-trend-down"></span>
-                  <span class="risk-marker-lbl" id="marker-lbl">—</span>
-                </div>
-              </div>
-              <!-- Ticks at 25% and 75% -->
-              <div class="risk-tick" style="left: 20%;" title="Buy zone boundary (20)"></div>
-              <div class="risk-tick" style="left: 80%;" title="Sell zone boundary (80)"></div>
-            </div>
-            
-            <div class="risk-track-legend">
-              <span>
-                <span class="en">Buy</span>
-                <span class="ua">Купувати</span>
-              </span>
-              <span>
-                <span class="en">Neutral</span>
-                <span class="ua">Нейтрально</span>
-              </span>
-              <span>
-                <span class="en">Sell</span>
-                <span class="ua">Продавати</span>
-              </span>
-            </div>
-          </div>
-        </div><!-- /.main-inner (front) -->
-
-        <!-- Secret back face: zone-price inversion (click card to flip) -->
-        <div class="main-back" aria-hidden="true">
-          <div class="zone-back-title">
-            <span class="en">Not a price prediction</span>
-            <span class="ua">Це не прогноз ціни</span>
-          </div>
-          <div class="zone-gauge-row">
-            <div class="zone-side buy">
-              <span class="zone-side-num" id="zone-buy-price">—</span>
-              <span class="zone-side-lbl"><span class="en">Buy</span><span class="ua">Купівля</span></span>
-            </div>
-            <div class="zone-gauge-mid">
-              <canvas id="zone-gauge-canvas"></canvas>
-            </div>
-            <div class="zone-side sell">
-              <span class="zone-side-num" id="zone-sell-price">—</span>
-              <span class="zone-side-lbl"><span class="en">Sell</span><span class="ua">Продаж</span></span>
-            </div>
-          </div>
-          <div class="zone-disclaimer">
-            <span class="en">The index read <em>backwards</em>: holding today's on-chain cost basis fixed, the formula is solved for the price at which the score would reach each zone, assuming momentum and sentiment move with price as they usually do.</span>
-            <span class="ua">Це індекс, прочитаний <em>навпаки</em>: тримаючи сьогоднішню ончейн-собівартість незмінною, формула розв'язується щодо ціни, за якої бал дійшов би до кожної зони, припускаючи, що моментум і настрої рухаються разом із ціною, як зазвичай.</span>
-          </div>
+        <!-- Hidden stubs for JS compatibility -->
+        <div style="display:none" aria-hidden="true">
+          <span id="s-final">—</span>
+          <span id="b-final"></span>
+          <span id="hero-label"></span>
+          <span id="s-final-label"></span>
+          <span id="main-tactical-badge"></span>
+          <span id="s-warn"></span>
+          <span id="marker-num"></span>
+          <span id="marker-trend-up"></span>
+          <span id="marker-trend-down"></span>
+          <span id="marker-lbl"></span>
+          <span id="modern-gauge-status-en"></span>
+          <span id="modern-gauge-status-ua"></span>
+          <span id="modern-gauge-badge"></span>
+          <span id="seo-score"></span>
+          <span id="seo-score-ua"></span>
+          <span id="seo-status-en"></span>
+          <span id="seo-status-ua"></span>
+          <span id="zone-buy-price"></span>
+          <span id="zone-sell-price"></span>
+          <canvas id="modern-gauge-canvas"></canvas>
+          <canvas id="zone-gauge-canvas"></canvas>
         </div>
-        </div><!-- /.main-flip -->
+        <!-- Visible content -->
+        <div class="s-label">
+          <span class="en">Composite<br>Risk Index</span>
+          <span class="ua">Індекс ризику<br>Bitcoin</span>
+        </div>
+        <div class="sub-card-value-container">
+          <div class="s-value" id="s-final-neo">—</div>
+        </div>
+        <div class="modern-sub-gauge-wrap">
+          <canvas id="gauge-final-neo" class="modern-sub-gauge-canvas"></canvas>
+        </div>
+        <div class="sub-gauge-status" id="final-neo-status">—</div>
+        <div class="bar-wrap"><div class="bar-fill" id="b-final-neo" style="width:0%"></div></div>
+        <div class="s-sub">
+          <span class="en">50% On-Chain + 50% Tech</span>
+          <span class="ua">50% Ончейн + 50% Тех</span>
+        </div>
       </div>
 
       <!-- Subscore Cards -->
@@ -2678,11 +2550,12 @@ html.style-modern .score-box .s-sub {
 
         // Update subscore text colors
         const subscoreTextItems = [
-          { id: 's-final', val: v.final },
-          { id: 's-oc',    val: v.onchain },
-          { id: 's-tech',   val: v.tech },
+          { id: 's-final',     val: v.final },
+          { id: 's-final-neo', val: v.final },
+          { id: 's-oc',        val: v.onchain },
+          { id: 's-tech',      val: v.tech },
           { id: 's-yesterday', val: v.yesterday },
-          { id: 's-week',   val: v.week }
+          { id: 's-week',      val: v.week }
         ];
         subscoreTextItems.forEach(item => {
           const el = document.getElementById(item.id);
@@ -2693,11 +2566,12 @@ html.style-modern .score-box .s-sub {
 
         // Update Classic subscore progress bars
         const subscoreBars = [
-          { id: 'b-final', val: v.final },
-          { id: 'b-oc',    val: v.onchain },
-          { id: 'b-tech',   val: v.tech },
+          { id: 'b-final',     val: v.final },
+          { id: 'b-final-neo', val: v.final },
+          { id: 'b-oc',        val: v.onchain },
+          { id: 'b-tech',      val: v.tech },
           { id: 'b-yesterday', val: v.yesterday },
-          { id: 'b-week',   val: v.week }
+          { id: 'b-week',      val: v.week }
         ];
         subscoreBars.forEach(item => {
           const bar = document.getElementById(item.id);
@@ -2714,8 +2588,7 @@ html.style-modern .score-box .s-sub {
         const ocWarn   = document.getElementById('oc-warn');
         const techWarn = document.getElementById('tech-warn');
         const tac = window._tacticalSignal || null;
-        drawModernGauge(document.getElementById('modern-gauge-canvas'),  v.final,     false, false, tac);
-        drawModernGauge(document.getElementById('zone-gauge-canvas'),    v.final,     false, false, null);   // back of the flip card
+        drawModernGauge(document.getElementById('gauge-final-neo'),       v.final,     false, false, tac);
         drawModernGauge(document.getElementById('gauge-oc'),             v.onchain,   true,  ocWarn   && ocWarn.style.display   !== 'none');
         drawModernGauge(document.getElementById('gauge-tech'),           v.tech,      true,  techWarn && techWarn.style.display !== 'none', tac);
         drawModernGauge(document.getElementById('gauge-yesterday'),      v.yesterday, true,  false);
@@ -3250,6 +3123,8 @@ html.style-modern .score-box .s-sub {
         const L = riskLabel(v);
         el.innerHTML = `<span class="en">${L.en}</span><span class="ua">${L.ua}</span>`;
       };
+      setScore('s-final-neo', 'b-final-neo', data.final_score);
+      setSubStatus('final-neo-status', data.final_score);
       setSubStatus('oc-status',        data.onchain_score);
       setSubStatus('tech-status',      data.tech_score);
       setSubStatus('yesterday-status', data.prev_day ? data.prev_day.final_score : null);
