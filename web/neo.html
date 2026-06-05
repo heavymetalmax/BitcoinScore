@@ -286,7 +286,13 @@ html.style-modern.theme-dark .sub-card-value-container .s-value {
 html.style-modern .score-box:not(.main) {
   display: grid;
   grid-template-columns: 1fr auto;
-  min-height: 160px;
+  grid-template-rows: auto 1fr;
+  height: 210px;
+}
+html.style-modern .score-box:not(.main) > .sub-gauge-status,
+html.style-modern .score-box:not(.main) > .bar-wrap,
+html.style-modern .score-box:not(.main) > .s-sub {
+  display: none !important;
 }
 html.style-modern .score-box:not(.main) > .s-label {
   grid-column: 1;
@@ -298,11 +304,14 @@ html.style-modern .score-box:not(.main) > .sub-card-value-container {
   grid-row: 1;
   align-self: start;
 }
-html.style-modern .score-box:not(.main) > .modern-sub-gauge-wrap,
-html.style-modern .score-box:not(.main) > .sub-gauge-status,
-html.style-modern .score-box:not(.main) > .bar-wrap,
-html.style-modern .score-box:not(.main) > .s-sub {
+html.style-modern .score-box:not(.main) > .modern-sub-gauge-wrap {
   grid-column: 1 / -1;
+  grid-row: 2;
+  min-height: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  overflow: hidden;
 }
 
 html.style-modern .score-box .s-sub {
@@ -2410,12 +2419,11 @@ html.style-modern .score-box .s-sub {
       const TICK_CUR_COL = '#f7931a';
       const NUM_COL      = isDark ? '#8892a4' : '#374151';
 
-      const dpr    = window.devicePixelRatio || 1;
-      const maxW   = isSmall ? 180 : 320;
+      const dpr      = window.devicePixelRatio || 1;
       const scoreBox = canvas.closest('.score-box');
-      const boxW     = scoreBox ? scoreBox.clientWidth - 40 : 0;
-      const W        = Math.min(boxW > 0 ? boxW : (canvas.parentElement.clientWidth || maxW), maxW);
-      const H        = isSmall ? 90 : 162;
+      const wrap     = canvas.parentElement;
+      const W        = scoreBox ? scoreBox.clientWidth - 40 : (wrap.clientWidth || (isSmall ? 180 : 320));
+      const H        = wrap.clientHeight > 20 ? wrap.clientHeight : (isSmall ? 90 : 162);
 
       canvas.width  = W * dpr;
       canvas.height = H * dpr;
