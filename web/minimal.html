@@ -1355,54 +1355,36 @@
       return `rgba(255, 255, 255, ${alpha})`;
     }
 
-    // Stereoscopic Parallax Depth Effect (moves background and details dynamically)
-    document.addEventListener('mousemove', (e) => {
-      const w = window.innerWidth;
-      const h = window.innerHeight;
-      const x = (e.clientX - w / 2) / (w / 2); // range -1 to 1
-      const y = (e.clientY - h / 2) / (h / 2); // range -1 to 1
+    // Accelerometer parallax — mobile only (desktop mousemove removed)
+    const _isMobile = (navigator.maxTouchPoints > 0 && window.matchMedia('(pointer: coarse)').matches) ||
+                      /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
-      // Background moves slightly to follow cursor
-      const bg = document.getElementById('wallpaper-bg');
-      if (bg) {
-        bg.style.transform = `scale(1.05) translate3d(${x * 12}px, ${y * 12}px, 0)`;
-      }
-
-      // Foreground center text parallax offset (moves opposite direction for depth)
-      const center = document.getElementById('center-display');
-      if (center) {
-        center.style.transform = `translate3d(${-x * 8}px, ${-y * 8}px, 0)`;
-      }
-
-      // Volumetric fog layer moves faster to enhance 3D parallax layers
-      const fog = document.getElementById('wallpaper-fog');
-      if (fog) {
-        fog.style.transform = `translate3d(${x * 18}px, ${y * 18}px, 0)`;
-      }
-    });
-
-    // Device Tilt Gyroscope support for mobile screens
-    if (window.DeviceOrientationEvent) {
+    function _startAccelerometer() {
       window.addEventListener('deviceorientation', (e) => {
         if (e.beta == null || e.gamma == null) return;
-        
-        // Clamping beta (-30 to 30) and gamma (-30 to 30)
-        const y = Math.max(-30, Math.min(30, e.beta)) / 30; // normalized
+        const y = Math.max(-30, Math.min(30, e.beta)) / 30;
         const x = Math.max(-30, Math.min(30, e.gamma)) / 30;
-
         const bg = document.getElementById('wallpaper-bg');
-        if (bg) {
-          bg.style.transform = `scale(1.05) translate3d(${x * 15}px, ${y * 15}px, 0)`;
-        }
+        if (bg) bg.style.transform = `scale(1.05) translate3d(${x * 15}px, ${y * 15}px, 0)`;
         const center = document.getElementById('center-display');
-        if (center) {
-          center.style.transform = `translate3d(${-x * 10}px, ${-y * 10}px, 0)`;
-        }
+        if (center) center.style.transform = `translate3d(${-x * 10}px, ${-y * 10}px, 0)`;
         const fog = document.getElementById('wallpaper-fog');
-        if (fog) {
-          fog.style.transform = `translate3d(${x * 22}px, ${y * 22}px, 0)`;
-        }
+        if (fog) fog.style.transform = `translate3d(${x * 22}px, ${y * 22}px, 0)`;
       });
+    }
+
+    if (_isMobile && window.DeviceOrientationEvent) {
+      if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+        // iOS 13+: permission required — request on first touch
+        document.addEventListener('touchstart', function _reqOrient() {
+          DeviceOrientationEvent.requestPermission()
+            .then(state => { if (state === 'granted') _startAccelerometer(); })
+            .catch(() => {});
+          document.removeEventListener('touchstart', _reqOrient);
+        }, { once: true });
+      } else {
+        _startAccelerometer();
+      }
     }
 
     window.dataStore = null;
