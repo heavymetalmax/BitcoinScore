@@ -2415,7 +2415,8 @@ html.style-modern .score-box .s-sub {
         ctx.moveTo(cx + R_clear           * Math.cos(ca), cy + R_clear           * Math.sin(ca));
         ctx.lineTo(cx + (R_out + RIM_GAP) * Math.cos(ca), cy + (R_out + RIM_GAP) * Math.sin(ca));
         ctx.strokeStyle = TICK_CUR_COL;
-        ctx.lineWidth   = isSmall ? 1.5 : 2;
+        ctx.lineWidth   = isSmall ? 2.5 : 3.5;
+        ctx.lineCap     = 'round';
         ctx.stroke();
       }
 
