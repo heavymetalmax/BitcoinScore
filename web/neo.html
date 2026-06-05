@@ -2360,17 +2360,42 @@ html.style-modern .score-box .s-sub {
         ctx.restore();
       }
 
-      // ── 2. Parallel arc outlines on filled portion (0 → value) ──────────
+      // ── 2. Brutal rim outlines + hatching between them (0 → value) ───────
       if (value > 0) {
-        const fillEnd = toAngle(value);
-        ctx.lineWidth   = isSmall ? 1.5 : 2;
+        const fillEnd  = toAngle(value);
+        const rimOuter = R_out + RIM_GAP;
+        const rimInner = R_in  - RIM_GAP;
+
+        // hatching between the two arcs
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(cx, cy, rimOuter, Math.PI, fillEnd, false);
+        ctx.arc(cx, cy, rimInner, fillEnd, Math.PI, true);
+        ctx.closePath();
+        ctx.clip();
+        const hSpacing = isSmall ? 4 : 5;
+        ctx.strokeStyle = isDark ? 'rgba(247,147,26,0.55)' : 'rgba(247,147,26,0.7)';
+        ctx.lineWidth   = isSmall ? 1 : 1.2;
+        ctx.lineCap     = 'square';
+        const ext = rimOuter + 10;
+        for (let d = -(ext * 2); d < ext * 2; d += hSpacing) {
+          ctx.beginPath();
+          ctx.moveTo(cx + d,       cy - ext);
+          ctx.lineTo(cx + d + ext, cy + ext);
+          ctx.stroke();
+        }
+        ctx.restore();
+
+        // bold arc outlines on top
         ctx.strokeStyle = RIM_COL;
+        ctx.lineWidth   = isSmall ? 2.5 : 3.5;
+        ctx.lineCap     = 'round';
         ctx.setLineDash([]);
         ctx.beginPath();
-        ctx.arc(cx, cy, R_out + RIM_GAP, Math.PI, fillEnd, false);
+        ctx.arc(cx, cy, rimOuter, Math.PI, fillEnd, false);
         ctx.stroke();
         ctx.beginPath();
-        ctx.arc(cx, cy, R_in - RIM_GAP,  Math.PI, fillEnd, false);
+        ctx.arc(cx, cy, rimInner, Math.PI, fillEnd, false);
         ctx.stroke();
       }
 
