@@ -282,10 +282,34 @@ html.style-modern.theme-dark .sub-card-value-container .s-value {
   color: #EEEEEE !important;
 }
 
-/* ── Sub-card top row: label left + number right (grid) ── */
+/* ── Sub-card: fixed height, gauge is absolute background ── */
 html.style-modern .score-box:not(.main) {
   display: grid;
   grid-template-columns: 1fr auto;
+  height: 200px;
+  position: relative;
+  overflow: hidden;
+}
+html.style-modern .score-box:not(.main) > .modern-sub-gauge-wrap {
+  position: absolute !important;
+  inset: 0 !important;
+  display: flex !important;
+  align-items: flex-end !important;
+  justify-content: center !important;
+  pointer-events: none;
+  z-index: 0;
+}
+html.style-modern .modern-sub-gauge-canvas {
+  position: absolute !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  z-index: 0 !important;
+  max-width: none !important;
+}
+html.style-modern .score-box:not(.main) > .s-label,
+html.style-modern .score-box:not(.main) > .sub-card-value-container {
+  position: relative;
+  z-index: 1;
 }
 html.style-modern .score-box:not(.main) > .sub-gauge-status,
 html.style-modern .score-box:not(.main) > .bar-wrap,
@@ -2415,11 +2439,9 @@ html.style-modern .score-box .s-sub {
       const NUM_COL      = isDark ? '#8892a4' : '#374151';
 
       const dpr      = window.devicePixelRatio || 1;
-      const maxW     = isSmall ? 240 : 320;
       const scoreBox = canvas.closest('.score-box');
-      const boxW     = scoreBox ? scoreBox.clientWidth - 40 : 0;
-      const W        = Math.min(boxW > 0 ? boxW : (canvas.parentElement.clientWidth || maxW), maxW);
-      const H        = isSmall ? Math.round(W * 0.72) : 162;
+      const W        = scoreBox ? scoreBox.clientWidth  : (isSmall ? 200 : 320);
+      const H        = scoreBox ? scoreBox.clientHeight : (isSmall ? 200 : 162);
 
       canvas.width  = W * dpr;
       canvas.height = H * dpr;
