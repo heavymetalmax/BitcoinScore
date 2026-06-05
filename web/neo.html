@@ -193,7 +193,6 @@ html.style-modern .score-box:hover {
 }
 
 /* gauge canvas fills the card as background */
-html.style-modern .modern-gauge-container,
 html.style-modern .modern-sub-gauge-wrap {
   position: absolute !important;
   inset: 0 !important;
@@ -210,6 +209,9 @@ html.style-modern .modern-sub-gauge-canvas {
   left: 0 !important;
   z-index: 0 !important;
   max-width: none !important;
+}
+html.style-modern #modern-gauge-canvas {
+  display: block !important;
 }
 /* all direct children of score-box sit above the canvas */
 html.style-modern .score-box > *:not(.modern-gauge-container):not(.modern-sub-gauge-wrap) {
@@ -282,7 +284,40 @@ html.style-modern .hero-status-area {
   justify-content: flex-end;
   flex-shrink: 0;
 }
-/* ── Big number: main card ── */
+/* ── Main card: same layout as sub-cards ── */
+html.style-modern .score-box.main .main-flip,
+html.style-modern .score-box.main .main-inner {
+  display: contents;
+}
+html.style-modern .score-box.main {
+  display: grid !important;
+  grid-template-columns: 1fr auto;
+}
+html.style-modern .hero-top-row {
+  display: contents;
+}
+html.style-modern .hero-title-area {
+  grid-column: 1;
+  grid-row: 1;
+  align-self: start;
+  justify-content: flex-start;
+}
+html.style-modern .hero-status-area {
+  grid-column: 2;
+  grid-row: 1;
+  align-items: flex-start;
+  justify-content: flex-end;
+  flex-shrink: 0;
+}
+html.style-modern .modern-gauge-container,
+html.style-modern .zone-gauge-row,
+html.style-modern .zone-disclaimer,
+html.style-modern .risk-track-container,
+html.style-modern .index-meta-card,
+html.style-modern #modern-gauge-status,
+html.style-modern .main-back {
+  display: none !important;
+}
 html.style-modern .hero-score-val {
   display: block;
   font-size: 5.5rem;
@@ -2244,7 +2279,7 @@ html.style-modern .score-box .s-sub {
       const heroLabel = document.getElementById('hero-label');
       
       if (style === 'modern') {
-        if (mContainer) mContainer.style.display = 'flex';
+        if (mContainer) mContainer.style.display = '';  // let CSS control
         if (hContainer) hContainer.style.display = 'none';
         if (hStatus) hStatus.style.display = 'flex';
         if (heroLabel) {
