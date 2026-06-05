@@ -914,6 +914,52 @@
       pointer-events: auto;
     }
 
+    /* --- About footer bottom sheet --- */
+    .about-footer {
+      position: fixed;
+      bottom: 0;
+      left: 0; right: 0;
+      background: #000;
+      border-radius: 24px 24px 0 0;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      max-height: 72vh;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      z-index: 70;
+      transform: translateY(100%);
+      transition: transform 0.38s cubic-bezier(0.4, 0, 0.2, 1);
+      padding: 0 24px 48px;
+    }
+    .about-footer.open { transform: translateY(0); }
+    .about-footer-handle {
+      width: 40px; height: 4px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 99px;
+      margin: 14px auto 24px;
+    }
+    .about-footer p {
+      font-size: 0.8rem;
+      line-height: 1.75;
+      color: rgba(255,255,255,0.65);
+      margin-bottom: 14px;
+    }
+    .about-footer p.about-score-line {
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 16px;
+    }
+    .about-footer p:last-child { margin-bottom: 0; }
+    .about-footer a { color: #fff; font-weight: 600; text-decoration: underline; text-decoration-color: rgba(255,255,255,0.4); text-underline-offset: 2px; }
+    .about-footer a:hover { text-decoration-color: #fff; }
+
+    /* Push wrapper up when footer opens */
+    .lockscreen-wrapper {
+      transition: transform 0.38s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    body.about-open .lockscreen-wrapper {
+      transform: translateY(-28vh);
+    }
+
     /* --- About trigger (bottom) --- */
     .disclaimer-trigger {
       position: fixed;
@@ -931,47 +977,6 @@
     }
     .disclaimer-trigger:hover { opacity: 1; }
 
-    /* --- About index flat text panel (no box, no card) --- */
-    .about-panel {
-      position: fixed;
-      bottom: 36px;
-      left: 0; right: 0;
-      max-height: calc(100vh - 80px);
-      overflow-y: auto;
-      padding: 16px 28px 6px;
-      opacity: 0;
-      pointer-events: none;
-      z-index: 59;
-      transition: opacity 0.3s ease;
-    }
-    .about-panel.open {
-      opacity: 1;
-      pointer-events: all;
-    }
-    .about-panel-inner {
-      max-width: 520px;
-      margin: 0 auto;
-    }
-    .about-panel p {
-      font-size: 0.77rem;
-      line-height: 1.75;
-      color: rgba(255, 255, 255, 0.65);
-      margin-bottom: 12px;
-    }
-    .about-panel p.about-score-line {
-      font-weight: 600;
-      color: var(--text);
-      margin-bottom: 14px;
-    }
-    .about-panel p:last-child { margin-bottom: 0; }
-    .about-panel a {
-      color: var(--text);
-      font-weight: 600;
-      text-decoration: underline;
-      text-decoration-color: rgba(255,255,255,0.4);
-      text-underline-offset: 2px;
-    }
-    .about-panel a:hover { text-decoration-color: var(--text); }
 
     /* --- Metric help modal (glass card, keeps .disclaimer-modal class) --- */
     .disclaimer-modal {
@@ -1348,30 +1353,29 @@
   </div><!-- /.drawer-scroll -->
   </div><!-- /.settings-drawer -->
 
-  <!-- About panel (flat text, slides up above trigger) -->
-  <div class="about-panel" id="about-panel">
-    <div class="about-panel-inner">
-      <p class="about-score-line">
-        <span class="en">As of the latest daily update, the Bitcoin Buy Risk Index reads <strong id="about-score-en">—</strong> / 100 — <span id="about-status-en">—</span>.</span>
-        <span class="ua">Станом на останнє щоденне оновлення Індекс ризику купівлі Bitcoin становить <strong id="about-score-ua">—</strong> / 100 — <span id="about-status-ua">—</span>.</span>
-      </p>
-      <p>
-        <span class="en">The <strong>Bitcoin Buy Risk Index</strong> answers a single question: <strong>is it a good time to buy Bitcoin?</strong> It condenses 10+ on-chain and macro indicators into one <strong>0–100 score</strong>, updated daily. A low score reflects historically low risk — zones where Bitcoin has often been undervalued — while a high score reflects elevated risk and historically expensive territory.</span>
-        <span class="ua">Цей <strong>Індекс ризику купівлі Bitcoin</strong> відповідає на одне питання: <strong>чи вдалий зараз момент купувати Bitcoin?</strong> Він зводить 10+ ончейн- та макропоказників в єдину оцінку <strong>0–100</strong>, що оновлюється щодня. Низька оцінка означає історично низький ризик — зони, де Bitcoin часто був недооціненим, — а висока оцінка означає підвищений ризик та історично дорогу зону.</span>
-      </p>
-      <p>
-        <span class="en">Instead of relying on price predictions, the index aggregates proven valuation metrics — <strong>MVRV Z-Score, NUPL, the RHODL Ratio, aSOPR, the Mayer Multiple</strong>, Spot ETF flows, the Fear &amp; Greed Index, and macro signals such as global M2 growth and the yield curve. Each indicator is normalized and weighted into on-chain and tech/macro subscores that combine into the headline composite risk score.</span>
-        <span class="ua">Замість прогнозів ціни індекс агрегує перевірені метрики оцінки — <strong>MVRV Z-Score, NUPL, RHODL Ratio, aSOPR, Mayer Multiple</strong>, потоки спотових ETF, Індекс страху та жадібності, а також макросигнали, як-от зростання глобального M2 та крива дохідності. Кожен показник нормалізується та зважується в ончейн- і тех/макро підоцінки, що формують підсумкову композитну оцінку ризику.</span>
-      </p>
-      <p>
-        <span class="en">Use it as a data-driven sanity check against market emotion — not as financial advice. <a href="about.html">Read the full methodology</a> to see exactly how each indicator is calculated and weighted, or see how it <a href="compare.html">compares to the Fear &amp; Greed Index and CBBI</a>.</span>
-        <span class="ua">Використовуйте його як обґрунтовану даними противагу ринковим емоціям — а не як фінансову пораду. <a href="about.html">Читати повну методологію</a>, щоб побачити, як саме обчислюється та зважується кожен показник, або як він <a href="compare.html">порівнюється з Fear &amp; Greed Index та CBBI</a>.</span>
-      </p>
-    </div>
+  <!-- About footer bottom sheet -->
+  <div class="about-footer" id="about-footer">
+    <div class="about-footer-handle"></div>
+    <p class="about-score-line">
+      <span class="en">As of the latest daily update, the Bitcoin Buy Risk Index reads <strong id="about-score-en">—</strong> / 100 — <span id="about-status-en">—</span>.</span>
+      <span class="ua">Станом на останнє щоденне оновлення Індекс ризику купівлі Bitcoin становить <strong id="about-score-ua">—</strong> / 100 — <span id="about-status-ua">—</span>.</span>
+    </p>
+    <p>
+      <span class="en">The <strong>Bitcoin Buy Risk Index</strong> answers a single question: <strong>is it a good time to buy Bitcoin?</strong> It condenses 10+ on-chain and macro indicators into one <strong>0–100 score</strong>, updated daily. A low score reflects historically low risk — zones where Bitcoin has often been undervalued — while a high score reflects elevated risk and historically expensive territory.</span>
+      <span class="ua">Цей <strong>Індекс ризику купівлі Bitcoin</strong> відповідає на одне питання: <strong>чи вдалий зараз момент купувати Bitcoin?</strong> Він зводить 10+ ончейн- та макропоказників в єдину оцінку <strong>0–100</strong>, що оновлюється щодня. Низька оцінка означає історично низький ризик — зони, де Bitcoin часто був недооціненим, — а висока оцінка означає підвищений ризик та історично дорогу зону.</span>
+    </p>
+    <p>
+      <span class="en">Instead of relying on price predictions, the index aggregates proven valuation metrics — <strong>MVRV Z-Score, NUPL, the RHODL Ratio, aSOPR, the Mayer Multiple</strong>, Spot ETF flows, the Fear &amp; Greed Index, and macro signals such as global M2 growth and the yield curve. Each indicator is normalized and weighted into on-chain and tech/macro subscores that combine into the headline composite risk score.</span>
+      <span class="ua">Замість прогнозів ціни індекс агрегує перевірені метрики оцінки — <strong>MVRV Z-Score, NUPL, RHODL Ratio, aSOPR, Mayer Multiple</strong>, потоки спотових ETF, Індекс страху та жадібності, а також макросигнали, як-от зростання глобального M2 та крива дохідності. Кожен показник нормалізується та зважується в ончейн- і тех/макро підоцінки, що формують підсумкову композитну оцінку ризику.</span>
+    </p>
+    <p>
+      <span class="en">Use it as a data-driven sanity check against market emotion — not as financial advice. <a href="about.html">Read the full methodology</a> to see exactly how each indicator is calculated and weighted, or see how it <a href="compare.html">compares to the Fear &amp; Greed Index and CBBI</a>.</span>
+      <span class="ua">Використовуйте його як обґрунтовану даними противагу ринковим емоціям — а не як фінансову пораду. <a href="about.html">Читати повну методологію</a>, щоб побачити, як саме обчислюється та зважується кожен показник, або як він <a href="compare.html">порівнюється з Fear &amp; Greed Index та CBBI</a>.</span>
+    </p>
   </div>
 
   <!-- Disclaimer trigger (fixed bottom) -->
-  <div class="disclaimer-trigger" onclick="toggleAbout(!document.getElementById('about-panel').classList.contains('open'))">
+  <div class="disclaimer-trigger" onclick="toggleAbout(!document.getElementById('about-footer').classList.contains('open'))">
     <span class="en">disclaimer</span>
     <span class="ua">відмова від відповідальності</span>
   </div>
@@ -1445,9 +1449,10 @@
     }
 
     function toggleAbout(open) {
-      const panel = document.getElementById('about-panel');
+      const footer = document.getElementById('about-footer');
       const backdrop = document.getElementById('drawer-backdrop');
-      if (panel) panel.classList.toggle('open', open);
+      if (footer) footer.classList.toggle('open', open);
+      document.body.classList.toggle('about-open', open);
       if (backdrop) backdrop.classList.toggle('open', open);
     }
 
@@ -1730,7 +1735,7 @@
       const backdrop = document.getElementById('drawer-backdrop');
       if (modal) modal.classList.remove('open');
       if (backdrop && !document.getElementById('settings-drawer').classList.contains('open')
-                   && !document.getElementById('about-panel').classList.contains('open')) {
+                   && !document.getElementById('about-footer').classList.contains('open')) {
         backdrop.classList.remove('open');
       }
     }
