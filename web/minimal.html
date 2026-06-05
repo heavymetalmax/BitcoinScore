@@ -280,7 +280,7 @@
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.22em;
-      color: var(--text-mute);
+      color: var(--text);
       margin-bottom: 2px;
     }
 
@@ -288,7 +288,7 @@
       font-size: 1.15rem;
       font-weight: 500;
       text-transform: lowercase;
-      color: var(--text-sub);
+      color: var(--text);
       margin-bottom: 24px;
     }
 
@@ -309,7 +309,7 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      color: #ef5350; /* contradiction warn color */
+      color: #ffffff;
       margin-top: 15px; /* offset to align vertically with the giant numbers */
       flex-shrink: 0;
       cursor: help;
@@ -323,7 +323,11 @@
     .alert-svg {
       width: 44px;
       height: 44px;
-      filter: drop-shadow(0 0 12px rgba(239, 83, 80, 0.6));
+      background: linear-gradient(180deg, rgba(255,255,255,1) 20%, rgba(255,255,255,0.35) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 2px 12px rgba(255,255,255,0.25));
     }
 
     .display-score {
@@ -334,11 +338,11 @@
       margin: 0;
       padding: 0;
       letter-spacing: -0.03em;
-      background: linear-gradient(180deg, rgba(255,255,255,1) 20%, rgba(255,255,255,0.35) 100%);
+      background: linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(255,255,255,0.85) 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
-      filter: drop-shadow(0 4px 24px rgba(255,255,255,0.25));
+      filter: drop-shadow(0 4px 24px rgba(255,255,255,0.3));
     }
 
     .display-history-column {
@@ -359,7 +363,7 @@
     .history-label {
       font-size: 0.8rem;
       font-weight: 500;
-      color: var(--text-mute);
+      color: var(--text);
       text-transform: lowercase;
     }
 
@@ -368,11 +372,11 @@
       font-size: 3rem;
       font-weight: 800;
       line-height: 1;
-      background: linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.4) 100%);
+      background: linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(255,255,255,0.75) 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
-      filter: drop-shadow(0 2px 8px rgba(255,255,255,0.15));
+      filter: drop-shadow(0 2px 8px rgba(255,255,255,0.2));
     }
 
     .history-divider {
@@ -418,11 +422,11 @@
       font-size: 3rem;
       font-weight: 800;
       line-height: 1;
-      background: linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.4) 100%);
+      background: linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(255,255,255,0.75) 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
-      filter: drop-shadow(0 2px 8px rgba(255,255,255,0.15));
+      filter: drop-shadow(0 2px 8px rgba(255,255,255,0.2));
     }
 
     .sub-title {
@@ -435,7 +439,7 @@
     .sub-status {
       font-size: 0.95rem;
       font-weight: 500;
-      color: var(--text-mute);
+      color: var(--text);
       text-transform: lowercase;
       margin-top: 4px;
     }
@@ -1503,8 +1507,9 @@
         document.getElementById('hero-card-ts').textContent = 'UPDATED: ' + tsStr;
       }
 
-      if (data.price_usd != null) {
-        document.getElementById('hero-card-price').innerHTML = `BTC: $${Math.round(data.price_usd).toLocaleString()} <span class="status-dot"></span>`;
+      const priceVal = data.btc_price ?? data.price_usd;
+      if (priceVal != null) {
+        document.getElementById('hero-card-price').innerHTML = `BTC: $${Math.round(priceVal).toLocaleString()} <span class="status-dot"></span>`;
       }
 
       // Update Center Score (Frosted Glass style)
