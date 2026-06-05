@@ -1471,6 +1471,7 @@
       if (style === 'classic') {
         location.href = 'classic.html';
       } else if (style === 'modern') {
+        localStorage.setItem('bbr-style', 'modern');
         location.href = 'index.html';
       } else {
         localStorage.setItem('bbr-style', 'minimal');

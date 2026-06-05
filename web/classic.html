@@ -2615,8 +2615,10 @@
 
     function setStyle(style) {
       if (style === 'modern') {
+        localStorage.setItem('bbr-style', 'modern');
         location.href = 'index.html';
       } else if (style === 'minimal') {
+        localStorage.setItem('bbr-style', 'minimal');
         location.href = 'minimal.html';
       } else {
         localStorage.setItem('bbr-style', 'classic');
