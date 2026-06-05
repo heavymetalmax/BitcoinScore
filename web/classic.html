@@ -2434,9 +2434,9 @@
         <span class="en">Modern</span>
         <span class="ua">Сучасна</span>
       </button>
-      <button class="nav-btn" id="btn-style-spatial" onclick="setStyle('spatial')">
-        <span class="en">Spatial</span>
-        <span class="ua">Просторова</span>
+      <button class="nav-btn" id="btn-style-minimal" onclick="setStyle('minimal')">
+        <span class="en">Minimal</span>
+        <span class="ua">Мінімал</span>
       </button>
     </div>
 
@@ -2501,7 +2501,7 @@
       <div class="settings-options">
         <button id="drawer-btn-style-classic" class="option-btn active" onclick="setStyle('classic')">Classic</button>
         <button id="drawer-btn-style-modern" class="option-btn" onclick="setStyle('modern')">Modern</button>
-        <button id="drawer-btn-style-spatial" class="option-btn" onclick="setStyle('spatial')">Spatial</button>
+        <button id="drawer-btn-style-minimal" class="option-btn" onclick="setStyle('minimal')">Minimal</button>
       </div>
     </div>
 
@@ -2584,21 +2584,21 @@
       // Classic dashboard buttons
       toggleActive('btn-style-classic', style === 'classic');
       toggleActive('btn-style-modern', style === 'modern');
-      toggleActive('btn-style-spatial', style === 'spatial');
+      toggleActive('btn-style-minimal', style === 'minimal');
       toggleActive('btn-mode-night', mode === 'night');
       toggleActive('btn-mode-auto', mode === 'auto');
 
       // Modern outside footer buttons
       toggleActive('modern-footer-btn-style-classic', style === 'classic');
       toggleActive('modern-footer-btn-style-modern', style === 'modern');
-      toggleActive('modern-footer-btn-style-spatial', style === 'spatial');
+      toggleActive('modern-footer-btn-style-minimal', style === 'minimal');
       toggleActive('modern-footer-btn-mode-night', mode === 'night');
       toggleActive('modern-footer-btn-mode-auto', mode === 'auto');
 
       // Modern drawer settings buttons
       toggleActive('drawer-btn-style-classic', style === 'classic');
       toggleActive('drawer-btn-style-modern', style === 'modern');
-      toggleActive('drawer-btn-style-spatial', style === 'spatial');
+      toggleActive('drawer-btn-style-minimal', style === 'minimal');
       toggleActive('drawer-btn-mode-night', mode === 'night');
       toggleActive('drawer-btn-mode-auto', mode === 'auto');
 
@@ -2616,8 +2616,8 @@
     function setStyle(style) {
       if (style === 'modern') {
         location.href = 'index.html';
-      } else if (style === 'spatial') {
-        location.href = 'spatial.html';
+      } else if (style === 'minimal') {
+        location.href = 'minimal.html';
       } else {
         localStorage.setItem('bbr-style', 'classic');
         updateThemeClass();
@@ -2694,7 +2694,7 @@
       const style = localStorage.getItem('bbr-style') || 'classic';
       let href = 'classic.html';
       if (style === 'modern') href = 'index.html';
-      if (style === 'spatial') href = 'spatial.html';
+      if (style === 'minimal') href = 'minimal.html';
       
       const logoLink = document.getElementById('logo-link');
       if (logoLink) logoLink.href = href;

@@ -2033,7 +2033,7 @@
       <div class="settings-options">
         <button id="drawer-btn-style-classic" class="option-btn" onclick="setStyle('classic')">Classic</button>
         <button id="drawer-btn-style-modern" class="option-btn" onclick="setStyle('modern')">Modern</button>
-        <button id="drawer-btn-style-spatial" class="option-btn" onclick="setStyle('spatial')">Spatial</button>
+        <button id="drawer-btn-style-minimal" class="option-btn" onclick="setStyle('minimal')">Minimal</button>
       </div>
     </div>
 
@@ -2125,14 +2125,14 @@
       // Modern outside footer buttons
       toggleActive('modern-footer-btn-style-classic', style === 'classic');
       toggleActive('modern-footer-btn-style-modern', style === 'modern');
-      toggleActive('modern-footer-btn-style-spatial', style === 'spatial');
+      toggleActive('modern-footer-btn-style-minimal', style === 'minimal');
       toggleActive('modern-footer-btn-mode-night', mode === 'night');
       toggleActive('modern-footer-btn-mode-auto', mode === 'auto');
 
       // Modern drawer settings buttons
       toggleActive('drawer-btn-style-classic', style === 'classic');
       toggleActive('drawer-btn-style-modern', style === 'modern');
-      toggleActive('drawer-btn-style-spatial', style === 'spatial');
+      toggleActive('drawer-btn-style-minimal', style === 'minimal');
       toggleActive('drawer-btn-mode-night', mode === 'night');
       toggleActive('drawer-btn-mode-auto', mode === 'auto');
 
@@ -2150,8 +2150,8 @@
     function setStyle(style) {
       if (style === 'classic') {
         location.href = 'classic.html';
-      } else if (style === 'spatial') {
-        location.href = 'spatial.html';
+      } else if (style === 'minimal') {
+        location.href = 'minimal.html';
       } else {
         localStorage.setItem('bbr-style', 'modern');
         updateThemeClass();
@@ -2228,7 +2228,7 @@
       const style = localStorage.getItem('bbr-style') || 'modern';
       let href = 'index.html';
       if (style === 'classic') href = 'classic.html';
-      if (style === 'spatial') href = 'spatial.html';
+      if (style === 'minimal') href = 'minimal.html';
       
       const logoLink = document.getElementById('logo-link');
       if (logoLink) logoLink.href = href;

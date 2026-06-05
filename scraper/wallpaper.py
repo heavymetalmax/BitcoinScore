@@ -9,7 +9,7 @@ risk-score category (low / neutral / high) and saves them to:
     web/wallpaper-real.jpg
     web/wallpaper-abstract.jpg
 
-The frontend loadWallpaper() in spatial.html will prefer these local files
+The frontend loadWallpaper() in minimal.html will prefer these local files
 over the Unsplash fallback URLs.
 """
 import os

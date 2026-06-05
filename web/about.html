@@ -128,6 +128,46 @@
       --index-color-glow: rgba(247, 147, 26, 0.10);
     }
 
+    /* Minimal Dark */
+    html.style-minimal.theme-dark {
+      --bg: #000000;
+      --bg-gradient: #000000;
+      --bg-card: #121214;
+      --bg-card-hover: #1c1c1f;
+      --border: rgba(255, 255, 255, 0.15);
+      --border-hover: rgba(255, 255, 255, 0.25);
+      --text: #ffffff;
+      --text-mute: #9ca3af;
+      --text-sub: #6b7280;
+      --divider: rgba(255, 255, 255, 0.15);
+      --footer: #6b7280;
+      --glass-blur: blur(20px);
+      --shadow-glow: 0 8px 32px 0 rgba(255, 255, 255, 0.02), 0 4px 12px 0 rgba(0, 0, 0, 0.6);
+      --index-color: #ffffff;
+      --index-color-bg: rgba(255, 255, 255, 0.05);
+      --index-color-glow: rgba(255, 255, 255, 0.02);
+    }
+
+    /* Minimal Light */
+    html.style-minimal.theme-light {
+      --bg: #ffffff;
+      --bg-gradient: #ffffff;
+      --bg-card: rgba(255, 255, 255, 0.75);
+      --bg-card-hover: rgba(255, 255, 255, 0.85);
+      --border: rgba(0, 0, 0, 0.12);
+      --border-hover: rgba(0, 0, 0, 0.2);
+      --text: #000000;
+      --text-mute: #666666;
+      --text-sub: #999999;
+      --divider: rgba(0, 0, 0, 0.12);
+      --footer: #666666;
+      --glass-blur: blur(20px);
+      --shadow-glow: 0 8px 32px 0 rgba(0, 0, 0, 0.08);
+      --index-color: #000000;
+      --index-color-bg: rgba(0, 0, 0, 0.05);
+      --index-color-glow: rgba(0, 0, 0, 0.02);
+    }
+
     html.style-classic body {
       background-size: initial;
     }
@@ -520,15 +560,12 @@
       padding-top: 24px;
     }
     
-    /* --- Modern Style Styling for About page --- */
-    html.style-modern {
-      background: #f4f5f6;
-    }
-    html.style-modern.theme-dark {
-      background: #0b0c10;
+    /* --- Modern & Minimal Style Styling for About page --- */
+    html.style-modern, html.style-minimal {
+      background: var(--bg);
     }
     
-    html.style-modern body {
+    html.style-modern body, html.style-minimal body {
       background: transparent;
       padding: 40px 20px;
       max-width: 100%;
@@ -541,7 +578,7 @@
       font-family: 'Outfit', sans-serif;
     }
     
-    /* Modern wrapper */
+    /* Modern / Minimal wrapper */
     .about-wrapper {
       width: 100%;
       max-width: 720px;
@@ -549,17 +586,12 @@
       transition: all 0.3s ease;
       z-index: 10;
     }
-    html.style-modern .about-wrapper {
-      background: #ffffff;
+    html.style-modern .about-wrapper, html.style-minimal .about-wrapper {
+      background: var(--bg-card);
       border-radius: 28px;
       padding: 36px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02), 0 1px 3px rgba(0, 0, 0, 0.01);
-      border: 1px solid rgba(0, 0, 0, 0.02);
-    }
-    html.style-modern.theme-dark .about-wrapper {
-      background: #121318;
-      border: 1px solid rgba(255, 255, 255, 0.02);
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+      box-shadow: var(--shadow-glow);
+      border: 1px solid var(--border);
     }
     
     /* Background elements for about page */
@@ -1343,8 +1375,8 @@
 
     // Dynamic back-to-dashboard routing based on active style
     const savedStyle = localStorage.getItem('bbr-style');
-    if (savedStyle === 'classic' || savedStyle === 'spatial') {
-      const targetPage = savedStyle === 'classic' ? 'classic.html' : 'spatial.html';
+    if (savedStyle === 'classic' || savedStyle === 'minimal') {
+      const targetPage = savedStyle === 'classic' ? 'classic.html' : 'minimal.html';
       document.querySelectorAll('a[href="index.html"]').forEach(el => {
         el.href = targetPage;
       });
