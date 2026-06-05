@@ -110,10 +110,11 @@
     html.style-modern.theme-dark {
       --bg: #0d0f18;
       --bg-gradient: #0d0f18;
-      --bg-card: #1c2030;
+      --bg-card: #1c2030;          /* lifted from #121318 — clear step above bg */
       --bg-card-hover: #222640;
-      --border: rgba(255, 255, 255, 0.10);
+      --border: rgba(255, 255, 255, 0.10);  /* from 0.03 — visible card outlines */
       --border-hover: rgba(247, 147, 26, 0.40);
+      /* all fonts = darkest gauge segment colour */
       --text: #8892a4;
       --text-name: #8892a4;
       --text-mute: #8892a4;
@@ -144,6 +145,7 @@
       --bg-card-hover: #ffffff;
       --border: rgba(0, 0, 0, 0.04);
       --border-hover: rgba(247, 147, 26, 0.35);
+      /* all fonts = darkest gauge segment colour */
       --text: #374151;
       --text-name: #374151;
       --text-mute: #374151;
@@ -154,10 +156,10 @@
       --divider: rgba(0, 0, 0, 0.08);
       --tick: rgba(0, 0, 0, 0.15);
       --footer: #64748b;
-
+      
       --shadow-glow: 0 10px 40px rgba(0, 0, 0, 0.03);
       --shadow-glow-active: 0 15px 50px rgba(0, 0, 0, 0.06);
-
+      
       --bg-card-knob: #ffffff;
       --glass-blur: blur(20px);
 
@@ -206,7 +208,7 @@
     .modern-sub-gauge-canvas {
       max-width: 100%;
     }
-    /* Nav active button — pure orange */
+    /* Nav active button — pure orange, no color-mix, no transparency */
     html.style-modern .nav-btn.active,
     html.style-modern .lang-btn.active {
       background: rgba(247, 147, 26, 0.14);
@@ -2297,64 +2299,35 @@
       // helper: canvas angle for risk value v (0→π left, 100→2π right)
       const toAngle = v => Math.PI + (v / 100) * Math.PI;
 
-      // ── 1. Draw dots along arc (neobrutalism stepper) ────────────────────
-      const NUM_DOTS  = isSmall ? 20 : 26;
-      const dotR      = isSmall ? Math.floor(ringW * 0.36) : Math.floor(ringW * 0.34);
-      const arcR      = (R_out + R_in) / 2;
-      const activeIdx = Math.round((value / 100) * (NUM_DOTS - 1));
-
-      for (let i = 0; i < NUM_DOTS; i++) {
-        const t        = i / (NUM_DOTS - 1);
-        const angle    = Math.PI + t * Math.PI;
-        const dx       = cx + arcR * Math.cos(angle);
-        const dy       = cy + arcR * Math.sin(angle);
-        const zoneIdx  = Math.min(4, Math.floor(t * 5));
-        const isActive = i <= activeIdx;
-        const isCur    = i === activeIdx;
-
+      // ── 1. Draw 5 continuous zone segments (no gaps) ─────────────────────
+      for (let i = 0; i < 5; i++) {
+        const a0 = toAngle(i * 20);
+        const a1 = toAngle((i + 1) * 20);
         ctx.beginPath();
-        ctx.arc(dx, dy, isCur ? dotR * 1.4 : dotR, 0, Math.PI * 2);
-        if (isActive) {
-          ctx.fillStyle   = isCur ? '#f7931a' : ZONE_BRIGHT[zoneIdx];
-          ctx.fill();
-          ctx.strokeStyle = SEG_BORDER;
-          ctx.lineWidth   = isSmall ? 1.5 : 2;
-          ctx.stroke();
-        } else {
-          ctx.fillStyle   = isDark ? '#1e1e1e' : '#E8E8E8';
-          ctx.fill();
-          ctx.strokeStyle = isDark ? '#3a3a3a' : '#BBBBBB';
-          ctx.lineWidth   = isSmall ? 1 : 1.5;
-          ctx.stroke();
-        }
-      }
-
-      // ── 3. Diagonal hatching in the outer pointer-sweep zone (R_out → tip) ──
-      // Clipped to the thin arc strip outside the dots so it never covers them.
-      if (value > 0) {
-        const hatchGap = isSmall ? 10 : 16;
-        const toA = toAngle(value);
-        ctx.save();
-        ctx.beginPath();
-        ctx.arc(cx, cy, R_out + hatchGap, Math.PI, toA, false);
-        ctx.arc(cx, cy, R_out,            toA,     Math.PI, true);
+        ctx.arc(cx, cy, R_out, a0, a1, false);
+        ctx.arc(cx, cy, R_in,  a1, a0, true);
         ctx.closePath();
-        ctx.clip();
-        const spacing = isSmall ? 4 : 5;
-        ctx.strokeStyle = isDark ? 'rgba(247,147,26,0.35)' : 'rgba(0,0,0,0.22)';
-        ctx.lineWidth   = isSmall ? 1 : 1.2;
-        ctx.lineCap     = 'square';
-        const ext = R_out + hatchGap + 10;
-        for (let d = -(ext * 2); d < ext * 2; d += spacing) {
-          ctx.beginPath();
-          ctx.moveTo(cx + d,       cy - ext);
-          ctx.lineTo(cx + d + ext, cy + ext);
-          ctx.stroke();
-        }
-        ctx.restore();
+        ctx.fillStyle = ZONE_BRIGHT[i];
+        ctx.fill();
       }
 
-      // ── 4. Current-value tick — pointer from the scale arc inward to an
+      // ── 2. Parallel arc outlines on filled portion (0 → value) ──────────
+      if (value > 0) {
+        const fillEnd = toAngle(value);
+        ctx.lineWidth = isSmall ? 1.5 : 2;
+        ctx.strokeStyle = RIM_COL;
+        ctx.setLineDash([]);
+
+        ctx.beginPath();
+        ctx.arc(cx, cy, R_out + RIM_GAP, Math.PI, fillEnd, false); // outer rim (gap from arc)
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(cx, cy, R_in - RIM_GAP,  Math.PI, fillEnd, false); // inner rim (gap from arc)
+        ctx.stroke();
+      }
+
+      // ── 3. Current-value tick — pointer from the scale arc inward to an
       // invisible clearance circle around the number (so it never touches the
       // digits, at any angle). Circle is centred at the gauge centre (cx,cy),
       // which sits below the number.
@@ -2368,13 +2341,11 @@
         const margin  = isSmall ? 6 : 9;
         // radius of the invisible circle that fully clears the number box
         const R_clear = Math.hypot(halfW, numDist + capHalf) + margin;
-        const outerGap = isSmall ? 10 : 16; /* gap from dot arc outward */
         ctx.beginPath();
-        ctx.moveTo(cx + R_clear                * Math.cos(ca), cy + R_clear                * Math.sin(ca));
-        ctx.lineTo(cx + (R_out + outerGap)     * Math.cos(ca), cy + (R_out + outerGap)     * Math.sin(ca));
+        ctx.moveTo(cx + R_clear         * Math.cos(ca), cy + R_clear         * Math.sin(ca));
+        ctx.lineTo(cx + (R_out + RIM_GAP) * Math.cos(ca), cy + (R_out + RIM_GAP) * Math.sin(ca));
         ctx.strokeStyle = TICK_CUR_COL;
-        ctx.lineWidth   = isSmall ? 3 : 4.5;
-        ctx.lineCap     = 'round';
+        ctx.lineWidth   = isSmall ? 1.5 : 2;
         ctx.stroke();
       }
 
