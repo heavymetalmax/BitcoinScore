@@ -76,9 +76,11 @@
     }
 
     html {
-      background: #000;
+      background: #000; /* fallback before wallpaper loads */
     }
     body {
+      /* overflow:hidden prevents scroll; min-height:100lvh (large viewport = toolbar-hidden height)
+         makes body taller than the visual viewport so its background extends behind Safari toolbar */
       overflow: hidden;
       min-height: 100lvh;
       background: #000 url('wallpaper-real.jpg') no-repeat center / cover;
@@ -94,6 +96,8 @@
 
     /* --- Background Layering (Depth Effect) --- */
     .lockscreen-wrapper {
+      /* position:relative (not fixed) so it participates in normal flow;
+         min-height:100svh fills the visual viewport (toolbar visible) */
       position: relative;
       width: 100%;
       min-height: 100svh;
@@ -107,6 +111,8 @@
     }
 
     .wallpaper-floor {
+      /* Fills the gap between 100svh and 100lvh — exactly where the Safari toolbar sits.
+         This in-flow block makes the body background (wallpaper) render behind the toolbar. */
       width: 100%;
       height: calc(100lvh - 100svh);
       min-height: 40px;
