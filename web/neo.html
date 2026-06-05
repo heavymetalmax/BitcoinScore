@@ -2373,9 +2373,10 @@ html.style-modern .score-box .s-sub {
         ctx.arc(cx, cy, rimInner, fillEnd, Math.PI, true);
         ctx.closePath();
         ctx.clip();
-        const hSpacing = isSmall ? 4 : 5;
+        const rimLW    = isSmall ? 2.5 : 3.5;
+        const hSpacing = rimLW * 2;
         ctx.strokeStyle = isDark ? 'rgba(247,147,26,0.55)' : 'rgba(247,147,26,0.7)';
-        ctx.lineWidth   = isSmall ? 1 : 1.2;
+        ctx.lineWidth   = rimLW;
         ctx.lineCap     = 'square';
         const ext = rimOuter + 10;
         for (let d = -(ext * 2); d < ext * 2; d += hSpacing) {
