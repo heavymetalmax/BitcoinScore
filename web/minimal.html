@@ -812,11 +812,12 @@
     .drawer-scroll {
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
       flex: 1;
       display: flex;
       flex-direction: column;
       gap: 22px;
-      padding: 28px 24px;
+      padding: 16px 24px 28px;
     }
 
     .settings-drawer.open {
@@ -1265,7 +1266,6 @@
 
   <!-- Settings Drawer -->
   <div class="settings-drawer" id="settings-drawer">
-  <div class="drawer-scroll">
     <div class="drawer-header">
       <span class="drawer-title">
         <span class="en">Settings</span>
@@ -1273,6 +1273,7 @@
       </span>
       <button class="drawer-close" onclick="toggleDrawer(false)">&times;</button>
     </div>
+  <div class="drawer-scroll">
 
     <!-- Navigation Group -->
     <div class="settings-group">
