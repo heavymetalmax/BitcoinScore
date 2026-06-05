@@ -255,22 +255,65 @@ html.style-modern .hero-status-area {
   justify-content: flex-end;
   flex-shrink: 0;
 }
+/* ── Big number: main card ── */
 html.style-modern .hero-score-val {
   display: block;
   font-size: 5.5rem;
   font-weight: 900;
   line-height: 0.85;
   letter-spacing: -0.04em;
-  color: #0A0A0A;
+  color: #0A0A0A !important;
 }
 html.style-modern.theme-dark .hero-score-val {
-  color: #EEEEEE;
+  color: #EEEEEE !important;
 }
 html.style-modern #s-final-label,
 html.style-modern #main-tactical-badge,
 html.style-modern #s-warn {
   display: none !important;
 }
+
+/* ── Big number: sub-cards ── */
+html.style-modern .sub-card-value-container {
+  display: flex !important;
+  justify-content: flex-end;
+  align-items: flex-start;
+  flex-shrink: 0;
+}
+html.style-modern .sub-card-value-container .s-value {
+  display: block !important;
+  font-size: 3.8rem;
+  font-weight: 900;
+  line-height: 0.85;
+  letter-spacing: -0.04em;
+  color: #0A0A0A !important;
+}
+html.style-modern.theme-dark .sub-card-value-container .s-value {
+  color: #EEEEEE !important;
+}
+
+/* ── Sub-card top row: label left + number right (grid) ── */
+html.style-modern .score-box:not(.main) {
+  display: grid;
+  grid-template-columns: 1fr auto;
+}
+html.style-modern .score-box:not(.main) > .s-label {
+  grid-column: 1;
+  grid-row: 1;
+  align-self: start;
+}
+html.style-modern .score-box:not(.main) > .sub-card-value-container {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: start;
+}
+html.style-modern .score-box:not(.main) > .modern-sub-gauge-wrap,
+html.style-modern .score-box:not(.main) > .sub-gauge-status,
+html.style-modern .score-box:not(.main) > .bar-wrap,
+html.style-modern .score-box:not(.main) > .s-sub {
+  grid-column: 1 / -1;
+}
+
 html.style-modern .score-box .s-sub {
   font-weight: 700;
 }
