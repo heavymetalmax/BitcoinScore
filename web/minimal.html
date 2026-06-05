@@ -17,10 +17,15 @@
   </script>
 
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Bitcoin Buy Risk Index — Minimal UI</title>
   <meta name="description" content="A phone-lockscreen inspired Bento Minimal dashboard for the Bitcoin Buy Risk Index." />
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <!-- iOS PWA: fullscreen when launched from Home Screen -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="BRI" />
+  <meta name="mobile-web-app-capable" content="yes" />
   
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -72,11 +77,13 @@
     html {
       width: 100%;
       height: 100%;
+      height: 100dvh;
       overflow: hidden;
     }
     body {
       width: 100%;
       height: 100%;
+      height: 100dvh;
       overflow: hidden;
       font-family: 'Inter', -apple-system, sans-serif;
       background-color: var(--bg-dark);
@@ -101,7 +108,7 @@
       flex-direction: column;
       justify-content: flex-start;
       align-items: center;
-      padding: 24px 24px 120px;
+      padding: max(24px, env(safe-area-inset-top)) 24px max(120px, calc(120px + env(safe-area-inset-bottom)));
       z-index: 10;
     }
 
@@ -763,7 +770,7 @@
     /* --- Interactive Gear Button --- */
     .settings-gear {
       position: fixed;
-      bottom: 60px;
+      bottom: max(60px, calc(34px + env(safe-area-inset-bottom)));
       right: 24px;
       width: 42px;
       height: 42px;
@@ -956,7 +963,7 @@
     /* --- About trigger (bottom) --- */
     .disclaimer-trigger {
       position: fixed;
-      bottom: 14px;
+      bottom: max(14px, calc(8px + env(safe-area-inset-bottom)));
       left: 50%;
       transform: translateX(-50%);
       font-size: 0.62rem;
