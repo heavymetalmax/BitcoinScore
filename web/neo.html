@@ -218,9 +218,34 @@ html.style-modern .glass-panel {
   border: 2px solid var(--border-hard);
 }
 html.style-modern .s-label {
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  color: var(--text);
+  font-weight: 900;
+  letter-spacing: -0.01em;
+  color: #0A0A0A;
+  text-align: right;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  line-height: 1.15;
+  width: 100%;
+}
+html.style-modern .theme-dark .s-label {
+  color: #EEEEEE;
+}
+html.style-modern .hero-label {
+  font-weight: 900;
+  letter-spacing: -0.01em;
+  color: #0A0A0A;
+  text-align: right;
+  font-size: 0.85rem;
+  line-height: 1.15;
+  width: 100%;
+}
+html.style-modern.theme-dark .s-label,
+html.style-modern.theme-dark .hero-label {
+  color: #EEEEEE;
+}
+html.style-modern .hero-title-area {
+  justify-content: flex-end;
+  text-align: right;
 }
 html.style-modern .score-box .s-sub {
   font-weight: 700;
@@ -1667,8 +1692,8 @@ html.style-modern .score-box .s-sub {
           <div class="hero-top-row">
             <div class="hero-title-area">
               <span class="hero-label" id="hero-label">
-                <span class="en">Composite Risk Index</span>
-                <span class="ua">Композитний індекс ризику</span>
+                <span class="en">Composite<br>Risk Index</span>
+                <span class="ua">Композитний<br>індекс ризику</span>
               </span>
             </div>
             <div class="hero-status-area">
@@ -1762,8 +1787,8 @@ html.style-modern .score-box .s-sub {
       <!-- Subscore Cards -->
       <div class="score-box">
         <div class="s-label">
-          <span class="en">On-Chain Score</span>
-          <span class="ua">Ончейн-оцінка</span>
+          <span class="en">On-Chain<br>Score</span>
+          <span class="ua">Ончейн-<br>оцінка</span>
         </div>
         <div class="sub-card-value-container">
           <span id="oc-warn" class="sub-warn-icon" style="display:none" title="One or more on-chain metrics contradicts the on-chain subscore"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 9v4"/><path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0"/><path d="M12 16h.01"/></svg></span>
@@ -1782,8 +1807,8 @@ html.style-modern .score-box .s-sub {
 
       <div class="score-box" id="tech-card">
         <div class="s-label">
-          <span class="en">Tech/Macro Score</span>
-          <span class="ua">Тех/Макро оцінка</span>
+          <span class="en">Tech/Macro<br>Score</span>
+          <span class="ua">Тех/Макро<br>оцінка</span>
         </div>
         <div class="sub-card-value-container">
           <span id="tech-warn" class="sub-warn-icon" style="display:none" title="One or more tech/macro metrics contradicts the tech subscore"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 9v4"/><path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0"/><path d="M12 16h.01"/></svg></span>
@@ -1804,8 +1829,8 @@ html.style-modern .score-box .s-sub {
 
       <div class="score-box">
         <div class="s-label">
-          <span class="en">Yesterday</span>
-          <span class="ua">Вчора</span>
+          <span class="en">Previous<br>Day</span>
+          <span class="ua">Поперед-<br>ній день</span>
         </div>
         <div class="sub-card-value-container">
           <div class="s-value" id="s-yesterday">—</div>
@@ -1823,8 +1848,8 @@ html.style-modern .score-box .s-sub {
 
       <div class="score-box">
         <div class="s-label">
-          <span class="en">7-day Average</span>
-          <span class="ua">Середнє за 7 днів</span>
+          <span class="en">7-Day<br>Average</span>
+          <span class="ua">Середнє<br>7 днів</span>
         </div>
         <div class="sub-card-value-container">
           <div class="s-value" id="s-week">—</div>
