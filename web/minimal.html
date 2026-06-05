@@ -30,11 +30,12 @@
     /* --- Minimal Theme Color Variables (always dark/monochrome) --- */
     :root {
       --bg-dark: #000000;
-      --bg-card: rgba(18, 18, 22, 0.85);
-      --bg-card-hover: rgba(28, 28, 34, 0.9);
-      --border: rgba(255, 255, 255, 0.1);
-      --border-hover: rgba(255, 255, 255, 0.2);
-      --text: #ffffff;
+      /* Auto mode: nearly transparent glassmorphism over wallpaper */
+      --bg-card: rgba(12, 12, 14, 0.55);
+      --bg-card-hover: rgba(18, 18, 22, 0.75);
+      --border: rgba(255, 255, 255, 0.08);
+      --border-hover: rgba(255, 255, 255, 0.16);
+      --text: #f3f4f6;
       --text-mute: #9ca3af;
       --text-sub: #6b7280;
       --bg-drawer: rgba(10, 10, 12, 0.96);
@@ -44,14 +45,14 @@
       --accent-red: #ffffff;
       --index-color: #ffffff;
       
-      --glow-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+      --glow-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
       --inset-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
     }
 
-    /* Night mode: solid black, no wallpaper */
+    /* Night mode: solid black, opaque cards */
     html.mode-night {
-      --bg-card: #121214;
-      --bg-card-hover: #1c1c1f;
+      --bg-card: rgba(18, 18, 22, 0.95);
+      --bg-card-hover: rgba(28, 28, 34, 0.98);
       --border: rgba(255, 255, 255, 0.12);
       --border-hover: rgba(255, 255, 255, 0.22);
       --glow-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.6);
@@ -1109,6 +1110,24 @@
       </div>
     </div>
 
+    <!-- Wallpaper Type Switch -->
+    <div class="settings-group" id="wallpaper-settings-group">
+      <span class="settings-label">
+        <span class="en">Background Wallpaper</span>
+        <span class="ua">Фонові шпалери</span>
+      </span>
+      <div class="settings-options two-cols">
+        <button id="drawer-btn-wp-real" class="option-btn active" onclick="setWpType('real')">
+          <span class="en">Real</span>
+          <span class="ua">Реальні</span>
+        </button>
+        <button id="drawer-btn-wp-abstract" class="option-btn" onclick="setWpType('abstract')">
+          <span class="en">Abstract</span>
+          <span class="ua">Абстракція</span>
+        </button>
+      </div>
+    </div>
+
     <!-- Language -->
     <div class="settings-group">
       <span class="settings-label">
@@ -1145,6 +1164,9 @@
       const btnAuto = document.getElementById('drawer-btn-mode-auto');
       if (btnNight) btnNight.classList.toggle('active', mode === 'night');
       if (btnAuto) btnAuto.classList.toggle('active', mode === 'auto');
+      // Show/hide wallpaper switcher based on mode (hidden in Night mode)
+      const wpGroup = document.getElementById('wallpaper-settings-group');
+      if (wpGroup) wpGroup.style.display = (mode === 'night') ? 'none' : '';
     }
 
     function setWpType(wpType) {
@@ -1233,12 +1255,29 @@
     };
 
     function loadWallpaper(score) {
+      let category = 'neutral';
+      if (score != null) {
+        if (score <= 25) category = 'low';
+        else if (score >= 75) category = 'high';
+      }
+
       const wpType = localStorage.getItem('bbr-wp-type') || 'real';
       const bg = document.getElementById('wallpaper-bg');
       if (!bg) return;
 
+      // 1) Try local wallpaper file (downloaded by scraper)
       const localFile = wpType === 'abstract' ? 'wallpaper-abstract.jpg' : 'wallpaper-real.jpg';
-      bg.style.backgroundImage = `url('${localFile}')`;
+      const img = new Image();
+      img.onload = () => {
+        bg.style.backgroundImage = `url('${localFile}')`;
+      };
+      img.onerror = () => {
+        // 2) Fallback: Unsplash curated set
+        const set = (wpType === 'abstract') ? WallpapersAbstract[category] : WallpapersReal[category];
+        const selectedUrl = set[Math.floor(Math.random() * set.length)];
+        bg.style.backgroundImage = `url('${selectedUrl}')`;
+      };
+      img.src = localFile;
     }
 
     // Grayscale Score Color Helper (All UI elements are rendered monochrome)
