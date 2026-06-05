@@ -231,7 +231,10 @@
       padding: 30px 24px;
       width: 100%;
       background: var(--bg-card);
-      border: 1px solid rgba(255, 255, 255, 0.05);
+
+
+      border: 1px solid rgba(255, 255, 255, 0.04);
+
       box-shadow: var(--glow-shadow), var(--inset-shadow);
       backdrop-filter: none;
       -webkit-backdrop-filter: none;
@@ -286,7 +289,7 @@
       text-transform: uppercase;
       letter-spacing: 0.22em;
       color: var(--text);
-      margin-bottom: 2px;
+      margin-bottom: 14px;
     }
 
     .display-status {
@@ -294,7 +297,7 @@
       font-weight: 500;
       text-transform: lowercase;
       color: var(--text);
-      margin-bottom: 24px;
+      margin-bottom: 14px;
     }
 
     .display-main-row {
@@ -302,9 +305,26 @@
       width: 100%;
       display: flex;
       align-items: center;
+
       justify-content: center;
+
+      gap: 16px;
+
       margin-bottom: 24px;
+      overflow: visible;
     }
+
+
+
+    .display-score-section {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+      min-width: 0;
+      overflow: visible;
+    }
+
 
     .alert-icon-wrap {
       position: absolute;
@@ -339,13 +359,14 @@
       font-weight: 900;
       line-height: 0.9;
       margin: 0;
-      padding: 0;
+      padding: 0 0.06em 0 0; /* right padding to prevent clip */
       letter-spacing: -0.03em;
       background: linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(255,255,255,0.85) 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
       filter: drop-shadow(0 4px 24px rgba(255,255,255,0.3));
+      overflow: visible;
     }
 
     .display-history-column {
@@ -356,14 +377,23 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+
       gap: 4px;
+
+      gap: 6px;
+      flex-shrink: 0;
+
     }
 
     .history-item {
       display: flex;
       flex-direction: column;
       align-items: center;
+
       line-height: 1;
+
+      line-height: 1.1;
+
     }
 
     .history-label {
@@ -388,7 +418,7 @@
     .history-divider {
       width: 48px;
       height: 1px;
-      background-color: var(--border);
+      background-color: rgba(255, 255, 255, 0.12);
       margin: 2px 0;
     }
 
@@ -808,7 +838,6 @@
       background: rgba(255, 255, 255, 0.03);
       padding: 4px;
       border-radius: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.05);
     }
 
     /* Layout override for 2-option grids */
