@@ -433,25 +433,6 @@ html.style-modern .score-box .s-sub {
     .neo-status-badge {
       display: none;
     }
-    html.style-modern .score-box.main .neo-status-badge {
-      display: block;
-      position: absolute;
-      top: -3px;
-      right: -3px;
-      background: #f7931a;
-      color: #000;
-      font-weight: 900;
-      font-size: 1.1rem;
-      text-transform: lowercase;
-      padding: 6px 18px;
-      letter-spacing: -0.01em;
-      z-index: 10;
-      font-family: 'Outfit', sans-serif;
-    }
-    html.style-modern.theme-dark .score-box.main .neo-status-badge {
-      background: #f7931a;
-      color: #000;
-    }
 
     /* Modern sub-card gauge layout */
     .modern-sub-gauge-wrap {
@@ -1841,55 +1822,57 @@ html.style-modern .score-box .s-sub {
       </span>
     </div>
     <div class="scores">
-      <!-- Hero Card: on-chain style clone showing composite risk score -->
-      <div class="score-box main" id="main-card">
-        <!-- Hidden stubs for JS compatibility -->
-        <div style="display:none" aria-hidden="true">
-          <span id="s-final">—</span>
-          <span id="b-final"></span>
-          <span id="hero-label"></span>
-          <span id="s-final-label"></span>
-          <span id="main-tactical-badge"></span>
-          <span id="s-warn"></span>
-          <span id="marker-num"></span>
-          <span id="marker-trend-up"></span>
-          <span id="marker-trend-down"></span>
-          <span id="marker-lbl"></span>
-          <span id="modern-gauge-status-en"></span>
-          <span id="modern-gauge-status-ua"></span>
-          <span id="modern-gauge-badge"></span>
-          <span id="seo-score"></span>
-          <span id="seo-score-ua"></span>
-          <span id="seo-status-en"></span>
-          <span id="seo-status-ua"></span>
-          <span id="zone-buy-price"></span>
-          <span id="zone-sell-price"></span>
-          <canvas id="modern-gauge-canvas"></canvas>
-          <canvas id="zone-gauge-canvas"></canvas>
-        </div>
-        <!-- Visible content -->
-        <!-- Status badge overlaps top-right border -->
+      <!-- Hero Card wrapper: badge sticks up as folder tab -->
+      <div class="neo-hero-container">
+        <!-- Folder-tab status badge (outside the card) -->
         <div class="neo-status-badge" id="neo-hero-status">—</div>
-        <!-- Sub text top-left small -->
-        <div class="s-sub">
-          <span class="en">50% on-chain + 50 tech/macro</span>
-          <span class="ua">50% ончейн + 50 тех/макро</span>
+
+        <div class="score-box main" id="main-card">
+          <!-- Hidden stubs for JS compatibility -->
+          <div style="display:none" aria-hidden="true">
+            <span id="s-final">—</span>
+            <span id="b-final"></span>
+            <span id="hero-label"></span>
+            <span id="s-final-label"></span>
+            <span id="main-tactical-badge"></span>
+            <span id="s-warn"></span>
+            <span id="marker-num"></span>
+            <span id="marker-trend-up"></span>
+            <span id="marker-trend-down"></span>
+            <span id="marker-lbl"></span>
+            <span id="modern-gauge-status-en"></span>
+            <span id="modern-gauge-status-ua"></span>
+            <span id="modern-gauge-badge"></span>
+            <span id="seo-score"></span>
+            <span id="seo-score-ua"></span>
+            <span id="seo-status-en"></span>
+            <span id="seo-status-ua"></span>
+            <span id="zone-buy-price"></span>
+            <span id="zone-sell-price"></span>
+            <canvas id="modern-gauge-canvas"></canvas>
+            <canvas id="zone-gauge-canvas"></canvas>
+          </div>
+          <!-- Sub text top-left small -->
+          <div class="s-sub">
+            <span class="en">50% on-chain + 50 tech/macro</span>
+            <span class="ua">50% ончейн + 50 тех/макро</span>
+          </div>
+          <!-- Title -->
+          <div class="s-label">
+            <span class="en">Bitcoin Buy<br>Risk Index</span>
+            <span class="ua">Індекс ризику<br>Bitcoin</span>
+          </div>
+          <!-- Big score right -->
+          <div class="sub-card-value-container">
+            <div class="s-value" id="s-final-neo">—</div>
+          </div>
+          <!-- Quarter-circle gauge: bottom-left corner, CCW arc from bottom toward score -->
+          <div class="modern-sub-gauge-wrap">
+            <canvas id="gauge-final-neo" class="modern-sub-gauge-canvas"></canvas>
+          </div>
+          <div class="sub-gauge-status" id="final-neo-status">—</div>
+          <div class="bar-wrap"><div class="bar-fill" id="b-final-neo" style="width:0%"></div></div>
         </div>
-        <!-- Title -->
-        <div class="s-label">
-          <span class="en">Bitcoin Buy<br>Risk Index</span>
-          <span class="ua">Індекс ризику<br>Bitcoin</span>
-        </div>
-        <!-- Big score right -->
-        <div class="sub-card-value-container">
-          <div class="s-value" id="s-final-neo">—</div>
-        </div>
-        <!-- Quarter-circle gauge bottom-left -->
-        <div class="modern-sub-gauge-wrap">
-          <canvas id="gauge-final-neo" class="modern-sub-gauge-canvas"></canvas>
-        </div>
-        <div class="sub-gauge-status" id="final-neo-status">—</div>
-        <div class="bar-wrap"><div class="bar-fill" id="b-final-neo" style="width:0%"></div></div>
       </div>
 
       <!-- Subscore Cards -->
@@ -2611,6 +2594,14 @@ html.style-modern .score-box .s-sub {
     function drawHeroGauge(canvas, value) {
       if (!canvas || value == null) return;
       const isDark = !document.documentElement.classList.contains('theme-light');
+
+      // Same palette as drawModernGauge
+      const ZONE_BRIGHT = isDark
+        ? ['#8892a4', '#b0baca', '#d4d8df', '#fbbf24', '#f7931a']
+        : ['#374151', '#6b7280', '#c8cdd4', '#fdba74', '#f7931a'];
+      const RIM_COL = '#f7931a';
+      const RIM_GAP = 10;
+
       const dpr  = window.devicePixelRatio || 1;
       const wrap = canvas.parentElement;
       const W    = wrap ? wrap.clientWidth  : 200;
@@ -2624,36 +2615,87 @@ html.style-modern .score-box .s-sub {
       const ctx = canvas.getContext('2d');
       ctx.scale(dpr, dpr);
 
-      // Quarter circle: center at bottom-left corner of the wrap
+      // Quarter-circle: center at BOTTOM-LEFT corner of the gauge wrap
       const cx = 0;
       const cy = H;
-      const R_out = Math.min(W * 0.95, H * 0.95);
-      const ringW = Math.round(R_out * 0.18);
+      const R_out = Math.min(W * 0.92, H * 0.92);
+      const ringW = Math.round(R_out * 0.16);
       const R_in  = R_out - ringW;
 
-      // Arc goes from 270° (top) to 0° (right) = quarter circle
-      const startAngle = -Math.PI / 2;  // top (12 o'clock)
-      const endAngle   = 0;             // right (3 o'clock)
-      const valueAngle = startAngle + (value / 100) * (endAngle - startAngle);
+      // Arc goes COUNTERCLOCKWISE from angle 0 (right = bottom edge of card)
+      // to angle -π/2 (up = left edge of card).
+      // So: 0% = bottom, 100% = top → tip points toward score number at mid-right
+      const arcStart = 0;           // right (3 o'clock) — bottom of scale
+      const arcEnd   = -Math.PI/2;  // up (12 o'clock)  — top of scale
+      const CCW      = true;        // counterclockwise
 
-      // Background track (dim)
-      ctx.beginPath();
-      ctx.arc(cx, cy, R_out, startAngle, endAngle, false);
-      ctx.arc(cx, cy, R_in,  endAngle, startAngle, true);
-      ctx.closePath();
-      ctx.fillStyle = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
-      ctx.fill();
+      // Value angle: from arcStart going CCW by value/100 of the 90° span
+      const valueAngle = arcStart + (value / 100) * (arcEnd - arcStart);
 
-      // Filled arc (orange, value portion)
-      if (value > 0) {
+      // ── 1. Zone segments with dot texture (same as drawModernGauge) ──────
+      const dotSpacing = 9;
+      const dotFillR   = 2.8;
+
+      for (let i = 0; i < 5; i++) {
+        const a0 = arcStart + (i / 5)       * (arcEnd - arcStart);
+        const a1 = arcStart + ((i + 1) / 5) * (arcEnd - arcStart);
+        ctx.save();
         ctx.beginPath();
-        ctx.arc(cx, cy, R_out, startAngle, valueAngle, false);
-        ctx.arc(cx, cy, R_in,  valueAngle, startAngle, true);
+        ctx.arc(cx, cy, R_out, a0, a1, CCW);
+        ctx.arc(cx, cy, R_in,  a1, a0, !CCW);
         ctx.closePath();
-        ctx.fillStyle = '#f7931a';
-        ctx.fill();
+        ctx.clip();
+        ctx.fillStyle = ZONE_BRIGHT[i];
+        for (let x = cx - dotSpacing; x <= cx + R_out + dotSpacing; x += dotSpacing) {
+          for (let y = cy - R_out - dotSpacing; y <= cy + dotSpacing; y += dotSpacing) {
+            ctx.beginPath();
+            ctx.arc(x, y, dotFillR, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+        ctx.restore();
+      }
+
+      // ── 2. Filled portion: hatching + bold rim outlines ──────────────────
+      if (value > 0) {
+        const rimOuter = R_out + RIM_GAP;
+        const rimInner = R_in  - RIM_GAP;
+
+        // hatching between the two rim arcs (clipped to filled portion)
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(cx, cy, rimOuter, arcStart, valueAngle, CCW);
+        ctx.arc(cx, cy, rimInner, valueAngle, arcStart, !CCW);
+        ctx.closePath();
+        ctx.clip();
+        const rimLW    = 3.5;
+        const hSpacing = rimLW * 2;
+        ctx.strokeStyle = isDark ? 'rgba(247,147,26,0.55)' : 'rgba(247,147,26,0.7)';
+        ctx.lineWidth   = rimLW;
+        ctx.lineCap     = 'square';
+        const ext = rimOuter + 10;
+        for (let d = -(ext * 2); d < ext * 2; d += hSpacing) {
+          ctx.beginPath();
+          ctx.moveTo(cx + d,       cy - ext);
+          ctx.lineTo(cx + d + ext, cy + ext);
+          ctx.stroke();
+        }
+        ctx.restore();
+
+        // bold arc outlines on top
+        ctx.strokeStyle = RIM_COL;
+        ctx.lineWidth   = 3.5;
+        ctx.lineCap     = 'round';
+        ctx.setLineDash([]);
+        ctx.beginPath();
+        ctx.arc(cx, cy, rimOuter, arcStart, valueAngle, CCW);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(cx, cy, rimInner, arcStart, valueAngle, CCW);
+        ctx.stroke();
       }
     }
+
 
     function redrawAllModernGauges() {
       const style = 'modern';
