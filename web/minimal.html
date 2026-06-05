@@ -83,7 +83,7 @@
          makes body taller than the visual viewport so its background extends behind Safari toolbar */
       overflow: hidden;
       min-height: 100lvh;
-      background: #000 url('wallpaper-real.jpg') no-repeat center / cover;
+      background: #000 url('wallpaper-real.jpg') no-repeat top center / cover;
       font-family: 'Inter', -apple-system, sans-serif;
       color: var(--text);
       user-select: none;
@@ -112,12 +112,17 @@
 
     .wallpaper-floor {
       /* Fills the gap between 100svh and 100lvh — exactly where the Safari toolbar sits.
-         This in-flow block makes the body background (wallpaper) render behind the toolbar. */
+         This in-flow block makes the body background (wallpaper) render behind the toolbar.
+         The gradient matches .wallpaper-overlay so the toolbar area looks like the rest of the wallpaper. */
       width: 100%;
       height: calc(100lvh - 100svh);
       min-height: 40px;
       pointer-events: none;
       flex-shrink: 0;
+      background: linear-gradient(to bottom,
+        rgba(6, 6, 8, 0.75) 0%,
+        rgba(6, 6, 8, 0.55) 100%
+      );
     }
 
     .wallpaper-container {
@@ -921,7 +926,10 @@
     /* --- Drawer Backdrop --- */
     .drawer-backdrop {
       position: fixed;
-      inset: 0;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 100svh; /* stop at visual viewport — don't cover the toolbar area */
       background: rgba(0, 0, 0, 0.4);
       backdrop-filter: blur(2px);
       -webkit-backdrop-filter: blur(2px);
