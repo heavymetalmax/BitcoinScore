@@ -256,9 +256,7 @@
     .center-display:hover .center-display-front,
     .center-display:hover .center-display-back {
       background: var(--bg-card-hover);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
     }
 
     .click-zone {
@@ -326,15 +324,18 @@
     }
 
 
+    .display-score-group {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+    }
+
     .alert-icon-wrap {
-      position: absolute;
-      left: 0;
-      top: 50%;
-      transform: translateY(-50%);
       display: inline-flex;
       align-items: center;
       justify-content: center;
       color: #ffffff;
+      flex-shrink: 0;
       cursor: help;
       transition: opacity 0.2s ease;
     }
@@ -708,7 +709,7 @@
     }
     .m-name {
       font-size: 0.8rem;
-      color: var(--text-mute);
+      color: var(--text);
       font-weight: 600;
       white-space: nowrap;
       overflow: hidden;
@@ -990,18 +991,19 @@
             </span>
             <span class="display-status" id="main-status">—</span>
 
-            <!-- Top Row: Alert icon (abs left), Main Score (center), Yesterday/7d (abs right) -->
+            <!-- Main Score group (centered) + Yesterday/7d (abs right) -->
             <div class="display-main-row">
-              <div id="s-warn" class="alert-icon-wrap" style="display:none;" onclick="event.stopPropagation()" title="One or more key indicators contradicts the overall index direction">
-                <svg class="alert-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                  <path d="M12 9v4" />
-                  <path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0" />
-                  <path d="M12 16h.01" />
-                </svg>
+              <div class="display-score-group">
+                <span class="display-score" id="s-final">—</span>
+                <div id="s-warn" class="alert-icon-wrap" style="display:none;" onclick="event.stopPropagation()" title="One or more key indicators contradicts the overall index direction">
+                  <svg class="alert-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                    <path d="M12 9v4" />
+                    <path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0" />
+                    <path d="M12 16h.01" />
+                  </svg>
+                </div>
               </div>
-
-              <span class="display-score" id="s-final">—</span>
 
               <div class="display-history-column">
                 <div class="history-item">
