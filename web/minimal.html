@@ -1600,6 +1600,12 @@
       if (inner) inner.classList.remove('flipped');
     }
 
+    document.addEventListener('click', (e) => {
+      const inner = document.getElementById('center-display-inner');
+      if (!inner || !inner.classList.contains('flipped')) return;
+      if (!document.getElementById('center-display').contains(e.target)) flipBack();
+    });
+
     // iOS arc gauge drawing (for main 60px canvas)
     function drawIosGauge(canvas, value) {
       if (!canvas) return;
