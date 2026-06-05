@@ -2176,7 +2176,7 @@ html.style-modern .score-box .s-sub {
       if (style === 'modern') {
         if (mContainer) mContainer.style.display = 'flex';
         if (hContainer) hContainer.style.display = 'none';
-        if (hStatus) hStatus.style.display = 'none';
+        if (hStatus) hStatus.style.display = 'flex';
         if (heroLabel) {
           heroLabel.innerHTML = `
             <span class="en">Bitcoin Buy Risk Index</span>
@@ -2469,14 +2469,16 @@ html.style-modern .score-box .s-sub {
         ctx.stroke();
       }
 
-      // ── 5. Score number — inside arc, lower position ──────────────────────
+      // ── 5. Score number — only on sub-gauges (main card shows HTML number) ──
       const numY = cy - R_in * (isSmall ? 0.34 : 0.32);
       const numStr = String(Math.round(value));
-      ctx.fillStyle    = NUM_COL;
-      ctx.textAlign    = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.font = `800 ${isSmall ? '24px' : '50px'} Outfit, sans-serif`;
-      ctx.fillText(numStr, cx, numY);
+      if (isSmall) {
+        ctx.fillStyle    = NUM_COL;
+        ctx.textAlign    = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.font = `800 24px Outfit, sans-serif`;
+        ctx.fillText(numStr, cx, numY);
+      }
 
       // ── 6. Warning icon — drawn to the left of the number ─────────────────
       if (showWarn) {
