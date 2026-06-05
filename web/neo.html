@@ -1,0 +1,3847 @@
+<!doctype html>
+<html lang="en">
+<head>
+
+  <script>
+    (function() {
+      const style = localStorage.getItem('bbr-style') || 'minimal';
+      if (style === 'minimal') { location.replace('minimal.html'); return; }
+      if (style === 'classic') { location.replace('classic.html'); return; }
+      const mode = localStorage.getItem('bbr-mode') || 'auto';
+      let theme = 'dark';
+      if (mode === 'auto') {
+        const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+        theme = prefersLight ? 'light' : 'dark';
+      }
+      document.documentElement.className = 'style-modern theme-' + theme;
+    })();
+  </script>
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bitcoin Buy Risk Index — Is It a Good Time to Buy BTC?</title>
+  <meta name="description" content="A composite index scoring Bitcoin's market risk on a 0–100 scale, aggregating 10+ on-chain and macro indicators updated daily." />
+  <link rel="canonical" href="https://btcbri.com/" />
+  <meta name="theme-color" content="#f7931a" />
+  <meta property="og:title" content="Bitcoin Buy Risk Index — Is It a Good Time to Buy BTC?" />
+  <meta property="og:description" content="A composite index scoring Bitcoin's market risk on a 0–100 scale, aggregating 10+ on-chain and macro indicators updated daily." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://btcbri.com/" />
+  <meta property="og:site_name" content="Bitcoin Buy Risk Index" />
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:locale:alternate" content="uk_UA" />
+  <meta property="og:image" content="https://btcbri.com/og_preview.jpg" />
+  <meta property="og:image:type" content="image/jpeg" />
+  <meta property="og:image:width" content="1024" />
+  <meta property="og:image:height" content="1024" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Bitcoin Buy Risk Index — Is It a Good Time to Buy BTC?" />
+  <meta name="twitter:description" content="A composite index scoring Bitcoin's market risk on a 0–100 scale, aggregating 10+ on-chain and macro indicators updated daily." />
+  <meta name="twitter:image" content="https://btcbri.com/og_preview.jpg" />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg: #030712;
+      --bg-gradient: radial-gradient(circle at top, #0b1120 0%, #030712 100%);
+      --bg-card: rgba(17, 24, 39, 0.55);
+      --bg-card-hover: rgba(17, 24, 39, 0.75);
+      --border: rgba(255, 255, 255, 0.05);
+      --border-hover: rgba(247, 147, 26, 0.25);
+      --text: #f3f4f6;
+      --text-name: #9ca3af;
+      --text-mute: #6b7280;
+      --text-sub: #9ca3af;
+      --text-raw: #6b7280;
+      --text-ts: #9ca3af;
+      --bar-bg: rgba(255, 255, 255, 0.06);
+      --divider: rgba(255, 255, 255, 0.08);
+      --tick: rgba(255, 255, 255, 0.2);
+      --footer: #4b5563;
+      
+      --shadow-glow: 0 0 15px rgba(247, 147, 26, 0.08);
+      --shadow-glow-active: 0 0 25px rgba(247, 147, 26, 0.18);
+      
+      --bg-card-knob: #111827;
+      --glass-blur: blur(10px);
+
+      --index-color: #f7931a;
+      --index-color-bg: rgba(247, 147, 26, 0.12);
+      --index-color-glow: rgba(247, 147, 26, 0.08);
+    }
+    
+    /* Style-specific and appearance-specific CSS Variables */
+    
+    /* Classic Light */
+    html.style-classic.theme-light {
+      --bg: #f8fafc;
+      --bg-gradient: linear-gradient(180deg, #f1f5f9 0%, #f8fafc 100%);
+      --bg-card: rgba(255, 255, 255, 0.7);
+      --bg-card-hover: rgba(255, 255, 255, 0.95);
+      --border: rgba(0, 0, 0, 0.06);
+      --border-hover: rgba(247, 147, 26, 0.35);
+      --text: #0f172a;
+      --text-name: #475569;
+      --text-mute: #64748b;
+      --text-sub: #475569;
+      --text-raw: #64748b;
+      --text-ts: #64748b;
+      --bar-bg: rgba(0, 0, 0, 0.06);
+      --divider: rgba(0, 0, 0, 0.08);
+      --tick: rgba(0, 0, 0, 0.15);
+      --footer: #64748b;
+      
+      --shadow-glow: 0 4px 12px rgba(0, 0, 0, 0.03);
+      --shadow-glow-active: 0 6px 20px rgba(0, 0, 0, 0.08);
+      
+      --bg-card-knob: #ffffff;
+      --glass-blur: blur(6px);
+
+      --index-color: #b45309;
+      --index-color-bg: rgba(217, 119, 6, 0.1);
+      --index-color-glow: rgba(217, 119, 6, 0.05);
+    }
+    
+        /* Modern Dark — Neobrutalism */
+    html.style-modern.theme-dark {
+      --bg: #0A0A0A;
+      --bg-gradient: #0A0A0A;
+      --bg-card: #111111;
+      --bg-card-hover: #1a1a1a;
+      --border: #EEEEEE;
+      --border-hover: #f7931a;
+      --text: #EEEEEE;
+      --text-name: #EEEEEE;
+      --text-mute: #AAAAAA;
+      --text-sub: #777777;
+      --text-raw: #EEEEEE;
+      --text-ts: #AAAAAA;
+      --bar-bg: rgba(255, 255, 255, 0.10);
+      --divider: #333333;
+      --tick: rgba(255, 255, 255, 0.30);
+      --footer: #777777;
+
+      --shadow-glow: none;
+      --shadow-glow-active: none;
+
+      --bg-card-knob: #1a1a1a;
+      --glass-blur: none;
+
+      --border-hard: #EEEEEE;
+      --shadow-hard: #f7931a;
+      --index-color: #f7931a;
+      --index-color-bg: rgba(247, 147, 26, 0.14);
+      --index-color-glow: rgba(247, 147, 26, 0.10);
+    }
+    
+    /* Modern Light — Neobrutalism */
+    html.style-modern.theme-light {
+      --bg: #FAFAF5;
+      --bg-gradient: #FAFAF5;
+      --bg-card: #FFFFFF;
+      --bg-card-hover: #FFFFFF;
+      --border: #0A0A0A;
+      --border-hover: #f7931a;
+      --text: #0A0A0A;
+      --text-name: #0A0A0A;
+      --text-mute: #444444;
+      --text-sub: #666666;
+      --text-raw: #0A0A0A;
+      --text-ts: #444444;
+      --bar-bg: rgba(0, 0, 0, 0.08);
+      --divider: #0A0A0A;
+      --tick: rgba(0, 0, 0, 0.30);
+      --footer: #666666;
+
+      --shadow-glow: none;
+      --shadow-glow-active: none;
+
+      --bg-card-knob: #FFFFFF;
+      --glass-blur: none;
+
+      --border-hard: #0A0A0A;
+      --shadow-hard: #0A0A0A;
+      --index-color: #f7931a;
+      --index-color-bg: rgba(247, 147, 26, 0.12);
+      --index-color-glow: rgba(247, 147, 26, 0.06);
+    }
+    
+    html.style-classic body {
+      background-size: initial;
+    }
+    html.style-modern .score-box {
+      border-radius: 0;
+    }
+
+/* ── Neobrutalism overrides ── */
+html.style-modern body {
+  background: var(--bg);
+}
+html.style-modern .score-box {
+  border-radius: 0 !important;
+  border: 3px solid var(--border-hard);
+  box-shadow: 4px 4px 0 0 var(--shadow-hard);
+  transition: box-shadow 0.1s ease, transform 0.1s ease;
+}
+html.style-modern .score-box:hover {
+  box-shadow: 6px 6px 0 0 var(--shadow-hard);
+  transform: translate(-2px, -2px);
+}
+html.style-modern .nav-header {
+  border-bottom: 3px solid var(--border-hard);
+  background: var(--bg);
+  box-shadow: none;
+}
+html.style-modern .nav-menu {
+  border-radius: 0;
+  border: 2px solid var(--border-hard);
+  box-shadow: 3px 3px 0 0 var(--shadow-hard);
+  background: var(--bg-card);
+  padding: 4px;
+  gap: 2px;
+}
+html.style-modern .nav-btn {
+  border-radius: 0;
+  font-weight: 700;
+}
+html.style-modern .nav-btn.active,
+html.style-modern .lang-btn.active {
+  background: var(--index-color);
+  color: #000 !important;
+  font-weight: 800;
+  box-shadow: none;
+}
+html.style-modern .glass-panel {
+  border-radius: 0;
+  border: 2px solid var(--border-hard);
+}
+html.style-modern .s-label {
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: var(--text);
+}
+html.style-modern .score-box .s-sub {
+  font-weight: 700;
+}
+
+    /* Bell icon button in nav — always orange */
+    .nav-bell-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      color: var(--index-color, #f7931a);
+      text-decoration: none;
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+    .nav-bell-btn:hover {
+      background: var(--index-color-bg, rgba(247,147,26,0.12));
+    }
+
+    /* Modern: compact nav-btn sizing */
+    html.style-modern .nav-btn {
+      font-size: 0.72rem;
+      padding: 5px 14px;
+    }
+
+    /* Gauge canvas never wider than its card */
+    .modern-sub-gauge-canvas {
+      max-width: 100%;
+    }
+    html.style-modern .score-box.main {
+      border-radius: 0;
+      padding-top: 18px;   /* balance card-top -> heading with heading -> arc */
+    }
+    html.style-modern .main-back {
+      padding-top: 18px;
+    }
+    html.style-modern .zone-gauge-row {
+      margin-top: -12px;
+    }
+
+    /* Modern sub-card gauge layout */
+    .modern-sub-gauge-wrap {
+      display: none;
+      justify-content: center;
+      width: 100%;
+    }
+    html.style-modern .modern-sub-gauge-wrap {
+      display: flex;
+      margin-top: -12px;   /* pull the arc up under the heading (kills the empty gap) */
+    }
+    /* Modern sub-cards: tighten the heading -> arc gap */
+    html.style-modern .score-box .s-label {
+      margin-bottom: 0;
+    }
+    html.style-modern .sub-card-value-container .s-value {
+      display: none;
+    }
+    /* In Modern mode, canvas draws the warn icon — hide the HTML one */
+    html.style-modern .sub-card-value-container .sub-warn-icon {
+      display: none !important;
+    }
+    /* Modern: the value container is empty (number is on the canvas) — collapse it
+       to tighten the gap between the card title and the top of the arc */
+    html.style-modern .sub-card-value-container {
+      display: none;
+    }
+    /* Index meta line moved above the index card */
+    .index-meta {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+      font-size: 0.78rem;
+      color: var(--text-ts);
+      font-weight: 500;
+    }
+    /* Risk status under sub-card gauges (shown in Modern only) */
+    .sub-gauge-status { display: none; }
+    html.style-modern .sub-gauge-status {
+      display: block;
+      text-align: center;
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--index-color);
+      margin-top: 2px;
+    }
+    /* Main warn badge — orange in Modern theme */
+    html.style-modern #s-warn {
+      color: #f7931a;
+      background: rgba(247, 147, 26, 0.08);
+      border-color: rgba(247, 147, 26, 0.3);
+      box-shadow: none;
+    }
+    html.style-modern .score-box > .bar-wrap {
+      display: none;
+    }
+    /* Metric bars in Modern: canvas draws everything, wrap is just a container */
+    html.style-modern .glass-panel .bar-wrap {
+      background: transparent !important;
+      overflow: visible !important;
+    }
+    html.style-modern .m-raw {
+      margin-top: 8px;
+    }
+    html.style-modern .score-box .s-sub {
+      margin-top: 12px;
+    }
+    /* Modern gauge canvas containers */
+    .modern-main-gauge-wrap {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+    }
+    #modern-gauge-canvas,
+    .modern-sub-gauge-canvas {
+      display: block;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg-gradient);
+      color: var(--text);
+      padding: 32px 24px;
+      max-width: 860px;
+      margin: 0 auto;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Outdated Banner */
+    #outdated-warning-container {
+      width: 100%;
+    }
+    .outdated-banner {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(249, 115, 22, 0.1));
+      border: 1px solid rgba(245, 158, 11, 0.25);
+      color: #fef08a;
+      font-size: 0.8rem;
+      font-weight: 500;
+      text-align: center;
+      padding: 10px 16px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1), inset 0 1px 1px rgba(255, 255, 255, 0.05);
+      animation: pulse-border 2.5s infinite ease-in-out;
+    }
+    .theme-light .outdated-banner {
+      background: linear-gradient(135deg, #fef3c7 0%, #ffedd5 100%);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      color: #b45309;
+    }
+    
+    @keyframes pulse-border {
+      0% { border-color: rgba(245, 158, 11, 0.25); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
+      50% { border-color: rgba(245, 158, 11, 0.5); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1), 0 0 12px rgba(245, 158, 11, 0.25); }
+      100% { border-color: rgba(245, 158, 11, 0.25); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
+    }
+
+    /* Navigation Header */
+    .nav-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 28px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--divider);
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .nav-title-group {
+      display: flex;
+      flex-direction: column;
+    }
+    .nav-title {
+      font-size: 1.6rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--text-mute);
+      background: none;
+    }
+    .logo-accent {
+      color: var(--index-color, #f7931a);
+      -webkit-text-fill-color: var(--index-color, #f7931a);
+      transition: color 0.4s ease;
+    }
+    .nav-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .main-ts {
+      font-size: 0.72rem;
+      color: var(--text-ts);
+      font-weight: 500;
+      margin-top: 2px;
+    }
+    .nav-menu {
+      display: flex;
+      gap: 6px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 4px;
+      border-radius: 9999px;
+      backdrop-filter: var(--glass-blur);
+      flex-wrap: wrap;
+    }
+    .nav-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-mute);
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 8px 18px;
+      border-radius: 9999px;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+    }
+    .nav-btn:hover {
+      color: var(--text);
+    }
+    .nav-btn.active {
+      background: var(--index-color-bg, rgba(247, 147, 26, 0.12));
+      color: var(--index-color, #f7931a);
+      box-shadow: 0 0 12px var(--index-color-glow, rgba(247, 147, 26, 0.08));
+    }
+    .theme-light .nav-btn.active {
+      background: color-mix(in srgb, var(--index-color, #f7931a) 10%, transparent);
+      color: color-mix(in srgb, var(--index-color, #f7931a) 70%, #000 30%);
+      box-shadow: 0 0 12px color-mix(in srgb, var(--index-color, #f7931a) 5%, transparent);
+    }
+
+    /* Cards Grid */
+    .scores {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    
+    .score-box {
+      background: var(--bg-card);
+      backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15), var(--shadow-glow);
+      transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .score-box:hover {
+      transform: translateY(-2px);
+      border-color: var(--border-hover);
+      box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.25), var(--shadow-glow-active);
+    }
+
+    /* Hero Card (Main) */
+    .score-box.main {
+      grid-column: span 4;
+      padding: 24px 28px;
+      overflow: hidden; /* prevents glowing background from spilling out of rounded corners */
+    }
+
+    .main-inner {
+      position: relative;
+      z-index: 1;
+      min-height: 250px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    /* ── Secret flip (easter egg): click the index card to reveal the zone-price inversion ── */
+    #main-card { perspective: 1800px; }
+    .main-flip {
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.7s cubic-bezier(0.45, 0.05, 0.2, 1);
+    }
+    #main-card.flipped .main-flip { transform: rotateY(180deg); }
+    .main-inner { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+    .main-back {
+      position: absolute;
+      inset: 0;
+      transform: rotateY(180deg);
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      padding: 24px 28px;
+      z-index: 2;
+    }
+    .zone-back-title {
+      font-size: 0.7rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--text-mute);
+    }
+    /* Back: same gauge as the front, flanked by the buy/sell zone prices */
+    .zone-gauge-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+    }
+    .zone-side {
+      flex: 1 1 0;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+    }
+    .zone-side-num {
+      font-size: 1.3rem;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+    }
+    .zone-side-lbl {
+      font-size: 0.6rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-mute);
+    }
+    .zone-side.buy .zone-side-num  { color: #374151; }        /* buy-zone segment colour */
+    .theme-dark .zone-side.buy .zone-side-num { color: #8892a4; }
+    .zone-side.sell .zone-side-num { color: #f7931a; }        /* sell-zone segment colour */
+    .zone-gauge-mid { flex: 0 0 auto; width: min(300px, 54%); }
+    .zone-gauge-mid canvas { display: block; margin: 0 auto; }
+    .zone-disclaimer {
+      font-size: 0.66rem;
+      line-height: 1.5;
+      color: var(--text-mute);
+      max-width: min(440px, 94%);
+      text-align: center;
+      opacity: 0.85;
+    }
+    .zone-disclaimer em { font-style: italic; opacity: 0.95; }
+
+    /* Full-Screen Canvas Backdrop for Candlestick Waves */
+    #bg-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -1; /* Render behind everything */
+      pointer-events: none;
+      background: transparent;
+    }
+    
+    .hero-top-row {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      gap: 12px;
+    }
+    
+    .hero-title-area {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      text-align: center;
+      width: 100%;
+    }
+    
+    .hero-card-ts {
+      font-size: 0.72rem;
+      color: var(--text-ts);
+      font-weight: 500;
+    }
+    
+    .hero-card-sep {
+      font-size: 0.72rem;
+      color: var(--text-mute);
+    }
+    
+    .hero-card-price {
+      font-size: 0.72rem;
+      color: var(--text);
+      font-weight: 700;
+    }
+    
+    .hero-card-countdown {
+      font-size: 0.72rem;
+      color: var(--text-ts);
+      font-weight: 500;
+    }
+    
+    .hero-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-mute);
+      font-weight: 700;
+      transition: color 0.4s ease;
+    }
+    
+    .hero-score-group {
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .hero-centered-score {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      margin-top: 24px;
+      margin-bottom: 0px;
+    }
+    
+    .hero-score-val {
+      display: none;
+      font-size: 4rem;
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -0.02em;
+    }
+    
+    .risk-trend-indicator {
+      font-size: 16px;
+      font-weight: 800;
+      height: 16px;
+      line-height: 16px;
+      text-align: center;
+      display: block;
+      transition: opacity 0.3s ease;
+      opacity: 0.85;
+    }
+    
+    .warning-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(239, 68, 68, 0.08);
+      border: 1px solid rgba(239, 68, 68, 0.25);
+      color: #ef4444;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 5px 10px;
+      border-radius: 9999px;
+      cursor: help;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      box-shadow: 0 0 10px rgba(239, 68, 68, 0.05);
+      align-self: center;
+      margin-left: 4px;
+    }
+
+    /* Removed old rainbow band elements */
+
+    /* Option 2: Linear Horizontal Slider */
+    .risk-track-container {
+      width: 100%;
+      margin-top: 84px;
+      margin-bottom: 28px;
+      position: relative;
+      padding: 0 45px;
+    }
+    
+    .risk-track {
+      height: 18px;
+      border-radius: 9px;
+      background: linear-gradient(to right,
+        #10b981 0%,
+        #10b981 20%,
+        #eab308 50%,
+        #ef4444 80%,
+        #ef4444 100%
+      );
+      position: relative;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+    .theme-light .risk-track {
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.15);
+    }
+    
+    .risk-marker {
+      position: absolute;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 138px;
+      height: 138px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: left 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+      z-index: 10;
+    }
+    
+    .risk-marker-dot {
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
+      background: var(--bg-card-knob, #111827);
+      border: 9px solid var(--marker-color, #eab308);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3), 0 0 25px var(--marker-color, #eab308);
+      transition: border-color 0.4s ease, box-shadow 0.4s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--marker-color, #eab308);
+      font-family: 'Outfit', sans-serif;
+      position: relative;
+    }
+    
+    .risk-marker-num {
+      font-size: 64px;
+      font-weight: 800;
+      line-height: 1;
+    }
+    
+    .risk-marker-lbl {
+      position: absolute;
+      bottom: calc(100% + 22px);
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 13px;
+      font-weight: 800;
+      line-height: 1;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      white-space: nowrap;
+      color: var(--marker-color, #eab308);
+      transition: color 0.4s ease;
+      text-shadow: 0 0 8px rgba(0, 0, 0, 0.4);
+    }
+    .theme-light .risk-marker-lbl {
+      text-shadow: none;
+    }
+    
+    .hero-status-area {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    
+    .hero-score-label {
+      font-size: 1.15rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      transition: color 0.4s ease;
+    }
+    
+    .risk-tick {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 1.5px;
+      height: 26px;
+      background: var(--text-mute);
+      pointer-events: none;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+      z-index: 2;
+    }
+    .theme-light .risk-tick {
+      background: rgba(0, 0, 0, 0.5);
+      box-shadow: none;
+    }
+    
+    .risk-track-legend {
+      display: grid;
+      grid-template-columns: 1fr 2fr 1fr;
+      text-align: center;
+      margin-top: 70px;
+      padding: 0;
+    }
+    
+    .risk-track-legend span {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-mute);
+      text-transform: capitalize;
+      letter-spacing: normal;
+    }
+
+
+    /* Sub-cards styling */
+    .score-box .s-label {
+      font-size: 0.72rem;
+      color: var(--text-mute);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+    
+    .sub-card-value-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    
+    .score-box .s-value {
+      font-size: 2.2rem;
+      font-weight: 800;
+      line-height: 1.1;
+    }
+    
+    .score-box .s-sub {
+      font-size: 0.7rem;
+      color: var(--text-sub);
+      margin-top: 8px;
+      font-weight: 500;
+    }
+    
+    .sub-warn-icon {
+      color: #ef4444;
+      cursor: help;
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    @keyframes float-icon {
+      0% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-4px);
+      }
+      100% {
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+    .blink-colon {
+      animation: blink 1s infinite;
+      display: inline-block;
+      margin: 0 1px;
+    }
+
+    /* General progress bars inside cards */
+    .bar-wrap {
+      background: var(--bar-bg);
+      border-radius: 9999px;
+      height: 6px;
+      margin-top: 8px;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .bar-fill {
+      height: 100%;
+      border-radius: 9999px;
+      transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1), background 0.4s ease;
+      box-shadow: 0 0 8px var(--bar-shadow-color, rgba(247, 147, 26, 0.3));
+    }
+
+    /* Panels & Metrics */
+    .glass-panel {
+      background: var(--bg-card);
+      backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .glass-panel:hover {
+      border-color: var(--border-hover);
+      box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.25), var(--shadow-glow);
+    }
+    
+    .section-header {
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--divider);
+      margin-bottom: 16px;
+    }
+    
+    .section-header h2 {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-name);
+      font-weight: 700;
+    }
+
+    /* Collapsible "About" section — no card, click title to expand */
+    .about-index {
+      margin-top: 28px;
+    }
+    .about-index-summary {
+      list-style: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 16px 0;
+      user-select: none;
+    }
+    .about-index-summary::-webkit-details-marker { display: none; }
+    .about-index-summary h2 {
+      font-size: 1rem;
+      text-transform: none;
+      letter-spacing: -0.01em;
+      color: var(--text-name);
+      font-weight: 700;
+      margin: 0;
+      text-align: center;
+    }
+    .about-chevron {
+      color: var(--text-mute);
+      flex-shrink: 0;
+      transition: transform 0.25s ease, color 0.2s ease;
+    }
+    .about-index[open] .about-chevron { transform: rotate(180deg); }
+    .about-index-summary:hover h2,
+    .about-index-summary:hover .about-chevron { color: var(--index-color); }
+    .about-index-body {
+      font-size: 0.9rem;
+      line-height: 1.7;
+      color: var(--text-sub);
+      max-width: 68ch;
+      padding-bottom: 8px;
+    }
+
+    .metrics-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .metric-row {
+      display: grid;
+      grid-template-columns: 180px 1fr 70px;
+      align-items: center;
+      gap: 20px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+    
+    .metric-row:hover {
+      background: rgba(255, 255, 255, 0.02);
+      transform: translateX(4px);
+    }
+    .theme-light .metric-row:hover {
+      background: rgba(0, 0, 0, 0.01);
+    }
+    
+    .m-name {
+      font-size: 0.88rem;
+      color: var(--text-sub);
+      font-weight: 600;
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+    
+    .m-name:hover {
+      color: #f7931a !important;
+    }
+    
+    .m-num {
+      font-size: 0.85rem;
+      font-variant-numeric: tabular-nums;
+      text-align: right;
+      font-weight: 700;
+    }
+    
+    .m-raw {
+      font-size: 0.72rem;
+      color: var(--text-raw);
+      margin-top: 3px;
+      font-weight: 500;
+    }
+    
+    /* Tech divergence badge */
+    #tech-div-badge {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      cursor: help;
+      margin-left: 4px;
+      text-transform: uppercase;
+    }
+
+    /* Tactical mark: a small icon next to the score (no pill, no glow) */
+    .tactical-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      align-self: center;
+      cursor: help;
+    }
+    .tactical-badge svg { width: 16px; height: 16px; }
+    .tactical-badge.buy,
+    .tactical-badge.overheat { color: #f7931a; }   /* bitcoin orange */
+
+    /* Footer styling */
+    footer {
+      font-size: 0.75rem;
+      color: var(--footer);
+      text-align: center;
+      margin-top: 36px;
+      font-weight: 500;
+    }
+    
+    .disclaimer {
+      font-size: 0.7rem;
+      color: var(--footer);
+      text-align: center;
+      margin-top: 10px;
+      line-height: 1.6;
+      max-width: 640px;
+      margin-left: auto;
+      margin-right: auto;
+      font-weight: 400;
+    }
+
+    #history-chart {
+      width: 100%;
+      height: 220px;
+      display: block;
+      margin-top: 12px;
+    }
+
+    /* ── Responsive breakpoints ─────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      .scores {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .score-box.main {
+        grid-column: span 2;
+      }
+    }
+    
+    @media (max-width: 600px) {
+      body {
+        padding: 20px 16px;
+      }
+      
+      .nav-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+      
+      html.style-classic .nav-menu {
+        width: fit-content;
+        justify-content: flex-start;
+      }
+      
+      html.style-modern .nav-actions {
+        width: 100%;
+        justify-content: space-between;
+      }
+      html.style-modern .nav-menu {
+        width: fit-content;
+        justify-content: flex-start;
+      }
+      
+      html.style-modern .modern-sub-gauge-wrap {
+        margin-top: 0;
+      }
+      html.style-modern .score-box .s-label {
+        margin-bottom: 6px;
+      }
+      
+      .scores {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 12px;
+      }
+      
+      .score-box.main {
+        grid-column: span 1;
+        padding: 20px 20px;
+      }
+      
+      .hero-top-row {
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        gap: 8px;
+      }
+      
+      .risk-track-container {
+        margin-top: 76px;
+        margin-bottom: 20px;
+        padding: 0 35px;
+      }
+      
+      .risk-track-legend {
+        margin-top: 54px;
+      }
+      
+      .risk-marker {
+        width: 108px;
+        height: 108px;
+      }
+      
+      .risk-marker-dot {
+        width: 100px;
+        height: 100px;
+        border-width: 7px;
+      }
+      
+      .risk-trend-indicator {
+        font-size: 11px;
+        height: 11px;
+        line-height: 11px;
+      }
+      
+      .risk-marker-num {
+        font-size: 48px;
+      }
+      
+      .risk-marker-lbl {
+        font-size: 10px;
+        bottom: calc(100% + 16px);
+      }
+      
+      .metric-row {
+        grid-template-columns: 1fr auto;
+        gap: 6px;
+        padding: 10px 8px;
+      }
+      
+      .metric-row > div {
+        grid-column: span 2;
+        order: 3;
+        margin-top: 4px;
+      }
+      
+      .m-name {
+        grid-column: 1;
+        order: 1;
+      }
+      
+      .m-num {
+        grid-column: 2;
+        order: 2;
+      }
+      
+      .risk-track-legend span {
+        font-size: 0.65rem;
+      }
+      #history-chart {
+        height: auto !important;
+        aspect-ratio: 16 / 9;
+      }
+    }
+
+    /* Language switcher */
+    .lang-toggle {
+      display: flex;
+      gap: 4px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 3px;
+      border-radius: 9999px;
+      backdrop-filter: var(--glass-blur);
+    }
+    .lang-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-mute);
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 5px 14px;
+      border-radius: 9999px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.2s ease;
+    }
+    .lang-btn:hover {
+      color: var(--text);
+    }
+    .lang-btn.active {
+      background: var(--index-color-bg, rgba(247, 147, 26, 0.12));
+      color: var(--index-color, #f7931a);
+      box-shadow: 0 0 12px var(--index-color-glow, rgba(247, 147, 26, 0.08));
+    }
+    .theme-light .lang-btn.active {
+      background: color-mix(in srgb, var(--index-color, #f7931a) 10%, transparent);
+      color: color-mix(in srgb, var(--index-color, #f7931a) 70%, #000 30%);
+      box-shadow: 0 0 12px color-mix(in srgb, var(--index-color, #f7931a) 5%, transparent);
+    }
+    
+    /* Theme switcher styling is not needed as we reuse navigation styles */
+    /* --- Modern Theme Layout & Elements Styling --- */
+    
+    html.style-modern {
+      background: #f4f5f6;
+      overflow-x: hidden;
+    }
+    html.style-modern.theme-dark {
+      background: #0d0f18;
+    }
+
+    html.style-modern #bg-canvas,
+    html.style-modern .modern-theme-container {
+      display: none !important;
+    }
+
+    /* Modern Theme Container — always hidden, phone UI unused */
+    .modern-theme-container {
+      display: none;
+    }
+
+    /* 3D background elements */
+    .modern-bg-elements {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+      overflow: hidden;
+    }
+    .modern-bg-elements::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background-image: 
+        linear-gradient(rgba(0, 0, 0, 0.015) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 0, 0, 0.015) 1px, transparent 1px);
+      background-size: 40px 40px;
+      transform: rotate(15deg);
+      opacity: 0.8;
+    }
+    html.style-modern.theme-dark .modern-bg-elements::before {
+      background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.01) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.01) 1px, transparent 1px);
+    }
+
+    .bg-diagonal-line {
+      position: absolute;
+      background: rgba(0, 0, 0, 0.025);
+      height: 1px;
+      width: 200%;
+      top: 50%;
+      left: -50%;
+      transform: rotate(-25deg);
+    }
+    html.style-modern.theme-dark .bg-diagonal-line {
+      background: rgba(255, 255, 255, 0.015);
+    }
+    .bg-diagonal-line.line-2 {
+      transform: rotate(35deg);
+      top: 25%;
+    }
+
+    .bg-text {
+      position: absolute;
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: rgba(0, 0, 0, 0.03);
+      user-select: none;
+      font-family: 'Outfit', sans-serif;
+    }
+    html.style-modern.theme-dark .bg-text {
+      color: rgba(255, 255, 255, 0.015);
+    }
+    .text-btc {
+      top: 35%;
+      left: 8%;
+      transform: rotate(-15deg) skewX(-10deg);
+    }
+    .text-vol {
+      top: 48%;
+      right: 8%;
+      transform: rotate(12deg) skewX(10deg);
+      font-size: 1.4rem;
+    }
+    .text-val {
+      top: 75%;
+      left: 15%;
+      transform: rotate(-8deg);
+      font-size: 1.2rem;
+    }
+    .text-pts {
+      top: 70%;
+      left: 23%;
+      transform: rotate(-8deg);
+      font-size: 1.0rem;
+      font-weight: 600;
+    }
+
+    .bg-perspective-chart {
+      position: absolute;
+      width: 250px;
+      height: 180px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+      opacity: 0.15;
+      pointer-events: none;
+    }
+    html.style-modern.theme-dark .bg-perspective-chart {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+      opacity: 0.08;
+    }
+    .bpc-1 {
+      top: 55%;
+      left: 10%;
+      transform: perspective(400px) rotateX(30deg) rotateY(-20deg) rotateZ(10deg);
+      background: repeating-linear-gradient(90deg, transparent, transparent 15px, rgba(0, 0, 0, 0.02) 15px, rgba(0, 0, 0, 0.02) 16px);
+    }
+    .bpc-2 {
+      top: 20%;
+      right: 12%;
+      transform: perspective(400px) rotateX(20deg) rotateY(30deg) rotateZ(-15deg);
+      background: repeating-linear-gradient(90deg, transparent, transparent 20px, rgba(0, 0, 0, 0.02) 20px, rgba(0, 0, 0, 0.02) 21px);
+    }
+
+    /* Settings Gear Button */
+    .settings-gear-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-mute);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      transition: all 0.2s ease;
+    }
+    .settings-gear-btn:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--border-hover);
+      color: var(--text);
+      transform: rotate(45deg);
+    }
+
+    /* --- Settings Drawer (Slide-out) --- */
+    .settings-drawer {
+      position: fixed;
+      top: 0;
+      right: -320px;
+      width: 300px;
+      height: 100%;
+      background: var(--bg-card);
+      border-left: 1px solid var(--border);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      z-index: 1000;
+      padding: 32px 24px;
+      box-shadow: -10px 0 40px rgba(0, 0, 0, 0.3);
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      transition: right 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+    .settings-drawer.open {
+      right: 0;
+    }
+    .drawer-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--divider);
+      padding-bottom: 16px;
+      user-select: none;
+    }
+    .drawer-title {
+      font-size: 1rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text);
+    }
+    .drawer-close {
+      background: none;
+      border: none;
+      color: var(--text-mute);
+      cursor: pointer;
+      font-size: 1.25rem;
+      transition: color 0.2s;
+    }
+    .drawer-close:hover {
+      color: var(--text);
+    }
+    .settings-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .settings-label {
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-mute);
+      user-select: none;
+    }
+    .settings-options {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      background: rgba(0, 0, 0, 0.1);
+      padding: 4px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+    .theme-light .settings-options {
+      background: rgba(0, 0, 0, 0.03);
+    }
+    .settings-options.two-cols {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .option-btn {
+      background: none;
+      border: none;
+      color: var(--text-mute);
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 8px 0;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+      font-family: inherit;
+    }
+    .option-btn:hover {
+      color: var(--text);
+    }
+    .option-btn.active {
+      background: var(--bg-card-hover);
+      color: var(--text);
+      border: 1px solid var(--border);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+    .theme-light .option-btn.active {
+      background: #ffffff;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    /* --- Drawer Backdrop --- */
+    .drawer-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(2px);
+      -webkit-backdrop-filter: blur(2px);
+      z-index: 999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .drawer-backdrop.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* Navigation list item styles inside settings */
+    .drawer-nav-item {
+      display: flex !important;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 10px 14px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border);
+      color: var(--text-mute);
+      transition: all 0.2s ease;
+    }
+    .theme-light .drawer-nav-item {
+      background: rgba(0, 0, 0, 0.01);
+    }
+    .drawer-nav-item:hover {
+      background: var(--bg-card-hover) !important;
+      border-color: var(--border-hover) !important;
+      color: var(--text) !important;
+    }
+    .drawer-nav-item.active {
+      background: var(--index-color-bg, rgba(247, 147, 26, 0.12)) !important;
+      border-color: rgba(247, 147, 26, 0.25) !important;
+      color: var(--index-color, #f7931a) !important;
+      font-weight: 700 !important;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 600px) {
+      .phone-mockup {
+        width: 100%;
+        height: auto;
+        min-height: 100vh;
+        border-radius: 0;
+        box-shadow: none;
+        background: transparent;
+      }
+      .phone-screen {
+        height: auto;
+        min-height: 100vh;
+        overflow: visible;
+      }
+      .modern-theme-container {
+        padding: 0;
+      }
+      .modern-outside-footer {
+        padding: 24px;
+      }
+    }
+
+    body.lang-en .ua { display: none; }
+    body.lang-ua .en { display: none; }
+  </style>
+  <script type="application/ld+json">
+  [
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Bitcoin Buy Risk Index",
+      "url": "https://btcbri.com/",
+      "description": "A composite index scoring Bitcoin's market risk on a 0–100 scale, aggregating 10+ on-chain and macro indicators updated daily."
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Dataset",
+      "name": "Bitcoin Buy Risk Index Historical Data",
+      "description": "Daily historical and live data points for the Bitcoin Buy Risk Index, tracking composite risk scores, MVRV Z-Score, Net Unrealized Profit/Loss (NUPL), RHODL ratio, aSOPR, Mayer Multiple, Spot ETF flows, and macroeconomic indicators.",
+      "url": "https://btcbri.com/",
+      "creator": {
+        "@type": "Organization",
+        "name": "Bitcoin Buy Risk Index"
+      },
+      "distribution": [
+        {
+          "@type": "DataDownload",
+          "encodingFormat": "application/json",
+          "contentUrl": "https://btcbri.com/data.json"
+        }
+      ],
+      "variableMeasured": [
+        "Composite Risk Score",
+        "MVRV Z-Score",
+        "NUPL",
+        "RHODL Ratio",
+        "aSOPR",
+        "Mayer Multiple",
+        "Spot ETF Flows",
+        "Fear & Greed Index",
+        "Yield Curve Spread",
+        "Global M2 YoY Growth"
+      ]
+    }
+  ]
+  </script>
+</head>
+<body class="lang-en">
+
+  <!-- Dynamic full-screen canvas backdrop behind frosted glass -->
+  <canvas id="bg-canvas"></canvas>
+
+  <!-- Outdated Warning Banner Container -->
+  <div id="outdated-warning-container"></div>
+
+  <!-- Main Navigation Header -->
+  <div class="nav-header">
+    <div class="nav-title-group">
+      <h1 class="nav-title" id="logo-title">
+        <a id="logo-link" href="index.html" style="color: inherit; text-decoration: none;">
+          <span class="en"><span class="logo-accent">BTC</span> Buy Risk Index</span>
+          <span class="ua">Індекс ризику <span class="logo-accent">BTC</span></span>
+        </a>
+      </h1>
+    </div>
+    <div class="nav-actions">
+      <button class="settings-gear-btn" onclick="toggleDrawer(true)" title="Settings">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z"/><path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Tab 1: Main Dashboard -->
+  <div id="tab-main">
+    <!-- Index meta line (above the index card) -->
+    <div class="index-meta">
+      <span class="hero-card-ts" id="hero-card-ts">—</span>
+      <span class="hero-card-sep">·</span>
+      <span class="hero-card-price" id="hero-card-price">—</span>
+      <span class="hero-card-sep">·</span>
+      <span class="hero-card-countdown" id="hero-card-countdown">
+        <span class="en">—</span>
+        <span class="ua">—</span>
+      </span>
+    </div>
+    <div class="scores">
+      <!-- Hero Card -->
+      <div class="score-box main" id="main-card">
+        <div class="main-flip">
+        <div class="main-inner">
+          <div class="hero-top-row">
+            <div class="hero-title-area">
+              <span class="hero-label" id="hero-label">
+                <span class="en">Composite Risk Index</span>
+                <span class="ua">Композитний індекс ризику</span>
+              </span>
+            </div>
+            <div class="hero-status-area">
+              <span class="hero-score-val" id="s-final">—</span>
+              <span class="hero-score-label" id="s-final-label" style="display:none;">—</span>
+              <span id="main-tactical-badge" class="tactical-badge" style="display:none"></span>
+              <span id="s-warn" class="warning-badge" style="display:none;" title="One or more key indicators contradicts the overall index direction">
+                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 9v4"/><path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0"/><path d="M12 16h.01"/></svg><span class="en">Contradiction</span>
+                <span class="ua">Розбіжність</span>
+              </span>
+            </div>
+          </div>
+          
+          <!-- Modern Style Canvas Gauge -->
+          <div class="modern-gauge-container" style="display: none; flex-direction: column; align-items: center; margin: 2px 0 4px;">
+            <div class="modern-main-gauge-wrap">
+              <canvas id="modern-gauge-canvas" style="max-width: 320px; width: 100%;"></canvas>
+            </div>
+            <div id="modern-gauge-status" style="font-size: 1rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: var(--index-color); margin-top: 2px;">
+              <span class="en" id="modern-gauge-status-en">—</span>
+              <span class="ua" id="modern-gauge-status-ua">—</span>
+            </div>
+            <div style="font-size: 0.62rem; font-weight: 700; color: var(--text-mute); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 2px;">
+              <span class="en">50% On-Chain + 50% Tech</span>
+              <span class="ua">50% Ончейн + 50% Тех</span>
+            </div>
+            <span id="modern-gauge-badge" style="display:none">— / 100</span>
+          </div>
+
+          <!-- Option 2: Horizontal Risk Pointer Track -->
+          <div class="risk-track-container">
+            <div class="risk-track" id="risk-track">
+              <!-- Floating Neon Marker pointer -->
+              <div class="risk-marker" id="risk-marker" style="left: 50%;">
+                <div class="risk-marker-dot">
+                  <span class="risk-trend-indicator" id="marker-trend-up"></span>
+                  <span class="risk-marker-num" id="marker-num">—</span>
+                  <span class="risk-trend-indicator" id="marker-trend-down"></span>
+                  <span class="risk-marker-lbl" id="marker-lbl">—</span>
+                </div>
+              </div>
+              <!-- Ticks at 25% and 75% -->
+              <div class="risk-tick" style="left: 20%;" title="Buy zone boundary (20)"></div>
+              <div class="risk-tick" style="left: 80%;" title="Sell zone boundary (80)"></div>
+            </div>
+            
+            <div class="risk-track-legend">
+              <span>
+                <span class="en">Buy</span>
+                <span class="ua">Купувати</span>
+              </span>
+              <span>
+                <span class="en">Neutral</span>
+                <span class="ua">Нейтрально</span>
+              </span>
+              <span>
+                <span class="en">Sell</span>
+                <span class="ua">Продавати</span>
+              </span>
+            </div>
+          </div>
+        </div><!-- /.main-inner (front) -->
+
+        <!-- Secret back face: zone-price inversion (click card to flip) -->
+        <div class="main-back" aria-hidden="true">
+          <div class="zone-back-title">
+            <span class="en">Not a price prediction</span>
+            <span class="ua">Це не прогноз ціни</span>
+          </div>
+          <div class="zone-gauge-row">
+            <div class="zone-side buy">
+              <span class="zone-side-num" id="zone-buy-price">—</span>
+              <span class="zone-side-lbl"><span class="en">Buy</span><span class="ua">Купівля</span></span>
+            </div>
+            <div class="zone-gauge-mid">
+              <canvas id="zone-gauge-canvas"></canvas>
+            </div>
+            <div class="zone-side sell">
+              <span class="zone-side-num" id="zone-sell-price">—</span>
+              <span class="zone-side-lbl"><span class="en">Sell</span><span class="ua">Продаж</span></span>
+            </div>
+          </div>
+          <div class="zone-disclaimer">
+            <span class="en">The index read <em>backwards</em>: holding today's on-chain cost basis fixed, the formula is solved for the price at which the score would reach each zone, assuming momentum and sentiment move with price as they usually do.</span>
+            <span class="ua">Це індекс, прочитаний <em>навпаки</em>: тримаючи сьогоднішню ончейн-собівартість незмінною, формула розв'язується щодо ціни, за якої бал дійшов би до кожної зони, припускаючи, що моментум і настрої рухаються разом із ціною, як зазвичай.</span>
+          </div>
+        </div>
+        </div><!-- /.main-flip -->
+      </div>
+
+      <!-- Subscore Cards -->
+      <div class="score-box">
+        <div class="s-label">
+          <span class="en">On-Chain Score</span>
+          <span class="ua">Ончейн-оцінка</span>
+        </div>
+        <div class="sub-card-value-container">
+          <span id="oc-warn" class="sub-warn-icon" style="display:none" title="One or more on-chain metrics contradicts the on-chain subscore"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 9v4"/><path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0"/><path d="M12 16h.01"/></svg></span>
+          <div class="s-value" id="s-oc">—</div>
+        </div>
+        <div class="modern-sub-gauge-wrap">
+          <canvas id="gauge-oc" class="modern-sub-gauge-canvas"></canvas>
+        </div>
+        <div class="sub-gauge-status" id="oc-status">—</div>
+        <div class="bar-wrap"><div class="bar-fill" id="b-oc" style="width:0%"></div></div>
+        <div class="s-sub">
+          <span class="en">80% On-Chain + 20% Tech</span>
+          <span class="ua">80% Ончейн + 20% Тех</span>
+        </div>
+      </div>
+
+      <div class="score-box" id="tech-card">
+        <div class="s-label">
+          <span class="en">Tech/Macro Score</span>
+          <span class="ua">Тех/Макро оцінка</span>
+        </div>
+        <div class="sub-card-value-container">
+          <span id="tech-warn" class="sub-warn-icon" style="display:none" title="One or more tech/macro metrics contradicts the tech subscore"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 9v4"/><path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0"/><path d="M12 16h.01"/></svg></span>
+          <span id="tech-tactical-badge" class="tactical-badge" style="display:none"></span>
+          <div class="s-value" id="s-tech">—</div>
+          <span id="tech-div-badge" style="display:none"></span>
+        </div>
+        <div class="modern-sub-gauge-wrap">
+          <canvas id="gauge-tech" class="modern-sub-gauge-canvas"></canvas>
+        </div>
+        <div class="sub-gauge-status" id="tech-status">—</div>
+        <div class="bar-wrap"><div class="bar-fill" id="b-tech" style="width:0%"></div></div>
+        <div class="s-sub">
+          <span class="en">20% On-Chain + 80% Tech</span>
+          <span class="ua">20% Ончейн + 80% Тех</span>
+        </div>
+      </div>
+
+      <div class="score-box">
+        <div class="s-label">
+          <span class="en">Yesterday</span>
+          <span class="ua">Вчора</span>
+        </div>
+        <div class="sub-card-value-container">
+          <div class="s-value" id="s-yesterday">—</div>
+        </div>
+        <div class="modern-sub-gauge-wrap">
+          <canvas id="gauge-yesterday" class="modern-sub-gauge-canvas"></canvas>
+        </div>
+        <div class="sub-gauge-status" id="yesterday-status">—</div>
+        <div class="bar-wrap"><div class="bar-fill" id="b-yesterday" style="width:0%"></div></div>
+        <div class="s-sub">
+          <span class="en">Previous daily score</span>
+          <span class="ua">Попередній денний бал</span>
+        </div>
+      </div>
+
+      <div class="score-box">
+        <div class="s-label">
+          <span class="en">7-day Average</span>
+          <span class="ua">Середнє за 7 днів</span>
+        </div>
+        <div class="sub-card-value-container">
+          <div class="s-value" id="s-week">—</div>
+        </div>
+        <div class="modern-sub-gauge-wrap">
+          <canvas id="gauge-week" class="modern-sub-gauge-canvas"></canvas>
+        </div>
+        <div class="sub-gauge-status" id="week-status">—</div>
+        <div class="bar-wrap"><div class="bar-fill" id="b-week" style="width:0%"></div></div>
+        <div class="s-sub">
+          <span class="en">7 days average score</span>
+          <span class="ua">Середня оцінка за 7 днів</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- On-Chain Metrics Section -->
+    <div class="glass-panel">
+      <div class="section-header">
+        <h2>
+          <span class="en">On-Chain Indicators</span>
+          <span class="ua">Ончейн-індикатори</span>
+        </h2>
+      </div>
+      <div class="metrics-list">
+        <div class="metric-row">
+          <a class="m-name" href="about.html#m-nupl">NUPL</a>
+          <div>
+            <div class="bar-wrap"><div class="bar-fill" id="m-nupl-bar"></div></div>
+            <div class="m-raw" id="m-nupl-raw"></div>
+          </div>
+          <span class="m-num" id="m-nupl-num">—</span>
+        </div>
+        <div class="metric-row">
+          <a class="m-name" href="about.html#m-mvrv">MVRV Z-Score</a>
+          <div>
+            <div class="bar-wrap"><div class="bar-fill" id="m-mvrv-bar"></div></div>
+            <div class="m-raw" id="m-mvrv-raw"></div>
+          </div>
+          <span class="m-num" id="m-mvrv-num">—</span>
+        </div>
+        <div class="metric-row">
+          <a class="m-name" href="about.html#m-rhodl">RHODL Ratio</a>
+          <div>
+            <div class="bar-wrap"><div class="bar-fill" id="m-rhodl-bar"></div></div>
+            <div class="m-raw" id="m-rhodl-raw"></div>
+          </div>
+          <span class="m-num" id="m-rhodl-num">—</span>
+        </div>
+        <div class="metric-row">
+          <a class="m-name" href="about.html#m-cvdd">CVDD Ratio</a>
+          <div>
+            <div class="bar-wrap"><div class="bar-fill" id="m-cvdd-bar"></div></div>
+            <div class="m-raw" id="m-cvdd-raw"></div>
+          </div>
+          <span class="m-num" id="m-cvdd-num">—</span>
+        </div>
+        <div class="metric-row">
+          <a class="m-name" href="about.html#m-asopr">aSOPR</a>
+          <div>
+            <div class="bar-wrap"><div class="bar-fill" id="m-asopr-bar"></div></div>
+            <div class="m-raw" id="m-asopr-raw"></div>
+          </div>
+          <span class="m-num" id="m-asopr-num">—</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tech / Macro Metrics Section -->
+    <div class="glass-panel">
+      <div class="section-header">
+        <h2>
+          <span class="en">Tech / Macro Indicators</span>
+          <span class="ua">Технічні / Макро індикатори</span>
+        </h2>
+      </div>
+      <div class="metrics-list">
+        <div class="metric-row">
+          <a class="m-name" href="about.html#m-cipherb">Cipher B</a>
+          <div>
+            <div class="bar-wrap"><div class="bar-fill" id="m-cipherb-bar"></div></div>
+            <div class="m-raw" id="m-cipherb-raw"></div>
+          </div>
+          <span class="m-num" id="m-cipherb-num">—</span>
+        </div>
+        <div class="metric-row">
+          <a class="m-name" href="about.html#m-mayer">Mayer Multiple</a>
+          <div>
+            <div class="bar-wrap"><div class="bar-fill" id="m-mayer-bar"></div></div>
+            <div class="m-raw" id="m-mayer-raw"></div>
+          </div>
+          <span class="m-num" id="m-mayer-num">—</span>
+        </div>
+        <div class="metric-row">
+          <a class="m-name" href="about.html#m-etf">Spot ETF Flows (14d)</a>
+          <div>
+            <div class="bar-wrap"><div class="bar-fill" id="m-etf-bar"></div></div>
+            <div class="m-raw" id="m-etf-raw"></div>
+          </div>
+          <span class="m-num" id="m-etf-num">—</span>
+        </div>
+        <div class="metric-row">
+          <a class="m-name" href="about.html#m-fg">Fear &amp; Greed</a>
+          <div>
+            <div class="bar-wrap"><div class="bar-fill" id="m-fg-bar"></div></div>
+            <div class="m-raw" id="m-fg-raw"></div>
+          </div>
+          <span class="m-num" id="m-fg-num">—</span>
+        </div>
+        <div class="metric-row">
+          <a class="m-name" href="about.html#m-m2">Global M2 YoY</a>
+          <div>
+            <div class="bar-wrap"><div class="bar-fill" id="m-m2-bar"></div></div>
+            <div class="m-raw" id="m-m2-raw"></div>
+          </div>
+          <span class="m-num" id="m-m2-num">—</span>
+        </div>
+        <div class="metric-row">
+          <a class="m-name" href="about.html#m-yc">Yield Curve (10Y-2Y)</a>
+          <div>
+            <div class="bar-wrap"><div class="bar-fill" id="m-ry-bar"></div></div>
+            <div class="m-raw" id="m-ry-raw"></div>
+          </div>
+          <span class="m-num" id="m-ry-num">—</span>
+        </div>
+        <div class="metric-row">
+          <a class="m-name" href="about.html#m-funding">Funding Rate</a>
+          <div>
+            <div class="bar-wrap"><div class="bar-fill" id="m-funding-bar"></div></div>
+            <div class="m-raw" id="m-funding-raw"></div>
+          </div>
+          <span class="m-num" id="m-funding-num">—</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- History Chart Panel at the bottom -->
+    <div class="glass-panel" style="margin-top:24px">
+      <div class="section-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+        <h2>
+          <span class="en">History Chart</span>
+          <span class="ua">Історичний графік</span>
+        </h2>
+        <div class="chart-legend" style="display:flex; gap:16px; font-size:0.75rem; font-weight:600;">
+          <span id="btc-price-legend" style="display:flex; align-items:center; gap:6px; color:#10b981;">
+            <span id="btc-price-legend-dot" style="display:inline-block; width:12px; height:3px; background:#10b981; border-radius:2px; box-shadow:0 0 6px #10b981;"></span>
+            <span class="en">BTC Price</span>
+            <span class="ua">Ціна BTC</span>
+          </span>
+          <span style="display:flex; align-items:center; gap:6px; color:#f7931a;">
+            <span style="display:inline-block; width:12px; height:3px; background:#f7931a; border-radius:2px; box-shadow:0 0 6px #f7931a;"></span>
+            <span class="en">Risk Score</span>
+            <span class="ua">Оцінка ризику</span>
+          </span>
+        </div>
+      </div>
+      <canvas id="history-chart"></canvas>
+    </div>
+
+    <!-- About / SEO content (crawlable prose) -->
+    <details class="about-index">
+      <summary class="about-index-summary">
+        <h2>
+          <span class="en">About the Bitcoin Buy Risk Index</span>
+          <span class="ua">Про Індекс ризику купівлі Bitcoin</span>
+        </h2>
+        <svg class="about-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+      </summary>
+      <div class="about-index-body">
+        <p style="margin-bottom:12px; font-weight:600; color:var(--text);">
+          <span class="en">As of the latest daily update, the Bitcoin Buy Risk Index reads <strong id="seo-score">—</strong> / 100 — <span id="seo-status-en">—</span>.</span>
+          <span class="ua">Станом на останнє щоденне оновлення Індекс ризику купівлі Bitcoin становить <strong id="seo-score-ua">—</strong> / 100 — <span id="seo-status-ua">—</span>.</span>
+        </p>
+        <p style="margin-bottom:12px;">
+          <span class="en">The <strong>Bitcoin Buy Risk Index</strong> answers a single question: <strong>is it a good time to buy Bitcoin?</strong> It condenses 10+ on-chain and macro indicators into one <strong>0–100 score</strong>, updated daily. A low score reflects historically low risk — zones where Bitcoin has often been undervalued — while a high score reflects elevated risk and historically expensive territory.</span>
+          <span class="ua">Цей <strong>Індекс ризику купівлі Bitcoin</strong> відповідає на одне питання: <strong>чи вдалий зараз момент купувати Bitcoin?</strong> Він зводить 10+ ончейн- та макропоказників в єдину оцінку <strong>0–100</strong>, що оновлюється щодня. Низька оцінка означає історично низький ризик — зони, де Bitcoin часто був недооціненим, — а висока оцінка означає підвищений ризик та історично дорогу зону.</span>
+        </p>
+        <p style="margin-bottom:12px;">
+          <span class="en">Instead of relying on price predictions, the index aggregates proven valuation metrics — <strong>MVRV Z-Score, NUPL, the RHODL Ratio, aSOPR, the Mayer Multiple</strong>, Spot ETF flows, the Fear &amp; Greed Index, and macro signals such as global M2 growth and the yield curve. Each indicator is normalized and weighted into on-chain and tech/macro subscores that combine into the headline composite risk score.</span>
+          <span class="ua">Замість прогнозів ціни індекс агрегує перевірені метрики оцінки — <strong>MVRV Z-Score, NUPL, RHODL Ratio, aSOPR, Mayer Multiple</strong>, потоки спотових ETF, Індекс страху та жадібності, а також макросигнали, як-от зростання глобального M2 та крива дохідності. Кожен показник нормалізується та зважується в ончейн- і тех/макро підоцінки, що формують підсумкову композитну оцінку ризику.</span>
+        </p>
+        <p>
+          <span class="en">Use it as a data-driven sanity check against market emotion — not as financial advice. <a href="about.html" style="color:var(--index-color); font-weight:600;">Read the full methodology</a> to see exactly how each indicator is calculated and weighted, or see how it <a href="compare.html" style="color:var(--index-color); font-weight:600;">compares to the Fear &amp; Greed Index and CBBI</a>.</span>
+          <span class="ua">Використовуйте його як обґрунтовану даними противагу ринковим емоціям — а не як фінансову пораду. <a href="about.html" style="color:var(--index-color); font-weight:600;">Читати повну методологію</a>, щоб побачити, як саме обчислюється та зважується кожен показник, або як він <a href="compare.html" style="color:var(--index-color); font-weight:600;">порівнюється з Fear &amp; Greed Index та CBBI</a>.</span>
+        </p>
+      </div>
+    </details>
+  </div><!-- end tab-main -->
+
+  <!-- Settings Drawer Backdrop -->
+  <div class="drawer-backdrop" id="drawer-backdrop" onclick="toggleDrawer(false)"></div>
+
+  <!-- Settings Drawer -->
+  <div class="settings-drawer" id="settings-drawer">
+    <div class="drawer-header">
+      <span class="drawer-title">
+        <span class="en">Settings &amp; Menu</span>
+        <span class="ua">Налаштування та меню</span>
+      </span>
+      <button class="drawer-close" onclick="toggleDrawer(false)">&times;</button>
+    </div>
+
+    <!-- Navigation Group -->
+    <div class="settings-group">
+      <span class="settings-label">
+        <span class="en">Menu</span>
+        <span class="ua">Меню</span>
+      </span>
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <a id="nav-btn-index" href="index.html" class="drawer-nav-item">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/><path d="M15 3v18"/><path d="M3 9h18"/><path d="M3 15h18"/></svg>
+          <span class="en">Risk Index</span>
+          <span class="ua">Індекс ризику</span>
+        </a>
+        <a id="nav-btn-about" href="about.html" class="drawer-nav-item">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8h.01"/><path d="M11 12h1v4h1"/><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2z"/></svg>
+          <span class="en">Methodology</span>
+          <span class="ua">Методологія</span>
+        </a>
+        <a id="nav-btn-compare" href="compare.html" class="drawer-nav-item">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"/><path d="M8 21H3v-5"/><path d="M12 12L3 21"/><path d="M21 3l-9 9"/><path d="M21 16v5h-5"/><path d="M3 8V3h5"/><path d="M3 3l9 9"/><path d="M12 12l9 9"/></svg>
+          <span class="en">Compare Indices</span>
+          <span class="ua">Порівняти індекси</span>
+        </a>
+        <a id="nav-btn-alerts" href="bitcoin_buy_risk.ics" class="drawer-nav-item" style="justify-content: space-between;">
+          <span style="display: flex; align-items: center; gap: 10px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 5a2 2 0 1 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6"/><path d="M9 17v1a3 3 0 0 0 6 0v-1"/></svg>
+            <span class="en">iCal Alerts</span>
+            <span class="ua">Сповіщення iCal</span>
+          </span>
+          <span style="font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; background: rgba(255, 255, 255, 0.08); border: 1px solid var(--border); color: var(--text-mute);">ICS</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Theme Style Switch -->
+    <div class="settings-group">
+      <span class="settings-label">
+        <span class="en">Theme Style</span>
+        <span class="ua">Стиль теми</span>
+      </span>
+      <div class="settings-options">
+        <button id="drawer-btn-style-classic" class="option-btn" onclick="setStyle('classic')">Classic</button>
+        <button id="drawer-btn-style-modern" class="option-btn" onclick="setStyle('modern')">Modern</button>
+        <button id="drawer-btn-style-minimal" class="option-btn" onclick="setStyle('minimal')">Minimal</button>
+      </div>
+    </div>
+
+    <!-- Color Mode -->
+    <div class="settings-group">
+      <span class="settings-label">
+        <span class="en">Color Mode</span>
+        <span class="ua">Колірний режим</span>
+      </span>
+      <div class="settings-options two-cols">
+        <button id="drawer-btn-mode-night" class="option-btn" onclick="setMode('night')">Night</button>
+        <button id="drawer-btn-mode-auto" class="option-btn" onclick="setMode('auto')">Auto</button>
+      </div>
+    </div>
+
+    <!-- Language -->
+    <div class="settings-group">
+      <span class="settings-label">
+        <span class="en">Language</span>
+        <span class="ua">Мова</span>
+      </span>
+      <div class="settings-options two-cols">
+        <button id="drawer-btn-lang-en" class="option-btn" onclick="setLang('en')">EN</button>
+        <button id="drawer-btn-lang-ua" class="option-btn" onclick="setLang('ua')">UA</button>
+      </div>
+    </div>
+  </div>
+
+  <footer id="footer">Source: data.json</footer>
+  <p class="disclaimer">
+    <span class="en">This dashboard is for informational purposes only and does not constitute financial advice. All data is automatically collected from public sources. Any decisions to buy or sell assets are made solely at your own risk.</span>
+    <span class="ua">Цей дашборд створений виключно з інформаційною метою і не є фінансовою порадою. Всі дані збираються автоматично з публічних джерел. Будь-які рішення про купівлю чи продаж активів приймаються вами на власний ризик.</span>
+  </p>
+
+  <script>
+    // Theme switcher handlers
+    function updateThemeClass() {
+      const style = 'modern';
+      const mode = localStorage.getItem('bbr-mode') || 'auto';
+      
+      let theme = 'dark';
+      if (mode === 'auto') {
+        const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+        theme = prefersLight ? 'light' : 'dark';
+      }
+      
+      document.documentElement.className = 'style-' + style + ' theme-' + theme;
+
+      // Toggle Hero Card Layout Elements in Classic
+      const mContainer = document.querySelector('.modern-gauge-container');
+      const hContainer = document.querySelector('.risk-track-container');
+      const hStatus = document.querySelector('.hero-status-area');
+      const heroLabel = document.getElementById('hero-label');
+      
+      if (style === 'modern') {
+        if (mContainer) mContainer.style.display = 'flex';
+        if (hContainer) hContainer.style.display = 'none';
+        if (hStatus) hStatus.style.display = 'none';
+        if (heroLabel) {
+          heroLabel.innerHTML = `
+            <span class="en">Bitcoin Buy Risk Index</span>
+            <span class="ua">Індекс ризику Bitcoin</span>
+          `;
+        }
+      } else {
+        if (mContainer) mContainer.style.display = 'none';
+        if (hContainer) hContainer.style.display = 'block';
+        if (hStatus) hStatus.style.display = 'flex';
+        if (heroLabel) {
+          heroLabel.innerHTML = `
+            <span class="en">Composite Risk Index</span>
+            <span class="ua">Композитний індекс ризику</span>
+          `;
+        }
+      }
+      
+      // Update active states for buttons
+      const toggleActive = (id, condition) => {
+        const el = document.getElementById(id);
+        if (el) el.classList.toggle('active', condition);
+      };
+
+      // Classic dashboard buttons
+      toggleActive('btn-style-classic', style === 'classic');
+      toggleActive('btn-style-modern', style === 'modern');
+      toggleActive('btn-mode-night', mode === 'night');
+      toggleActive('btn-mode-auto', mode === 'auto');
+
+      // Modern outside footer buttons
+      toggleActive('modern-footer-btn-style-classic', style === 'classic');
+      toggleActive('modern-footer-btn-style-modern', style === 'modern');
+      toggleActive('modern-footer-btn-style-minimal', style === 'minimal');
+      toggleActive('modern-footer-btn-mode-night', mode === 'night');
+      toggleActive('modern-footer-btn-mode-auto', mode === 'auto');
+
+      // Modern drawer settings buttons
+      toggleActive('drawer-btn-style-classic', style === 'classic');
+      toggleActive('drawer-btn-style-modern', style === 'modern');
+      toggleActive('drawer-btn-style-minimal', style === 'minimal');
+      toggleActive('drawer-btn-mode-night', mode === 'night');
+      toggleActive('drawer-btn-mode-auto', mode === 'auto');
+
+      const lang = localStorage.getItem('bbr-lang') || 'en';
+      toggleActive('drawer-btn-lang-en', lang === 'en');
+      toggleActive('drawer-btn-lang-ua', lang === 'ua');
+
+      if (typeof _chartData !== 'undefined' && _chartData) {
+        drawCharts(_chartData);
+      }
+      redrawAllModernGauges();
+      updateIndexLinks();
+    }
+
+    function setStyle(style) {
+      if (style === 'classic') {
+        location.href = 'classic.html';
+      } else if (style === 'minimal') {
+        location.href = 'minimal.html';
+      } else {
+        localStorage.setItem('bbr-style', 'modern');
+        updateThemeClass();
+      }
+    }
+
+    function setMode(mode) {
+      localStorage.setItem('bbr-mode', mode);
+      updateThemeClass();
+    }
+
+    window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => {
+      const mode = localStorage.getItem('bbr-mode') || 'auto';
+      if (mode === 'auto') {
+        updateThemeClass();
+      }
+    });
+
+    // Language switcher
+    function setLang(lang) {
+      document.body.className = 'lang-' + lang;
+      document.documentElement.lang = (lang === 'ua') ? 'uk' : 'en';  // ISO 639-1
+      const btnEn = document.getElementById('btn-en');
+      const btnUa = document.getElementById('btn-ua');
+      if (btnEn) btnEn.classList.toggle('active', lang === 'en');
+      if (btnUa) btnUa.classList.toggle('active', lang === 'ua');
+
+      const dBtnEn = document.getElementById('drawer-btn-lang-en');
+      const dBtnUa = document.getElementById('drawer-btn-lang-ua');
+      if (dBtnEn) dBtnEn.classList.toggle('active', lang === 'en');
+      if (dBtnUa) dBtnUa.classList.toggle('active', lang === 'ua');
+
+      localStorage.setItem('bbr-lang', lang);
+      document.title = lang === 'ua' ? 'Індекс ризику купівлі Bitcoin' : 'Bitcoin Buy Risk Index';
+
+      // Update tooltips dynamically
+      const sWarn = document.getElementById('s-warn');
+      if (sWarn) {
+        sWarn.title = lang === 'ua' 
+          ? 'Один або кілька індикаторів суперечать загальному напрямку індексу'
+          : 'One or more key indicators contradicts the overall index direction';
+      }
+      
+      const ocWarn = document.getElementById('oc-warn');
+      if (ocWarn) {
+        ocWarn.title = lang === 'ua'
+          ? 'Один або кілька ончейн-показників суперечать загальному балу'
+          : 'One or more on-chain metrics contradicts the on-chain subscore';
+      }
+      
+      const techWarn = document.getElementById('tech-warn');
+      if (techWarn) {
+        techWarn.title = lang === 'ua'
+          ? 'Один або кілька тех/макро показників суперечать загальному балу'
+          : 'One or more tech/macro metrics contradicts the tech subscore';
+      }
+    }
+
+    // Automatically detect and restore language
+    const browserLang = (navigator.language || navigator.userLanguage || '').toLowerCase();
+    const defaultLang = browserLang.startsWith('uk') || browserLang.startsWith('ua') ? 'ua' : 'en';
+    const saved = localStorage.getItem('bbr-lang') || defaultLang;
+    setLang(saved);
+
+    // Settings drawer toggling & dynamic routing
+    function toggleDrawer(open) {
+      const drawer = document.getElementById('settings-drawer');
+      const backdrop = document.getElementById('drawer-backdrop');
+      if (drawer) drawer.classList.toggle('open', open);
+      if (backdrop) backdrop.classList.toggle('open', open);
+    }
+
+    function updateIndexLinks() {
+      const style = localStorage.getItem('bbr-style') || 'modern';
+      let href = 'index.html';
+      if (style === 'classic') href = 'classic.html';
+      if (style === 'minimal') href = 'minimal.html';
+      
+      const logoLink = document.getElementById('logo-link');
+      if (logoLink) logoLink.href = href;
+      
+      const navBtnIndex = document.getElementById('nav-btn-index');
+      if (navBtnIndex) navBtnIndex.href = href;
+    }
+
+    // Modern Status Bar Clock
+    function updateModernClock() {
+      const clockEl = document.getElementById('modern-status-time');
+      if (!clockEl) return;
+      const now = new Date();
+      let hours = now.getHours();
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      hours = hours % 12;
+      hours = hours ? hours : 12;
+      clockEl.textContent = hours + ':' + minutes + ' ' + ampm;
+    }
+    setInterval(updateModernClock, 1000);
+    updateModernClock();
+
+    // ── Modern Canvas Gauge ──────────────────────────────────────────────────
+    // 5 zones (0→100): darkGray → gray → lightGray → lightOrange → orange
+    // Fill: 0..value = bright zone colour; value..100 = uniform dim
+    // At current value: tick crossing the arc
+    // 0..value: parallel arc outlines on inner & outer rim
+    function drawModernGauge(canvas, value, isSmall, showWarn = false, tactical = null) {
+      if (!canvas || value == null) return;
+      const isDark = !document.documentElement.classList.contains('theme-light');
+
+      // bright zone colours left→right (темносірий…помаранчевий)
+      const ZONE_BRIGHT = isDark
+        ? ['#8892a4', '#b0baca', '#d4d8df', '#fbbf24', '#f7931a']  // brighter on dark bg
+        : ['#374151', '#6b7280', '#c8cdd4', '#fdba74', '#f7931a'];
+      const ZONE_DIM = ZONE_BRIGHT;   // no dimming — all zones show at full colour
+      const RIM_COL      = '#f7931a';                       // always max orange
+      const RIM_GAP      = isSmall ? 2 : 3;
+      const TICK_BND_COL = isDark ? '#4a5470' : '#c8cdd4';
+      const TICK_CUR_COL = '#f7931a';                        // always max orange
+      const NUM_COL      = isDark ? '#8892a4' : '#374151';  // darkest gauge segment
+
+      const dpr    = window.devicePixelRatio || 1;
+      const maxW   = isSmall ? 180 : 320;
+      // For small gauges, derive width from the score-box card (minus its 40px padding)
+      // so the canvas never exceeds the card content area regardless of clientWidth timing
+      const scoreBox = isSmall ? canvas.closest('.score-box') : null;
+      const boxW     = scoreBox ? scoreBox.clientWidth - 40 : 0;
+      const W        = Math.min(boxW > 0 ? boxW : (canvas.parentElement.clientWidth || maxW), maxW);
+      const H        = isSmall ? 90 : 162;
+
+      canvas.width  = W * dpr;
+      canvas.height = H * dpr;
+      canvas.style.width  = W + 'px';
+      canvas.style.height = H + 'px';
+
+      const ctx = canvas.getContext('2d');
+      ctx.scale(dpr, dpr);
+
+      const cx     = W / 2;
+      const cy     = H;
+      const R_out  = Math.min(W * 0.46, H - (isSmall ? 10 : 14));
+      const ringW  = isSmall ? 13 : 22;
+      const R_in   = R_out - ringW;
+
+      // helper: canvas angle for risk value v (0→π left, 100→2π right)
+      const toAngle = v => Math.PI + (v / 100) * Math.PI;
+
+      // ── 1. Draw 5 continuous zone segments (no gaps) ─────────────────────
+      for (let i = 0; i < 5; i++) {
+        const a0 = toAngle(i * 20);
+        const a1 = toAngle((i + 1) * 20);
+        ctx.beginPath();
+        ctx.arc(cx, cy, R_out, a0, a1, false);
+        ctx.arc(cx, cy, R_in,  a1, a0, true);
+        ctx.closePath();
+        ctx.fillStyle = ZONE_BRIGHT[i];
+        ctx.fill();
+      }
+
+      // ── 2. Parallel arc outlines on filled portion (0 → value) ──────────
+      if (value > 0) {
+        const fillEnd = toAngle(value);
+        ctx.lineWidth = isSmall ? 1.5 : 2;
+        ctx.strokeStyle = RIM_COL;
+        ctx.setLineDash([]);
+
+        ctx.beginPath();
+        ctx.arc(cx, cy, R_out + RIM_GAP, Math.PI, fillEnd, false); // outer rim (gap from arc)
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(cx, cy, R_in - RIM_GAP,  Math.PI, fillEnd, false); // inner rim (gap from arc)
+        ctx.stroke();
+      }
+
+      // ── 3. Current-value tick — pointer from the scale arc inward to an
+      // invisible clearance circle around the number (so it never touches the
+      // digits, at any angle). Circle is centred at the gauge centre (cx,cy),
+      // which sits below the number.
+      if (value > 0 && value < 100) {
+        const ca = toAngle(value);
+        const fs = isSmall ? 24 : 50;
+        ctx.font = `800 ${fs}px Outfit, sans-serif`;
+        const halfW = ctx.measureText(String(Math.round(value))).width / 2;
+        const capHalf = fs * 0.38;                              // ~half the digit cap-height
+        const numDist = R_in * (isSmall ? 0.34 : 0.32);        // centre -> number centre
+        const margin  = isSmall ? 6 : 9;
+        // radius of the invisible circle that fully clears the number box
+        const R_clear = Math.hypot(halfW, numDist + capHalf) + margin;
+        ctx.beginPath();
+        ctx.moveTo(cx + R_clear         * Math.cos(ca), cy + R_clear         * Math.sin(ca));
+        ctx.lineTo(cx + (R_out + RIM_GAP) * Math.cos(ca), cy + (R_out + RIM_GAP) * Math.sin(ca));
+        ctx.strokeStyle = TICK_CUR_COL;
+        ctx.lineWidth   = isSmall ? 1.5 : 2;
+        ctx.stroke();
+      }
+
+      // ── 5. Score number — inside arc, lower position ──────────────────────
+      const numY = cy - R_in * (isSmall ? 0.34 : 0.32);
+      const numStr = String(Math.round(value));
+      ctx.fillStyle    = NUM_COL;
+      ctx.textAlign    = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.font = `800 ${isSmall ? '24px' : '50px'} Outfit, sans-serif`;
+      ctx.fillText(numStr, cx, numY);
+
+      // ── 6. Warning icon — drawn to the left of the number ─────────────────
+      if (showWarn) {
+        const numW   = ctx.measureText(numStr).width;
+        const iSz    = isSmall ? 12 : 18;        // icon bounding size
+        const iGap   = 4;
+        const ix     = cx - numW / 2 - iGap - iSz;  // right edge of icon
+        const iy     = numY;                          // vertically centred with number
+        const WARN   = '#f7931a';                     // orange in Modern theme
+        const lw     = isSmall ? 1.5 : 2;
+        const triH   = iSz * 0.866;
+
+        ctx.save();
+        ctx.strokeStyle = WARN;
+        ctx.fillStyle   = WARN;
+        ctx.lineWidth   = lw;
+        ctx.lineCap     = 'round';
+        ctx.lineJoin    = 'round';
+
+        // triangle (centred on ix + iSz/2, iy)
+        const tx = ix + iSz / 2;
+        const ty = iy - triH / 2;
+        ctx.beginPath();
+        ctx.moveTo(tx,           ty);
+        ctx.lineTo(tx + iSz/2,  ty + triH);
+        ctx.lineTo(tx - iSz/2,  ty + triH);
+        ctx.closePath();
+        ctx.stroke();
+
+        // exclamation line
+        ctx.beginPath();
+        ctx.moveTo(tx, ty + triH * 0.28);
+        ctx.lineTo(tx, ty + triH * 0.60);
+        ctx.stroke();
+
+        // dot
+        ctx.beginPath();
+        ctx.arc(tx, ty + triH * 0.76, lw * 0.7, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.restore();
+      }
+
+      // ── 7. Tactical mark — coin to the LEFT of the number (where the alert sits) ──
+      // buy = bitcoin coin, overheat = plain coin; both bitcoin-orange
+      if (tactical) {
+        ctx.font = `800 ${isSmall ? '24px' : '50px'} Outfit, sans-serif`;
+        const numW2 = ctx.measureText(numStr).width;
+        const iSz   = isSmall ? 14 : 20;
+        const gap   = isSmall ? 4 : 6;
+        // sit just left of the number; if the alert is also shown, step left of it
+        let rightEdge = cx - numW2 / 2 - gap;
+        if (showWarn) { const warnW = isSmall ? 12 : 18; rightEdge = cx - numW2 / 2 - 4 - warnW - gap; }
+        const ix    = rightEdge - iSz;          // left edge of icon
+        const iy    = numY - iSz / 2;           // top edge (centred on the number)
+        const BTC_COIN = 'M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0M9 8h4.09c1.055 0 1.91 .895 1.91 2s-.855 2 -1.91 2c1.055 0 1.91 .895 1.91 2s-.855 2 -1.91 2h-4.09M10 12h4M10 7v10v-9M13 7v1M13 16v1';
+        const GEN_COIN = 'M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0M14.8 9a2 2 0 0 0 -1.8 -1h-2a2 2 0 1 0 0 4h2a2 2 0 1 1 0 4h-2a2 2 0 0 1 -1.8 -1M12 7v10';
+        const path  = new Path2D(tactical === 'overheat' ? GEN_COIN : BTC_COIN);
+        const col   = '#f7931a';                // bitcoin orange (theme accent)
+        const s     = iSz / 24;
+        ctx.save();
+        ctx.translate(ix, iy);
+        ctx.scale(s, s);
+        ctx.strokeStyle = col;
+        ctx.lineWidth   = 2;
+        ctx.lineCap     = 'round';
+        ctx.lineJoin    = 'round';
+        ctx.stroke(path);
+        ctx.restore();
+      }
+    }
+
+    function redrawAllModernGauges() {
+      const style = 'modern';
+      const isModern = style === 'modern';
+      const isDark = !document.documentElement.classList.contains('theme-light');
+
+      // Update root accent CSS variables dynamically
+      if (window._gaugeValues) {
+        const finalVal = window._gaugeValues.final;
+        if (finalVal != null) {
+          const markerColor = scoreColor(finalVal);
+          const marker = document.getElementById('risk-marker');
+          if (marker) {
+            marker.style.setProperty('--marker-color', markerColor);
+          }
+          const finalLabelEl = document.getElementById('s-final-label');
+          if (finalLabelEl) {
+            finalLabelEl.style.color = markerColor;
+          }
+          
+          const isModernAccent = isModern;
+          const accentColor = isModernAccent ? '#f7931a' : markerColor;
+          document.documentElement.style.setProperty('--index-color',      accentColor);
+          document.documentElement.style.setProperty('--index-color-bg',   isModernAccent ? 'rgba(247,147,26,0.12)' : scoreColor(finalVal, 0.12));
+          document.documentElement.style.setProperty('--index-color-glow', isModernAccent ? 'rgba(247,147,26,0.08)' : scoreColor(finalVal, 0.08));
+        }
+      }
+
+      // Update subscore text colors & classic progress bars
+      if (window._gaugeValues) {
+        const v = window._gaugeValues;
+
+        // Update subscore text colors
+        const subscoreTextItems = [
+          { id: 's-final', val: v.final },
+          { id: 's-oc',    val: v.onchain },
+          { id: 's-tech',   val: v.tech },
+          { id: 's-yesterday', val: v.yesterday },
+          { id: 's-week',   val: v.week }
+        ];
+        subscoreTextItems.forEach(item => {
+          const el = document.getElementById(item.id);
+          if (el && item.val != null) {
+            el.style.color = scoreColor(item.val);
+          }
+        });
+
+        // Update Classic subscore progress bars
+        const subscoreBars = [
+          { id: 'b-final', val: v.final },
+          { id: 'b-oc',    val: v.onchain },
+          { id: 'b-tech',   val: v.tech },
+          { id: 'b-yesterday', val: v.yesterday },
+          { id: 'b-week',   val: v.week }
+        ];
+        subscoreBars.forEach(item => {
+          const bar = document.getElementById(item.id);
+          if (bar && item.val != null) {
+            bar.style.width = item.val + '%';
+            bar.style.background = scoreColor(item.val);
+            bar.style.setProperty('--bar-shadow-color', scoreColor(item.val, 0.5));
+          }
+        });
+      }
+
+      if (isModern && window._gaugeValues) {
+        const v = window._gaugeValues;
+        const ocWarn   = document.getElementById('oc-warn');
+        const techWarn = document.getElementById('tech-warn');
+        const tac = window._tacticalSignal || null;
+        drawModernGauge(document.getElementById('modern-gauge-canvas'),  v.final,     false, false, tac);
+        drawModernGauge(document.getElementById('zone-gauge-canvas'),    v.final,     false, false, null);   // back of the flip card
+        drawModernGauge(document.getElementById('gauge-oc'),             v.onchain,   true,  ocWarn   && ocWarn.style.display   !== 'none');
+        drawModernGauge(document.getElementById('gauge-tech'),           v.tech,      true,  techWarn && techWarn.style.display !== 'none', tac);
+        drawModernGauge(document.getElementById('gauge-yesterday'),      v.yesterday, true,  false);
+        drawModernGauge(document.getElementById('gauge-week'),           v.week,      true,  false);
+      }
+
+      // Redraw/toggle metric bars
+      document.querySelectorAll('.metrics-list .bar-wrap').forEach(barWrap => {
+        const fill = barWrap.querySelector('.bar-fill');
+        let cv = barWrap.querySelector('canvas.mbar');
+        if (isModern) {
+          if (fill) fill.style.display = 'none';
+          const v = fill ? parseFloat(fill.dataset.value) || 0 : 0;
+          drawModernBar(barWrap, v);
+          if (cv) cv.style.display = 'block';
+        } else {
+          if (fill) {
+            fill.style.display = 'block';
+            const v = parseFloat(fill.dataset.value) || 0;
+            fill.style.width = v + '%';
+            fill.style.background = scoreColor(v);
+            fill.style.setProperty('--bar-shadow-color', scoreColor(v, 0.5));
+          }
+          if (cv) cv.style.display = 'none';
+        }
+      });
+
+      // Update numbers color
+      document.querySelectorAll('.metric-row').forEach(row => {
+        const num = row.querySelector('.m-num');
+        const fill = row.querySelector('.bar-fill');
+        if (num && fill) {
+          const v = parseFloat(fill.dataset.value) || 0;
+          if (isModern) {
+            num.style.color = (v > 60) ? '#f7931a' : (isDark ? '#8892a4' : '#374151');
+          } else {
+            num.style.color = scoreColor(v);
+          }
+        }
+      });
+    }
+
+    // ── Straightened gauge bar for metric rows ────────────────────────────
+    function drawModernBar(barWrap, value) {
+      if (!barWrap || value == null) return;
+      const isDark = !document.documentElement.classList.contains('theme-light');
+
+      const ZONE_BRIGHT = isDark
+        ? ['#8892a4', '#b0baca', '#d4d8df', '#fbbf24', '#f7931a']
+        : ['#374151', '#6b7280', '#c8cdd4', '#fdba74', '#f7931a'];
+      const ZONE_DIM = ZONE_BRIGHT;   // no dimming — all zones show at full colour
+
+      const v         = Math.max(0, Math.min(100, value || 0));
+      const zoneColor = '#f7931a';   // outlines & tick always max orange
+
+      const dpr   = window.devicePixelRatio || 1;
+      const W     = barWrap.clientWidth || 200;
+      const BAR_H = 6;   // match Classic bar-wrap height
+      const EXT   = 4;   // tick extension above/below bar
+      const H     = BAR_H + EXT * 2; // canvas total height
+
+      // Get or create canvas
+      let cv = barWrap.querySelector('canvas.mbar');
+      if (!cv) {
+        cv = document.createElement('canvas');
+        cv.className = 'mbar';
+        cv.style.display = 'block';
+        cv.style.marginTop  = `-${EXT}px`;
+        cv.style.marginBottom = `-${EXT}px`;
+        const fill = barWrap.querySelector('.bar-fill');
+        if (fill) fill.style.display = 'none';
+        barWrap.appendChild(cv);
+      }
+      cv.dataset.modernValue = v;
+      cv.width  = W * dpr;
+      cv.height = H * dpr;
+      cv.style.width  = W + 'px';
+      cv.style.height = H + 'px';
+
+      const ctx = cv.getContext('2d');
+      ctx.scale(dpr, dpr);
+      ctx.clearRect(0, 0, W, H);
+
+      // 1. Draw 5 zone segments (vertically centred in canvas)
+      for (let i = 0; i < 5; i++) {
+        const x0 = (i * 20 / 100) * W;
+        const x1 = ((i + 1) * 20 / 100) * W;
+        ctx.fillStyle = ZONE_BRIGHT[i];
+        ctx.fillRect(x0, EXT, x1 - x0, BAR_H);
+      }
+
+      // 2. Outlines top & bottom — 2px gap from bar edge
+      if (v > 0) {
+        const fillX = (v / 100) * W;
+        ctx.strokeStyle = zoneColor;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.moveTo(0, EXT - 2);         ctx.lineTo(fillX, EXT - 2);         ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(0, EXT + BAR_H + 2); ctx.lineTo(fillX, EXT + BAR_H + 2); ctx.stroke();
+      }
+
+      // 3. Tick at current value — bridges the two outlines flush (no overhang)
+      const tickX = Math.max(1, Math.min(W - 1, (v / 100) * W));
+      ctx.strokeStyle = zoneColor;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(tickX, EXT - 2);
+      ctx.lineTo(tickX, EXT + BAR_H + 2);
+      ctx.stroke();
+    }
+
+    // Modern Chart Rendering with interactive Hover details
+    function drawPhoneHistoryChart(data, hoverIndex) {
+      const canvas = document.getElementById('phone-history-chart');
+      if (!canvas) return;
+
+      const pts = (data.score_history || []).filter(e => e.score != null);
+      if(pts.length < 2) return;
+
+      const isDark = !document.documentElement.classList.contains('theme-light');
+      const bg    = 'rgba(0,0,0,0)'; 
+      const grid  = isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.035)';
+      const textC = isDark ? 'rgba(255, 255, 255, 0.35)' : 'rgba(0, 0, 0, 0.4)';
+
+      const container = canvas.parentElement;
+      const dpr = window.devicePixelRatio || 1;
+      const W   = container.clientWidth || 300;
+      const H   = container.clientHeight || 140;
+      canvas.width  = W * dpr;
+      canvas.height = H * dpr;
+      canvas.style.width = W + 'px';
+      canvas.style.height = H + 'px';
+      const ctx = canvas.getContext('2d');
+      ctx.scale(dpr, dpr);
+
+      const PAD = { top: 15, bottom: 20, left: 30, right: 10 };
+      const cw  = W - PAD.left - PAD.right;
+      const ch  = H - PAD.top  - PAD.bottom;
+
+      const toYScore = v => PAD.top + ch - (v / 100) * ch;
+
+      ctx.clearRect(0, 0, W, H);
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, W, H);
+
+      // Grid lines
+      const gridVals = [0, 25, 50, 75, 100];
+      gridVals.forEach(v => {
+        const y = toYScore(v);
+        if (v > 0 && v < 100) {
+          ctx.strokeStyle = grid;
+          ctx.lineWidth = 1;
+          ctx.setLineDash([4, 4]);
+          ctx.beginPath();
+          ctx.moveTo(PAD.left, y);
+          ctx.lineTo(W - PAD.right, y);
+          ctx.stroke();
+          ctx.setLineDash([]);
+        }
+
+        ctx.fillStyle = textC;
+        ctx.font = '700 9px Outfit, sans-serif';
+        ctx.textAlign = 'right';
+        ctx.fillText(v, PAD.left - 6, y + 3);
+      });
+
+      // Area fill
+      const grad = ctx.createLinearGradient(0, PAD.top, 0, PAD.top + ch);
+      grad.addColorStop(0, isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)');
+      grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+
+      ctx.beginPath();
+      pts.forEach((e, i) => {
+        const x = PAD.left + (i / (pts.length - 1)) * cw;
+        const y = toYScore(e.score);
+        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      });
+      ctx.lineTo(PAD.left + cw, PAD.top + ch);
+      ctx.lineTo(PAD.left, PAD.top + ch);
+      ctx.closePath();
+      ctx.fillStyle = grad;
+      ctx.fill();
+
+      // Trend line
+      ctx.beginPath();
+      pts.forEach((e, i) => {
+        const x = PAD.left + (i / (pts.length - 1)) * cw;
+        const y = toYScore(e.score);
+        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      });
+      ctx.strokeStyle = isDark ? '#94a3b8' : '#64748b';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Interactive Hover elements
+      const idx = hoverIndex !== null ? hoverIndex : pts.length - 1;
+      if (idx >= 0 && idx < pts.length) {
+        const targetX = PAD.left + (idx / (pts.length - 1)) * cw;
+        const targetY = toYScore(pts[idx].score);
+
+        // Vertical orange dotted tracker
+        ctx.strokeStyle = '#f7931a';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([3, 3]);
+        ctx.beginPath();
+        ctx.moveTo(targetX, targetY);
+        ctx.lineTo(targetX, PAD.top + ch);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Interactive dot marker
+        ctx.fillStyle = '#f7931a';
+        ctx.beginPath();
+        ctx.arc(targetX, targetY, 5, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(targetX, targetY, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Draw Tooltip
+        const scoreStr = pts[idx].score.toFixed(1) + ' pts';
+        ctx.font = '700 9px Outfit, sans-serif';
+        const textWidth = ctx.measureText(scoreStr).width;
+        const ttW = textWidth + 12;
+        const ttH = 18;
+        const ttX = Math.max(PAD.left, Math.min(W - PAD.right - ttW, targetX - ttW / 2));
+        const ttY = targetY - ttH - 6;
+
+        ctx.fillStyle = isDark ? '#1e293b' : '#0f172a';
+        ctx.beginPath();
+        ctx.roundRect(ttX, ttY, ttW, ttH, 4);
+        ctx.fill();
+
+        // Tri pointer
+        ctx.beginPath();
+        ctx.moveTo(targetX - 3, ttY + ttH);
+        ctx.lineTo(targetX + 3, ttY + ttH);
+        ctx.lineTo(targetX, ttY + ttH + 3);
+        ctx.closePath();
+        ctx.fill();
+
+        // Tooltip text
+        ctx.fillStyle = '#ffffff';
+        ctx.textAlign = 'center';
+        ctx.fillText(scoreStr, ttX + ttW / 2, ttY + 12);
+      }
+    }
+
+    // Slider maps
+    function mapNupl(v)  { if(v==null)return null; v=Math.max(-50,Math.min(100,v));    return Math.round(((v+50)/150)*100); }
+    function mapMvrv(v)  { if(v==null)return null; v=Math.max(-2,Math.min(5,v));       return Math.round(((v+2)/7)*100); }
+    function mapAsopr(v) { 
+      if(v==null) return null; 
+      const MIN = 0.88, BASE = 1.00, MAX = 1.12; 
+      let score;
+      if (v <= BASE) score = ((v - MIN) / (BASE - MIN)) * 50;
+      else score = 50 + ((v - BASE) / (MAX - BASE)) * 50;
+      return Math.round(Math.max(0, Math.min(100, score)));
+    }
+    function mapFG(v)    { if(v==null)return null; const n=typeof v==='object'?(v.avg_7d!=null?v.avg_7d:(v.latest!=null?v.latest:(v.value!=null?v.value:null))):v; return n!=null?Math.round(Math.max(0,Math.min(100,n))):null; }
+    function mapM2(v)    { if(v==null)return null; v=Math.max(-5,Math.min(10,v));      return Math.round(((10-v)/15)*100); }
+    function mapYieldCurve(v) { if(v==null)return null; v=Math.max(-1.0,Math.min(2.0,v)); return Math.round(((2.0-v)/3.0)*100); }
+    function mapCvdd(v)  { if(v==null)return null; v=Math.max(1,Math.min(5,v)); return Math.round(Math.log10(v)/Math.log10(5)*100); }
+    function mapRhodl(v) { if(v==null)return null; v=Math.max(100,Math.min(10000,v));  return Math.round((Math.log10(v)-2)/(4-2)*100); }
+    
+    function mapEtfFlow(v) {
+      if(v == null) return null;
+      const num = typeof v === 'object' ? v.value : v;
+      if(num == null) return null;
+      const f = parseFloat(num);
+      const MIN_VAL = -2000.0;
+      const MID_VAL = 750.0;
+      const MAX_VAL = 4000.0;
+      let score;
+      if (f <= MIN_VAL) {
+        score = 0.0;
+      } else if (f >= MAX_VAL) {
+        score = 100.0;
+      } else if (f < MID_VAL) {
+        score = ((f - MIN_VAL) / (MID_VAL - MIN_VAL)) * 50.0;
+      } else {
+        score = 50.0 + ((f - MID_VAL) / (MAX_VAL - MID_VAL)) * 50.0;
+      }
+      return Math.round(Math.max(0.0, Math.min(100.0, score)));
+    }
+    
+    function mapFunding(fr) {
+      if(!fr) return null;
+      if(typeof fr === 'number') return Math.round(Math.max(0, Math.min(100, (fr + 0.05) / 0.15 * 100)));
+      if(fr.score != null) return fr.score;
+      if(fr.avg_7d != null) return Math.round(Math.max(0, Math.min(100, (fr.avg_7d + 0.05) / 0.15 * 100)));
+      return null;
+    }
+    
+    function mapMayerMultiple(mm) {
+      if(!mm) return null;
+      if(typeof mm === 'number') return Math.round(Math.max(0, Math.min(100, (mm - 0.5) / 1.6 * 100)));
+      return mm.score != null ? mm.score : null;
+    }
+    
+    function mapCipherb(cb) {
+      if(!cb) return null;
+      let w = cb.weekly_score;
+      let d = cb.daily_score;
+      if (w == null) return null;
+      
+      // Apply weekly divergence adjustments
+      if(cb.fast_bearish_div) w = Math.min(100, w + 12);
+      else if(cb.fast_bullish_div) w = Math.max(0, w - 12);
+      
+      if(d != null) {
+        // Apply daily divergence adjustments
+        if(cb.daily_fast_bearish_div) d = Math.min(100, d + 12);
+        else if(cb.daily_fast_bullish_div) d = Math.max(0, d - 12);
+        
+        return Math.round(0.8 * w + 0.2 * d);
+      }
+      return Math.round(w);
+    }
+
+    function scoreColor(v, alpha = 1) {
+      if(v == null) return 'var(--text-mute)';
+      // Modern: same 5-zone palette as gauge (темносірий→помаранчевий)
+      if (true) {
+        const lm = document.documentElement.classList.contains('theme-light');
+        if (v <= 20) return lm ? `rgba(55,65,81,${alpha})`   : `rgba(107,114,128,${alpha})`;  // dark gray
+        if (v <= 40) return lm ? `rgba(107,114,128,${alpha})` : `rgba(156,163,175,${alpha})`; // gray
+        if (v <= 60) return lm ? `rgba(200,205,212,${alpha})` : `rgba(200,205,212,${alpha})`; // light gray
+        if (v <= 80) return lm ? `rgba(253,186,116,${alpha})` : `rgba(245,158,11,${alpha})`;  // light orange
+        return `rgba(247,147,26,${alpha})`;                                                     // orange
+      }
+      const stops = [
+        { val: 0,   r: 16,  g: 185, b: 129 }, // Emerald
+        { val: 30,  r: 132, g: 204, b: 22  }, // Lime
+        { val: 50,  r: 234, g: 179, b: 8   }, // Yellow
+        { val: 75,  r: 249, g: 115, b: 22  }, // Orange
+        { val: 100, r: 239, g: 68,  b: 68  }  // Red
+      ];
+      let r, g, b;
+      if (v <= stops[0].val) {
+        r = stops[0].r; g = stops[0].g; b = stops[0].b;
+      } else if (v >= stops[stops.length - 1].val) {
+        r = stops[stops.length - 1].r; g = stops[stops.length - 1].g; b = stops[stops.length - 1].b;
+      } else {
+        for (let i = 0; i < stops.length - 1; i++) {
+          const s1 = stops[i];
+          const s2 = stops[i+1];
+          if (v >= s1.val && v <= s2.val) {
+            const t = (v - s1.val) / (s2.val - s1.val);
+            r = Math.round(s1.r + t * (s2.r - s1.r));
+            g = Math.round(s1.g + t * (s2.g - s1.g));
+            b = Math.round(s1.b + t * (s2.b - s1.b));
+            break;
+          }
+        }
+      }
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+
+    function setMetric(id, sliderVal, rawText) {
+      const v = sliderVal != null ? sliderVal : 0;
+      const c = scoreColor(sliderVal);
+      const bar = document.getElementById('m-'+id+'-bar');
+      const num = document.getElementById('m-'+id+'-num');
+      const raw = document.getElementById('m-'+id+'-raw');
+      if (bar) {
+        bar.dataset.value = v;
+        const isModern = true;
+        if (isModern) {
+          drawModernBar(bar.parentElement, v);
+        } else {
+          bar.style.width = v+'%';
+          bar.style.background = c;
+          bar.style.setProperty('--bar-shadow-color', scoreColor(sliderVal, 0.5));
+        }
+      }
+      if(num) {
+        num.textContent = sliderVal != null ? sliderVal : '\u2014';
+        const isModernNum = true;
+        if (isModernNum) {
+          const isDarkNum = !document.documentElement.classList.contains('theme-light');
+          num.style.color = (v > 60)
+            ? '#f7931a'
+            : (isDarkNum ? '#8892a4' : '#374151');
+        } else {
+          num.style.color = c;
+        }
+      }
+      if(raw) raw.innerHTML = rawText || '';
+    }
+
+    function setScore(id, barId, val) {
+      const el  = document.getElementById(id);
+      const bar = document.getElementById(barId);
+      const color = scoreColor(val);
+      if(el)  {
+        el.textContent = val != null ? val : '\u2014';
+        el.style.color = color;
+      }
+      if(bar) {
+        bar.style.width = (val||0)+'%';
+        bar.style.background = color;
+        bar.style.setProperty('--bar-shadow-color', scoreColor(val, 0.5));
+      }
+    }
+
+    function scalar(v) {
+      if(v == null) return null;
+      if(typeof v === 'number') return v;
+      if(Array.isArray(v)) return v[0] != null ? v[0] : null;
+      if(typeof v === 'object') return v.current != null ? v.current : (v.value != null ? v.value : null);
+      return null;
+    }
+
+    function updateCountdown() {
+      const countdownEl = document.getElementById('hero-card-countdown');
+      if (!countdownEl) return;
+
+      const now = new Date();
+      let target;
+      if (window._dataTimestamp) {
+        // Reset relative to the actual last update (timestamp + 24h), not a fixed
+        // clock time — so the counter restarts only when fresh data arrives.
+        target = new Date(new Date(window._dataTimestamp).getTime() + 24 * 3600 * 1000);
+        while (now >= target) target = new Date(target.getTime() + 24 * 3600 * 1000);
+      } else {
+        target = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 8, 0, 0));
+        if (now >= target) target.setUTCDate(target.getUTCDate() + 1);
+      }
+
+      const diffSecs = Math.max(0, Math.floor((target - now) / 1000));
+      const hours = Math.floor(diffSecs / 3600);
+      const minutes = Math.floor((diffSecs % 3600) / 60);
+      const pad = num => String(num).padStart(2, '0');
+
+      countdownEl.innerHTML =
+        `<span class="en">next in: ${pad(hours)}<span class="blink-colon">:</span>${pad(minutes)}</span>` +
+        `<span class="ua">наступне за: ${pad(hours)}<span class="blink-colon">:</span>${pad(minutes)}</span>`;
+    }
+
+    async function init() {
+      let data;
+      try {
+        const r = await fetch('data.json', { cache: 'no-store' });
+        if(!r.ok) throw new Error('HTTP ' + r.status);
+        data = await r.json();
+      } catch(e) {
+        document.getElementById('footer').textContent = 'Failed to load data.json: ' + e;
+        return;
+      }
+
+      const m  = data.metrics || {};
+      const mv = key => { const x = m[key]; return x != null ? (x.value !== undefined ? x.value : x) : null; };
+
+      // Dynamic warning banner setup
+      const warnContainer = document.getElementById('outdated-warning-container');
+      if (warnContainer) {
+        warnContainer.innerHTML = '';
+        if (data.timestamp) {
+          const tsDate = new Date(data.timestamp);
+          window._dataTimestamp = data.timestamp;   // countdown resets from the real update
+          updateCountdown();
+           const tsStr = tsDate.toLocaleString(undefined, {
+             day: '2-digit', month: '2-digit', year: 'numeric',
+             hour: '2-digit', minute: '2-digit', hour12: false
+           });
+           const mainTsEl = document.getElementById('main-ts');
+           if (mainTsEl) {
+             mainTsEl.textContent = 'Updated: ' + tsStr;
+           }
+           const heroCardTs = document.getElementById('hero-card-ts');
+           if (heroCardTs) {
+             heroCardTs.textContent = 'Updated: ' + tsStr;
+           }
+          const ageHours = (Date.now() - tsDate.getTime()) / 3600000;
+          if (ageHours > 36) {
+            const warn = document.createElement('div');
+            warn.className = 'outdated-banner';
+            warn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px;"><path d="M12 9v4"/><path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0"/><path d="M12 16h.01"/></svg><strong>Data may be outdated</strong> (last updated ' + Math.round(ageHours) + 'h ago)';
+            warnContainer.appendChild(warn);
+          }
+        }
+      }
+
+      // Yesterday / 7-day average boxes
+      if(data.prev_day && data.prev_day.final_score != null)
+        setScore('s-yesterday', 'b-yesterday', data.prev_day.final_score);
+
+      let avg7d = null;
+      const validHistory = (data.score_history || []).filter(e => e.score != null);
+      if (validHistory.length > 0) {
+        const last7 = validHistory.slice(-7);
+        const sum = last7.reduce((acc, curr) => acc + curr.score, 0);
+        avg7d = Math.round(sum / last7.length);
+      }
+      if (avg7d != null) {
+        setScore('s-week', 'b-week', avg7d);
+      } else if (data.prev_week && data.prev_week.final_score != null) {
+        setScore('s-week', 'b-week', data.prev_week.final_score);
+      }
+
+      // Trend arrow inside main circle knob (above/below the score)
+      const ref = (data.prev_week && data.prev_week.final_score != null)
+        ? data.prev_week.final_score
+        : (data.prev_day && data.prev_day.final_score != null ? data.prev_day.final_score : null);
+      const tUpEl = document.getElementById('marker-trend-up');
+      const tDownEl = document.getElementById('marker-trend-down');
+      if(ref != null && data.final_score != null && tUpEl && tDownEl) {
+        const diff = data.final_score - ref;
+        if(diff > 0)       { tUpEl.textContent = '▲'; tDownEl.textContent = ''; }
+        else if(diff < 0)  { tUpEl.textContent = ''; tDownEl.textContent = '▼'; }
+        else               { tUpEl.textContent = ''; tDownEl.textContent = ''; }
+      } else {
+        if (tUpEl) tUpEl.textContent = '';
+        if (tDownEl) tDownEl.textContent = '';
+      }
+      
+      // Update main score values (numerical labels)
+      setScore('s-final', 'b-final', data.final_score);
+      setScore('s-oc',    'b-oc',    data.onchain_score);
+      setScore('s-tech',  'b-tech',  data.tech_score);
+
+      // Risk label helper (same thresholds as the main gauge)
+      const riskLabel = v => v == null ? {en:'—', ua:'—'}
+        : v <= 25 ? {en:'Low Risk',  ua:'Низький ризик'}
+        : v <= 60 ? {en:'Neutral',   ua:'Нейтрально'}
+        :           {en:'High Risk', ua:'Високий ризик'};
+      const setSubStatus = (id, v) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const L = riskLabel(v);
+        el.innerHTML = `<span class="en">${L.en}</span><span class="ua">${L.ua}</span>`;
+      };
+      setSubStatus('oc-status',        data.onchain_score);
+      setSubStatus('tech-status',      data.tech_score);
+      setSubStatus('yesterday-status', data.prev_day ? data.prev_day.final_score : null);
+      setSubStatus('week-status',      (avg7d != null) ? avg7d : (data.prev_week ? data.prev_week.final_score : null));
+
+      const finalVal = data.final_score;
+
+      // Update Modern Canvas Gauges
+      if (finalVal != null) {
+        // Status label
+        let modernStatusEn = finalVal <= 25 ? 'Low Risk'
+          : finalVal <= 60 ? 'Neutral'
+          : finalVal <= 75 ? 'High Risk' : 'High Risk';
+        let modernStatusUa = finalVal <= 25 ? 'Низький ризик'
+          : finalVal <= 60 ? 'Нейтрально'
+          : 'Високий ризик';
+
+        const mStatusEnEl = document.getElementById('modern-gauge-status-en');
+        const mStatusUaEl = document.getElementById('modern-gauge-status-ua');
+        if (mStatusEnEl) mStatusEnEl.textContent = modernStatusEn;
+        if (mStatusUaEl) mStatusUaEl.textContent = modernStatusUa;
+
+        // Crawlable SEO score line (text, readable by search engines)
+        const seoScore   = document.getElementById('seo-score');
+        const seoScoreUa = document.getElementById('seo-score-ua');
+        const seoStEn    = document.getElementById('seo-status-en');
+        const seoStUa    = document.getElementById('seo-status-ua');
+        if (seoScore)   seoScore.textContent   = finalVal;
+        if (seoScoreUa) seoScoreUa.textContent = finalVal;
+        if (seoStEn)    seoStEn.textContent    = modernStatusEn;
+        if (seoStUa)    seoStUa.textContent    = modernStatusUa;
+
+        const mBadgeEl = document.getElementById('modern-gauge-badge');
+        if (mBadgeEl) mBadgeEl.textContent = finalVal + ' / 100';
+
+        // Store values and draw all canvas gauges
+        window._gaugeValues = {
+          final:     finalVal,
+          onchain:   data.onchain_score,
+          tech:      data.tech_score,
+          yesterday: data.prev_day  ? data.prev_day.final_score  : null,
+          week:      (avg7d != null) ? avg7d : (data.prev_week ? data.prev_week.final_score : null),
+        };
+        redrawAllModernGauges();
+
+      }
+
+      // Custom Marker positioning and Category Label for Final Score
+      const marker = document.getElementById('risk-marker');
+      const finalLabelEl = document.getElementById('s-final-label');
+      if(marker && finalVal != null) {
+        marker.style.left = finalVal + '%';
+        
+        let lbl = 'Neutral';
+        let shortLbl = 'Neutral';
+        if(finalVal <= 20)      { lbl = 'Buy Zone'; shortLbl = 'Buy'; }
+        else if(finalVal <= 40) { lbl = 'Accumulate'; shortLbl = 'Accumulate'; }
+        else if(finalVal <= 60) { lbl = 'Neutral'; shortLbl = 'Neutral'; }
+        else if(finalVal <= 80) { lbl = 'Distribute'; shortLbl = 'Distribute'; }
+        else                    { lbl = 'Sell Zone'; shortLbl = 'Sell'; }
+        
+        const numEl = document.getElementById('marker-num');
+        const lblEl = document.getElementById('marker-lbl');
+        if (numEl) numEl.textContent = finalVal;
+        if (lblEl) lblEl.textContent = lbl;
+
+        if(finalLabelEl) {
+          finalLabelEl.textContent = lbl;
+        }
+      }
+
+      // Update the inline card price
+      const cardPrice = document.getElementById('hero-card-price');
+      if (cardPrice) {
+        cardPrice.textContent = data.btc_price ? '$' + data.btc_price.toLocaleString() : '\u2014';
+      }
+
+      // \u2500\u2500 Secret flip: populate the zone-price inversion + bind the click \u2500\u2500
+      (function () {
+        const zf = data.zone_forecast;
+        const fmtP = (p) => (p != null) ? '$' + Math.round(p).toLocaleString() : '\u2014';
+        const fmtPct = (v) => (v == null) ? '' : (v > 0 ? '+' : '') + Math.round(v) + '%';
+        const set = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
+        if (zf) {
+          set('zone-buy-price',  zf.buy  && zf.buy.price  ? fmtP(zf.buy.price)  : '\u2014');
+          set('zone-sell-price', zf.sell && zf.sell.price ? fmtP(zf.sell.price) : '\u2014');
+        }
+        const card = document.getElementById('main-card');
+        if (card && !card._flipBound) {
+          card._flipBound = true;
+          card.addEventListener('click', () => {
+            if (window.getSelection && String(window.getSelection()).length) return; // don't flip mid-selection
+            card.classList.toggle('flipped');
+          });
+        }
+      })();
+
+      // Read on-chain metrics values
+      const nupl  = mv('nupl');
+      const mvrv  = mv('mvrv');
+      const cvdd  = mv('cvdd_ratio');
+      const rhodl = mv('rhodl_ratio');
+      const asopr = mv('asopr');
+
+      setMetric('nupl',  mapNupl(nupl),   nupl  != null ? nupl.toFixed(2)+'%'  : null);
+      setMetric('mvrv',  mapMvrv(mvrv),   mvrv  != null ? mvrv.toFixed(4)       : null);
+      setMetric('cvdd',  mapCvdd(cvdd),   cvdd  != null ? cvdd.toFixed(4)       : null);
+      setMetric('rhodl', mapRhodl(rhodl), rhodl != null ? rhodl.toFixed(2)      : null);
+      setMetric('asopr', mapAsopr(asopr), asopr != null ? asopr.toFixed(3)      : null);
+
+
+      // Read tech/macro metrics values
+      const fr    = mv('funding_rate');
+      const cb    = mv('cipherb');
+      const mm    = mv('mayer_multiple');
+      const m2raw = mv('m2_mom') != null ? mv('m2_mom') : mv('m2');
+      const fg    = mv('fear_greed');
+      const fgLbl = (m['fear_greed']||{}).label || data.fear_greed_label || '';
+      const yc    = scalar(mv('yield_curve_spread')) != null ? scalar(mv('yield_curve_spread')) : scalar(mv('yield_curve'));
+
+      const cbScore  = mapCipherb(cb);
+      const mmScore  = mapMayerMultiple(mm);
+
+      setMetric('cipherb', cbScore,
+        cb ? (cb.daily_score !== undefined ?
+          `<span class="en">1w: ${cb.weekly_score!=null?cb.weekly_score.toFixed(0):'--'} &middot; 1d: ${cb.daily_score!=null?cb.daily_score.toFixed(0):'--'}</span>` +
+          `<span class="ua">1т: ${cb.weekly_score!=null?cb.weekly_score.toFixed(0):'--'} &middot; 1д: ${cb.daily_score!=null?cb.daily_score.toFixed(0):'--'}</span>`
+          :
+          `<span class="en">wt1=${cb.wt1!=null?cb.wt1.toFixed(1):'--'} &middot; score=${cb.weekly_score!=null?cb.weekly_score.toFixed(1):'--'}</span>` +
+          `<span class="ua">wt1=${cb.wt1!=null?cb.wt1.toFixed(1):'--'} &middot; бал=${cb.weekly_score!=null?cb.weekly_score.toFixed(1):'--'}</span>`
+        ) : null);
+      
+      const techDivBadge = document.getElementById('tech-div-badge');
+      if(techDivBadge && cb) {
+        if(cb.fast_bearish_div || cb.daily_fast_bearish_div) {
+          const type = cb.fast_bearish_div && cb.daily_fast_bearish_div ? '1w+1d' : (cb.fast_bearish_div ? '1w' : '1d');
+          techDivBadge.textContent = `▼ div (${type})`; 
+          techDivBadge.style.color = '#ef4444'; 
+          techDivBadge.style.background = 'rgba(239, 68, 68, 0.1)';
+          techDivBadge.style.border = '1px solid rgba(239, 68, 68, 0.2)';
+          techDivBadge.style.display = 'inline-block';
+        } else if(cb.fast_bullish_div || cb.daily_fast_bullish_div) {
+          const type = cb.fast_bullish_div && cb.daily_fast_bullish_div ? '1w+1d' : (cb.fast_bullish_div ? '1w' : '1d');
+          techDivBadge.textContent = `▲ div (${type})`; 
+          techDivBadge.style.color = '#10b981'; 
+          techDivBadge.style.background = 'rgba(16, 185, 129, 0.1)';
+          techDivBadge.style.border = '1px solid rgba(16, 185, 129, 0.2)';
+          techDivBadge.style.display = 'inline-block';
+        } else {
+          techDivBadge.style.display = 'none';
+        }
+      }
+      
+      setMetric('mayer', mmScore,
+        mm ? `<span class="en">val=${mm.value.toFixed(2)} &middot; 200DMA=$${Math.round(mm.dma_200).toLocaleString()}</span>` +
+             `<span class="ua">знач=${mm.value.toFixed(2)} &middot; 200DMA=$${Math.round(mm.dma_200).toLocaleString()}</span>` : null);
+      
+      // Spot ETF Flows
+      const etf = mv('etf_flows');
+      const etfScore = mapEtfFlow(etf);
+      const formatFlow = val => {
+        if (val == null) return '--';
+        const sign = val > 0 ? '+' : '';
+        return sign + '$' + Math.round(val).toLocaleString() + 'M';
+      };
+      const etfRaw = etf ? 
+        `<span class="en">14d: ${formatFlow(etf.value)} &middot; daily: ${formatFlow(etf.daily_flow)}</span>` +
+        `<span class="ua">14д: ${formatFlow(etf.value)} &middot; денний: ${formatFlow(etf.daily_flow)}</span>`
+        : null;
+      setMetric('etf', etfScore, etfRaw);
+
+      setMetric('m2',  mapM2(m2raw), m2raw != null ? m2raw.toFixed(2)+'%' : null);
+      
+      function translateFgLabel(lbl) {
+        if (!lbl) return '';
+        const map = {
+          'Extreme Fear': 'Екстремальний страх',
+          'Fear': 'Страх',
+          'Neutral': 'Нейтрально',
+          'Greed': 'Жадібність',
+          'Extreme Greed': 'Екстремальна жадібність'
+        };
+        return map[lbl] || lbl;
+      }
+      const fgAvg = fg != null && typeof fg === 'object' ? (fg.avg_7d != null ? fg.avg_7d : fg.latest) : fg;
+      const fgToday = fg != null && typeof fg === 'object' ? fg.latest : fg;
+      const fgRaw = fgAvg != null ? 
+        `<span class="en">avg7d=${fgAvg}${fgToday != null && fgToday !== fgAvg ? '  today=' + fgToday : ''}${fgLbl ? '  ' + fgLbl : ''}</span>` +
+        `<span class="ua">середній7д=${fgAvg}${fgToday != null && fgToday !== fgAvg ? '  сьогодні=' + fgToday : ''}${fgLbl ? '  ' + translateFgLabel(fgLbl) : ''}</span>`
+        : null;
+      setMetric('fg',  mapFG(fg), fgRaw);
+      setMetric('ry',  mapYieldCurve(yc), yc != null ? yc.toFixed(2)+'%' : null);
+      
+      const frScore = mapFunding(fr);
+      const frRaw = fr ? 
+        `<span class="en">avg7d=${fr.avg_7d!=null?fr.avg_7d.toFixed(4):'--'}% &middot; latest=${fr.latest!=null?fr.latest.toFixed(4):'--'}%</span>` +
+        `<span class="ua">середній7д=${fr.avg_7d!=null?fr.avg_7d.toFixed(4):'--'}% &middot; поточний=${fr.latest!=null?fr.latest.toFixed(4):'--'}%</span>`
+        : null;
+      setMetric('funding', frScore, frRaw);
+
+      // Tactical Highlights (Leverage extremes & capitulation)
+      const mainCard = document.getElementById('main-card');
+      const techCard = document.getElementById('tech-card');
+      const finalScoreEl = document.getElementById('s-final');
+      const markerDot = marker ? marker.querySelector('.risk-marker-dot') : null;
+      const mainBadge = document.getElementById('main-tactical-badge');
+      const techBadge = document.getElementById('tech-tactical-badge');
+
+      // Tactical mark: a small icon next to the score (no card glow, no badge).
+      // Buy  = bitcoin coin  (low index + negative funding = leverage capitulation)
+      // Heat = plain coin     (high index + crowded long funding); both bitcoin-orange
+      window.activeTacticalState = 'neutral';
+      window._tacticalSignal = null;   // 'buy' | 'overheat' | null — drawn on the modern gauge
+      const COIN_SVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M9 8h4.09c1.055 0 1.91 .895 1.91 2s-.855 2 -1.91 2c1.055 0 1.91 .895 1.91 2s-.855 2 -1.91 2h-4.09"/><path d="M10 12h4"/><path d="M10 7v10v-9"/><path d="M13 7v1"/><path d="M13 16v1"/></svg>';
+      const FLAME_SVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M14.8 9a2 2 0 0 0 -1.8 -1h-2a2 2 0 1 0 0 4h2a2 2 0 1 1 0 4h-2a2 2 0 0 1 -1.8 -1"/><path d="M12 7v10"/></svg>';
+      [mainBadge, techBadge].forEach(b => { if (b) { b.style.display = 'none'; b.className = 'tactical-badge'; b.removeAttribute('title'); } });
+      if (finalVal != null && fr && fr.latest != null) {
+        let icon = null, cls = null, tip = null;
+        if (finalVal <= 30 && fr.latest < 0) {
+          icon = COIN_SVG; cls = 'buy';
+          tip = 'Tactical buy: low index + negative funding (leverage capitulation) · Тактична купівля: низький індекс + відʼємний funding (капітуляція плеча)';
+        } else if (finalVal >= 50 && fr.latest >= 0.05) {
+          icon = FLAME_SVG; cls = 'overheat';
+          tip = 'Leverage overheat: high index + crowded long funding · Перегрів плеча: високий індекс + перегріті лонги';
+        }
+        if (icon) {
+          window._tacticalSignal = cls;   // for the canvas-drawn modern gauge
+          [mainBadge, techBadge].forEach(b => {
+            if (!b) return;
+            b.innerHTML = icon;
+            b.classList.add(cls);
+            b.title = tip;
+            b.style.display = 'inline-flex';
+          });
+        }
+      }
+
+      // Contradiction detection: warn if any indicator is in the opposite zone from the final score
+      if (finalVal != null) {
+        const allIndScores = [
+          mapRhodl(rhodl), mapMvrv(mvrv), mapCvdd(cvdd), mapNupl(nupl), mapAsopr(asopr),
+          cbScore, mmScore, etfScore, mapFG(fg), mapYieldCurve(yc), mapM2(m2raw)
+        ].filter(s => s != null);
+        const hasContra = allIndScores.some(s =>
+          (finalVal <= 40 && s >= 65) || (finalVal >= 60 && s <= 35)
+        );
+        document.getElementById('s-warn').style.display = hasContra ? 'inline-flex' : 'none';
+      }
+
+      // Per-subscore contradiction warnings
+      const ocScore = data.onchain_score;
+      if (ocScore != null) {
+        const ocInds = [mapRhodl(rhodl), mapMvrv(mvrv), mapCvdd(cvdd), mapNupl(nupl), mapAsopr(asopr)].filter(s => s != null);
+        const ocContra = ocInds.some(s => (ocScore < 65 && s >= 65) || (ocScore > 35 && s <= 35));
+        document.getElementById('oc-warn').style.display = ocContra ? 'inline' : 'none';
+      }
+      
+      const tcScore = data.tech_score;
+      if (tcScore != null) {
+        const tcInds = [cbScore, mmScore, etfScore, mapFG(fg), mapYieldCurve(yc), mapM2(m2raw)].filter(s => s != null);
+        const tcContra = tcInds.some(s => (tcScore < 65 && s >= 65) || (tcScore > 35 && s <= 35));
+        document.getElementById('tech-warn').style.display = tcContra ? 'inline' : 'none';
+      }
+
+      const dateStr = data.timestamp ? new Date(data.timestamp).toLocaleString(undefined, {
+        day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false
+      }) : '';
+      document.getElementById('footer').innerHTML = `
+        <span class="en">Source: data.json &middot; ${dateStr} &middot; <a href="https://github.com/heavymetalmax/BitcoinScore/discussions" target="_blank" rel="noopener" style="color:var(--index-color);text-decoration:none;font-weight:600;">Feedback &amp; suggestions on GitHub</a></span>
+        <span class="ua">Джерело: data.json &middot; ${dateStr} &middot; <a href="https://github.com/heavymetalmax/BitcoinScore/discussions" target="_blank" rel="noopener" style="color:var(--index-color);text-decoration:none;font-weight:600;">Відгуки та пропозиції на GitHub</a></span>
+      `;
+
+      // Initialize theme on load (sets button states)
+      updateThemeClass();
+
+      // Trigger lang update to apply tooltip translations
+      const bLang = (navigator.language || navigator.userLanguage || '').toLowerCase();
+      const defLang = bLang.startsWith('uk') || bLang.startsWith('ua') ? 'ua' : 'en';
+      setLang(localStorage.getItem('bbr-lang') || defLang);
+
+      _chartData = data;
+      
+      drawCharts(data);
+
+      // --- Setup Hover Event Listeners for Phone History Chart ---
+      const phoneCanvas = document.getElementById('phone-history-chart');
+      if (phoneCanvas) {
+        let activeHoverIndex = null;
+        
+        const onMouseMove = (e) => {
+          if (!phoneCanvas || !_chartData) return;
+          const rect = phoneCanvas.getBoundingClientRect();
+          const clientX = (e.touches && e.touches[0] ? e.touches[0].clientX : e.clientX);
+          const x = clientX - rect.left;
+          
+          const pts = (_chartData.score_history || []).filter(item => item.score != null);
+          if (pts.length < 2) return;
+          
+          const PAD_LEFT = 30;
+          const PAD_RIGHT = 10;
+          const cw = rect.width - PAD_LEFT - PAD_RIGHT;
+          
+          const relX = (x - PAD_LEFT) / cw;
+          const index = Math.max(0, Math.min(pts.length - 1, Math.round(relX * (pts.length - 1))));
+          
+          if (index !== activeHoverIndex) {
+            activeHoverIndex = index;
+            drawPhoneHistoryChart(_chartData, activeHoverIndex);
+            
+            const changeEl = document.getElementById('phone-change-badge');
+            if (changeEl) {
+              const pt = pts[index];
+              const dateStr = new Date(pt.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+              const scoreVal = pt.score.toFixed(1);
+              changeEl.innerHTML = `
+                <span>${dateStr} &middot; <strong>${scoreVal} pts</strong></span>
+              `;
+            }
+          }
+        };
+        
+        const onMouseLeave = () => {
+          activeHoverIndex = null;
+          if (_chartData) {
+            drawPhoneHistoryChart(_chartData, null);
+            
+            const finalVal = _chartData.final_score;
+            const changeEl = document.getElementById('phone-change-badge');
+            if (changeEl && _chartData.prev_day && _chartData.prev_day.final_score != null) {
+              const diff = finalVal - _chartData.prev_day.final_score;
+              const diffStr = (diff >= 0 ? '+' : '') + diff.toFixed(1);
+              let trendEn = 'Stable';
+              let trendUa = 'Стабільний';
+              if (Math.abs(diff) > 1.5) {
+                if (diff > 0) {
+                  trendEn = 'Rising';
+                  trendUa = 'Зростає';
+                } else {
+                  trendEn = 'Falling';
+                  trendUa = 'Спадає';
+                }
+              }
+              changeEl.innerHTML = `
+                <span class="en">DAILY CHANGE: ${diffStr} pts (${trendEn})</span>
+                <span class="ua">ДЕННА ЗМІНА: ${diffStr} балів (${trendUa})</span>
+              `;
+            }
+          }
+        };
+
+        phoneCanvas.addEventListener('mousemove', onMouseMove);
+        phoneCanvas.addEventListener('mouseleave', onMouseLeave);
+        phoneCanvas.addEventListener('touchstart', onMouseMove);
+        phoneCanvas.addEventListener('touchmove', onMouseMove);
+        phoneCanvas.addEventListener('touchend', onMouseLeave);
+      }
+
+      updateCountdown();
+      setInterval(updateCountdown, 1000);
+    }
+
+    let _chartData = null;
+
+    window.addEventListener('resize', () => {
+      if (_chartData) drawCharts(_chartData);
+      redrawAllModernGauges();
+    });
+
+    function drawCharts(data, hoverIndex) {
+      const canvas = document.getElementById('history-chart');
+      if (!canvas) return;
+
+      const pts = (data.score_history || []).filter(e => e.score != null);
+      if(pts.length < 2) return;
+
+      const isDark = !document.documentElement.classList.contains('theme-light');
+      const bg    = 'rgba(0,0,0,0)'; // transparent canvas area
+      const grid  = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)';
+      const textC = isDark ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.5)';
+
+      const dpr = window.devicePixelRatio || 1;
+      const isMobile = window.innerWidth <= 768;
+      const parent = canvas.parentElement;
+      const pStyle = window.getComputedStyle(parent);
+      const pLeft  = parseFloat(pStyle.paddingLeft) || 0;
+      const pRight = parseFloat(pStyle.paddingRight) || 0;
+      const W      = (parent.clientWidth - pLeft - pRight) || 600;
+      const H   = isMobile ? Math.round(W * 9 / 16) : 220;
+      canvas.width  = W * dpr;
+      canvas.height = H * dpr;
+      canvas.style.width = W + 'px';
+      canvas.style.height = H + 'px';
+      const ctx = canvas.getContext('2d');
+      ctx.scale(dpr, dpr);
+
+      // Left margin for BTC Price labels, right margin for Risk Score labels
+      const PAD = { top: 16, bottom: 28, left: 48, right: 40 };
+      const cw  = W - PAD.left - PAD.right;
+      const ch  = H - PAD.top  - PAD.bottom;
+
+      // Price bounds
+      const ppts = pts.filter(e => e.price != null);
+      let pMin = 0, pMax = 100000;
+      if (ppts.length >= 2) {
+        const prices = ppts.map(e => e.price);
+        pMin = Math.min(...prices);
+        pMax = Math.max(...prices);
+      }
+      const pad  = (pMax - pMin) * 0.05 || pMin * 0.02;
+      const yMinPrice = pMin - pad;
+      const yMaxPrice = pMax + pad;
+
+      const toYScore = v => PAD.top + ch - (v / 100) * ch;
+      const toYPrice = p => PAD.top + ch - ((p - yMinPrice) / (yMaxPrice - yMinPrice)) * ch;
+
+      // Line colours — defined early so grid labels can reference them
+      const isModernChart = true;
+      const priceLineCol  = isModernChart ? (isDark ? '#6b7280' : '#9ca3af') : '#10b981';
+
+      // Clear the canvas
+      ctx.clearRect(0, 0, W, H);
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, W, H);
+
+      // Grid lines & labels (based on Risk Score scale: 0, 25, 50, 75, 100)
+      const gridVals = [0, 25, 50, 75, 100];
+      gridVals.forEach(v => {
+        const y = toYScore(v);
+        
+        // Draw grid lines for internal values (25, 50, 75)
+        if (v > 0 && v < 100) {
+          ctx.strokeStyle = grid; 
+          ctx.lineWidth = 1;
+          ctx.beginPath(); 
+          ctx.moveTo(PAD.left, y); 
+          ctx.lineTo(W - PAD.right, y); 
+          ctx.stroke();
+        }
+        
+        // Left Y-axis: Price labels — use BTC price line colour
+        const priceVal = yMinPrice + (v / 100) * (yMaxPrice - yMinPrice);
+        const priceText = '$' + Math.round(priceVal / 100) / 10 + 'k';
+        ctx.fillStyle = priceLineCol;
+        ctx.font = '600 11px Outfit, sans-serif';
+        ctx.textAlign = 'right';
+        ctx.fillText(priceText, PAD.left - 8, y + 4);
+
+        // Right Y-axis: Risk Score labels — orange to match the line
+        ctx.fillStyle = '#f7931a';
+        ctx.font = '600 11px Outfit, sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText(v, W - PAD.right + 8, y + 4);
+      });
+
+      // 1. Draw Risk Score Fill & Line (Orange)
+      const gradScore = ctx.createLinearGradient(0, PAD.top, 0, PAD.top + ch);
+      gradScore.addColorStop(0, 'rgba(247, 147, 26, 0.18)');
+      gradScore.addColorStop(1, 'rgba(247, 147, 26, 0.005)');
+
+      ctx.beginPath();
+      pts.forEach((e, i) => {
+        const x = PAD.left + (i / (pts.length - 1)) * cw;
+        const y = toYScore(e.score);
+        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      });
+      ctx.lineTo(PAD.left + cw, PAD.top + ch);
+      ctx.lineTo(PAD.left, PAD.top + ch);
+      ctx.closePath();
+      ctx.fillStyle = gradScore; 
+      ctx.fill();
+
+      // Glowing Neon Line for Score
+      ctx.beginPath();
+      pts.forEach((e, i) => {
+        const x = PAD.left + (i / (pts.length - 1)) * cw;
+        const y = toYScore(e.score);
+        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      });
+      ctx.strokeStyle = '#f7931a'; 
+      ctx.lineWidth = 2.5;
+      ctx.shadowColor = '#f7931a';
+      ctx.shadowBlur = 8;
+      ctx.stroke();
+      ctx.shadowBlur = 0; // Reset shadow
+
+      // 2. Draw BTC Price Line — gray in Modern mode, green in Classic
+
+      // Update legend colour to match
+      const legendEl  = document.getElementById('btc-price-legend');
+      const legendDot = document.getElementById('btc-price-legend-dot');
+      if (legendEl)  legendEl.style.color = priceLineCol;
+      if (legendDot) {
+        legendDot.style.background = priceLineCol;
+        legendDot.style.boxShadow  = isModernChart ? 'none' : `0 0 6px ${priceLineCol}`;
+      }
+      ctx.beginPath();
+      pts.forEach((e, i) => {
+        const x = PAD.left + (i / (pts.length - 1)) * cw;
+        const y = toYPrice(e.price != null ? e.price : yMinPrice);
+        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      });
+      ctx.strokeStyle = priceLineCol;
+      ctx.lineWidth = 2;
+      ctx.shadowColor = priceLineCol;
+      ctx.shadowBlur = isModernChart ? 0 : 8;
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+
+      // X-axis Dates
+      [0, Math.floor((pts.length - 1) / 2), pts.length - 1].forEach(i => {
+        const x = PAD.left + (i / (pts.length - 1)) * cw;
+        ctx.fillStyle = textC;
+        ctx.font = '500 11px Outfit, sans-serif';
+        ctx.textAlign = i === 0 ? 'left' : (i === pts.length - 1 ? 'right' : 'center');
+        ctx.fillText(pts[i].date.slice(5), x, H - 6);
+      });
+
+      // ── Hover crosshair: vertical line + value badges at the curve crossings ──
+      if (hoverIndex != null && hoverIndex >= 0 && hoverIndex < pts.length) {
+        const e  = pts[hoverIndex];
+        const x  = PAD.left + (hoverIndex / (pts.length - 1)) * cw;
+        const yScore = toYScore(e.score);
+        const hasPrice = e.price != null;
+        const yPrice = toYPrice(hasPrice ? e.price : yMinPrice);
+        const dotEdge = isDark ? '#0d0f18' : '#ffffff';
+
+        // vertical dashed line
+        ctx.strokeStyle = isDark ? 'rgba(255,255,255,0.28)' : 'rgba(0,0,0,0.22)';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([4, 4]);
+        ctx.beginPath(); ctx.moveTo(x, PAD.top); ctx.lineTo(x, PAD.top + ch); ctx.stroke();
+        ctx.setLineDash([]);
+
+        // date label at top
+        ctx.fillStyle = textC;
+        ctx.font = '600 10px Outfit, sans-serif';
+        ctx.textAlign = (x > W - PAD.right - 40) ? 'right' : (x < PAD.left + 40 ? 'left' : 'center');
+        ctx.fillText(e.date.slice(5), x, PAD.top - 4);
+
+        // intersection dots
+        const dot = (yy, col) => {
+          ctx.beginPath(); ctx.arc(x, yy, 4, 0, Math.PI * 2);
+          ctx.fillStyle = col; ctx.fill();
+          ctx.lineWidth = 2; ctx.strokeStyle = dotEdge; ctx.stroke();
+        };
+        if (hasPrice) dot(yPrice, priceLineCol);
+        dot(yScore, '#f7931a');
+
+        // value badges — stacked vertically so they never overlap;
+        // the higher point sits on top, ties give the index priority.
+        ctx.font = '700 11px Outfit, sans-serif';
+        const padX = 6, bh = 18, gap = 5;
+        const badges = [
+          // rank 0 = index (wins ties → drawn on top)
+          { text: Math.round(e.score) + ' / 100', y: yScore, col: '#f7931a', rank: 0 }
+        ];
+        if (hasPrice) badges.push({ text: '$' + Math.round(e.price).toLocaleString(), y: yPrice, col: priceLineCol, rank: 1 });
+        badges.forEach(b => { b.w = ctx.measureText(b.text).width + padX * 2; });
+
+        // choose a single side (right, or flip left near the right edge)
+        const maxW = Math.max(...badges.map(b => b.w));
+        const side = (x + 9 + maxW > W - PAD.right) ? -1 : 1;
+
+        // assign non-overlapping centre Y values
+        if (badges.length === 2) {
+          let [a, c] = badges;
+          let top, bot;
+          const TIE = 6; // points within ~6px = "same place" → index on top
+          if (Math.abs(a.y - c.y) <= TIE) {
+            if (a.rank < c.rank) { top = a; bot = c; } else { top = c; bot = a; }
+          } else if (a.y < c.y) { top = a; bot = c; }
+          else { top = c; bot = a; }
+          let topC = top.y, botC = bot.y;
+          const minSep = bh + gap;
+          if (botC - topC < minSep) {
+            const mid = (top.y + bot.y) / 2;
+            topC = mid - minSep / 2;
+            botC = mid + minSep / 2;
+          }
+          top.cy = topC; bot.cy = botC;
+        } else {
+          badges[0].cy = badges[0].y;
+        }
+
+        badges.forEach(b => {
+          const by = Math.max(PAD.top, Math.min(PAD.top + ch - bh, b.cy - bh / 2));
+          const bx = side === 1 ? x + 9 : x - 9 - b.w;
+          ctx.beginPath();
+          if (ctx.roundRect) ctx.roundRect(bx, by, b.w, bh, 5);
+          else ctx.rect(bx, by, b.w, bh);
+          ctx.fillStyle = isDark ? '#1c2030' : '#ffffff';
+          ctx.fill();
+          ctx.lineWidth = 1; ctx.strokeStyle = b.col; ctx.stroke();
+          ctx.fillStyle = b.col; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+          ctx.fillText(b.text, bx + padX, by + bh / 2);
+          ctx.textBaseline = 'alphabetic';
+        });
+      }
+
+      // ── Bind hover listeners once ──
+      if (!canvas._hoverBound) {
+        canvas._hoverBound = true;
+        const idxFromEvent = (ev) => {
+          const rect = canvas.getBoundingClientRect();
+          const clientX = (ev.touches && ev.touches[0]) ? ev.touches[0].clientX : ev.clientX;
+          const mx = clientX - rect.left;
+          const p = (_chartData && _chartData.score_history || []).filter(d => d.score != null);
+          if (p.length < 2) return null;
+          const cwid = rect.width - PAD.left - PAD.right;
+          const rel = (mx - PAD.left) / cwid;
+          return Math.max(0, Math.min(p.length - 1, Math.round(rel * (p.length - 1))));
+        };
+        const onMove = (ev) => {
+          if (!_chartData) return;
+          const idx = idxFromEvent(ev);
+          if (idx != null && idx !== canvas._hoverIdx) {
+            canvas._hoverIdx = idx;
+            drawCharts(_chartData, idx);
+          }
+          if (ev.cancelable && ev.type.startsWith('touch')) ev.preventDefault();
+        };
+        const onLeave = () => {
+          canvas._hoverIdx = null;
+          if (_chartData) drawCharts(_chartData, null);
+        };
+        canvas.addEventListener('mousemove', onMove);
+        canvas.addEventListener('mouseleave', onLeave);
+        canvas.addEventListener('touchstart', onMove, { passive: false });
+        canvas.addEventListener('touchmove', onMove, { passive: false });
+        canvas.addEventListener('touchend', onLeave);
+      }
+    }
+
+    init();
+
+    // ── Full-Screen Canvas Candlestick Waves Animation ─────────────────
+    class CandleWave {
+      constructor(baseYRatio, speed, waveFreq, amp, driftAmp) {
+        this.baseYRatio = baseYRatio;
+        this.speed = speed;
+        this.waveFreq = waveFreq;
+        this.amp = amp;
+        this.driftAmp = driftAmp;
+        this.time = Math.random() * 100;
+        this.spacing = 26; 
+        this.width = 10; 
+      }
+      
+      update() {
+        this.time += this.speed;
+      }
+      
+      draw(ctx, w, h, activeState) {
+        this.update();
+        ctx.save();
+        
+        // Calculate the slowly drifting base Y coordinate
+        const drift = Math.sin(this.time * 0.2) * this.driftAmp;
+        const baseY = h * (this.baseYRatio + drift);
+        const candleCount = Math.ceil(w / this.spacing);
+        
+        for (let i = 0; i < candleCount; i++) {
+          const x = i * this.spacing + this.spacing / 2;
+          
+          // 1. Wave contour (local sine wave curve)
+          const waveNoise1 = Math.sin(x * this.waveFreq + this.time * 0.4);
+          const waveNoise2 = Math.cos(x * this.waveFreq * 2.2 - this.time * 0.2);
+          const waveY = baseY + (waveNoise1 * this.amp) + (waveNoise2 * (this.amp * 0.3));
+          
+          // 2. Candle body grows/shrinks dynamically on the fly
+          const tOpen = Math.sin(x * 0.05 + this.time * 0.6) * 14;
+          const tClose = Math.cos(x * 0.07 - this.time * 0.5) * 14;
+          
+          const openY = waveY + tOpen;
+          const closeY = waveY + tClose;
+          
+          const isGreen = closeY < openY;
+          
+          const highY = Math.min(openY, closeY) - 3 - Math.abs(Math.sin(x * 0.12 + this.time * 0.8)) * 8;
+          const lowY = Math.max(openY, closeY) + 3 + Math.abs(Math.cos(x * 0.15 - this.time * 0.7)) * 8;
+          
+          // 3. Solid, crisp glow opacity for dark mode
+          let alpha = 0.09;
+          
+          if (alpha <= 0) continue;
+          
+          // Light mode opacity scaling
+          const isLightMode = document.documentElement.classList.contains('theme-light');
+          if (isLightMode) {
+            alpha *= 0.65; 
+          }
+          
+          let colorStr;
+          if (activeState === 'tactical-buy') {
+            colorStr = `rgba(16, 185, 129, ${alpha})`;
+          } else if (activeState === 'tactical-overheat') {
+            colorStr = `rgba(239, 68, 68, ${alpha})`;
+          } else {
+            colorStr = isGreen ? `rgba(16, 185, 129, ${alpha})` : `rgba(239, 68, 68, ${alpha})`;
+          }
+          
+          ctx.strokeStyle = colorStr;
+          ctx.fillStyle = colorStr;
+          ctx.lineWidth = 1.5;
+          
+          // Draw wick
+          ctx.beginPath();
+          ctx.moveTo(x, highY);
+          ctx.lineTo(x, lowY);
+          ctx.stroke();
+          
+          // Draw body
+          const rx = x - this.width / 2;
+          const ry = Math.min(openY, closeY);
+          const rHeight = Math.max(2, Math.abs(closeY - openY));
+          ctx.beginPath();
+          ctx.roundRect(rx, ry, this.width, rHeight, 1.5);
+          ctx.fill();
+        }
+        ctx.restore();
+      }
+    }
+
+    const canvas = document.getElementById('bg-canvas');
+    if (canvas) {
+      const ctx = canvas.getContext('2d');
+      let w, h;
+      const waves = [];
+      let lastWidth = window.innerWidth;
+      let lastHeight = window.innerHeight;
+
+      function resizeCanvas() {
+        const currentWidth = window.innerWidth;
+        const currentHeight = window.innerHeight;
+        
+        // Only resize if width changed or height changed significantly (e.g. orientation shift)
+        if (Math.abs(currentHeight - lastHeight) < 100 && currentWidth === lastWidth) {
+          return;
+        }
+        
+        lastWidth = currentWidth;
+        lastHeight = currentHeight;
+
+        const dpr = window.devicePixelRatio || 1;
+        w = currentWidth;
+        h = currentHeight;
+        canvas.width = w * dpr;
+        canvas.height = h * dpr;
+        ctx.scale(dpr, dpr);
+      }
+
+      waves.push(new CandleWave(0.28, 0.008, 0.002, 50, 0.08));
+      waves.push(new CandleWave(0.53, 0.010, 0.003, 60, 0.12));
+      waves.push(new CandleWave(0.78, 0.006, 0.0018, 50, 0.09));
+
+      window.addEventListener('resize', resizeCanvas);
+      resizeCanvas();
+
+      function animate() {
+        ctx.clearRect(0, 0, w, h);
+        const state = window.activeTacticalState || 'neutral';
+        
+        for (let wave of waves) {
+          wave.draw(ctx, w, h, state);
+        }
+        
+        requestAnimationFrame(animate);
+      }
+      animate();
+    }
+  </script>
+  <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "2512d38212e24b948b0c4fb20bef5125"}'></script><!-- End Cloudflare Web Analytics -->
+</body>
+</html>
