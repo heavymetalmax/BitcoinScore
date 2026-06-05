@@ -2512,16 +2512,8 @@ html.style-modern .score-box .s-sub {
         ctx.stroke();
       }
 
-      // ── 5. Score number — only on sub-gauges (main card shows HTML number) ──
-      const numY = cy - R_in * (isSmall ? 0.34 : 0.32);
+      const numY   = cy - R_in * (isSmall ? 0.34 : 0.32);
       const numStr = String(Math.round(value));
-      if (isSmall) {
-        ctx.fillStyle    = NUM_COL;
-        ctx.textAlign    = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.font = `800 24px Outfit, sans-serif`;
-        ctx.fillText(numStr, cx, numY);
-      }
 
       // ── 6. Warning icon — drawn to the left of the number ─────────────────
       if (showWarn) {
