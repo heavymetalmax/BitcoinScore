@@ -79,11 +79,13 @@
       background: #000; /* fallback before wallpaper loads */
     }
     body {
-      /* overflow:hidden prevents scroll; min-height:100lvh (large viewport = toolbar-hidden height)
-         makes body taller than the visual viewport so its background extends behind Safari toolbar */
+      /* position:relative makes body the containing block for the absolute wallpaper-container,
+         so the wallpaper can extend to 100lvh (covering the Safari toolbar area).
+         overflow:hidden prevents scroll. min-height:100lvh gives body full rendered height. */
+      position: relative;
       overflow: hidden;
       min-height: 100lvh;
-      background: #000 url('wallpaper-real.jpg') no-repeat top center / cover;
+      background: #000; /* wallpaper-container covers everything — no image needed on body */
       font-family: 'Inter', -apple-system, sans-serif;
       color: var(--text);
       user-select: none;
@@ -111,26 +113,25 @@
     }
 
     .wallpaper-floor {
-      /* Fills the gap between 100svh and 100lvh — exactly where the Safari toolbar sits.
-         This in-flow block makes the body background (wallpaper) render behind the toolbar.
-         The gradient matches .wallpaper-overlay so the toolbar area looks like the rest of the wallpaper. */
+      /* Height spacer: keeps body at 100lvh so the absolute wallpaper-container reaches
+         the toolbar area. No background needed — wallpaper-container covers this zone. */
       width: 100%;
       height: calc(100lvh - 100svh);
       min-height: 40px;
       pointer-events: none;
       flex-shrink: 0;
-      background: linear-gradient(to bottom,
-        rgba(6, 6, 8, 0.75) 0%,
-        rgba(6, 6, 8, 0.55) 100%
-      );
     }
 
     .wallpaper-container {
-      position: fixed;
-      top: calc(-1 * env(safe-area-inset-top, 20px));
+      /* Do NOT revert to position:fixed — fixed stops at 100svh (visual viewport bottom)
+         and leaves the Safari toolbar area uncovered. position:absolute within the
+         position:relative body extends the wallpaper all the way to 100lvh (toolbar bottom),
+         showing the same image + overlays behind the toolbar as in the main content area. */
+      position: absolute;
+      top: 0;
       left: 0;
       right: 0;
-      bottom: calc(-1 * env(safe-area-inset-bottom, 34px));
+      bottom: 0;
       z-index: 1;
       overflow: hidden;
       pointer-events: none;
@@ -1587,7 +1588,6 @@
       const localFile = wpType === 'abstract' ? 'wallpaper-abstract.jpg' : 'wallpaper-real.jpg';
       function applyWallpaper(url) {
         bg.style.backgroundImage = `url('${url}')`;
-        document.body.style.backgroundImage = `url('${url}')`;
       }
 
       const img = new Image();
