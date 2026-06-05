@@ -78,7 +78,7 @@
       background: #000;
     }
     body {
-      min-height: 100vh;
+      min-height: 100lvh;
       background: #000 url('wallpaper-real.jpg') no-repeat center / cover;
       font-family: 'Inter', -apple-system, sans-serif;
       color: var(--text);
@@ -1102,8 +1102,9 @@
 <body class="lang-en">
 
   <!-- Interactive Background Wallpaper (Depth effect layers) -->
-  <!-- Gives body a real rendered height so its background paints behind the Safari toolbar -->
-  <div aria-hidden="true" style="height:100vh;height:100dvh;width:0;pointer-events:none;"></div>
+  <!-- body anchor: height:100lvh makes body taller than visual viewport,
+       so the background slides under the Safari toolbar (~82px gap) -->
+  <div aria-hidden="true" style="height:100lvh;width:0;pointer-events:none;"></div>
 
   <div class="wallpaper-container">
     <div class="wallpaper-bg" id="wallpaper-bg"></div>
