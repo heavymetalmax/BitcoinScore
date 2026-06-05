@@ -74,6 +74,18 @@
       background-image: none !important;
     }
 
+    /* Dim hardcoded gradient-text elements in night mode */
+    html.mode-night .display-score,
+    html.mode-night .history-value,
+    html.mode-night .sub-value {
+      background: linear-gradient(180deg, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0.48) 100%);
+      filter: drop-shadow(0 2px 8px rgba(255,255,255,0.1));
+    }
+    html.mode-night .alert-svg {
+      background: linear-gradient(180deg, rgba(255,255,255,0.6) 20%, rgba(255,255,255,0.21) 100%);
+      filter: none;
+    }
+
     * {
       box-sizing: border-box;
       margin: 0;
