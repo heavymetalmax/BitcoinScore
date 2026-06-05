@@ -2299,16 +2299,17 @@ html.style-modern .score-box .s-sub {
       if (!canvas || value == null) return;
       const isDark = !document.documentElement.classList.contains('theme-light');
 
-      // bright zone colours left→right (темносірий…помаранчевий)
+      // Neobrutalism zone colours — flat, high contrast
       const ZONE_BRIGHT = isDark
-        ? ['#8892a4', '#b0baca', '#d4d8df', '#fbbf24', '#f7931a']  // brighter on dark bg
-        : ['#374151', '#6b7280', '#c8cdd4', '#fdba74', '#f7931a'];
-      const ZONE_DIM = ZONE_BRIGHT;   // no dimming — all zones show at full colour
-      const RIM_COL      = '#f7931a';                       // always max orange
+        ? ['#2a2a2a', '#444444', '#777777', '#fbbf24', '#f7931a']
+        : ['#DDDDDD', '#AAAAAA', '#666666', '#fbbf24', '#f7931a'];
+      const ZONE_DIM = ZONE_BRIGHT;
+      const RIM_COL      = '#f7931a';
       const RIM_GAP      = isSmall ? 2 : 3;
-      const TICK_BND_COL = isDark ? '#4a5470' : '#c8cdd4';
-      const TICK_CUR_COL = '#f7931a';                        // always max orange
-      const NUM_COL      = isDark ? '#8892a4' : '#374151';  // darkest gauge segment
+      const TICK_BND_COL = isDark ? '#EEEEEE' : '#0A0A0A';
+      const TICK_CUR_COL = '#f7931a';
+      const NUM_COL      = isDark ? '#EEEEEE' : '#0A0A0A';
+      const SEG_BORDER   = isDark ? '#0A0A0A' : '#0A0A0A';
 
       const dpr    = window.devicePixelRatio || 1;
       const maxW   = isSmall ? 180 : 320;
@@ -2330,7 +2331,7 @@ html.style-modern .score-box .s-sub {
       const cx     = W / 2;
       const cy     = H;
       const R_out  = Math.min(W * 0.46, H - (isSmall ? 10 : 14));
-      const ringW  = isSmall ? 13 : 22;
+      const ringW  = isSmall ? 17 : 28;
       const R_in   = R_out - ringW;
 
       // helper: canvas angle for risk value v (0→π left, 100→2π right)
@@ -2346,6 +2347,9 @@ html.style-modern .score-box .s-sub {
         ctx.closePath();
         ctx.fillStyle = ZONE_BRIGHT[i];
         ctx.fill();
+        ctx.strokeStyle = SEG_BORDER;
+        ctx.lineWidth = isSmall ? 1.5 : 2.5;
+        ctx.stroke();
       }
 
       // ── 2. Parallel arc outlines on filled portion (0 → value) ──────────
@@ -2392,7 +2396,7 @@ html.style-modern .score-box .s-sub {
       ctx.fillStyle    = NUM_COL;
       ctx.textAlign    = 'center';
       ctx.textBaseline = 'middle';
-      ctx.font = `800 ${isSmall ? '24px' : '50px'} Outfit, sans-serif`;
+      ctx.font = `900 ${isSmall ? '26px' : '54px'} Outfit, sans-serif`;
       ctx.fillText(numStr, cx, numY);
 
       // ── 6. Warning icon — drawn to the left of the number ─────────────────
@@ -2440,7 +2444,7 @@ html.style-modern .score-box .s-sub {
       // ── 7. Tactical mark — coin to the LEFT of the number (where the alert sits) ──
       // buy = bitcoin coin, overheat = plain coin; both bitcoin-orange
       if (tactical) {
-        ctx.font = `800 ${isSmall ? '24px' : '50px'} Outfit, sans-serif`;
+        ctx.font = `900 ${isSmall ? '26px' : '54px'} Outfit, sans-serif`;
         const numW2 = ctx.measureText(numStr).width;
         const iSz   = isSmall ? 14 : 20;
         const gap   = isSmall ? 4 : 6;
