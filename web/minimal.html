@@ -216,6 +216,24 @@
       font-weight: 700;
     }
 
+    .status-sep {
+      opacity: 0.4;
+      font-size: 0.6rem;
+    }
+
+    .status-reload {
+      background: none;
+      border: none;
+      padding: 0;
+      color: var(--text-mute);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      opacity: 0.7;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .status-reload:active { opacity: 0.4; }
+
     .status-dot {
       width: 6px;
       height: 6px;
@@ -1141,6 +1159,11 @@
       <div class="status-left">
         <span class="status-dot" id="status-health-dot"></span>
         <span id="hero-card-ts">—</span>
+        <span class="status-sep">•</span>
+        <button class="status-reload" onclick="location.reload()" title="Reload">
+          <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11A8.1 8.1 0 0 0 4.5 9M4 5v4h4"/><path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"/></svg>
+        </button>
+        <span id="hero-card-countdown">—</span>
       </div>
       <div class="status-right" id="hero-card-price">
         —
@@ -1836,9 +1859,7 @@
       const h = Math.floor(diffSecs / 3600);
       const m = Math.floor((diffSecs % 3600) / 60);
       const pad = n => String(n).padStart(2, '0');
-      el.innerHTML =
-        `<span class="en">· next in: ${pad(h)}<span class="blink-colon">:</span>${pad(m)}</span>` +
-        `<span class="ua">· наступне за: ${pad(h)}<span class="blink-colon">:</span>${pad(m)}</span>`;
+      el.innerHTML = `${pad(h)}<span class="blink-colon">:</span>${pad(m)}`;
     }
 
     async function init() {
@@ -1874,6 +1895,7 @@
         const d = tsDate, pad = n => String(n).padStart(2, '0');
         const tsStr = `${pad(d.getDate())}.${pad(d.getMonth()+1)}.${String(d.getFullYear()).slice(-2)} · ${pad(d.getHours())}:${pad(d.getMinutes())}`;
         document.getElementById('hero-card-ts').textContent = tsStr;
+        updateCountdown();
       }
 
       const priceVal = data.btc_price ?? data.price_usd;
