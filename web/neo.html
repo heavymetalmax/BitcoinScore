@@ -244,6 +244,33 @@ html.style-modern .hero-title-area {
   justify-content: flex-start;
   text-align: left;
 }
+html.style-modern .hero-top-row {
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+html.style-modern .hero-status-area {
+  align-items: flex-start;
+  justify-content: flex-end;
+  flex-shrink: 0;
+}
+html.style-modern .hero-score-val {
+  display: block;
+  font-size: 5.5rem;
+  font-weight: 900;
+  line-height: 0.85;
+  letter-spacing: -0.04em;
+  color: #0A0A0A;
+}
+html.style-modern.theme-dark .hero-score-val {
+  color: #EEEEEE;
+}
+html.style-modern #s-final-label,
+html.style-modern #main-tactical-badge,
+html.style-modern #s-warn {
+  display: none !important;
+}
 html.style-modern .score-box .s-sub {
   font-weight: 700;
 }
