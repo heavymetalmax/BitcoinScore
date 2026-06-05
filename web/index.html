@@ -2262,16 +2262,12 @@
       if (!canvas || value == null) return;
       const isDark = !document.documentElement.classList.contains('theme-light');
 
-      // bright zone colours left→right (темносірий…помаранчевий)
       const ZONE_BRIGHT = isDark
-        ? ['#8892a4', '#b0baca', '#d4d8df', '#fbbf24', '#f7931a']  // brighter on dark bg
-        : ['#374151', '#6b7280', '#c8cdd4', '#fdba74', '#f7931a'];
-      const ZONE_DIM = ZONE_BRIGHT;   // no dimming — all zones show at full colour
-      const RIM_COL      = '#f7931a';                       // always max orange
-      const RIM_GAP      = isSmall ? 2 : 3;
-      const TICK_BND_COL = isDark ? '#4a5470' : '#c8cdd4';
-      const TICK_CUR_COL = '#f7931a';                        // always max orange
-      const NUM_COL      = isDark ? '#8892a4' : '#374151';  // darkest gauge segment
+        ? ['#2a2a2a', '#444444', '#777777', '#fbbf24', '#f7931a']
+        : ['#DDDDDD', '#AAAAAA', '#666666', '#fbbf24', '#f7931a'];
+      const SEG_BORDER   = isDark ? '#0A0A0A' : '#0A0A0A';
+      const TICK_CUR_COL = '#f7931a';
+      const NUM_COL      = isDark ? '#EEEEEE' : '#0A0A0A';
 
       const dpr    = window.devicePixelRatio || 1;
       const maxW   = isSmall ? 180 : 320;
@@ -2299,53 +2295,78 @@
       // helper: canvas angle for risk value v (0→π left, 100→2π right)
       const toAngle = v => Math.PI + (v / 100) * Math.PI;
 
-      // ── 1. Draw 5 continuous zone segments (no gaps) ─────────────────────
-      for (let i = 0; i < 5; i++) {
-        const a0 = toAngle(i * 20);
-        const a1 = toAngle((i + 1) * 20);
+      // ── 1. Dots along arc ────────────────────────────────────────────────
+      const NUM_DOTS  = isSmall ? 20 : 26;
+      const dotR      = isSmall ? Math.floor(ringW * 0.36) : Math.floor(ringW * 0.34);
+      const arcR      = (R_out + R_in) / 2;
+      const activeIdx = Math.round((value / 100) * (NUM_DOTS - 1));
+
+      for (let i = 0; i < NUM_DOTS; i++) {
+        const t        = i / (NUM_DOTS - 1);
+        const angle    = Math.PI + t * Math.PI;
+        const dx       = cx + arcR * Math.cos(angle);
+        const dy       = cy + arcR * Math.sin(angle);
+        const zoneIdx  = Math.min(4, Math.floor(t * 5));
+        const isActive = i <= activeIdx;
+        const isCur    = i === activeIdx;
         ctx.beginPath();
-        ctx.arc(cx, cy, R_out, a0, a1, false);
-        ctx.arc(cx, cy, R_in,  a1, a0, true);
-        ctx.closePath();
-        ctx.fillStyle = ZONE_BRIGHT[i];
-        ctx.fill();
+        ctx.arc(dx, dy, isCur ? dotR * 1.4 : dotR, 0, Math.PI * 2);
+        if (isActive) {
+          ctx.fillStyle   = isCur ? '#f7931a' : ZONE_BRIGHT[zoneIdx];
+          ctx.fill();
+          ctx.strokeStyle = SEG_BORDER;
+          ctx.lineWidth   = isSmall ? 1.5 : 2;
+          ctx.stroke();
+        } else {
+          ctx.fillStyle   = isDark ? '#1e1e1e' : '#E8E8E8';
+          ctx.fill();
+          ctx.strokeStyle = isDark ? '#3a3a3a' : '#BBBBBB';
+          ctx.lineWidth   = isSmall ? 1 : 1.5;
+          ctx.stroke();
+        }
       }
 
-      // ── 2. Parallel arc outlines on filled portion (0 → value) ──────────
+      // ── 2. Diagonal hatching in outer pointer-sweep zone ─────────────────
       if (value > 0) {
-        const fillEnd = toAngle(value);
-        ctx.lineWidth = isSmall ? 1.5 : 2;
-        ctx.strokeStyle = RIM_COL;
-        ctx.setLineDash([]);
-
+        const hatchGap = isSmall ? 10 : 16;
+        const toA = toAngle(value);
+        ctx.save();
         ctx.beginPath();
-        ctx.arc(cx, cy, R_out + RIM_GAP, Math.PI, fillEnd, false); // outer rim (gap from arc)
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.arc(cx, cy, R_in - RIM_GAP,  Math.PI, fillEnd, false); // inner rim (gap from arc)
-        ctx.stroke();
+        ctx.arc(cx, cy, R_out + hatchGap, Math.PI, toA, false);
+        ctx.arc(cx, cy, R_out,            toA,     Math.PI, true);
+        ctx.closePath();
+        ctx.clip();
+        const spacing = isSmall ? 4 : 5;
+        ctx.strokeStyle = isDark ? 'rgba(247,147,26,0.35)' : 'rgba(0,0,0,0.22)';
+        ctx.lineWidth   = isSmall ? 1 : 1.2;
+        ctx.lineCap     = 'square';
+        const ext = R_out + hatchGap + 10;
+        for (let d = -(ext * 2); d < ext * 2; d += spacing) {
+          ctx.beginPath();
+          ctx.moveTo(cx + d,       cy - ext);
+          ctx.lineTo(cx + d + ext, cy + ext);
+          ctx.stroke();
+        }
+        ctx.restore();
       }
 
-      // ── 3. Current-value tick — pointer from the scale arc inward to an
-      // invisible clearance circle around the number (so it never touches the
-      // digits, at any angle). Circle is centred at the gauge centre (cx,cy),
-      // which sits below the number.
+      // ── 3. Pointer tick ───────────────────────────────────────────────────
       if (value > 0 && value < 100) {
         const ca = toAngle(value);
         const fs = isSmall ? 24 : 50;
         ctx.font = `800 ${fs}px Outfit, sans-serif`;
         const halfW = ctx.measureText(String(Math.round(value))).width / 2;
-        const capHalf = fs * 0.38;                              // ~half the digit cap-height
-        const numDist = R_in * (isSmall ? 0.34 : 0.32);        // centre -> number centre
+        const capHalf = fs * 0.38;
+        const numDist = R_in * (isSmall ? 0.34 : 0.32);
         const margin  = isSmall ? 6 : 9;
-        // radius of the invisible circle that fully clears the number box
-        const R_clear = Math.hypot(halfW, numDist + capHalf) + margin;
+        const R_clear  = Math.hypot(halfW, numDist + capHalf) + margin;
+        const outerGap = isSmall ? 10 : 16;
         ctx.beginPath();
-        ctx.moveTo(cx + R_clear         * Math.cos(ca), cy + R_clear         * Math.sin(ca));
-        ctx.lineTo(cx + (R_out + RIM_GAP) * Math.cos(ca), cy + (R_out + RIM_GAP) * Math.sin(ca));
+        ctx.moveTo(cx + R_clear            * Math.cos(ca), cy + R_clear            * Math.sin(ca));
+        ctx.lineTo(cx + (R_out + outerGap) * Math.cos(ca), cy + (R_out + outerGap) * Math.sin(ca));
         ctx.strokeStyle = TICK_CUR_COL;
-        ctx.lineWidth   = isSmall ? 1.5 : 2;
+        ctx.lineWidth   = isSmall ? 3 : 4.5;
+        ctx.lineCap     = 'round';
         ctx.stroke();
       }
 
