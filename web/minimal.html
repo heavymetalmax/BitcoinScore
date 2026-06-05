@@ -202,7 +202,7 @@
       background: transparent;
       border: none;
       padding: 0;
-      margin-top: 13vh; /* raised high up like iOS clock */
+      margin-top: 6vh;
       width: 100%;
       max-width: 480px;
       z-index: 20;
@@ -771,7 +771,7 @@
     /* --- Interactive Gear Button --- */
     .settings-gear {
       position: fixed;
-      top: 24px;
+      bottom: 60px;
       right: 24px;
       width: 42px;
       height: 42px;
@@ -798,8 +798,10 @@
     /* --- Settings Drawer (Right Side Card, bento style) --- */
     .settings-drawer {
       position: fixed;
-      top: 70px;
+      bottom: 110px;
       right: -440px;
+      max-height: calc(100vh - 130px);
+      overflow-y: auto;
       width: min(92vw, 380px);
       max-height: calc(100vh - 90px);
       overflow-y: auto;
@@ -1050,9 +1052,6 @@
 
     /* Mobile adjustments */
     @media (max-width: 600px) {
-      .settings-gear {
-        top: 70px;
-      }
       .display-score {
         font-size: 8.5rem;
       }
