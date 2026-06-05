@@ -2333,16 +2333,31 @@ html.style-modern .score-box .s-sub {
       // helper: canvas angle for risk value v (0→π left, 100→2π right)
       const toAngle = v => Math.PI + (v / 100) * Math.PI;
 
-      // ── 1. Draw 5 continuous zone segments ───────────────────────────────
+      // ── 1. Zone segments filled with dot texture ─────────────────────────
+      const dotSpacing = isSmall ? 6 : 9;
+      const dotFillR   = isSmall ? 1.8 : 2.8;
+
       for (let i = 0; i < 5; i++) {
         const a0 = toAngle(i * 20);
         const a1 = toAngle((i + 1) * 20);
+
+        ctx.save();
         ctx.beginPath();
         ctx.arc(cx, cy, R_out, a0, a1, false);
         ctx.arc(cx, cy, R_in,  a1, a0, true);
         ctx.closePath();
+        ctx.clip();
+
         ctx.fillStyle = ZONE_BRIGHT[i];
-        ctx.fill();
+        for (let x = cx - R_out - dotSpacing; x <= cx + R_out + dotSpacing; x += dotSpacing) {
+          for (let y = cy - R_out - dotSpacing; y <= cy + dotSpacing; y += dotSpacing) {
+            ctx.beginPath();
+            ctx.arc(x, y, dotFillR, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+
+        ctx.restore();
       }
 
       // ── 2. Parallel arc outlines on filled portion (0 → value) ──────────
