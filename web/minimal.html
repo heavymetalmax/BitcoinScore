@@ -85,7 +85,7 @@
          cutting the wallpaper short mid-toolbar. clip uses the real border-box (100lvh). */
       position: relative;
       overflow: clip;
-      min-height: 100lvh;
+      min-height: calc(100lvh + 80px); /* +80px buffer so wallpaper-container clears the full toolbar */
       background: #000; /* wallpaper-container covers everything — no image needed on body */
       font-family: 'Inter', -apple-system, sans-serif;
       color: var(--text);
