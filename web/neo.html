@@ -4,7 +4,7 @@
 
   <script>
     (function() {
-      // neo.html is a standalone preview — no redirect based on stored style preference
+      // neo.html is a standalone preview — no redirect
       const mode = localStorage.getItem('bbr-mode') || 'auto';
       let theme = 'dark';
       if (mode === 'auto') {
@@ -104,74 +104,128 @@
       --index-color-glow: rgba(217, 119, 6, 0.05);
     }
     
-        /* Modern Dark */
+        /* Modern Dark — Neobrutalism */
     html.style-modern.theme-dark {
-      --bg: #0d0f18;
-      --bg-gradient: #0d0f18;
-      --bg-card: #1c2030;          /* lifted from #121318 — clear step above bg */
-      --bg-card-hover: #222640;
-      --border: rgba(255, 255, 255, 0.10);  /* from 0.03 — visible card outlines */
-      --border-hover: rgba(247, 147, 26, 0.40);
-      /* all fonts = darkest gauge segment colour */
-      --text: #8892a4;
-      --text-name: #8892a4;
-      --text-mute: #8892a4;
-      --text-sub: #8892a4;
-      --text-raw: #8892a4;
-      --text-ts: #8892a4;
-      --bar-bg: rgba(255, 255, 255, 0.08);
-      --divider: rgba(255, 255, 255, 0.10);
-      --tick: rgba(255, 255, 255, 0.25);
-      --footer: #60708a;
+      --bg: #0A0A0A;
+      --bg-gradient: #0A0A0A;
+      --bg-card: #111111;
+      --bg-card-hover: #1a1a1a;
+      --border: #EEEEEE;
+      --border-hover: #f7931a;
+      --text: #EEEEEE;
+      --text-name: #EEEEEE;
+      --text-mute: #AAAAAA;
+      --text-sub: #777777;
+      --text-raw: #EEEEEE;
+      --text-ts: #AAAAAA;
+      --bar-bg: rgba(255, 255, 255, 0.10);
+      --divider: #333333;
+      --tick: rgba(255, 255, 255, 0.30);
+      --footer: #777777;
 
-      --shadow-glow: 0 8px 32px rgba(0, 0, 0, 0.5);
-      --shadow-glow-active: 0 12px 40px rgba(247, 147, 26, 0.08);
+      --shadow-glow: none;
+      --shadow-glow-active: none;
 
-      --bg-card-knob: #222640;
-      --glass-blur: blur(20px);
+      --bg-card-knob: #1a1a1a;
+      --glass-blur: none;
 
+      --border-hard: #EEEEEE;
+      --shadow-hard: #f7931a;
       --index-color: #f7931a;
       --index-color-bg: rgba(247, 147, 26, 0.14);
       --index-color-glow: rgba(247, 147, 26, 0.10);
     }
     
-    /* Modern Light */
+    /* Modern Light — Neobrutalism */
     html.style-modern.theme-light {
-      --bg: #f8fafc;
-      --bg-gradient: #f4f5f6;
-      --bg-card: #ffffff;
-      --bg-card-hover: #ffffff;
-      --border: rgba(0, 0, 0, 0.04);
-      --border-hover: rgba(247, 147, 26, 0.35);
-      /* all fonts = darkest gauge segment colour */
-      --text: #374151;
-      --text-name: #374151;
-      --text-mute: #374151;
-      --text-sub: #374151;
-      --text-raw: #374151;
-      --text-ts: #374151;
-      --bar-bg: rgba(0, 0, 0, 0.06);
-      --divider: rgba(0, 0, 0, 0.08);
-      --tick: rgba(0, 0, 0, 0.15);
-      --footer: #64748b;
-      
-      --shadow-glow: 0 10px 40px rgba(0, 0, 0, 0.03);
-      --shadow-glow-active: 0 15px 50px rgba(0, 0, 0, 0.06);
-      
-      --bg-card-knob: #ffffff;
-      --glass-blur: blur(20px);
+      --bg: #FAFAF5;
+      --bg-gradient: #FAFAF5;
+      --bg-card: #FFFFFF;
+      --bg-card-hover: #FFFFFF;
+      --border: #0A0A0A;
+      --border-hover: #f7931a;
+      --text: #0A0A0A;
+      --text-name: #0A0A0A;
+      --text-mute: #444444;
+      --text-sub: #666666;
+      --text-raw: #0A0A0A;
+      --text-ts: #444444;
+      --bar-bg: rgba(0, 0, 0, 0.08);
+      --divider: #0A0A0A;
+      --tick: rgba(0, 0, 0, 0.30);
+      --footer: #666666;
 
-      --index-color: #b45309;
-      --index-color-bg: rgba(217, 119, 6, 0.1);
-      --index-color-glow: rgba(217, 119, 6, 0.05);
+      --shadow-glow: none;
+      --shadow-glow-active: none;
+
+      --bg-card-knob: #FFFFFF;
+      --glass-blur: none;
+
+      --border-hard: #0A0A0A;
+      --shadow-hard: #0A0A0A;
+      --index-color: #f7931a;
+      --index-color-bg: rgba(247, 147, 26, 0.12);
+      --index-color-glow: rgba(247, 147, 26, 0.06);
     }
     
     html.style-classic body {
       background-size: initial;
     }
     html.style-modern .score-box {
-      border-radius: 24px;
+      border-radius: 0;
     }
+
+/* ── Neobrutalism structural overrides ── */
+html.style-modern body {
+  background: var(--bg);
+}
+html.style-modern .score-box {
+  border-radius: 0 !important;
+  border: 3px solid var(--border-hard);
+  box-shadow: 4px 4px 0 0 var(--shadow-hard);
+  transition: box-shadow 0.1s ease, transform 0.1s ease;
+}
+html.style-modern .score-box:hover {
+  box-shadow: 6px 6px 0 0 var(--shadow-hard);
+  transform: translate(-2px, -2px);
+}
+html.style-modern .nav-header {
+  border-bottom: 3px solid var(--border-hard);
+  background: var(--bg);
+  box-shadow: none;
+}
+html.style-modern .nav-menu {
+  border-radius: 0;
+  border: 2px solid var(--border-hard);
+  box-shadow: 3px 3px 0 0 var(--shadow-hard);
+  background: var(--bg-card);
+  padding: 4px;
+  gap: 2px;
+}
+html.style-modern .nav-btn {
+  border-radius: 0;
+  font-weight: 700;
+}
+html.style-modern .nav-btn.active,
+html.style-modern .lang-btn.active {
+  background: var(--index-color);
+  color: #000 !important;
+  font-weight: 800;
+  box-shadow: none;
+}
+html.style-modern .glass-panel {
+  border-radius: 0;
+  border: 2px solid var(--border-hard);
+}
+html.style-modern .s-label {
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: var(--text);
+}
+html.style-modern .score-box .s-sub {
+  font-weight: 700;
+}
+
     /* Bell icon button in nav — always orange */
     .nav-bell-btn {
       display: inline-flex;
@@ -189,14 +243,7 @@
       background: var(--index-color-bg, rgba(247,147,26,0.12));
     }
 
-    /* Modern: all menus same compact style; white pill background */
-    html.style-modern .nav-menu,
-    html.style-modern .lang-toggle {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      gap: 4px;
-      padding: 3px;
-    }
+    /* Modern: compact nav-btn sizing */
     html.style-modern .nav-btn {
       font-size: 0.72rem;
       padding: 5px 14px;
@@ -206,18 +253,8 @@
     .modern-sub-gauge-canvas {
       max-width: 100%;
     }
-    /* Nav active button — pure orange, no color-mix, no transparency */
-    html.style-modern .nav-btn.active,
-    html.style-modern .lang-btn.active {
-      background: rgba(247, 147, 26, 0.14);
-      color: #f7931a !important;
-      box-shadow: none;
-    }
-    html.style-modern .glass-panel {
-      border-radius: 20px;
-    }
     html.style-modern .score-box.main {
-      border-radius: 28px;
+      border-radius: 0;
       padding-top: 18px;   /* balance card-top -> heading with heading -> arc */
     }
     html.style-modern .main-back {
