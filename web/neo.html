@@ -284,8 +284,71 @@ html.style-modern .hero-status-area {
   justify-content: flex-end;
   flex-shrink: 0;
 }
-/* hide old complex main card */
+/* ── Main card: same layout as sub-cards ── */
+html.style-modern .score-box.main .main-flip,
+html.style-modern .score-box.main .main-inner {
+  display: contents;
+}
 html.style-modern .score-box.main {
+  display: grid !important;
+  grid-template-columns: 1fr auto;
+}
+html.style-modern .hero-top-row {
+  display: contents;
+}
+html.style-modern .hero-title-area {
+  grid-column: 1;
+  grid-row: 1;
+  align-self: start;
+  justify-content: flex-start;
+}
+html.style-modern .hero-status-area {
+  grid-column: 2;
+  grid-row: 1;
+  align-items: flex-start;
+  justify-content: flex-end;
+  flex-shrink: 0;
+}
+html.style-modern .zone-gauge-row,
+html.style-modern .zone-disclaimer,
+html.style-modern .risk-track-container,
+html.style-modern .index-meta-card,
+html.style-modern #modern-gauge-status,
+html.style-modern .main-back {
+  display: none !important;
+}
+html.style-modern .modern-gauge-container {
+  position: absolute !important;
+  inset: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-end !important;
+  justify-content: flex-end !important;
+  pointer-events: none;
+  z-index: 0;
+  margin: 0 !important;
+}
+html.style-modern .modern-main-gauge-wrap {
+  position: absolute !important;
+  inset: 0 !important;
+  display: flex !important;
+  align-items: flex-end !important;
+  justify-content: center !important;
+}
+html.style-modern .hero-score-val {
+  display: block;
+  font-size: 5.5rem;
+  font-weight: 900;
+  line-height: 0.85;
+  letter-spacing: -0.04em;
+  color: #0A0A0A !important;
+}
+html.style-modern.theme-dark .hero-score-val {
+  color: #EEEEEE !important;
+}
+html.style-modern #s-final-label,
+html.style-modern #main-tactical-badge,
+html.style-modern #s-warn {
   display: none !important;
 }
 
@@ -1867,26 +1930,6 @@ html.style-modern .score-box .s-sub {
         </div><!-- /.main-flip -->
       </div>
 
-      <!-- Neo main card: 1:1 clone of sub-card style, shows composite score -->
-      <div class="score-box" id="neo-main-card">
-        <div class="s-label">
-          <span class="en">Composite<br>Risk Index</span>
-          <span class="ua">Композитний<br>індекс ризику</span>
-        </div>
-        <div class="sub-card-value-container">
-          <div class="s-value" id="s-final-neo">—</div>
-        </div>
-        <div class="modern-sub-gauge-wrap">
-          <canvas id="gauge-final-neo" class="modern-sub-gauge-canvas"></canvas>
-        </div>
-        <div class="sub-gauge-status" id="final-neo-status">—</div>
-        <div class="bar-wrap"><div class="bar-fill" id="b-final-neo" style="width:0%"></div></div>
-        <div class="s-sub">
-          <span class="en">50% On-Chain + 50% Tech</span>
-          <span class="ua">50% Ончейн + 50% Тех</span>
-        </div>
-      </div>
-
       <!-- Subscore Cards -->
       <div class="score-box">
         <div class="s-label">
@@ -2673,7 +2716,6 @@ html.style-modern .score-box .s-sub {
         const tac = window._tacticalSignal || null;
         drawModernGauge(document.getElementById('modern-gauge-canvas'),  v.final,     false, false, tac);
         drawModernGauge(document.getElementById('zone-gauge-canvas'),    v.final,     false, false, null);   // back of the flip card
-        drawModernGauge(document.getElementById('gauge-final-neo'),      v.final,     true,  false);
         drawModernGauge(document.getElementById('gauge-oc'),             v.onchain,   true,  ocWarn   && ocWarn.style.display   !== 'none');
         drawModernGauge(document.getElementById('gauge-tech'),           v.tech,      true,  techWarn && techWarn.style.display !== 'none', tac);
         drawModernGauge(document.getElementById('gauge-yesterday'),      v.yesterday, true,  false);
@@ -3193,9 +3235,8 @@ html.style-modern .score-box .s-sub {
       }
       
       // Update main score values (numerical labels)
-      setScore('s-final',     'b-final',     data.final_score);
-      setScore('s-final-neo', 'b-final-neo', data.final_score);
-      setScore('s-oc',        'b-oc',        data.onchain_score);
+      setScore('s-final', 'b-final', data.final_score);
+      setScore('s-oc',    'b-oc',    data.onchain_score);
       setScore('s-tech',  'b-tech',  data.tech_score);
 
       // Risk label helper (same thresholds as the main gauge)
@@ -3209,7 +3250,6 @@ html.style-modern .score-box .s-sub {
         const L = riskLabel(v);
         el.innerHTML = `<span class="en">${L.en}</span><span class="ua">${L.ua}</span>`;
       };
-      setSubStatus('final-neo-status', data.final_score);
       setSubStatus('oc-status',        data.onchain_score);
       setSubStatus('tech-status',      data.tech_score);
       setSubStatus('yesterday-status', data.prev_day ? data.prev_day.final_score : null);
