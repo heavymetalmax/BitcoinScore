@@ -55,13 +55,15 @@
       --inset-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
     }
 
-    /* Night mode: solid black, opaque cards */
+    /* Night mode: same layout as auto, text dimmed to 60% */
     html.mode-night {
-      --bg-card: rgba(18, 18, 22, 0.95);
-      --bg-card-hover: rgba(28, 28, 34, 0.98);
-      --border: rgba(255, 255, 255, 0.12);
-      --border-hover: rgba(255, 255, 255, 0.22);
-      --glow-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.6);
+      --text: rgba(243, 244, 246, 0.6);
+      --text-mute: rgba(156, 163, 175, 0.6);
+      --text-sub: rgba(107, 114, 128, 0.6);
+      --index-color: rgba(255, 255, 255, 0.6);
+      --accent-green: rgba(255, 255, 255, 0.6);
+      --accent-amber: rgba(255, 255, 255, 0.6);
+      --accent-red: rgba(255, 255, 255, 0.6);
     }
 
     /* Hide wallpaper layers only in color mode = Night */
