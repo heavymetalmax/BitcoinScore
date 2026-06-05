@@ -790,9 +790,9 @@
     /* --- Settings Drawer (Right Side Card, bento style) --- */
     .settings-drawer {
       position: fixed;
+      top: 16px;
       bottom: 110px;
       right: -440px;
-      max-height: calc(100vh - 130px);
       width: min(92vw, 380px);
       background: var(--bg-card-hover);
       border: 1px solid rgba(255, 255, 255, 0.18);
@@ -812,6 +812,7 @@
     .drawer-scroll {
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
+      flex: 1;
       display: flex;
       flex-direction: column;
       gap: 22px;
