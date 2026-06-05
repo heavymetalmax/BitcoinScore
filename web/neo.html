@@ -2550,24 +2550,8 @@ html.style-modern .score-box .s-sub {
         ctx.stroke();
       }
 
-      // ── 3. Current-value tick ─────────────────────────────────────────────
-      if (value > 0 && value < 100) {
-        const ca = toAngle(value);
-        const fs = isSmall ? 24 : 50;
-        ctx.font = `800 ${fs}px Outfit, sans-serif`;
-        const halfW = ctx.measureText(String(Math.round(value))).width / 2;
-        const capHalf = fs * 0.38;                              // ~half the digit cap-height
-        const numDist = R_in * (isSmall ? 0.34 : 0.32);        // centre -> number centre
-        const margin  = isSmall ? 6 : 9;
-        // radius of the invisible circle that fully clears the number box
-        const R_clear = Math.hypot(halfW, numDist + capHalf) + margin;
-        ctx.beginPath();
-        ctx.moveTo(cx + R_clear           * Math.cos(ca), cy + R_clear           * Math.sin(ca));
-        ctx.lineTo(cx + (R_out + RIM_GAP) * Math.cos(ca), cy + (R_out + RIM_GAP) * Math.sin(ca));
-        ctx.strokeStyle = TICK_CUR_COL;
-        ctx.lineWidth   = isSmall ? 2.5 : 3.5;
-        ctx.lineCap     = 'round';
-        ctx.stroke();
+      // ── 3. (tick removed) ────────────────────────────────────────────────
+      if (false) {
       }
 
       const numY   = cy - R_in * (isSmall ? 0.34 : 0.32);
