@@ -1102,6 +1102,9 @@
 <body class="lang-en">
 
   <!-- Interactive Background Wallpaper (Depth effect layers) -->
+  <!-- Gives body a real rendered height so its background paints behind the Safari toolbar -->
+  <div aria-hidden="true" style="height:100vh;height:100dvh;width:0;pointer-events:none;"></div>
+
   <div class="wallpaper-container">
     <div class="wallpaper-bg" id="wallpaper-bg"></div>
     <div class="wallpaper-overlay"></div>
