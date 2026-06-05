@@ -780,7 +780,7 @@
       border-color: var(--border-hover);
     }
 
-    /* --- Settings Drawer (Right Side Card) --- */
+    /* --- Settings Drawer (Right Side Card, bento style) --- */
     .settings-drawer {
       position: fixed;
       top: 70px;
@@ -788,10 +788,10 @@
       width: min(92vw, 380px);
       max-height: calc(100vh - 90px);
       overflow-y: auto;
-      background: rgba(8, 8, 10, 0.92);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      backdrop-filter: blur(40px);
-      -webkit-backdrop-filter: blur(40px);
+      background: var(--bg-card-hover);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       border-radius: 32px;
       padding: 28px 24px;
       z-index: 100;
@@ -800,7 +800,7 @@
       gap: 22px;
       opacity: 0;
       pointer-events: none;
-      box-shadow: 0 32px 80px rgba(0, 0, 0, 0.7);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
       transition: opacity 0.25s ease, right 0.25s ease;
     }
 
