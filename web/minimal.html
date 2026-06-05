@@ -235,10 +235,10 @@
 
       border: 1px solid rgba(255, 255, 255, 0.04);
 
-      box-shadow: var(--glow-shadow), var(--inset-shadow);
+      box-shadow: none;
       backdrop-filter: none;
       -webkit-backdrop-filter: none;
-      transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, backdrop-filter 0.3s ease;
+      transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.35s ease, backdrop-filter 0.35s ease;
     }
 
     .center-display-back {
@@ -256,7 +256,10 @@
     .center-display:hover .center-display-front,
     .center-display:hover .center-display-back {
       background: var(--bg-card-hover);
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
     }
 
     .click-zone {
@@ -772,36 +775,43 @@
       border-color: var(--border-hover);
     }
 
-    /* --- Settings Drawer (Slide-out) --- */
+    /* --- Settings Modal (Centered Card) --- */
     .settings-drawer {
       position: fixed;
-      top: 0;
-      right: -320px;
-      width: 300px;
-      height: 100%;
-      background: var(--bg-drawer);
-      border-left: 1px solid var(--border);
-      backdrop-filter: blur(30px);
-      -webkit-backdrop-filter: blur(30px);
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -46%);
+      width: min(92vw, 420px);
+      max-height: 85vh;
+      overflow-y: auto;
+      background: rgba(8, 8, 10, 0.92);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(40px);
+      -webkit-backdrop-filter: blur(40px);
+      border-radius: 32px;
+      padding: 28px 24px;
       z-index: 100;
-      padding: 32px 24px;
-      box-shadow: -10px 0 40px rgba(0, 0, 0, 0.6);
       display: flex;
       flex-direction: column;
-      gap: 28px;
-      transition: right 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+      gap: 22px;
+      opacity: 0;
+      pointer-events: none;
+      box-shadow: 0 32px 80px rgba(0, 0, 0, 0.7);
+      transition: opacity 0.25s ease, transform 0.25s ease;
     }
 
     .settings-drawer.open {
-      right: 0;
+      opacity: 1;
+      pointer-events: all;
+      transform: translate(-50%, -50%);
     }
 
     .drawer-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 1px solid var(--border);
-      padding-bottom: 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 14px;
     }
 
     .drawer-title {
