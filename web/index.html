@@ -4,14 +4,16 @@
 
   <script>
     (function() {
-      const style = localStorage.getItem('bbr-style') || 'modern';
+      const style = localStorage.getItem('bbr-style') || 'minimal';
+      if (style === 'minimal') { location.replace('minimal.html'); return; }
+      if (style === 'classic') { location.replace('classic.html'); return; }
       const mode = localStorage.getItem('bbr-mode') || 'auto';
       let theme = 'dark';
       if (mode === 'auto') {
         const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
         theme = prefersLight ? 'light' : 'dark';
       }
-      document.documentElement.className = 'style-' + style + ' theme-' + theme;
+      document.documentElement.className = 'style-modern theme-' + theme;
     })();
   </script>
 
