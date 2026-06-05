@@ -77,13 +77,15 @@
     html {
       width: 100%;
       height: 100%;
-      overflow-x: hidden;
+      height: 100dvh;
+      overflow: hidden;
       background: #000 url('wallpaper-real.jpg') no-repeat center / cover;
     }
     body {
       width: 100%;
-      min-height: calc(100dvh + 80px);
-      overflow-x: hidden;
+      height: 100%;
+      height: 100dvh;
+      overflow: hidden;
       font-family: 'Inter', -apple-system, sans-serif;
       background-color: transparent;
       color: var(--text);
@@ -97,9 +99,12 @@
 
     /* --- Background Layering (Depth Effect) --- */
     .lockscreen-wrapper {
-      position: fixed;
-      inset: 0;
-      overflow: hidden;
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
       display: flex;
       flex-direction: column;
       justify-content: flex-start;
@@ -110,10 +115,7 @@
 
     .wallpaper-container {
       position: fixed;
-      top: calc(-1 * env(safe-area-inset-top, 0px));
-      left: 0;
-      right: 0;
-      bottom: 0;
+      inset: 0;
       z-index: 1;
       overflow: hidden;
       pointer-events: none;
