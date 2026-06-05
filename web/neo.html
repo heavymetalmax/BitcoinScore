@@ -309,7 +309,6 @@ html.style-modern .hero-status-area {
   justify-content: flex-end;
   flex-shrink: 0;
 }
-html.style-modern .modern-gauge-container,
 html.style-modern .zone-gauge-row,
 html.style-modern .zone-disclaimer,
 html.style-modern .risk-track-container,
@@ -317,6 +316,24 @@ html.style-modern .index-meta-card,
 html.style-modern #modern-gauge-status,
 html.style-modern .main-back {
   display: none !important;
+}
+html.style-modern .modern-gauge-container {
+  position: absolute !important;
+  inset: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-end !important;
+  justify-content: flex-end !important;
+  pointer-events: none;
+  z-index: 0;
+  margin: 0 !important;
+}
+html.style-modern .modern-main-gauge-wrap {
+  position: absolute !important;
+  inset: 0 !important;
+  display: flex !important;
+  align-items: flex-end !important;
+  justify-content: center !important;
 }
 html.style-modern .hero-score-val {
   display: block;
