@@ -79,11 +79,12 @@
       background: #000; /* fallback before wallpaper loads */
     }
     body {
-      /* position:relative makes body the containing block for the absolute wallpaper-container,
-         so the wallpaper can extend to 100lvh (covering the Safari toolbar area).
-         overflow:hidden prevents scroll. min-height:100lvh gives body full rendered height. */
+      /* position:relative makes body the containing block for the absolute wallpaper-container.
+         overflow:clip (not hidden) prevents scroll without creating a scroll container —
+         overflow:hidden in Safari clips absolute children at the visual viewport (100svh),
+         cutting the wallpaper short mid-toolbar. clip uses the real border-box (100lvh). */
       position: relative;
-      overflow: hidden;
+      overflow: clip;
       min-height: 100lvh;
       background: #000; /* wallpaper-container covers everything — no image needed on body */
       font-family: 'Inter', -apple-system, sans-serif;
