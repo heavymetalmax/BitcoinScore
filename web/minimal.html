@@ -331,11 +331,14 @@
       font-size: 11rem;
       font-weight: 900;
       line-height: 0.9;
-      color: var(--text);
       margin: 0;
       padding: 0;
       letter-spacing: -0.03em;
-      filter: drop-shadow(0 8px 30px rgba(0, 0, 0, 0.15));
+      background: linear-gradient(180deg, rgba(255,255,255,1) 20%, rgba(255,255,255,0.35) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 4px 24px rgba(255,255,255,0.25));
     }
 
     .display-history-column {
@@ -364,8 +367,12 @@
       font-family: 'Outfit', sans-serif;
       font-size: 3rem;
       font-weight: 800;
-      color: var(--text);
       line-height: 1;
+      background: linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.4) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 2px 8px rgba(255,255,255,0.15));
     }
 
     .history-divider {
@@ -410,8 +417,12 @@
       font-family: 'Outfit', sans-serif;
       font-size: 3rem;
       font-weight: 800;
-      color: var(--text);
       line-height: 1;
+      background: linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.4) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 2px 8px rgba(255,255,255,0.15));
     }
 
     .sub-title {
