@@ -554,6 +554,18 @@
       text-align: center;
     }
 
+    .back-methodology-link {
+      display: block;
+      font-size: 0.68rem;
+      color: var(--text-sub);
+      text-decoration: none;
+      text-align: center;
+      opacity: 0.6;
+      transition: opacity 0.2s ease;
+      letter-spacing: 0.03em;
+    }
+    .back-methodology-link:hover { opacity: 1; color: var(--text); }
+
     /* --- Bento Widgets Container --- */
     .bento-widgets {
       width: 100%;
@@ -1173,6 +1185,10 @@
             <div class="mini-indicators-list" id="list-onchain-back">
               <!-- Populated dynamically -->
             </div>
+            <a href="about.html#on-chain" class="back-methodology-link" onclick="event.stopPropagation()">
+              <span class="en">Methodology ↗</span>
+              <span class="ua">Методологія ↗</span>
+            </a>
           </div>
 
           <!-- Back content 3: Tech/Macro detail list -->
@@ -1184,6 +1200,10 @@
             <div class="mini-indicators-list" id="list-tech-back">
               <!-- Populated dynamically -->
             </div>
+            <a href="about.html#tech-macro" class="back-methodology-link" onclick="event.stopPropagation()">
+              <span class="en">Methodology ↗</span>
+              <span class="ua">Методологія ↗</span>
+            </a>
           </div>
         </div>
 
@@ -1856,14 +1876,15 @@
       // Populate back cards with indicator details
       const m = data.metrics || {};
       const mv = key => { const x = m[key]; return x != null ? (x.value !== undefined ? x.value : x) : null; };
-      const mapNupl  = v => v == null ? null : Math.round(Math.max(0, Math.min(100, (v + 0.1) * 100)));
-      const mapMvrv  = v => v == null ? null : Math.round(Math.max(0, Math.min(100, (v + 0.5) * (100/3.5))));
-      const mapRhodl = v => v == null ? null : Math.round(Math.max(0, Math.min(100, (Math.log10(v) - 1.5) * (100/3))));
-      const mapCvdd  = v => { if(v==null)return null; return v<=1?Math.round(Math.max(0,v*30)):Math.round(Math.min(100,30+(v-1)*70)); };
-      const mapAsopr = v => v == null ? null : Math.round(Math.max(0, Math.min(100, ((v - 0.9)/0.2)*100)));
+      // Map functions mirror scoring.py exactly
+      const mapNupl  = v => v == null ? null : Math.round(Math.max(0, Math.min(100, (v + 50) / 150 * 100)));
+      const mapMvrv  = v => v == null ? null : Math.round(Math.max(0, Math.min(100, (v + 2) / 7 * 100)));
+      const mapRhodl = v => v == null ? null : Math.round(Math.max(0, Math.min(100, (Math.log10(Math.max(100, v)) - 2) / 2 * 100)));
+      const mapCvdd  = v => v == null ? null : Math.round(Math.max(0, Math.min(100, Math.log10(Math.max(1, Math.min(5, v))) / Math.log10(5) * 100)));
+      const mapAsopr = v => { if(v==null)return null; return v<=1 ? Math.round(Math.max(0,(v-0.88)/0.12*50)) : Math.round(Math.min(100,50+(v-1)/0.12*50)); };
       const mapFG    = v => v != null ? Math.round(v) : null;
-      const mapYC    = v => { if(v==null)return null; if(v<-1.5)return 100; if(v>1.5)return 0; return Math.round(((1.5-v)/3)*100); };
-      const mapM2    = v => { if(v==null)return null; return Math.round(Math.max(0,Math.min(100,(1-(v-(-5))/25)*100))); };
+      const mapYC    = v => v == null ? null : Math.round(Math.max(0, Math.min(100, (2 - v) / 3 * 100)));
+      const mapM2    = v => v == null ? null : Math.round(Math.max(0, Math.min(100, (10 - v) / 15 * 100)));
 
       const nupl  = mv('nupl');  const mvrv  = mv('mvrv');
       const rhodl = mv('rhodl_ratio') || mv('rhodl');
@@ -1877,9 +1898,30 @@
       const etfVal = etf != null ? (typeof etf === 'object' ? etf.value : etf) : null;
       const fgVal  = fg != null ? (typeof fg === 'object' ? (fg.avg_7d != null ? fg.avg_7d : fg.latest) : fg) : null;
 
-      const mmScore  = mmVal  != null ? Math.round(Math.max(0,Math.min(100,(mmVal-0.5)*(100/1.9)))) : null;
-      const cbScore  = cbVal  != null ? Math.round(Math.max(0,Math.min(100,(cbVal+100)*(100/200)))) : null;
-      const etfScore = etfVal != null ? Math.round(Math.max(0,Math.min(100,(1-(etfVal+1000)/4000)*100))) : null;
+      const mmScore  = mmVal != null ? Math.round(Math.max(0, Math.min(100, (mmVal - 0.5) / 1.6 * 100))) : null;
+      // Cipher B: weekly_score and daily_score are already 0-100; replicate scoring.py blend + divergence penalty
+      const cbScore  = (function() {
+        if (cb == null || cbVal == null) return null;
+        let w = cbVal, d = typeof cb === 'object' ? cb.daily_score : null;
+        if (typeof cb === 'object') {
+          if (cb.fast_bearish_div) w = Math.min(100, w + 12);
+          else if (cb.fast_bullish_div) w = Math.max(0, w - 12);
+          if (d != null) {
+            if (cb.daily_fast_bearish_div) d = Math.min(100, d + 12);
+            else if (cb.daily_fast_bullish_div) d = Math.max(0, d - 12);
+            return Math.round(0.8 * w + 0.2 * d);
+          }
+        }
+        return Math.round(w);
+      })();
+      // ETF flows: piecewise linear MIN=-2000, MID=750, MAX=4000
+      const etfScore = (function() {
+        if (etfVal == null) return null;
+        if (etfVal <= -2000) return 0;
+        if (etfVal >= 4000)  return 100;
+        if (etfVal < 750) return Math.round((etfVal + 2000) / 2750 * 50);
+        return Math.round(50 + (etfVal - 750) / 3250 * 50);
+      })();
       const n = (obj) => lang === 'ua' ? obj.ua : obj.en;
 
       // Contradiction and Tactical Alerts detection
