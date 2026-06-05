@@ -334,11 +334,16 @@
     }
 
     .alert-icon-wrap {
-      display: inline-flex;
+      position: absolute;
+      left: 0;
+      right: 50%;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
       align-items: center;
-      justify-content: center;
+      justify-content: flex-end;
+      padding-right: 8px;
       color: #ffffff;
-      flex-shrink: 0;
       cursor: help;
       transition: opacity 0.2s ease;
     }
@@ -547,7 +552,7 @@
     .back-card-description {
       font-size: 0.72rem;
       line-height: 1.4;
-      color: var(--text-sub);
+      color: var(--text);
       text-align: center;
     }
 
@@ -775,14 +780,13 @@
       border-color: var(--border-hover);
     }
 
-    /* --- Settings Modal (Centered Card) --- */
+    /* --- Settings Drawer (Right Side Card) --- */
     .settings-drawer {
       position: fixed;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -46%);
-      width: min(92vw, 420px);
-      max-height: 85vh;
+      top: 70px;
+      right: -440px;
+      width: min(92vw, 380px);
+      max-height: calc(100vh - 90px);
       overflow-y: auto;
       background: rgba(8, 8, 10, 0.92);
       border: 1px solid rgba(255, 255, 255, 0.08);
@@ -797,13 +801,13 @@
       opacity: 0;
       pointer-events: none;
       box-shadow: 0 32px 80px rgba(0, 0, 0, 0.7);
-      transition: opacity 0.25s ease, transform 0.25s ease;
+      transition: opacity 0.25s ease, right 0.25s ease;
     }
 
     .settings-drawer.open {
       opacity: 1;
       pointer-events: all;
-      transform: translate(-50%, -50%);
+      right: 24px;
     }
 
     .drawer-header {
@@ -1003,16 +1007,16 @@
 
             <!-- Main Score group (centered) + Yesterday/7d (abs right) -->
             <div class="display-main-row">
+              <div id="s-warn" class="alert-icon-wrap" style="display:none;" onclick="event.stopPropagation()" title="One or more key indicators contradicts the overall index direction">
+                <svg class="alert-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                  <path d="M12 9v4" />
+                  <path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0" />
+                  <path d="M12 16h.01" />
+                </svg>
+              </div>
               <div class="display-score-group">
                 <span class="display-score" id="s-final">—</span>
-                <div id="s-warn" class="alert-icon-wrap" style="display:none;" onclick="event.stopPropagation()" title="One or more key indicators contradicts the overall index direction">
-                  <svg class="alert-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                    <path d="M12 9v4" />
-                    <path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0" />
-                    <path d="M12 16h.01" />
-                  </svg>
-                </div>
               </div>
 
               <div class="display-history-column">
@@ -1080,7 +1084,7 @@
             </div>
             <div class="back-card-description">
               <span class="en">Holding today's on-chain cost basis fixed, this solves for the price at which the score would reach each zone.</span>
-              <span class="ua">Тримаючи сьогоднішню ончейн-собівартість незмінною, формула визначає ціну, за якої бал дійде до кожної зони.</span>
+              <span class="ua">Це індекс, прочитаний навпаки: тримаючи сьогоднішню ончейн-собівартість незмінною, формула розв'язується щодо ціни, за якої бал дійшов би до кожної зони, припускаючи, що моментум і настрої рухаються разом із ціною, як зазвичай.</span>
             </div>
           </div>
 
@@ -1539,8 +1543,8 @@
       const m = Math.floor((diffSecs % 3600) / 60);
       const pad = n => String(n).padStart(2, '0');
       el.innerHTML =
-        `· <span class="en">next in: ${pad(h)}<span class="blink-colon">:</span>${pad(m)}</span>` +
-        `<span class="ua">· за: ${pad(h)}<span class="blink-colon">:</span>${pad(m)}</span>`;
+        `<span class="en">· next in: ${pad(h)}<span class="blink-colon">:</span>${pad(m)}</span>` +
+        `<span class="ua">· наступне за: ${pad(h)}<span class="blink-colon">:</span>${pad(m)}</span>`;
     }
 
     async function init() {
