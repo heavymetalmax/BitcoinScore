@@ -948,11 +948,9 @@
     /* --- iOS-like Details Sheet (Slide-up) --- */
     /* --- Drawer Backdrop --- */
     .drawer-backdrop {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 100svh; /* stop at visual viewport — don't cover the toolbar area */
+      position: absolute; /* not fixed — absolute inside lockscreen-wrapper limits compositing
+                             to 100svh, so Safari never touches the toolbar area */
+      inset: 0;
       background: rgba(0, 0, 0, 0.4);
       z-index: 99;
       opacity: 0;
@@ -1304,6 +1302,8 @@
       </div>
     </div>
 
+    <div class="drawer-backdrop" id="drawer-backdrop" onclick="toggleDrawer(false); closeMetricHelp();"></div>
+
   </div>
 
   <!-- Empty block where wallpaper extends behind Safari toolbar -->
@@ -1441,8 +1441,6 @@
     </button>
   </div>
 
-  <!-- Drawer Backdrop -->
-  <div class="drawer-backdrop" id="drawer-backdrop" onclick="toggleDrawer(false); closeMetricHelp();"></div>
 
   <script>
     // Theme switching integration
