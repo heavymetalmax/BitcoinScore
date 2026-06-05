@@ -717,6 +717,11 @@
       font-size: 0.8rem;
       color: var(--text);
       font-weight: 600;
+      cursor: pointer;
+      text-decoration: underline;
+      text-decoration-style: dotted;
+      text-underline-offset: 3px;
+      text-decoration-color: rgba(255,255,255,0.3);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -1304,8 +1309,18 @@
     </button>
   </div>
 
+  <!-- Metric Help Modal -->
+  <div class="disclaimer-modal" id="metric-help-modal">
+    <div class="disclaimer-modal-title" id="metric-help-title"></div>
+    <div class="disclaimer-modal-text" id="metric-help-text"></div>
+    <button class="disclaimer-modal-close" onclick="closeMetricHelp()">
+      <span class="en">Close</span>
+      <span class="ua">Закрити</span>
+    </button>
+  </div>
+
   <!-- Drawer Backdrop -->
-  <div class="drawer-backdrop" id="drawer-backdrop" onclick="toggleDrawer(false); toggleDisclaimer(false);"></div>
+  <div class="drawer-backdrop" id="drawer-backdrop" onclick="toggleDrawer(false); toggleDisclaimer(false); closeMetricHelp();"></div>
 
   <script>
     // Theme switching integration
@@ -1370,7 +1385,7 @@
     }
 
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') { toggleDrawer(false); toggleDisclaimer(false); }
+      if (e.key === 'Escape') { toggleDrawer(false); toggleDisclaimer(false); closeMetricHelp(); }
     });
 
     // Global Language Toggle
@@ -1589,6 +1604,64 @@
       ctx.fillStyle = dotColor; ctx.shadowColor = 'rgba(0,0,0,0.3)'; ctx.shadowBlur = 3; ctx.fill(); ctx.shadowBlur = 0;
     }
 
+    const METRIC_HELP = {
+      nupl:    { title: { en: 'NUPL — Net Unrealized Profit/Loss', ua: 'NUPL — Нереалізований Прибуток/Збиток' },
+                 text:  { en: 'Measures the difference between total market unrealized profit and unrealized loss divided by Bitcoin\'s market cap. Values >0.75 = euphoria; values <0 = total capitulation. Weight: 30% of On-Chain.',
+                           ua: 'Різниця між нереалізованим прибутком і збитком всього ринку, поділена на ринкову капіталізацію. >0.75 — ейфорія; <0 — повна капітуляція. Вага: 30% від ончейн.' } },
+      mvrv:    { title: { en: 'MVRV Z-Score', ua: 'MVRV Z-Score' },
+                 text:  { en: 'Standard deviation distance between Bitcoin\'s market cap and realized cap (total cost basis of moved coins). High values (>7) = price unsustainably above holder value; values <0 = deep value. Weight: 20% of On-Chain.',
+                           ua: 'Відстань у стандартних відхиленнях між ринковою та реалізованою капіталізацією. Високі значення (>7) — перегрітість; <0 — глибока недооціненість. Вага: 20% від ончейн.' } },
+      rhodl:   { title: { en: 'RHODL Ratio', ua: 'RHODL Ratio' },
+                 text:  { en: 'Compares coins held for 1 week vs. 1–2 years. A surge means inexperienced new money is absorbing supply from seasoned holders — classic cycle-peak behavior. Weight: 20% of On-Chain.',
+                           ua: 'Порівнює монети, утримувані 1 тиждень, проти 1–2 років. Різке зростання — нові гроші викуповують пропозицію у ветеранів — класична поведінка вершини. Вага: 20% від ончейн.' } },
+      cvdd:    { title: { en: 'CVDD Ratio', ua: 'CVDD Ratio' },
+                 text:  { en: 'Cumulative Value Days Destroyed divided by current price. In cyclical downturns, price touching this level has historically marked absolute cycle bottoms. Weight: 15% of On-Chain.',
+                           ua: 'Накопичена вартість знищених монетоднів, поділена на поточну ціну. В ведмежих ринках ціна на цьому рівні — абсолютне макро-дно. Вага: 15% від ончейн.' } },
+      asopr:   { title: { en: 'aSOPR (7-day SMA)', ua: 'aSOPR (7-денний SMA)' },
+                 text:  { en: 'Average profit multiplier of spent coins (excluding <1h trades), smoothed by a 7-day SMA. aSOPR bouncing off 1.0 = bull market intact. Mapped: 0.88 → 0 risk (capitulation), 1.12 → 100 risk (extension). Weight: 15% of On-Chain.',
+                           ua: 'Середній мультиплікатор прибутку переміщених монет (<1 год виключено), згладжений 7-денним SMA. Відскік від 1.0 = бичачий тренд. 0.88 → 0 ризику, 1.12 → 100. Вага: 15% від ончейн.' } },
+      cipherb: { title: { en: 'Cipher B Oscillator', ua: 'Cipher B Осцилятор' },
+                 text:  { en: 'WaveTrend momentum oscillator on a weekly timeframe, filtering daily noise. 0 = deep correction/capitulation; 100 = overextended bull market. ±12 penalty/bonus applied when a fast divergence is active. Weight: 40% of Tech/Macro.',
+                           ua: 'Осцилятор імпульсу WaveTrend на тижневому таймфреймі. 0 = глибока корекція; 100 = перегрітий бичачий ринок. ±12 при активній дивергенції. Вага: 40% від Tech/Macro.' } },
+      mayer:   { title: { en: 'Mayer Multiple', ua: 'Mayer Multiple' },
+                 text:  { en: 'Bitcoin price ÷ 200-day moving average. Mean-reverting signal: ≤0.5 = extreme undervaluation; ≥2.1 = major overvaluation. Uses adaptive 4-year percentile blending. Weight: 20% of Tech/Macro.',
+                           ua: 'Ціна Bitcoin ÷ 200-денна ковзна середня. ≤0.5 = екстремальна недооціненість; ≥2.1 = перегрітість. Адаптивне блендування. Вага: 20% від Tech/Macro.' } },
+      etf:     { title: { en: 'Spot ETF Flows (14d)', ua: 'Spot ETF Flows (14d)' },
+                 text:  { en: '14-day rolling net inflows into US Spot Bitcoin ETFs — institutional liquidity momentum. ≤ −$2.0B = capitulation (0 risk); ≥ +$4.0B = euphoria/overheating (100 risk). Weight: 10% of Tech/Macro.',
+                           ua: '14-денна ковзна сума чистих потоків у спотові ETF США. ≤ −$2.0B = капітуляція (0); ≥ +$4.0B = ейфорія (100). Вага: 10% від Tech/Macro.' } },
+      fg:      { title: { en: 'Fear & Greed Index', ua: 'Індекс страху та жадібності' },
+                 text:  { en: 'Contrarian sentiment proxy (social media, search trends, volatility, volume), using a 7-day moving average. Low score (Fear) = accumulation opportunity; High score (Greed) = caution. Weight: 10% of Tech/Macro.',
+                           ua: 'Контрарний індикатор настроїв (соцмережі, пошук, волатильність, обсяг), 7-денне MA. Низький (страх) = накопичення; Високий (жадібність) = обережність. Вага: 10% від Tech/Macro.' } },
+      yc:      { title: { en: 'Yield Curve Spread (10Y-2Y)', ua: 'Крива дохідності (10Y-2Y)' },
+                 text:  { en: 'Spread between US 10-Year and 2-Year Treasury bonds. Negative spread (inversion) signals systemic liquidity starvation and high recession risk → higher BTC risk score. Weight: 10% of Tech/Macro.',
+                           ua: 'Спред між 10- та 2-річними держоблігаціями США. Негативний спред (інверсія) = дефіцит ліквідності та ризик рецесії. Вага: 10% від Tech/Macro.' } },
+      m2:      { title: { en: 'Global M2 YoY Growth', ua: 'Глобальний M2 YoY' },
+                 text:  { en: 'Year-over-year change in global money supply (US, EU, China, Japan). High M2 expansion = liquidity inflows, low risk. Negative M2 = monetary contraction, higher risk. Inverted logic: higher M2 → lower score. Weight: 10% of Tech/Macro.',
+                           ua: 'Річна зміна глобальної грошової маси M2. Зростання M2 = розширення ліквідності (низький ризик). Падіння = монетарне стиснення (вищий ризик). Обернена логіка. Вага: 10% від Tech/Macro.' } },
+    };
+
+    function showMetricHelp(key) {
+      const info = METRIC_HELP[key];
+      if (!info) return;
+      const lang = document.body.classList.contains('lang-ua') ? 'ua' : 'en';
+      document.getElementById('metric-help-title').textContent = info.title[lang];
+      document.getElementById('metric-help-text').textContent = info.text[lang];
+      const modal = document.getElementById('metric-help-modal');
+      const backdrop = document.getElementById('drawer-backdrop');
+      if (modal) modal.classList.add('open');
+      if (backdrop) backdrop.classList.add('open');
+    }
+
+    function closeMetricHelp() {
+      const modal = document.getElementById('metric-help-modal');
+      const backdrop = document.getElementById('drawer-backdrop');
+      if (modal) modal.classList.remove('open');
+      if (backdrop && !document.getElementById('settings-drawer').classList.contains('open')
+                   && !document.getElementById('disclaimer-modal').classList.contains('open')) {
+        backdrop.classList.remove('open');
+      }
+    }
+
     // Populate back face of a flipping card with indicator rows
     function populateBackCard(containerId, metrics) {
       const container = document.getElementById(containerId);
@@ -1599,8 +1672,9 @@
         row.className = 'mini-indicator-row';
         const valText = m.score != null ? m.score : '—';
         const rawText = m.raw != null ? m.raw : '';
+        const key = m.key || '';
         row.innerHTML = `
-          <span class="m-name">${m.name}</span>
+          <span class="m-name" data-key="${key}" onclick="event.stopPropagation(); showMetricHelp('${key}')">${m.name}</span>
           <div class="m-slider-wrap">
             <div class="m-slider-fill" style="width:${m.score || 0}%"></div>
           </div>
@@ -1867,20 +1941,20 @@
       }
 
       populateBackCard('list-onchain-back', [
-        { name: n({en:'NUPL', ua:'NUPL'}), score: mapNupl(nupl), raw: nupl != null ? nupl.toFixed(2)+'%' : null },
-        { name: n({en:'MVRV Z-Score', ua:'MVRV Z-Score'}), score: mapMvrv(mvrv), raw: mvrv != null ? mvrv.toFixed(3) : null },
-        { name: n({en:'RHODL', ua:'RHODL'}), score: mapRhodl(rhodl), raw: rhodl != null ? rhodl.toFixed(1) : null },
-        { name: n({en:'CVDD Ratio', ua:'CVDD Ratio'}), score: mapCvdd(cvdd), raw: cvdd != null ? cvdd.toFixed(3) : null },
-        { name: n({en:'aSOPR', ua:'aSOPR'}), score: mapAsopr(asopr), raw: asopr != null ? asopr.toFixed(3) : null }
+        { key: 'nupl',  name: n({en:'NUPL', ua:'NUPL'}), score: mapNupl(nupl), raw: nupl != null ? nupl.toFixed(2)+'%' : null },
+        { key: 'mvrv',  name: n({en:'MVRV Z-Score', ua:'MVRV Z-Score'}), score: mapMvrv(mvrv), raw: mvrv != null ? mvrv.toFixed(3) : null },
+        { key: 'rhodl', name: n({en:'RHODL', ua:'RHODL'}), score: mapRhodl(rhodl), raw: rhodl != null ? rhodl.toFixed(1) : null },
+        { key: 'cvdd',  name: n({en:'CVDD Ratio', ua:'CVDD Ratio'}), score: mapCvdd(cvdd), raw: cvdd != null ? cvdd.toFixed(3) : null },
+        { key: 'asopr', name: n({en:'aSOPR', ua:'aSOPR'}), score: mapAsopr(asopr), raw: asopr != null ? asopr.toFixed(3) : null }
       ]);
 
       populateBackCard('list-tech-back', [
-        { name: n({en:'Cipher B', ua:'Cipher B'}), score: cbScore, raw: cbVal != null ? Math.round(cbVal) : null },
-        { name: n({en:'Mayer Multiple', ua:'Mayer Multiple'}), score: mmScore, raw: mmVal != null ? mmVal.toFixed(2) : null },
-        { name: n({en:'ETF Flows (14d)', ua:'ETF Flows (14d)'}), score: etfScore, raw: etfVal != null ? (etfVal>0?'+':'')+Math.round(etfVal)+'M' : null },
-        { name: n({en:'Fear & Greed', ua:'Індекс страху'}), score: mapFG(fgVal), raw: fgVal != null ? Math.round(fgVal) : null },
-        { name: n({en:'Yield Curve', ua:'Крива дохідності'}), score: mapYC(yc), raw: yc != null ? yc.toFixed(2)+'%' : null },
-        { name: n({en:'Global M2', ua:'Глобальний M2'}), score: mapM2(m2raw), raw: m2raw != null ? m2raw.toFixed(2)+'%' : null }
+        { key: 'cipherb', name: n({en:'Cipher B', ua:'Cipher B'}), score: cbScore, raw: cbVal != null ? Math.round(cbVal) : null },
+        { key: 'mayer',   name: n({en:'Mayer Multiple', ua:'Mayer Multiple'}), score: mmScore, raw: mmVal != null ? mmVal.toFixed(2) : null },
+        { key: 'etf',     name: n({en:'ETF Flows (14d)', ua:'ETF Flows (14d)'}), score: etfScore, raw: etfVal != null ? (etfVal>0?'+':'')+Math.round(etfVal)+'M' : null },
+        { key: 'fg',      name: n({en:'Fear & Greed', ua:'Індекс страху'}), score: mapFG(fgVal), raw: fgVal != null ? Math.round(fgVal) : null },
+        { key: 'yc',      name: n({en:'Yield Curve', ua:'Крива дохідності'}), score: mapYC(yc), raw: yc != null ? yc.toFixed(2)+'%' : null },
+        { key: 'm2',      name: n({en:'Global M2', ua:'Глобальний M2'}), score: mapM2(m2raw), raw: m2raw != null ? m2raw.toFixed(2)+'%' : null }
       ]);
     }
 
