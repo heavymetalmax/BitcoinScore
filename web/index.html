@@ -2331,7 +2331,32 @@
         }
       }
 
-      // ── 3. Current-value tick — pointer from the scale arc inward to an
+      // ── 3. Diagonal hatching in the outer pointer-sweep zone (R_out → tip) ──
+      // Clipped to the thin arc strip outside the dots so it never covers them.
+      if (value > 0) {
+        const hatchGap = isSmall ? 10 : 16;
+        const toA = toAngle(value);
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(cx, cy, R_out + hatchGap, Math.PI, toA, false);
+        ctx.arc(cx, cy, R_out,            toA,     Math.PI, true);
+        ctx.closePath();
+        ctx.clip();
+        const spacing = isSmall ? 4 : 5;
+        ctx.strokeStyle = isDark ? 'rgba(247,147,26,0.35)' : 'rgba(0,0,0,0.22)';
+        ctx.lineWidth   = isSmall ? 1 : 1.2;
+        ctx.lineCap     = 'square';
+        const ext = R_out + hatchGap + 10;
+        for (let d = -(ext * 2); d < ext * 2; d += spacing) {
+          ctx.beginPath();
+          ctx.moveTo(cx + d,       cy - ext);
+          ctx.lineTo(cx + d + ext, cy + ext);
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
+
+      // ── 4. Current-value tick — pointer from the scale arc inward to an
       // invisible clearance circle around the number (so it never touches the
       // digits, at any angle). Circle is centred at the gauge centre (cx,cy),
       // which sits below the number.
