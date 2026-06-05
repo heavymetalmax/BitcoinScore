@@ -94,15 +94,24 @@
 
     /* --- Background Layering (Depth Effect) --- */
     .lockscreen-wrapper {
-      position: fixed;
-      inset: 0;
-      overflow: hidden;
+      position: relative;
+      width: 100%;
+      min-height: 100svh;
+      overflow: visible;
       display: flex;
       flex-direction: column;
       justify-content: flex-start;
       align-items: center;
       padding: max(24px, env(safe-area-inset-top)) 24px max(120px, calc(120px + env(safe-area-inset-bottom)));
       z-index: 10;
+    }
+
+    .wallpaper-floor {
+      width: 100%;
+      height: calc(100lvh - 100svh);
+      min-height: 40px;
+      pointer-events: none;
+      flex-shrink: 0;
     }
 
     .wallpaper-container {
@@ -1106,10 +1115,6 @@
 <body class="lang-en">
 
   <!-- Interactive Background Wallpaper (Depth effect layers) -->
-  <!-- body anchor: height:100lvh makes body taller than visual viewport,
-       so the background slides under the Safari toolbar (~82px gap) -->
-  <div aria-hidden="true" style="height:100lvh;width:0;pointer-events:none;"></div>
-
   <div class="wallpaper-container">
     <div class="wallpaper-bg" id="wallpaper-bg"></div>
     <div class="wallpaper-overlay"></div>
@@ -1261,6 +1266,9 @@
     </div>
 
   </div>
+
+  <!-- Empty block where wallpaper extends behind Safari toolbar -->
+  <div class="wallpaper-floor" aria-hidden="true"></div>
 
   <!-- Settings Gear Floating Button -->
   <button class="settings-gear" onclick="toggleDrawer(true)">
