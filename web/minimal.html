@@ -898,6 +898,79 @@
       pointer-events: auto;
     }
 
+    /* --- Disclaimer trigger & modal --- */
+    .disclaimer-trigger {
+      position: fixed;
+      bottom: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.62rem;
+      color: var(--text-sub);
+      cursor: pointer;
+      opacity: 0.45;
+      transition: opacity 0.2s ease;
+      white-space: nowrap;
+      z-index: 50;
+      letter-spacing: 0.04em;
+    }
+    .disclaimer-trigger:hover { opacity: 0.9; }
+
+    .disclaimer-modal {
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -46%);
+      width: min(92vw, 420px);
+      background: var(--bg-card-hover);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 32px;
+      padding: 28px 24px;
+      z-index: 101;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      opacity: 0;
+      pointer-events: none;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+    .disclaimer-modal.open {
+      opacity: 1;
+      pointer-events: all;
+      transform: translate(-50%, -50%);
+    }
+    .disclaimer-modal-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 12px;
+    }
+    .disclaimer-modal-text {
+      font-size: 0.78rem;
+      line-height: 1.65;
+      color: var(--text-mute);
+    }
+    .disclaimer-modal-close {
+      align-self: flex-end;
+      background: none;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 20px;
+      color: var(--text-mute);
+      font-size: 0.75rem;
+      padding: 6px 18px;
+      cursor: pointer;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+    .disclaimer-modal-close:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text);
+    }
+
     /* Navigation list item styles inside settings */
     .drawer-nav-item {
       display: flex !important;
@@ -1209,8 +1282,30 @@
     </div>
   </div>
 
+  <!-- Disclaimer trigger (fixed bottom) -->
+  <div class="disclaimer-trigger" onclick="toggleDisclaimer(true)">
+    <span class="en">disclaimer</span>
+    <span class="ua">відмова від відповідальності</span>
+  </div>
+
+  <!-- Disclaimer Modal -->
+  <div class="disclaimer-modal" id="disclaimer-modal">
+    <div class="disclaimer-modal-title">
+      <span class="en">Disclaimer</span>
+      <span class="ua">Відмова від відповідальності</span>
+    </div>
+    <div class="disclaimer-modal-text">
+      <span class="en">This dashboard is for informational purposes only and does not constitute financial advice. All data is automatically collected from public sources. Any decisions to buy or sell assets are made solely at your own risk.</span>
+      <span class="ua">Цей дашборд створений виключно з інформаційною метою і не є фінансовою порадою. Всі дані збираються автоматично з публічних джерел. Будь-які рішення про купівлю чи продаж активів приймаються вами на власний ризик.</span>
+    </div>
+    <button class="disclaimer-modal-close" onclick="toggleDisclaimer(false)">
+      <span class="en">Close</span>
+      <span class="ua">Закрити</span>
+    </button>
+  </div>
+
   <!-- Drawer Backdrop -->
-  <div class="drawer-backdrop" id="drawer-backdrop" onclick="toggleDrawer(false)"></div>
+  <div class="drawer-backdrop" id="drawer-backdrop" onclick="toggleDrawer(false); toggleDisclaimer(false);"></div>
 
   <script>
     // Theme switching integration
@@ -1266,6 +1361,17 @@
       if (drawer) drawer.classList.toggle('open', open);
       if (backdrop) backdrop.classList.toggle('open', open);
     }
+
+    function toggleDisclaimer(open) {
+      const modal = document.getElementById('disclaimer-modal');
+      const backdrop = document.getElementById('drawer-backdrop');
+      if (modal) modal.classList.toggle('open', open);
+      if (backdrop) backdrop.classList.toggle('open', open);
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') { toggleDrawer(false); toggleDisclaimer(false); }
+    });
 
     // Global Language Toggle
     function setLang(lang) {
