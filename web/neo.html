@@ -184,10 +184,37 @@ html.style-modern .score-box {
   border: 3px solid var(--border-hard);
   box-shadow: 4px 4px 0 0 var(--shadow-hard);
   transition: box-shadow 0.1s ease, transform 0.1s ease;
+  position: relative;
+  overflow: hidden;
 }
 html.style-modern .score-box:hover {
   box-shadow: 6px 6px 0 0 var(--shadow-hard);
   transform: translate(-2px, -2px);
+}
+
+/* gauge canvas fills the card as background */
+html.style-modern .modern-gauge-container,
+html.style-modern .modern-sub-gauge-wrap {
+  position: absolute !important;
+  inset: 0 !important;
+  display: flex !important;
+  align-items: flex-end !important;
+  justify-content: center !important;
+  pointer-events: none;
+  z-index: 0;
+}
+html.style-modern #modern-gauge-canvas,
+html.style-modern .modern-sub-gauge-canvas {
+  position: absolute !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  z-index: 0 !important;
+  max-width: none !important;
+}
+/* all direct children of score-box sit above the canvas */
+html.style-modern .score-box > *:not(.modern-gauge-container):not(.modern-sub-gauge-wrap) {
+  position: relative;
+  z-index: 1;
 }
 html.style-modern .nav-header {
   border-bottom: 3px solid var(--border-hard);
@@ -2399,14 +2426,10 @@ html.style-modern .score-box .s-sub {
       const TICK_CUR_COL = '#f7931a';
       const NUM_COL      = isDark ? '#8892a4' : '#374151';
 
-      const dpr    = window.devicePixelRatio || 1;
-      const maxW   = isSmall ? 180 : 320;
-      // For small gauges, derive width from the score-box card (minus its 40px padding)
-      // so the canvas never exceeds the card content area regardless of clientWidth timing
-      const scoreBox = isSmall ? canvas.closest('.score-box') : null;
-      const boxW     = scoreBox ? scoreBox.clientWidth - 40 : 0;
-      const W        = Math.min(boxW > 0 ? boxW : (canvas.parentElement.clientWidth || maxW), maxW);
-      const H        = isSmall ? 90 : 162;
+      const dpr     = window.devicePixelRatio || 1;
+      const card    = canvas.closest('.score-box');
+      const W       = card ? card.clientWidth  : (isSmall ? 180 : 320);
+      const H       = card ? card.clientHeight : (isSmall ? 90  : 162);
 
       canvas.width  = W * dpr;
       canvas.height = H * dpr;
@@ -2417,9 +2440,9 @@ html.style-modern .score-box .s-sub {
       ctx.scale(dpr, dpr);
 
       const cx     = W / 2;
-      const cy     = H;
-      const R_out  = Math.min(W * 0.46, H - (isSmall ? 10 : 14));
-      const ringW  = isSmall ? 13 : 22;
+      const cy     = H + H * 0.08;           // centre slightly below card bottom → arc fills more
+      const R_out  = Math.min(W * 0.5, H * 1.05);
+      const ringW  = Math.round(R_out * (isSmall ? 0.14 : 0.16));
       const R_in   = R_out - ringW;
 
       // helper: canvas angle for risk value v (0→π left, 100→2π right)
