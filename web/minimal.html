@@ -78,6 +78,8 @@
       background: #000;
     }
     body {
+      min-height: 100vh;
+      background: #000 url('wallpaper-real.jpg') no-repeat center / cover;
       font-family: 'Inter', -apple-system, sans-serif;
       color: var(--text);
       user-select: none;
@@ -1555,7 +1557,7 @@
       const localFile = wpType === 'abstract' ? 'wallpaper-abstract.jpg' : 'wallpaper-real.jpg';
       function applyWallpaper(url) {
         bg.style.backgroundImage = `url('${url}')`;
-        document.documentElement.style.backgroundImage = `url('${url}')`;
+        document.body.style.backgroundImage = `url('${url}')`;
       }
 
       const img = new Image();
