@@ -171,18 +171,18 @@
     /* Light overlay for light theme wallpapers */
     html.theme-light .wallpaper-overlay {
       background: linear-gradient(to bottom, 
-        rgba(255, 255, 255, 0.45) 0%, 
-        rgba(255, 255, 255, 0.15) 50%, 
-        rgba(255, 255, 255, 0.5) 100%
+        rgba(255, 255, 255, 0.5) 0%, 
+        rgba(255, 255, 255, 0.2) 50%, 
+        rgba(255, 255, 255, 0.55) 100%
       ) !important;
     }
 
     /* Dark overlay for dark theme wallpapers */
     html.theme-dark .wallpaper-overlay {
       background: linear-gradient(to bottom, 
-        rgba(6, 6, 8, 0.82) 0%, 
-        rgba(6, 6, 8, 0.6) 50%, 
-        rgba(6, 6, 8, 0.88) 100%
+        rgba(6, 6, 8, 0.6) 0%, 
+        rgba(6, 6, 8, 0.35) 50%, 
+        rgba(6, 6, 8, 0.75) 100%
       ) !important;
     }
 
@@ -1312,29 +1312,12 @@
     };
 
     function loadWallpaper(score) {
-      let category = 'neutral';
-      if (score != null) {
-        if (score <= 25) category = 'low';
-        else if (score >= 75) category = 'high';
-      }
-
       const wpType = localStorage.getItem('bbr-wp-type') || 'real';
       const bg = document.getElementById('wallpaper-bg');
       if (!bg) return;
 
-      // 1) Try local Pexels wallpaper (downloaded by scraper after each update)
       const localFile = wpType === 'abstract' ? 'wallpaper-abstract.jpg' : 'wallpaper-real.jpg';
-      const img = new Image();
-      img.onload = () => {
-        bg.style.backgroundImage = `url('${localFile}')`;
-      };
-      img.onerror = () => {
-        // 2) Fallback: Unsplash curated set
-        const set = (wpType === 'abstract') ? WallpapersAbstract[category] : WallpapersReal[category];
-        const selectedUrl = set[Math.floor(Math.random() * set.length)];
-        bg.style.backgroundImage = `url('${selectedUrl}')`;
-      };
-      img.src = localFile;
+      bg.style.backgroundImage = `url('${localFile}')`;
     }
 
     // Grayscale Score Color Helper (All UI elements are rendered monochrome)
@@ -1431,23 +1414,29 @@
       const endAngle = 2.25 * Math.PI;
       const norm = Math.min(Math.max(value, 0), 100) / 100;
       const curAngle = startAngle + norm * (endAngle - startAngle);
+      
+      const isLight = document.documentElement.classList.contains('theme-light');
+      const trackColor = isLight ? 'rgba(0, 0, 0, 0.08)' : 'rgba(255, 255, 255, 0.15)';
+      const fillColor = isLight ? 'rgba(0, 0, 0, 0.7)' : 'rgba(255, 255, 255, 0.8)';
+      const dotColor = isLight ? '#000000' : '#ffffff';
+
       // Track
       ctx.beginPath();
       ctx.arc(cx, cy, radius, startAngle, endAngle);
       ctx.lineWidth = 4; ctx.lineCap = 'round';
-      ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.stroke();
+      ctx.strokeStyle = trackColor; ctx.stroke();
       // Fill
       ctx.beginPath();
       ctx.arc(cx, cy, radius, startAngle, curAngle);
       ctx.lineWidth = 4; ctx.lineCap = 'round';
-      ctx.strokeStyle = 'rgba(255,255,255,0.8)'; ctx.stroke();
+      ctx.strokeStyle = fillColor; ctx.stroke();
       // Dot
       const dotX = cx + radius * Math.cos(curAngle);
       const dotY = cy + radius * Math.sin(curAngle);
       ctx.beginPath(); ctx.arc(dotX, dotY, 4.5, 0, 2 * Math.PI);
-      ctx.fillStyle = '#ffffff'; ctx.shadowColor = 'rgba(0,0,0,0.4)'; ctx.shadowBlur = 4; ctx.fill(); ctx.shadowBlur = 0;
+      ctx.fillStyle = dotColor; ctx.shadowColor = isLight ? 'rgba(0,0,0,0.1)' : 'rgba(0,0,0,0.4)'; ctx.shadowBlur = 4; ctx.fill(); ctx.shadowBlur = 0;
       ctx.beginPath(); ctx.arc(dotX, dotY, 4.5, 0, 2 * Math.PI);
-      ctx.lineWidth = 1; ctx.strokeStyle = 'rgba(255,255,255,0.6)'; ctx.stroke();
+      ctx.lineWidth = 1; ctx.strokeStyle = isLight ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.6)'; ctx.stroke();
     }
 
     // Mini arc gauge drawing (for 44px yesterday/week canvases)
@@ -1463,21 +1452,27 @@
       const endAngle = 2.25 * Math.PI;
       const norm = Math.min(Math.max(value, 0), 100) / 100;
       const curAngle = startAngle + norm * (endAngle - startAngle);
+
+      const isLight = document.documentElement.classList.contains('theme-light');
+      const trackColor = isLight ? 'rgba(0, 0, 0, 0.06)' : 'rgba(255, 255, 255, 0.1)';
+      const fillColor = isLight ? 'rgba(0, 0, 0, 0.55)' : 'rgba(255, 255, 255, 0.65)';
+      const dotColor = isLight ? '#000000' : '#ffffff';
+
       // Track
       ctx.beginPath();
       ctx.arc(cx, cy, radius, startAngle, endAngle);
       ctx.lineWidth = 3; ctx.lineCap = 'round';
-      ctx.strokeStyle = 'rgba(255,255,255,0.1)'; ctx.stroke();
+      ctx.strokeStyle = trackColor; ctx.stroke();
       // Fill
       ctx.beginPath();
       ctx.arc(cx, cy, radius, startAngle, curAngle);
       ctx.lineWidth = 3; ctx.lineCap = 'round';
-      ctx.strokeStyle = 'rgba(255,255,255,0.65)'; ctx.stroke();
+      ctx.strokeStyle = fillColor; ctx.stroke();
       // Dot
       const dotX = cx + radius * Math.cos(curAngle);
       const dotY = cy + radius * Math.sin(curAngle);
       ctx.beginPath(); ctx.arc(dotX, dotY, 3, 0, 2 * Math.PI);
-      ctx.fillStyle = '#ffffff'; ctx.shadowColor = 'rgba(0,0,0,0.3)'; ctx.shadowBlur = 3; ctx.fill(); ctx.shadowBlur = 0;
+      ctx.fillStyle = dotColor; ctx.shadowColor = isLight ? 'rgba(0,0,0,0.1)' : 'rgba(0,0,0,0.3)'; ctx.shadowBlur = 3; ctx.fill(); ctx.shadowBlur = 0;
     }
 
     // Populate back face of a flipping card with indicator rows
