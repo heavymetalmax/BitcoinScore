@@ -2301,12 +2301,10 @@ html.style-modern .score-box .s-sub {
       const ZONE_BRIGHT = isDark
         ? ['#8892a4', '#b0baca', '#d4d8df', '#fbbf24', '#f7931a']  // brighter on dark bg
         : ['#374151', '#6b7280', '#c8cdd4', '#fdba74', '#f7931a'];
-      const ZONE_DIM = ZONE_BRIGHT;   // no dimming — all zones show at full colour
-      const RIM_COL      = '#f7931a';                       // always max orange
-      const RIM_GAP      = isSmall ? 2 : 3;
-      const TICK_BND_COL = isDark ? '#4a5470' : '#c8cdd4';
-      const TICK_CUR_COL = '#f7931a';                        // always max orange
-      const NUM_COL      = isDark ? '#8892a4' : '#374151';  // darkest gauge segment
+      const ZONE_DIM     = ZONE_BRIGHT;
+      const SEG_BORDER   = isDark ? '#0A0A0A' : '#0A0A0A';
+      const TICK_CUR_COL = '#f7931a';
+      const NUM_COL      = isDark ? '#EEEEEE' : '#0A0A0A';
 
       const dpr    = window.devicePixelRatio || 1;
       const maxW   = isSmall ? 180 : 320;
