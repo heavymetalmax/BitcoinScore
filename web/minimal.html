@@ -86,7 +86,10 @@
       position: relative;
       overflow: clip;
       min-height: calc(100lvh + 80px); /* +80px buffer so wallpaper-container clears the full toolbar */
-      background: #000; /* wallpaper-container covers everything — no image needed on body */
+      /* Image here acts as compositor fallback: when Safari renders backdrop-filter layers
+         it samples the body behind them — without an image it shows #000 (black stripe under toolbar).
+         The absolute wallpaper-container covers this in normal rendering; this is only for compositor. */
+      background: #000 url('wallpaper-real.jpg') no-repeat center / cover;
       font-family: 'Inter', -apple-system, sans-serif;
       color: var(--text);
       user-select: none;
@@ -1609,6 +1612,7 @@
       const localFile = wpType === 'abstract' ? 'wallpaper-abstract.jpg' : 'wallpaper-real.jpg';
       function applyWallpaper(url) {
         bg.style.backgroundImage = `url('${url}')`;
+        document.body.style.backgroundImage = `url('${url}')`;
       }
 
       const img = new Image();
