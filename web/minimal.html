@@ -2178,6 +2178,7 @@
       ]);
     }
 
+    window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', updateThemeClass);
     document.addEventListener('DOMContentLoaded', () => { init(); setInterval(updateCountdown, 60000); });
   </script>
 </body>
