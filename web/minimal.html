@@ -1936,14 +1936,19 @@
         displayScore.textContent = data.final_score != null ? data.final_score : '—';
       }
 
+      const riskLabel = (val) => {
+        if (val == null) return { en: '—', ua: '—' };
+        if (val < 20)  return { en: 'Very Low',  ua: 'Мінімальний' };
+        if (val < 40)  return { en: 'Low',       ua: 'Незначний' };
+        if (val < 60)  return { en: 'Moderate',  ua: 'Помірний' };
+        if (val < 80)  return { en: 'High',      ua: 'Значний' };
+        return               { en: 'Very High',  ua: 'Надмірний' };
+      };
+
       // Update index status rating text (monochrome styling)
       const mainStatus = document.getElementById('main-status');
       if (mainStatus) {
-        let statusText = { en: 'Neutral', ua: 'Нейтрально' };
-        if (data.final_score != null) {
-          if (data.final_score <= 25) statusText = { en: 'Low Risk / Accumulation', ua: 'Низький ризик / Накопичення' };
-          else if (data.final_score >= 75) statusText = { en: 'High Risk / Distribution', ua: 'Високий ризик / Розподіл' };
-        }
+        const statusText = riskLabel(data.final_score);
         mainStatus.innerHTML = `<span class="en">${statusText.en}</span><span class="ua">${statusText.ua}</span>`;
         mainStatus.style.color = 'var(--text)';
         mainStatus.style.textShadow = 'none';
@@ -1951,11 +1956,7 @@
 
       // Populate about panel score/status
       const scoreVal = data.final_score != null ? Math.round(data.final_score) : '—';
-      let aboutStatus = { en: 'Neutral', ua: 'Нейтрально' };
-      if (data.final_score != null) {
-        if (data.final_score <= 25) aboutStatus = { en: 'Low Risk / Accumulation', ua: 'Низький ризик / Накопичення' };
-        else if (data.final_score >= 75) aboutStatus = { en: 'High Risk / Distribution', ua: 'Високий ризик / Розподіл' };
-      }
+      const aboutStatus = riskLabel(data.final_score);
       const asen = document.getElementById('about-score-en');
       const asua = document.getElementById('about-score-ua');
       const astsen = document.getElementById('about-status-en');
@@ -1974,11 +1975,7 @@
           scoreEl.style.color = 'var(--text)';
         }
         if (labelEl) {
-          let label = { en: 'Neutral', ua: 'Нейтрально' };
-          if (val != null) {
-            if (val <= 25) label = { en: 'Buy', ua: 'Купівля' };
-            else if (val >= 75) label = { en: 'Sell', ua: 'Продаж' };
-          }
+          const label = riskLabel(val);
           labelEl.innerHTML = `<span class="en">${label.en}</span><span class="ua">${label.ua}</span>`;
           labelEl.style.color = 'var(--text-mute)';
         }
@@ -1995,12 +1992,8 @@
           scoreEl.textContent = val != null ? val : '—';
         }
         if (statusEl) {
-          let label = { en: 'neutral', ua: 'нейтрально' };
-          if (val != null) {
-            if (val <= 25) label = { en: 'buy', ua: 'купівля' };
-            else if (val >= 75) label = { en: 'sell', ua: 'продаж' };
-          }
-          statusEl.innerHTML = `<span class="en">${label.en}</span><span class="ua">${label.ua}</span>`;
+          const label = riskLabel(val);
+          statusEl.innerHTML = `<span class="en">${label.en.toLowerCase()}</span><span class="ua">${label.ua.toLowerCase()}</span>`;
         }
       };
       setCenterSubVal(data.onchain_score, 's-oc-center', 's-oc-status-center');
@@ -2178,6 +2171,7 @@
       ]);
     }
 
+    window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', updateThemeClass);
     document.addEventListener('DOMContentLoaded', () => { init(); setInterval(updateCountdown, 60000); });
   </script>
 </body>
