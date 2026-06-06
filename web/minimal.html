@@ -1938,10 +1938,10 @@
 
       const riskLabel = (val) => {
         if (val == null) return { en: '—', ua: '—' };
-        if (val < 20)  return { en: 'Very Low',  ua: 'Мінімальний' };
-        if (val < 40)  return { en: 'Low',       ua: 'Незначний' };
-        if (val < 60)  return { en: 'Moderate',  ua: 'Помірний' };
-        if (val < 80)  return { en: 'High',      ua: 'Значний' };
+        if (val < 25)  return { en: 'Very Low',  ua: 'Мінімальний' };
+        if (val < 35)  return { en: 'Low',       ua: 'Незначний' };
+        if (val < 55)  return { en: 'Moderate',  ua: 'Помірний' };
+        if (val < 75)  return { en: 'High',      ua: 'Значний' };
         return               { en: 'Very High',  ua: 'Надмірний' };
       };
 
