@@ -108,6 +108,7 @@
          cutting the wallpaper short mid-toolbar. clip uses the real border-box (100lvh). */
       position: relative;
       overflow: clip;
+      padding-top: env(safe-area-inset-top);
       min-height: calc(100lvh + 80px); /* +80px buffer so wallpaper-container clears the full toolbar */
       /* Image here acts as compositor fallback: when Safari renders backdrop-filter layers
          it samples the body behind them — without an image it shows #000 (black stripe under toolbar).
@@ -135,7 +136,7 @@
       flex-direction: column;
       justify-content: flex-start;
       align-items: center;
-      padding: max(24px, calc(env(safe-area-inset-top) + 12px)) 24px max(120px, calc(120px + env(safe-area-inset-bottom)));
+      padding: 24px 24px max(120px, calc(120px + env(safe-area-inset-bottom)));
       z-index: 10;
     }
 
