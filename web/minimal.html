@@ -1938,11 +1938,11 @@
 
       const riskLabel = (val) => {
         if (val == null) return { en: '—', ua: '—' };
-        if (val < 20)  return { en: 'Very Low Risk',  ua: 'Мінімальний ризик' };
-        if (val < 40)  return { en: 'Low Risk',       ua: 'Незначний ризик' };
-        if (val < 60)  return { en: 'Moderate Risk',  ua: 'Помірний ризик' };
-        if (val < 80)  return { en: 'High Risk',      ua: 'Значний ризик' };
-        return               { en: 'Very High Risk',  ua: 'Надмірний ризик' };
+        if (val < 20)  return { en: 'Very Low',  ua: 'Мінімальний' };
+        if (val < 40)  return { en: 'Low',       ua: 'Незначний' };
+        if (val < 60)  return { en: 'Moderate',  ua: 'Помірний' };
+        if (val < 80)  return { en: 'High',      ua: 'Значний' };
+        return               { en: 'Very High',  ua: 'Надмірний' };
       };
 
       // Update index status rating text (monochrome styling)
