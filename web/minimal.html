@@ -108,7 +108,6 @@
          cutting the wallpaper short mid-toolbar. clip uses the real border-box (100lvh). */
       position: relative;
       overflow: clip;
-      padding-top: env(safe-area-inset-top);
       min-height: calc(100lvh + 80px); /* +80px buffer so wallpaper-container clears the full toolbar */
       /* Image here acts as compositor fallback: when Safari renders backdrop-filter layers
          it samples the body behind them — without an image it shows #000 (black stripe under toolbar).
@@ -217,6 +216,7 @@
       font-size: 0.75rem;
       font-weight: 600;
       letter-spacing: 0.05em;
+      margin-top: env(safe-area-inset-top);
       color: var(--text-mute);
       background: var(--bg-card);
       padding: 10px 20px;
@@ -279,7 +279,7 @@
       background: transparent;
       border: none;
       padding: 0;
-      margin-top: 6vh;
+      margin-top: 10vh;
       width: 100%;
       max-width: 480px;
       z-index: 20;
