@@ -4,6 +4,7 @@ Returns {'en': str, 'ua': str} or None if the API key is absent / call fails.
 """
 import json
 import os
+import time
 
 import requests
 
@@ -80,26 +81,29 @@ Be specific. Reference actual metric scores. Do not give financial advice. Do no
 Reply ONLY with valid JSON — no markdown, no code fences, no extra text:
 {{"en": "English text.", "ua": "Ukrainian text."}}"""
 
-    try:
-        resp = requests.post(
-            f'{_URL}?key={api_key}',
-            json={
-                'contents': [{'parts': [{'text': prompt}]}],
-                'generationConfig': {'temperature': 0.4, 'maxOutputTokens': 800},
-            },
-            timeout=30,
-        )
-        resp.raise_for_status()
-        raw = resp.json()['candidates'][0]['content']['parts'][0]['text'].strip()
-        # Strip markdown code fences if the model adds them
-        if raw.startswith('```'):
-            raw = raw.split('```')[1]
-            if raw.startswith('json'):
-                raw = raw[4:]
-            raw = raw.strip()
-        result = json.loads(raw)
-        print(f"Gemini commentary (en): {result.get('en', '')[:100]}…")
-        return result
-    except Exception as exc:
-        print(f'Gemini commentary failed: {exc}')
-        return None
+    body = {
+        'contents': [{'parts': [{'text': prompt}]}],
+        'generationConfig': {'temperature': 0.4, 'maxOutputTokens': 800},
+    }
+    last_exc = None
+    for attempt in range(3):
+        if attempt:
+            time.sleep(2 ** attempt)  # 2s, 4s
+        try:
+            resp = requests.post(f'{_URL}?key={api_key}', json=body, timeout=30)
+            resp.raise_for_status()
+            raw = resp.json()['candidates'][0]['content']['parts'][0]['text'].strip()
+            # Strip markdown code fences if the model adds them
+            if raw.startswith('```'):
+                raw = raw.split('```')[1]
+                if raw.startswith('json'):
+                    raw = raw[4:]
+                raw = raw.strip()
+            result = json.loads(raw)
+            print(f"Gemini commentary (en): {result.get('en', '')[:100]}…")
+            return result
+        except Exception as exc:
+            last_exc = exc
+            print(f'Gemini attempt {attempt + 1} failed: {exc}')
+    print(f'Gemini commentary failed after 3 attempts: {last_exc}')
+    return None
