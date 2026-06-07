@@ -1,6 +1,8 @@
 """
-Generate a short human-readable interpretation of the current index via Gemini.
+Generate a short human-readable interpretation of the current index via Groq.
 Returns {'en': str, 'ua': str} or None if the API key is absent / call fails.
+
+API key is stored in GEMINI_API_KEY secret (name kept for backward compatibility).
 """
 import json
 import os
@@ -8,11 +10,8 @@ import time
 
 import requests
 
-_MODEL = 'gemini-2.0-flash'
-_URL = (
-    f'https://generativelanguage.googleapis.com/v1beta/models/{_MODEL}'
-    ':generateContent'
-)
+_MODEL = 'llama-3.3-70b-versatile'
+_URL = 'https://api.groq.com/openai/v1/chat/completions'
 
 _METRIC_LABELS = {
     'nupl':             'NUPL',
@@ -82,17 +81,24 @@ Reply ONLY with valid JSON — no markdown, no code fences, no extra text:
 {{"en": "English text.", "ua": "Ukrainian text."}}"""
 
     body = {
-        'contents': [{'parts': [{'text': prompt}]}],
-        'generationConfig': {'temperature': 0.4, 'maxOutputTokens': 800},
+        'model': _MODEL,
+        'messages': [{'role': 'user', 'content': prompt}],
+        'temperature': 0.4,
+        'max_tokens': 800,
     }
+    headers = {
+        'Authorization': f'Bearer {api_key}',
+        'Content-Type': 'application/json',
+    }
+
     last_exc = None
     for attempt in range(3):
         if attempt:
             time.sleep(2 ** attempt)  # 2s, 4s
         try:
-            resp = requests.post(f'{_URL}?key={api_key}', json=body, timeout=30)
+            resp = requests.post(_URL, json=body, headers=headers, timeout=30)
             resp.raise_for_status()
-            raw = resp.json()['candidates'][0]['content']['parts'][0]['text'].strip()
+            raw = resp.json()['choices'][0]['message']['content'].strip()
             # Strip markdown code fences if the model adds them
             if raw.startswith('```'):
                 raw = raw.split('```')[1]
@@ -100,10 +106,10 @@ Reply ONLY with valid JSON — no markdown, no code fences, no extra text:
                     raw = raw[4:]
                 raw = raw.strip()
             result = json.loads(raw)
-            print(f"Gemini commentary (en): {result.get('en', '')[:100]}…")
+            print(f"Groq commentary (en): {result.get('en', '')[:100]}…")
             return result
         except Exception as exc:
             last_exc = exc
-            print(f'Gemini attempt {attempt + 1} failed: {exc}')
-    print(f'Gemini commentary failed after 3 attempts: {last_exc}')
+            print(f'Groq attempt {attempt + 1} failed: {exc}')
+    print(f'Groq commentary failed after 3 attempts: {last_exc}')
     return None
