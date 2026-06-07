@@ -48,19 +48,34 @@ def generate_commentary(payload: dict, slider_map: dict) -> dict | None:
     tech  = payload.get('tech_score')
     price = payload.get('btc_price')
 
-    prompt = f"""You are interpreting a Bitcoin risk index called the Bitcoin Buy Risk Index.
-Score range 0–100: low score = low risk / historically good time to accumulate; high score = high risk / historically expensive territory. This is NOT a price prediction.
+    prompt = f"""You are a Bitcoin market analyst interpreting a composite risk index.
+Score range 0–100: low = low risk (historically undervalued territory); high = high risk (historically expensive). NOT a price prediction.
 
-Today's snapshot:
+Today's data:
 - BTC price: ${price:,}
 - Final Risk Score: {score}/100
-- On-chain Score: {oc}/100
-- Tech / Macro Score: {tech}/100
+- On-chain Score: {oc}/100  (NUPL, MVRV, RHODL, CVDD, aSOPR)
+- Tech/Macro Score: {tech}/100  (CipherB momentum, Mayer Multiple, ETF flows, Fear & Greed, Yield Curve, M2)
 
-Individual metric risk scores (0 = minimal risk, 100 = maximum risk):
+Metric risk scores (0 = min risk, 100 = max risk):
 {_metrics_text(slider_map)}
 
-Write a concise 2–3 sentence interpretation. Name the 1–2 most significant drivers. Do NOT give financial advice. Do NOT name the index.
+Metric context:
+- NUPL / MVRV / RHODL / CVDD: on-chain valuation — measure where long-term holders stand (profit/loss depth, coin age distribution). Slow-moving, cycle-level signals.
+- aSOPR: short-term spent output profit ratio — captures whether recent movers are selling at gain or loss.
+- CipherB: price/momentum oscillator (WaveTrend). Fast, mean-reverting.
+- Mayer Multiple: price vs 200-day MA — trend context.
+- ETF Flows: 14-day institutional demand signal. Tactical.
+- Fear & Greed: crowd sentiment. Contrarian.
+- Yield Curve / M2: macro backdrop — liquidity and recession risk.
+
+Your task — write 3–4 sentences that:
+1. Identify whether on-chain and tech signals AGREE or DIVERGE, and what that divergence means.
+2. Highlight any REINFORCING signals (multiple indicators pointing the same direction, amplifying the reading).
+3. Highlight any CONTRADICTIONS (indicators pulling in opposite directions, creating ambiguity).
+4. Describe the resulting market landscape in plain language — what kind of environment this combination of signals typically precedes.
+
+Be specific. Reference actual metric scores. Do not give financial advice. Do not name the index itself.
 
 Reply ONLY with valid JSON — no markdown, no code fences, no extra text:
 {{"en": "English text.", "ua": "Ukrainian text."}}"""
@@ -70,7 +85,7 @@ Reply ONLY with valid JSON — no markdown, no code fences, no extra text:
             f'{_URL}?key={api_key}',
             json={
                 'contents': [{'parts': [{'text': prompt}]}],
-                'generationConfig': {'temperature': 0.3, 'maxOutputTokens': 512},
+                'generationConfig': {'temperature': 0.4, 'maxOutputTokens': 800},
             },
             timeout=30,
         )
