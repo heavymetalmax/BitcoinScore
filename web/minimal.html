@@ -1022,6 +1022,63 @@
     .about-footer a { color: #fff; font-weight: 600; text-decoration: underline; text-decoration-color: rgba(255,255,255,0.4); text-underline-offset: 2px; }
     .about-footer a:hover { text-decoration-color: #fff; }
 
+    /* --- Commentary sheet --- */
+    .commentary-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin: 16px auto 0;
+      padding: 7px 16px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 99px;
+      color: var(--text-mute);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s, color 0.2s;
+    }
+    .commentary-btn:hover { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.28); color: var(--text); }
+    .commentary-btn svg { flex-shrink: 0; }
+
+    .commentary-sheet {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 200;
+      background: rgba(10,10,14,0.97);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-top: 1px solid rgba(255,255,255,0.12);
+      border-radius: 28px 28px 0 0;
+      padding: 0 24px max(32px, calc(env(safe-area-inset-bottom) + 24px));
+      transform: translateY(100%);
+      transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .commentary-sheet.open { transform: translateY(0); }
+    .commentary-sheet-handle {
+      width: 40px; height: 4px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 99px;
+      margin: 14px auto 20px;
+    }
+    .commentary-sheet-title {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.35);
+      margin-bottom: 14px;
+    }
+    .commentary-text {
+      font-size: 0.95rem;
+      line-height: 1.75;
+      color: rgba(255,255,255,0.82);
+      max-width: 560px;
+    }
     /* --- About trigger (bottom) --- */
     .disclaimer-trigger {
       position: fixed;
@@ -1265,6 +1322,13 @@
               </div>
             </div>
           </div>
+
+          <!-- AI Commentary button -->
+          <button class="commentary-btn" id="commentary-btn" onclick="toggleCommentary(true)" style="display:none;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg>
+            <span class="en">AI insight</span>
+            <span class="ua">AI аналіз</span>
+          </button>
         </div>
 
         <!-- Back Face -->
@@ -1428,6 +1492,16 @@
   </div><!-- /.drawer-scroll -->
   </div><!-- /.settings-drawer -->
 
+  <!-- Commentary bottom sheet -->
+  <div class="commentary-sheet" id="commentary-sheet">
+    <div class="commentary-sheet-handle" onclick="toggleCommentary(false)" style="cursor:pointer;"></div>
+    <div class="commentary-sheet-title">
+      <span class="en">AI Insight</span>
+      <span class="ua">AI Аналіз</span>
+    </div>
+    <p class="commentary-text" id="commentary-text">—</p>
+  </div>
+
   <!-- About footer bottom sheet -->
   <div class="about-footer" id="about-footer">
     <div class="about-footer-handle" onclick="toggleAbout(false)" style="cursor:pointer;padding:8px 0;"></div>
@@ -1522,6 +1596,11 @@
       if (backdrop) backdrop.classList.toggle('open', open);
     }
 
+    function toggleCommentary(open) {
+      const sheet = document.getElementById('commentary-sheet');
+      if (sheet) sheet.classList.toggle('open', open);
+    }
+
     function toggleAbout(open) {
       const footer = document.getElementById('about-footer');
       if (!footer) return;
@@ -1577,6 +1656,12 @@
 
       localStorage.setItem('bbr-lang', lang);
       document.title = lang === 'ua' ? 'Індекс ризику Bitcoin — Мінімал UI' : 'Bitcoin Buy Risk Index — Minimal UI';
+      // Update commentary language
+      const commentary = window.dataStore && window.dataStore.commentary;
+      if (commentary) {
+        const el = document.getElementById('commentary-text');
+        if (el) el.textContent = commentary[lang] || commentary.en || '';
+      }
     }
 
 
@@ -1911,6 +1996,16 @@
       }
 
       window.dataStore = data;
+
+      // Populate AI commentary
+      if (data.commentary) {
+        const lang = document.body.classList.contains('lang-ua') ? 'ua' : 'en';
+        const text = data.commentary[lang] || data.commentary.en;
+        const el = document.getElementById('commentary-text');
+        if (el && text) el.textContent = text;
+        const btn = document.getElementById('commentary-btn');
+        if (btn) btn.style.display = 'flex';
+      }
 
       // Render wallpapers based on the score
       loadWallpaper(data.final_score);

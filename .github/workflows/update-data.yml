@@ -10,6 +10,7 @@ env:
   ZYTE_API_KEY: ${{ secrets.ZYTE_API_KEY }}
   CMC_API_KEY: ${{ secrets.CMC_API_KEY }}
   PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
+  GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
 
 jobs:
   update:

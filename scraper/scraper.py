@@ -454,6 +454,16 @@ def main():
                 print(f"Zone prices: buy={zf['buy']['price']}  sell={zf['sell']['price']}  (realized={zf['realized_price']})")
         except Exception as e:
             print('Failed to compute zone forecast:', e)
+        # ── Gemini commentary ──────────────────────────────────────────────────
+        try:
+            from .gemini_commentary import generate_commentary
+            from .scoring import build_slider_map
+            sm = build_slider_map(p.get('metrics', {}))
+            commentary = generate_commentary(p, sm)
+            if commentary:
+                p['commentary'] = commentary
+        except Exception as e:
+            print(f'Gemini commentary failed: {e}')
         write_json('data/data.json', p)
         print(f"Scores: onchain={scores['onchain_score']}  tech={scores['tech_score']}  final={scores['final_score']}")
         for mk, mv in (scores.get('adaptive') or {}).items():
