@@ -77,14 +77,18 @@ Your task — write 3–4 sentences that:
 
 Be specific. Reference actual metric scores. Do not give financial advice. Do not name the index itself.
 
+IMPORTANT: You MUST provide BOTH languages. The "ua" field MUST be written in Ukrainian language.
 Reply ONLY with valid JSON — no markdown, no code fences, no extra text:
-{{"en": "English text.", "ua": "Ukrainian text."}}"""
+{{"en": "English text here.", "ua": "Текст українською мовою тут."}}"""
 
     body = {
         'model': _MODEL,
-        'messages': [{'role': 'user', 'content': prompt}],
+        'messages': [
+            {'role': 'system', 'content': 'You are a bilingual Bitcoin market analyst. Always respond with BOTH English ("en") and Ukrainian ("ua") fields in JSON. The "ua" field must be written in Ukrainian language.'},
+            {'role': 'user', 'content': prompt},
+        ],
         'temperature': 0.4,
-        'max_tokens': 800,
+        'max_tokens': 1200,
     }
     headers = {
         'Authorization': f'Bearer {api_key}',

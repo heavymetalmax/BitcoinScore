@@ -1068,6 +1068,17 @@
     .commentary-btn:hover { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.28); color: var(--text); }
     .commentary-btn svg { flex-shrink: 0; }
 
+    .commentary-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 199;
+      background: rgba(0,0,0,0.5);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .commentary-backdrop.open { opacity: 1; pointer-events: auto; }
+
     .commentary-sheet {
       position: fixed;
       bottom: 0;
@@ -1517,6 +1528,7 @@
   </div><!-- /.settings-drawer -->
 
   <!-- Commentary bottom sheet -->
+  <div class="commentary-backdrop" id="commentary-backdrop" onclick="toggleCommentary(false)"></div>
   <div class="commentary-sheet" id="commentary-sheet">
     <div class="commentary-sheet-handle" onclick="toggleCommentary(false)" style="cursor:pointer;"></div>
     <div class="commentary-sheet-title">
@@ -1626,8 +1638,21 @@
 
     function toggleCommentary(open) {
       const sheet = document.getElementById('commentary-sheet');
+      const backdrop = document.getElementById('commentary-backdrop');
       if (sheet) sheet.classList.toggle('open', open);
+      if (backdrop) backdrop.classList.toggle('open', open);
     }
+
+    // Swipe down to close commentary sheet
+    (function() {
+      const sheet = document.getElementById('commentary-sheet');
+      if (!sheet) return;
+      let startY = 0;
+      sheet.addEventListener('touchstart', e => { startY = e.touches[0].clientY; }, { passive: true });
+      sheet.addEventListener('touchend', e => {
+        if (e.changedTouches[0].clientY - startY > 60) toggleCommentary(false);
+      }, { passive: true });
+    })();
 
     function toggleAbout(open) {
       const footer = document.getElementById('about-footer');
