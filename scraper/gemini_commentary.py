@@ -29,8 +29,13 @@ def _risk_label(score):
 
 
 def _metrics_block(payload: dict, slider_map: dict) -> str:
-    """Build a human-readable metrics block with raw values + risk labels."""
+    """Build a human-readable metrics block with raw values + risk labels.
+
+    For NUPL, MVRV, and Mayer (adaptive metrics) we use the 'fixed' pre-blend
+    score from adaptive_calibration — that is the value the dashboard displays.
+    """
     m = payload.get('metrics', {})
+    ac = payload.get('adaptive_calibration', {})
 
     def mv(key):
         obj = m.get(key)
@@ -40,16 +45,23 @@ def _metrics_block(payload: dict, slider_map: dict) -> str:
             return obj['value']
         return obj
 
+    def fixed_or_slider(ac_key, slider_key):
+        """Return fixed (dashboard-displayed) score for adaptive metrics."""
+        entry = ac.get(ac_key)
+        if isinstance(entry, dict) and entry.get('fixed') is not None:
+            return entry['fixed']
+        return slider_map.get(slider_key)
+
     lines = []
 
     nupl = payload.get('nupl')
     if nupl is not None:
-        lines.append(f'  NUPL: {nupl:.2f}  [{_risk_label(slider_map.get("nupl"))}]'
+        lines.append(f'  NUPL: {nupl:.2f}  [{_risk_label(fixed_or_slider("nupl", "nupl"))}]'
                      '  (above 0 = unrealised profit; <0 = loss)')
 
     mvrv = payload.get('mvrv_z_score')
     if mvrv is not None:
-        lines.append(f'  MVRV Z-score: {mvrv:.2f}  [{_risk_label(slider_map.get("mvrv_z_score"))}]'
+        lines.append(f'  MVRV Z-score: {mvrv:.2f}  [{_risk_label(fixed_or_slider("mvrv", "mvrv_z_score"))}]'
                      '  (negative = below fair value)')
 
     rhodl = payload.get('rhodl_ratio')
@@ -76,7 +88,7 @@ def _metrics_block(payload: dict, slider_map: dict) -> str:
 
     mm = mv('mayer_multiple')
     if isinstance(mm, dict):
-        lines.append(f'  Mayer Multiple: {mm.get("value", "?")}  [{_risk_label(slider_map.get("mayer_multiple"))}]'
+        lines.append(f'  Mayer Multiple: {mm.get("value", "?")}  [{_risk_label(fixed_or_slider("mayer", "mayer_multiple"))}]'
                      f'  (price vs 200-day MA; <1 = below MA)')
 
     etf = payload.get('etf_flows')
