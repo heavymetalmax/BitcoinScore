@@ -857,6 +857,31 @@
       border-color: var(--border-hover);
     }
 
+    .commentary-gear {
+      position: fixed;
+      bottom: max(60px, calc(34px + env(safe-area-inset-bottom)));
+      left: 24px;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      z-index: 90;
+      color: var(--text);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      transition: background 0.3s ease, border-color 0.3s ease;
+    }
+    .commentary-gear:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--border-hover);
+    }
+
     /* --- Settings Drawer (Right Side Card, bento style) --- */
     .settings-drawer {
       position: fixed;
@@ -1323,12 +1348,6 @@
             </div>
           </div>
 
-          <!-- AI Commentary button -->
-          <button class="commentary-btn" id="commentary-btn" onclick="toggleCommentary(true)" style="display:none;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg>
-            <span class="en">AI insight</span>
-            <span class="ua">AI аналіз</span>
-          </button>
         </div>
 
         <!-- Back Face -->
@@ -1396,6 +1415,11 @@
 
   <!-- Empty block where wallpaper extends behind Safari toolbar -->
   <div class="wallpaper-floor" aria-hidden="true"></div>
+
+  <!-- Commentary Floating Button (left, mirrors settings gear) -->
+  <button class="commentary-gear" id="commentary-gear" onclick="toggleCommentary(true)">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+  </button>
 
   <!-- Settings Gear Floating Button -->
   <button class="settings-gear" onclick="toggleDrawer(true)">
@@ -2003,7 +2027,7 @@
         const text = data.commentary[lang] || data.commentary.en;
         const el = document.getElementById('commentary-text');
         if (el && text) el.textContent = text;
-        const btn = document.getElementById('commentary-btn');
+        const btn = document.getElementById('commentary-gear');
         if (btn) btn.style.display = 'flex';
       }
 
