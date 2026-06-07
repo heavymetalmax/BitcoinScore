@@ -1,7 +1,7 @@
 {
-  "timestamp": "2026-06-07T20:23:38Z",
-  "btc_price": 61810,
-  "btc_dominance": 58.11,
+  "timestamp": "2026-06-07T20:25:05Z",
+  "btc_price": 61809,
+  "btc_dominance": 58.13,
   "fear_greed": 23.3,
   "fear_greed_label": "CMC",
   "nupl": 12.0043,
@@ -27,37 +27,37 @@
     "nupl": {
       "value": 12.0043,
       "source": "BMP",
-      "updated": "2026-06-07T20:23:30Z"
+      "updated": "2026-06-07T20:24:58Z"
     },
     "mvrv": {
       "value": 0.2417,
       "source": "BMP",
-      "updated": "2026-06-07T20:23:30Z"
+      "updated": "2026-06-07T20:24:58Z"
     },
     "m2": {
       "value": 9.47,
       "source": "MacroMicro",
-      "updated": "2026-06-07T20:23:30Z"
+      "updated": "2026-06-07T20:24:58Z"
     },
     "yield_curve": {
       "value": 0.48,
       "source": "BMP",
-      "updated": "2026-06-07T20:23:30Z"
+      "updated": "2026-06-07T20:24:58Z"
     },
     "cvdd_ratio": {
       "value": 1.266,
       "source": "BMP",
-      "updated": "2026-06-07T20:23:30Z"
+      "updated": "2026-06-07T20:24:58Z"
     },
     "rhodl_ratio": {
       "value": 1257.9609,
       "source": "BMP",
-      "updated": "2026-06-07T20:23:30Z"
+      "updated": "2026-06-07T20:24:58Z"
     },
     "asopr": {
       "value": 0.9833142857142858,
       "source": "BMP",
-      "updated": "2026-06-07T20:23:30Z"
+      "updated": "2026-06-07T20:24:58Z"
     },
     "etf_flows": {
       "value": {
@@ -67,7 +67,7 @@
         "date": "2026-06-05"
       },
       "source": "Farside",
-      "updated": "2026-06-07T20:23:30Z"
+      "updated": "2026-06-07T20:24:58Z"
     },
     "rainbow_band": {
       "value": {
@@ -78,14 +78,14 @@
         "date": "2026-06-06"
       },
       "source": "BMP",
-      "updated": "2026-06-07T20:23:38Z"
+      "updated": "2026-06-07T20:25:05Z"
     },
     "fear_greed": {
       "latest": 13.0,
       "avg_7d": 23.3,
       "label": "CMC",
       "source": "CMC",
-      "updated": "2026-06-07T20:23:38Z"
+      "updated": "2026-06-07T20:25:05Z"
     },
     "cipherb": {
       "value": {
@@ -102,7 +102,7 @@
         "daily_fast_bullish_div": false
       },
       "source": "Local",
-      "updated": "2026-06-07T20:23:38Z"
+      "updated": "2026-06-07T20:25:06Z"
     },
     "smc": {
       "value": {
@@ -116,7 +116,7 @@
         "size": 10
       },
       "source": "Local",
-      "updated": "2026-06-07T20:23:39Z"
+      "updated": "2026-06-07T20:25:06Z"
     },
     "mayer_multiple": {
       "value": {
@@ -126,7 +126,7 @@
         "score": 17
       },
       "source": "Kraken",
-      "updated": "2026-06-07T20:23:39Z"
+      "updated": "2026-06-07T20:25:06Z"
     },
     "funding_rate": {
       "value": {
@@ -137,12 +137,12 @@
         "source": "Kraken Futures"
       },
       "source": "Kraken Futures",
-      "updated": "2026-06-07T20:23:39Z"
+      "updated": "2026-06-07T20:25:06Z"
     },
     "m2_mom": {
       "value": 9.47,
       "source": "MacroMicro",
-      "updated": "2026-06-07T20:23:41Z"
+      "updated": "2026-06-07T20:25:10Z"
     }
   },
   "m2_mom": 9.47,
@@ -174,21 +174,21 @@
   },
   "zone_forecast": {
     "buy": {
-      "price": 54360,
+      "price": 54363,
       "pct": -12.0
     },
     "sell": {
-      "price": 176683,
+      "price": 176695,
       "pct": 185.9
     },
     "buy_threshold": 20,
     "sell_threshold": 80,
-    "realized_price": 54377,
-    "ref_price": 61795
+    "realized_price": 54381,
+    "ref_price": 61799
   },
   "commentary": {
-    "en": "The on-chain and tech/macro signals generally agree, with both sub-scores indicating low to moderate risk, as evidenced by the Overall Risk Score of 28/100, On-chain sub-score of 31/100, and Tech/Macro sub-score of 24/100, suggesting a relatively stable market environment. Reinforcing signals include the Mayer Multiple of 0.774, indicating a low risk, and the Fear & Greed index at 23.3, which also points to low risk, as well as the aSOPR below 1 and the MVRV Z-score of 0.24, both labeled as low-moderate risk. However, the RHODL Ratio of 1,258 is a contradicting signal, indicating moderate-high risk, which creates some ambiguity. Overall, the market environment appears to be relatively undervalued and low risk, with a score of 28/100, suggesting that the market is not overly expensive or vulnerable to a significant downturn.",
-    "ua": "Сигнали он-чейн і тех/макро загалом погоджуються, вказуючи на низький ризик, що означає, що ринок знаходиться в стабільному стані. Сигнали, що підтримують цю думку, включають низькі показники MVRV Z-score 0,24 і Mayer Multiple 0,774, а також низький рівень страху і жадібності 23,3. Проте, сигнал RHODL Ratio 1,258 вказує на помірно-високий ризик, створюючи певну двозначність, однак загальний ризиковий баланс 28/100 вказує на низький ризик, що характеризує ринок як відносно безпечний. Загалом, ринок знаходиться в стабільному стані з низьким ризиком, що підтверджується низькими показниками багатьох метрик."
+    "en": "The on-chain and tech/macro signals generally agree, suggesting a low to moderate risk environment, as indicated by the Overall Risk Score of 28/100, with the on-chain sub-score at 31/100 and the tech/macro sub-score at 24/100, which means the market is likely undervalued. Reinforcing signals include the Mayer Multiple of 0.774, indicating the price is below its 200-day moving average, and the Fear & Greed index at 23.3, suggesting low risk, as well as the aSOPR below 1, indicating short-term holders are selling at a loss. However, the RHODL Ratio of 1,258 is a contradicting signal, pointing to moderate-high risk, creating some ambiguity. Overall, the market environment appears to be relatively stable and undervalued, with a few cautionary signals that warrant attention.",
+    "ua": "Сигнали он-чейн і тех/макро погоджуються, вказуючи на низький ризик, що означає, що обидва аспекти підтверджують низький ризик на ринку з загальним балом 28/100. Посилюючими сигналами є низькі показники MVRV Z-score 0,24, Mayer Multiple 0,774, а також низький рівень страху і жадібності 23,3, які посилюють висновок про низький ризик. Протирічними сигналами є RHODL Ratio 1,258, який вказує на помірно-високий ризик, створюючи певну двозначність, однак загалом ринок перебуває у низькоризиковому середовищі. Загалом, низький ризик 28/100 свідчить про відносно безпечну ситуацію на ринку."
   },
   "prev_day": {
     "date": "2026-06-06",
@@ -406,7 +406,7 @@
     {
       "date": "2026-06-07",
       "score": 28,
-      "price": 61810
+      "price": 61809
     }
   ]
 }
