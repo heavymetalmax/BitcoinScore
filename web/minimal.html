@@ -117,6 +117,7 @@
       color: var(--text);
       user-select: none;
       -webkit-user-select: none;
+      overscroll-behavior: none; /* prevent iOS rubber-band from showing black notch area */
     }
 
     /* Localization styling */
@@ -1636,9 +1637,22 @@
       if (backdrop) backdrop.classList.toggle('open', open);
     }
 
+    let _commentaryScrollY = 0;
     function toggleCommentary(open) {
       const sheet = document.getElementById('commentary-sheet');
       const backdrop = document.getElementById('commentary-backdrop');
+      if (open) {
+        // Lock body scroll so iOS doesn't rubber-band the page behind the sheet
+        _commentaryScrollY = window.scrollY;
+        document.body.style.position = 'fixed';
+        document.body.style.top = `-${_commentaryScrollY}px`;
+        document.body.style.width = '100%';
+      } else {
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.width = '';
+        window.scrollTo(0, _commentaryScrollY);
+      }
       if (sheet) sheet.classList.toggle('open', open);
       if (backdrop) backdrop.classList.toggle('open', open);
     }
@@ -1648,7 +1662,9 @@
       const sheet = document.getElementById('commentary-sheet');
       if (!sheet) return;
       let startY = 0;
-      sheet.addEventListener('touchstart', e => { startY = e.touches[0].clientY; }, { passive: true });
+      // non-passive so we can call preventDefault() and stop the swipe from scrolling the page
+      sheet.addEventListener('touchstart', e => { startY = e.touches[0].clientY; }, { passive: false });
+      sheet.addEventListener('touchmove', e => { e.preventDefault(); }, { passive: false });
       sheet.addEventListener('touchend', e => {
         if (e.changedTouches[0].clientY - startY > 60) toggleCommentary(false);
       }, { passive: true });
