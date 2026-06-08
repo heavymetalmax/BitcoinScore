@@ -17,21 +17,21 @@
             const deviceWidth = window.innerWidth;
             if (deviceWidth < 908) {
               const scale = deviceWidth / 908;
-              const naturalH = wrapper.scrollHeight;
               wrapper.style.transform = 'scale(' + scale + ')';
               wrapper.style.transformOrigin = 'top left';
-              // Fix: clamp html/body to visual viewport so fixed-pos elements
-              // (chat panel) use real viewport, not the 908px layout viewport
+              // body stays 908px so wrapper layout = 908px → scale brings it to deviceWidth
+              document.body.style.width = '908px';
+              document.body.style.minWidth = '908px';
+              document.body.style.maxWidth = '908px';
+              document.body.style.padding = '32px 24px';
+              document.body.style.margin = '0';
+              // Collapse body height to scaled height → kills infinite scroll
+              document.body.style.height = (wrapper.scrollHeight * scale + 64) + 'px';
+              document.body.style.overflow = 'hidden';
+              // Clip html to visual viewport → position:fixed uses real 390px,
+              // not the 908px layout viewport (fixes chat panel + horiz scroll)
               html.style.overflowX = 'hidden';
               html.style.overflowY = 'hidden';
-              document.body.style.width = deviceWidth + 'px';
-              document.body.style.minWidth = '0';
-              document.body.style.maxWidth = '100%';
-              document.body.style.padding = '0';
-              document.body.style.margin = '0';
-              // Collapse body height to scaled content height to kill infinite scroll
-              document.body.style.height = (naturalH * scale) + 'px';
-              document.body.style.overflow = 'hidden';
             } else {
               wrapper.style.transform = '';
               wrapper.style.transformOrigin = '';
