@@ -1,8 +1,8 @@
 {
-  "timestamp": "2026-06-07T20:25:05Z",
-  "btc_price": 61809,
-  "btc_dominance": 58.13,
-  "fear_greed": 23.3,
+  "timestamp": "2026-06-08T02:56:27Z",
+  "btc_price": 63064,
+  "btc_dominance": 58.18,
+  "fear_greed": 20.4,
   "fear_greed_label": "CMC",
   "nupl": 12.0043,
   "mvrv_z_score": 0.2417,
@@ -27,37 +27,37 @@
     "nupl": {
       "value": 12.0043,
       "source": "BMP",
-      "updated": "2026-06-07T20:24:58Z"
+      "updated": "2026-06-08T02:56:16Z"
     },
     "mvrv": {
       "value": 0.2417,
       "source": "BMP",
-      "updated": "2026-06-07T20:24:58Z"
+      "updated": "2026-06-08T02:56:16Z"
     },
     "m2": {
       "value": 9.47,
       "source": "MacroMicro",
-      "updated": "2026-06-07T20:24:58Z"
+      "updated": "2026-06-08T02:56:16Z"
     },
     "yield_curve": {
       "value": 0.48,
       "source": "BMP",
-      "updated": "2026-06-07T20:24:58Z"
+      "updated": "2026-06-08T02:56:16Z"
     },
     "cvdd_ratio": {
       "value": 1.266,
       "source": "BMP",
-      "updated": "2026-06-07T20:24:58Z"
+      "updated": "2026-06-08T02:56:16Z"
     },
     "rhodl_ratio": {
       "value": 1257.9609,
       "source": "BMP",
-      "updated": "2026-06-07T20:24:58Z"
+      "updated": "2026-06-08T02:56:16Z"
     },
     "asopr": {
       "value": 0.9833142857142858,
       "source": "BMP",
-      "updated": "2026-06-07T20:24:58Z"
+      "updated": "2026-06-08T02:56:16Z"
     },
     "etf_flows": {
       "value": {
@@ -67,7 +67,7 @@
         "date": "2026-06-05"
       },
       "source": "Farside",
-      "updated": "2026-06-07T20:24:58Z"
+      "updated": "2026-06-08T02:56:16Z"
     },
     "rainbow_band": {
       "value": {
@@ -78,14 +78,14 @@
         "date": "2026-06-06"
       },
       "source": "BMP",
-      "updated": "2026-06-07T20:25:05Z"
+      "updated": "2026-06-08T02:56:27Z"
     },
     "fear_greed": {
-      "latest": 13.0,
-      "avg_7d": 23.3,
+      "latest": 15.0,
+      "avg_7d": 20.4,
       "label": "CMC",
       "source": "CMC",
-      "updated": "2026-06-07T20:25:05Z"
+      "updated": "2026-06-08T02:56:27Z"
     },
     "cipherb": {
       "value": {
@@ -102,7 +102,7 @@
         "daily_fast_bullish_div": false
       },
       "source": "Local",
-      "updated": "2026-06-07T20:25:06Z"
+      "updated": "2026-06-08T02:56:27Z"
     },
     "smc": {
       "value": {
@@ -116,33 +116,33 @@
         "size": 10
       },
       "source": "Local",
-      "updated": "2026-06-07T20:25:06Z"
+      "updated": "2026-06-08T02:56:28Z"
     },
     "mayer_multiple": {
       "value": {
-        "value": 0.774,
-        "dma_200": 78617.0,
-        "current_price": 60855.7,
-        "score": 17
+        "value": 0.807,
+        "dma_200": 78476.4,
+        "current_price": 63307.6,
+        "score": 19
       },
       "source": "Kraken",
-      "updated": "2026-06-07T20:25:06Z"
+      "updated": "2026-06-08T02:56:28Z"
     },
     "funding_rate": {
       "value": {
-        "latest": -0.00671,
-        "avg_7d": -0.00671,
-        "score": 29,
+        "latest": 0.09016,
+        "avg_7d": 0.09016,
+        "score": 93,
         "periods": 1,
         "source": "Kraken Futures"
       },
       "source": "Kraken Futures",
-      "updated": "2026-06-07T20:25:06Z"
+      "updated": "2026-06-08T02:56:28Z"
     },
     "m2_mom": {
       "value": 9.47,
       "source": "MacroMicro",
-      "updated": "2026-06-07T20:25:10Z"
+      "updated": "2026-06-08T02:56:35Z"
     }
   },
   "m2_mom": 9.47,
@@ -151,9 +151,9 @@
   "final_score": 28,
   "adaptive_calibration": {
     "mayer": {
-      "fixed": 17,
-      "adaptive": 14,
-      "blended": 16,
+      "fixed": 19,
+      "adaptive": 18,
+      "blended": 18,
       "win_years": 4,
       "blend_w": 0.5
     },
@@ -174,33 +174,33 @@
   },
   "zone_forecast": {
     "buy": {
-      "price": 54363,
-      "pct": -12.0
+      "price": 55377,
+      "pct": -12.2
     },
     "sell": {
-      "price": 176695,
+      "price": 180275,
       "pct": 185.9
     },
     "buy_threshold": 20,
     "sell_threshold": 80,
-    "realized_price": 54381,
-    "ref_price": 61799
+    "realized_price": 55483,
+    "ref_price": 63051
   },
   "commentary": {
-    "en": "The on-chain and tech/macro signals generally agree, suggesting a low to moderate risk environment, as indicated by the Overall Risk Score of 28/100, with the on-chain sub-score at 31/100 and the tech/macro sub-score at 24/100, which means the market is likely undervalued. Reinforcing signals include the Mayer Multiple of 0.774, indicating the price is below its 200-day moving average, and the Fear & Greed index at 23.3, suggesting low risk, as well as the aSOPR below 1, indicating short-term holders are selling at a loss. However, the RHODL Ratio of 1,258 is a contradicting signal, pointing to moderate-high risk, creating some ambiguity. Overall, the market environment appears to be relatively stable and undervalued, with a few cautionary signals that warrant attention.",
-    "ua": "Сигнали он-чейн і тех/макро погоджуються, вказуючи на низький ризик, що означає, що обидва аспекти підтверджують низький ризик на ринку з загальним балом 28/100. Посилюючими сигналами є низькі показники MVRV Z-score 0,24, Mayer Multiple 0,774, а також низький рівень страху і жадібності 23,3, які посилюють висновок про низький ризик. Протирічними сигналами є RHODL Ratio 1,258, який вказує на помірно-високий ризик, створюючи певну двозначність, однак загалом ринок перебуває у низькоризиковому середовищі. Загалом, низький ризик 28/100 свідчить про відносно безпечну ситуацію на ринку."
+    "en": "The on-chain and tech/macro signals generally agree, with both sub-scores indicating low to moderate risk, as evidenced by the Overall Risk Score of 28/100, On-chain sub-score of 31/100, and Tech/Macro sub-score of 24/100, which suggests a relatively stable market environment. Reinforcing signals include the Mayer Multiple of 0.807, indicating a low risk, and the Fear & Greed index at 20.4, also indicating low risk, which amplify the conclusion that the market is not overextended. However, the RHODL Ratio of 1,258 is a contradicting signal, indicating moderate to high risk, which creates some ambiguity. Overall, the market environment appears to be relatively calm, with the low Overall Risk Score of 28/100 suggesting that Bitcoin is currently at a historically undervalued or low-risk level.",
+    "ua": "Сигнали он-чейн і тех/макро погоджуються щодо низького ризику, що вказує на те, що ринок перебуває в стабільному стані. Підтверджуючі сигнали включають низькі показники MVRV Z-score 0,24, Mayer Multiple 0,807 і Fear & Greed 20,4, які посилюють висновок про низький ризик. Протирічними сигналами є показник RHODL Ratio 1,258, який вказує на помірно-вищий ризик, створюючи певну двозначність. Загалом, ринок перебуває в умовах низького ризику, як свідчить загальний бал ризику 28/100, що вказує на відносно стабільну і безпечну ситуацію для інвесторів."
   },
   "prev_day": {
-    "date": "2026-06-06",
+    "date": "2026-06-07",
     "final_score": 28,
-    "onchain_score": 32,
-    "tech_score": 25
+    "onchain_score": 31,
+    "tech_score": 24
   },
   "prev_week": {
-    "date": "2026-05-31",
-    "final_score": 39,
-    "onchain_score": 42,
-    "tech_score": 36
+    "date": "2026-06-01",
+    "final_score": 37,
+    "onchain_score": 40,
+    "tech_score": 34
   },
   "score_history": [
     {
@@ -407,6 +407,11 @@
       "date": "2026-06-07",
       "score": 28,
       "price": 61809
+    },
+    {
+      "date": "2026-06-08",
+      "score": 28,
+      "price": 63064
     }
   ]
 }
