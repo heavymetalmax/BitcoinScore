@@ -1637,22 +1637,9 @@
       if (backdrop) backdrop.classList.toggle('open', open);
     }
 
-    let _commentaryScrollY = 0;
     function toggleCommentary(open) {
       const sheet = document.getElementById('commentary-sheet');
       const backdrop = document.getElementById('commentary-backdrop');
-      if (open) {
-        // Lock body scroll so iOS doesn't rubber-band the page behind the sheet
-        _commentaryScrollY = window.scrollY;
-        document.body.style.position = 'fixed';
-        document.body.style.top = `-${_commentaryScrollY}px`;
-        document.body.style.width = '100%';
-      } else {
-        document.body.style.position = '';
-        document.body.style.top = '';
-        document.body.style.width = '';
-        window.scrollTo(0, _commentaryScrollY);
-      }
       if (sheet) sheet.classList.toggle('open', open);
       if (backdrop) backdrop.classList.toggle('open', open);
     }
@@ -2337,7 +2324,13 @@
     }
 
     window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', updateThemeClass);
-    document.addEventListener('DOMContentLoaded', () => { init(); setInterval(updateCountdown, 60000); });
+    document.addEventListener('DOMContentLoaded', () => {
+      // Reset any stale scroll and prevent iOS from scrolling the page into the 80px toolbar buffer
+      window.scrollTo(0, 0);
+      window.addEventListener('scroll', function() { if (window.scrollY > 0) window.scrollTo(0, 0); }, { passive: true });
+      init();
+      setInterval(updateCountdown, 60000);
+    });
   </script>
 </body>
 </html>
