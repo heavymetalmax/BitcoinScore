@@ -208,6 +208,8 @@
 
     /* --- Top Status Bar --- */
     .status-bar {
+      position: sticky;
+      top: max(8px, env(safe-area-inset-top));
       width: 100%;
       max-width: 500px;
       display: flex;
@@ -217,7 +219,6 @@
       font-size: 0.75rem;
       font-weight: 600;
       letter-spacing: 0.05em;
-      margin-top: env(safe-area-inset-top);
       color: var(--text-mute);
       background: var(--bg-card);
       padding: 10px 20px;
@@ -1630,11 +1631,33 @@
     }
 
     // Toggle Drawer
+    // iOS-safe scroll lock: fixes Safari viewport jump when fixed panels open
+    let _scrollLockY = 0;
+    let _scrollLocked = 0; // counter so nested calls balance correctly
+    function _lockScroll() {
+      if (_scrollLocked++ > 0) return;
+      _scrollLockY = window.scrollY || 0;
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${_scrollLockY}px`;
+      document.body.style.left = '0';
+      document.body.style.right = '0';
+    }
+    function _unlockScroll() {
+      if (--_scrollLocked > 0) return;
+      const y = _scrollLockY;
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.left = '';
+      document.body.style.right = '';
+      window.scrollTo(0, y);
+    }
+
     function toggleDrawer(open) {
       const drawer = document.getElementById('settings-drawer');
       const backdrop = document.getElementById('drawer-backdrop');
       if (drawer) drawer.classList.toggle('open', open);
       if (backdrop) backdrop.classList.toggle('open', open);
+      open ? _lockScroll() : _unlockScroll();
     }
 
     let _commentaryScrollY = 0;
@@ -1675,6 +1698,7 @@
       if (!footer) return;
       footer.style.transition = '';
       footer.classList.toggle('open', open);
+      open ? _lockScroll() : _unlockScroll();
     }
 
     // Swipe-down to dismiss about footer
@@ -1785,7 +1809,7 @@
       const bg = document.getElementById('wallpaper-bg');
       if (!bg) return;
 
-      // 1) Try local wallpaper file (downloaded by scraper)
+      // 1) Try local wallpaper file (downloaded daily by scraper via Pexels)
       const localFile = wpType === 'abstract' ? 'wallpaper-abstract.jpg' : 'wallpaper-real.jpg';
       function applyWallpaper(url) {
         bg.style.backgroundImage = `url('${url}')`;

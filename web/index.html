@@ -2004,6 +2004,11 @@
           <span class="en">Risk Index</span>
           <span class="ua">Індекс ризику</span>
         </a>
+        <a id="nav-btn-neo2" href="neo2.html" class="drawer-nav-item">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="0"/><path d="M12 3v18"/><path d="M3 12h18"/></svg>
+          <span class="en">Brutalist Version</span>
+          <span class="ua">Бруталістична версія</span>
+        </a>
         <a id="nav-btn-about" href="about.html" class="drawer-nav-item">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8h.01"/><path d="M11 12h1v4h1"/><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2z"/></svg>
           <span class="en">Methodology</span>
@@ -2426,114 +2431,64 @@
     }
 
     function redrawAllModernGauges() {
-      const style = 'modern';
-      const isModern = style === 'modern';
       const isDark = !document.documentElement.classList.contains('theme-light');
 
       // Update root accent CSS variables dynamically
       if (window._gaugeValues) {
         const finalVal = window._gaugeValues.final;
         if (finalVal != null) {
-          const markerColor = scoreColor(finalVal);
           const marker = document.getElementById('risk-marker');
-          if (marker) {
-            marker.style.setProperty('--marker-color', markerColor);
-          }
+          if (marker) marker.style.setProperty('--marker-color', scoreColor(finalVal));
           const finalLabelEl = document.getElementById('s-final-label');
-          if (finalLabelEl) {
-            finalLabelEl.style.color = markerColor;
-          }
-          
-          const isModernAccent = isModern;
-          const accentColor = isModernAccent ? '#f7931a' : markerColor;
-          document.documentElement.style.setProperty('--index-color',      accentColor);
-          document.documentElement.style.setProperty('--index-color-bg',   isModernAccent ? 'rgba(247,147,26,0.12)' : scoreColor(finalVal, 0.12));
-          document.documentElement.style.setProperty('--index-color-glow', isModernAccent ? 'rgba(247,147,26,0.08)' : scoreColor(finalVal, 0.08));
+          if (finalLabelEl) finalLabelEl.style.color = scoreColor(finalVal);
+
+          document.documentElement.style.setProperty('--index-color',      '#f7931a');
+          document.documentElement.style.setProperty('--index-color-bg',   'rgba(247,147,26,0.12)');
+          document.documentElement.style.setProperty('--index-color-glow', 'rgba(247,147,26,0.08)');
         }
       }
 
-      // Update subscore text colors & classic progress bars
+      // Update subscore text colors
       if (window._gaugeValues) {
         const v = window._gaugeValues;
-
-        // Update subscore text colors
-        const subscoreTextItems = [
+        [
           { id: 's-final', val: v.final },
           { id: 's-oc',    val: v.onchain },
-          { id: 's-tech',   val: v.tech },
+          { id: 's-tech',  val: v.tech },
           { id: 's-yesterday', val: v.yesterday },
-          { id: 's-week',   val: v.week }
-        ];
-        subscoreTextItems.forEach(item => {
+          { id: 's-week',  val: v.week }
+        ].forEach(item => {
           const el = document.getElementById(item.id);
-          if (el && item.val != null) {
-            el.style.color = scoreColor(item.val);
-          }
+          if (el && item.val != null) el.style.color = scoreColor(item.val);
         });
 
-        // Update Classic subscore progress bars
-        const subscoreBars = [
-          { id: 'b-final', val: v.final },
-          { id: 'b-oc',    val: v.onchain },
-          { id: 'b-tech',   val: v.tech },
-          { id: 'b-yesterday', val: v.yesterday },
-          { id: 'b-week',   val: v.week }
-        ];
-        subscoreBars.forEach(item => {
-          const bar = document.getElementById(item.id);
-          if (bar && item.val != null) {
-            bar.style.width = item.val + '%';
-            bar.style.background = scoreColor(item.val);
-            bar.style.setProperty('--bar-shadow-color', scoreColor(item.val, 0.5));
-          }
-        });
-      }
-
-      if (isModern && window._gaugeValues) {
-        const v = window._gaugeValues;
+        // Canvas gauges
         const ocWarn   = document.getElementById('oc-warn');
         const techWarn = document.getElementById('tech-warn');
         const tac = window._tacticalSignal || null;
         drawModernGauge(document.getElementById('modern-gauge-canvas'),  v.final,     false, false, tac);
-        drawModernGauge(document.getElementById('zone-gauge-canvas'),    v.final,     false, false, null);   // back of the flip card
+        drawModernGauge(document.getElementById('zone-gauge-canvas'),    v.final,     false, false, null);
         drawModernGauge(document.getElementById('gauge-oc'),             v.onchain,   true,  ocWarn   && ocWarn.style.display   !== 'none');
         drawModernGauge(document.getElementById('gauge-tech'),           v.tech,      true,  techWarn && techWarn.style.display !== 'none', tac);
         drawModernGauge(document.getElementById('gauge-yesterday'),      v.yesterday, true,  false);
         drawModernGauge(document.getElementById('gauge-week'),           v.week,      true,  false);
       }
 
-      // Redraw/toggle metric bars
+      // Redraw metric bars
       document.querySelectorAll('.metrics-list .bar-wrap').forEach(barWrap => {
         const fill = barWrap.querySelector('.bar-fill');
-        let cv = barWrap.querySelector('canvas.mbar');
-        if (isModern) {
-          if (fill) fill.style.display = 'none';
-          const v = fill ? parseFloat(fill.dataset.value) || 0 : 0;
-          drawModernBar(barWrap, v);
-          if (cv) cv.style.display = 'block';
-        } else {
-          if (fill) {
-            fill.style.display = 'block';
-            const v = parseFloat(fill.dataset.value) || 0;
-            fill.style.width = v + '%';
-            fill.style.background = scoreColor(v);
-            fill.style.setProperty('--bar-shadow-color', scoreColor(v, 0.5));
-          }
-          if (cv) cv.style.display = 'none';
-        }
+        if (fill) fill.style.display = 'none';
+        const v = fill ? parseFloat(fill.dataset.value) || 0 : 0;
+        drawModernBar(barWrap, v);
       });
 
-      // Update numbers color
+      // Update metric score numbers color
       document.querySelectorAll('.metric-row').forEach(row => {
-        const num = row.querySelector('.m-num');
+        const num  = row.querySelector('.m-num');
         const fill = row.querySelector('.bar-fill');
         if (num && fill) {
           const v = parseFloat(fill.dataset.value) || 0;
-          if (isModern) {
-            num.style.color = (v > 60) ? '#f7931a' : (isDark ? '#8892a4' : '#374151');
-          } else {
-            num.style.color = scoreColor(v);
-          }
+          num.style.color = (v > 60) ? '#f7931a' : (isDark ? '#8892a4' : '#374151');
         }
       });
     }
@@ -2819,71 +2774,27 @@
 
     function scoreColor(v, alpha = 1) {
       if(v == null) return 'var(--text-mute)';
-      // Modern: same 5-zone palette as gauge (темносірий→помаранчевий)
-      if (true) {
-        const lm = document.documentElement.classList.contains('theme-light');
-        if (v <= 20) return lm ? `rgba(55,65,81,${alpha})`   : `rgba(107,114,128,${alpha})`;  // dark gray
-        if (v <= 40) return lm ? `rgba(107,114,128,${alpha})` : `rgba(156,163,175,${alpha})`; // gray
-        if (v <= 60) return lm ? `rgba(200,205,212,${alpha})` : `rgba(200,205,212,${alpha})`; // light gray
-        if (v <= 80) return lm ? `rgba(253,186,116,${alpha})` : `rgba(245,158,11,${alpha})`;  // light orange
-        return `rgba(247,147,26,${alpha})`;                                                     // orange
-      }
-      const stops = [
-        { val: 0,   r: 16,  g: 185, b: 129 }, // Emerald
-        { val: 30,  r: 132, g: 204, b: 22  }, // Lime
-        { val: 50,  r: 234, g: 179, b: 8   }, // Yellow
-        { val: 75,  r: 249, g: 115, b: 22  }, // Orange
-        { val: 100, r: 239, g: 68,  b: 68  }  // Red
-      ];
-      let r, g, b;
-      if (v <= stops[0].val) {
-        r = stops[0].r; g = stops[0].g; b = stops[0].b;
-      } else if (v >= stops[stops.length - 1].val) {
-        r = stops[stops.length - 1].r; g = stops[stops.length - 1].g; b = stops[stops.length - 1].b;
-      } else {
-        for (let i = 0; i < stops.length - 1; i++) {
-          const s1 = stops[i];
-          const s2 = stops[i+1];
-          if (v >= s1.val && v <= s2.val) {
-            const t = (v - s1.val) / (s2.val - s1.val);
-            r = Math.round(s1.r + t * (s2.r - s1.r));
-            g = Math.round(s1.g + t * (s2.g - s1.g));
-            b = Math.round(s1.b + t * (s2.b - s1.b));
-            break;
-          }
-        }
-      }
-      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+      const lm = document.documentElement.classList.contains('theme-light');
+      if (v <= 20) return lm ? `rgba(55,65,81,${alpha})`   : `rgba(107,114,128,${alpha})`;  // dark gray
+      if (v <= 40) return lm ? `rgba(107,114,128,${alpha})` : `rgba(156,163,175,${alpha})`; // gray
+      if (v <= 60) return lm ? `rgba(100,116,139,${alpha})` : `rgba(200,205,212,${alpha})`; // slate / light gray
+      if (v <= 80) return lm ? `rgba(253,186,116,${alpha})` : `rgba(245,158,11,${alpha})`;  // light orange
+      return `rgba(247,147,26,${alpha})`;                                                     // orange
     }
 
     function setMetric(id, sliderVal, rawText) {
       const v = sliderVal != null ? sliderVal : 0;
-      const c = scoreColor(sliderVal);
       const bar = document.getElementById('m-'+id+'-bar');
       const num = document.getElementById('m-'+id+'-num');
       const raw = document.getElementById('m-'+id+'-raw');
       if (bar) {
         bar.dataset.value = v;
-        const isModern = true;
-        if (isModern) {
-          drawModernBar(bar.parentElement, v);
-        } else {
-          bar.style.width = v+'%';
-          bar.style.background = c;
-          bar.style.setProperty('--bar-shadow-color', scoreColor(sliderVal, 0.5));
-        }
+        drawModernBar(bar.parentElement, v);
       }
       if(num) {
         num.textContent = sliderVal != null ? sliderVal : '\u2014';
-        const isModernNum = true;
-        if (isModernNum) {
-          const isDarkNum = !document.documentElement.classList.contains('theme-light');
-          num.style.color = (v > 60)
-            ? '#f7931a'
-            : (isDarkNum ? '#8892a4' : '#374151');
-        } else {
-          num.style.color = c;
-        }
+        const isDark = !document.documentElement.classList.contains('theme-light');
+        num.style.color = (v > 60) ? '#f7931a' : (isDark ? '#8892a4' : '#374151');
       }
       if(raw) raw.innerHTML = rawText || '';
     }
@@ -3019,11 +2930,13 @@
       setScore('s-oc',    'b-oc',    data.onchain_score);
       setScore('s-tech',  'b-tech',  data.tech_score);
 
-      // Risk label helper (same thresholds as the main gauge)
+      // Risk label helper — thresholds match the main track ticks (20/40/60/80)
       const riskLabel = v => v == null ? {en:'—', ua:'—'}
-        : v <= 25 ? {en:'Low Risk',  ua:'Низький ризик'}
-        : v <= 60 ? {en:'Neutral',   ua:'Нейтрально'}
-        :           {en:'High Risk', ua:'Високий ризик'};
+        : v <= 20 ? {en:'Low Risk',   ua:'Низький ризик'}
+        : v <= 40 ? {en:'Accumulate', ua:'Накопичення'}
+        : v <= 60 ? {en:'Neutral',    ua:'Нейтрально'}
+        : v <= 80 ? {en:'Distribute', ua:'Розподіл'}
+        :           {en:'High Risk',  ua:'Високий ризик'};
       const setSubStatus = (id, v) => {
         const el = document.getElementById(id);
         if (!el) return;
@@ -3039,13 +2952,15 @@
 
       // Update Modern Canvas Gauges
       if (finalVal != null) {
-        // Status label
-        let modernStatusEn = finalVal <= 25 ? 'Low Risk'
+        // Status label — matches track ticks (20/40/60/80)
+        let modernStatusEn = finalVal <= 20 ? 'Low Risk'
+          : finalVal <= 40 ? 'Accumulate'
           : finalVal <= 60 ? 'Neutral'
-          : finalVal <= 75 ? 'High Risk' : 'High Risk';
-        let modernStatusUa = finalVal <= 25 ? 'Низький ризик'
+          : finalVal <= 80 ? 'Distribute' : 'High Risk';
+        let modernStatusUa = finalVal <= 20 ? 'Низький ризик'
+          : finalVal <= 40 ? 'Накопичення'
           : finalVal <= 60 ? 'Нейтрально'
-          : 'Високий ризик';
+          : finalVal <= 80 ? 'Розподіл' : 'Високий ризик';
 
         const mStatusEnEl = document.getElementById('modern-gauge-status-en');
         const mStatusUaEl = document.getElementById('modern-gauge-status-ua');
@@ -3081,7 +2996,8 @@
       const marker = document.getElementById('risk-marker');
       const finalLabelEl = document.getElementById('s-final-label');
       if(marker && finalVal != null) {
-        marker.style.left = finalVal + '%';
+        const markerHalf = Math.round(marker.offsetWidth / 2);
+        marker.style.left = `clamp(${markerHalf}px, ${finalVal}%, calc(100% - ${markerHalf}px))`;
         
         let lbl = 'Neutral';
         let shortLbl = 'Neutral';
@@ -3446,8 +3362,7 @@
       const toYPrice = p => PAD.top + ch - ((p - yMinPrice) / (yMaxPrice - yMinPrice)) * ch;
 
       // Line colours — defined early so grid labels can reference them
-      const isModernChart = true;
-      const priceLineCol  = isModernChart ? (isDark ? '#6b7280' : '#9ca3af') : '#10b981';
+      const priceLineCol = isDark ? '#6b7280' : '#9ca3af';
 
       // Clear the canvas
       ctx.clearRect(0, 0, W, H);
@@ -3515,7 +3430,7 @@
       ctx.stroke();
       ctx.shadowBlur = 0; // Reset shadow
 
-      // 2. Draw BTC Price Line — gray in Modern mode, green in Classic
+      // 2. Draw BTC Price Line (gray)
 
       // Update legend colour to match
       const legendEl  = document.getElementById('btc-price-legend');
@@ -3523,7 +3438,7 @@
       if (legendEl)  legendEl.style.color = priceLineCol;
       if (legendDot) {
         legendDot.style.background = priceLineCol;
-        legendDot.style.boxShadow  = isModernChart ? 'none' : `0 0 6px ${priceLineCol}`;
+        legendDot.style.boxShadow  = 'none';
       }
       ctx.beginPath();
       pts.forEach((e, i) => {
@@ -3534,7 +3449,7 @@
       ctx.strokeStyle = priceLineCol;
       ctx.lineWidth = 2;
       ctx.shadowColor = priceLineCol;
-      ctx.shadowBlur = isModernChart ? 0 : 8;
+      ctx.shadowBlur = 0;
       ctx.stroke();
       ctx.shadowBlur = 0;
 

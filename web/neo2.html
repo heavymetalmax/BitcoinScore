@@ -12,6 +12,53 @@
         theme = prefersLight ? 'light' : 'dark';
       }
       document.documentElement.className = 'style-modern theme-' + theme;
+
+      // Dynamic scaling to fit desktop layout on mobile viewports
+      function adjustScale() {
+        const isModern = document.documentElement.classList.contains('style-modern');
+        const wrapper = document.querySelector('.main-wrapper');
+        if (wrapper) {
+          if (isModern) {
+            const deviceWidth = window.innerWidth;
+            if (deviceWidth < 908) {
+              const scale = deviceWidth / 908;
+              wrapper.style.transform = 'scale(' + scale + ')';
+              wrapper.style.transformOrigin = 'top left';
+              document.body.style.width = '908px';
+              document.body.style.minWidth = '908px';
+              document.body.style.maxWidth = '908px';
+              document.body.style.padding = '32px 24px';
+              document.body.style.margin = '0';
+              document.body.style.height = (wrapper.offsetHeight * scale + 32) + 'px';
+              document.body.style.overflowX = 'hidden';
+            } else {
+              wrapper.style.transform = '';
+              wrapper.style.transformOrigin = '';
+              document.body.style.width = '';
+              document.body.style.minWidth = '';
+              document.body.style.maxWidth = '';
+              document.body.style.padding = '';
+              document.body.style.margin = '';
+              document.body.style.height = '';
+              document.body.style.overflowX = '';
+            }
+          } else {
+            wrapper.style.transform = '';
+            wrapper.style.transformOrigin = '';
+            document.body.style.width = '';
+            document.body.style.minWidth = '';
+            document.body.style.maxWidth = '';
+            document.body.style.padding = '';
+            document.body.style.margin = '';
+            document.body.style.height = '';
+            document.body.style.overflowX = '';
+          }
+        }
+      }
+      window.adjustScale = adjustScale;
+      window.addEventListener('DOMContentLoaded', adjustScale);
+      window.addEventListener('load', adjustScale);
+      window.addEventListener('resize', adjustScale);
     })();
   </script>
 
@@ -134,6 +181,7 @@
       --index-color: #f7931a;
       --index-color-bg: rgba(247, 147, 26, 0.14);
       --index-color-glow: rgba(247, 147, 26, 0.10);
+      --bg-wrapper: #161618;
     }
     
     /* Modern Light — Neobrutalism */
@@ -166,6 +214,7 @@
       --index-color: #f7931a;
       --index-color-bg: rgba(247, 147, 26, 0.12);
       --index-color-glow: rgba(247, 147, 26, 0.06);
+      --bg-wrapper: #eaeaea;
     }
     
     html.style-classic body {
@@ -176,280 +225,743 @@
     }
 
 /* ── Neobrutalism structural overrides ── */
-html.style-modern body {
-  background: var(--bg);
-}
-html.style-modern .score-box {
-  border-radius: 0 !important;
-  border: 3px solid var(--border-hard);
-  box-shadow: 4px 4px 0 0 var(--shadow-hard);
-  transition: box-shadow 0.1s ease, transform 0.1s ease;
-  position: relative;
-  overflow: hidden;
-}
-html.style-modern .score-box:hover {
-  box-shadow: 6px 6px 0 0 var(--shadow-hard);
-  transform: translate(-2px, -2px);
-}
-
-/* gauge canvas fills the card as background */
-html.style-modern .modern-sub-gauge-wrap {
-  position: absolute !important;
-  inset: 0 !important;
-  display: flex !important;
-  align-items: flex-end !important;
-  justify-content: center !important;
-  pointer-events: none;
-  z-index: 0;
-}
-html.style-modern #modern-gauge-canvas,
-html.style-modern .modern-sub-gauge-canvas {
-  position: absolute !important;
-  bottom: 0 !important;
-  left: 0 !important;
-  z-index: 0 !important;
-  max-width: none !important;
-}
-html.style-modern #modern-gauge-canvas {
-  display: block !important;
-}
-/* all direct children of score-box sit above the canvas */
-html.style-modern .score-box > *:not(.modern-gauge-container):not(.modern-sub-gauge-wrap) {
-  position: relative;
-  z-index: 1;
-}
-html.style-modern .nav-header {
-  border-bottom: 3px solid var(--border-hard);
-  background: var(--bg);
-  box-shadow: none;
-}
-html.style-modern .nav-menu {
-  border-radius: 0;
-  border: 2px solid var(--border-hard);
-  box-shadow: 3px 3px 0 0 var(--shadow-hard);
-  background: var(--bg-card);
-  padding: 4px;
-  gap: 2px;
-}
-html.style-modern .nav-btn {
-  border-radius: 0;
-  font-weight: 700;
-}
-html.style-modern .nav-btn.active,
-html.style-modern .lang-btn.active {
-  background: var(--index-color);
-  color: #000 !important;
-  font-weight: 800;
-  box-shadow: none;
-}
-html.style-modern .glass-panel {
-  border-radius: 0;
-  border: 2px solid var(--border-hard);
-}
-html.style-modern .s-label {
-  font-weight: 900;
-  letter-spacing: -0.01em;
-  color: #0A0A0A;
-  text-align: left;
-  text-transform: uppercase;
-  font-size: 1.05rem;
-  line-height: 1.15;
-  width: 100%;
-}
-html.style-modern .hero-label {
-  font-weight: 900;
-  letter-spacing: -0.01em;
-  color: #0A0A0A;
-  text-align: left;
-  font-size: 1.05rem;
-  line-height: 1.15;
-  width: 100%;
-}
-html.style-modern.theme-dark .s-label,
-html.style-modern.theme-dark .hero-label {
-  color: #EEEEEE;
-}
-html.style-modern .hero-title-area {
-  justify-content: flex-start;
-  text-align: left;
-}
-html.style-modern .hero-top-row {
-  flex-direction: row;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 8px;
-}
-html.style-modern .hero-status-area {
-  align-items: flex-start;
-  justify-content: flex-end;
-  flex-shrink: 0;
-}
-/* ── All cards: label left + number right grid layout ── */
-html.style-modern .score-box {
-  display: grid !important;
-  grid-template-columns: 1fr auto;
-}
-
-/* ── Grid placement for all cards ── */
-html.style-modern .score-box > .s-label {
-  grid-column: 1;
-  grid-row: 1;
-  align-self: start;
-}
-html.style-modern .score-box > .sub-card-value-container {
-  grid-column: 2;
-  grid-row: 1;
-  align-self: start;
-}
-html.style-modern .score-box > .modern-sub-gauge-wrap,
-html.style-modern .score-box > .sub-gauge-status,
-html.style-modern .score-box > .bar-wrap,
-html.style-modern .score-box > .s-sub {
-  grid-column: 1 / -1;
-}
-
-/* ── Big number ── */
-html.style-modern .sub-card-value-container {
-  display: flex !important;
-  justify-content: flex-end;
-  align-items: flex-start;
-  flex-shrink: 0;
-}
-html.style-modern .sub-card-value-container .s-value {
-  display: block !important;
-  font-size: 3.8rem;
-  font-weight: 900;
-  line-height: 0.85;
-  letter-spacing: -0.04em;
-  color: #0A0A0A !important;
-}
-html.style-modern.theme-dark .sub-card-value-container .s-value {
-  color: #EEEEEE !important;
-}
-
-html.style-modern .score-box .s-sub {
-  font-weight: 700;
-}
-
-    /* Bell icon button in nav — always orange */
-    .nav-bell-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      color: var(--index-color, #f7931a);
-      text-decoration: none;
-      transition: background 0.2s;
-      flex-shrink: 0;
-    }
-    .nav-bell-btn:hover {
-      background: var(--index-color-bg, rgba(247,147,26,0.12));
+    html.style-modern body {
+      background: var(--bg);
     }
 
-    /* Modern: compact nav-btn sizing */
-    html.style-modern .nav-btn {
-      font-size: 0.72rem;
-      padding: 5px 14px;
-    }
-
-    /* Gauge canvas never wider than its card */
-    .modern-sub-gauge-canvas {
-      max-width: 100%;
-    }
-    html.style-modern .score-box.main {
-      border-radius: 0;
-      padding: 20px 24px 20px 24px;
-      min-height: 160px;
-      /* Hero card special layout: label+score in a row, gauge bottom-left */
-      display: grid !important;
-      grid-template-columns: 1fr auto;
-      grid-template-rows: auto auto 1fr;
-      align-items: start;
-      overflow: hidden;
+    /* ── Brutalist wrapper and header styles ── */
+    html.style-modern .main-wrapper {
+      border: 5px solid var(--border-hard);
+      padding: 65px 35px 35px 35px;
       position: relative;
-    }
-    html.style-modern .main-back {
-      padding-top: 18px;
-    }
-    html.style-modern .zone-gauge-row {
-      margin-top: -12px;
-    }
-
-    /* Hero card: s-sub top-left small */
-    html.style-modern .score-box.main > .s-sub {
-      grid-column: 1;
-      grid-row: 1;
-      font-size: 0.75rem;
-      font-weight: 500;
-      color: var(--text-mute);
-      margin-bottom: 6px;
-      text-transform: none;
-      letter-spacing: 0;
-    }
-    /* Hero card: s-label large title, left column row 2 */
-    html.style-modern .score-box.main > .s-label {
-      grid-column: 1;
-      grid-row: 2;
-      font-size: 1.5rem;
-      line-height: 1.1;
-      align-self: center;
-      margin-bottom: 0;
-    }
-    /* Hero card: value container right column, spans rows 1-2 */
-    html.style-modern .score-box.main > .sub-card-value-container {
-      grid-column: 2;
-      grid-row: 1 / 3;
-      align-self: center;
-    }
-    html.style-modern .score-box.main > .sub-card-value-container .s-value {
-      font-size: 6rem;
-      font-weight: 900;
-      line-height: 0.9;
-      letter-spacing: -0.04em;
-    }
-    /* Hero gauge: absolute, bottom-left quarter-circle */
-    html.style-modern .score-box.main > .modern-sub-gauge-wrap {
-      position: absolute !important;
-      inset: auto !important;
-      bottom: 0 !important;
-      left: 0 !important;
-      width: 55% !important;
-      height: 100% !important;
-      display: flex !important;
-      align-items: flex-end !important;
-      justify-content: flex-start !important;
-      pointer-events: none;
-      z-index: 0;
-      margin-top: 0;
-    }
-    /* Hide sub-gauge-status and bar-wrap in main hero */
-    html.style-modern .score-box.main > .sub-gauge-status,
-    html.style-modern .score-box.main > .bar-wrap {
-      display: none !important;
-    }
-    /* Status badge — absolute top-right, overlapping border */
-    .neo-status-badge {
-      display: none;
-    }
-
-    /* Modern sub-card gauge layout */
-    .modern-sub-gauge-wrap {
-      display: none;
-      justify-content: center;
+      margin-top: 45px;
+      margin-bottom: 20px;
+      box-shadow: 8px 8px 0px var(--shadow-hard);
+      background-color: var(--bg-wrapper) !important;
       width: 100%;
     }
-    html.style-modern .modern-sub-gauge-wrap {
+
+    html.style-modern .brutalist-header {
+      position: relative;
+      height: 80px;
+      margin-bottom: 35px;
+      width: 100%;
+    }
+
+    /* Left Tab: BTC Badge */
+    html.style-modern .header-tab-btc {
+      position: absolute;
+      top: -65px; /* sit on top of the wrapper border center */
+      left: 15px; /* offset to align with btc-connector-line */
+      transform: translateY(-50%);
+      background-color: #f7931a; /* Orange background */
+      color: #000000 !important;
+      border: 5px solid var(--border-hard);
+      font-size: 8rem !important;
+      font-weight: 950 !important;
+      width: auto !important;
+      height: auto !important;
+      padding: 10px 24px !important;
       display: flex;
-      margin-top: -12px;
+      align-items: center;
+      justify-content: center;
+      line-height: 0.8 !important;
+      letter-spacing: -0.04em !important;
+      text-transform: uppercase;
+      z-index: 10;
+      box-shadow: 8px 8px 0px var(--shadow-hard);
     }
-    /* Modern sub-cards: tighten the heading -> arc gap */
+
+    /* Right Tab: Settings Gear Badge */
+    html.style-modern .header-tab-gear {
+      position: absolute;
+      top: -65px; /* sit on top of the wrapper border center */
+      right: 15px;
+      transform: translateY(-50%);
+      background-color: #333333 !important;
+      color: #ffffff !important;
+      border: 5px solid var(--border-hard) !important;
+      width: 100px;
+      height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 10;
+      transition: transform 0.1s ease;
+      box-shadow: 8px 8px 0px var(--shadow-hard) !important;
+    }
+    html.style-modern.theme-dark .header-tab-gear {
+      background-color: #333333 !important;
+      color: #ffffff !important;
+    }
+    html.style-modern .header-tab-gear:hover {
+      background-color: #222222 !important;
+    }
+    html.style-modern.theme-dark .header-tab-gear:hover {
+      background-color: #222222 !important;
+    }
+    html.style-modern .header-tab-gear svg {
+      width: 40px !important;
+      height: 40px !important;
+      transition: transform 0.4s ease;
+    }
+    html.style-modern .header-tab-gear:hover svg {
+      transform: rotate(45deg);
+    }
+
+    /* Vertical line from bottom of BTC, turning right into Info Box left edge */
+    html.style-modern .btc-connector-line {
+      position: absolute;
+      left: 110px;
+      top: 0px;
+      width: 45px; /* reaches 155px (inside Info Box at left 150px) */
+      height: 50px; /* goes down to center of Info Box at y=50px */
+      border-left: 5px solid var(--border-hard);
+      border-bottom: 5px solid var(--border-hard);
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    /* Horizontal connector from BTC right edge to Title Box left edge */
+    html.style-modern .btc-title-connector-line {
+      position: absolute;
+      left: 200px;
+      top: -17.5px;
+      transform: translateY(-50%);
+      width: 155px; /* reaches 355px (inside Title Box at left 350px) */
+      height: 5px;
+      background-color: var(--border-hard);
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    /* Step connector from Gear bottom edge to Title Box right edge */
+    html.style-modern .gear-connector-line {
+      position: absolute;
+      top: -40px; /* starts at bottom of Gear box */
+      right: 65px; /* Gear box center */
+      width: calc(100% - 630px); /* reaches 565px (inside Title Box at right 570px) */
+      height: 22.5px; /* goes down from -40px to -17.5px */
+      border-right: 5px solid var(--border-hard);
+      border-bottom: 5px solid var(--border-hard);
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    /* Vertical connector from Gear down to Chat button */
+    html.style-modern .gear-chat-connector {
+      position: absolute;
+      top: -14px;
+      right: 62px;
+      width: 0;
+      height: 26px;
+      border-right: 5px solid var(--border-hard);
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    /* Chat button below the gear */
+    html.style-modern .header-tab-chat {
+      position: absolute;
+      top: 12px;
+      right: 15px;
+      background-color: #222222;
+      color: #ffffff;
+      border: 5px solid var(--border-hard);
+      width: 100px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 10;
+      box-shadow: 8px 8px 0px var(--shadow-hard);
+      transition: background-color 0.1s ease;
+    }
+    html.style-modern.theme-dark .header-tab-chat {
+      background-color: #1a1a1a;
+    }
+    html.style-modern .header-tab-chat:hover { background-color: #111111; }
+    html.style-modern .header-tab-chat svg { width: 26px; height: 26px; }
+
+    /* Chat Panel (slides in from right) */
+    .chat-panel {
+      position: fixed;
+      top: 0; right: -380px;
+      width: 360px;
+      max-width: 90vw;
+      height: 100vh;
+      background: var(--bg-card);
+      border-left: 5px solid var(--border-hard);
+      box-shadow: -8px 0 0 var(--shadow-hard);
+      z-index: 1001;
+      overflow-y: auto;
+      transition: right 0.25s ease;
+      padding: 24px 20px;
+      box-sizing: border-box;
+    }
+    .chat-panel.open { right: 0; }
+    .chat-panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .chat-panel-title {
+      font-size: 0.8rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text);
+    }
+    .chat-panel-close {
+      background: none;
+      border: 3px solid var(--border-hard);
+      color: var(--text);
+      font-size: 1.1rem;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-weight: 800;
+      padding: 0;
+      line-height: 1;
+    }
+    .chat-panel-close:hover { background: var(--border-hard); color: var(--bg); }
+    .chat-comment-box {
+      border: 5px solid var(--border-hard);
+      box-shadow: 4px 4px 0px var(--shadow-hard);
+      padding: 16px;
+      background: var(--bg);
+    }
+    .chat-score-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding-bottom: 12px;
+      margin-bottom: 12px;
+      border-bottom: 3px solid var(--border-hard);
+    }
+    .chat-score-num {
+      font-size: 2rem;
+      font-weight: 950;
+      color: #f7931a;
+      letter-spacing: -0.04em;
+      line-height: 1;
+    }
+    .chat-score-zone {
+      font-size: 0.7rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-mute);
+    }
+    .chat-score-trend {
+      font-size: 0.65rem;
+      color: var(--text-mute);
+      margin-top: 3px;
+    }
+    .chat-sub-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .chat-sub-item {
+      flex: 1;
+      border: 3px solid var(--border-hard);
+      padding: 8px 10px;
+    }
+    .chat-sub-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--text-mute);
+      margin-bottom: 3px;
+    }
+    .chat-sub-val {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--text);
+    }
+    .chat-body {
+      font-size: 0.85rem;
+      line-height: 1.65;
+      color: var(--text);
+    }
+
+    /* Hide the middle line wrapper since we are using explicit connector lines */
+    html.style-modern .middle-connector-line {
+      display: none !important;
+    }
+
+    /* Content row containing Title and Info boxes (no flex behavior on desktop) */
+    html.style-modern .header-content-row {
+      display: block;
+      margin: 0;
+      padding: 0;
+      width: 100%;
+    }
+
+    /* Title Box positioned absolutely */
+    html.style-modern .header-title-box {
+      position: absolute;
+      left: 350px;
+      top: -17.5px;
+      transform: translateY(-50%);
+      width: 220px !important;
+      text-align: center;
+      background-color: var(--bg-card);
+      border: 5px solid var(--border-hard);
+      padding: 10px 24px;
+      font-size: 1.25rem;
+      font-weight: 950;
+      text-transform: uppercase;
+      color: var(--text);
+      white-space: nowrap;
+      z-index: 6;
+      box-shadow: 4px 4px 0px var(--shadow-hard);
+    }
+
+    /* Info Box positioned absolutely */
+    html.style-modern .header-info-box {
+      position: absolute;
+      left: 150px;
+      top: 50px;
+      transform: translateY(-50%);
+      background-color: var(--bg-card);
+      border: 5px solid var(--border-hard);
+      padding: 10px 20px;
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: var(--text-mute);
+      white-space: nowrap;
+      z-index: 6;
+      box-shadow: 4px 4px 0px var(--shadow-hard);
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    
+    html.style-modern .header-info-box .info-sep {
+      color: var(--border-hard);
+    }
+
+
+
+    /* Style 3 Brutalist Card CSS (All Cards) */
+    html.style-modern .neo-hero-container {
+      display: contents;
+    }
+    
+    html.style-modern .neo-status-badge {
+      display: none !important;
+    }
+
+    html.style-modern .score-box {
+      position: relative;
+      display: flex !important;
+      justify-content: space-between;
+      align-items: center;
+      padding: 35px 45px !important;
+      min-height: 200px !important;
+      overflow: visible !important;
+      border: 5px solid var(--border-hard) !important;
+      border-radius: 0 !important;
+      box-shadow: 8px 8px 0px var(--shadow-hard) !important;
+      margin-top: 30px !important;
+      background-color: var(--bg-card) !important;
+      grid-column: span 4 !important;
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
+    }
+
+    html.style-modern .score-box:hover {
+      box-shadow: 10px 10px 0px var(--shadow-hard) !important;
+      transform: translate(-2px, -2px) !important;
+    }
+
+    html.style-modern #main-card {
+      background-image: linear-gradient(rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.75)), url('arch_bg.jpg') !important;
+      background-size: cover !important;
+      background-position: center !important;
+      background-repeat: no-repeat !important;
+    }
+    html.style-modern.theme-dark #main-card {
+      background-image: linear-gradient(rgba(10, 10, 10, 0.85), rgba(10, 10, 10, 0.85)), url('arch_bg.jpg') !important;
+    }
+
+    html.style-modern #oc-card {
+      background-image: linear-gradient(rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.75)), url('card_oc_bg.jpg') !important;
+      background-size: cover !important;
+      background-position: center !important;
+      background-repeat: no-repeat !important;
+    }
+    html.style-modern.theme-dark #oc-card {
+      background-image: linear-gradient(rgba(10, 10, 10, 0.85), rgba(10, 10, 10, 0.85)), url('card_oc_bg.jpg') !important;
+    }
+
+    html.style-modern #tech-card {
+      background-image: linear-gradient(rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.75)), url('card_tech_bg.jpg') !important;
+      background-size: cover !important;
+      background-position: center !important;
+      background-repeat: no-repeat !important;
+    }
+    html.style-modern.theme-dark #tech-card {
+      background-image: linear-gradient(rgba(10, 10, 10, 0.85), rgba(10, 10, 10, 0.85)), url('card_tech_bg.jpg') !important;
+    }
+
+    html.style-modern #yesterday-card {
+      background-image: linear-gradient(rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.75)), url('card_prev_bg.jpg') !important;
+      background-size: cover !important;
+      background-position: center !important;
+      background-repeat: no-repeat !important;
+    }
+    html.style-modern.theme-dark #yesterday-card {
+      background-image: linear-gradient(rgba(10, 10, 10, 0.85), rgba(10, 10, 10, 0.85)), url('card_prev_bg.jpg') !important;
+    }
+
+    html.style-modern #week-card {
+      background-image: linear-gradient(rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.75)), url('card_week_bg.jpg') !important;
+      background-size: cover !important;
+      background-position: center !important;
+      background-repeat: no-repeat !important;
+    }
+    html.style-modern.theme-dark #week-card {
+      background-image: linear-gradient(rgba(10, 10, 10, 0.85), rgba(10, 10, 10, 0.85)), url('card_week_bg.jpg') !important;
+    }
+
+    html.style-modern .risk-card-left {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      flex: 1;
+      padding-right: 20px;
+      margin-right: 195px !important;
+      position: relative;
+      z-index: 2;
+    }
+
     html.style-modern .score-box .s-label {
-      margin-bottom: 0;
+      font-size: 2.1rem !important;
+      font-weight: 950 !important;
+      line-height: 1.1 !important;
+      letter-spacing: -0.03em !important;
+      text-transform: uppercase !important;
+      color: var(--text) !important;
+      text-align: left;
     }
-    /* In Modern mode, canvas draws the warn icon — hide the HTML one */
-    html.style-modern .sub-card-value-container .sub-warn-icon {
+
+    /* Connected Status Badge */
+    html.style-modern .status-badge-wrapper {
+      position: relative;
+      margin: 18px 0;
+      width: fit-content;
+      display: flex;
+      align-items: center;
+      z-index: 2;
+    }
+
+    html.style-modern .status-badge-line {
+      position: absolute;
+      left: -45px; 
+      width: 45px;
+      height: 5px;
+      background-color: var(--border-hard);
+      z-index: 1;
+    }
+
+    html.style-modern .status-badge,
+    html.style-modern.theme-dark .status-badge,
+    html.style-modern .status-badge.status-low,
+    html.style-modern .status-badge.status-neutral,
+    html.style-modern .status-badge.status-high,
+    html.style-modern.theme-dark .status-badge.status-low,
+    html.style-modern.theme-dark .status-badge.status-neutral,
+    html.style-modern.theme-dark .status-badge.status-high {
+      position: relative;
+      background-color: #ffffff !important;
+      border: 5px solid var(--border-hard) !important;
+      color: #333333 !important;
+      font-size: 1.25rem;
+      font-weight: 700;
+      padding: 8px 24px;
+      text-transform: lowercase; 
+      border-radius: 0;
+      z-index: 2;
+    }
+
+    html.style-modern .score-box .s-sub {
+      font-size: 1.05rem !important;
+      font-weight: 500 !important;
+      letter-spacing: -0.01em !important;
+      opacity: 0.9;
+      color: var(--text-mute) !important;
+      margin-top: 0 !important;
+      margin-bottom: 0 !important;
+      text-transform: none !important;
+      text-align: left;
+    }
+
+    /* Right column */
+    html.style-modern .score-box .sub-card-value-container {
+      position: absolute !important;
+      right: 55px !important;
+      width: 180px !important;
+      top: 50% !important;
+      transform: translateY(-50%) !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      z-index: 2;
+    }
+
+    html.style-modern .score-box .s-value {
+      font-size: 8rem !important;
+      font-weight: 950 !important;
+      line-height: 0.8 !important;
+      letter-spacing: -0.04em !important;
+      color: var(--text) !important;
+    }
+
+    /* Top Progress Indicator */
+    html.style-modern .risk-progress-container {
+      position: absolute;
+      top: 0;
+      right: 55px;
+      transform: translateY(-50%);
+      width: 180px;
+      height: 38px;
+      background-color: var(--bg-card);
+      background-image: 
+        linear-gradient(45deg, #000 25%, transparent 25%, transparent 75%, #000 75%, #000), 
+        linear-gradient(45deg, #000 25%, transparent 25%, transparent 75%, #000 75%, #000) !important;
+      background-size: 8px 8px !important;
+      background-position: 0 0, 4px 4px !important;
+      border: 5px solid var(--border-hard);
+      border-radius: 0;
+      overflow: hidden;
+      display: flex;
+      z-index: 10;
+    }
+
+    html.style-modern .risk-progress-fill {
+      height: 100% !important;
+      background: var(--index-color) !important;
+      width: 0%; /* updated by JS */
+      transition: width 0.4s cubic-bezier(0.1, 0.8, 0.25, 1) !important;
+    }
+
+
+
+    /* Style 4 Brutalist Metric Row overrides */
+    html.style-modern .metric-row {
+      display: grid !important;
+      grid-template-columns: 240px 1fr 60px !important;
+      align-items: center !important;
+      width: 100% !important;
+      margin: 20px 0 35px 0 !important;
+      position: relative !important;
+      gap: 0 !important;
+    }
+
+    html.style-modern .metric-row .m-name {
+      font-size: 1.25rem !important;
+      font-weight: 950 !important;
+      text-transform: uppercase !important;
+      letter-spacing: -0.03em !important;
+      color: var(--text) !important;
+      text-decoration: none !important;
+      white-space: nowrap !important;
+    }
+
+    /* Middle progress bar container wrapper */
+    html.style-modern .metric-row > div:not(.m-name):not(.m-num) {
+      display: block !important;
+      margin: 0 15px !important; /* space for horizontal connector lines */
+      position: relative !important;
+      height: 38px !important;
+    }
+
+    html.style-modern .metric-row .bar-wrap {
+      width: 100% !important;
+      height: 38px !important;
+      background-color: var(--bg-card) !important;
+      background-image: 
+        linear-gradient(45deg, #000 25%, transparent 25%, transparent 75%, #000 75%, #000), 
+        linear-gradient(45deg, #000 25%, transparent 25%, transparent 75%, #000 75%, #000) !important;
+      background-size: 8px 8px !important;
+      background-position: 0 0, 4px 4px !important;
+      border: 3px solid var(--border-hard) !important;
+      border-radius: 0 !important;
+      overflow: hidden !important;
+      position: relative !important;
+      display: block !important;
+      margin-top: 0 !important;
+      z-index: 2 !important;
+    }
+
+    /* Horizontal line through the center of the progress bar */
+    html.style-modern .metric-row > div:not(.m-name):not(.m-num)::before {
+      content: '' !important;
+      position: absolute !important;
+      left: -15px !important;
+      right: -15px !important;
+      top: 19px; /* half of 38px bar height */
+      transform: translateY(-50%) !important;
+      height: 3px !important;
+      background-color: var(--border-hard) !important;
+      z-index: 1 !important;
+      pointer-events: none !important;
+    }
+
+    /* Disable separate right segment since ::before is continuous */
+    html.style-modern .metric-row > div:not(.m-name):not(.m-num)::after {
+      content: none !important;
+    }
+
+    html.style-modern .metric-row .bar-fill {
+      height: 100% !important;
+      display: block !important;
+      border-radius: 0 !important;
+      transition: width 0.4s cubic-bezier(0.1, 0.8, 0.25, 1) !important;
+      background: var(--index-color) !important;
+    }
+
+    html.style-modern .metric-row .m-num {
+      font-size: 1.25rem !important;
+      font-weight: 950 !important;
+      color: var(--text) !important;
+      min-width: 45px !important;
+      text-align: right !important;
+      font-feature-settings: "tnum" !important;
+    }
+
+    /* Details raw text displayed neatly below the bar */
+    html.style-modern .metric-row .m-raw {
+      position: absolute !important;
+      top: 38px !important;
+      left: 0 !important;
+      font-size: 0.75rem !important;
+      font-weight: 500 !important;
+      color: var(--text-raw) !important;
+      margin-top: 6px !important;
+      text-align: left;
+      white-space: nowrap !important;
+    }
+
+    html.style-modern .section-header {
+      border-bottom: 5px solid var(--border-hard) !important;
+      padding-bottom: 15px !important;
+      margin-bottom: 25px !important;
+    }
+
+    html.style-modern .section-header h2 {
+      font-size: 2.1rem !important;
+      font-weight: 950 !important;
+      line-height: 1.1 !important;
+      letter-spacing: -0.03em !important;
+      text-transform: uppercase !important;
+      color: var(--text) !important;
+    }
+
+    /* Drawer Brutalist styles */
+    html.style-modern .settings-drawer {
+      border-left: 5px solid var(--border-hard) !important;
+      background-color: var(--bg-card) !important;
+      border-radius: 0 !important;
+      box-shadow: -10px 0 0px var(--border-hard) !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+    }
+    
+    html.style-modern .settings-options {
+      border-radius: 0 !important;
+      border: 3px solid var(--border-hard) !important;
+      background: var(--bg) !important;
+      padding: 0 !important;
+      gap: 0 !important;
+    }
+
+    html.style-modern .option-btn {
+      border-radius: 0 !important;
+      border: none !important;
+      font-weight: 800 !important;
+      text-transform: uppercase !important;
+    }
+    
+    html.style-modern .option-btn.active {
+      background: var(--index-color) !important;
+      color: #000000 !important;
+      border: none !important;
+      box-shadow: none !important;
+    }
+
+    html.style-modern .option-btn:not(.active):hover {
+      background-color: var(--border-hard) !important;
+      color: var(--bg-card) !important;
+    }
+
+    html.style-modern .drawer-nav-item {
+      border-radius: 0 !important;
+      border: 3px solid var(--border-hard) !important;
+      background: var(--bg-card) !important;
+      color: var(--text) !important;
+      font-weight: 800 !important;
+      text-transform: uppercase !important;
+      box-shadow: 4px 4px 0 0 var(--border-hard) !important;
+      transition: transform 0.1s ease, box-shadow 0.1s ease !important;
+    }
+
+    html.style-modern .drawer-nav-item:hover {
+      transform: translate(-2px, -2px) !important;
+      box-shadow: 6px 6px 0 0 var(--border-hard) !important;
+      background-color: var(--index-color) !important;
+      color: #000000 !important;
+    }
+
+    html.style-modern .nav-menu {
+      border-radius: 0 !important;
+      border: 3px solid var(--border-hard) !important;
+      box-shadow: 4px 4px 0 0 var(--shadow-hard) !important;
+      background: var(--bg-card) !important;
+      padding: 4px !important;
+      gap: 2px !important;
+    }
+
+    html.style-modern .nav-btn {
+      border-radius: 0 !important;
+      font-weight: 900 !important;
+      font-size: 0.72rem !important;
+      padding: 5px 14px !important;
+    }
+
+    html.style-modern .nav-btn.active {
+      background-color: var(--index-color) !important;
+      color: #000000 !important;
+    }
+
+    html.style-modern .glass-panel {
+      border-radius: 0 !important;
+      border: 5px solid var(--border-hard) !important;
+      box-shadow: 8px 8px 0px var(--shadow-hard) !important;
+      background-color: var(--bg-card) !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+    }
+
+    html.style-modern .chart-legend span > span:not(.en):not(.ua) {
+      border-radius: 0 !important;
+      width: 14px !important;
+      height: 14px !important;
+      border: 2px solid var(--border-hard) !important;
+      box-shadow: none !important;
+    }
+
+    /* Hide canvas-gauge elements we disabled */
+    html.style-modern canvas:not(.mbar):not(#history-chart):not(#bg-canvas) {
       display: none !important;
     }
     /* Index meta line moved above the index card */
@@ -486,10 +998,15 @@ html.style-modern .score-box .s-sub {
     html.style-modern .score-box > .bar-wrap {
       display: none;
     }
-    /* Metric bars in Modern: canvas draws everything, wrap is just a container */
+    /* Metric bars in Modern: canvas disabled, wrap is the actual progress bar */
     html.style-modern .glass-panel .bar-wrap {
-      background: transparent !important;
-      overflow: visible !important;
+      background-color: var(--bg-card) !important;
+      background-image: 
+        linear-gradient(45deg, #000 25%, transparent 25%, transparent 75%, #000 75%, #000), 
+        linear-gradient(45deg, #000 25%, transparent 25%, transparent 75%, #000 75%, #000) !important;
+      background-size: 8px 8px !important;
+      background-position: 0 0, 4px 4px !important;
+      overflow: hidden !important;
     }
     html.style-modern .m-raw {
       margin-top: 8px;
@@ -1252,21 +1769,31 @@ html.style-modern .score-box .s-sub {
     }
 
     /* ── Responsive breakpoints ─────────────────────────────────────────── */
+    @media (max-width: 908px) {
+      html.style-modern body {
+        padding: 32px 24px !important;
+        width: 908px !important;
+        max-width: 908px !important;
+        min-width: 908px !important;
+        margin: 0 auto !important;
+      }
+    }
+
     @media (max-width: 768px) {
-      .scores {
+      html.style-classic .scores {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
-      .score-box.main {
+      html.style-classic .score-box.main {
         grid-column: span 2;
       }
     }
     
     @media (max-width: 600px) {
-      body {
+      html.style-classic body {
         padding: 20px 16px;
       }
       
-      .nav-header {
+      html.style-classic .nav-header {
         flex-direction: column;
         align-items: flex-start;
         gap: 12px;
@@ -1277,33 +1804,17 @@ html.style-modern .score-box .s-sub {
         justify-content: flex-start;
       }
       
-      html.style-modern .nav-actions {
-        width: 100%;
-        justify-content: space-between;
-      }
-      html.style-modern .nav-menu {
-        width: fit-content;
-        justify-content: flex-start;
-      }
-      
-      html.style-modern .modern-sub-gauge-wrap {
-        margin-top: 0;
-      }
-      html.style-modern .score-box .s-label {
-        margin-bottom: 6px;
-      }
-      
-      .scores {
+      html.style-classic .scores {
         grid-template-columns: minmax(0, 1fr);
         gap: 12px;
       }
       
-      .score-box.main {
+      html.style-classic .score-box.main {
         grid-column: span 1;
         padding: 20px 20px;
       }
       
-      .hero-top-row {
+      html.style-classic .hero-top-row {
         flex-direction: column;
         justify-content: center;
         align-items: center;
@@ -1311,65 +1822,65 @@ html.style-modern .score-box .s-sub {
         gap: 8px;
       }
       
-      .risk-track-container {
+      html.style-classic .risk-track-container {
         margin-top: 76px;
         margin-bottom: 20px;
         padding: 0 35px;
       }
       
-      .risk-track-legend {
+      html.style-classic .risk-track-legend {
         margin-top: 54px;
       }
       
-      .risk-marker {
+      html.style-classic .risk-marker {
         width: 108px;
         height: 108px;
       }
       
-      .risk-marker-dot {
+      html.style-classic .risk-marker-dot {
         width: 100px;
         height: 100px;
         border-width: 7px;
       }
       
-      .risk-trend-indicator {
+      html.style-classic .risk-trend-indicator {
         font-size: 11px;
         height: 11px;
         line-height: 11px;
       }
       
-      .risk-marker-num {
+      html.style-classic .risk-marker-num {
         font-size: 48px;
       }
       
-      .risk-marker-lbl {
+      html.style-classic .risk-marker-lbl {
         font-size: 10px;
         bottom: calc(100% + 16px);
       }
       
-      .metric-row {
+      html.style-classic .metric-row {
         grid-template-columns: 1fr auto;
         gap: 6px;
         padding: 10px 8px;
       }
       
-      .metric-row > div {
+      html.style-classic .metric-row > div {
         grid-column: span 2;
         order: 3;
         margin-top: 4px;
       }
       
-      .m-name {
+      html.style-classic .m-name {
         grid-column: 1;
         order: 1;
       }
       
-      .m-num {
+      html.style-classic .m-num {
         grid-column: 2;
         order: 2;
       }
-      
-      .risk-track-legend span {
+
+      html.style-classic .risk-track-legend span {
         font-size: 0.65rem;
       }
       #history-chart {
@@ -1785,42 +2296,64 @@ html.style-modern .score-box .s-sub {
 </head>
 <body class="lang-en">
 
-  <!-- Dynamic full-screen canvas backdrop behind frosted glass -->
-  <canvas id="bg-canvas"></canvas>
+
+
 
   <!-- Outdated Warning Banner Container -->
   <div id="outdated-warning-container"></div>
 
-  <!-- Main Navigation Header -->
-  <div class="nav-header">
-    <div class="nav-title-group">
-      <h1 class="nav-title" id="logo-title">
-        <a id="logo-link" href="index.html" style="color: inherit; text-decoration: none;">
-          <span class="en"><span class="logo-accent">BTC</span> Buy Risk Index</span>
-          <span class="ua">Індекс ризику <span class="logo-accent">BTC</span></span>
-        </a>
-      </h1>
-    </div>
-    <div class="nav-actions">
-      <button class="settings-gear-btn" onclick="toggleDrawer(true)" title="Settings">
+  <div class="main-wrapper">
+    <!-- Brutalist Header Layout -->
+    <div class="brutalist-header">
+      <!-- Left overlapping tab (BTC Badge) -->
+      <a id="logo-link" href="index.html" class="header-tab-btc" style="color: inherit; text-decoration: none;">BTC</a>
+      
+      <!-- Left step connector line (BTC to Info Box) -->
+      <div class="btc-connector-line"></div>
+
+      <!-- Horizontal connector line (BTC to Title Box) -->
+      <div class="btc-title-connector-line"></div>
+
+      <!-- Right overlapping tab (Settings Gear) -->
+      <button class="header-tab-gear" onclick="toggleDrawer(true)" title="Settings">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z"/><path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0"/></svg>
       </button>
-    </div>
-  </div>
 
-  <!-- Tab 1: Main Dashboard -->
-  <div id="tab-main">
-    <!-- Index meta line (above the index card) -->
-    <div class="index-meta">
-      <span class="hero-card-ts" id="hero-card-ts">—</span>
-      <span class="hero-card-sep">·</span>
-      <span class="hero-card-price" id="hero-card-price">—</span>
-      <span class="hero-card-sep">·</span>
-      <span class="hero-card-countdown" id="hero-card-countdown">
-        <span class="en">—</span>
-        <span class="ua">—</span>
-      </span>
+      <!-- Right step connector line -->
+      <div class="gear-connector-line"></div>
+
+      <!-- Vertical connector from gear to chat button -->
+      <div class="gear-chat-connector"></div>
+
+      <!-- Chat button (below gear) -->
+      <button class="header-tab-chat" onclick="toggleChat(true)" title="AI Analysis">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      </button>
+
+      <!-- Main row with Title Box, Middle connector line, and Info Box -->
+      <div class="header-content-row">
+        <!-- Title Box -->
+        <div class="header-title-box">
+          <span class="en">BUY RISK INDEX</span>
+          <span class="ua">ІНДЕКС РИЗИКУ</span>
+        </div>
+
+        <!-- Middle connector line stretching dynamically -->
+        <div class="middle-connector-line"></div>
+
+        <!-- Info Box (Updated stamp, Price, and Next update countdown) -->
+        <div class="header-info-box">
+          <span id="hero-card-ts">—</span>
+          <span class="info-sep">·</span>
+          <span id="hero-card-price">—</span>
+          <span class="info-sep">·</span>
+          <span id="hero-card-countdown">—</span>
+        </div>
+      </div>
     </div>
+
+    <!-- Tab 1: Main Dashboard -->
+    <div id="tab-main">
     <div class="scores">
       <!-- Hero Card wrapper: badge sticks up as folder tab -->
       <div class="neo-hero-container">
@@ -1851,108 +2384,166 @@ html.style-modern .score-box .s-sub {
             <span id="zone-sell-price"></span>
             <canvas id="modern-gauge-canvas"></canvas>
             <canvas id="zone-gauge-canvas"></canvas>
+            <canvas id="gauge-final-neo"></canvas>
           </div>
-          <!-- Sub text top-left small -->
-          <div class="s-sub">
-            <span class="en">50% on-chain + 50 tech/macro</span>
-            <span class="ua">50% ончейн + 50 тех/макро</span>
+
+          <!-- Progress bar sticking over the top border -->
+          <div class="risk-progress-container" title="Risk Progress Indicator">
+            <div class="risk-progress-fill" id="b-final-neo" style="width:0%"></div>
           </div>
-          <!-- Title -->
-          <div class="s-label">
-            <span class="en">Bitcoin Buy<br>Risk Index</span>
-            <span class="ua">Індекс ризику<br>Bitcoin</span>
+          
+          <!-- Left side: labels & connected status badge -->
+          <div class="risk-card-left">
+            <div class="s-label">
+              <span class="en">Bitcoin Buy<br>Risk Index</span>
+              <span class="ua">Індекс ризику<br>Bitcoin</span>
+            </div>
+            
+            <!-- Connected Status Badge -->
+            <div class="status-badge-wrapper">
+              <div class="status-badge-line"></div>
+              <div class="status-badge" id="final-neo-status">—</div>
+            </div>
+
+            <div class="s-sub">
+              <span class="en">50% on-chain + 50% tech/macro</span>
+              <span class="ua">50% ончейн + 50% тех/макро</span>
+            </div>
           </div>
-          <!-- Big score right -->
+          
+          <!-- Right side: large number -->
           <div class="sub-card-value-container">
             <div class="s-value" id="s-final-neo">—</div>
           </div>
-          <!-- Quarter-circle gauge: bottom-left corner, CCW arc from bottom toward score -->
-          <div class="modern-sub-gauge-wrap">
-            <canvas id="gauge-final-neo" class="modern-sub-gauge-canvas"></canvas>
-          </div>
-          <div class="sub-gauge-status" id="final-neo-status">—</div>
-          <div class="bar-wrap"><div class="bar-fill" id="b-final-neo" style="width:0%"></div></div>
         </div>
       </div>
 
       <!-- Subscore Cards -->
-      <div class="score-box">
-        <div class="s-label">
-          <span class="en">On-Chain<br>Score</span>
-          <span class="ua">Ончейн-<br>оцінка</span>
+      <div class="score-box" id="oc-card">
+        <!-- Progress bar sticking over the top border -->
+        <div class="risk-progress-container" title="On-Chain Risk Progress">
+          <div class="risk-progress-fill" id="b-oc" style="width:0%"></div>
         </div>
+        
+        <!-- Left side: labels & connected status badge -->
+        <div class="risk-card-left">
+          <div class="s-label">
+            <span class="en">On-Chain<br>Score</span>
+            <span class="ua">Ончейн-<br>оцінка</span>
+          </div>
+          
+          <!-- Connected Status Badge -->
+          <div class="status-badge-wrapper">
+            <div class="status-badge-line"></div>
+            <div class="status-badge" id="oc-status">—</div>
+          </div>
+
+          <div class="s-sub">
+            <span class="en">80% On-Chain + 20% Tech</span>
+            <span class="ua">80% Ончейн + 20% Тех</span>
+          </div>
+        </div>
+        
+        <!-- Right side: large number -->
         <div class="sub-card-value-container">
           <span id="oc-warn" class="sub-warn-icon" style="display:none" title="One or more on-chain metrics contradicts the on-chain subscore"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 9v4"/><path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0"/><path d="M12 16h.01"/></svg></span>
           <div class="s-value" id="s-oc">—</div>
         </div>
-        <div class="modern-sub-gauge-wrap">
-          <canvas id="gauge-oc" class="modern-sub-gauge-canvas"></canvas>
-        </div>
-        <div class="sub-gauge-status" id="oc-status">—</div>
-        <div class="bar-wrap"><div class="bar-fill" id="b-oc" style="width:0%"></div></div>
-        <div class="s-sub">
-          <span class="en">80% On-Chain + 20% Tech</span>
-          <span class="ua">80% Ончейн + 20% Тех</span>
-        </div>
       </div>
 
       <div class="score-box" id="tech-card">
-        <div class="s-label">
-          <span class="en">Tech/Macro<br>Score</span>
-          <span class="ua">Тех/Макро<br>оцінка</span>
+        <!-- Progress bar sticking over the top border -->
+        <div class="risk-progress-container" title="Tech/Macro Risk Progress">
+          <div class="risk-progress-fill" id="b-tech" style="width:0%"></div>
         </div>
+        
+        <!-- Left side: labels & connected status badge -->
+        <div class="risk-card-left">
+          <div class="s-label">
+            <span class="en">Tech/Macro<br>Score</span>
+            <span class="ua">Тех/Макро<br>оцінка</span>
+          </div>
+          
+          <!-- Connected Status Badge -->
+          <div class="status-badge-wrapper">
+            <div class="status-badge-line"></div>
+            <div class="status-badge" id="tech-status">—</div>
+          </div>
+
+          <div class="s-sub">
+            <span class="en">20% On-Chain + 80% Tech</span>
+            <span class="ua">20% Ончейн + 80% Тех</span>
+          </div>
+        </div>
+        
+        <!-- Right side: large number -->
         <div class="sub-card-value-container">
           <span id="tech-warn" class="sub-warn-icon" style="display:none" title="One or more tech/macro metrics contradicts the tech subscore"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 9v4"/><path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0"/><path d="M12 16h.01"/></svg></span>
           <span id="tech-tactical-badge" class="tactical-badge" style="display:none"></span>
           <div class="s-value" id="s-tech">—</div>
           <span id="tech-div-badge" style="display:none"></span>
         </div>
-        <div class="modern-sub-gauge-wrap">
-          <canvas id="gauge-tech" class="modern-sub-gauge-canvas"></canvas>
-        </div>
-        <div class="sub-gauge-status" id="tech-status">—</div>
-        <div class="bar-wrap"><div class="bar-fill" id="b-tech" style="width:0%"></div></div>
-        <div class="s-sub">
-          <span class="en">20% On-Chain + 80% Tech</span>
-          <span class="ua">20% Ончейн + 80% Тех</span>
-        </div>
       </div>
 
-      <div class="score-box">
-        <div class="s-label">
-          <span class="en">Previous<br>Day</span>
-          <span class="ua">Поперед-<br>ній день</span>
+      <div class="score-box" id="yesterday-card">
+        <!-- Progress bar sticking over the top border -->
+        <div class="risk-progress-container" title="Previous Day Risk Progress">
+          <div class="risk-progress-fill" id="b-yesterday" style="width:0%"></div>
         </div>
+        
+        <!-- Left side: labels & connected status badge -->
+        <div class="risk-card-left">
+          <div class="s-label">
+            <span class="en">Previous<br>Day</span>
+            <span class="ua">Поперед-<br>ній день</span>
+          </div>
+          
+          <!-- Connected Status Badge -->
+          <div class="status-badge-wrapper">
+            <div class="status-badge-line"></div>
+            <div class="status-badge" id="yesterday-status">—</div>
+          </div>
+
+          <div class="s-sub">
+            <span class="en">Previous daily score</span>
+            <span class="ua">Попередній денний бал</span>
+          </div>
+        </div>
+        
+        <!-- Right side: large number -->
         <div class="sub-card-value-container">
           <div class="s-value" id="s-yesterday">—</div>
         </div>
-        <div class="modern-sub-gauge-wrap">
-          <canvas id="gauge-yesterday" class="modern-sub-gauge-canvas"></canvas>
-        </div>
-        <div class="sub-gauge-status" id="yesterday-status">—</div>
-        <div class="bar-wrap"><div class="bar-fill" id="b-yesterday" style="width:0%"></div></div>
-        <div class="s-sub">
-          <span class="en">Previous daily score</span>
-          <span class="ua">Попередній денний бал</span>
-        </div>
       </div>
 
-      <div class="score-box">
-        <div class="s-label">
-          <span class="en">7-Day<br>Average</span>
-          <span class="ua">Середнє<br>7 днів</span>
+      <div class="score-box" id="week-card">
+        <!-- Progress bar sticking over the top border -->
+        <div class="risk-progress-container" title="7-Day Average Risk Progress">
+          <div class="risk-progress-fill" id="b-week" style="width:0%"></div>
         </div>
+        
+        <!-- Left side: labels & connected status badge -->
+        <div class="risk-card-left">
+          <div class="s-label">
+            <span class="en">7-Day<br>Average</span>
+            <span class="ua">Середнє<br>7 днів</span>
+          </div>
+          
+          <!-- Connected Status Badge -->
+          <div class="status-badge-wrapper">
+            <div class="status-badge-line"></div>
+            <div class="status-badge" id="week-status">—</div>
+          </div>
+
+          <div class="s-sub">
+            <span class="en">7 days average score</span>
+            <span class="ua">Середня оцінка за 7 днів</span>
+          </div>
+        </div>
+        
+        <!-- Right side: large number -->
         <div class="sub-card-value-container">
           <div class="s-value" id="s-week">—</div>
-        </div>
-        <div class="modern-sub-gauge-wrap">
-          <canvas id="gauge-week" class="modern-sub-gauge-canvas"></canvas>
-        </div>
-        <div class="sub-gauge-status" id="week-status">—</div>
-        <div class="bar-wrap"><div class="bar-fill" id="b-week" style="width:0%"></div></div>
-        <div class="s-sub">
-          <span class="en">7 days average score</span>
-          <span class="ua">Середня оцінка за 7 днів</span>
         </div>
       </div>
     </div>
@@ -2130,6 +2721,40 @@ html.style-modern .score-box .s-sub {
     </details>
   </div><!-- end tab-main -->
 
+  <!-- Chat Panel Backdrop -->
+  <div class="drawer-backdrop" id="chat-backdrop" onclick="toggleChat(false)"></div>
+
+  <!-- Chat Panel -->
+  <div class="chat-panel" id="chat-panel">
+    <div class="chat-panel-header">
+      <span class="chat-panel-title">
+        <span class="en">AI Analysis</span>
+        <span class="ua">ШІ-аналіз</span>
+      </span>
+      <button class="chat-panel-close" onclick="toggleChat(false)">&times;</button>
+    </div>
+    <div class="chat-comment-box">
+      <div class="chat-score-row">
+        <div class="chat-score-num" id="chat-score-num">—</div>
+        <div>
+          <div class="chat-score-zone" id="chat-score-zone">—</div>
+          <div class="chat-score-trend" id="chat-score-trend"></div>
+        </div>
+      </div>
+      <div class="chat-sub-row">
+        <div class="chat-sub-item">
+          <div class="chat-sub-label"><span class="en">On-Chain</span><span class="ua">Мережеві</span></div>
+          <div class="chat-sub-val" id="chat-oc-val">—</div>
+        </div>
+        <div class="chat-sub-item">
+          <div class="chat-sub-label"><span class="en">Tech/Macro</span><span class="ua">Тех/Макро</span></div>
+          <div class="chat-sub-val" id="chat-tech-val">—</div>
+        </div>
+      </div>
+      <div class="chat-body" id="chat-body">—</div>
+    </div>
+  </div>
+
   <!-- Settings Drawer Backdrop -->
   <div class="drawer-backdrop" id="drawer-backdrop" onclick="toggleDrawer(false)"></div>
 
@@ -2155,7 +2780,7 @@ html.style-modern .score-box .s-sub {
           <span class="en">Risk Index</span>
           <span class="ua">Індекс ризику</span>
         </a>
-        <a id="nav-btn-neo2" href="neo2.html" class="drawer-nav-item">
+        <a id="nav-btn-neo2" href="neo2.html" class="drawer-nav-item active">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="0"/><path d="M12 3v18"/><path d="M3 12h18"/></svg>
           <span class="en">Brutalist Version</span>
           <span class="ua">Бруталістична версія</span>
@@ -2224,6 +2849,7 @@ html.style-modern .score-box .s-sub {
     <span class="en">This dashboard is for informational purposes only and does not constitute financial advice. All data is automatically collected from public sources. Any decisions to buy or sell assets are made solely at your own risk.</span>
     <span class="ua">Цей дашборд створений виключно з інформаційною метою і не є фінансовою порадою. Всі дані збираються автоматично з публічних джерел. Будь-які рішення про купівлю чи продаж активів приймаються вами на власний ризик.</span>
   </p>
+  </div>
 
   <script>
     // Theme switcher handlers
@@ -2374,11 +3000,140 @@ html.style-modern .score-box .s-sub {
     setLang(saved);
 
     // Settings drawer toggling & dynamic routing
+    let _scrollLockY = 0, _scrollLocked = 0;
+    function _lockScroll() {
+      if (_scrollLocked++ > 0) return;
+      _scrollLockY = window.scrollY || 0;
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${_scrollLockY}px`;
+      document.body.style.left = '0';
+      document.body.style.right = '0';
+    }
+    function _unlockScroll() {
+      if (--_scrollLocked > 0) return;
+      const y = _scrollLockY;
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.left = '';
+      document.body.style.right = '';
+      window.scrollTo(0, y);
+    }
+
     function toggleDrawer(open) {
       const drawer = document.getElementById('settings-drawer');
       const backdrop = document.getElementById('drawer-backdrop');
       if (drawer) drawer.classList.toggle('open', open);
       if (backdrop) backdrop.classList.toggle('open', open);
+      open ? _lockScroll() : _unlockScroll();
+    }
+
+    function toggleChat(open) {
+      const panel = document.getElementById('chat-panel');
+      const backdrop = document.getElementById('chat-backdrop');
+      if (panel) panel.classList.toggle('open', open);
+      if (backdrop) backdrop.classList.toggle('open', open);
+      open ? _lockScroll() : _unlockScroll();
+    }
+
+    function buildAiComment(data) {
+      const s    = data.final_score;
+      const oc   = data.onchain_score;
+      const tech = data.tech_score;
+      const price = data.btc_price;
+      const zf   = data.zone_forecast;
+      const prev  = data.prev_day;
+      const prevW = data.prev_week;
+
+      if (s == null) return { en: 'No data available.', ua: 'Дані недоступні.' };
+
+      const zone = s <= 20 ? 'low' : s <= 40 ? 'accum' : s <= 60 ? 'neutral' : s <= 80 ? 'dist' : 'high';
+      const zoneEn = { low:'Low Risk', accum:'Accumulation', neutral:'Neutral', dist:'Distribution', high:'High Risk' };
+      const zoneUa = { low:'Низький ризик', accum:'Накопичення', neutral:'Нейтрально', dist:'Розподіл', high:'Високий ризик' };
+
+      let en = '', ua = '';
+
+      // Sub-scores alignment
+      if (oc != null && tech != null) {
+        const d = oc - tech;
+        if (d <= -8) {
+          en += `On-chain data (${oc}) trails the technical/macro picture (${tech}) — blockchain fundamentals look more cautious here. `;
+          ua += `Мережеві дані (${oc}) відстають від тех/макро картини (${tech}) — блокчейн-фундаментал виглядає обережніше. `;
+        } else if (d >= 8) {
+          en += `On-chain signals (${oc}) lead the technical/macro picture (${tech}), indicating stronger value from a blockchain perspective. `;
+          ua += `Мережеві сигнали (${oc}) випереджають тех/макро показники (${tech}), що вказує на кращий стан блокчейн-фундаменталу. `;
+        } else {
+          en += `On-chain (${oc}) and tech/macro (${tech}) signals are broadly aligned, reinforcing the overall reading. `;
+          ua += `Мережеві (${oc}) та тех/макро (${tech}) сигнали узгоджені, що підтверджує загальну оцінку. `;
+        }
+      }
+
+      // Price vs zone_forecast
+      if (price && zf) {
+        const buyP  = zf.buy  && zf.buy.price;
+        const sellP = zf.sell && zf.sell.price;
+        if (buyP && price < buyP * 1.20) {
+          const pct = Math.abs(((price - buyP) / buyP) * 100).toFixed(0);
+          en += `At $${Math.round(price).toLocaleString()}, BTC is within ${pct}% of the model buy zone ($${Math.round(buyP).toLocaleString()}). `;
+          ua += `При ціні $${Math.round(price).toLocaleString()}, BTC знаходиться в межах ${pct}% від модельної зони купівлі ($${Math.round(buyP).toLocaleString()}). `;
+        } else if (sellP) {
+          const pct = (((sellP - price) / price) * 100).toFixed(0);
+          en += `Model sell target: $${Math.round(sellP).toLocaleString()} (+${pct}% from current). `;
+          ua += `Модельна ціль продажу: $${Math.round(sellP).toLocaleString()} (+${pct}% від поточної). `;
+        }
+      }
+
+      // Weekly drift
+      if (prevW && prevW.final_score != null) {
+        const wd = s - prevW.final_score;
+        const wa = Math.abs(wd);
+        if (wd < -4) {
+          en += `Risk dropped ${wa} pts over the past week, improving the setup.`;
+          ua += `Ризик знизився на ${wa} пт за тиждень — перспектива покращилась.`;
+        } else if (wd > 4) {
+          en += `Risk climbed ${wa} pts over the past week — caution warranted.`;
+          ua += `Ризик зріс на ${wa} пт за тиждень — варто бути обережним.`;
+        } else {
+          en += `Risk has been stable over the past week.`;
+          ua += `Ризик залишався стабільним протягом тижня.`;
+        }
+      }
+
+      return { en: en.trim(), ua: ua.trim(), zone, zoneEn: zoneEn[zone], zoneUa: zoneUa[zone] };
+    }
+
+    function updateChatPanel(data) {
+      const s    = data.final_score;
+      const oc   = data.onchain_score;
+      const tech = data.tech_score;
+      const prev  = data.prev_day;
+
+      const numEl   = document.getElementById('chat-score-num');
+      const zoneEl  = document.getElementById('chat-score-zone');
+      const trendEl = document.getElementById('chat-score-trend');
+      const ocEl    = document.getElementById('chat-oc-val');
+      const techEl  = document.getElementById('chat-tech-val');
+      const bodyEl  = document.getElementById('chat-body');
+
+      if (numEl)  numEl.textContent  = s != null ? s : '—';
+      if (ocEl)   ocEl.textContent   = oc != null ? oc : '—';
+      if (techEl) techEl.textContent = tech != null ? tech : '—';
+
+      const comment = buildAiComment(data);
+      if (zoneEl)  zoneEl.innerHTML  = `<span class="en">${comment.zoneEn || '—'}</span><span class="ua">${comment.zoneUa || '—'}</span>`;
+
+      if (trendEl && prev && prev.final_score != null && s != null) {
+        const delta = s - prev.final_score;
+        const sign  = delta > 0 ? '+' : '';
+        trendEl.textContent = `${sign}${delta} vs yesterday`;
+      }
+
+      if (bodyEl) {
+        bodyEl.innerHTML =
+          `<span class="en">${comment.en}</span>` +
+          `<span class="ua">${comment.ua}</span>` +
+          `<div style="margin-top:12px;padding-top:10px;border-top:2px solid var(--border);font-size:0.7rem;opacity:0.45">` +
+          `<span class="en">Not financial advice.</span><span class="ua">Не є фінансовою порадою.</span></div>`;
+      }
     }
 
     function updateIndexLinks() {
@@ -2745,11 +3500,11 @@ html.style-modern .score-box .s-sub {
         subscoreTextItems.forEach(item => {
           const el = document.getElementById(item.id);
           if (el && item.val != null) {
-            el.style.color = scoreColor(item.val);
+            el.style.color = isDark ? '#EEEEEE' : '#0A0A0A';
           }
         });
 
-        // Update Classic subscore progress bars
+        // Update subscore progress bars
         const subscoreBars = [
           { id: 'b-final',     val: v.final },
           { id: 'b-final-neo', val: v.final },
@@ -2763,47 +3518,30 @@ html.style-modern .score-box .s-sub {
           if (bar && item.val != null) {
             bar.style.width = item.val + '%';
             bar.style.background = scoreColor(item.val);
-            bar.style.setProperty('--bar-shadow-color', scoreColor(item.val, 0.5));
           }
         });
       }
 
       if (isModern && window._gaugeValues) {
         const v = window._gaugeValues;
-        const ocWarn   = document.getElementById('oc-warn');
-        const techWarn = document.getElementById('tech-warn');
-        const tac = window._tacticalSignal || null;
-        drawHeroGauge(document.getElementById('gauge-final-neo'), v.final);
         // Update neo status badge
         const neoBadge = document.getElementById('neo-hero-status');
         if (neoBadge && v.final != null) {
           const statusEl = document.getElementById('final-neo-status');
           neoBadge.textContent = statusEl ? statusEl.textContent : String(Math.round(v.final));
         }
-        drawModernGauge(document.getElementById('gauge-oc'),             v.onchain,   true,  ocWarn   && ocWarn.style.display   !== 'none');
-        drawModernGauge(document.getElementById('gauge-tech'),           v.tech,      true,  techWarn && techWarn.style.display !== 'none', tac);
-        drawModernGauge(document.getElementById('gauge-yesterday'),      v.yesterday, true,  false);
-        drawModernGauge(document.getElementById('gauge-week'),           v.week,      true,  false);
       }
 
       // Redraw/toggle metric bars
       document.querySelectorAll('.metrics-list .bar-wrap').forEach(barWrap => {
         const fill = barWrap.querySelector('.bar-fill');
         let cv = barWrap.querySelector('canvas.mbar');
-        if (isModern) {
-          if (fill) fill.style.display = 'none';
-          const v = fill ? parseFloat(fill.dataset.value) || 0 : 0;
-          drawModernBar(barWrap, v);
-          if (cv) cv.style.display = 'block';
-        } else {
-          if (fill) {
-            fill.style.display = 'block';
-            const v = parseFloat(fill.dataset.value) || 0;
-            fill.style.width = v + '%';
-            fill.style.background = scoreColor(v);
-            fill.style.setProperty('--bar-shadow-color', scoreColor(v, 0.5));
-          }
-          if (cv) cv.style.display = 'none';
+        if (cv) cv.style.display = 'none';
+        if (fill) {
+          fill.style.display = 'block';
+          const v = parseFloat(fill.dataset.value) || 0;
+          fill.style.width = v + '%';
+          fill.style.background = scoreColor(v);
         }
       });
 
@@ -2812,12 +3550,7 @@ html.style-modern .score-box .s-sub {
         const num = row.querySelector('.m-num');
         const fill = row.querySelector('.bar-fill');
         if (num && fill) {
-          const v = parseFloat(fill.dataset.value) || 0;
-          if (isModern) {
-            num.style.color = (v > 60) ? '#f7931a' : (isDark ? '#8892a4' : '#374151');
-          } else {
-            num.style.color = scoreColor(v);
-          }
+          num.style.color = isDark ? '#EEEEEE' : '#0A0A0A';
         }
       });
     }
@@ -3148,26 +3881,14 @@ html.style-modern .score-box .s-sub {
       const raw = document.getElementById('m-'+id+'-raw');
       if (bar) {
         bar.dataset.value = v;
-        const isModern = true;
-        if (isModern) {
-          drawModernBar(bar.parentElement, v);
-        } else {
-          bar.style.width = v+'%';
-          bar.style.background = c;
-          bar.style.setProperty('--bar-shadow-color', scoreColor(sliderVal, 0.5));
-        }
+        bar.style.width = v + '%';
+        bar.style.background = c;
+        bar.style.setProperty('--bar-shadow-color', scoreColor(sliderVal, 0.5));
       }
       if(num) {
         num.textContent = sliderVal != null ? sliderVal : '\u2014';
-        const isModernNum = true;
-        if (isModernNum) {
-          const isDarkNum = !document.documentElement.classList.contains('theme-light');
-          num.style.color = (v > 60)
-            ? '#f7931a'
-            : (isDarkNum ? '#8892a4' : '#374151');
-        } else {
-          num.style.color = c;
-        }
+        const isDarkNum = !document.documentElement.classList.contains('theme-light');
+        num.style.color = isDarkNum ? '#EEEEEE' : '#0A0A0A';
       }
       if(raw) raw.innerHTML = rawText || '';
     }
@@ -3178,7 +3899,8 @@ html.style-modern .score-box .s-sub {
       const color = scoreColor(val);
       if(el)  {
         el.textContent = val != null ? val : '\u2014';
-        el.style.color = color;
+        const isDark = !document.documentElement.classList.contains('theme-light');
+        el.style.color = isDark ? '#EEEEEE' : '#0A0A0A';
       }
       if(bar) {
         bar.style.width = (val||0)+'%';
@@ -3253,7 +3975,10 @@ html.style-modern .score-box .s-sub {
            }
            const heroCardTs = document.getElementById('hero-card-ts');
            if (heroCardTs) {
-             heroCardTs.textContent = 'Updated: ' + tsStr;
+             heroCardTs.innerHTML = `
+               <span class="en">Updated: ${tsStr}</span>
+               <span class="ua">Оновлено: ${tsStr}</span>
+             `;
            }
           const ageHours = (Date.now() - tsDate.getTime()) / 3600000;
           if (ageHours > 36) {
@@ -3313,6 +4038,12 @@ html.style-modern .score-box .s-sub {
         if (!el) return;
         const L = riskLabel(v);
         el.innerHTML = `<span class="en">${L.en}</span><span class="ua">${L.ua}</span>`;
+        el.classList.remove('status-low', 'status-neutral', 'status-high');
+        if (v != null) {
+          if (v <= 25) el.classList.add('status-low');
+          else if (v <= 60) el.classList.add('status-neutral');
+          else el.classList.add('status-high');
+        }
       };
       setScore('s-final-neo', 'b-final-neo', data.final_score);
       setSubStatus('final-neo-status', data.final_score);
@@ -3597,7 +4328,7 @@ html.style-modern .score-box .s-sub {
       setLang(localStorage.getItem('bbr-lang') || defLang);
 
       _chartData = data;
-      
+      updateChatPanel(data);
       drawCharts(data);
 
       // --- Setup Hover Event Listeners for Phone History Chart ---
@@ -3675,11 +4406,13 @@ html.style-modern .score-box .s-sub {
 
       updateCountdown();
       setInterval(updateCountdown, 1000);
+      if (typeof adjustScale === 'function') adjustScale();
     }
 
     let _chartData = null;
 
     window.addEventListener('resize', () => {
+      if (typeof adjustScale === 'function') adjustScale();
       if (_chartData) drawCharts(_chartData);
       redrawAllModernGauges();
     });
@@ -3692,9 +4425,10 @@ html.style-modern .score-box .s-sub {
       if(pts.length < 2) return;
 
       const isDark = !document.documentElement.classList.contains('theme-light');
-      const bg    = 'rgba(0,0,0,0)'; // transparent canvas area
-      const grid  = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)';
-      const textC = isDark ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.5)';
+      const isModern = true;
+      const bg    = 'rgba(0,0,0,0)';
+      const grid  = isDark ? 'rgba(238, 238, 238, 0.15)' : 'rgba(10, 10, 10, 0.12)';
+      const textC = isDark ? '#AAAAAA' : '#444444';
 
       const dpr = window.devicePixelRatio || 1;
       const isMobile = window.innerWidth <= 768;
@@ -3733,7 +4467,7 @@ html.style-modern .score-box .s-sub {
 
       // Line colours — defined early so grid labels can reference them
       const isModernChart = true;
-      const priceLineCol  = isModernChart ? (isDark ? '#6b7280' : '#9ca3af') : '#10b981';
+      const priceLineCol  = isDark ? '#6b7280' : '#9ca3af';
 
       // Clear the canvas
       ctx.clearRect(0, 0, W, H);
@@ -3744,17 +4478,17 @@ html.style-modern .score-box .s-sub {
       const gridVals = [0, 25, 50, 75, 100];
       gridVals.forEach(v => {
         const y = toYScore(v);
-        
+
         // Draw grid lines for internal values (25, 50, 75)
         if (v > 0 && v < 100) {
-          ctx.strokeStyle = grid; 
+          ctx.strokeStyle = grid;
           ctx.lineWidth = 1;
-          ctx.beginPath(); 
-          ctx.moveTo(PAD.left, y); 
-          ctx.lineTo(W - PAD.right, y); 
+          ctx.beginPath();
+          ctx.moveTo(PAD.left, y);
+          ctx.lineTo(W - PAD.right, y);
           ctx.stroke();
         }
-        
+
         // Left Y-axis: Price labels — use BTC price line colour
         const priceVal = yMinPrice + (v / 100) * (yMaxPrice - yMinPrice);
         const priceText = '$' + Math.round(priceVal / 100) / 10 + 'k';
@@ -3770,10 +4504,14 @@ html.style-modern .score-box .s-sub {
         ctx.fillText(v, W - PAD.right + 8, y + 4);
       });
 
-      // 1. Draw Risk Score Fill & Line (Orange)
-      const gradScore = ctx.createLinearGradient(0, PAD.top, 0, PAD.top + ch);
-      gradScore.addColorStop(0, 'rgba(247, 147, 26, 0.18)');
-      gradScore.addColorStop(1, 'rgba(247, 147, 26, 0.005)');
+      // 1. Draw Risk Score Hatched Fill & Line (Orange)
+      const hatchCanvas = document.createElement('canvas');
+      hatchCanvas.width = 8; hatchCanvas.height = 8;
+      const hx = hatchCanvas.getContext('2d');
+      hx.strokeStyle = isDark ? 'rgba(247, 147, 26, 0.22)' : 'rgba(247, 147, 26, 0.18)';
+      hx.lineWidth = 1.5;
+      hx.beginPath(); hx.moveTo(0, 8); hx.lineTo(8, 0); hx.stroke();
+      const hatchFill = ctx.createPattern(hatchCanvas, 'repeat');
 
       ctx.beginPath();
       pts.forEach((e, i) => {
@@ -3784,7 +4522,7 @@ html.style-modern .score-box .s-sub {
       ctx.lineTo(PAD.left + cw, PAD.top + ch);
       ctx.lineTo(PAD.left, PAD.top + ch);
       ctx.closePath();
-      ctx.fillStyle = gradScore; 
+      ctx.fillStyle = hatchFill;
       ctx.fill();
 
       // Glowing Neon Line for Score
@@ -3794,10 +4532,10 @@ html.style-modern .score-box .s-sub {
         const y = toYScore(e.score);
         i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
       });
-      ctx.strokeStyle = '#f7931a'; 
-      ctx.lineWidth = 2.5;
+      ctx.strokeStyle = '#f7931a';
+      ctx.lineWidth = isModern ? 5 : 2.5;
       ctx.shadowColor = '#f7931a';
-      ctx.shadowBlur = 8;
+      ctx.shadowBlur = isModern ? 0 : 8;
       ctx.stroke();
       ctx.shadowBlur = 0; // Reset shadow
 
@@ -3818,9 +4556,9 @@ html.style-modern .score-box .s-sub {
         i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
       });
       ctx.strokeStyle = priceLineCol;
-      ctx.lineWidth = 2;
+      ctx.lineWidth = isModern ? 4 : 2;
       ctx.shadowColor = priceLineCol;
-      ctx.shadowBlur = isModernChart ? 0 : 8;
+      ctx.shadowBlur = isModern ? 0 : 8;
       ctx.stroke();
       ctx.shadowBlur = 0;
 
@@ -3842,24 +4580,32 @@ html.style-modern .score-box .s-sub {
         const yPrice = toYPrice(hasPrice ? e.price : yMinPrice);
         const dotEdge = isDark ? '#0d0f18' : '#ffffff';
 
-        // vertical dashed line
-        ctx.strokeStyle = isDark ? 'rgba(255,255,255,0.28)' : 'rgba(0,0,0,0.22)';
-        ctx.lineWidth = 1;
-        ctx.setLineDash([4, 4]);
+        // vertical brutalist tracker line
+        ctx.strokeStyle = isModernChart ? (isDark ? '#EEEEEE' : '#0A0A0A') : (isDark ? 'rgba(255,255,255,0.28)' : 'rgba(0,0,0,0.22)');
+        ctx.lineWidth = isModernChart ? 2.5 : 1;
+        if (!isModernChart) ctx.setLineDash([4, 4]);
         ctx.beginPath(); ctx.moveTo(x, PAD.top); ctx.lineTo(x, PAD.top + ch); ctx.stroke();
-        ctx.setLineDash([]);
+        if (!isModernChart) ctx.setLineDash([]);
 
         // date label at top
         ctx.fillStyle = textC;
-        ctx.font = '600 10px Outfit, sans-serif';
+        ctx.font = '700 10px Outfit, sans-serif';
         ctx.textAlign = (x > W - PAD.right - 40) ? 'right' : (x < PAD.left + 40 ? 'left' : 'center');
         ctx.fillText(e.date.slice(5), x, PAD.top - 4);
 
-        // intersection dots
+        // intersection markers
         const dot = (yy, col) => {
-          ctx.beginPath(); ctx.arc(x, yy, 4, 0, Math.PI * 2);
-          ctx.fillStyle = col; ctx.fill();
-          ctx.lineWidth = 2; ctx.strokeStyle = dotEdge; ctx.stroke();
+          if (isModernChart) {
+            ctx.fillStyle = col;
+            ctx.strokeStyle = dotEdge;
+            ctx.lineWidth = 2.5;
+            ctx.fillRect(x - 5, yy - 5, 10, 10);
+            ctx.strokeRect(x - 5, yy - 5, 10, 10);
+          } else {
+            ctx.beginPath(); ctx.arc(x, yy, 4, 0, Math.PI * 2);
+            ctx.fillStyle = col; ctx.fill();
+            ctx.lineWidth = 2; ctx.strokeStyle = dotEdge; ctx.stroke();
+          }
         };
         if (hasPrice) dot(yPrice, priceLineCol);
         dot(yScore, '#f7931a');
@@ -3904,12 +4650,24 @@ html.style-modern .score-box .s-sub {
           const by = Math.max(PAD.top, Math.min(PAD.top + ch - bh, b.cy - bh / 2));
           const bx = side === 1 ? x + 9 : x - 9 - b.w;
           ctx.beginPath();
-          if (ctx.roundRect) ctx.roundRect(bx, by, b.w, bh, 5);
-          else ctx.rect(bx, by, b.w, bh);
-          ctx.fillStyle = isDark ? '#1c2030' : '#ffffff';
-          ctx.fill();
-          ctx.lineWidth = 1; ctx.strokeStyle = b.col; ctx.stroke();
+          if (isModernChart) {
+            ctx.rect(bx, by, b.w, bh);
+            ctx.fillStyle = isDark ? '#111111' : '#ffffff';
+            ctx.fill();
+            ctx.lineWidth = 2.5; 
+            ctx.strokeStyle = isDark ? '#EEEEEE' : '#0A0A0A'; 
+            ctx.stroke();
+          } else {
+            if (ctx.roundRect) ctx.roundRect(bx, by, b.w, bh, 5);
+            else ctx.rect(bx, by, b.w, bh);
+            ctx.fillStyle = isDark ? '#1c2030' : '#ffffff';
+            ctx.fill();
+            ctx.lineWidth = 1; ctx.strokeStyle = b.col; ctx.stroke();
+          }
           ctx.fillStyle = b.col; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+          if (isModernChart) {
+            ctx.font = '800 11px Outfit, sans-serif';
+          }
           ctx.fillText(b.text, bx + padX, by + bh / 2);
           ctx.textBaseline = 'alphabetic';
         });
@@ -3951,141 +4709,7 @@ html.style-modern .score-box .s-sub {
 
     init();
 
-    // ── Full-Screen Canvas Candlestick Waves Animation ─────────────────
-    class CandleWave {
-      constructor(baseYRatio, speed, waveFreq, amp, driftAmp) {
-        this.baseYRatio = baseYRatio;
-        this.speed = speed;
-        this.waveFreq = waveFreq;
-        this.amp = amp;
-        this.driftAmp = driftAmp;
-        this.time = Math.random() * 100;
-        this.spacing = 26; 
-        this.width = 10; 
-      }
-      
-      update() {
-        this.time += this.speed;
-      }
-      
-      draw(ctx, w, h, activeState) {
-        this.update();
-        ctx.save();
-        
-        // Calculate the slowly drifting base Y coordinate
-        const drift = Math.sin(this.time * 0.2) * this.driftAmp;
-        const baseY = h * (this.baseYRatio + drift);
-        const candleCount = Math.ceil(w / this.spacing);
-        
-        for (let i = 0; i < candleCount; i++) {
-          const x = i * this.spacing + this.spacing / 2;
-          
-          // 1. Wave contour (local sine wave curve)
-          const waveNoise1 = Math.sin(x * this.waveFreq + this.time * 0.4);
-          const waveNoise2 = Math.cos(x * this.waveFreq * 2.2 - this.time * 0.2);
-          const waveY = baseY + (waveNoise1 * this.amp) + (waveNoise2 * (this.amp * 0.3));
-          
-          // 2. Candle body grows/shrinks dynamically on the fly
-          const tOpen = Math.sin(x * 0.05 + this.time * 0.6) * 14;
-          const tClose = Math.cos(x * 0.07 - this.time * 0.5) * 14;
-          
-          const openY = waveY + tOpen;
-          const closeY = waveY + tClose;
-          
-          const isGreen = closeY < openY;
-          
-          const highY = Math.min(openY, closeY) - 3 - Math.abs(Math.sin(x * 0.12 + this.time * 0.8)) * 8;
-          const lowY = Math.max(openY, closeY) + 3 + Math.abs(Math.cos(x * 0.15 - this.time * 0.7)) * 8;
-          
-          // 3. Solid, crisp glow opacity for dark mode
-          let alpha = 0.09;
-          
-          if (alpha <= 0) continue;
-          
-          // Light mode opacity scaling
-          const isLightMode = document.documentElement.classList.contains('theme-light');
-          if (isLightMode) {
-            alpha *= 0.65; 
-          }
-          
-          let colorStr;
-          if (activeState === 'tactical-buy') {
-            colorStr = `rgba(16, 185, 129, ${alpha})`;
-          } else if (activeState === 'tactical-overheat') {
-            colorStr = `rgba(239, 68, 68, ${alpha})`;
-          } else {
-            colorStr = isGreen ? `rgba(16, 185, 129, ${alpha})` : `rgba(239, 68, 68, ${alpha})`;
-          }
-          
-          ctx.strokeStyle = colorStr;
-          ctx.fillStyle = colorStr;
-          ctx.lineWidth = 1.5;
-          
-          // Draw wick
-          ctx.beginPath();
-          ctx.moveTo(x, highY);
-          ctx.lineTo(x, lowY);
-          ctx.stroke();
-          
-          // Draw body
-          const rx = x - this.width / 2;
-          const ry = Math.min(openY, closeY);
-          const rHeight = Math.max(2, Math.abs(closeY - openY));
-          ctx.beginPath();
-          ctx.roundRect(rx, ry, this.width, rHeight, 1.5);
-          ctx.fill();
-        }
-        ctx.restore();
-      }
-    }
 
-    const canvas = document.getElementById('bg-canvas');
-    if (canvas) {
-      const ctx = canvas.getContext('2d');
-      let w, h;
-      const waves = [];
-      let lastWidth = window.innerWidth;
-      let lastHeight = window.innerHeight;
-
-      function resizeCanvas() {
-        const currentWidth = window.innerWidth;
-        const currentHeight = window.innerHeight;
-        
-        // Only resize if width changed or height changed significantly (e.g. orientation shift)
-        if (Math.abs(currentHeight - lastHeight) < 100 && currentWidth === lastWidth) {
-          return;
-        }
-        
-        lastWidth = currentWidth;
-        lastHeight = currentHeight;
-
-        const dpr = window.devicePixelRatio || 1;
-        w = currentWidth;
-        h = currentHeight;
-        canvas.width = w * dpr;
-        canvas.height = h * dpr;
-        ctx.scale(dpr, dpr);
-      }
-
-      waves.push(new CandleWave(0.28, 0.008, 0.002, 50, 0.08));
-      waves.push(new CandleWave(0.53, 0.010, 0.003, 60, 0.12));
-      waves.push(new CandleWave(0.78, 0.006, 0.0018, 50, 0.09));
-
-      window.addEventListener('resize', resizeCanvas);
-      resizeCanvas();
-
-      function animate() {
-        ctx.clearRect(0, 0, w, h);
-        const state = window.activeTacticalState || 'neutral';
-        
-        for (let wave of waves) {
-          wave.draw(ctx, w, h, state);
-        }
-        
-        requestAnimationFrame(animate);
-      }
-      animate();
-    }
   </script>
   <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "2512d38212e24b948b0c4fb20bef5125"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
