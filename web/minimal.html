@@ -208,11 +208,10 @@
 
     /* --- Top Status Bar --- */
     .status-bar {
-      width: 100%;
-      max-width: 500px;
-      display: flex;
-      justify-content: space-between;
+      display: inline-flex;
+      justify-content: center;
       align-items: center;
+      gap: 6px;
       z-index: 20;
       font-size: 0.75rem;
       font-weight: 600;
@@ -220,15 +219,9 @@
       margin-top: env(safe-area-inset-top);
       color: var(--text-mute);
       background: var(--bg-card);
-      padding: 10px 20px;
+      padding: 8px 16px;
       border-radius: 9999px;
       border: 1px solid var(--border);
-    }
-
-    .status-left {
-      display: flex;
-      align-items: center;
-      gap: 6px;
     }
 
     @keyframes blink {
@@ -237,10 +230,7 @@
     }
     .blink-colon { animation: blink 1s step-start infinite; }
 
-    .status-right {
-      display: flex;
-      align-items: center;
-      gap: 6px;
+    .status-price {
       font-weight: 700;
     }
 
@@ -1275,18 +1265,17 @@
   <div class="lockscreen-wrapper">
     <!-- Top System Status Bar -->
     <div class="status-bar">
-      <div class="status-left">
-        <span class="status-dot" id="status-health-dot"></span>
-        <span id="hero-card-ts">—</span>
-        <span class="status-sep">•</span>
-        <button class="status-reload" onclick="location.reload()" title="Reload">
-          <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11A8.1 8.1 0 0 0 4.5 9M4 5v4h4"/><path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"/></svg>
-        </button>
-        <span id="hero-card-countdown">—</span>
-      </div>
-      <div class="status-right" id="hero-card-price">
-        —
-      </div>
+      <span class="status-dot" id="status-health-dot"></span>
+      <span class="status-sep">·</span>
+      <span id="hero-card-ts">—</span>
+      <span class="status-sep">·</span>
+      <button class="status-reload" onclick="location.reload()" title="Reload">
+        <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11A8.1 8.1 0 0 0 4.5 9M4 5v4h4"/><path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"/></svg>
+      </button>
+      <span class="status-sep">·</span>
+      <span id="hero-card-countdown">—</span>
+      <span class="status-sep">·</span>
+      <span class="status-price" id="hero-card-price">—</span>
     </div>
 
     <!-- Center Display (Flipping Card Viewport) -->
