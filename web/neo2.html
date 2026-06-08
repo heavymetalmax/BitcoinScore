@@ -31,12 +31,11 @@
               // Clip html to visual viewport → position:fixed uses real 390px,
               // not the 908px layout viewport (fixes chat panel + horiz scroll)
               html.style.overflowX = 'hidden';
-              html.style.overflowY = 'hidden';
             } else {
               wrapper.style.transform = '';
               wrapper.style.transformOrigin = '';
               html.style.overflowX = '';
-              html.style.overflowY = '';
+              
               document.body.style.width = '';
               document.body.style.minWidth = '';
               document.body.style.maxWidth = '';
@@ -49,7 +48,7 @@
             wrapper.style.transform = '';
             wrapper.style.transformOrigin = '';
             html.style.overflowX = '';
-            html.style.overflowY = '';
+            
             document.body.style.width = '';
             document.body.style.minWidth = '';
             document.body.style.maxWidth = '';
