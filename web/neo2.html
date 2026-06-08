@@ -2862,11 +2862,7 @@
       const style = 'modern';
       const mode = localStorage.getItem('bbr-mode') || 'auto';
       
-      let theme = 'dark';
-      if (mode === 'auto') {
-        const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
-        theme = prefersLight ? 'light' : 'dark';
-      }
+      const theme = 'light';
       
       document.documentElement.className = 'style-' + style + ' theme-' + theme;
 
