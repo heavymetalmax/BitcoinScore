@@ -824,6 +824,18 @@
       color: var(--text);
     }
 
+    .no-advice-label {
+      font-size: 0.6rem;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-mute);
+      opacity: 0.5;
+      text-align: center;
+      margin-top: 6px;
+      z-index: 20;
+    }
+
     /* --- Interactive Gear Button --- */
     .settings-gear {
       position: fixed;
@@ -1112,17 +1124,22 @@
     /* --- About trigger (bottom) --- */
     .disclaimer-trigger {
       position: fixed;
-      bottom: max(14px, calc(8px + env(safe-area-inset-bottom)));
+      bottom: max(60px, calc(34px + env(safe-area-inset-bottom)));
       left: 50%;
       transform: translateX(-50%);
-      font-size: 0.62rem;
+      height: 42px;
+      display: flex;
+      align-items: center;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
       color: var(--text);
       cursor: pointer;
-      opacity: 0.55;
+      opacity: 0.7;
       transition: opacity 0.2s ease;
       white-space: nowrap;
       z-index: 60;
-      letter-spacing: 0.04em;
     }
     .disclaimer-trigger:hover { opacity: 1; }
 
@@ -1413,6 +1430,11 @@
       </div>
     </div>
 
+    <p class="no-advice-label">
+      <span class="en">Not financial advice or recommendation</span>
+      <span class="ua">Не є фінансовою порадою або рекомендацією</span>
+    </p>
+
     <div class="drawer-backdrop" id="drawer-backdrop" onclick="toggleDrawer(false); closeMetricHelp();"></div>
 
   </div>
@@ -1556,10 +1578,10 @@
     </p>
   </div>
 
-  <!-- Disclaimer trigger (fixed bottom) -->
+  <!-- Disclaimer trigger (fixed, same level as gear buttons) -->
   <div class="disclaimer-trigger" onclick="toggleAbout(!document.getElementById('about-footer').classList.contains('open'))">
-    <span class="en">disclaimer</span>
-    <span class="ua">відмова від відповідальності</span>
+    <span class="en">important information</span>
+    <span class="ua">важлива інформація</span>
   </div>
 
   <!-- Metric Help Modal -->
