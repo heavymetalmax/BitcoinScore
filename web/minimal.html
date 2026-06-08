@@ -1630,33 +1630,11 @@
     }
 
     // Toggle Drawer
-    // iOS-safe scroll lock: fixes Safari viewport jump when fixed panels open
-    let _scrollLockY = 0;
-    let _scrollLocked = 0; // counter so nested calls balance correctly
-    function _lockScroll() {
-      if (_scrollLocked++ > 0) return;
-      _scrollLockY = window.scrollY || 0;
-      document.body.style.position = 'fixed';
-      document.body.style.top = `-${_scrollLockY}px`;
-      document.body.style.left = '0';
-      document.body.style.right = '0';
-    }
-    function _unlockScroll() {
-      if (--_scrollLocked > 0) return;
-      const y = _scrollLockY;
-      document.body.style.position = '';
-      document.body.style.top = '';
-      document.body.style.left = '';
-      document.body.style.right = '';
-      window.scrollTo(0, y);
-    }
-
     function toggleDrawer(open) {
       const drawer = document.getElementById('settings-drawer');
       const backdrop = document.getElementById('drawer-backdrop');
       if (drawer) drawer.classList.toggle('open', open);
       if (backdrop) backdrop.classList.toggle('open', open);
-      open ? _lockScroll() : _unlockScroll();
     }
 
     let _commentaryScrollY = 0;
@@ -1697,7 +1675,6 @@
       if (!footer) return;
       footer.style.transition = '';
       footer.classList.toggle('open', open);
-      open ? _lockScroll() : _unlockScroll();
     }
 
     // Swipe-down to dismiss about footer

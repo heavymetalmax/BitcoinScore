@@ -3000,31 +3000,11 @@
     setLang(saved);
 
     // Settings drawer toggling & dynamic routing
-    let _scrollLockY = 0, _scrollLocked = 0;
-    function _lockScroll() {
-      if (_scrollLocked++ > 0) return;
-      _scrollLockY = window.scrollY || 0;
-      document.body.style.position = 'fixed';
-      document.body.style.top = `-${_scrollLockY}px`;
-      document.body.style.left = '0';
-      document.body.style.right = '0';
-    }
-    function _unlockScroll() {
-      if (--_scrollLocked > 0) return;
-      const y = _scrollLockY;
-      document.body.style.position = '';
-      document.body.style.top = '';
-      document.body.style.left = '';
-      document.body.style.right = '';
-      window.scrollTo(0, y);
-    }
-
     function toggleDrawer(open) {
       const drawer = document.getElementById('settings-drawer');
       const backdrop = document.getElementById('drawer-backdrop');
       if (drawer) drawer.classList.toggle('open', open);
       if (backdrop) backdrop.classList.toggle('open', open);
-      open ? _lockScroll() : _unlockScroll();
     }
 
     function toggleChat(open) {
@@ -3032,7 +3012,6 @@
       const backdrop = document.getElementById('chat-backdrop');
       if (panel) panel.classList.toggle('open', open);
       if (backdrop) backdrop.classList.toggle('open', open);
-      open ? _lockScroll() : _unlockScroll();
     }
 
     function buildAiComment(data) {
