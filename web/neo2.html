@@ -17,41 +17,52 @@
       function adjustScale() {
         const isModern = document.documentElement.classList.contains('style-modern');
         const wrapper = document.querySelector('.main-wrapper');
+        const html = document.documentElement;
         if (wrapper) {
           if (isModern) {
             const deviceWidth = window.innerWidth;
             if (deviceWidth < 908) {
               const scale = deviceWidth / 908;
+              const naturalH = wrapper.scrollHeight;
               wrapper.style.transform = 'scale(' + scale + ')';
               wrapper.style.transformOrigin = 'top left';
-              document.body.style.width = '908px';
-              document.body.style.minWidth = '908px';
-              document.body.style.maxWidth = '908px';
-              document.body.style.padding = '32px 24px';
+              // Fix: clamp html/body to visual viewport so fixed-pos elements
+              // (chat panel) use real viewport, not the 908px layout viewport
+              html.style.overflowX = 'hidden';
+              html.style.overflowY = 'hidden';
+              document.body.style.width = deviceWidth + 'px';
+              document.body.style.minWidth = '0';
+              document.body.style.maxWidth = '100%';
+              document.body.style.padding = '0';
               document.body.style.margin = '0';
-              document.body.style.height = (wrapper.offsetHeight * scale + 32) + 'px';
-              document.body.style.overflowX = 'hidden';
+              // Collapse body height to scaled content height to kill infinite scroll
+              document.body.style.height = (naturalH * scale) + 'px';
+              document.body.style.overflow = 'hidden';
             } else {
               wrapper.style.transform = '';
               wrapper.style.transformOrigin = '';
+              html.style.overflowX = '';
+              html.style.overflowY = '';
               document.body.style.width = '';
               document.body.style.minWidth = '';
               document.body.style.maxWidth = '';
               document.body.style.padding = '';
               document.body.style.margin = '';
               document.body.style.height = '';
-              document.body.style.overflowX = '';
+              document.body.style.overflow = '';
             }
           } else {
             wrapper.style.transform = '';
             wrapper.style.transformOrigin = '';
+            html.style.overflowX = '';
+            html.style.overflowY = '';
             document.body.style.width = '';
             document.body.style.minWidth = '';
             document.body.style.maxWidth = '';
             document.body.style.padding = '';
             document.body.style.margin = '';
             document.body.style.height = '';
-            document.body.style.overflowX = '';
+            document.body.style.overflow = '';
           }
         }
       }
@@ -388,7 +399,7 @@
     /* Chat Panel (slides in from right) */
     .chat-panel {
       position: fixed;
-      top: 0; right: -380px;
+      top: 0; right: -110vw;
       width: 360px;
       max-width: 90vw;
       height: 100vh;
