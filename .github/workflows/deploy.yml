@@ -30,6 +30,24 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
+      - name: Download fresh wallpapers
+        env:
+          PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
+        run: |
+          pip install requests --quiet
+          python - <<'EOF'
+          import json, sys, os
+          sys.path.insert(0, '.')
+          from scraper.wallpaper import update_wallpapers
+          try:
+              with open('web/data.json') as f:
+                  score = json.load(f).get('final_score', 50)
+          except Exception:
+              score = 50
+          update_wallpapers(final_score=score, web_dir='web')
+          EOF
+        continue-on-error: true
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
