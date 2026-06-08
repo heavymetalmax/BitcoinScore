@@ -768,9 +768,9 @@
     }
     .mini-indicator-row {
       display: grid;
-      grid-template-columns: 125px 80px 1fr 30px;
+      grid-template-columns: 110px 1fr 56px 30px;
       align-items: center;
-      gap: 12px;
+      gap: 8px;
       padding: 10px 8px;
       border-radius: 12px;
       transition: background-color 0.2s;
@@ -812,6 +812,9 @@
       text-align: right;
       font-variant-numeric: tabular-nums;
       font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .m-num {
       font-size: 0.85rem;
