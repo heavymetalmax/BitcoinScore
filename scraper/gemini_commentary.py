@@ -119,30 +119,32 @@ def _build_prompt(score, oc, tech, price, payload, slider_map, language: str) ->
         if language == 'en'
         else 'Напиши відповідь українською мовою.'
     )
-    return f"""You are a Bitcoin market analyst interpreting a composite risk index.
-Score range 0–100: low = historically undervalued / low risk; high = historically expensive / high risk. NOT a price prediction.
+    return f"""You are a Bitcoin data analyst writing a factual summary of today's market indicator readings.
 
-Current overview:
+IMPORTANT DEFINITIONS:
+- The Risk Score (0–100) measures how HISTORICALLY EXPENSIVE Bitcoin is based on on-chain and macro data. Low score = historically cheap territory. High score = historically expensive. It does NOT measure momentum, trend, or whether price will go up or down.
+- On-chain metrics (NUPL, MVRV, RHODL, CVDD, aSOPR) reflect where long-term holders stand — they move slowly and lag price action.
+- Tech/Macro metrics (CipherB, Mayer Multiple, ETF Flows, Fear & Greed, Yield Curve, M2) reflect current momentum, sentiment, and macro conditions.
+
+Today's readings:
 - BTC price: ${price:,}
 - Overall Risk Score: {score}/100
-- On-chain sub-score: {oc}/100  (NUPL, MVRV Z-score, RHODL, CVDD, aSOPR)
-- Tech/Macro sub-score: {tech}/100  (CipherB, Mayer Multiple, ETF Flows, Fear & Greed, Yield Curve, M2)
+- On-chain sub-score: {oc}/100
+- Tech/Macro sub-score: {tech}/100
 
-Individual metric readings:
 {_metrics_block(payload, slider_map)}
 
 {lang_instruction}
-Write 3–4 sentences that:
-1. State whether on-chain and tech/macro signals AGREE or DIVERGE, and what that means.
-2. Name any REINFORCING signals (pointing the same direction, amplifying the conclusion).
-3. Name any CONTRADICTING signals (pulling in opposite directions, creating ambiguity).
-4. Describe the resulting market environment in plain language.
+Write exactly 2–3 sentences. Describe:
+1. What the on-chain picture shows (are long-term holders in profit or stress? Is the market historically cheap or expensive by these metrics?)
+2. What the tech/macro picture shows (sentiment, momentum, institutional flows — what is the current dynamic?)
+3. If on-chain and tech/macro tell different stories, note the divergence plainly.
 
-Rules:
-- Use the Overall Risk Score (e.g. "{score}/100") and sub-scores when summarising.
-- For individual metrics reference their RAW values (e.g. "aSOPR below 1", "Mayer Multiple 0.77") and the [risk label] given above — do NOT invent other numbers.
-- Do not give financial advice. Do not name the index itself.
-Reply with plain text only — no JSON, no markdown, no bullet points."""
+STRICT RULES — violation means failure:
+- Do NOT say the market is "safe", "stable", "good for investors", or recommend any action.
+- Do NOT say a low risk score means "safe" — it means historically undervalued, not direction.
+- Do NOT invent numbers. Use only the values given above.
+- Plain factual sentences only — no bullet points, no markdown, no conclusion about what to do."""
 
 
 def _call_groq(prompt: str, headers: dict) -> str | None:
