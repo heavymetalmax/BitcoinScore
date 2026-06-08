@@ -5,13 +5,7 @@
   <script>
     (function() {
       // neo.html is a standalone preview — no redirect
-      const mode = localStorage.getItem('bbr-mode') || 'auto';
-      let theme = 'dark';
-      if (mode === 'auto') {
-        const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
-        theme = prefersLight ? 'light' : 'dark';
-      }
-      document.documentElement.className = 'style-modern theme-' + theme;
+      document.documentElement.className = 'style-modern theme-light';
 
       // Dynamic scaling to fit desktop layout on mobile viewports
       function adjustScale() {
