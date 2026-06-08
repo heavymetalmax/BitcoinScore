@@ -208,8 +208,6 @@
 
     /* --- Top Status Bar --- */
     .status-bar {
-      position: sticky;
-      top: max(8px, env(safe-area-inset-top));
       width: 100%;
       max-width: 500px;
       display: flex;
@@ -219,6 +217,7 @@
       font-size: 0.75rem;
       font-weight: 600;
       letter-spacing: 0.05em;
+      margin-top: env(safe-area-inset-top);
       color: var(--text-mute);
       background: var(--bg-card);
       padding: 10px 20px;
