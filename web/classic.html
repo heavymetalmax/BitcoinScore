@@ -3082,6 +3082,7 @@
     function redrawAllModernGauges() {
       const style = 'classic';
       const isModern = style === 'modern';
+      const isClassic = style === 'classic';
       const isDark = !document.documentElement.classList.contains('theme-light');
 
       // Update root accent CSS variables dynamically
@@ -3163,7 +3164,7 @@
       document.querySelectorAll('.metrics-list .bar-wrap').forEach(barWrap => {
         const fill = barWrap.querySelector('.bar-fill');
         let cv = barWrap.querySelector('canvas.mbar');
-        if (isModern) {
+        if (isModern || isClassic) {
           if (fill) fill.style.display = 'none';
           const v = fill ? parseFloat(fill.dataset.value) || 0 : 0;
           drawModernBar(barWrap, v);
@@ -3627,8 +3628,8 @@
       const raw = document.getElementById('m-'+id+'-raw');
       if (bar) {
         bar.dataset.value = v;
-        const isModern = false;
-        if (isModern) {
+        const _isClassicBar = document.documentElement.classList.contains('style-classic');
+        if (_isClassicBar) {
           drawModernBar(bar.parentElement, v);
         } else {
           bar.style.width = v+'%';
