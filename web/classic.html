@@ -202,19 +202,13 @@
       font-size: 3rem !important;
       font-weight: 900 !important;
       letter-spacing: -0.02em;
-      text-shadow:
-        0 -1px 0 rgba(255,255,255,0.30),
-        0 1px 0 rgba(0,0,0,0.12),
-        0 2px 5px rgba(0,0,0,0.18);
+      text-shadow: 0 1px 3px rgba(0,0,0,0.18);
     }
     html.style-classic .score-box.main .s-value {
       font-size: 3.8rem !important;
     }
     html.style-classic .m-num {
-      text-shadow:
-        0 -1px 0 rgba(255,255,255,0.28),
-        0 1px 0 rgba(0,0,0,0.10),
-        0 2px 4px rgba(0,0,0,0.16);
+      text-shadow: 0 1px 2px rgba(0,0,0,0.14);
     }
 
     /* ── Classic bar: transparent track, allow bubble to overflow ─────────── */
@@ -3296,10 +3290,10 @@
         const cg = rgbaMatch ? +rgbaMatch[2] : 185;
         const cb = rgbaMatch ? +rgbaMatch[3] : 129;
 
-        // Outer glow
+        // Subtle drop shadow (no glow)
         ctx.save();
-        ctx.shadowColor   = `rgba(${cr}, ${cg}, ${cb}, 0.55)`;
-        ctx.shadowBlur    = 7;
+        ctx.shadowColor   = 'rgba(0,0,0,0.28)';
+        ctx.shadowBlur    = 4;
         ctx.shadowOffsetY = 1;
         ctx.beginPath();
         ctx.arc(ballX, centerY, BALL_R, 0, Math.PI * 2);
@@ -3307,31 +3301,24 @@
         ctx.fill();
         ctx.restore();
 
-        // Puck — same linear gradient as glossy numbers
-        const hiR = Math.min(255, cr+55), hiG = Math.min(255, cg+55), hiB = Math.min(255, cb+55);
-        const loR = Math.max(0, cr-25),   loG = Math.max(0, cg-25),   loB = Math.max(0, cb-25);
+        // Matte puck — very subtle tonal gradient, no shine
+        const hiR = Math.min(255, cr+12), hiG = Math.min(255, cg+12), hiB = Math.min(255, cb+12);
+        const loR = Math.max(0, cr-14),   loG = Math.max(0, cg-14),   loB = Math.max(0, cb-14);
         const puckGrad = ctx.createLinearGradient(ballX, centerY - BALL_R, ballX, centerY + BALL_R);
-        puckGrad.addColorStop(0,    `rgb(${hiR},${hiG},${hiB})`);
-        puckGrad.addColorStop(0.42, `rgb(${cr},${cg},${cb})`);
-        puckGrad.addColorStop(1,    `rgb(${loR},${loG},${loB})`);
+        puckGrad.addColorStop(0,   `rgb(${hiR},${hiG},${hiB})`);
+        puckGrad.addColorStop(0.5, `rgb(${cr},${cg},${cb})`);
+        puckGrad.addColorStop(1,   `rgb(${loR},${loG},${loB})`);
         ctx.beginPath();
         ctx.arc(ballX, centerY, BALL_R, 0, Math.PI * 2);
         ctx.fillStyle = puckGrad;
         ctx.fill();
 
-        // Rim edge (darker border)
-        const rimR = Math.max(0, cr-40), rimG = Math.max(0, cg-40), rimB = Math.max(0, cb-40);
+        // Thin edge (defines boundary without shine)
+        const rimR = Math.max(0, cr-30), rimG = Math.max(0, cg-30), rimB = Math.max(0, cb-30);
         ctx.beginPath();
         ctx.arc(ballX, centerY, BALL_R - 0.4, 0, Math.PI * 2);
-        ctx.strokeStyle = `rgba(${rimR},${rimG},${rimB},0.45)`;
-        ctx.lineWidth = 0.8;
-        ctx.stroke();
-
-        // Top highlight arc (white rim line at the very top)
-        ctx.beginPath();
-        ctx.arc(ballX, centerY, BALL_R - 1, Math.PI * 1.15, Math.PI * 1.85);
-        ctx.strokeStyle = 'rgba(255,255,255,0.55)';
-        ctx.lineWidth = 1.2;
+        ctx.strokeStyle = `rgba(${rimR},${rimG},${rimB},0.35)`;
+        ctx.lineWidth = 0.7;
         ctx.stroke();
 
         return;
@@ -3607,8 +3594,8 @@
       const m = baseColor.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
       if (!m) { el.style.color = baseColor; return; }
       const r = +m[1], g = +m[2], b = +m[3];
-      const hi = `rgb(${Math.min(255,r+55)},${Math.min(255,g+55)},${Math.min(255,b+55)})`;
-      const lo = `rgb(${Math.max(0,r-25)},${Math.max(0,g-25)},${Math.max(0,b-25)})`;
+      const hi = `rgb(${Math.min(255,r+12)},${Math.min(255,g+12)},${Math.min(255,b+12)})`;
+      const lo = `rgb(${Math.max(0,r-14)},${Math.max(0,g-14)},${Math.max(0,b-14)})`;
       el.style.backgroundImage = `linear-gradient(to bottom, ${hi} 0%, rgb(${r},${g},${b}) 42%, ${lo} 100%)`;
       el.style.webkitBackgroundClip = 'text';
       el.style.backgroundClip = 'text';
