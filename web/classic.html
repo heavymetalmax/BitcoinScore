@@ -3212,9 +3212,9 @@
 
       if (isClassic) {
         // ── Classic: inset groove + Aqua glossy bubble ────────────────────
-        const BALL_R  = 7;
-        const TRACK_H = 5;
-        const TOTAL_H = BALL_R * 2 + 4;
+        const BALL_R  = 8;
+        const TRACK_H = 10;
+        const TOTAL_H = Math.max(BALL_R * 2 + 4, TRACK_H + 8);
         const centerY = TOTAL_H / 2;
 
         let cv = barWrap.querySelector('canvas.mbar');
