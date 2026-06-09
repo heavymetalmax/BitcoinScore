@@ -3298,8 +3298,8 @@
 
         // Outer glow
         ctx.save();
-        ctx.shadowColor   = `rgba(${cr}, ${cg}, ${cb}, 0.60)`;
-        ctx.shadowBlur    = 8;
+        ctx.shadowColor   = `rgba(${cr}, ${cg}, ${cb}, 0.55)`;
+        ctx.shadowBlur    = 7;
         ctx.shadowOffsetY = 1;
         ctx.beginPath();
         ctx.arc(ballX, centerY, BALL_R, 0, Math.PI * 2);
@@ -3307,38 +3307,32 @@
         ctx.fill();
         ctx.restore();
 
-        // Base color
+        // Puck — same linear gradient as glossy numbers
+        const hiR = Math.min(255, cr+55), hiG = Math.min(255, cg+55), hiB = Math.min(255, cb+55);
+        const loR = Math.max(0, cr-25),   loG = Math.max(0, cg-25),   loB = Math.max(0, cb-25);
+        const puckGrad = ctx.createLinearGradient(ballX, centerY - BALL_R, ballX, centerY + BALL_R);
+        puckGrad.addColorStop(0,    `rgb(${hiR},${hiG},${hiB})`);
+        puckGrad.addColorStop(0.42, `rgb(${cr},${cg},${cb})`);
+        puckGrad.addColorStop(1,    `rgb(${loR},${loG},${loB})`);
         ctx.beginPath();
         ctx.arc(ballX, centerY, BALL_R, 0, Math.PI * 2);
-        ctx.fillStyle = `rgb(${cr}, ${cg}, ${cb})`;
+        ctx.fillStyle = puckGrad;
         ctx.fill();
 
-        // Depth gradient
-        const depthGrad = ctx.createLinearGradient(ballX, centerY - BALL_R, ballX, centerY + BALL_R);
-        depthGrad.addColorStop(0,   'rgba(255,255,255,0.10)');
-        depthGrad.addColorStop(0.5, 'rgba(0,0,0,0)');
-        depthGrad.addColorStop(1,   'rgba(0,0,0,0.35)');
+        // Rim edge (darker border)
+        const rimR = Math.max(0, cr-40), rimG = Math.max(0, cg-40), rimB = Math.max(0, cb-40);
         ctx.beginPath();
-        ctx.arc(ballX, centerY, BALL_R, 0, Math.PI * 2);
-        ctx.fillStyle = depthGrad;
-        ctx.fill();
+        ctx.arc(ballX, centerY, BALL_R - 0.4, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(${rimR},${rimG},${rimB},0.45)`;
+        ctx.lineWidth = 0.8;
+        ctx.stroke();
 
-        // Aqua specular highlight (clipped to top half of sphere)
-        ctx.save();
+        // Top highlight arc (white rim line at the very top)
         ctx.beginPath();
-        ctx.arc(ballX, centerY, BALL_R, 0, Math.PI * 2);
-        ctx.clip();
-        const specGrad = ctx.createRadialGradient(
-          ballX - BALL_R * 0.18, centerY - BALL_R * 0.48, BALL_R * 0.04,
-          ballX - BALL_R * 0.05, centerY - BALL_R * 0.08, BALL_R * 0.85
-        );
-        specGrad.addColorStop(0,    'rgba(255,255,255,0.90)');
-        specGrad.addColorStop(0.38, 'rgba(255,255,255,0.50)');
-        specGrad.addColorStop(0.65, 'rgba(255,255,255,0.10)');
-        specGrad.addColorStop(1,    'rgba(255,255,255,0)');
-        ctx.fillStyle = specGrad;
-        ctx.fillRect(ballX - BALL_R, centerY - BALL_R, BALL_R * 2, BALL_R);
-        ctx.restore();
+        ctx.arc(ballX, centerY, BALL_R - 1, Math.PI * 1.15, Math.PI * 1.85);
+        ctx.strokeStyle = 'rgba(255,255,255,0.55)';
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
 
         return;
       }
