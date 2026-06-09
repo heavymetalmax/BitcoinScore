@@ -1053,73 +1053,37 @@
     .about-footer a { color: #fff; font-weight: 600; text-decoration: underline; text-decoration-color: rgba(255,255,255,0.4); text-underline-offset: 2px; }
     .about-footer a:hover { text-decoration-color: #fff; }
 
-    /* --- Commentary sheet --- */
-    .commentary-btn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      margin: 16px auto 0;
-      padding: 7px 16px;
-      background: rgba(255,255,255,0.07);
-      border: 1px solid rgba(255,255,255,0.15);
-      border-radius: 99px;
-      color: var(--text-mute);
-      font-size: 0.72rem;
-      font-weight: 600;
-      letter-spacing: 0.04em;
-      cursor: pointer;
-      transition: background 0.2s, border-color 0.2s, color 0.2s;
-    }
-    .commentary-btn:hover { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.28); color: var(--text); }
-    .commentary-btn svg { flex-shrink: 0; }
-
-    .commentary-backdrop {
+    /* --- Commentary Drawer (Left Side) --- */
+    .commentary-drawer {
       position: fixed;
-      inset: 0;
-      z-index: 199;
-      background: rgba(0,0,0,0.5);
+      top: 16px;
+      bottom: 110px;
+      left: -440px;
+      width: min(92vw, 380px);
+      background: var(--bg-card-hover);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 32px;
+      padding: 0;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.3s ease;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+      transition: opacity 0.25s ease, left 0.25s ease;
     }
-    .commentary-backdrop.open { opacity: 1; pointer-events: auto; }
-
-    .commentary-sheet {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      z-index: 200;
-      background: rgba(10,10,14,0.97);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      border-top: 1px solid rgba(255,255,255,0.12);
-      border-radius: 28px 28px 0 0;
-      padding: 0 24px max(32px, calc(env(safe-area-inset-bottom) + 24px));
-      transform: translateY(100%);
-      transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .commentary-sheet.open { transform: translateY(0); }
-    .commentary-sheet-handle {
-      width: 40px; height: 4px;
-      background: rgba(255,255,255,0.2);
-      border-radius: 99px;
-      margin: 14px auto 20px;
-    }
-    .commentary-sheet-title {
-      font-size: 0.7rem;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.35);
-      margin-bottom: 14px;
+    .commentary-drawer.open {
+      opacity: 1;
+      pointer-events: all;
+      left: 24px;
     }
     .commentary-text {
-      font-size: 0.95rem;
+      font-size: 0.92rem;
       line-height: 1.75;
       color: rgba(255,255,255,0.82);
-      max-width: 560px;
     }
     /* --- About trigger (bottom) --- */
     .disclaimer-trigger {
@@ -1268,6 +1232,15 @@
       }
       .settings-drawer.open {
         right: auto;
+        transform: translateX(-50%);
+      }
+      .commentary-drawer {
+        left: 50%;
+        transform: translateX(calc(-50% - 500px));
+        transition: opacity 0.25s ease, transform 0.25s ease;
+      }
+      .commentary-drawer.open {
+        left: 50%;
         transform: translateX(-50%);
       }
     }
@@ -1430,7 +1403,7 @@
       </div>
     </div>
 
-    <div class="drawer-backdrop" id="drawer-backdrop" onclick="toggleDrawer(false); closeMetricHelp();"></div>
+    <div class="drawer-backdrop" id="drawer-backdrop" onclick="toggleDrawer(false); toggleCommentary(false); closeMetricHelp();"></div>
 
   </div>
 
@@ -1537,15 +1510,18 @@
   </div><!-- /.drawer-scroll -->
   </div><!-- /.settings-drawer -->
 
-  <!-- Commentary bottom sheet -->
-  <div class="commentary-backdrop" id="commentary-backdrop" onclick="toggleCommentary(false)"></div>
-  <div class="commentary-sheet" id="commentary-sheet">
-    <div class="commentary-sheet-handle" onclick="toggleCommentary(false)" style="cursor:pointer;"></div>
-    <div class="commentary-sheet-title">
-      <span class="en">AI Insight</span>
-      <span class="ua">AI Аналіз</span>
+  <!-- Commentary Drawer (left side) -->
+  <div class="commentary-drawer" id="commentary-drawer">
+    <div class="drawer-header">
+      <span class="drawer-title">
+        <span class="en">AI Insight</span>
+        <span class="ua">AI Аналіз</span>
+      </span>
+      <button class="drawer-close" onclick="toggleCommentary(false)">&times;</button>
     </div>
-    <p class="commentary-text" id="commentary-text">—</p>
+    <div class="drawer-scroll">
+      <p class="commentary-text" id="commentary-text">—</p>
+    </div>
   </div>
 
   <!-- About footer bottom sheet -->
@@ -1651,24 +1627,11 @@
     }
 
     function toggleCommentary(open) {
-      const sheet = document.getElementById('commentary-sheet');
-      const backdrop = document.getElementById('commentary-backdrop');
-      if (sheet) sheet.classList.toggle('open', open);
+      const drawer = document.getElementById('commentary-drawer');
+      const backdrop = document.getElementById('drawer-backdrop');
+      if (drawer) drawer.classList.toggle('open', open);
       if (backdrop) backdrop.classList.toggle('open', open);
     }
-
-    // Swipe down to close commentary sheet
-    (function() {
-      const sheet = document.getElementById('commentary-sheet');
-      if (!sheet) return;
-      let startY = 0;
-      // non-passive so we can call preventDefault() and stop the swipe from scrolling the page
-      sheet.addEventListener('touchstart', e => { startY = e.touches[0].clientY; }, { passive: false });
-      sheet.addEventListener('touchmove', e => { e.preventDefault(); }, { passive: false });
-      sheet.addEventListener('touchend', e => {
-        if (e.changedTouches[0].clientY - startY > 60) toggleCommentary(false);
-      }, { passive: true });
-    })();
 
     function toggleAbout(open) {
       const footer = document.getElementById('about-footer');
@@ -1710,7 +1673,7 @@
     })();
 
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') { toggleDrawer(false); toggleAbout(false); closeMetricHelp(); }
+      if (e.key === 'Escape') { toggleDrawer(false); toggleCommentary(false); toggleAbout(false); closeMetricHelp(); }
     });
 
     // Global Language Toggle
@@ -1995,7 +1958,9 @@
       const modal = document.getElementById('metric-help-modal');
       const backdrop = document.getElementById('drawer-backdrop');
       if (modal) modal.classList.remove('open');
-      if (backdrop && !document.getElementById('settings-drawer').classList.contains('open')) {
+      const keepOpen = document.getElementById('settings-drawer').classList.contains('open')
+                     || document.getElementById('commentary-drawer').classList.contains('open');
+      if (backdrop && !keepOpen) {
         backdrop.classList.remove('open');
       }
     }
