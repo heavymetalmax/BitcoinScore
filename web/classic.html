@@ -197,14 +197,24 @@
     html.style-classic .score-box.main   { border-radius: 24px; }
     html.style-classic .glass-panel      { border-radius: 18px; }
 
-    /* ── Score numbers — bigger, bolder, keep zone colors ────────────────── */
+    /* ── Score numbers — bigger, bolder, glossy 3D ───────────────────────── */
     html.style-classic .score-box .s-value {
       font-size: 3rem !important;
       font-weight: 900 !important;
       letter-spacing: -0.02em;
+      text-shadow:
+        0 -1px 0 rgba(255,255,255,0.30),
+        0 1px 0 rgba(0,0,0,0.12),
+        0 2px 5px rgba(0,0,0,0.18);
     }
     html.style-classic .score-box.main .s-value {
       font-size: 3.8rem !important;
+    }
+    html.style-classic .m-num {
+      text-shadow:
+        0 -1px 0 rgba(255,255,255,0.28),
+        0 1px 0 rgba(0,0,0,0.10),
+        0 2px 4px rgba(0,0,0,0.16);
     }
 
     /* ── Classic bar: transparent track, allow bubble to overflow ─────────── */
@@ -3599,6 +3609,19 @@
       return Math.round(w);
     }
 
+    function applyGlossyText(el, baseColor) {
+      const m = baseColor.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+      if (!m) { el.style.color = baseColor; return; }
+      const r = +m[1], g = +m[2], b = +m[3];
+      const hi = `rgb(${Math.min(255,r+55)},${Math.min(255,g+55)},${Math.min(255,b+55)})`;
+      const lo = `rgb(${Math.max(0,r-25)},${Math.max(0,g-25)},${Math.max(0,b-25)})`;
+      el.style.backgroundImage = `linear-gradient(to bottom, ${hi} 0%, rgb(${r},${g},${b}) 42%, ${lo} 100%)`;
+      el.style.webkitBackgroundClip = 'text';
+      el.style.backgroundClip = 'text';
+      el.style.webkitTextFillColor = 'transparent';
+      el.style.color = baseColor;
+    }
+
     function scoreColor(v, alpha = 1) {
       if(v == null) return 'var(--text-mute)';
       // Modern: same 5-zone palette as gauge (темносірий→помаранчевий)
@@ -3657,12 +3680,9 @@
       }
       if(num) {
         num.textContent = sliderVal != null ? sliderVal : '\u2014';
-        const isModernNum = false;
-        if (isModernNum) {
-          const isDarkNum = !document.documentElement.classList.contains('theme-light');
-          num.style.color = (v > 60)
-            ? '#f7931a'
-            : (isDarkNum ? '#8892a4' : '#374151');
+        const _isClassicNum = document.documentElement.classList.contains('style-classic');
+        if (_isClassicNum) {
+          applyGlossyText(num, c);
         } else {
           num.style.color = c;
         }
@@ -3676,7 +3696,12 @@
       const color = scoreColor(val);
       if(el)  {
         el.textContent = val != null ? val : '\u2014';
-        el.style.color = color;
+        const _isClassicEl = document.documentElement.classList.contains('style-classic');
+        if (_isClassicEl) {
+          applyGlossyText(el, color);
+        } else {
+          el.style.color = color;
+        }
       }
       if(bar) {
         bar.dataset.value = val || 0;
