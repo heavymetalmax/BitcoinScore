@@ -207,6 +207,12 @@
       font-size: 3.8rem !important;
     }
 
+    /* ── Classic bar: transparent track, allow bubble to overflow ─────────── */
+    html.style-classic .bar-wrap {
+      background: transparent !important;
+      overflow: visible !important;
+    }
+
     /* Warm ambient orbs (dark only) */
     html.style-classic.theme-dark body::before {
       content: '';
@@ -3189,32 +3195,117 @@
       });
     }
 
-    // ── Straightened gauge bar for metric rows ────────────────────────────
+    // ── Gauge bar for metric rows ─────────────────────────────────────────
     function drawModernBar(barWrap, value) {
       if (!barWrap || value == null) return;
-      const isDark = !document.documentElement.classList.contains('theme-light');
+      const isDark    = !document.documentElement.classList.contains('theme-light');
+      const isClassic = document.documentElement.classList.contains('style-classic');
 
+      const v   = Math.max(0, Math.min(100, value || 0));
+      const dpr = window.devicePixelRatio || 1;
+      const W   = barWrap.clientWidth || 200;
+
+      if (isClassic) {
+        // ── Classic: transparent track + Aqua glossy bubble ──────────────
+        const BALL_R  = 9;
+        const TOTAL_H = BALL_R * 2 + 4;
+        const centerY = TOTAL_H / 2;
+
+        let cv = barWrap.querySelector('canvas.mbar');
+        if (!cv) {
+          cv = document.createElement('canvas');
+          cv.className = 'mbar';
+          cv.style.display = 'block';
+          const fill = barWrap.querySelector('.bar-fill');
+          if (fill) fill.style.display = 'none';
+          barWrap.appendChild(cv);
+        }
+        const overflow = (TOTAL_H - 6) / 2;
+        cv.style.marginTop    = `-${overflow}px`;
+        cv.style.marginBottom = `-${overflow}px`;
+        cv.dataset.modernValue = v;
+        cv.width  = W * dpr;
+        cv.height = TOTAL_H * dpr;
+        cv.style.width  = W + 'px';
+        cv.style.height = TOTAL_H + 'px';
+
+        const ctx = cv.getContext('2d');
+        ctx.scale(dpr, dpr);
+        ctx.clearRect(0, 0, W, TOTAL_H);
+
+        // Track — transparent (just a faint line)
+        ctx.beginPath();
+        ctx.moveTo(BALL_R, centerY);
+        ctx.lineTo(W - BALL_R, centerY);
+        ctx.strokeStyle = isDark
+          ? 'rgba(255, 245, 225, 0.18)'
+          : 'rgba(100, 80, 50, 0.18)';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Ball position
+        const ballX = Math.max(BALL_R, Math.min(W - BALL_R, (v / 100) * W));
+
+        // Parse zone color
+        const colorStr  = scoreColor(v);
+        const rgbaMatch = colorStr.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+        const cr = rgbaMatch ? +rgbaMatch[1] : 16;
+        const cg = rgbaMatch ? +rgbaMatch[2] : 185;
+        const cb = rgbaMatch ? +rgbaMatch[3] : 129;
+
+        // Drop shadow
+        ctx.save();
+        ctx.shadowColor   = `rgba(${cr}, ${cg}, ${cb}, 0.55)`;
+        ctx.shadowBlur    = 8;
+        ctx.shadowOffsetY = 2;
+        ctx.beginPath();
+        ctx.arc(ballX, centerY, BALL_R, 0, Math.PI * 2);
+        ctx.fillStyle = `rgb(${cr}, ${cg}, ${cb})`;
+        ctx.fill();
+        ctx.restore();
+
+        // Depth gradient (darker at bottom)
+        const depthGrad = ctx.createLinearGradient(ballX, centerY - BALL_R, ballX, centerY + BALL_R);
+        depthGrad.addColorStop(0,    `rgba(255, 255, 255, 0.12)`);
+        depthGrad.addColorStop(0.5,  `rgba(0, 0, 0, 0)`);
+        depthGrad.addColorStop(1,    `rgba(0, 0, 0, 0.32)`);
+        ctx.beginPath();
+        ctx.arc(ballX, centerY, BALL_R, 0, Math.PI * 2);
+        ctx.fillStyle = depthGrad;
+        ctx.fill();
+
+        // Aqua specular highlight — oval in upper portion
+        const specGrad = ctx.createRadialGradient(
+          ballX - BALL_R * 0.22, centerY - BALL_R * 0.38, 0,
+          ballX - BALL_R * 0.08, centerY - BALL_R * 0.08, BALL_R * 0.72
+        );
+        specGrad.addColorStop(0,   'rgba(255, 255, 255, 0.88)');
+        specGrad.addColorStop(0.45,'rgba(255, 255, 255, 0.28)');
+        specGrad.addColorStop(1,   'rgba(255, 255, 255, 0)');
+        ctx.beginPath();
+        ctx.arc(ballX, centerY, BALL_R, 0, Math.PI * 2);
+        ctx.fillStyle = specGrad;
+        ctx.fill();
+
+        return;
+      }
+
+      // ── Default rendering (non-classic) ──────────────────────────────────
       const ZONE_BRIGHT = isDark
         ? ['#8892a4', '#b0baca', '#d4d8df', '#fbbf24', '#f7931a']
         : ['#374151', '#6b7280', '#c8cdd4', '#fdba74', '#f7931a'];
-      const ZONE_DIM = ZONE_BRIGHT;   // no dimming — all zones show at full colour
 
-      const v         = Math.max(0, Math.min(100, value || 0));
-      const zoneColor = '#f7931a';   // outlines & tick always max orange
+      const BAR_H     = 6;
+      const EXT       = 4;
+      const H         = BAR_H + EXT * 2;
+      const zoneColor = '#f7931a';
 
-      const dpr   = window.devicePixelRatio || 1;
-      const W     = barWrap.clientWidth || 200;
-      const BAR_H = 6;   // match Classic bar-wrap height
-      const EXT   = 4;   // tick extension above/below bar
-      const H     = BAR_H + EXT * 2; // canvas total height
-
-      // Get or create canvas
       let cv = barWrap.querySelector('canvas.mbar');
       if (!cv) {
         cv = document.createElement('canvas');
         cv.className = 'mbar';
         cv.style.display = 'block';
-        cv.style.marginTop  = `-${EXT}px`;
+        cv.style.marginTop    = `-${EXT}px`;
         cv.style.marginBottom = `-${EXT}px`;
         const fill = barWrap.querySelector('.bar-fill');
         if (fill) fill.style.display = 'none';
@@ -3230,7 +3321,6 @@
       ctx.scale(dpr, dpr);
       ctx.clearRect(0, 0, W, H);
 
-      // 1. Draw 5 zone segments (vertically centred in canvas)
       for (let i = 0; i < 5; i++) {
         const x0 = (i * 20 / 100) * W;
         const x1 = ((i + 1) * 20 / 100) * W;
@@ -3238,7 +3328,6 @@
         ctx.fillRect(x0, EXT, x1 - x0, BAR_H);
       }
 
-      // 2. Outlines top & bottom — 2px gap from bar edge
       if (v > 0) {
         const fillX = (v / 100) * W;
         ctx.strokeStyle = zoneColor;
@@ -3247,7 +3336,6 @@
         ctx.beginPath(); ctx.moveTo(0, EXT + BAR_H + 2); ctx.lineTo(fillX, EXT + BAR_H + 2); ctx.stroke();
       }
 
-      // 3. Tick at current value — bridges the two outlines flush (no overhang)
       const tickX = Math.max(1, Math.min(W - 1, (v / 100) * W));
       ctx.strokeStyle = zoneColor;
       ctx.lineWidth = 2;
