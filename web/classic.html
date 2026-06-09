@@ -75,134 +75,151 @@
     
     /* ── Aqua (Classic) theme — macOS Aqua spirit, iOS glass execution ─────── */
 
-    /* Classic Dark — deep ocean Aqua */
+    /* Classic Dark — deep Aqua night */
     html.style-classic.theme-dark {
-      --bg: #020c18;
-      --bg-gradient: radial-gradient(ellipse at 50% -8%, #0d2d52 0%, #071525 55%, #020c18 100%);
-      --bg-card: rgba(6, 38, 80, 0.55);
-      --bg-card-hover: rgba(10, 55, 115, 0.68);
-      --border: rgba(80, 175, 255, 0.18);
-      --border-hover: rgba(100, 210, 255, 0.5);
-      --text: #d4eeff;
-      --text-name: #78afcc;
-      --text-mute: #528aaa;
-      --text-sub: #78afcc;
-      --text-raw: #528aaa;
-      --text-ts: #528aaa;
-      --bar-bg: rgba(0, 110, 210, 0.22);
-      --divider: rgba(80, 175, 255, 0.13);
-      --tick: rgba(140, 210, 255, 0.25);
-      --footer: #528aaa;
-      --shadow-glow: 0 4px 24px rgba(0, 80, 190, 0.35);
-      --shadow-glow-active: 0 8px 36px rgba(0, 120, 255, 0.42);
-      --bg-card-knob: #071e3d;
-      --glass-blur: blur(22px) saturate(180%);
+      --bg: #0a1628;
+      --bg-gradient: linear-gradient(160deg, #0e2240 0%, #091830 50%, #050e1e 100%);
+      --bg-card: rgba(255, 255, 255, 0.07);
+      --bg-card-hover: rgba(255, 255, 255, 0.12);
+      --border: rgba(120, 195, 255, 0.22);
+      --border-hover: rgba(140, 220, 255, 0.55);
+      --text: #d8eeff;
+      --text-name: #82b8d8;
+      --text-mute: #5a90b0;
+      --text-sub: #82b8d8;
+      --text-raw: #5a90b0;
+      --text-ts: #5a90b0;
+      --bar-bg: rgba(80, 160, 230, 0.2);
+      --divider: rgba(100, 185, 255, 0.14);
+      --tick: rgba(160, 215, 255, 0.28);
+      --footer: #5a90b0;
+      --shadow-glow: 0 6px 28px rgba(0, 90, 200, 0.3);
+      --shadow-glow-active: 0 10px 40px rgba(0, 130, 255, 0.4);
+      --bg-card-knob: #0e2240;
+      --glass-blur: blur(24px) saturate(200%);
       --index-color: #f7931a;
       --index-color-bg: rgba(247, 147, 26, 0.14);
       --index-color-glow: rgba(247, 147, 26, 0.10);
     }
 
-    /* Classic Light — sky Aqua */
+    /* Classic Light — Aqua Mac OS X sky */
     html.style-classic.theme-light {
-      --bg: #e2f2ff;
-      --bg-gradient: linear-gradient(180deg, #c2e0ff 0%, #e8f6ff 100%);
-      --bg-card: rgba(255, 255, 255, 0.72);
-      --bg-card-hover: rgba(255, 255, 255, 0.92);
-      --border: rgba(0, 100, 210, 0.16);
-      --border-hover: rgba(0, 130, 255, 0.45);
-      --text: #082540;
-      --text-name: #285c80;
-      --text-mute: #487898;
-      --text-sub: #285c80;
-      --text-raw: #487898;
-      --text-ts: #487898;
-      --bar-bg: rgba(0, 100, 200, 0.1);
-      --divider: rgba(0, 100, 200, 0.12);
-      --tick: rgba(0, 100, 200, 0.22);
-      --footer: #487898;
-      --shadow-glow: 0 4px 16px rgba(0, 80, 200, 0.12);
-      --shadow-glow-active: 0 8px 28px rgba(0, 110, 230, 0.22);
+      --bg: #ddeeff;
+      --bg-gradient: linear-gradient(180deg, #c8dff0 0%, #ddeeff 40%, #e8f6ff 100%);
+      --bg-card: rgba(255, 255, 255, 0.62);
+      --bg-card-hover: rgba(255, 255, 255, 0.88);
+      --border: rgba(0, 110, 200, 0.18);
+      --border-hover: rgba(0, 140, 255, 0.5);
+      --text: #06213a;
+      --text-name: #235876;
+      --text-mute: #437898;
+      --text-sub: #235876;
+      --text-raw: #437898;
+      --text-ts: #437898;
+      --bar-bg: rgba(0, 110, 200, 0.12);
+      --divider: rgba(0, 110, 200, 0.13);
+      --tick: rgba(0, 110, 200, 0.24);
+      --footer: #437898;
+      --shadow-glow: 0 4px 18px rgba(0, 80, 200, 0.14);
+      --shadow-glow-active: 0 8px 30px rgba(0, 115, 235, 0.25);
       --bg-card-knob: #ffffff;
-      --glass-blur: blur(18px) saturate(160%);
-      --index-color: #d46400;
-      --index-color-bg: rgba(212, 100, 0, 0.1);
-      --index-color-glow: rgba(212, 100, 0, 0.06);
+      --glass-blur: blur(20px) saturate(180%);
+      --index-color: #cc5c00;
+      --index-color-bg: rgba(204, 92, 0, 0.1);
+      --index-color-glow: rgba(204, 92, 0, 0.06);
     }
 
     /* ── Aqua visual effects ───────────────────────────────────────────────── */
 
-    /* Glossy top-sheen: the signature Aqua highlight */
+    /* Frosted glass base for all cards */
     html.style-classic .score-box,
     html.style-classic .glass-panel {
       position: relative;
       overflow: hidden;
-      backdrop-filter: blur(22px) saturate(180%);
-      -webkit-backdrop-filter: blur(22px) saturate(180%);
+      backdrop-filter: blur(24px) saturate(200%);
+      -webkit-backdrop-filter: blur(24px) saturate(200%);
     }
-    html.style-classic .score-box::after,
-    html.style-classic .glass-panel::after {
+
+    /* Aqua oval/elliptical highlight — the signature gel-button effect */
+    html.style-classic .score-box::before,
+    html.style-classic .glass-panel::before {
       content: '';
       position: absolute;
-      inset: 0;
-      background: linear-gradient(
-        175deg,
-        rgba(255, 255, 255, 0.12) 0%,
-        rgba(255, 255, 255, 0.04) 35%,
-        transparent 60%
+      top: 0; left: 0; right: 0;
+      height: 55%;
+      background: radial-gradient(
+        ellipse 80% 60% at 50% 0%,
+        rgba(255, 255, 255, 0.28) 0%,
+        rgba(255, 255, 255, 0.08) 55%,
+        transparent 100%
       );
       border-radius: inherit;
       pointer-events: none;
       z-index: 2;
     }
-    html.style-classic.theme-light .score-box::after,
-    html.style-classic.theme-light .glass-panel::after {
-      background: linear-gradient(
-        175deg,
-        rgba(255, 255, 255, 0.65) 0%,
-        rgba(255, 255, 255, 0.15) 35%,
-        transparent 60%
+    html.style-classic.theme-light .score-box::before,
+    html.style-classic.theme-light .glass-panel::before {
+      background: radial-gradient(
+        ellipse 80% 60% at 50% 0%,
+        rgba(255, 255, 255, 0.75) 0%,
+        rgba(255, 255, 255, 0.25) 55%,
+        transparent 100%
       );
     }
 
-    /* Inset top-border highlight (Aqua bubble edge) */
+    /* Aqua gel: inset top-edge highlight + blue-tinted shadow */
     html.style-classic.theme-dark .score-box {
       box-shadow:
-        0 8px 32px rgba(0, 0, 0, 0.45),
-        0 1px 0 rgba(140, 210, 255, 0.18) inset,
+        0 8px 32px rgba(0, 0, 0, 0.5),
+        0 1px 0 rgba(180, 225, 255, 0.22) inset,
         var(--shadow-glow);
     }
     html.style-classic.theme-dark .score-box:hover {
       box-shadow:
-        0 14px 44px rgba(0, 0, 0, 0.55),
-        0 1px 0 rgba(160, 225, 255, 0.25) inset,
+        0 14px 44px rgba(0, 0, 0, 0.6),
+        0 1px 0 rgba(200, 235, 255, 0.32) inset,
         var(--shadow-glow-active);
     }
     html.style-classic.theme-light .score-box {
       box-shadow:
-        0 6px 24px rgba(0, 60, 160, 0.12),
-        0 1px 0 rgba(255, 255, 255, 0.9) inset,
+        0 6px 22px rgba(0, 70, 180, 0.13),
+        0 1px 0 rgba(255, 255, 255, 0.95) inset,
         var(--shadow-glow);
     }
     html.style-classic.theme-light .score-box:hover {
       box-shadow:
-        0 10px 36px rgba(0, 80, 180, 0.2),
-        0 1px 0 rgba(255, 255, 255, 0.95) inset,
+        0 10px 34px rgba(0, 90, 200, 0.22),
+        0 1px 0 rgba(255, 255, 255, 1) inset,
         var(--shadow-glow-active);
     }
 
-    /* Aqua card border radius — rounder corners for the Aqua feel */
-    html.style-classic .score-box { border-radius: 20px; }
-    html.style-classic .score-box.main { border-radius: 24px; }
-    html.style-classic .glass-panel { border-radius: 18px; }
+    /* Aqua rounded corners — slightly more pill-like */
+    html.style-classic .score-box        { border-radius: 20px; }
+    html.style-classic .score-box.main   { border-radius: 24px; }
+    html.style-classic .glass-panel      { border-radius: 18px; }
 
-    /* Background ambient orbs for depth */
+    /* Pinstripe background texture (subtle, like the classic Aqua OS) */
+    html.style-classic.theme-light body {
+      background-image:
+        linear-gradient(180deg, #c8dff0 0%, #ddeeff 40%, #e8f6ff 100%),
+        repeating-linear-gradient(
+          180deg,
+          transparent,
+          transparent 2px,
+          rgba(255,255,255,0.18) 2px,
+          rgba(255,255,255,0.18) 3px
+        );
+      background-blend-mode: normal, overlay;
+    }
+
+    /* Dark: subtle blue ambient orbs */
     html.style-classic.theme-dark body::before {
       content: '';
       position: fixed;
       inset: 0;
       background:
-        radial-gradient(ellipse at 15% 85%, rgba(0, 70, 180, 0.18) 0%, transparent 45%),
-        radial-gradient(ellipse at 85% 15%, rgba(0, 100, 220, 0.14) 0%, transparent 45%);
+        radial-gradient(ellipse at 20% 80%, rgba(0, 80, 200, 0.2) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 10%, rgba(0, 120, 230, 0.15) 0%, transparent 45%);
       pointer-events: none;
       z-index: 0;
     }
@@ -2193,11 +2210,7 @@
             <span class="ua">Композитний індекс ризику</span>
           </div>
           <div class="sub-card-value-container">
-            <div class="ios-gauge-widget">
-              <canvas id="ios-gauge-canvas" class="ios-gauge-canvas" width="60" height="60"></canvas>
-              <div class="ios-gauge-icon" id="ios-gauge-icon"></div>
-            </div>
-            <div class="s-value" id="s-final">—</div>
+<div class="s-value" id="s-final">—</div>
             <span id="s-warn" style="display:none"></span>
             <span id="main-tactical-badge" style="display:none"></span>
             <span id="main-div-badge" style="display:none"></span>
