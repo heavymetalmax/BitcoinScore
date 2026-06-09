@@ -3207,9 +3207,10 @@
       const W   = barWrap.clientWidth || 200;
 
       if (isClassic) {
-        // ── Classic: transparent track + Aqua glossy bubble ──────────────
-        const BALL_R  = 11;
-        const TOTAL_H = BALL_R * 2 + 6;
+        // ── Classic: inset groove + Aqua glossy bubble ────────────────────
+        const BALL_R  = 7;
+        const TRACK_H = 5;
+        const TOTAL_H = BALL_R * 2 + 4;
         const centerY = TOTAL_H / 2;
 
         let cv = barWrap.querySelector('canvas.mbar');
@@ -3234,83 +3235,100 @@
         ctx.scale(dpr, dpr);
         ctx.clearRect(0, 0, W, TOTAL_H);
 
-        // Track — very thin, barely visible
-        ctx.save();
-        ctx.beginPath();
-        ctx.moveTo(BALL_R, centerY);
-        ctx.lineTo(W - BALL_R, centerY);
-        ctx.strokeStyle = isDark
-          ? 'rgba(255, 245, 225, 0.20)'
-          : 'rgba(120, 100, 70, 0.20)';
-        ctx.lineWidth = 1.5;
-        ctx.stroke();
-        ctx.restore();
+        // ── Groove / канавка ──────────────────────────────────────────────
+        const trackY = centerY - TRACK_H / 2;
+        const R = TRACK_H / 2;
 
-        // Ball position
+        // Groove body — inset gradient (dark top → lighter bottom)
+        const trackGrad = ctx.createLinearGradient(0, trackY, 0, trackY + TRACK_H);
+        if (isDark) {
+          trackGrad.addColorStop(0,   'rgba(0,0,0,0.45)');
+          trackGrad.addColorStop(0.5, 'rgba(0,0,0,0.20)');
+          trackGrad.addColorStop(1,   'rgba(255,255,255,0.06)');
+        } else {
+          trackGrad.addColorStop(0,   'rgba(0,0,0,0.18)');
+          trackGrad.addColorStop(0.5, 'rgba(0,0,0,0.07)');
+          trackGrad.addColorStop(1,   'rgba(255,255,255,0.55)');
+        }
+        ctx.beginPath();
+        ctx.moveTo(R, trackY);
+        ctx.lineTo(W - R, trackY);
+        ctx.arcTo(W, trackY, W, trackY + TRACK_H, R);
+        ctx.lineTo(W, trackY + TRACK_H);
+        ctx.lineTo(R, trackY + TRACK_H);
+        ctx.arcTo(0, trackY + TRACK_H, 0, trackY, R);
+        ctx.closePath();
+        ctx.fillStyle = trackGrad;
+        ctx.fill();
+
+        // Top inner shadow line (deepens inset)
+        ctx.beginPath();
+        ctx.moveTo(R, trackY + 0.5);
+        ctx.lineTo(W - R, trackY + 0.5);
+        ctx.strokeStyle = isDark ? 'rgba(0,0,0,0.55)' : 'rgba(0,0,0,0.22)';
+        ctx.lineWidth = 0.75;
+        ctx.stroke();
+
+        // Bottom highlight line (lift)
+        ctx.beginPath();
+        ctx.moveTo(R, trackY + TRACK_H - 0.5);
+        ctx.lineTo(W - R, trackY + TRACK_H - 0.5);
+        ctx.strokeStyle = isDark ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.80)';
+        ctx.lineWidth = 0.75;
+        ctx.stroke();
+
+        // ── Bubble ────────────────────────────────────────────────────────
         const ballX = Math.max(BALL_R, Math.min(W - BALL_R, (v / 100) * W));
 
-        // Parse zone color
         const colorStr  = scoreColor(v);
         const rgbaMatch = colorStr.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
         const cr = rgbaMatch ? +rgbaMatch[1] : 16;
         const cg = rgbaMatch ? +rgbaMatch[2] : 185;
         const cb = rgbaMatch ? +rgbaMatch[3] : 129;
 
-        // 1. Outer glow (color-matched shadow)
+        // Outer glow
         ctx.save();
-        ctx.shadowColor   = `rgba(${cr}, ${cg}, ${cb}, 0.65)`;
-        ctx.shadowBlur    = 10;
-        ctx.shadowOffsetY = 2;
+        ctx.shadowColor   = `rgba(${cr}, ${cg}, ${cb}, 0.60)`;
+        ctx.shadowBlur    = 8;
+        ctx.shadowOffsetY = 1;
         ctx.beginPath();
         ctx.arc(ballX, centerY, BALL_R, 0, Math.PI * 2);
         ctx.fillStyle = `rgb(${cr}, ${cg}, ${cb})`;
         ctx.fill();
         ctx.restore();
 
-        // 2. Base color (solid)
+        // Base color
         ctx.beginPath();
         ctx.arc(ballX, centerY, BALL_R, 0, Math.PI * 2);
         ctx.fillStyle = `rgb(${cr}, ${cg}, ${cb})`;
         ctx.fill();
 
-        // 3. Depth — darken the bottom half
+        // Depth gradient
         const depthGrad = ctx.createLinearGradient(ballX, centerY - BALL_R, ballX, centerY + BALL_R);
-        depthGrad.addColorStop(0,   'rgba(255,255,255,0.08)');
+        depthGrad.addColorStop(0,   'rgba(255,255,255,0.10)');
         depthGrad.addColorStop(0.5, 'rgba(0,0,0,0)');
-        depthGrad.addColorStop(1,   'rgba(0,0,0,0.38)');
+        depthGrad.addColorStop(1,   'rgba(0,0,0,0.35)');
         ctx.beginPath();
         ctx.arc(ballX, centerY, BALL_R, 0, Math.PI * 2);
         ctx.fillStyle = depthGrad;
         ctx.fill();
 
-        // 4. Aqua highlight — large white oval covering top 55% of sphere
+        // Aqua specular highlight (clipped to top half of sphere)
         ctx.save();
         ctx.beginPath();
         ctx.arc(ballX, centerY, BALL_R, 0, Math.PI * 2);
         ctx.clip();
         const specGrad = ctx.createRadialGradient(
-          ballX - BALL_R * 0.18, centerY - BALL_R * 0.52, BALL_R * 0.05,
-          ballX - BALL_R * 0.05, centerY - BALL_R * 0.10, BALL_R * 0.90
+          ballX - BALL_R * 0.18, centerY - BALL_R * 0.48, BALL_R * 0.04,
+          ballX - BALL_R * 0.05, centerY - BALL_R * 0.08, BALL_R * 0.85
         );
-        specGrad.addColorStop(0,    'rgba(255,255,255,0.92)');
-        specGrad.addColorStop(0.35, 'rgba(255,255,255,0.55)');
-        specGrad.addColorStop(0.60, 'rgba(255,255,255,0.12)');
+        specGrad.addColorStop(0,    'rgba(255,255,255,0.90)');
+        specGrad.addColorStop(0.38, 'rgba(255,255,255,0.50)');
+        specGrad.addColorStop(0.65, 'rgba(255,255,255,0.10)');
         specGrad.addColorStop(1,    'rgba(255,255,255,0)');
         ctx.fillStyle = specGrad;
-        ctx.fillRect(ballX - BALL_R, centerY - BALL_R, BALL_R * 2, BALL_R); // top half only
+        ctx.fillRect(ballX - BALL_R, centerY - BALL_R, BALL_R * 2, BALL_R);
         ctx.restore();
-
-        // 5. Tiny bottom rim reflection
-        const rimGrad = ctx.createRadialGradient(
-          ballX, centerY + BALL_R * 0.7, 0,
-          ballX, centerY + BALL_R * 0.7, BALL_R * 0.55
-        );
-        rimGrad.addColorStop(0,   'rgba(255,255,255,0.22)');
-        rimGrad.addColorStop(1,   'rgba(255,255,255,0)');
-        ctx.beginPath();
-        ctx.arc(ballX, centerY, BALL_R, 0, Math.PI * 2);
-        ctx.fillStyle = rimGrad;
-        ctx.fill();
 
         return;
       }
@@ -3661,9 +3679,15 @@
         el.style.color = color;
       }
       if(bar) {
-        bar.style.width = (val||0)+'%';
-        bar.style.background = color;
-        bar.style.setProperty('--bar-shadow-color', scoreColor(val, 0.5));
+        bar.dataset.value = val || 0;
+        const _isClassicScore = document.documentElement.classList.contains('style-classic');
+        if (_isClassicScore) {
+          drawModernBar(bar.parentElement, val);
+        } else {
+          bar.style.width = (val||0)+'%';
+          bar.style.background = color;
+          bar.style.setProperty('--bar-shadow-color', scoreColor(val, 0.5));
+        }
       }
     }
 
