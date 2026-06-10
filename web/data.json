@@ -1,7 +1,7 @@
 {
-  "timestamp": "2026-06-10T15:46:37Z",
-  "btc_price": 62360,
-  "btc_dominance": 58.28,
+  "timestamp": "2026-06-10T16:06:59Z",
+  "btc_price": 62419,
+  "btc_dominance": 58.32,
   "fear_greed": 16.6,
   "fear_greed_label": "CMC",
   "nupl": 12.0043,
@@ -27,37 +27,37 @@
     "nupl": {
       "value": 12.0043,
       "source": "BMP",
-      "updated": "2026-06-10T15:46:29Z"
+      "updated": "2026-06-10T16:06:51Z"
     },
     "mvrv": {
       "value": 0.2417,
       "source": "BMP",
-      "updated": "2026-06-10T15:46:29Z"
+      "updated": "2026-06-10T16:06:51Z"
     },
     "m2": {
       "value": 9.47,
       "source": "MacroMicro",
-      "updated": "2026-06-10T15:46:29Z"
+      "updated": "2026-06-10T16:06:51Z"
     },
     "yield_curve": {
       "value": 0.48,
       "source": "BMP",
-      "updated": "2026-06-10T15:46:29Z"
+      "updated": "2026-06-10T16:06:51Z"
     },
     "cvdd_ratio": {
       "value": 1.266,
       "source": "BMP",
-      "updated": "2026-06-10T15:46:29Z"
+      "updated": "2026-06-10T16:06:51Z"
     },
     "rhodl_ratio": {
       "value": 1257.9609,
       "source": "BMP",
-      "updated": "2026-06-10T15:46:29Z"
+      "updated": "2026-06-10T16:06:51Z"
     },
     "asopr": {
       "value": 0.9833142857142858,
       "source": "BMP",
-      "updated": "2026-06-10T15:46:29Z"
+      "updated": "2026-06-10T16:06:51Z"
     },
     "etf_flows": {
       "value": {
@@ -67,7 +67,7 @@
         "date": "2026-06-05"
       },
       "source": "Farside",
-      "updated": "2026-06-10T15:46:29Z"
+      "updated": "2026-06-10T16:06:51Z"
     },
     "rainbow_band": {
       "value": {
@@ -78,14 +78,14 @@
         "date": "2026-06-09"
       },
       "source": "BMP",
-      "updated": "2026-06-10T15:46:37Z"
+      "updated": "2026-06-10T16:06:59Z"
     },
     "fear_greed": {
       "latest": 14.0,
       "avg_7d": 16.6,
       "label": "CMC",
       "source": "CMC",
-      "updated": "2026-06-10T15:46:37Z"
+      "updated": "2026-06-10T16:06:59Z"
     },
     "cipherb": {
       "value": {
@@ -102,7 +102,7 @@
         "daily_fast_bullish_div": false
       },
       "source": "Local",
-      "updated": "2026-06-10T15:46:37Z"
+      "updated": "2026-06-10T16:07:00Z"
     },
     "smc": {
       "value": {
@@ -116,7 +116,7 @@
         "size": 10
       },
       "source": "Local",
-      "updated": "2026-06-10T15:46:37Z"
+      "updated": "2026-06-10T16:07:00Z"
     },
     "mayer_multiple": {
       "value": {
@@ -126,23 +126,23 @@
         "score": 18
       },
       "source": "Kraken",
-      "updated": "2026-06-10T15:46:37Z"
+      "updated": "2026-06-10T16:07:00Z"
     },
     "funding_rate": {
       "value": {
-        "latest": 0.03713,
-        "avg_7d": 0.03713,
-        "score": 58,
+        "latest": 0.09286,
+        "avg_7d": 0.09286,
+        "score": 95,
         "periods": 1,
         "source": "Kraken Futures"
       },
       "source": "Kraken Futures",
-      "updated": "2026-06-10T15:46:37Z"
+      "updated": "2026-06-10T16:07:00Z"
     },
     "m2_mom": {
       "value": 9.47,
       "source": "MacroMicro",
-      "updated": "2026-06-10T15:46:39Z"
+      "updated": "2026-06-10T16:07:02Z"
     }
   },
   "m2_mom": 9.47,
@@ -174,21 +174,21 @@
   },
   "zone_forecast": {
     "buy": {
-      "price": 54844,
+      "price": 54905,
       "pct": -12.0
     },
     "sell": {
-      "price": 178259,
+      "price": 178457,
       "pct": 185.9
     },
     "buy_threshold": 20,
     "sell_threshold": 80,
-    "realized_price": 54862,
-    "ref_price": 62346
+    "realized_price": 54923,
+    "ref_price": 62416
   },
   "commentary": {
-    "en": "The market’s on-chain positioning remains notably undervalued, with the MVRV Z-score at 0.24 and short-term sellers barely active as indicated by an aSOPR of 0.983. Current dynamics show subdued momentum and extreme fear, combined with significant ETF outflows, aligning this reading with a BEAR BOTTOM regime despite some technical-macro and on-chain score divergence. The net risk picture is modest but carries hidden caution from a re-steepening yield curve and persistent institutional exit signals. Considering the low composite and sub-scores, there is a moderate probability of trend continuation if ETF flows eventually stabilize, with a shift in institutional sentiment being the key confirmatory factor.",
-    "ua": "The market’s on-chain positioning remains notably undervalued, with the MVRV Z-score at 0.24 and short-term sellers barely active as indicated by an aSOPR of 0.983. Current dynamics show subdued momentum and extreme fear, combined with significant ETF outflows, aligning this reading with a BEAR BOTTOM regime despite some technical-macro and on-chain score divergence. The net risk picture is modest but carries hidden caution from a re-steepening yield curve and persistent institutional exit signals. Considering the low composite and sub-scores, there is a moderate probability of trend continuation if ETF flows eventually stabilize, with a shift in institutional sentiment being the key confirmatory factor."
+    "en": "The on-chain positioning appears conservative with a MVRV Z-score of 0.24 and an aSOPR hovering near 0.983, suggesting that holders are not in significant distress despite modest unrealized profits. Current market dynamics reflect a risk-averse environment driven by persistent ETF outflows of about $3.1 billion and an inverted yield curve at 0.48%, which together signal a MACRO HEADWIND regime. The net risk is elevated by structural concerns such as the re-steepening yield curve and prolonged institutional exit, with moderate signals across both on-chain and technical metrics. Given the alignment of cautious momentum with macro pressures, there is a moderate probability of the present downward index direction continuing, with any reversal likely to be confirmed by a shift in ETF flows.",
+    "ua": "The on-chain positioning appears conservative with a MVRV Z-score of 0.24 and an aSOPR hovering near 0.983, suggesting that holders are not in significant distress despite modest unrealized profits. Current market dynamics reflect a risk-averse environment driven by persistent ETF outflows of about $3.1 billion and an inverted yield curve at 0.48%, which together signal a MACRO HEADWIND regime. The net risk is elevated by structural concerns such as the re-steepening yield curve and prolonged institutional exit, with moderate signals across both on-chain and technical metrics. Given the alignment of cautious momentum with macro pressures, there is a moderate probability of the present downward index direction continuing, with any reversal likely to be confirmed by a shift in ETF flows."
   },
   "prev_day": {
     "date": "2026-06-09",
@@ -421,7 +421,7 @@
     {
       "date": "2026-06-10",
       "score": 28,
-      "price": 62360
+      "price": 62419
     }
   ]
 }
