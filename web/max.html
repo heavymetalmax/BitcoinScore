@@ -58,11 +58,9 @@
     /* ── Max: bento layout ─────────────────────────── */
     .bento-sub-row {
       width: 100%;
-      max-width: 500px;
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: 12px;
-      margin-top: 12px;
     }
     .bento-sub-card {
       background: var(--bg-card);
@@ -77,10 +75,11 @@
     }
     .bento-sub-title {
       font-size: 0.62rem;
-      font-weight: 800;
+      font-weight: 700;
       letter-spacing: 0.1em;
       text-transform: uppercase;
-      color: var(--text-mute);
+      color: var(--text);
+      text-align: center;
     }
     .bento-sub-value {
       font-family: 'Outfit', sans-serif;
@@ -88,6 +87,7 @@
       font-weight: 800;
       line-height: 1;
       color: var(--text);
+      text-align: center;
     }
     .bento-sub-bar-wrap {
       width: 100%;
@@ -105,19 +105,19 @@
     }
     .bento-sub-desc {
       font-size: 0.62rem;
-      color: var(--text-mute);
+      color: var(--text);
       font-weight: 500;
+      text-align: center;
+      opacity: 0.7;
     }
     .bento-section {
       width: 100%;
-      max-width: 500px;
       background: var(--bg-card);
       border: 1px solid var(--border);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
       border-radius: 24px;
       padding: 20px;
-      margin-top: 12px;
       display: flex;
       flex-direction: column;
       gap: 8px;
@@ -127,7 +127,8 @@
       font-weight: 800;
       letter-spacing: 0.1em;
       text-transform: uppercase;
-      color: var(--text-mute);
+      color: var(--text);
+      opacity: 0.7;
       margin-bottom: 4px;
     }
 
@@ -339,16 +340,26 @@
     .status-dot.ok  { background: #4ade80; box-shadow: 0 0 7px #4ade80; }
     .status-dot.err { background: #f87171; box-shadow: 0 0 7px #f87171; }
 
-    /* --- Center Display Area (Giant Clock Style) --- */
+    /* --- Bento row wrappers for desktop 2-col layout --- */
+    .bento-row-1, .bento-row-2 {
+      width: 100%;
+      max-width: 500px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .bento-row-1 { margin-top: 10vh; }
+    .bento-row-2 { margin-top: 0; }
+
     /* --- Center Display Area (Flipping Card) --- */
     .center-display {
       perspective: 1000px;
       background: transparent;
       border: none;
       padding: 0;
-      margin-top: 10vh;
+      margin-top: 0;
       width: 100%;
-      max-width: 480px;
+      max-width: none;
       z-index: 20;
       transition: none;
       backdrop-filter: none;
@@ -378,14 +389,11 @@
       padding: 30px 24px;
       width: 100%;
       background: var(--bg-card);
-
-
-      border: 1px solid rgba(255, 255, 255, 0.04);
-
+      border: 1px solid var(--border);
       box-shadow: none;
-      backdrop-filter: none;
-      -webkit-backdrop-filter: none;
-      transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.35s ease, backdrop-filter 0.35s ease;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      transition: background 0.3s ease, border-color 0.3s ease;
     }
 
     .center-display-back {
@@ -399,10 +407,7 @@
     .center-display:hover .center-display-front,
     .center-display:hover .center-display-back {
       background: var(--bg-card-hover);
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+      border-color: var(--border-hover);
     }
 
     .click-zone {
@@ -941,30 +946,25 @@
 
     .commentary-gear {
       position: static;
-      width: 100%;
-      max-width: 500px;
-      border-radius: 16px;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
+      width: auto;
+      background: none;
+      border: none;
       cursor: pointer;
       display: none;
       align-items: center;
       justify-content: center;
-      gap: 8px;
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      z-index: 90;
+      gap: 6px;
       color: var(--text);
-      padding: 14px;
-      margin-top: 12px;
-      font-size: 0.8rem;
+      padding: 12px 0;
+      margin-top: 8px;
+      font-size: 0.75rem;
       font-weight: 600;
-      letter-spacing: 0.04em;
-      transition: background 0.3s ease, border-color 0.3s ease;
+      letter-spacing: 0.05em;
+      opacity: 0.6;
+      transition: opacity 0.2s ease;
     }
     .commentary-gear:hover {
-      background: var(--bg-card-hover);
-      border-color: var(--border-hover);
+      opacity: 1;
     }
 
     /* --- Settings Drawer (Right Side Card, bento style) --- */
@@ -1257,6 +1257,30 @@
     .drawer-nav-item:hover { opacity: 0.7; }
 
 
+    /* Desktop 2-column layout */
+    @media (min-width: 860px) {
+      .lockscreen-wrapper {
+        padding: 32px 40px max(80px, calc(80px + env(safe-area-inset-bottom)));
+        align-items: flex-start;
+      }
+      .bento-row-1 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        align-items: start;
+        max-width: 900px;
+        gap: 16px;
+      }
+      .bento-row-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        align-items: start;
+        max-width: 900px;
+        gap: 16px;
+      }
+      .bento-row-1 { margin-top: 6vh; }
+      .commentary-gear { max-width: 900px; }
+    }
+
     /* Mobile adjustments */
     @media (max-width: 600px) {
       .display-score {
@@ -1341,7 +1365,10 @@
       <span class="status-price" id="hero-card-price">—</span>
     </div>
 
-    <!-- Center Display (Flipping Card Viewport) -->
+    <!-- Row 1: main index card + 4 sub-score cards -->
+    <div class="bento-row-1">
+
+    <!-- Main Index Card -->
     <div class="center-display" id="center-display">
       <div class="center-display-inner" id="center-display-inner">
         
@@ -1369,6 +1396,9 @@
                 <span class="display-score" id="s-final">—</span>
               </div>
 
+            </div>
+            <div class="bento-sub-bar-wrap" style="margin-top: 8px;">
+              <div class="bento-sub-bar-fill" id="b-final"></div>
             </div>
           </div>
 
@@ -1433,7 +1463,7 @@
       </div>
     </div>
 
-    <!-- Sub-score bento cards -->
+    <!-- Sub-score bento cards (2×2 grid) -->
     <div class="bento-sub-row">
       <div class="bento-sub-card">
         <div class="bento-sub-title"><span class="en">On-Chain Score</span><span class="ua">Ончейн-оцінка</span></div>
@@ -1461,6 +1491,11 @@
       </div>
     </div>
 
+    </div><!-- /.bento-row-1 -->
+
+    <!-- Row 2: on-chain + tech/macro indicator detail sections -->
+    <div class="bento-row-2">
+
     <!-- On-chain indicators section -->
     <div class="bento-section">
       <div class="bento-section-title"><span class="en">On-Chain Indicators</span><span class="ua">Ончейн-індикатори</span></div>
@@ -1478,6 +1513,8 @@
         <span class="en">Methodology ↗</span><span class="ua">Методологія ↗</span>
       </a>
     </div>
+
+    </div><!-- /.bento-row-2 -->
 
     <!-- Commentary Footer Button (in-flow, appears at bottom of content) -->
     <button class="commentary-gear" id="commentary-gear" onclick="toggleCommentary(true)">
@@ -2136,6 +2173,8 @@
       const displayScore = document.getElementById('s-final');
       if (displayScore) {
         displayScore.textContent = data.final_score != null ? data.final_score : '—';
+        const bFinal = document.getElementById('b-final');
+        if (bFinal && data.final_score != null) bFinal.style.width = data.final_score + '%';
       }
 
       const riskLabel = (val) => {
