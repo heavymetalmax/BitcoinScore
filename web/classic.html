@@ -88,7 +88,13 @@
   .tag-overheat { background: #EF444414; color: #EF4444; border: 1px solid #EF444428; }
   .tag-diverge  { background: #F59E0B14; color: #B45309; border: 1px solid #F59E0B28; }
   .gauge-bar { height: 6px; border-radius: 3px; background: linear-gradient(to right, #22C55E 0%, #22C55E 25%, #EAB308 25%, #EAB308 50%, #F97316 50%, #F97316 75%, #EF4444 75%, #EF4444 100%); }
-  .gauge-bar-ticks { display: flex; justify-content: space-between; font-size: 10px; color: var(--muted); padding: 0 1px; }
+  .gauge-bar-ticks { position: relative; height: 14px; font-size: 10px; color: var(--muted); }
+  .gauge-bar-ticks span { position: absolute; transform: translateX(-50%); }
+  .gauge-bar-ticks span:nth-child(1) { left: 0%; transform: translateX(0); }
+  .gauge-bar-ticks span:nth-child(2) { left: 25%; }
+  .gauge-bar-ticks span:nth-child(3) { left: 50%; }
+  .gauge-bar-ticks span:nth-child(4) { left: 75%; }
+  .gauge-bar-ticks span:nth-child(5) { left: 100%; transform: translateX(-100%); }
   .gauge-labels { display: grid; grid-template-columns: repeat(4, 1fr); font-size: 10px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; margin-top: 2px; }
   .gl-1 { color: #22C55E; } .gl-2 { color: #EAB308; text-align: center; } .gl-3 { color: #F97316; text-align: center; } .gl-4 { color: #EF4444; text-align: right; }
 
@@ -962,11 +968,6 @@ async function loadData() {
   if (snEl) snEl.innerHTML = '<span class="score-val">' + score + '</span><span class="score-denom">/100</span>';
   const szEl = document.getElementById('score-zone');
   if (szEl) { szEl.innerHTML = `<span class="en">${z.label}</span><span class="ua">${z.labelUa}</span>`; szEl.style.color = z.color; }
-  const sdEl = document.getElementById('score-desc');
-  if (sdEl && data.commentary) {
-    const crop = (t) => t ? (t.length > 130 ? t.slice(0, 130) + '…' : t) : '';
-    sdEl.innerHTML = `<span class="en">${crop(data.commentary.en)}</span><span class="ua">${crop(data.commentary.ua)}</span>`;
-  }
   const acEl = document.getElementById('ai-commentary');
   if (acEl && data.commentary) {
     acEl.innerHTML = `<span class="en">${data.commentary.en || ''}</span><span class="ua">${data.commentary.ua || ''}</span>`;
