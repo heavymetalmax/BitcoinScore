@@ -218,13 +218,13 @@
             </linearGradient>
           </defs>
           <!-- Track -->
-          <path d="M 20 120 A 100 100 0 0 1 220 120" stroke="var(--surface2)" stroke-width="14" stroke-linecap="round" fill="none"/>
+          <path d="M 20 120 A 100 100 0 0 1 220 120" stroke="var(--surface2)" stroke-width="6" stroke-linecap="round" fill="none"/>
           <!-- Faint gradient track -->
-          <path d="M 20 120 A 100 100 0 0 1 220 120" stroke="url(#arcGrad)" stroke-width="14" stroke-linecap="round" fill="none" opacity="0.18"/>
+          <path d="M 20 120 A 100 100 0 0 1 220 120" stroke="url(#arcGrad)" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.18"/>
           <!-- Active arc -->
-          <path id="gauge-arc" d="" stroke="#22C55E" stroke-width="14" stroke-linecap="round" fill="none"/>
+          <path id="gauge-arc" d="" stroke="#22C55E" stroke-width="6" stroke-linecap="round" fill="none"/>
           <!-- Needle dot -->
-          <circle id="gauge-needle" cx="20" cy="120" r="8" fill="var(--bg)" stroke="#22C55E" stroke-width="2.5"/>
+          <circle id="gauge-needle" cx="20" cy="120" r="5" fill="var(--bg)" stroke="#22C55E" stroke-width="2"/>
         </svg>
         <div class="gauge-arc-number">
           <span class="gauge-val" id="gauge-val">—</span><span class="gauge-denom">/100</span>
@@ -304,18 +304,18 @@
     <!-- On-Chain -->
     <div class="comp-group-hdr"><div class="comp-group-dot" style="background:#8B5CF6"></div><span class="en">On-Chain</span><span class="ua">Он-Чейн</span></div>
     <div class="comp-row">
-      <div><div class="comp-name">MVRV Z-Score</div><div class="comp-sub"><span class="en">Market Value to Realized Value</span><span class="ua">Ринкова до реалізованої вартості</span></div></div>
-      <div class="comp-value"><div class="val" id="v-mvrv">—</div><div class="range">(-1 – 10)</div></div>
-      <div class="comp-spark"><canvas id="s1" width="130" height="36"></canvas></div>
-      <div class="comp-pct" id="p-mvrv">—</div>
-      <div class="comp-signal"><span class="signal-badge" id="sig-mvrv">—</span></div>
-    </div>
-    <div class="comp-row">
       <div><div class="comp-name">NUPL</div><div class="comp-sub"><span class="en">Net Unrealized Profit/Loss</span><span class="ua">Нереалізований прибуток/збиток</span></div></div>
       <div class="comp-value"><div class="val" id="v-nupl">—</div><div class="range">(-100 – 100)</div></div>
-      <div class="comp-spark"><canvas id="s2" width="130" height="36"></canvas></div>
+      <div class="comp-spark"><canvas id="s1" width="130" height="36"></canvas></div>
       <div class="comp-pct" id="p-nupl">—</div>
       <div class="comp-signal"><span class="signal-badge" id="sig-nupl">—</span></div>
+    </div>
+    <div class="comp-row">
+      <div><div class="comp-name">MVRV Z-Score</div><div class="comp-sub"><span class="en">Market Value to Realized Value</span><span class="ua">Ринкова до реалізованої вартості</span></div></div>
+      <div class="comp-value"><div class="val" id="v-mvrv">—</div><div class="range">(-1 – 10)</div></div>
+      <div class="comp-spark"><canvas id="s2" width="130" height="36"></canvas></div>
+      <div class="comp-pct" id="p-mvrv">—</div>
+      <div class="comp-signal"><span class="signal-badge" id="sig-mvrv">—</span></div>
     </div>
     <div class="comp-row">
       <div><div class="comp-name">RHODL Ratio</div><div class="comp-sub"><span class="en">Realized HODL Ratio</span><span class="ua">Реалізований HODL Ratio</span></div></div>
@@ -325,18 +325,18 @@
       <div class="comp-signal"><span class="signal-badge" id="sig-rhodl">—</span></div>
     </div>
     <div class="comp-row">
-      <div><div class="comp-name">Adjusted SOPR</div><div class="comp-sub"><span class="en">Spent Output Profit Ratio</span><span class="ua">Відношення прибутку витраченого виводу</span></div></div>
-      <div class="comp-value"><div class="val" id="v-asopr">—</div><div class="range">(0.5 – 2.0)</div></div>
-      <div class="comp-spark"><canvas id="s4" width="130" height="36"></canvas></div>
-      <div class="comp-pct" id="p-asopr">—</div>
-      <div class="comp-signal"><span class="signal-badge" id="sig-asopr">—</span></div>
-    </div>
-    <div class="comp-row">
       <div><div class="comp-name">CVDD Ratio</div><div class="comp-sub"><span class="en">Coin Value Days Destroyed</span><span class="ua">Знищені дні вартості монети</span></div></div>
       <div class="comp-value"><div class="val" id="v-cvdd">—</div><div class="range">(0.5 – 3.0)</div></div>
-      <div class="comp-spark"><canvas id="s5" width="130" height="36"></canvas></div>
+      <div class="comp-spark"><canvas id="s4" width="130" height="36"></canvas></div>
       <div class="comp-pct" id="p-cvdd">—</div>
       <div class="comp-signal"><span class="signal-badge" id="sig-cvdd">—</span></div>
+    </div>
+    <div class="comp-row">
+      <div><div class="comp-name">Adjusted SOPR</div><div class="comp-sub"><span class="en">Spent Output Profit Ratio</span><span class="ua">Відношення прибутку витраченого виводу</span></div></div>
+      <div class="comp-value"><div class="val" id="v-asopr">—</div><div class="range">(0.5 – 2.0)</div></div>
+      <div class="comp-spark"><canvas id="s5" width="130" height="36"></canvas></div>
+      <div class="comp-pct" id="p-asopr">—</div>
+      <div class="comp-signal"><span class="signal-badge" id="sig-asopr">—</span></div>
     </div>
 
     <!-- Tech -->
@@ -359,25 +359,25 @@
     <!-- Macro -->
     <div class="comp-group-hdr"><div class="comp-group-dot" style="background:#F59E0B"></div><span class="en">Macro</span><span class="ua">Макро</span></div>
     <div class="comp-row">
-      <div><div class="comp-name"><span class="en">Yield Curve (10Y-2Y)</span><span class="ua">Крива дохідності (10Р-2Р)</span></div><div class="comp-sub"><span class="en">US Treasury Spread</span><span class="ua">Спред держоблігацій США</span></div></div>
-      <div class="comp-value"><div class="val" id="v-yc">—</div><div class="range">(-1% – 2%)</div></div>
-      <div class="comp-spark"><canvas id="s8" width="130" height="36"></canvas></div>
-      <div class="comp-pct" id="p-yc">—</div>
-      <div class="comp-signal"><span class="signal-badge" id="sig-yc">—</span></div>
-    </div>
-    <div class="comp-row">
-      <div><div class="comp-name"><span class="en">ETF Net Flows (30D)</span><span class="ua">ETF Потоки (30Д)</span></div><div class="comp-sub"><span class="en">US Spot ETF Net Flows</span><span class="ua">Чисті потоки спот ETF США</span></div></div>
+      <div><div class="comp-name"><span class="en">ETF Net Flows (14D)</span><span class="ua">ETF Потоки (14Д)</span></div><div class="comp-sub"><span class="en">US Spot ETF Net Flows</span><span class="ua">Чисті потоки спот ETF США</span></div></div>
       <div class="comp-value"><div class="val" id="v-etf">—</div><div class="range">($M)</div></div>
-      <div class="comp-spark"><canvas id="s9" width="130" height="36"></canvas></div>
+      <div class="comp-spark"><canvas id="s8" width="130" height="36"></canvas></div>
       <div class="comp-pct" id="p-etf">—</div>
       <div class="comp-signal"><span class="signal-badge" id="sig-etf">—</span></div>
     </div>
     <div class="comp-row">
       <div><div class="comp-name"><span class="en">Fear & Greed Index</span><span class="ua">Індекс страху і жадібності</span></div><div class="comp-sub"><span class="en">Market Sentiment (7D avg)</span><span class="ua">Ринковий настрій (сер. 7Д)</span></div></div>
       <div class="comp-value"><div class="val" id="v-fg">—</div><div class="range">(0 – 100)</div></div>
-      <div class="comp-spark"><canvas id="s10" width="130" height="36"></canvas></div>
+      <div class="comp-spark"><canvas id="s9" width="130" height="36"></canvas></div>
       <div class="comp-pct" id="p-fg">—</div>
       <div class="comp-signal"><span class="signal-badge" id="sig-fg">—</span></div>
+    </div>
+    <div class="comp-row">
+      <div><div class="comp-name"><span class="en">Yield Curve (10Y-2Y)</span><span class="ua">Крива дохідності (10Р-2Р)</span></div><div class="comp-sub"><span class="en">US Treasury Spread</span><span class="ua">Спред держоблігацій США</span></div></div>
+      <div class="comp-value"><div class="val" id="v-yc">—</div><div class="range">(-1% – 2%)</div></div>
+      <div class="comp-spark"><canvas id="s10" width="130" height="36"></canvas></div>
+      <div class="comp-pct" id="p-yc">—</div>
+      <div class="comp-signal"><span class="signal-badge" id="sig-yc">—</span></div>
     </div>
     <div class="comp-row">
       <div><div class="comp-name">M2 Global Liquidity (YoY)</div><div class="comp-sub"><span class="en">Global M2 Money Supply YoY%</span><span class="ua">Глобальна грошова маса M2 р/р</span></div></div>
@@ -765,7 +765,20 @@ async function loadData() {
   const ycVal   = m.yield_curve && m.yield_curve.value != null ? m.yield_curve.value : null;
   const fgVal   = fg7d;
   const m2Val   = data.m2_mom;
-  const cbVal   = m.cipherb && m.cipherb.value ? m.cipherb.value.weekly_score : null;
+  const cbInner = m.cipherb && m.cipherb.value ? m.cipherb.value : null;
+  const cbVal   = cbInner ? cbInner.weekly_score : null;
+  const cbScore = (function() {
+    if (!cbInner || cbVal == null) return null;
+    let w = cbVal, d = cbInner.daily_score != null ? cbInner.daily_score : null;
+    if (cbInner.fast_bearish_div)        w = Math.min(100, w + 12);
+    else if (cbInner.fast_bullish_div)   w = Math.max(0, w - 12);
+    if (d != null) {
+      if (cbInner.daily_fast_bearish_div)      d = Math.min(100, d + 12);
+      else if (cbInner.daily_fast_bullish_div) d = Math.max(0, d - 12);
+      return Math.round(0.8 * w + 0.2 * d);
+    }
+    return Math.round(w);
+  })();
   const asopr   = data.asopr;
   const cvdd    = data.cvdd_ratio;
   const mayer   = m.mayer_multiple && m.mayer_multiple.value ? m.mayer_multiple.value.value : null;
@@ -789,10 +802,10 @@ async function loadData() {
   setP('p-nupl', ac.nupl ? ac.nupl.adaptive : null);
   setP('p-mayer', ac.mayer ? ac.mayer.adaptive : null);
 
-  // Signals — order: on-chain (mvrv,nupl,rhodl,asopr,cvdd), tech (cipherb,mayer), macro (yc,etf,fg,m2)
-  const vals = [mvrv, nupl, rhodl, asopr, cvdd, cbVal, mayer, ycVal, etfVal, fgVal, m2Val];
-  const keys = ['mvrv','nupl','rhodl','asopr','cvdd','cipherb','mayer','yield_curve','etf','fg','m2'];
-  const ids  = ['sig-mvrv','sig-nupl','sig-rhodl','sig-asopr','sig-cvdd','sig-cipherb','sig-mayer','sig-yc','sig-etf','sig-fg','sig-m2'];
+  // Signals — order: on-chain (nupl,mvrv,rhodl,cvdd,asopr), tech (cipherb,mayer), macro (etf,fg,yc,m2)
+  const vals = [nupl, mvrv, rhodl, cvdd, asopr, cbScore, mayer, etfVal, fgVal, ycVal, m2Val];
+  const keys = ['nupl','mvrv','rhodl','cvdd','asopr','cipherb','mayer','etf','fg','yield_curve','m2'];
+  const ids  = ['sig-nupl','sig-mvrv','sig-rhodl','sig-cvdd','sig-asopr','sig-cipherb','sig-mayer','sig-etf','sig-fg','sig-yc','sig-m2'];
   ids.forEach((id, i) => applySignal(id, keys[i], vals[i]));
   sparkColors = vals.map((v, i) => {
     const sig = getSignal(keys[i], v);
