@@ -72,6 +72,8 @@
   .gauge-tags { display: flex; flex-direction: column; gap: 6px; width: 100%; margin-top: 14px; }
   .gauge-tag { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: 9px; font-size: 11px; font-weight: 600; line-height: 1.3; }
   .gauge-tag svg { flex-shrink: 0; }
+  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+  .blink-colon { animation: blink 1s step-start infinite; }
   .tag-buy      { background: #F7931A14; color: #D97706; border: 1px solid #F7931A28; }
   .tag-overheat { background: #EF444414; color: #EF4444; border: 1px solid #EF444428; }
   .tag-diverge  { background: #F59E0B14; color: #B45309; border: 1px solid #F59E0B28; }
@@ -291,8 +293,8 @@
         </div>
         <div class="market-row">
           <div class="market-row-left">
-            <svg class="market-row-icon" viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="11" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M5 2v2M11 2v2M2 7h12" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-            <span class="en">Next update</span><span class="ua">Наст. оновлення</span>
+            <svg class="market-row-icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="1.4"/><path d="M8 5v3l2 1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M11 3l1 1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+            <span class="en">Time left</span><span class="ua">До оновлення</span>
           </div>
           <span class="market-row-val" id="market-next">—</span>
         </div>
@@ -523,7 +525,8 @@ function riskZone(s) {
   return             { label: 'VERY HIGH RISK',   labelUa: 'НАДМІРНИЙ РИЗИК',    color: '#EF4444', hint: 'Very high risk — historically poor entry point.', hintUa: 'Надмірний ризик — несприятливий момент для входу.', stateEn: 'Sell Zone', stateUa: 'Зона продажу' };
 }
 
-const fmtPrice = p => '$' + Math.round(p).toLocaleString('en-US');
+const fmtPrice  = p => '$' + Math.round(p).toLocaleString('en-US');
+const fmtPriceK = p => '$' + (p / 1000).toFixed(1) + 'K';
 
 // Map raw metric value → 0-100 risk score (mirrors scoring.py map_* functions)
 function mapScore(key, v) {
@@ -764,10 +767,8 @@ async function loadData() {
   if (data.timestamp) {
     const d = new Date(data.timestamp);
     set('market-updated', d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }));
-    const next = new Date();
-    next.setUTCHours(8, 0, 0, 0);
-    if (next <= new Date()) next.setUTCDate(next.getUTCDate() + 1);
-    set('market-next', next.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ', 08:00 UTC');
+    window._dataTimestamp = data.timestamp;
+    updateCountdown();
   }
 
   // Component values
@@ -833,9 +834,9 @@ async function loadData() {
 
   // Zone price levels
   const zf = data.zone_forecast || {};
-  if (zf.sell)           set('zone-sell',     '≥ ' + fmtPrice(zf.sell.price));
-  if (zf.realized_price) set('zone-realized', '≈ ' + fmtPrice(zf.realized_price));
-  if (zf.buy)            set('zone-buy',      '≤ ' + fmtPrice(zf.buy.price));
+  if (zf.sell)           set('zone-sell',     '≥ ' + fmtPriceK(zf.sell.price));
+  if (zf.realized_price) set('zone-realized', '≈ ' + fmtPriceK(zf.realized_price));
+  if (zf.buy)            set('zone-buy',      '≤ ' + fmtPriceK(zf.buy.price));
 
   // Gauge tags
   const frObj = m.funding_rate && m.funding_rate.value ? m.funding_rate.value : null;
@@ -888,7 +889,27 @@ function updateGaugeTags(score, vals, keys, fr) {
   ).join('');
 }
 
+function updateCountdown() {
+  const el = document.getElementById('market-next');
+  if (!el) return;
+  const now = new Date();
+  let target;
+  if (window._dataTimestamp) {
+    target = new Date(new Date(window._dataTimestamp).getTime() + 24 * 3600 * 1000);
+    while (now >= target) target = new Date(target.getTime() + 24 * 3600 * 1000);
+  } else {
+    target = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 8, 0, 0));
+    if (now >= target) target.setUTCDate(target.getUTCDate() + 1);
+  }
+  const diffSecs = Math.max(0, Math.floor((target - now) / 1000));
+  const h = Math.floor(diffSecs / 3600);
+  const m = Math.floor((diffSecs % 3600) / 60);
+  const pad = n => String(n).padStart(2, '0');
+  el.innerHTML = `${pad(h)}<span class="blink-colon">:</span>${pad(m)}`;
+}
+
 window.addEventListener('load', loadData);
+window.addEventListener('load', () => { updateCountdown(); setInterval(updateCountdown, 60000); });
 window.addEventListener('resize', () => { if (historyScores.length) drawHistory(activeRange); drawSparklines(); });
 
 // ─── DISCLAIMER MODAL ──────────────────────────────────
