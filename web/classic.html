@@ -1157,16 +1157,19 @@ async function loadData() {
       const badgeHtml = sigInfo
         ? `<span class="signal-badge ${sigInfo.cls}" style="font-size:10px;padding:2px 8px;"><span class="en">${sigInfo.en}</span><span class="ua">${sigInfo.ua}</span></span>`
         : '';
+      const numHtml = displayNum != null
+        ? `<span style="font-size:14px;font-weight:600;font-variant-numeric:tabular-nums;margin-right:6px;">${displayNum}</span>`
+        : '';
       el.innerHTML = `
         <div style="display: flex; align-items: center; gap: 8px;">
           <div class="comp-group-dot" style="background:${dotColor}"></div>
           <span class="en">${baseEn}</span>
           <span class="ua">${baseUa}</span>
         </div>
-        <div style="text-align: center; font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums;">${displayNum != null ? displayNum : '—'}</div>
         <div></div>
         <div></div>
-        <div class="comp-signal">${badgeHtml}</div>
+        <div></div>
+        <div class="comp-signal">${numHtml}${badgeHtml}</div>
       `;
     }
   };
