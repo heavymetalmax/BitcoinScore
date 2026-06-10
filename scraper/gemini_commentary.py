@@ -1,20 +1,16 @@
 """
-Generate a short human-readable interpretation of the current index via Groq.
-Returns {'en': str, 'ua': str} or None if the API key is absent / call fails.
-
-Makes two separate API calls — one per language — for maximum reliability.
-API key is stored in GEMINI_API_KEY secret (name kept for backward compatibility).
+Generate a short human-readable interpretation of the current index via OpenAI GPT.
+Translates it to Ukrainian via Google Gemini API.
+Returns {'en': str, 'ua': str} or None if the API keys are absent / call fails.
 """
 import os
 import time
+from typing import Dict, Any, Optional
 
 import requests
 
-_MODEL = 'llama-3.3-70b-versatile'
-_URL = 'https://api.groq.com/openai/v1/chat/completions'
 
-
-def _risk_label(score):
+def _risk_label(score: Optional[int]) -> str:
     if score is None:
         return 'n/a'
     if score < 25:
@@ -113,12 +109,7 @@ def _metrics_block(payload: dict, slider_map: dict) -> str:
     return '\n'.join(lines)
 
 
-def _build_prompt(score, oc, tech, price, payload, slider_map, language: str) -> str:
-    lang_instruction = (
-        'Write your response in English.'
-        if language == 'en'
-        else 'Напиши відповідь українською мовою.'
-    )
+def _build_prompt(score: int, oc: int, tech: int, price: float, payload: dict, slider_map: dict) -> str:
     return f"""You are a Bitcoin data analyst writing a factual summary of today's market indicator readings.
 
 IMPORTANT DEFINITIONS:
@@ -134,7 +125,7 @@ Today's readings:
 
 {_metrics_block(payload, slider_map)}
 
-{lang_instruction}
+Write your response in English.
 Write exactly 2–3 sentences. Describe:
 1. What the on-chain picture shows (are long-term holders in profit or stress? Is the market historically cheap or expensive by these metrics?)
 2. What the tech/macro picture shows (sentiment, momentum, institutional flows — what is the current dynamic?)
@@ -147,32 +138,66 @@ STRICT RULES — violation means failure:
 - Plain factual sentences only — no bullet points, no markdown, no conclusion about what to do."""
 
 
-def _call_groq(prompt: str, headers: dict) -> str | None:
+def _call_openai(prompt: str, api_key: str) -> Optional[str]:
+    url = 'https://api.openai.com/v1/chat/completions'
+    headers = {
+        'Authorization': f'Bearer {api_key}',
+        'Content-Type': 'application/json',
+    }
     body = {
-        'model': _MODEL,
+        'model': 'gpt-4o-mini',
         'messages': [{'role': 'user', 'content': prompt}],
-        'temperature': 0.4,
-        'max_tokens': 600,
+        'temperature': 0.3,
+        'max_tokens': 300,
     }
     last_exc = None
     for attempt in range(3):
         if attempt:
             time.sleep(2 ** attempt)
         try:
-            resp = requests.post(_URL, json=body, headers=headers, timeout=30)
+            resp = requests.post(url, json=body, headers=headers, timeout=30)
             resp.raise_for_status()
             return resp.json()['choices'][0]['message']['content'].strip()
         except Exception as exc:
             last_exc = exc
-            print(f'Groq attempt {attempt + 1} failed: {exc}')
-    print(f'Groq call failed after 3 attempts: {last_exc}')
+            print(f'OpenAI attempt {attempt + 1} failed: {exc}')
+    print(f'OpenAI call failed after 3 attempts: {last_exc}')
     return None
 
 
-def generate_commentary(payload: dict, slider_map: dict) -> dict | None:
-    api_key = os.environ.get('GEMINI_API_KEY')
-    if not api_key:
-        print('GEMINI_API_KEY not set — skipping commentary')
+def _translate_via_gemini(text: str, api_key: str) -> Optional[str]:
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
+    headers = {"Content-Type": "application/json"}
+    prompt = f"Translate the following Bitcoin market commentary into Ukrainian. Keep it factual and natural, matching the style and meaning of the original text exactly. Do not add any extra commentary or explanations:\n\n{text}"
+    body = {
+        "contents": [{
+            "parts": [{"text": prompt}]
+        }],
+        "generationConfig": {
+            "temperature": 0.2
+        }
+    }
+    last_exc = None
+    for attempt in range(3):
+        if attempt:
+            time.sleep(2 ** attempt)
+        try:
+            resp = requests.post(url, json=body, headers=headers, timeout=30)
+            resp.raise_for_status()
+            res_json = resp.json()
+            translated = res_json['candidates'][0]['content']['parts'][0]['text'].strip()
+            return translated
+        except Exception as exc:
+            last_exc = exc
+            print(f'Gemini translation attempt {attempt + 1} failed: {exc}')
+    print(f'Gemini translation failed after 3 attempts: {last_exc}')
+    return None
+
+
+def generate_commentary(payload: dict, slider_map: dict) -> Optional[dict]:
+    openai_key = os.environ.get('OPENAI_API_KEY')
+    if not openai_key:
+        print('OPENAI_API_KEY not set — skipping commentary')
         return None
 
     score = payload.get('final_score')
@@ -180,19 +205,21 @@ def generate_commentary(payload: dict, slider_map: dict) -> dict | None:
     tech  = payload.get('tech_score')
     price = payload.get('btc_price')
 
-    headers = {
-        'Authorization': f'Bearer {api_key}',
-        'Content-Type': 'application/json',
-    }
-
-    en_text = _call_groq(_build_prompt(score, oc, tech, price, payload, slider_map, 'en'), headers)
+    prompt = _build_prompt(score, oc, tech, price, payload, slider_map)
+    en_text = _call_openai(prompt, openai_key)
     if not en_text:
         return None
-    print(f'Groq commentary (en): {en_text[:100]}…')
+    print(f'OpenAI commentary (en): {en_text[:100]}…')
 
-    ua_text = _call_groq(_build_prompt(score, oc, tech, price, payload, slider_map, 'ua'), headers)
+    gemini_key = os.environ.get('GEMINI_API_KEY')
+    ua_text = None
+    if gemini_key:
+        ua_text = _translate_via_gemini(en_text, gemini_key)
+    
     if not ua_text:
         ua_text = en_text
-    print(f'Groq commentary (ua): {ua_text[:100]}…')
+        print('Gemini translation unavailable — using English fallback for UA')
+    else:
+        print(f'Gemini commentary (ua): {ua_text[:100]}…')
 
     return {'en': en_text, 'ua': ua_text}
