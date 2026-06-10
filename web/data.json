@@ -1,7 +1,7 @@
 {
-  "timestamp": "2026-06-10T00:32:07Z",
-  "btc_price": 61803,
-  "btc_dominance": 58.09,
+  "timestamp": "2026-06-10T09:22:19Z",
+  "btc_price": 60986,
+  "btc_dominance": 58.04,
   "fear_greed": 16.6,
   "fear_greed_label": "CMC",
   "nupl": 12.0043,
@@ -18,46 +18,46 @@
   "rainbow_band": {
     "band": "Below model",
     "color": "rgba(68, 114, 196, 0.8)",
-    "price": 63078,
-    "band_upper": 73455.41,
-    "date": "2026-06-08"
+    "price": 61658,
+    "band_upper": 73526.22,
+    "date": "2026-06-09"
   },
   "m2": 9.47,
   "metrics": {
     "nupl": {
       "value": 12.0043,
       "source": "BMP",
-      "updated": "2026-06-10T00:31:59Z"
+      "updated": "2026-06-10T09:22:11Z"
     },
     "mvrv": {
       "value": 0.2417,
       "source": "BMP",
-      "updated": "2026-06-10T00:31:59Z"
+      "updated": "2026-06-10T09:22:11Z"
     },
     "m2": {
       "value": 9.47,
       "source": "MacroMicro",
-      "updated": "2026-06-10T00:31:59Z"
+      "updated": "2026-06-10T09:22:11Z"
     },
     "yield_curve": {
       "value": 0.48,
       "source": "BMP",
-      "updated": "2026-06-10T00:31:59Z"
+      "updated": "2026-06-10T09:22:11Z"
     },
     "cvdd_ratio": {
       "value": 1.266,
       "source": "BMP",
-      "updated": "2026-06-10T00:31:59Z"
+      "updated": "2026-06-10T09:22:11Z"
     },
     "rhodl_ratio": {
       "value": 1257.9609,
       "source": "BMP",
-      "updated": "2026-06-10T00:31:59Z"
+      "updated": "2026-06-10T09:22:11Z"
     },
     "asopr": {
       "value": 0.9833142857142858,
       "source": "BMP",
-      "updated": "2026-06-10T00:31:59Z"
+      "updated": "2026-06-10T09:22:11Z"
     },
     "etf_flows": {
       "value": {
@@ -67,25 +67,25 @@
         "date": "2026-06-05"
       },
       "source": "Farside",
-      "updated": "2026-06-10T00:31:59Z"
+      "updated": "2026-06-10T09:22:11Z"
     },
     "rainbow_band": {
       "value": {
         "band": "Below model",
         "color": "rgba(68, 114, 196, 0.8)",
-        "price": 63078,
-        "band_upper": 73455.41,
-        "date": "2026-06-08"
+        "price": 61658,
+        "band_upper": 73526.22,
+        "date": "2026-06-09"
       },
       "source": "BMP",
-      "updated": "2026-06-10T00:32:07Z"
+      "updated": "2026-06-10T09:22:19Z"
     },
     "fear_greed": {
       "latest": 14.0,
       "avg_7d": 16.6,
       "label": "CMC",
       "source": "CMC",
-      "updated": "2026-06-10T00:32:07Z"
+      "updated": "2026-06-10T09:22:19Z"
     },
     "cipherb": {
       "value": {
@@ -102,7 +102,7 @@
         "daily_fast_bullish_div": false
       },
       "source": "Local",
-      "updated": "2026-06-10T00:32:07Z"
+      "updated": "2026-06-10T09:22:19Z"
     },
     "smc": {
       "value": {
@@ -116,7 +116,7 @@
         "size": 10
       },
       "source": "Local",
-      "updated": "2026-06-10T00:32:07Z"
+      "updated": "2026-06-10T09:22:19Z"
     },
     "mayer_multiple": {
       "value": {
@@ -126,69 +126,69 @@
         "score": 18
       },
       "source": "Kraken",
-      "updated": "2026-06-10T00:32:08Z"
+      "updated": "2026-06-10T09:22:19Z"
     },
     "funding_rate": {
       "value": {
-        "latest": -0.08191,
-        "avg_7d": -0.08191,
-        "score": 0,
+        "latest": -0.04889,
+        "avg_7d": -0.04889,
+        "score": 1,
         "periods": 1,
         "source": "Kraken Futures"
       },
       "source": "Kraken Futures",
-      "updated": "2026-06-10T00:32:08Z"
+      "updated": "2026-06-10T09:22:20Z"
     },
     "m2_mom": {
       "value": 9.47,
       "source": "MacroMicro",
-      "updated": "2026-06-10T00:32:10Z"
+      "updated": "2026-06-10T09:22:21Z"
     }
   },
   "m2_mom": 9.47,
-  "onchain_score": 31,
+  "onchain_score": 32,
   "tech_score": 24,
   "final_score": 28,
   "adaptive_calibration": {
     "mayer": {
       "fixed": 18,
-      "adaptive": 16,
-      "blended": 17,
+      "adaptive": 17,
+      "blended": 18,
       "win_years": 4,
       "blend_w": 0.5
     },
     "nupl": {
       "fixed": 41,
-      "adaptive": 17,
-      "blended": 29,
+      "adaptive": 19,
+      "blended": 30,
       "win_years": 4,
       "blend_w": 0.5
     },
     "mvrv": {
       "fixed": 32,
-      "adaptive": 21,
-      "blended": 26,
+      "adaptive": 22,
+      "blended": 27,
       "win_years": 4,
       "blend_w": 0.5
     }
   },
   "zone_forecast": {
     "buy": {
-      "price": 54360,
+      "price": 53579,
       "pct": -12.0
     },
     "sell": {
-      "price": 176683,
+      "price": 174145,
       "pct": 185.9
     },
     "buy_threshold": 20,
     "sell_threshold": 80,
-    "realized_price": 54377,
-    "ref_price": 61795
+    "realized_price": 53596,
+    "ref_price": 60908
   },
   "commentary": {
-    "en": "The on-chain picture shows that long-term holders are in a moderate risk position, with a NUPL of 12.00 indicating unrealized profit and an MVRV Z-score of 0.24 suggesting the market is not significantly overvalued, while the RHODL Ratio of 1,258 indicates moderate-high risk. The tech/macro picture indicates a low-risk environment, with the Fear & Greed index at 16.6, ETF Flows showing outflows of $-3,138M, and the Mayer Multiple at 0.788, all suggesting a lack of excessive greed or momentum. The on-chain and tech/macro metrics tell a somewhat divergent story, with on-chain metrics showing a moderate risk profile and tech/macro metrics indicating a lower risk environment, as reflected in the Overall Risk Score of 28/100.",
-    "ua": "На основі он-чейн метрик, таких як NUPL, MVRV Z-score, RHODL Ratio, CVDD Ratio та aSOPR, довгострокові трейдери перебувають у зоні низького-модерального ризику, що свідчить про те, що вони перебувають у зоні прибутку, але не перебувають під великим тиском. Технічні та макроекономічні показники, такі як CipherB, Mayer Multiple, ETF Flows, Fear & Greed, Yield Curve та M2, вказують на низький ризик, що свідчить про низький рівень страху та жадібності на ринку. Загальний ризиковий баланс у 28/100 вказує на те, що біткоїн зараз перебуває у зоні історично низької вартості."
+    "en": "The on-chain picture shows that long-term holders are in a moderate risk position, with a NUPL of 12.00 indicating unrealized profit and an MVRV Z-score of 0.24 suggesting the market is not significantly overvalued, while the RHODL Ratio of 1,258 indicates moderate-high risk. The tech/macro picture indicates a low-risk environment, with the Mayer Multiple at 0.788, ETF Flows 14d at -$3,138M, and Fear & Greed at 16.6, all suggesting a lack of extreme sentiment or momentum. The on-chain and tech/macro metrics tell a similar story of a historically undervalued market, with an Overall Risk Score of 28/100 and on-chain and tech/macro sub-scores of 32/100 and 24/100, respectively.",
+    "ua": "На основі он-чейн метрик довгострокові трейдери знаходяться в зоні низько-помірного ризику, де показники NUPL, MVRV Z-score та aSOPR свідчать про незначний ризик, проте RHODL Ratio вказує на помірно-високий ризик. Технічні та макроекономічні показники свідчать про низько-помірний ризик, де індикатори CipherB, Mayer Multiple, ETF Flows та Fear & Greed вказують на низький ризик, тоді як Yield Curve має помірний ризик. Загальний ризиковий баланс становить 28/100, що вказує на те, що біткойн зараз знаходиться в історично недорогому діапазоні."
   },
   "prev_day": {
     "date": "2026-06-09",
@@ -421,7 +421,7 @@
     {
       "date": "2026-06-10",
       "score": 28,
-      "price": 61803
+      "price": 60986
     }
   ]
 }
