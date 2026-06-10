@@ -1,6 +1,6 @@
 {
-  "timestamp": "2026-06-10T16:41:31Z",
-  "btc_price": 62275,
+  "timestamp": "2026-06-10T17:24:37Z",
+  "btc_price": 62038,
   "btc_dominance": 58.32,
   "fear_greed": 16.6,
   "fear_greed_label": "CMC",
@@ -27,37 +27,37 @@
     "nupl": {
       "value": 12.0043,
       "source": "BMP",
-      "updated": "2026-06-10T16:41:23Z"
+      "updated": "2026-06-10T17:24:30Z"
     },
     "mvrv": {
       "value": 0.2417,
       "source": "BMP",
-      "updated": "2026-06-10T16:41:23Z"
+      "updated": "2026-06-10T17:24:30Z"
     },
     "m2": {
       "value": 9.47,
       "source": "MacroMicro",
-      "updated": "2026-06-10T16:41:23Z"
+      "updated": "2026-06-10T17:24:30Z"
     },
     "yield_curve": {
       "value": 0.48,
       "source": "BMP",
-      "updated": "2026-06-10T16:41:23Z"
+      "updated": "2026-06-10T17:24:30Z"
     },
     "cvdd_ratio": {
       "value": 1.266,
       "source": "BMP",
-      "updated": "2026-06-10T16:41:23Z"
+      "updated": "2026-06-10T17:24:30Z"
     },
     "rhodl_ratio": {
       "value": 1257.9609,
       "source": "BMP",
-      "updated": "2026-06-10T16:41:23Z"
+      "updated": "2026-06-10T17:24:30Z"
     },
     "asopr": {
       "value": 0.9833142857142858,
       "source": "BMP",
-      "updated": "2026-06-10T16:41:23Z"
+      "updated": "2026-06-10T17:24:30Z"
     },
     "etf_flows": {
       "value": {
@@ -67,7 +67,7 @@
         "date": "2026-06-05"
       },
       "source": "Farside",
-      "updated": "2026-06-10T16:41:23Z"
+      "updated": "2026-06-10T17:24:30Z"
     },
     "rainbow_band": {
       "value": {
@@ -78,14 +78,14 @@
         "date": "2026-06-09"
       },
       "source": "BMP",
-      "updated": "2026-06-10T16:41:31Z"
+      "updated": "2026-06-10T17:24:37Z"
     },
     "fear_greed": {
       "latest": 14.0,
       "avg_7d": 16.6,
       "label": "CMC",
       "source": "CMC",
-      "updated": "2026-06-10T16:41:31Z"
+      "updated": "2026-06-10T17:24:37Z"
     },
     "cipherb": {
       "value": {
@@ -102,7 +102,7 @@
         "daily_fast_bullish_div": false
       },
       "source": "Local",
-      "updated": "2026-06-10T16:41:31Z"
+      "updated": "2026-06-10T17:24:37Z"
     },
     "smc": {
       "value": {
@@ -116,7 +116,7 @@
         "size": 10
       },
       "source": "Local",
-      "updated": "2026-06-10T16:41:31Z"
+      "updated": "2026-06-10T17:24:38Z"
     },
     "mayer_multiple": {
       "value": {
@@ -126,23 +126,23 @@
         "score": 18
       },
       "source": "Kraken",
-      "updated": "2026-06-10T16:41:31Z"
+      "updated": "2026-06-10T17:24:38Z"
     },
     "funding_rate": {
       "value": {
-        "latest": 0.09286,
-        "avg_7d": 0.09286,
-        "score": 95,
+        "latest": 0.00815,
+        "avg_7d": 0.00815,
+        "score": 39,
         "periods": 1,
         "source": "Kraken Futures"
       },
       "source": "Kraken Futures",
-      "updated": "2026-06-10T16:41:31Z"
+      "updated": "2026-06-10T17:24:38Z"
     },
     "m2_mom": {
       "value": 9.47,
       "source": "MacroMicro",
-      "updated": "2026-06-10T16:41:33Z"
+      "updated": "2026-06-10T17:24:40Z"
     }
   },
   "m2_mom": 9.47,
@@ -174,21 +174,21 @@
   },
   "zone_forecast": {
     "buy": {
-      "price": 54754,
+      "price": 54537,
       "pct": -12.0
     },
     "sell": {
-      "price": 177965,
+      "price": 177259,
       "pct": 185.9
     },
     "buy_threshold": 20,
     "sell_threshold": 80,
-    "realized_price": 54772,
-    "ref_price": 62244
+    "realized_price": 54554,
+    "ref_price": 61997
   },
   "commentary": {
-    "en": "Bitcoin’s structure appears consistent with a bear bottom scenario, with a notably low MVRV Z-score of 0.24 and near-capitulation aSOPR at 0.983 accompanying extreme fear (Fear & Greed at 16.6), even as ETF flows remain negative at –$3,138M. The trend continuation probability is moderate, contingent primarily on whether ETF flows reverse direction to signal a renewed buying interest.",
-    "ua": "Структура біткоїна виглядає послідовною з сценарієм дна ведмедя, з помітно низьким MVRV Z-score на рівні 0.24 та близьким до капітуляції aSOPR на рівні 0.983, що супроводжується екстремальним страхом (Fear & Greed на рівні 16.6), навіть незважаючи на те, що потоки ETF залишаються негативними на рівні –$3,138M. Ймовірність продовження тренду є помірною, в основному залежною від того, чи змінять потоки ETF напрямок, щоб сигналізувати про відновлений інтерес до покупки."
+    "en": "Bitcoin’s market structure reflects a bear bottom regime, with the MVRV Z-score at 0.24 and aSOPR near 0.98 accompanied by significant ETF outflows of $-3,138M and a Fear & Greed reading of 16.6, indicating pronounced capitulation amid low to moderate risk indicators. Given these persistent ETF outflows and accompanying signals, the current downward trend is likely to continue with high probability of further decline, with any reversal in ETF flows serving as the leading indicator of a potential change in direction.",
+    "ua": "Ринкова структура Bitcoin відображає режим ведмежого дна, з MVRV Z-score на рівні 0.24 та aSOPR близько 0.98, супроводжуваними значними відтоками ETF у розмірі $-3,138M та показником страху і жадібності 16.6, що вказує на виражену капітуляцію на фоні низьких до помірних ризикових індикаторів. Враховуючи ці постійні відтоки ETF та супутні сигнали, поточна низхідна тенденція, ймовірно, продовжиться з високою ймовірністю подальшого зниження, при цьому будь-який реверс у потоках ETF слугуватиме провідним індикатором потенційної зміни напрямку."
   },
   "prev_day": {
     "date": "2026-06-09",
@@ -421,7 +421,7 @@
     {
       "date": "2026-06-10",
       "score": 28,
-      "price": 62275
+      "price": 62038
     }
   ]
 }
