@@ -32,7 +32,7 @@
   .nav-inner { max-width: 1200px; margin: 0 auto; padding: 0 32px; height: 100%; display: flex; align-items: center; }
   .nav-logo { font-weight: 700; font-size: 15px; letter-spacing: 0.04em; margin-right: 40px; flex-shrink: 0; }
   .nav-logo span:not(#logo-bri) { color: var(--muted); font-weight: 400; font-size: 12px; display: block; letter-spacing: 0; }
-  #logo-bri { transition: color 0.3s ease; }
+  #logo-bri, #footer-logo-bri { transition: color 0.3s ease; }
   .nav-links { display: flex; gap: 4px; flex: 1; }
   .nav-links a { padding: 6px 14px; border-radius: 6px; text-decoration: none; color: var(--muted2); font-size: 13px; font-weight: 500; transition: color 0.15s, background 0.15s; }
   .nav-links a:hover, .nav-links a.active { color: var(--text); background: var(--surface2); }
@@ -522,7 +522,7 @@
 </main>
 
 <footer>
-  <div class="footer-logo">BTCBRI <span>Bitcoin Buy Risk Index</span></div>
+  <div class="footer-logo">BTC<span id="footer-logo-bri">BRI</span> <span>Bitcoin Buy Risk Index</span></div>
   <div class="footer-links">
     <a href="classic.html"><span class="en">Overview</span><span class="ua">Огляд</span></a>
     <a href="compare.html"><span class="en">Compare</span><span class="ua">Порівняння</span></a>
@@ -935,6 +935,8 @@ async function loadData() {
   const z = riskZone(score);
   const logoBri = document.getElementById('logo-bri');
   if (logoBri) logoBri.style.color = z.color;
+  const footerLogoBri = document.getElementById('footer-logo-bri');
+  if (footerLogoBri) footerLogoBri.style.color = z.color;
   const m = data.metrics || {};
 
   // Score card
