@@ -33,10 +33,12 @@
   .nav-links a { padding: 6px 14px; border-radius: 6px; text-decoration: none; color: var(--muted2); font-size: 13px; font-weight: 500; transition: color 0.15s, background 0.15s; }
   .nav-links a:hover, .nav-links a.active { color: var(--text); background: var(--surface2); }
   .nav-right { display: flex; align-items: center; gap: 8px; }
-  .theme-btn { width: 36px; height: 36px; border-radius: 8px; border: 1px solid var(--border2); background: var(--surface2); color: var(--muted2); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; transition: all 0.15s; }
-  .theme-btn:hover { color: var(--text); }
-  .lang-btn { display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 8px; border: 1px solid var(--border2); background: var(--surface2); color: var(--muted2); cursor: pointer; font-size: 12px; font-weight: 500; font-family: inherit; transition: all 0.15s; }
-  .lang-btn:hover { color: var(--text); }
+  .theme-btn { width: 32px; height: 32px; border-radius: 7px; border: 1px solid var(--border2); background: var(--surface2); color: var(--muted2); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+  .theme-btn:hover { color: var(--text); border-color: var(--muted2); }
+  .theme-btn svg { display: block; }
+  .lang-btn { display: flex; align-items: center; gap: 5px; padding: 5px 10px; border-radius: 7px; border: 1px solid var(--border2); background: var(--surface2); color: var(--muted2); cursor: pointer; font-size: 12px; font-weight: 500; font-family: inherit; transition: all 0.15s; }
+  .lang-btn:hover { color: var(--text); border-color: var(--muted2); }
+  .lang-btn svg { display: block; flex-shrink: 0; }
 
   main { max-width: 1200px; margin: 0 auto; padding: 32px 32px 64px; }
 
@@ -46,20 +48,21 @@
 
   .score-card { display: flex; flex-direction: column; justify-content: space-between; }
   .score-label { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; color: var(--muted); text-transform: uppercase; margin-bottom: 4px; }
-  .score-number { font-size: 80px; font-weight: 700; line-height: 1; letter-spacing: -0.04em; color: var(--text); margin: 12px 0 4px; }
-  .score-number sub { font-size: 28px; font-weight: 400; color: var(--muted); vertical-align: sub; }
+  .score-number { display: flex; align-items: baseline; gap: 6px; line-height: 1; margin: 12px 0 4px; }
+  .score-val { font-size: 80px; font-weight: 700; letter-spacing: -0.04em; color: var(--text); }
+  .score-denom { font-size: 28px; font-weight: 400; color: var(--muted); }
   .score-zone { font-size: 15px; font-weight: 700; letter-spacing: 0.02em; margin-bottom: 6px; }
   .score-desc { font-size: 12px; color: var(--muted2); line-height: 1.5; margin-bottom: 16px; }
   .score-hint { display: flex; align-items: flex-start; gap: 8px; border-radius: 8px; padding: 10px 12px; font-size: 11px; line-height: 1.4; border: 1px solid transparent; }
   .score-hint svg { flex-shrink: 0; margin-top: 1px; }
 
   .gauge-card { display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 28px 32px 20px; }
-  .gauge-wrap { position: relative; width: 280px; height: 160px; }
-  .gauge-wrap svg { width: 100%; height: 100%; overflow: visible; }
-  .gauge-center { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); text-align: center; }
-  .gauge-val { font-size: 40px; font-weight: 700; letter-spacing: -0.03em; line-height: 1; }
-  .gauge-sub { font-size: 12px; color: var(--muted); }
-  .gauge-scale { width: 100%; display: flex; flex-direction: column; gap: 6px; margin-top: 16px; }
+  .gauge-flat-bar { height: 8px; border-radius: 4px; background: linear-gradient(to right, #22C55E 0%, #EAB308 33%, #F97316 66%, #EF4444 100%); position: relative; margin-bottom: 4px; }
+  .gauge-flat-needle { position: absolute; top: 50%; left: 0%; width: 16px; height: 16px; border-radius: 50%; background: var(--bg); border: 2.5px solid #22C55E; transform: translate(-50%, -50%); transition: left 0.5s ease, border-color 0.3s; box-shadow: 0 1px 5px rgba(0,0,0,0.25); }
+  .gauge-number { display: flex; align-items: baseline; gap: 6px; margin: 20px 0 20px; }
+  .gauge-val { font-size: 64px; font-weight: 700; letter-spacing: -0.04em; line-height: 1; }
+  .gauge-denom { font-size: 22px; color: var(--muted); font-weight: 400; }
+  .gauge-scale { width: 100%; display: flex; flex-direction: column; gap: 6px; }
   .gauge-bar { height: 6px; border-radius: 3px; background: linear-gradient(to right, #22C55E 0%, #22C55E 25%, #EAB308 25%, #EAB308 50%, #F97316 50%, #F97316 75%, #EF4444 75%, #EF4444 100%); }
   .gauge-bar-ticks { display: flex; justify-content: space-between; font-size: 10px; color: var(--muted); padding: 0 1px; }
   .gauge-labels { display: grid; grid-template-columns: repeat(4, 1fr); font-size: 10px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; margin-top: 2px; }
@@ -79,10 +82,10 @@
   .section-title { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
 
   .components-grid { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; box-shadow: var(--shadow); margin-bottom: 24px; }
-  .comp-header { display: grid; grid-template-columns: 1fr 120px 140px 80px 90px; padding: 10px 20px; border-bottom: 1px solid var(--border); background: var(--surface2); }
+  .comp-header { display: grid; grid-template-columns: 220px 100px 1fr 72px 82px; padding: 10px 20px; border-bottom: 1px solid var(--border); background: var(--surface2); }
   .comp-header span { font-size: 10px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
   .comp-header span:not(:first-child) { text-align: right; }
-  .comp-row { display: grid; grid-template-columns: 1fr 120px 140px 80px 90px; padding: 14px 20px; border-bottom: 1px solid var(--border); align-items: center; transition: background 0.1s; }
+  .comp-row { display: grid; grid-template-columns: 220px 100px 1fr 72px 82px; padding: 14px 20px; border-bottom: 1px solid var(--border); align-items: center; transition: background 0.1s; }
   .comp-row:last-child { border-bottom: none; }
   .comp-row:hover { background: var(--surface2); }
   .comp-name { font-size: 13px; font-weight: 600; }
@@ -90,8 +93,8 @@
   .comp-value { text-align: right; }
   .comp-value .val { font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; }
   .comp-value .range { font-size: 11px; color: var(--muted); }
-  .comp-spark { display: flex; justify-content: flex-end; align-items: center; }
-  .comp-spark canvas { display: block; }
+  .comp-spark { display: block; overflow: hidden; }
+  .comp-spark canvas { display: block; width: 100%; height: 36px; }
   .comp-pct { text-align: right; font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--muted2); }
   .comp-signal { display: flex; justify-content: flex-end; }
   .signal-badge { padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; white-space: nowrap; }
@@ -161,14 +164,19 @@
   <div class="nav-logo">BTCBRI <span>Bitcoin Buy Risk Index</span></div>
   <div class="nav-links">
     <a href="classic.html" class="active"><span class="en">Overview</span><span class="ua">Огляд</span></a>
-    <a href="minimal.html"><span class="en">Minimal</span><span class="ua">Мінімал</span></a>
-    <a href="max.html"><span class="en">Open</span><span class="ua">Розширений</span></a>
     <a href="#history"><span class="en">History</span><span class="ua">Історія</span></a>
     <a href="compare.html"><span class="en">Compare</span><span class="ua">Порівняння</span></a>
+    <a href="about.html#philosophy"><span class="en">About</span><span class="ua">Про індикатор</span></a>
+    <a href="about.html#construction"><span class="en">Methodology</span><span class="ua">Методологія</span></a>
   </div>
   <div class="nav-right">
-    <button class="theme-btn" id="themeToggle" title="Toggle theme">☀</button>
-    <button class="lang-btn" id="langToggle">🌐 <span id="lang-label">EN</span></button>
+    <button class="theme-btn" id="themeToggle" title="Toggle theme">
+      <svg width="15" height="15" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="7.5" cy="7.5" r="2.8"/><line x1="7.5" y1="1" x2="7.5" y2="2.6"/><line x1="7.5" y1="12.4" x2="7.5" y2="14"/><line x1="1" y1="7.5" x2="2.6" y2="7.5"/><line x1="12.4" y1="7.5" x2="14" y2="7.5"/><line x1="2.75" y1="2.75" x2="3.86" y2="3.86"/><line x1="11.14" y1="11.14" x2="12.25" y2="12.25"/><line x1="12.25" y1="2.75" x2="11.14" y2="3.86"/><line x1="3.86" y1="11.14" x2="2.75" y2="12.25"/></svg>
+    </button>
+    <button class="lang-btn" id="langToggle">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="7" cy="7" r="5.5"/><path d="M7 1.5C7 1.5 5.5 4 5.5 7s1.5 5.5 1.5 5.5"/><path d="M7 1.5C7 1.5 8.5 4 8.5 7s-1.5 5.5-1.5 5.5"/><line x1="1.6" y1="5.2" x2="12.4" y2="5.2"/><line x1="1.6" y1="8.8" x2="12.4" y2="8.8"/></svg>
+      <span id="lang-label">EN</span>
+    </button>
   </div>
 </nav>
 
@@ -180,7 +188,7 @@
     <div class="card score-card">
       <div class="score-label">BTCBRI <span class="en">SCORE</span><span class="ua">ІНДЕКС</span></div>
       <div>
-        <div class="score-number" id="score-number">—<sub>/100</sub></div>
+        <div class="score-number" id="score-number"><span class="score-val">—</span><span class="score-denom">/100</span></div>
         <div class="score-zone" id="score-zone"></div>
         <div class="score-desc" id="score-desc"></div>
         <div class="score-hint" id="score-hint">
@@ -192,28 +200,13 @@
 
     <!-- Gauge card -->
     <div class="card gauge-card">
-      <div class="gauge-wrap">
-        <svg viewBox="0 0 280 160" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <linearGradient id="arcGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%"   stop-color="#22C55E"/>
-              <stop offset="33%"  stop-color="#EAB308"/>
-              <stop offset="66%"  stop-color="#F97316"/>
-              <stop offset="100%" stop-color="#EF4444"/>
-            </linearGradient>
-            <filter id="glow"><feGaussianBlur stdDeviation="4" result="blur"/><feComposite in="SourceGraphic" in2="blur" operator="over"/></filter>
-          </defs>
-          <path d="M 20 145 A 120 120 0 0 1 260 145" stroke="var(--surface2)" stroke-width="14" stroke-linecap="round" fill="none"/>
-          <path d="M 20 145 A 120 120 0 0 1 260 145" stroke="url(#arcGrad)" stroke-width="14" stroke-linecap="round" fill="none" opacity="0.25"/>
-          <path id="gauge-arc" d="" stroke="#22C55E" stroke-width="14" stroke-linecap="round" fill="none" filter="url(#glow)"/>
-          <circle id="gauge-needle" cx="20" cy="145" r="7" fill="white" stroke="#22C55E" stroke-width="2.5"/>
-        </svg>
-        <div class="gauge-center">
-          <div class="gauge-val" id="gauge-val">—</div>
-          <div class="gauge-sub">/ 100</div>
-        </div>
+      <div class="gauge-flat-bar">
+        <div class="gauge-flat-needle" id="gauge-flat-needle"></div>
       </div>
-      <div class="gauge-scale" style="max-width:280px;width:100%">
+      <div class="gauge-number">
+        <span class="gauge-val" id="gauge-val">—</span><span class="gauge-denom">/100</span>
+      </div>
+      <div class="gauge-scale">
         <div class="gauge-bar"></div>
         <div class="gauge-bar-ticks"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
         <div class="gauge-labels">
@@ -257,6 +250,13 @@
             <span class="en">Updated</span><span class="ua">Оновлено</span>
           </div>
           <span class="market-row-val" id="market-updated">—</span>
+        </div>
+        <div class="market-row">
+          <div class="market-row-left">
+            <svg class="market-row-icon" viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="11" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M5 2v2M11 2v2M2 7h12" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            <span class="en">Next update</span><span class="ua">Наст. оновлення</span>
+          </div>
+          <span class="market-row-val" id="market-next">—</span>
         </div>
       </div>
     </div>
@@ -330,27 +330,34 @@
       <div class="comp-pct" id="p-mayer">—</div>
       <div class="comp-signal"><span class="signal-badge" id="sig-mayer">—</span></div>
     </div>
-    <div class="comp-row">
-      <div><div class="comp-name"><span class="en">ETF Net Flows (30D)</span><span class="ua">ETF Потоки (30Д)</span></div><div class="comp-sub"><span class="en">US Spot ETF Net Flows</span><span class="ua">Чисті потоки спот ETF США</span></div></div>
-      <div class="comp-value"><div class="val" id="v-etf">—</div><div class="range">($M)</div></div>
-      <div class="comp-spark"><canvas id="s8" width="130" height="36"></canvas></div>
-      <div class="comp-pct" id="p-etf">—</div>
-      <div class="comp-signal"><span class="signal-badge" id="sig-etf">—</span></div>
-    </div>
 
     <!-- Macro -->
     <div class="comp-group-hdr"><div class="comp-group-dot" style="background:#F59E0B"></div><span class="en">Macro</span><span class="ua">Макро</span></div>
     <div class="comp-row">
+      <div><div class="comp-name"><span class="en">Yield Curve (10Y-2Y)</span><span class="ua">Крива дохідності (10Р-2Р)</span></div><div class="comp-sub"><span class="en">US Treasury Spread</span><span class="ua">Спред держоблігацій США</span></div></div>
+      <div class="comp-value"><div class="val" id="v-yc">—</div><div class="range">(-1% – 2%)</div></div>
+      <div class="comp-spark"><canvas id="s8" width="130" height="36"></canvas></div>
+      <div class="comp-pct" id="p-yc">—</div>
+      <div class="comp-signal"><span class="signal-badge" id="sig-yc">—</span></div>
+    </div>
+    <div class="comp-row">
+      <div><div class="comp-name"><span class="en">ETF Net Flows (30D)</span><span class="ua">ETF Потоки (30Д)</span></div><div class="comp-sub"><span class="en">US Spot ETF Net Flows</span><span class="ua">Чисті потоки спот ETF США</span></div></div>
+      <div class="comp-value"><div class="val" id="v-etf">—</div><div class="range">($M)</div></div>
+      <div class="comp-spark"><canvas id="s9" width="130" height="36"></canvas></div>
+      <div class="comp-pct" id="p-etf">—</div>
+      <div class="comp-signal"><span class="signal-badge" id="sig-etf">—</span></div>
+    </div>
+    <div class="comp-row">
       <div><div class="comp-name"><span class="en">Fear & Greed Index</span><span class="ua">Індекс страху і жадібності</span></div><div class="comp-sub"><span class="en">Market Sentiment (7D avg)</span><span class="ua">Ринковий настрій (сер. 7Д)</span></div></div>
       <div class="comp-value"><div class="val" id="v-fg">—</div><div class="range">(0 – 100)</div></div>
-      <div class="comp-spark"><canvas id="s9" width="130" height="36"></canvas></div>
+      <div class="comp-spark"><canvas id="s10" width="130" height="36"></canvas></div>
       <div class="comp-pct" id="p-fg">—</div>
       <div class="comp-signal"><span class="signal-badge" id="sig-fg">—</span></div>
     </div>
     <div class="comp-row">
       <div><div class="comp-name">M2 Global Liquidity (YoY)</div><div class="comp-sub"><span class="en">Global M2 Money Supply YoY%</span><span class="ua">Глобальна грошова маса M2 р/р</span></div></div>
       <div class="comp-value"><div class="val" id="v-m2">—</div><div class="range">(-5% – 15%)</div></div>
-      <div class="comp-spark"><canvas id="s10" width="130" height="36"></canvas></div>
+      <div class="comp-spark"><canvas id="s11" width="130" height="36"></canvas></div>
       <div class="comp-pct" id="p-m2">—</div>
       <div class="comp-signal"><span class="signal-badge" id="sig-m2">—</span></div>
     </div>
@@ -423,19 +430,22 @@
   <div class="footer-logo">BTCBRI <span>Bitcoin Buy Risk Index</span></div>
   <div class="footer-links">
     <a href="classic.html"><span class="en">Overview</span><span class="ua">Огляд</span></a>
-    <a href="minimal.html"><span class="en">Minimal</span><span class="ua">Мінімал</span></a>
-    <a href="max.html"><span class="en">Open</span><span class="ua">Розширений</span></a>
     <a href="compare.html"><span class="en">Compare</span><span class="ua">Порівняння</span></a>
+    <a href="about.html#philosophy"><span class="en">About</span><span class="ua">Про індикатор</span></a>
+    <a href="about.html#construction"><span class="en">Methodology</span><span class="ua">Методологія</span></a>
   </div>
 </footer>
 
 <script>
 // ─── THEME ─────────────────────────────────────────────
+const SVG_SUN  = '<svg width="15" height="15" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="7.5" cy="7.5" r="2.8"/><line x1="7.5" y1="1" x2="7.5" y2="2.6"/><line x1="7.5" y1="12.4" x2="7.5" y2="14"/><line x1="1" y1="7.5" x2="2.6" y2="7.5"/><line x1="12.4" y1="7.5" x2="14" y2="7.5"/><line x1="2.75" y1="2.75" x2="3.86" y2="3.86"/><line x1="11.14" y1="11.14" x2="12.25" y2="12.25"/><line x1="12.25" y1="2.75" x2="11.14" y2="3.86"/><line x1="3.86" y1="11.14" x2="2.75" y2="12.25"/></svg>';
+const SVG_MOON = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9.5A5.5 5.5 0 0 1 4.5 2a5.5 5.5 0 1 0 7.5 7.5z"/></svg>';
+
 (function() {
   const t = localStorage.getItem('bbr-theme') || 'dark';
   document.documentElement.setAttribute('data-theme', t);
   const btn = document.getElementById('themeToggle');
-  if (btn) btn.textContent = t === 'dark' ? '☀' : '🌙';
+  if (btn) btn.innerHTML = t === 'dark' ? SVG_SUN : SVG_MOON;
 })();
 
 document.getElementById('themeToggle').addEventListener('click', () => {
@@ -443,7 +453,7 @@ document.getElementById('themeToggle').addEventListener('click', () => {
   const next = isDark ? 'light' : 'dark';
   document.documentElement.setAttribute('data-theme', next);
   localStorage.setItem('bbr-theme', next);
-  document.getElementById('themeToggle').textContent = next === 'dark' ? '☀' : '🌙';
+  document.getElementById('themeToggle').innerHTML = next === 'dark' ? SVG_SUN : SVG_MOON;
   drawSparklines();
   if (historyScores.length) drawHistory(activeRange);
 });
@@ -483,6 +493,7 @@ function getSignal(key, v) {
     mvrv:    v => v <= 1.5 ? 'bullish' : v <= 3.0 ? 'neutral' : 'bearish',
     nupl:    v => v <= 25  ? 'bullish' : v <= 50  ? 'neutral' : 'bearish',
     rhodl:   v => v <= 2000 ? 'bullish' : v <= 50000 ? 'neutral' : 'bearish',
+    yield_curve: v => v > 0.5 ? 'bullish' : v >= 0 ? 'neutral' : 'bearish',
     etf:     v => v > 500  ? 'bullish' : v > -1000 ? 'neutral' : 'bearish',
     fg:      v => v <= 25  ? 'bullish' : v <= 60  ? 'neutral' : 'bearish',
     m2:      v => v > 4    ? 'bullish' : v >= 0   ? 'neutral' : 'bearish',
@@ -495,9 +506,9 @@ function getSignal(key, v) {
 }
 
 const SIG_LABELS = {
-  bullish: { en: 'Bullish',    ua: 'Бичачий',     cls: 'signal-bullish' },
-  neutral: { en: 'Neutral',    ua: 'Нейтральний',  cls: 'signal-neutral' },
-  bearish: { en: 'Bearish',    ua: 'Ведмежий',     cls: 'signal-bearish' },
+  bullish: { en: 'Low',      ua: 'Низький',   cls: 'signal-bullish' },
+  neutral: { en: 'Moderate', ua: 'Помірний',  cls: 'signal-neutral' },
+  bearish: { en: 'High',     ua: 'Високий',   cls: 'signal-bearish' },
 };
 
 function applySignal(elId, key, val) {
@@ -511,15 +522,9 @@ function applySignal(elId, key, val) {
 
 // ─── GAUGE ─────────────────────────────────────────────
 function updateGauge(score) {
-  const ang = Math.PI - (score / 100) * Math.PI;
-  const nx = (140 + 120 * Math.cos(ang)).toFixed(1);
-  const ny = (145 - 120 * Math.sin(ang)).toFixed(1);
-  const la = score > 50 ? 1 : 0;
   const z = riskZone(score);
-  const arc = document.getElementById('gauge-arc');
-  const needle = document.getElementById('gauge-needle');
-  if (arc) { arc.setAttribute('d', score > 0 ? `M 20 145 A 120 120 0 ${la} 1 ${nx} ${ny}` : ''); arc.setAttribute('stroke', z.color); }
-  if (needle) { needle.setAttribute('cx', nx); needle.setAttribute('cy', ny); needle.setAttribute('stroke', z.color); }
+  const needle = document.getElementById('gauge-flat-needle');
+  if (needle) { needle.style.left = score + '%'; needle.style.borderColor = z.color; }
   const gv = document.getElementById('gauge-val');
   if (gv) gv.textContent = score;
 }
@@ -533,19 +538,24 @@ const SPARK_DATA = [
   [7,7.5,8,7,7.5,7,6.5,7,6,6.5,6,5.5,5,5.5,5,4.5,4,4.5,4,3.5],
   [4,4.5,5,5.2,5.5,5.8,6,6.2,6.5,6.8,7,7.2,7.5,7.8,7.5,7.8,8,8.2,8,8.5],
   [3,3.5,4,3.8,4,4.2,4.5,4.2,4.5,4.8,5,4.8,5,5.2,5.5,5.2,5.5,5.8,5.5,5.8],
+  [2,2.2,1.8,1.5,1.2,0.8,0.5,0.2,-0.1,-0.3,-0.5,-0.8,-0.6,-0.3,0,0.2,0.4,0.5,0.6,0.5],
   [5,5.5,6,5.8,6,5.5,6,5.8,6.5,6,5.5,6,5.5,5,5.5,5,5.5,5.2,5,4.8],
   [3,3.2,3.5,3.8,4,4.2,4.5,4.8,5,5.2,5.5,5.8,6,6.2,6.5,6.8,7,7.2,7.5,7.8],
   [3,3.5,4,4.2,4.5,4.8,5,5.2,5.5,5.8,6,6.2,6.5,6.2,6.5,6.8,7,7.2,7.5,7.2],
 ];
-let sparkColors = Array(10).fill('#22C55E');
+let sparkColors = Array(11).fill('#22C55E');
 
 function drawSparklines() {
   const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
   const grid = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
-  for (let i = 1; i <= 10; i++) {
+  for (let i = 1; i <= 11; i++) {
     const c = document.getElementById('s' + i);
     if (!c) continue;
-    const ctx = c.getContext('2d'), w = c.width, h = c.height;
+    const w = c.parentElement.offsetWidth || 130;
+    const h = 36;
+    c.width = w;
+    c.height = h;
+    const ctx = c.getContext('2d');
     ctx.clearRect(0, 0, w, h);
     const d = SPARK_DATA[i - 1], mn = Math.min(...d), mx = Math.max(...d), rng = mx - mn || 1;
     const pts = d.map((v, j) => ({ x: (j / (d.length - 1)) * w, y: h - ((v - mn) / rng) * (h - 8) - 4 }));
@@ -633,7 +643,7 @@ async function loadData() {
 
   // Score card
   const snEl = document.getElementById('score-number');
-  if (snEl) snEl.innerHTML = score + '<sub>/100</sub>';
+  if (snEl) snEl.innerHTML = '<span class="score-val">' + score + '</span><span class="score-denom">/100</span>';
   const szEl = document.getElementById('score-zone');
   if (szEl) { szEl.innerHTML = `<span class="en">${z.label}</span><span class="ua">${z.labelUa}</span>`; szEl.style.color = z.color; }
   const sdEl = document.getElementById('score-desc');
@@ -662,6 +672,10 @@ async function loadData() {
   if (data.timestamp) {
     const d = new Date(data.timestamp);
     set('market-updated', d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }));
+    const next = new Date();
+    next.setUTCHours(8, 0, 0, 0);
+    if (next <= new Date()) next.setUTCDate(next.getUTCDate() + 1);
+    set('market-next', next.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ', 08:00 UTC');
   }
 
   // Component values
@@ -669,6 +683,7 @@ async function loadData() {
   const nupl    = data.nupl;
   const rhodl   = data.rhodl_ratio;
   const etfVal  = data.etf_flows ? (typeof data.etf_flows === 'object' ? data.etf_flows.value : data.etf_flows) : null;
+  const ycVal   = m.yield_curve && m.yield_curve.value != null ? m.yield_curve.value : null;
   const fgVal   = fg7d;
   const m2Val   = data.m2_mom;
   const cbVal   = m.cipherb && m.cipherb.value ? m.cipherb.value.weekly_score : null;
@@ -681,6 +696,7 @@ async function loadData() {
   setVal('v-mvrv',    mvrv,   v => (+v).toFixed(2));
   setVal('v-nupl',    nupl,   v => (+v).toFixed(1) + '%');
   setVal('v-rhodl',   rhodl,  v => Math.round(v).toLocaleString('en-US'));
+  setVal('v-yc',      ycVal,  v => (+v).toFixed(2) + '%');
   setVal('v-etf',     etfVal, v => '$' + (v / 1000).toFixed(2) + 'B');
   setVal('v-fg',      fgVal,  v => (+v).toFixed(0));
   setVal('v-m2',      m2Val,  v => (+v).toFixed(1) + '%');
@@ -694,13 +710,12 @@ async function loadData() {
   setP('p-nupl', ac.nupl ? ac.nupl.adaptive : null);
   setP('p-mayer', ac.mayer ? ac.mayer.adaptive : null);
 
-  // Signals — order: on-chain (mvrv,nupl,rhodl,asopr,cvdd), tech (cipherb,mayer,etf), macro (fg,m2)
-  const vals = [mvrv, nupl, rhodl, asopr, cvdd, cbVal, mayer, etfVal, fgVal, m2Val];
-  const keys = ['mvrv','nupl','rhodl','asopr','cvdd','cipherb','mayer','etf','fg','m2'];
-  const ids  = ['sig-mvrv','sig-nupl','sig-rhodl','sig-asopr','sig-cvdd','sig-cipherb','sig-mayer','sig-etf','sig-fg','sig-m2'];
+  // Signals — order: on-chain (mvrv,nupl,rhodl,asopr,cvdd), tech (cipherb,mayer), macro (yc,etf,fg,m2)
+  const vals = [mvrv, nupl, rhodl, asopr, cvdd, cbVal, mayer, ycVal, etfVal, fgVal, m2Val];
+  const keys = ['mvrv','nupl','rhodl','asopr','cvdd','cipherb','mayer','yield_curve','etf','fg','m2'];
+  const ids  = ['sig-mvrv','sig-nupl','sig-rhodl','sig-asopr','sig-cvdd','sig-cipherb','sig-mayer','sig-yc','sig-etf','sig-fg','sig-m2'];
   const colorOf = { bullish: '#22C55E', neutral: '#EAB308', bearish: '#EF4444' };
 
-  // order matches HTML: on-chain (mvrv,nupl,rhodl,asopr,cvdd), tech (cipherb,mayer,etf), macro (fg,m2)
   ids.forEach((id, i) => applySignal(id, keys[i], vals[i]));
   sparkColors = vals.map((v, i) => v != null ? colorOf[getSignal(keys[i], v)] : '#22C55E');
 
@@ -717,7 +732,7 @@ async function loadData() {
 }
 
 window.addEventListener('load', loadData);
-window.addEventListener('resize', () => { if (historyScores.length) drawHistory(activeRange); });
+window.addEventListener('resize', () => { if (historyScores.length) drawHistory(activeRange); drawSparklines(); });
 
 // ─── DISCLAIMER MODAL ──────────────────────────────────
 const discOverlay = document.getElementById('disc-overlay');
