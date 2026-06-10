@@ -1164,7 +1164,8 @@ async function loadData() {
           <span class="en">${baseEn}</span>
           <span class="ua">${baseUa}</span>
         </div>
-        <div class="comp-signal" style="grid-column:-1;">${badgeHtml}</div>
+        <div style="grid-column:2; text-align:center; font-size:14px; font-weight:600; font-variant-numeric:tabular-nums;">${displayNum != null ? displayNum : '—'}</div>
+        <div class="comp-signal" style="grid-column:-1; align-items:center;">${badgeHtml}</div>
       `;
     }
   };
