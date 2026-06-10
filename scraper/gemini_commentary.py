@@ -117,9 +117,7 @@ def _build_prompt(score: int, oc: int, tech: int, price: float, payload: dict, s
 - Tech/Macro sub-score: {tech}/100
 
 Detailed Metric Values:
-{_metrics_block(payload, slider_map)}
-
-Please perform your analysis by orchestrating these indicators. Check if short-term speculation (funding rates, fear & greed, CipherB) is supported by macro liquidity (M2 growth, ETF flows) and long-term valuation (MVRV, NUPL, RHODL). Highlight any significant risks or divergences."""
+{_metrics_block(payload, slider_map)}"""
 
 
 def _call_openai(prompt: str, api_key: str) -> Optional[str]:
@@ -128,26 +126,59 @@ def _call_openai(prompt: str, api_key: str) -> Optional[str]:
         'Authorization': f'Bearer {api_key}',
         'Content-Type': 'application/json',
     }
+    
+    developer_instruction = (
+        "You are a senior macroeconomic and on-chain analyst specializing in Bitcoin. "
+        "Your task is to analyze the daily index score and metrics to output a concise 2-3 sentence market commentary in English. "
+        "Synthesize the metrics using the following analytical framework:\n\n"
+        
+        "1. LONG-TERM STRUCTURAL VALUE (On-chain):\n"
+        "   - Evaluate NUPL (>0.5 means high unrealized profit / potential top; <0 means unrealized loss / bottom).\n"
+        "   - Evaluate MVRV Z-score (>4.0 indicates historical overvaluation; negative or near 0 indicates undervaluation).\n"
+        "   - Check RHODL Ratio (high values show wealth shift to retail FOMO; low values show smart money accumulation).\n"
+        "   - Check aSOPR (<1.0 shows retail panic selling at a loss / capitulation).\n\n"
+        
+        "2. SHORT-TERM SPECULATIVE PRESSURE & MOMENTUM (Technicals/Sentiment):\n"
+        "   - Check Funding Rate (high positive rate >0.015% shows excessive long leverage with long-squeeze risk; flat or negative shows healthy or fearful positioning).\n"
+        "   - Check Fear & Greed Index (>75 is extreme greed / local top warning; <25 is extreme fear / accumulation).\n"
+        "   - Check CipherB weekly divergences (weekly bearish/bullish divergences are powerful momentum shift warnings).\n\n"
+        
+        "3. MACRO LIQUIDITY & INSTITUTIONAL DEMAND (Flows/Macro):\n"
+        "   - Check ETF Flows (positive flows show institutional backing; sustained negative flows show cooling interest).\n"
+        "   - Check M2 Money Supply YoY (rising growth fuels risk assets; flat or contracting growth acts as a macro drag).\n"
+        "   - Check Yield Curve Spread (inverted spread <0% is a structural recession warning / macroeconomic headwind).\n\n"
+        
+        "ORCHESTRATION REGIMES to detect:\n"
+        "   - Leverage Squeeze Risk: High Funding Rate + High Fear & Greed, but flat/negative ETF flows & flat M2 growth (dangerous speculation without capital backstop).\n"
+        "   - Institutional Accumulation: High Fear & Greed / retail panic (aSOPR < 1), but strongly positive ETF flows and stable macro liquidity.\n"
+        "   - Liquidity-Driven Run: Growing M2 + positive ETF flows + moderate funding rates (healthy sustainable run).\n"
+        "   - Bear Market Bottom: MVRV Z-score near 0/negative + extreme fear + NUPL < 0 (high value accumulation).\n\n"
+        
+        "RESPONSE STRUCTURE:\n"
+        "   - Sentence 1: Summarize the long-term structural valuation (on-chain metrics status).\n"
+        "   - Sentence 2: Analyze the short-term speculative pressure (leverage/sentiment) and macro liquidity conditions.\n"
+        "   - Sentence 3: State the net risk profile (e.g., potential long-squeeze warning, institutional support, or macro headwinds).\n\n"
+        
+        "STRICT RULES:\n"
+        "   - Output exactly 2-3 sentences. Factual, professional, objective tone only.\n"
+        "   - Do NOT suggest any actions, buy/sell recommendations, or investment advice.\n"
+        "   - Do NOT use absolute words like 'safe', 'stable', 'secure', or 'guaranteed'.\n"
+        "   - Do NOT invent or extrapolate numbers. Do NOT use markdown bolding, italics, or bullet points."
+    )
+
     body = {
         'model': 'o3-mini',
         'messages': [
             {
                 'role': 'developer',
-                'content': (
-                    "You are a senior macroeconomic and on-chain analyst specializing in Bitcoin. "
-                    "Analyze the metrics provided by the user, weigh their combined significance, "
-                    "identify compounded risks or divergences, and output a concise 2-3 sentence summary of the "
-                    "current market state in English. "
-                    "STRICT RULES: Do NOT suggest actions or investment advice. Do NOT use terms like 'safe' or 'stable'. "
-                    "Do NOT invent numbers. Plain factual sentences only, no markdown, no bullet points."
-                )
+                'content': developer_instruction
             },
             {
                 'role': 'user',
                 'content': prompt
             }
         ],
-        'max_completion_tokens': 500,
+        'max_completion_tokens': 600,
     }
     last_exc = None
     for attempt in range(3):
@@ -167,7 +198,12 @@ def _call_openai(prompt: str, api_key: str) -> Optional[str]:
 def _translate_via_gemini(text: str, api_key: str) -> Optional[str]:
     url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
     headers = {"Content-Type": "application/json"}
-    prompt = f"Translate the following Bitcoin market commentary into Ukrainian. Keep it factual and natural, matching the style and meaning of the original text exactly. Do not add any extra commentary or explanations:\n\n{text}"
+    prompt = (
+        "Translate the following Bitcoin market commentary into Ukrainian. "
+        "Keep it factual and natural, matching the style, tone, and precise meaning of the original text exactly. "
+        "Do not add any extra commentary, explanations, or introductory/concluding phrases:\n\n"
+        f"{text}"
+    )
     body = {
         "contents": [{
             "parts": [{"text": prompt}]
