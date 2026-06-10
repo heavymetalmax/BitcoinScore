@@ -487,22 +487,66 @@ function riskZone(s) {
 
 const fmtPrice = p => '$' + Math.round(p).toLocaleString('en-US');
 
+// Map raw metric value → 0-100 risk score (mirrors scoring.py map_* functions)
+function mapScore(key, v) {
+  if (v == null) return null;
+  switch (key) {
+    case 'nupl': {
+      const c = Math.max(-50, Math.min(100, v));
+      return Math.round(((c + 50) / 150) * 100);
+    }
+    case 'mvrv': {
+      const c = Math.max(-2, Math.min(5, v));
+      return Math.round(((c + 2) / 7) * 100);
+    }
+    case 'asopr': {
+      const s = v <= 1.00
+        ? ((v - 0.88) / (1.00 - 0.88)) * 50
+        : 50 + ((v - 1.00) / (1.12 - 1.00)) * 50;
+      return Math.round(Math.max(0, Math.min(100, s)));
+    }
+    case 'cvdd': {
+      const c = Math.max(1, Math.min(5, v));
+      return Math.round(Math.log10(c) / Math.log10(5) * 100);
+    }
+    case 'rhodl': {
+      const c = Math.max(100, Math.min(10000, v));
+      return Math.round((Math.log10(c) - 2) / (4 - 2) * 100);
+    }
+    case 'cipherb':
+      return Math.round(Math.max(0, Math.min(100, v)));
+    case 'mayer': {
+      const c = Math.max(0.5, Math.min(2.1, v));
+      return Math.round((c - 0.5) / 1.6 * 100);
+    }
+    case 'yield_curve': {
+      const c = Math.max(-1.0, Math.min(2.0, v));
+      return Math.round(((2.0 - c) / 3.0) * 100);
+    }
+    case 'etf': {
+      if (v <= -2000) return 0;
+      if (v >= 4000)  return 100;
+      const s = v < 750
+        ? ((v - (-2000)) / (750 - (-2000))) * 50
+        : 50 + ((v - 750) / (4000 - 750)) * 50;
+      return Math.round(Math.max(0, Math.min(100, s)));
+    }
+    case 'fg':
+      return Math.round(Math.max(0, Math.min(100, v)));
+    case 'm2': {
+      const c = Math.max(-5, Math.min(10, v));
+      return Math.round(((10 - c) / 15) * 100);
+    }
+    default: return null;
+  }
+}
+
 function getSignal(key, v) {
-  if (v == null) return 'neutral';
-  const rules = {
-    mvrv:    v => v <= 1.5 ? 'bullish' : v <= 3.0 ? 'neutral' : 'bearish',
-    nupl:    v => v <= 25  ? 'bullish' : v <= 50  ? 'neutral' : 'bearish',
-    rhodl:   v => v <= 2000 ? 'bullish' : v <= 50000 ? 'neutral' : 'bearish',
-    yield_curve: v => v > 0.5 ? 'bullish' : v >= 0 ? 'neutral' : 'bearish',
-    etf:     v => v > 500  ? 'bullish' : v > -1000 ? 'neutral' : 'bearish',
-    fg:      v => v <= 25  ? 'bullish' : v <= 60  ? 'neutral' : 'bearish',
-    m2:      v => v > 4    ? 'bullish' : v >= 0   ? 'neutral' : 'bearish',
-    cipherb: v => v <= 30  ? 'bullish' : v <= 60  ? 'neutral' : 'bearish',
-    asopr:   v => v < 0.99 ? 'bullish' : v <= 1.02 ? 'neutral' : 'bearish',
-    cvdd:    v => v <= 1.0 ? 'bullish' : v <= 1.5  ? 'neutral' : 'bearish',
-    mayer:   v => v <= 0.9 ? 'bullish' : v <= 1.5  ? 'neutral' : 'bearish',
-  };
-  return (rules[key] || (() => 'neutral'))(v);
+  const score = mapScore(key, v);
+  if (score == null) return 'neutral';
+  if (score < 35) return 'bullish';
+  if (score < 65) return 'neutral';
+  return 'bearish';
 }
 
 const SIG_LABELS = {
