@@ -409,7 +409,7 @@
       align-items: center;
       justify-content: center;
       color: #ffffff;
-      cursor: help;
+      cursor: pointer;
       transition: opacity 0.2s ease;
     }
 
@@ -1287,7 +1287,7 @@
 
             <!-- Main Score group (centered) + Yesterday/7d (abs right) -->
             <div class="display-main-row">
-              <div id="s-warn" class="alert-icon-wrap" style="display:none;" onclick="event.stopPropagation()" title="One or more key indicators contradicts the overall index direction">
+              <div id="s-warn" class="alert-icon-wrap" style="display:none;" onclick="event.stopPropagation(); showMetricHelp(this.dataset.alertType);" title="">
                 <svg class="alert-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                   <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
                   <path d="M12 9v4" />
@@ -1940,6 +1940,18 @@
       m2:      { title: { en: 'Global M2 YoY Growth', ua: 'Глобальний M2 YoY' },
                  text:  { en: 'Year-over-year change in global money supply (US, EU, China, Japan). High M2 expansion = liquidity inflows, low risk. Negative M2 = monetary contraction, higher risk. Inverted logic: higher M2 → lower score. Weight: 10% of Tech/Macro.',
                            ua: 'Річна зміна глобальної грошової маси M2. Зростання M2 = розширення ліквідності (низький ризик). Падіння = монетарне стиснення (вищий ризик). Обернена логіка. Вага: 10% від Tech/Macro.' } },
+      alert_tactical_buy: {
+        title: { en: 'Tactical Buy Signal', ua: 'Тактичний Сигнал Купівлі' },
+        text:  { en: 'A low risk index combined with a negative perpetual funding rate signals leverage capitulation — over-leveraged short positions are being squeezed out. Historically this creates a short-term tactical entry window, even if the broader macro picture remains uncertain.',
+                  ua: 'Низький індекс ризику + відʼємна ставка фандингу сигналізують про капітуляцію плеча: надмірно закредитовані шорти вимиваються з ринку. Історично це відкриває короткострокове тактичне вікно для входу навіть за нечіткого макрофону.' } },
+      alert_overheat: {
+        title: { en: 'Leverage Overheat', ua: 'Перегрів Плеча' },
+        text:  { en: 'A high risk index combined with strongly positive funding rates means the market is crowded with leveraged long positions. This increases the probability of a sharp correction if sentiment turns — longs will be force-liquidated, amplifying any move down.',
+                  ua: 'Високий індекс ризику + сильно позитивна ставка фандингу: ринок переповнений леверидж-лонгами. Це підвищує ймовірність різкої корекції при зміні настроїв — примусові ліквідації посилять будь-який рух вниз.' } },
+      alert_contradiction: {
+        title: { en: 'Indicator Contradiction', ua: 'Розбіжність Індикаторів' },
+        text:  { en: 'One or more individual indicators points in the opposite direction from the overall index. The composite score is still the best single summary, but the divergence signals uncertainty — treat the current reading with extra caution and check the on-chain and tech/macro sub-scores for details.',
+                  ua: 'Один або кілька індикаторів вказують у протилежному від загального напрямку. Підсумковий бал — найкраще зведення, але розбіжність свідчить про невизначеність. Перевірте підбали ончейн та тех/макро, щоб побачити, де саме є суперечність.' } },
     };
 
     function showMetricHelp(key) {
@@ -2239,16 +2251,18 @@
         if (fr && fr.latest != null) {
           if (data.final_score <= 30 && fr.latest < 0) {
             icon = COIN_SVG;
-            color = 'var(--text)'; // Same color as numbers
-            tip = lang === 'ua' 
-              ? 'Тактична купівля: низький індекс + відʼємний funding (капітуляція плеча)' 
+            color = 'var(--text)';
+            tip = lang === 'ua'
+              ? 'Тактична купівля: низький індекс + відʼємний funding (капітуляція плеча)'
               : 'Tactical buy: low index + negative funding (leverage capitulation)';
+            warnEl.dataset.alertType = 'alert_tactical_buy';
           } else if (data.final_score >= 50 && fr.latest >= 0.05) {
             icon = FLAME_SVG;
-            color = '#ef5350'; // Overheat red
+            color = '#ef5350';
             tip = lang === 'ua'
               ? 'Перегрів плеча: високий індекс + перегріті лонги'
               : 'Leverage overheat: high index + crowded long funding';
+            warnEl.dataset.alertType = 'alert_overheat';
           }
         }
 
@@ -2267,6 +2281,7 @@
             tip = lang === 'ua'
               ? 'Розбіжність: один або кілька індикаторів суперечать загальному тренду'
               : 'Contradiction: one or more key indicators contradicts the overall index direction';
+            warnEl.dataset.alertType = 'alert_contradiction';
           }
         }
 
