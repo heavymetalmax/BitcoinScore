@@ -1505,13 +1505,12 @@
     <!-- Theme Switch -->
     <div class="settings-group">
       <span class="settings-label">
-        <span class="en">Theme Style</span>
-        <span class="ua">Стиль теми</span>
+        <span class="en">Style</span>
+        <span class="ua">Стиль</span>
       </span>
       <div class="settings-options">
-        <button id="drawer-btn-style-classic" class="option-btn" onclick="setStyle('classic')">Classic</button>
-        <button id="drawer-btn-style-modern" class="option-btn" onclick="setStyle('modern')">Modern</button>
-        <button id="drawer-btn-style-minimal" class="option-btn active" onclick="setStyle('minimal')">Minimal</button>
+        <button id="drawer-btn-style-minimal" class="option-btn" onclick="setStyle('minimal')">Minimal</button>
+        <button id="drawer-btn-style-max" class="option-btn active" onclick="setStyle('max')">Open</button>
       </div>
     </div>
 
@@ -1622,13 +1621,10 @@
   <script>
     // Theme switching integration
     function setStyle(style) {
-      if (style === 'classic') {
-        location.href = 'classic.html';
-      } else if (style === 'modern') {
-        localStorage.setItem('bbr-style', 'modern');
-        location.href = 'index.html';
+      if (style === 'minimal') {
+        location.href = 'minimal.html';
       } else {
-        localStorage.setItem('bbr-style', 'minimal');
+        localStorage.setItem('bbr-style', 'max');
         updateThemeClass();
       }
     }
