@@ -190,10 +190,11 @@
   .mobile-menu-links a:hover, .mobile-menu-links a.active { color: var(--text); background: var(--surface2); }
 
   @media (max-width: 900px) {
+    body { background: var(--surface); }
+    main { background: var(--bg); padding: 20px 16px 48px; }
     .nav-inner { padding: 0 16px; }
     .nav-links { display: none; }
     .view-switch { display: none; }
-    main { padding: 20px 16px 48px; }
     .hero { grid-template-columns: 1fr; }
     .bottom-grid { grid-template-columns: 1fr; }
     .comp-header, .comp-row { grid-template-columns: 1fr 90px 80px; }
