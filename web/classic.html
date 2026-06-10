@@ -33,11 +33,11 @@
   .nav-links a { padding: 6px 14px; border-radius: 6px; text-decoration: none; color: var(--muted2); font-size: 13px; font-weight: 500; transition: color 0.15s, background 0.15s; }
   .nav-links a:hover, .nav-links a.active { color: var(--text); background: var(--surface2); }
   .nav-right { display: flex; align-items: center; gap: 8px; }
-  .theme-btn { width: 32px; height: 32px; border-radius: 7px; border: none; background: var(--surface2); color: var(--muted2); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
-  .theme-btn:hover { color: var(--text); background: var(--border2); }
+  .theme-btn { width: 32px; height: 32px; border: none; background: none; color: var(--muted2); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: color 0.15s; }
+  .theme-btn:hover { color: var(--text); }
   .theme-btn svg { display: block; }
-  .lang-btn { display: flex; align-items: center; gap: 5px; padding: 5px 10px; border-radius: 7px; border: none; background: var(--surface2); color: var(--muted2); cursor: pointer; font-size: 12px; font-weight: 500; font-family: inherit; transition: all 0.15s; }
-  .lang-btn:hover { color: var(--text); background: var(--border2); }
+  .lang-btn { display: flex; align-items: center; gap: 5px; padding: 4px 8px; border: none; background: none; color: var(--muted2); cursor: pointer; font-size: 12px; font-weight: 500; font-family: inherit; transition: color 0.15s; }
+  .lang-btn:hover { color: var(--text); }
   .lang-btn svg { display: block; flex-shrink: 0; }
 
   main { max-width: 1200px; margin: 0 auto; padding: 32px 32px 64px; }
@@ -171,11 +171,10 @@
 <nav>
   <div class="nav-logo">BTCBRI <span>Bitcoin Buy Risk Index</span></div>
   <div class="nav-links">
-    <a href="classic.html" class="active"><span class="en">Overview</span><span class="ua">Огляд</span></a>
-    <a href="#history"><span class="en">History</span><span class="ua">Історія</span></a>
-    <a href="compare.html"><span class="en">Compare</span><span class="ua">Порівняння</span></a>
     <a href="about.html#philosophy"><span class="en">About</span><span class="ua">Про індикатор</span></a>
     <a href="about.html#construction"><span class="en">Methodology</span><span class="ua">Методологія</span></a>
+    <a href="compare.html"><span class="en">Compare</span><span class="ua">Порівняння</span></a>
+    <a href="#history"><span class="en">History</span><span class="ua">Історія</span></a>
   </div>
   <div class="nav-right">
     <button class="theme-btn" id="themeToggle" title="Toggle theme">
