@@ -29,7 +29,8 @@
   nav { height: 56px; border-bottom: 1px solid var(--border); background: var(--surface); position: sticky; top: 0; z-index: 100; }
   .nav-inner { max-width: 1200px; margin: 0 auto; padding: 0 32px; height: 100%; display: flex; align-items: center; }
   .nav-logo { font-weight: 700; font-size: 15px; letter-spacing: 0.04em; margin-right: 40px; flex-shrink: 0; }
-  .nav-logo span { color: var(--muted); font-weight: 400; font-size: 12px; display: block; letter-spacing: 0; }
+  .nav-logo span:not(#logo-bri) { color: var(--muted); font-weight: 400; font-size: 12px; display: block; letter-spacing: 0; }
+  #logo-bri { transition: color 0.3s ease; }
   .nav-links { display: flex; gap: 4px; flex: 1; }
   .nav-links a { padding: 6px 14px; border-radius: 6px; text-decoration: none; color: var(--muted2); font-size: 13px; font-weight: 500; transition: color 0.15s, background 0.15s; }
   .nav-links a:hover, .nav-links a.active { color: var(--text); background: var(--surface2); }
@@ -180,14 +181,36 @@
     .comp-header span:nth-child(3),
     .comp-header span:nth-child(4) { display: none; }
     .gauge-val { font-size: 60px; }
+    .menu-toggle-btn { display: flex; }
+    footer { flex-direction: column; align-items: flex-start; gap: 20px; }
+    .footer-links { flex-direction: column; gap: 12px; align-items: flex-start; width: 100%; }
   }
+
+  /* Mobile Menu Styles */
+  .menu-toggle-btn { display: none; width: 32px; height: 32px; border: none; background: none; color: var(--muted2); cursor: pointer; align-items: center; justify-content: center; transition: color 0.15s; }
+  .menu-toggle-btn:hover { color: var(--text); }
+  .menu-toggle-btn svg { display: block; }
+  
+  .mobile-menu-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; display: none; opacity: 0; transition: opacity 0.2s ease; }
+  .mobile-menu-backdrop.open { display: block; opacity: 1; }
+  
+  .mobile-menu { position: fixed; top: 0; right: -280px; width: 280px; height: 100%; background: var(--surface); border-left: 1px solid var(--border); z-index: 201; transition: right 0.2s ease; padding: 24px; display: flex; flex-direction: column; gap: 24px; box-shadow: var(--shadow); }
+  .mobile-menu.open { right: 0; }
+  
+  .mobile-menu-header { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 16px; }
+  .mobile-menu-title { font-weight: 700; font-size: 15px; }
+  .mobile-menu-close { background: none; border: none; color: var(--muted2); font-size: 24px; cursor: pointer; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; }
+  
+  .mobile-menu-links { display: flex; flex-direction: column; gap: 8px; }
+  .mobile-menu-links a { text-decoration: none; color: var(--muted2); font-size: 14px; font-weight: 500; padding: 10px 14px; border-radius: 6px; transition: color 0.15s, background 0.15s; }
+  .mobile-menu-links a:hover, .mobile-menu-links a.active { color: var(--text); background: var(--surface2); }
 </style>
 </head>
 <body class="lang-en">
 
 <nav>
   <div class="nav-inner">
-    <div class="nav-logo">BTCBRI <span>Bitcoin Buy Risk Index</span></div>
+    <div class="nav-logo">BTC<span id="logo-bri">BRI</span> <span>Bitcoin Buy Risk Index</span></div>
     <div class="nav-links">
       <a href="about.html#philosophy"><span class="en">About</span><span class="ua">Про індикатор</span></a>
       <a href="about.html#construction"><span class="en">Methodology</span><span class="ua">Методологія</span></a>
@@ -205,6 +228,9 @@
       <button class="lang-btn" id="langToggle">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="7" cy="7" r="5.5"/><path d="M7 1.5C7 1.5 5.5 4 5.5 7s1.5 5.5 1.5 5.5"/><path d="M7 1.5C7 1.5 8.5 4 8.5 7s-1.5 5.5-1.5 5.5"/><line x1="1.6" y1="5.2" x2="12.4" y2="5.2"/><line x1="1.6" y1="8.8" x2="12.4" y2="8.8"/></svg>
         <span id="lang-label">EN</span>
+      </button>
+      <button class="menu-toggle-btn" id="menuToggle" onclick="toggleMobileMenu(true)" title="Menu">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
       </button>
     </div>
   </div>
@@ -477,6 +503,21 @@
       </div>
     </div>
   </div>
+
+  <!-- Mobile Menu Drawer -->
+  <div class="mobile-menu-backdrop" id="menuBackdrop" onclick="toggleMobileMenu(false)"></div>
+  <div class="mobile-menu" id="mobileMenu">
+    <div class="mobile-menu-header">
+      <div class="mobile-menu-title">BTCBRI</div>
+      <button class="mobile-menu-close" onclick="toggleMobileMenu(false)">&times;</button>
+    </div>
+    <div class="mobile-menu-links">
+      <a href="about.html#philosophy" onclick="toggleMobileMenu(false)"><span class="en">About</span><span class="ua">Про індикатор</span></a>
+      <a href="about.html#construction" onclick="toggleMobileMenu(false)"><span class="en">Methodology</span><span class="ua">Методологія</span></a>
+      <a href="compare.html" onclick="toggleMobileMenu(false)"><span class="en">Compare</span><span class="ua">Порівняння</span></a>
+      <a href="#history" onclick="toggleMobileMenu(false)"><span class="en">History</span><span class="ua">Історія</span></a>
+    </div>
+  </div>
 </main>
 
 <footer>
@@ -490,6 +531,22 @@
 </footer>
 
 <script>
+// ─── MOBILE MENU ───────────────────────────────────────
+function toggleMobileMenu(open) {
+  const menu = document.getElementById('mobileMenu');
+  const backdrop = document.getElementById('menuBackdrop');
+  if (menu) menu.classList.toggle('open', open);
+  if (backdrop) {
+    if (open) {
+      backdrop.style.display = 'block';
+      setTimeout(() => backdrop.classList.add('open'), 10);
+    } else {
+      backdrop.classList.remove('open');
+      setTimeout(() => backdrop.style.display = 'none', 200);
+    }
+  }
+}
+
 // ─── THEME ─────────────────────────────────────────────
 const SVG_SUN  = '<svg width="15" height="15" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="7.5" cy="7.5" r="2.8"/><line x1="7.5" y1="1" x2="7.5" y2="2.6"/><line x1="7.5" y1="12.4" x2="7.5" y2="14"/><line x1="1" y1="7.5" x2="2.6" y2="7.5"/><line x1="12.4" y1="7.5" x2="14" y2="7.5"/><line x1="2.75" y1="2.75" x2="3.86" y2="3.86"/><line x1="11.14" y1="11.14" x2="12.25" y2="12.25"/><line x1="12.25" y1="2.75" x2="11.14" y2="3.86"/><line x1="3.86" y1="11.14" x2="2.75" y2="12.25"/></svg>';
 const SVG_MOON = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9.5A5.5 5.5 0 0 1 4.5 2a5.5 5.5 0 1 0 7.5 7.5z"/></svg>';
@@ -747,6 +804,8 @@ async function loadData() {
 
   const score = data.final_score ?? 0;
   const z = riskZone(score);
+  const logoBri = document.getElementById('logo-bri');
+  if (logoBri) logoBri.style.color = z.color;
   const m = data.metrics || {};
 
   // Score card
