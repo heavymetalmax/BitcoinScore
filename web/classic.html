@@ -352,7 +352,7 @@
 
   <!-- COMPONENTS -->
   <div class="section-header">
-    <span class="section-title"><span class="en">Components</span><span class="ua">Компоненти</span></span>
+    <span class="section-title"><div class="comp-group-dot" id="dot-final" style="display:inline-block;margin-right:7px;vertical-align:middle;position:relative;top:-1px"></div><span class="en">Components</span><span class="ua">Компоненти</span></span>
   </div>
 
   <div class="components-grid">
@@ -1118,15 +1118,26 @@ async function loadData() {
     }
   });
 
-  const updateHeader = (id, baseEn, baseUa, cont) => {
+  // Group averages for dot coloring
+  const groupAvg = (items) => {
+    let s = 0, w = 0;
+    items.forEach(item => {
+      const v = getFinalScoreForKey(item.key, item.val);
+      if (v != null) { s += v * item.w; w += item.w; }
+    });
+    return w > 0 ? s / w : null;
+  };
+  const techAvg  = groupAvg(techList.filter(i => i.group === 'tech'));
+  const macroAvg = groupAvg(techList.filter(i => i.group === 'macro'));
+
+  const updateHeader = (id, baseEn, baseUa, cont, avg) => {
     const el = document.getElementById(id);
     if (el) {
       const pts = Math.round(cont);
-      const dot = el.querySelector('.comp-group-dot');
-      const dotBg = dot ? dot.style.background : '#888';
+      const dotColor = avg != null ? riskZone(Math.round(avg)).color : '#888';
       el.innerHTML = `
         <div style="display: flex; align-items: center; gap: 8px;">
-          <div class="comp-group-dot" style="background:${dotBg}"></div>
+          <div class="comp-group-dot" style="background:${dotColor}"></div>
           <span class="en">${baseEn}</span>
           <span class="ua">${baseUa}</span>
         </div>
@@ -1135,9 +1146,13 @@ async function loadData() {
     }
   };
 
-  updateHeader('hdr-onchain', 'On-Chain', 'Он-Чейн', ocContribution);
-  updateHeader('hdr-tech', 'Technical', 'Технічний', techGroupCont);
-  updateHeader('hdr-macro', 'Macro', 'Макро', macroGroupCont);
+  updateHeader('hdr-onchain', 'On-Chain', 'Он-Чейн', ocContribution, ocAvg);
+  updateHeader('hdr-tech', 'Technical', 'Технічний', techGroupCont, techAvg);
+  updateHeader('hdr-macro', 'Macro', 'Макро', macroGroupCont, macroAvg);
+
+  // Final (composite) section dot
+  const dotFinal = document.getElementById('dot-final');
+  if (dotFinal && score != null) dotFinal.style.background = riskZone(score).color;
 
   // History
   historyScores = (data.score_history || []).filter(e => e.score != null);
