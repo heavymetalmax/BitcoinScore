@@ -67,7 +67,7 @@
   .gauge-card { display: flex; flex-direction: column; align-items: stretch; justify-content: space-between; padding: 24px 28px 20px; }
   .gauge-arc-wrap { position: relative; width: 100%; }
   .gauge-svg { display: block; width: 100%; overflow: visible; }
-  .gauge-arc-number { position: absolute; bottom: 28%; left: 0; right: 0; display: flex; justify-content: center; align-items: baseline; gap: 4px; }
+  .gauge-arc-number { position: absolute; top: 54%; left: 0; right: 0; display: flex; justify-content: center; align-items: center; transform: translateY(-50%); }
   .gauge-val { font-size: 80px; font-weight: 700; letter-spacing: -0.04em; line-height: 1; }
   .gauge-denom { font-size: 20px; color: var(--muted); font-weight: 400; }
   .gauge-denom-spacer { font-size: 20px; font-weight: 400; visibility: hidden; pointer-events: none; }
@@ -125,7 +125,7 @@
   .signal-mod   { background: #EAB30818; color: #CA9A0A; border: 1px solid #EAB30830; }
   .signal-high  { background: #F9731618; color: #F97316; border: 1px solid #F9731630; }
   .signal-vhigh { background: #EF444418; color: #EF4444; border: 1px solid #EF444430; }
-  .comp-group-hdr { padding: 7px 20px; background: #FFFFFF; border-bottom: 1px solid var(--border); font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #000000; display: grid; grid-template-columns: 220px 100px 1fr 72px 82px; column-gap: 16px; align-items: center; }
+  .comp-group-hdr { padding: 7px 20px; background: var(--surface); border-bottom: 1px solid var(--border); font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text); display: grid; grid-template-columns: 220px 100px 1fr 72px 82px; column-gap: 16px; align-items: center; }
   .comp-group-hdr + .comp-row { border-top: none; }
   .comp-group-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
 
@@ -278,7 +278,7 @@
           <circle id="gauge-needle" cx="20" cy="120" r="5" fill="var(--bg)" stroke="#22C55E" stroke-width="2" vector-effect="non-scaling-stroke"/>
         </svg>
         <div class="gauge-arc-number">
-          <span class="gauge-denom-spacer" aria-hidden="true">/100</span><span class="gauge-val" id="gauge-val">—</span><span class="gauge-denom">/100</span>
+          <span class="gauge-val" id="gauge-val">—</span>
         </div>
       </div>
       <div class="gauge-scale">
