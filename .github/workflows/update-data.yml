@@ -11,6 +11,7 @@ env:
   CMC_API_KEY: ${{ secrets.CMC_API_KEY }}
   PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
   GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+  OPENAI_API_KEY: ${{ secrets.gpt_api }}
 
 jobs:
   update:
