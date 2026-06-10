@@ -357,7 +357,7 @@
     </div>
 
     <!-- On-Chain -->
-    <div class="comp-group-hdr"><div class="comp-group-dot" style="background:#8B5CF6"></div><span class="en">On-Chain</span><span class="ua">Он-Чейн</span></div>
+    <div class="comp-group-hdr" id="hdr-onchain"><div class="comp-group-dot" style="background:#8B5CF6"></div><span class="en">On-Chain</span><span class="ua">Он-Чейн</span></div>
     <div class="comp-row">
       <div><div class="comp-name">NUPL</div><div class="comp-sub"><span class="en">Net Unrealized Profit/Loss</span><span class="ua">Нереалізований прибуток/збиток</span></div></div>
       <div class="comp-value"><div class="val" id="v-nupl">—</div><div class="range" id="r-nupl"></div></div>
@@ -395,7 +395,7 @@
     </div>
 
     <!-- Tech -->
-    <div class="comp-group-hdr"><div class="comp-group-dot" style="background:#3B82F6"></div><span class="en">Technical</span><span class="ua">Технічний</span></div>
+    <div class="comp-group-hdr" id="hdr-tech"><div class="comp-group-dot" style="background:#3B82F6"></div><span class="en">Technical</span><span class="ua">Технічний</span></div>
     <div class="comp-row">
       <div><div class="comp-name">CipherB</div><div class="comp-sub"><span class="en">Wavetrend Oscillator (weekly)</span><span class="ua">Хвильовий осцилятор (тижнево)</span></div></div>
       <div class="comp-value"><div class="val" id="v-cipherb">—</div><div class="range" id="r-cipherb"></div></div>
@@ -412,7 +412,7 @@
     </div>
 
     <!-- Macro -->
-    <div class="comp-group-hdr"><div class="comp-group-dot" style="background:#F59E0B"></div><span class="en">Macro</span><span class="ua">Макро</span></div>
+    <div class="comp-group-hdr" id="hdr-macro"><div class="comp-group-dot" style="background:#F59E0B"></div><span class="en">Macro</span><span class="ua">Макро</span></div>
     <div class="comp-row">
       <div><div class="comp-name"><span class="en">ETF Net Flows (14D)</span><span class="ua">ETF Потоки (14Д)</span></div><div class="comp-sub"><span class="en">US Spot ETF Net Flows</span><span class="ua">Чисті потоки спот ETF США</span></div></div>
       <div class="comp-value"><div class="val" id="v-etf">—</div><div class="range" id="r-etf"></div></div>
@@ -1049,6 +1049,70 @@ async function loadData() {
   const frObj = m.funding_rate && m.funding_rate.value ? m.funding_rate.value : null;
   const frAvg = frObj ? (frObj.avg_7d != null ? frObj.avg_7d : frObj.latest) : null;
   updateGaugeTags(score, vals, keys, frAvg);
+
+  // Calculate exact contributions of each block to the overall index
+  const getFinalScoreForKey = (key, val) => {
+    if (key === 'nupl' && ac.nupl && ac.nupl.blended != null) return ac.nupl.blended;
+    if (key === 'mvrv' && ac.mvrv && ac.mvrv.blended != null) return ac.mvrv.blended;
+    if (key === 'mayer' && ac.mayer && ac.mayer.blended != null) return ac.mayer.blended;
+    return mapScore(key, val);
+  };
+
+  const ocList = [
+    { key: 'nupl', val: nupl, w: 0.30 },
+    { key: 'mvrv', val: mvrv, w: 0.20 },
+    { key: 'rhodl', val: rhodl, w: 0.20 },
+    { key: 'cvdd', val: cvdd, w: 0.15 },
+    { key: 'asopr', val: asopr, w: 0.15 }
+  ];
+
+  const techList = [
+    { key: 'cipherb', val: cbScore, w: 0.40, group: 'tech' },
+    { key: 'mayer', val: mayer, w: 0.20, group: 'tech' },
+    { key: 'etf', val: etfVal, w: 0.10, group: 'macro' },
+    { key: 'fg', val: fgVal, w: 0.10, group: 'macro' },
+    { key: 'yield_curve', val: ycVal, w: 0.10, group: 'macro' },
+    { key: 'm2', val: m2Val, w: 0.10, group: 'macro' }
+  ];
+
+  let ocSum = 0, ocW = 0;
+  ocList.forEach(item => {
+    const s = getFinalScoreForKey(item.key, item.val);
+    if (s != null) { ocSum += s * item.w; ocW += item.w; }
+  });
+  const ocAvg = ocW > 0 ? (ocSum / ocW) : 0;
+  const ocContribution = ocAvg * 0.5;
+
+  let techTotalSum = 0, techTotalW = 0;
+  techList.forEach(item => {
+    const s = getFinalScoreForKey(item.key, item.val);
+    if (s != null) { techTotalSum += s * item.w; techTotalW += item.w; }
+  });
+
+  let techGroupCont = 0;
+  let macroGroupCont = 0;
+  techList.forEach(item => {
+    const s = getFinalScoreForKey(item.key, item.val);
+    if (s != null && techTotalW > 0) {
+      const cont = s * (item.w / techTotalW) * 0.5;
+      if (item.group === 'tech') techGroupCont += cont;
+      if (item.group === 'macro') macroGroupCont += cont;
+    }
+  });
+
+  const updateHeader = (id, baseEn, baseUa, cont) => {
+    const el = document.getElementById(id);
+    if (el) {
+      const pts = Math.round(cont);
+      const dot = el.querySelector('.comp-group-dot');
+      const dotBg = dot ? dot.style.background : '#888';
+      el.innerHTML = `<div class="comp-group-dot" style="background:${dotBg}"></div><span class="en">${baseEn} (+${pts})</span><span class="ua">${baseUa} (+${pts})</span>`;
+    }
+  };
+
+  updateHeader('hdr-onchain', 'On-Chain', 'Он-Чейн', ocContribution);
+  updateHeader('hdr-tech', 'Technical', 'Технічний', techGroupCont);
+  updateHeader('hdr-macro', 'Macro', 'Макро', macroGroupCont);
 
   // History
   historyScores = (data.score_history || []).filter(e => e.score != null);
