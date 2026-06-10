@@ -173,10 +173,16 @@ def _call_openai(prompt: str, api_key: str) -> Optional[str]:
         "  S3: State the net risk picture. "
         "    If any hidden risk pattern is present "
         "    (CipherB bearish div in moderate zone, ETF/price decoupling, "
-        "    adaptive score gap >12 pts, re-steepening yield curve), name it explicitly.\n\n"
+        "    adaptive score gap >12 pts, re-steepening yield curve), name it explicitly.\n"
+        "  S4: Assess the TREND CONTINUATION probability for the current index direction. "
+        "    Is the present trend (rising/falling/flat score) likely to extend, stall, or reverse?\n"
+        "    Base it on: momentum alignment across OC and TM groups, "
+        "    whether the regime supports continuation, and any divergence signals.\n"
+        "    Use qualitative language: 'high/moderate/low probability of continuation' "
+        "    and name the one factor most likely to confirm or invalidate the trend.\n\n"
 
         "STRICT RULES:\n"
-        "  - Exactly 3 sentences. No bullet points, headers, or markdown.\n"
+        "  - Exactly 4 sentences. No bullet points, headers, or markdown.\n"
         "  - Use metric values as evidence; do NOT enumerate every metric.\n"
         "  - Do NOT suggest buy/sell actions or investment advice.\n"
         "  - Do NOT use: safe, stable, secure, guaranteed, certain.\n"
@@ -185,6 +191,7 @@ def _call_openai(prompt: str, api_key: str) -> Optional[str]:
 
     body = {
         'model': 'o3-mini',
+        'reasoning_effort': 'low',
         'messages': [
             {
                 'role': 'developer',
@@ -195,7 +202,7 @@ def _call_openai(prompt: str, api_key: str) -> Optional[str]:
                 'content': prompt
             }
         ],
-        'max_completion_tokens': 600,
+        'max_completion_tokens': 5000,
     }
     last_exc = None
     for attempt in range(3):

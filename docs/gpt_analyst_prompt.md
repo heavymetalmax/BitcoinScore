@@ -253,7 +253,13 @@ Be specific: always cite the actual metric values.
    List each fired protocol with a 1-sentence explanation.
    If no protocols fire, omit this section entirely.
 
-7. NET ASSESSMENT  (1 sentence)
+7. TREND CONTINUATION  (1–2 sentences)
+   Assess the probability that the current index direction (rising/falling/flat)
+   extends. Reference momentum alignment between OC and TM groups, active regime,
+   and any divergence signals. Use language like "high/moderate/low probability
+   of continuation" and name the single factor most likely to confirm or invalidate it.
+
+8. NET ASSESSMENT  (1 sentence)
    Overall risk posture. No investment advice or action recommendations.
 
 ─────────────────────────────────────────────────────
