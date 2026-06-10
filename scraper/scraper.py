@@ -455,6 +455,8 @@ def main():
         except Exception as e:
             print('Failed to compute zone forecast:', e)
         # ── Gemini commentary ──────────────────────────────────────────────────
+        import sys
+        print('Commentary: starting…', flush=True)
         try:
             from .gemini_commentary import generate_commentary
             from .scoring import build_slider_map
@@ -462,8 +464,11 @@ def main():
             commentary = generate_commentary(p, sm)
             if commentary:
                 p['commentary'] = commentary
+                print('Commentary: OK', flush=True)
+            else:
+                print('Commentary: generate_commentary returned None', flush=True)
         except Exception as e:
-            print(f'Gemini commentary failed: {e}')
+            print(f'Commentary: exception — {e}', flush=True)
         write_json('data/data.json', p)
         print(f"Scores: onchain={scores['onchain_score']}  tech={scores['tech_score']}  final={scores['final_score']}")
         for mk, mv in (scores.get('adaptive') or {}).items():

@@ -206,8 +206,8 @@ def _call_openai(prompt: str, api_key: str) -> Optional[str]:
             return resp.json()['choices'][0]['message']['content'].strip()
         except Exception as exc:
             last_exc = exc
-            print(f'OpenAI o3-mini attempt {attempt + 1} failed: {exc}')
-    print(f'OpenAI o3-mini call failed after 3 attempts: {last_exc}')
+            print(f'OpenAI o3-mini attempt {attempt + 1} failed: {exc}', flush=True)
+    print(f'OpenAI o3-mini call failed after 3 attempts: {last_exc}', flush=True)
     return None
 
 
