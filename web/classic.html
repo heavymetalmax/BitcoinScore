@@ -4,15 +4,19 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>BTCBRI — Bitcoin Buy Risk Index</title>
+<script>
+  localStorage.setItem('bbr-style', 'classic');
+</script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
   :root[data-theme="dark"] {
     --bg: #0A0A0F; --surface: #111118; --surface2: #18181F;
     --border: #ffffff0f; --border2: #ffffff18;
-    --text: #F0F0F5; --muted: #6B6B7E; --muted2: #9494A8;
+    --text: #CCCCCC; --muted: #6B6B7E; --muted2: #9494A8;
     --shadow: 0 1px 3px #00000060, 0 8px 32px #00000040;
-    --hdr-bg: #22222f; --hdr-text: #F0F0F5;
+    --hdr-bg: #22222f; --hdr-text: #CCCCCC;
+    --logo-text: #FFFFFF;
   }
   :root[data-theme="light"] {
     --bg: #F4F4F8; --surface: #FFFFFF; --surface2: #F0F0F6;
@@ -20,6 +24,7 @@
     --text: #0A0A0F; --muted: #888899; --muted2: #555566;
     --shadow: 0 1px 3px #00000010, 0 8px 32px #00000008;
     --hdr-bg: #FFFFFF; --hdr-text: #000000;
+    --logo-text: #0A0A0F;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -32,7 +37,7 @@
 
   nav { height: 56px; border-bottom: 1px solid var(--border); background: var(--surface); position: sticky; top: 0; z-index: 100; }
   .nav-inner { max-width: 1200px; margin: 0 auto; padding: 0 32px; height: 100%; display: flex; align-items: center; }
-  .nav-logo { font-weight: 700; font-size: 15px; letter-spacing: 0.04em; margin-right: 40px; flex-shrink: 0; }
+  .nav-logo { font-weight: 700; font-size: 15px; letter-spacing: 0.04em; margin-right: 40px; flex-shrink: 0; color: var(--logo-text); }
   .nav-logo span:not(#logo-bri) { color: var(--muted); font-weight: 400; font-size: 12px; display: block; letter-spacing: 0; }
   #logo-bri, #footer-logo-bri { transition: color 0.3s ease; }
   .nav-links { display: flex; gap: 4px; flex: 1; }
@@ -167,7 +172,7 @@
   .disc-close { position: absolute; top: 16px; right: 16px; width: 32px; height: 32px; border-radius: 50%; background: var(--surface2); border: 1px solid var(--border2); color: var(--muted2); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; }
 
   footer { border-top: 1px solid var(--border); padding: 24px 32px; display: flex; align-items: center; background: var(--surface); flex-wrap: wrap; gap: 12px; }
-  .footer-logo { font-weight: 700; font-size: 14px; margin-right: 48px; }
+  .footer-logo { font-weight: 700; font-size: 14px; margin-right: 48px; color: var(--logo-text); }
   .footer-logo span:not(#footer-logo-bri) { color: var(--muted); font-weight: 400; font-size: 11px; display: block; }
   .footer-links { display: flex; gap: 20px; flex: 1; flex-wrap: wrap; }
   .footer-links a { text-decoration: none; color: var(--muted); font-size: 12px; transition: color 0.15s; }
