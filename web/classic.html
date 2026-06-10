@@ -1118,7 +1118,20 @@ async function loadData() {
     }
   });
 
-  // Group averages for dot coloring
+  // Weighted sum (no normalization) — shows each subgroup's contribution within its parent group
+  const groupRawSum = (items) => {
+    let s = 0, hasAny = false;
+    items.forEach(item => {
+      const v = getFinalScoreForKey(item.key, item.val);
+      if (v != null) { s += v * item.w; hasAny = true; }
+    });
+    return hasAny ? s : null;
+  };
+  const ocRawSum   = ocW > 0 ? ocSum : null;
+  const techRawSum = groupRawSum(techList.filter(i => i.group === 'tech'));
+  const macroRawSum = groupRawSum(techList.filter(i => i.group === 'macro'));
+
+  // Normalized averages (0–100) for badge / dot color only
   const groupAvg = (items) => {
     let s = 0, w = 0;
     items.forEach(item => {
@@ -1132,12 +1145,14 @@ async function loadData() {
 
   const scoreToSig = (v) => v == null ? null : v < 25 ? 'vlow' : v < 35 ? 'low' : v < 55 ? 'mod' : v < 75 ? 'high' : 'vhigh';
 
-  const updateHeader = (id, baseEn, baseUa, _cont, avg) => {
+  // rawSum → displayed number; avg → badge and dot color (normalized 0–100)
+  const updateHeader = (id, baseEn, baseUa, rawSum, avg) => {
     const el = document.getElementById(id);
     if (el) {
-      const rounded = avg != null ? Math.round(avg) : null;
-      const dotColor = rounded != null ? riskZone(rounded).color : '#888';
-      const sig = scoreToSig(rounded);
+      const displayNum = rawSum != null ? Math.round(rawSum) : null;
+      const normAvg = avg != null ? Math.round(avg) : null;
+      const dotColor = normAvg != null ? riskZone(normAvg).color : '#888';
+      const sig = scoreToSig(normAvg);
       const sigInfo = sig ? SIG_LABELS[sig] : null;
       const badgeHtml = sigInfo
         ? `<span class="signal-badge ${sigInfo.cls}" style="font-size:10px;padding:2px 8px;"><span class="en">${sigInfo.en}</span><span class="ua">${sigInfo.ua}</span></span>`
@@ -1149,14 +1164,14 @@ async function loadData() {
           <span class="ua">${baseUa}</span>
           ${badgeHtml}
         </div>
-        <div style="text-align: center; font-weight: 700;">${rounded != null ? rounded : '—'}</div>
+        <div style="text-align: center; font-weight: 700;">${displayNum != null ? displayNum : '—'}</div>
       `;
     }
   };
 
-  updateHeader('hdr-onchain', 'On-Chain', 'Он-Чейн', ocContribution, ocAvg);
-  updateHeader('hdr-tech', 'Technical', 'Технічний', techGroupCont, techAvg);
-  updateHeader('hdr-macro', 'Macro', 'Макро', macroGroupCont, macroAvg);
+  updateHeader('hdr-onchain', 'On-Chain', 'Он-Чейн', ocRawSum, ocAvg);
+  updateHeader('hdr-tech', 'Technical', 'Технічний', techRawSum, techAvg);
+  updateHeader('hdr-macro', 'Macro', 'Макро', macroRawSum, macroAvg);
 
   // Final (composite) section dot
   const dotFinal = document.getElementById('dot-final');
