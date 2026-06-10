@@ -1616,6 +1616,8 @@
     function setStyle(style) {
       if (style === 'max') {
         location.href = 'max.html';
+      } else if (style === 'classic') {
+        location.href = 'classic.html';
       } else {
         localStorage.setItem('bbr-style', 'minimal');
         updateThemeClass();

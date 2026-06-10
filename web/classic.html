@@ -40,6 +40,10 @@
   .lang-btn { display: flex; align-items: center; gap: 5px; padding: 4px 8px; border: none; background: none; color: var(--muted2); cursor: pointer; font-size: 12px; font-weight: 500; font-family: inherit; transition: color 0.15s; }
   .lang-btn:hover { color: var(--text); }
   .lang-btn svg { display: block; flex-shrink: 0; }
+  .view-switch { display: flex; align-items: center; border: 1px solid var(--border2); border-radius: 8px; overflow: hidden; }
+  .view-btn { padding: 4px 10px; border: none; background: none; color: var(--muted); cursor: pointer; font-size: 11px; font-weight: 600; font-family: inherit; transition: all 0.15s; white-space: nowrap; }
+  .view-btn:hover { color: var(--text); background: var(--surface2); }
+  .view-btn.active { color: var(--text); background: var(--surface2); }
 
   main { max-width: 1200px; margin: 0 auto; padding: 32px 32px 64px; }
 
@@ -60,10 +64,10 @@
   .gauge-card { display: flex; flex-direction: column; align-items: stretch; justify-content: space-between; padding: 24px 28px 20px; }
   .gauge-arc-wrap { position: relative; width: 100%; }
   .gauge-svg { display: block; width: 100%; overflow: visible; }
-  .gauge-arc-number { position: absolute; bottom: 4%; left: 0; right: 0; display: flex; justify-content: center; align-items: baseline; gap: 5px; }
-  .gauge-val { font-size: 56px; font-weight: 700; letter-spacing: -0.04em; line-height: 1; }
+  .gauge-arc-number { position: absolute; bottom: 28%; left: 0; right: 0; display: flex; justify-content: center; align-items: baseline; gap: 5px; }
+  .gauge-val { font-size: 80px; font-weight: 700; letter-spacing: -0.04em; line-height: 1; }
   .gauge-denom { font-size: 20px; color: var(--muted); font-weight: 400; }
-  .gauge-scale { width: 100%; display: flex; flex-direction: column; gap: 6px; }
+  .gauge-scale { width: 100%; display: flex; flex-direction: column; gap: 6px; padding: 0 8.33%; }
   .gauge-tags { display: flex; flex-direction: column; gap: 6px; width: 100%; margin-top: 14px; }
   .gauge-tag { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: 9px; font-size: 11px; font-weight: 600; line-height: 1.3; }
   .gauge-tag svg { flex-shrink: 0; }
@@ -180,6 +184,10 @@
       <a href="#history"><span class="en">History</span><span class="ua">Історія</span></a>
     </div>
     <div class="nav-right">
+      <div class="view-switch">
+        <button class="view-btn active"><span class="en">Financial</span><span class="ua">Фінансовий</span></button>
+        <button class="view-btn" onclick="location.href='minimal.html'"><span class="en">Lifestyle</span><span class="ua">Лайфстайл</span></button>
+      </div>
       <button class="theme-btn" id="themeToggle" title="Toggle theme">
         <svg width="15" height="15" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="7.5" cy="7.5" r="2.8"/><line x1="7.5" y1="1" x2="7.5" y2="2.6"/><line x1="7.5" y1="12.4" x2="7.5" y2="14"/><line x1="1" y1="7.5" x2="2.6" y2="7.5"/><line x1="12.4" y1="7.5" x2="14" y2="7.5"/><line x1="2.75" y1="2.75" x2="3.86" y2="3.86"/><line x1="11.14" y1="11.14" x2="12.25" y2="12.25"/><line x1="12.25" y1="2.75" x2="11.14" y2="3.86"/><line x1="3.86" y1="11.14" x2="2.75" y2="12.25"/></svg>
       </button>
@@ -261,14 +269,14 @@
         </div>
         <div class="market-row">
           <div class="market-row-left">
-            <svg class="market-row-icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" opacity="0.5"/></svg>
+            <svg class="market-row-icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/><text x="8" y="11.5" text-anchor="middle" font-size="9" font-weight="700" font-family="sans-serif" fill="currentColor">₿</text></svg>
             <span class="en">BTC Dominance</span><span class="ua">Домінація BTC</span>
           </div>
           <span class="market-row-val" id="market-dom">—</span>
         </div>
         <div class="market-row">
           <div class="market-row-left">
-            <svg class="market-row-icon" viewBox="0 0 16 16" fill="none"><path d="M3 10L8 5l5 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <svg class="market-row-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 11.5a6 6 0 1 1 11 0"/><path d="M8 8l2.5 -2.5"/></svg>
             <span class="en">Fear & Greed</span><span class="ua">Страх і Жадібність</span>
           </div>
           <span class="market-row-val" id="market-fg">—</span>
