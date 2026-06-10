@@ -1,6 +1,6 @@
 {
-  "timestamp": "2026-06-10T15:37:07Z",
-  "btc_price": 62267,
+  "timestamp": "2026-06-10T15:41:36Z",
+  "btc_price": 62187,
   "btc_dominance": 58.21,
   "fear_greed": 16.6,
   "fear_greed_label": "CMC",
@@ -27,37 +27,37 @@
     "nupl": {
       "value": 12.0043,
       "source": "BMP",
-      "updated": "2026-06-10T15:37:00Z"
+      "updated": "2026-06-10T15:41:28Z"
     },
     "mvrv": {
       "value": 0.2417,
       "source": "BMP",
-      "updated": "2026-06-10T15:37:00Z"
+      "updated": "2026-06-10T15:41:28Z"
     },
     "m2": {
       "value": 9.47,
       "source": "MacroMicro",
-      "updated": "2026-06-10T15:37:00Z"
+      "updated": "2026-06-10T15:41:28Z"
     },
     "yield_curve": {
       "value": 0.48,
       "source": "BMP",
-      "updated": "2026-06-10T15:37:00Z"
+      "updated": "2026-06-10T15:41:28Z"
     },
     "cvdd_ratio": {
       "value": 1.266,
       "source": "BMP",
-      "updated": "2026-06-10T15:37:00Z"
+      "updated": "2026-06-10T15:41:28Z"
     },
     "rhodl_ratio": {
       "value": 1257.9609,
       "source": "BMP",
-      "updated": "2026-06-10T15:37:00Z"
+      "updated": "2026-06-10T15:41:28Z"
     },
     "asopr": {
       "value": 0.9833142857142858,
       "source": "BMP",
-      "updated": "2026-06-10T15:37:00Z"
+      "updated": "2026-06-10T15:41:28Z"
     },
     "etf_flows": {
       "value": {
@@ -67,7 +67,7 @@
         "date": "2026-06-05"
       },
       "source": "Farside",
-      "updated": "2026-06-10T15:37:00Z"
+      "updated": "2026-06-10T15:41:28Z"
     },
     "rainbow_band": {
       "value": {
@@ -78,14 +78,14 @@
         "date": "2026-06-09"
       },
       "source": "BMP",
-      "updated": "2026-06-10T15:37:07Z"
+      "updated": "2026-06-10T15:41:36Z"
     },
     "fear_greed": {
       "latest": 14.0,
       "avg_7d": 16.6,
       "label": "CMC",
       "source": "CMC",
-      "updated": "2026-06-10T15:37:07Z"
+      "updated": "2026-06-10T15:41:36Z"
     },
     "cipherb": {
       "value": {
@@ -102,7 +102,7 @@
         "daily_fast_bullish_div": false
       },
       "source": "Local",
-      "updated": "2026-06-10T15:37:08Z"
+      "updated": "2026-06-10T15:41:36Z"
     },
     "smc": {
       "value": {
@@ -116,7 +116,7 @@
         "size": 10
       },
       "source": "Local",
-      "updated": "2026-06-10T15:37:08Z"
+      "updated": "2026-06-10T15:41:37Z"
     },
     "mayer_multiple": {
       "value": {
@@ -126,7 +126,7 @@
         "score": 18
       },
       "source": "Kraken",
-      "updated": "2026-06-10T15:37:08Z"
+      "updated": "2026-06-10T15:41:37Z"
     },
     "funding_rate": {
       "value": {
@@ -137,12 +137,12 @@
         "source": "Kraken Futures"
       },
       "source": "Kraken Futures",
-      "updated": "2026-06-10T15:37:08Z"
+      "updated": "2026-06-10T15:41:37Z"
     },
     "m2_mom": {
       "value": 9.47,
       "source": "MacroMicro",
-      "updated": "2026-06-10T15:37:09Z"
+      "updated": "2026-06-10T15:41:39Z"
     }
   },
   "m2_mom": 9.47,
@@ -174,17 +174,21 @@
   },
   "zone_forecast": {
     "buy": {
-      "price": 54770,
+      "price": 54727,
       "pct": -12.0
     },
     "sell": {
-      "price": 178017,
+      "price": 177878,
       "pct": 185.9
     },
     "buy_threshold": 20,
     "sell_threshold": 80,
-    "realized_price": 54788,
-    "ref_price": 62262
+    "realized_price": 54745,
+    "ref_price": 62213
+  },
+  "commentary": {
+    "en": "The on-chain structural indicators remain modest, with a NUPL of 12.00 indicating limited unrealized profits and a MVRV Z-score of 0.24 suggesting that Bitcoin is positioned below its fair value. Market dynamics display cautious momentum as ETF outflows of $3,138M and an inverted yield curve (0.48%) reflect macro headwinds, while the overall low Fear & Greed reading of 16.6 reinforces a risk-averse sentiment. The net risk picture is further tempered by the persistent institutional outflows, hinting at a hidden pressure despite other metrics indicating relative undervaluation. Given these factors and the prevailing MACRO HEADWIND regime, there is a low probability of a sustained upward trend unless ETF flows turn positive, which remains the key confirmation to watch.",
+    "ua": "The on-chain structural indicators remain modest, with a NUPL of 12.00 indicating limited unrealized profits and a MVRV Z-score of 0.24 suggesting that Bitcoin is positioned below its fair value. Market dynamics display cautious momentum as ETF outflows of $3,138M and an inverted yield curve (0.48%) reflect macro headwinds, while the overall low Fear & Greed reading of 16.6 reinforces a risk-averse sentiment. The net risk picture is further tempered by the persistent institutional outflows, hinting at a hidden pressure despite other metrics indicating relative undervaluation. Given these factors and the prevailing MACRO HEADWIND regime, there is a low probability of a sustained upward trend unless ETF flows turn positive, which remains the key confirmation to watch."
   },
   "prev_day": {
     "date": "2026-06-09",
@@ -417,7 +421,7 @@
     {
       "date": "2026-06-10",
       "score": 28,
-      "price": 62267
+      "price": 62187
     }
   ]
 }
