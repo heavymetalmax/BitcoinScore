@@ -55,8 +55,60 @@
       --inset-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
     }
 
-    /* ── Max: expanded sections below main card ─────────────────────────── */
-    .expanded-section {
+    /* ── Max: bento layout ─────────────────────────── */
+    .bento-sub-row {
+      width: 100%;
+      max-width: 500px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .bento-sub-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 20px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .bento-sub-title {
+      font-size: 0.62rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-mute);
+    }
+    .bento-sub-value {
+      font-family: 'Outfit', sans-serif;
+      font-size: 2.6rem;
+      font-weight: 800;
+      line-height: 1;
+      color: var(--text);
+    }
+    .bento-sub-bar-wrap {
+      width: 100%;
+      height: 4px;
+      background: rgba(255,255,255,0.12);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .bento-sub-bar-fill {
+      height: 100%;
+      background: var(--text);
+      border-radius: 99px;
+      width: 0%;
+      transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .bento-sub-desc {
+      font-size: 0.62rem;
+      color: var(--text-mute);
+      font-weight: 500;
+    }
+    .bento-section {
       width: 100%;
       max-width: 500px;
       background: var(--bg-card);
@@ -65,12 +117,12 @@
       -webkit-backdrop-filter: blur(20px);
       border-radius: 24px;
       padding: 20px;
-      margin-top: 16px;
+      margin-top: 12px;
       display: flex;
       flex-direction: column;
       gap: 8px;
     }
-    .expanded-section-title {
+    .bento-section-title {
       font-size: 0.65rem;
       font-weight: 800;
       letter-spacing: 0.1em;
@@ -888,23 +940,26 @@
     }
 
     .commentary-gear {
-      position: fixed;
-      bottom: max(60px, calc(34px + env(safe-area-inset-bottom)));
-      left: 24px;
-      width: 42px;
-      height: 42px;
-      border-radius: 50%;
+      position: static;
+      width: 100%;
+      max-width: 500px;
+      border-radius: 16px;
       background: var(--bg-card);
       border: 1px solid var(--border);
       cursor: pointer;
       display: none;
       align-items: center;
       justify-content: center;
+      gap: 8px;
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       z-index: 90;
       color: var(--text);
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      padding: 14px;
+      margin-top: 12px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
       transition: background 0.3s ease, border-color 0.3s ease;
     }
     .commentary-gear:hover {
@@ -1227,21 +1282,12 @@
       .center-display-front, .center-display-back {
         padding: 24px 12px;
       }
-      .display-sub-row {
-        gap: 20px;
+      .bento-sub-row {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
       }
-      .sub-item {
-        min-width: auto;
-        gap: 8px;
-      }
-      .sub-value {
-        font-size: 2.2rem;
-      }
-      .sub-title {
-        font-size: 0.95rem;
-      }
-      .sub-status {
-        font-size: 0.85rem;
+      .bento-sub-value {
+        font-size: 2rem;
       }
       .mini-indicator-row {
         grid-template-columns: 95px 50px 1fr 25px;
@@ -1323,46 +1369,6 @@
                 <span class="display-score" id="s-final">—</span>
               </div>
 
-              <div class="display-history-column">
-                <div class="history-item">
-                  <span class="history-label"><span class="ua">вчора</span><span class="en">yesterday</span></span>
-                  <span class="history-value" id="s-yesterday">—</span>
-                </div>
-                <div class="history-divider"></div>
-                <div class="history-item">
-                  <span class="history-value" id="s-week">—</span>
-                  <span class="history-label"><span class="ua">7 днів</span><span class="en">7 days</span></span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Bottom Row: On-Chain and Tech/Macro Sub-Indices -->
-          <div class="display-sub-row">
-            <!-- Zone 2: On-Chain -->
-            <div class="click-zone sub-item" onclick="flipTo('onchain')">
-              <span class="sub-value" id="s-oc-center">—</span>
-              <div class="sub-label-col">
-                <span class="sub-title">
-                  <span class="ua">ончейн</span>
-                  <span class="en">on-chain</span>
-                </span>
-                <span class="sub-status" id="s-oc-status-center">—</span>
-              </div>
-            </div>
-            
-            <div class="sub-divider"></div>
-            
-            <!-- Zone 3: Tech/Macro -->
-            <div class="click-zone sub-item" onclick="flipTo('tech')">
-              <span class="sub-value" id="s-tech-center">—</span>
-              <div class="sub-label-col">
-                <span class="sub-title">
-                  <span class="ua">тех/макро</span>
-                  <span class="en">tech/macro</span>
-                </span>
-                <span class="sub-status" id="s-tech-status-center">—</span>
-              </div>
             </div>
           </div>
 
@@ -1427,42 +1433,63 @@
       </div>
     </div>
 
-    <!-- Expanded: On-chain indicators (always visible) -->
-    <div class="expanded-section">
-      <div class="expanded-section-title">
-        <span class="en">On-Chain Indicators</span>
-        <span class="ua">Ончейн-індикатори</span>
+    <!-- Sub-score bento cards -->
+    <div class="bento-sub-row">
+      <div class="bento-sub-card">
+        <div class="bento-sub-title"><span class="en">On-Chain Score</span><span class="ua">Ончейн-оцінка</span></div>
+        <div class="bento-sub-value" id="s-oc">—</div>
+        <div class="bento-sub-bar-wrap"><div class="bento-sub-bar-fill" id="b-oc"></div></div>
+        <div class="bento-sub-desc"><span class="en">80% On-Chain + 20% Tech</span><span class="ua">80% Ончейн + 20% Тех</span></div>
       </div>
+      <div class="bento-sub-card">
+        <div class="bento-sub-title"><span class="en">Tech/Macro Score</span><span class="ua">Тех/Макро оцінка</span></div>
+        <div class="bento-sub-value" id="s-tech">—</div>
+        <div class="bento-sub-bar-wrap"><div class="bento-sub-bar-fill" id="b-tech"></div></div>
+        <div class="bento-sub-desc"><span class="en">20% On-Chain + 80% Tech</span><span class="ua">20% Ончейн + 80% Тех</span></div>
+      </div>
+      <div class="bento-sub-card">
+        <div class="bento-sub-title"><span class="en">Yesterday</span><span class="ua">Вчора</span></div>
+        <div class="bento-sub-value" id="s-yesterday">—</div>
+        <div class="bento-sub-bar-wrap"><div class="bento-sub-bar-fill" id="b-yesterday"></div></div>
+        <div class="bento-sub-desc"><span class="en">Previous daily score</span><span class="ua">Попередній денний бал</span></div>
+      </div>
+      <div class="bento-sub-card">
+        <div class="bento-sub-title"><span class="en">7-day Average</span><span class="ua">Середнє за 7 днів</span></div>
+        <div class="bento-sub-value" id="s-week">—</div>
+        <div class="bento-sub-bar-wrap"><div class="bento-sub-bar-fill" id="b-week"></div></div>
+        <div class="bento-sub-desc"><span class="en">7 days average score</span><span class="ua">Середня оцінка за 7 днів</span></div>
+      </div>
+    </div>
+
+    <!-- On-chain indicators section -->
+    <div class="bento-section">
+      <div class="bento-section-title"><span class="en">On-Chain Indicators</span><span class="ua">Ончейн-індикатори</span></div>
       <div class="mini-indicators-list" id="list-onchain-main"></div>
       <a href="about.html#on-chain" class="back-methodology-link" onclick="event.stopPropagation()">
-        <span class="en">Methodology ↗</span>
-        <span class="ua">Методологія ↗</span>
+        <span class="en">Methodology ↗</span><span class="ua">Методологія ↗</span>
       </a>
     </div>
 
-    <!-- Expanded: Tech/Macro indicators (always visible) -->
-    <div class="expanded-section">
-      <div class="expanded-section-title">
-        <span class="en">Tech &amp; Macro</span>
-        <span class="ua">Тех &amp; Макро</span>
-      </div>
+    <!-- Tech/Macro indicators section -->
+    <div class="bento-section">
+      <div class="bento-section-title"><span class="en">Tech &amp; Macro</span><span class="ua">Тех &amp; Макро</span></div>
       <div class="mini-indicators-list" id="list-tech-main"></div>
       <a href="about.html#tech-macro" class="back-methodology-link" onclick="event.stopPropagation()">
-        <span class="en">Methodology ↗</span>
-        <span class="ua">Методологія ↗</span>
+        <span class="en">Methodology ↗</span><span class="ua">Методологія ↗</span>
       </a>
     </div>
+
+    <!-- Commentary Footer Button (in-flow, appears at bottom of content) -->
+    <button class="commentary-gear" id="commentary-gear" onclick="toggleCommentary(true)">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      <span class="en">Important Information</span><span class="ua">Важлива інформація</span>
+    </button>
 
     <div class="drawer-backdrop" id="drawer-backdrop" onclick="toggleDrawer(false); toggleCommentary(false); closeMetricHelp();"></div>
 
   </div>
 
   <div class="wallpaper-floor" aria-hidden="true"></div>
-
-  <!-- Commentary Floating Button (left, mirrors settings gear) -->
-  <button class="commentary-gear" id="commentary-gear" onclick="toggleCommentary(true)">
-    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-  </button>
 
   <!-- Settings Gear Floating Button -->
   <button class="settings-gear" onclick="toggleDrawer(true)">
@@ -2141,38 +2168,15 @@
       if (astsen) astsen.textContent = aboutStatus.en;
       if (astsua) astsua.textContent = aboutStatus.ua;
 
-      // Update Widgets scores
-      const setWidgetVal = (id, scoreId, val) => {
+      // Update bento sub-score cards
+      const setSubCard = (scoreId, barId, val) => {
         const scoreEl = document.getElementById(scoreId);
-        const labelEl = document.getElementById(id + '-status-label');
-        if (scoreEl) {
-          scoreEl.textContent = val != null ? val : '—';
-          scoreEl.style.color = 'var(--text)';
-        }
-        if (labelEl) {
-          const label = riskLabel(val);
-          labelEl.innerHTML = `<span class="en">${label.en}</span><span class="ua">${label.ua}</span>`;
-          labelEl.style.color = 'var(--text-mute)';
-        }
+        const barEl = document.getElementById(barId);
+        if (scoreEl) scoreEl.textContent = val != null ? val : '—';
+        if (barEl && val != null) barEl.style.width = val + '%';
       };
-
-      setWidgetVal('oc', 's-oc', data.onchain_score);
-      setWidgetVal('tech', 's-tech', data.tech_score);
-
-      // Populate center sub-indices
-      const setCenterSubVal = (val, scoreElId, statusElId) => {
-        const scoreEl = document.getElementById(scoreElId);
-        const statusEl = document.getElementById(statusElId);
-        if (scoreEl) {
-          scoreEl.textContent = val != null ? val : '—';
-        }
-        if (statusEl) {
-          const label = riskLabel(val);
-          statusEl.innerHTML = `<span class="en">${label.en.toLowerCase()}</span><span class="ua">${label.ua.toLowerCase()}</span>`;
-        }
-      };
-      setCenterSubVal(data.onchain_score, 's-oc-center', 's-oc-status-center');
-      setCenterSubVal(data.tech_score, 's-tech-center', 's-tech-status-center');
+      setSubCard('s-oc', 'b-oc', data.onchain_score != null ? Math.round(data.onchain_score) : null);
+      setSubCard('s-tech', 'b-tech', data.tech_score != null ? Math.round(data.tech_score) : null);
 
       // Populate price forecast inversion values
       const zf = data.zone_forecast;
@@ -2184,11 +2188,6 @@
         if (sellEl) sellEl.textContent = zf.sell && zf.sell.price ? fmtP(zf.sell.price) : '—';
       }
 
-      // Update widget bar fills
-      const pbOc = document.getElementById('pb-oc');
-      if (pbOc && data.onchain_score != null) pbOc.style.width = data.onchain_score + '%';
-      const pbTech = document.getElementById('pb-tech');
-      if (pbTech && data.tech_score != null) pbTech.style.width = data.tech_score + '%';
 
       // Draw main iOS gauge (safe fallback if canvas exists)
       const mainCanvas = document.getElementById('ios-gauge-canvas');
@@ -2201,6 +2200,8 @@
       if (yesterdayVal != null) {
         const el = document.getElementById('s-yesterday');
         if (el) el.textContent = yesterdayVal;
+        const yBar = document.getElementById('b-yesterday');
+        if (yBar) yBar.style.width = yesterdayVal + '%';
         const yCanvas = document.getElementById('gauge-yesterday-canvas');
         if (yCanvas) drawMiniGauge(yCanvas, yesterdayVal);
       }
@@ -2215,6 +2216,8 @@
       if (weekVal != null) {
         const el = document.getElementById('s-week');
         if (el) el.textContent = weekVal;
+        const wBar = document.getElementById('b-week');
+        if (wBar) wBar.style.width = weekVal + '%';
         const wCanvas = document.getElementById('gauge-week-canvas');
         if (wCanvas) drawMiniGauge(wCanvas, weekVal);
       }
