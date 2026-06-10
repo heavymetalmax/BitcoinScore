@@ -1,7 +1,7 @@
 {
-  "timestamp": "2026-06-10T16:13:50Z",
-  "btc_price": 62356,
-  "btc_dominance": 58.29,
+  "timestamp": "2026-06-10T16:30:56Z",
+  "btc_price": 62233,
+  "btc_dominance": 58.3,
   "fear_greed": 16.6,
   "fear_greed_label": "CMC",
   "nupl": 12.0043,
@@ -27,37 +27,37 @@
     "nupl": {
       "value": 12.0043,
       "source": "BMP",
-      "updated": "2026-06-10T16:13:42Z"
+      "updated": "2026-06-10T16:30:48Z"
     },
     "mvrv": {
       "value": 0.2417,
       "source": "BMP",
-      "updated": "2026-06-10T16:13:42Z"
+      "updated": "2026-06-10T16:30:48Z"
     },
     "m2": {
       "value": 9.47,
       "source": "MacroMicro",
-      "updated": "2026-06-10T16:13:42Z"
+      "updated": "2026-06-10T16:30:48Z"
     },
     "yield_curve": {
       "value": 0.48,
       "source": "BMP",
-      "updated": "2026-06-10T16:13:42Z"
+      "updated": "2026-06-10T16:30:48Z"
     },
     "cvdd_ratio": {
       "value": 1.266,
       "source": "BMP",
-      "updated": "2026-06-10T16:13:42Z"
+      "updated": "2026-06-10T16:30:48Z"
     },
     "rhodl_ratio": {
       "value": 1257.9609,
       "source": "BMP",
-      "updated": "2026-06-10T16:13:42Z"
+      "updated": "2026-06-10T16:30:48Z"
     },
     "asopr": {
       "value": 0.9833142857142858,
       "source": "BMP",
-      "updated": "2026-06-10T16:13:42Z"
+      "updated": "2026-06-10T16:30:48Z"
     },
     "etf_flows": {
       "value": {
@@ -67,7 +67,7 @@
         "date": "2026-06-05"
       },
       "source": "Farside",
-      "updated": "2026-06-10T16:13:42Z"
+      "updated": "2026-06-10T16:30:48Z"
     },
     "rainbow_band": {
       "value": {
@@ -78,14 +78,14 @@
         "date": "2026-06-09"
       },
       "source": "BMP",
-      "updated": "2026-06-10T16:13:50Z"
+      "updated": "2026-06-10T16:30:56Z"
     },
     "fear_greed": {
       "latest": 14.0,
       "avg_7d": 16.6,
       "label": "CMC",
       "source": "CMC",
-      "updated": "2026-06-10T16:13:50Z"
+      "updated": "2026-06-10T16:30:56Z"
     },
     "cipherb": {
       "value": {
@@ -102,7 +102,7 @@
         "daily_fast_bullish_div": false
       },
       "source": "Local",
-      "updated": "2026-06-10T16:13:51Z"
+      "updated": "2026-06-10T16:30:57Z"
     },
     "smc": {
       "value": {
@@ -116,7 +116,7 @@
         "size": 10
       },
       "source": "Local",
-      "updated": "2026-06-10T16:13:51Z"
+      "updated": "2026-06-10T16:30:57Z"
     },
     "mayer_multiple": {
       "value": {
@@ -126,7 +126,7 @@
         "score": 18
       },
       "source": "Kraken",
-      "updated": "2026-06-10T16:13:51Z"
+      "updated": "2026-06-10T16:30:57Z"
     },
     "funding_rate": {
       "value": {
@@ -137,12 +137,12 @@
         "source": "Kraken Futures"
       },
       "source": "Kraken Futures",
-      "updated": "2026-06-10T16:13:51Z"
+      "updated": "2026-06-10T16:30:58Z"
     },
     "m2_mom": {
       "value": 9.47,
       "source": "MacroMicro",
-      "updated": "2026-06-10T16:13:53Z"
+      "updated": "2026-06-10T16:30:59Z"
     }
   },
   "m2_mom": 9.47,
@@ -174,21 +174,21 @@
   },
   "zone_forecast": {
     "buy": {
-      "price": 54825,
+      "price": 54729,
       "pct": -12.0
     },
     "sell": {
-      "price": 178195,
+      "price": 177883,
       "pct": 185.9
     },
     "buy_threshold": 20,
     "sell_threshold": 80,
-    "realized_price": 54842,
-    "ref_price": 62324
+    "realized_price": 54746,
+    "ref_price": 62215
   },
   "commentary": {
-    "en": "On-chain positioning remains modestly undervalued with a MVRV Z-score of 0.24 and an aSOPR of 0.983, indicating low–moderate risk amid overall extreme fear. Market dynamics are subdued by ETF outflows of $3,138M and an inverted yield curve at 0.48%, collectively characterizing a MACRO HEADWIND regime with some tension given the lower tech/macro sub-score. Net risk appears tempered by generally low-risk readings, though the combination of sustained ETF outflows and an inverted yield curve hints at a hidden liquidity risk. There is a moderate probability of the current downward trend continuing, with ETF outflows serving as the primary factor that might confirm this persistence.",
-    "ua": "Позиціонування в ланцюгу залишається помірно недооціненим з MVRV Z-оцінкою 0,24 та aSOPR 0,983, що вказує на низький–помірний ризик на фоні загального екстремального страху. Динаміка ринку пригнічується виводами з ETF у розмірі $3,138M та інвертованою кривою доходності на рівні 0,48%, що в сукупності характеризує режим MACRO HEADWIND з певним напруженням, враховуючи нижчий технічний/макро підбал. Чистий ризик виглядає пом'якшеним завдяки загалом низьким показникам ризику, хоча комбінація тривалих виводів з ETF та інвертованої кривої доходності натякає на прихований ризик ліквідності. Існує помірна ймовірність продовження поточної низхідної тенденції, при цьому виводи з ETF є основним фактором, який може підтвердити цю стійкість."
+    "en": "The structural on-chain positioning remains undervalued, with a MVRV Z-score of 0.24 and an aSOPR of 0.983 indicating that short‐term holders are not aggressively offloading at a loss. Market dynamics continue to reflect subdued sentiment and persistent institutional ETF outflows, aligning the environment with a bear bottom regime as macro measures hint at lingering caution. Overall risk is low, though the sustained ETF outflows serve as a hidden risk signal that may impede near-term stabilization. We assess a moderate probability of trend continuation for the current upward risk index direction, with a deceleration in institutional outflows as the key factor to confirm the shift.",
+    "ua": "Структурне позиціонування в ланцюзі залишається недооціненим, з MVRV Z-score на рівні 0,24 та aSOPR 0,983, що вказує на те, що короткострокові тримачі не намагаються агресивно розпродавати свої активи зі збитками. Динаміка ринку продовжує відображати пригнічений настрій та постійні виводи інституційних ETF, що узгоджує середовище з режимом ведмежого дна, оскільки макроекономічні показники натякають на тривалу обережність. Загальний ризик низький, хоча стійкі виводи ETF слугують прихованим сигналом ризику, який може заважати стабілізації в найближчій перспективі. Ми оцінюємо помірну ймовірність продовження тренду для поточного напрямку індексу ризику, з уповільненням інституційних виводів як ключовим фактором для підтвердження зміни."
   },
   "prev_day": {
     "date": "2026-06-09",
@@ -421,7 +421,7 @@
     {
       "date": "2026-06-10",
       "score": 28,
-      "price": 62356
+      "price": 62233
     }
   ]
 }
