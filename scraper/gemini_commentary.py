@@ -228,14 +228,14 @@ def _call_openai(prompt: str, api_key: str) -> Optional[str]:
     return None
 
 
-def _translate_via_grok(text: str, api_key: str) -> Optional[str]:
-    url = 'https://api.x.ai/v1/chat/completions'
+def _translate_via_openai(text: str, api_key: str) -> Optional[str]:
+    url = 'https://api.openai.com/v1/chat/completions'
     headers = {
         'Authorization': f'Bearer {api_key}',
         'Content-Type': 'application/json',
     }
     body = {
-        'model': 'grok-3-mini',
+        'model': 'gpt-4o-mini',
         'messages': [
             {
                 'role': 'system',
@@ -258,15 +258,15 @@ def _translate_via_grok(text: str, api_key: str) -> Optional[str]:
         try:
             resp = requests.post(url, json=body, headers=headers, timeout=30)
             if not resp.ok:
-                print(f'Grok translation attempt {attempt + 1} failed: {resp.status_code} — {resp.text[:200]}', flush=True)
+                print(f'OpenAI translation attempt {attempt + 1} failed: {resp.status_code} — {resp.text[:200]}', flush=True)
                 last_exc = resp.text
                 continue
             translated = resp.json()['choices'][0]['message']['content'].strip()
             return translated
         except Exception as exc:
             last_exc = exc
-            print(f'Grok translation attempt {attempt + 1} failed: {exc}', flush=True)
-    print(f'Grok translation failed after 3 attempts: {last_exc}', flush=True)
+            print(f'OpenAI translation attempt {attempt + 1} failed: {exc}', flush=True)
+    print(f'OpenAI translation failed after 3 attempts: {last_exc}', flush=True)
     return None
 
 
@@ -287,15 +287,12 @@ def generate_commentary(payload: dict, slider_map: dict) -> Optional[dict]:
         return None
     print(f'OpenAI commentary (en): {en_text[:100]}…')
 
-    grok_key = os.environ.get('GROK_API_KEY')
-    ua_text = None
-    if grok_key:
-        ua_text = _translate_via_grok(en_text, grok_key)
+    ua_text = _translate_via_openai(en_text, openai_key)
 
     if not ua_text:
         ua_text = en_text
-        print('Grok translation unavailable — using English fallback for UA', flush=True)
+        print('OpenAI translation unavailable — using English fallback for UA', flush=True)
     else:
-        print(f'Grok translation (ua): {ua_text[:100]}…', flush=True)
+        print(f'OpenAI translation (ua): {ua_text[:100]}…', flush=True)
 
     return {'en': en_text, 'ua': ua_text}
