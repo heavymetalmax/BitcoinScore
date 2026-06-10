@@ -229,7 +229,7 @@ def _call_openai(prompt: str, api_key: str) -> Optional[str]:
 
 
 def _translate_via_gemini(text: str, api_key: str) -> Optional[str]:
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key={api_key}"
     headers = {"Content-Type": "application/json"}
     prompt = (
         "Translate the following Bitcoin market commentary into Ukrainian. "
@@ -251,14 +251,17 @@ def _translate_via_gemini(text: str, api_key: str) -> Optional[str]:
             time.sleep(2 ** attempt)
         try:
             resp = requests.post(url, json=body, headers=headers, timeout=30)
-            resp.raise_for_status()
+            if not resp.ok:
+                print(f'Gemini translation attempt {attempt + 1} failed: {resp.status_code} — {resp.text[:200]}', flush=True)
+                last_exc = resp.text
+                continue
             res_json = resp.json()
             translated = res_json['candidates'][0]['content']['parts'][0]['text'].strip()
             return translated
         except Exception as exc:
             last_exc = exc
-            print(f'Gemini translation attempt {attempt + 1} failed: {exc}')
-    print(f'Gemini translation failed after 3 attempts: {last_exc}')
+            print(f'Gemini translation attempt {attempt + 1} failed: {exc}', flush=True)
+    print(f'Gemini translation failed after 3 attempts: {last_exc}', flush=True)
     return None
 
 
