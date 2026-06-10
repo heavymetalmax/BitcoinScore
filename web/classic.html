@@ -1159,13 +1159,15 @@ async function loadData() {
         ? `<span class="signal-badge ${sigInfo.cls}" style="font-size:10px;padding:2px 8px;"><span class="en">${sigInfo.en}</span><span class="ua">${sigInfo.ua}</span></span>`
         : '';
       el.innerHTML = `
-        <div style="grid-column:1; display:flex; align-items:center; gap:8px;">
+        <div style="display:flex; align-items:center; gap:8px;">
           <div class="comp-group-dot" style="background:${dotColor}"></div>
           <span class="en">${baseEn}</span>
           <span class="ua">${baseUa}</span>
         </div>
-        <div style="grid-column:2; text-align:center; font-size:14px; font-weight:600; font-variant-numeric:tabular-nums;">${displayNum != null ? displayNum : '—'}</div>
-        <div class="comp-signal" style="grid-column:-1; align-items:center;">${badgeHtml}</div>
+        <div class="comp-value"><div class="val">${displayNum != null ? displayNum : '—'}</div></div>
+        <div class="comp-spark"></div>
+        <div class="comp-pct"></div>
+        <div class="comp-signal">${badgeHtml}</div>
       `;
     }
   };
