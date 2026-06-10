@@ -26,7 +26,8 @@
   .lang-en .ua { display: none; }
   .lang-ua .en { display: none; }
 
-  nav { display: flex; align-items: center; padding: 0 32px; height: 56px; border-bottom: 1px solid var(--border); background: var(--surface); position: sticky; top: 0; z-index: 100; }
+  nav { height: 56px; border-bottom: 1px solid var(--border); background: var(--surface); position: sticky; top: 0; z-index: 100; }
+  .nav-inner { max-width: 1200px; margin: 0 auto; padding: 0 32px; height: 100%; display: flex; align-items: center; }
   .nav-logo { font-weight: 700; font-size: 15px; letter-spacing: 0.04em; margin-right: 40px; flex-shrink: 0; }
   .nav-logo span { color: var(--muted); font-weight: 400; font-size: 12px; display: block; letter-spacing: 0; }
   .nav-links { display: flex; gap: 4px; flex: 1; }
@@ -77,12 +78,13 @@
   .market-title { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; color: var(--muted); text-transform: uppercase; margin-bottom: 14px; }
   .market-state-badge { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; margin-bottom: 20px; border: 1px solid transparent; }
   .market-state-badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
-  .market-rows { display: flex; flex-direction: column; }
-  .market-row { display: flex; align-items: center; justify-content: space-between; padding: 11px 0; border-bottom: 1px solid var(--border); }
-  .market-row:last-child { border-bottom: none; }
-  .market-row-left { display: flex; align-items: center; gap: 10px; color: var(--muted2); font-size: 13px; }
+  .market-rows { display: grid; grid-template-columns: 1fr auto; }
+  .market-row { display: contents; }
+  .market-row-left { display: flex; align-items: center; gap: 10px; color: var(--muted2); font-size: 13px; padding: 11px 0; border-bottom: 1px solid var(--border); }
   .market-row-icon { width: 16px; height: 16px; opacity: 0.6; flex-shrink: 0; }
-  .market-row-val { font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .market-row-val { font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; padding: 11px 0; border-bottom: 1px solid var(--border); text-align: right; }
+  .market-row:last-child > .market-row-left,
+  .market-row:last-child > .market-row-val { border-bottom: none; }
 
   .section-header { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
   .section-title { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
@@ -90,19 +92,19 @@
   .components-grid { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; box-shadow: var(--shadow); margin-bottom: 24px; }
   .comp-header { display: grid; grid-template-columns: 220px 100px 1fr 72px 82px; column-gap: 16px; padding: 10px 20px; border-bottom: 1px solid var(--border); background: var(--surface2); }
   .comp-header span { font-size: 10px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
-  .comp-header span:not(:first-child) { text-align: right; }
+  .comp-header span:not(:first-child) { text-align: center; }
   .comp-row { display: grid; grid-template-columns: 220px 100px 1fr 72px 82px; column-gap: 16px; padding: 14px 20px; border-bottom: 1px solid var(--border); align-items: center; transition: background 0.1s; }
   .comp-row:last-child { border-bottom: none; }
   .comp-row:hover { background: var(--surface2); }
   .comp-name { font-size: 13px; font-weight: 600; }
   .comp-sub { font-size: 11px; color: var(--muted); margin-top: 1px; }
-  .comp-value { text-align: right; }
+  .comp-value { text-align: center; }
   .comp-value .val { font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; }
   .comp-value .range { font-size: 11px; color: var(--muted); }
   .comp-spark { display: block; overflow: hidden; }
   .comp-spark canvas { display: block; width: 100%; height: 36px; }
-  .comp-pct { text-align: right; font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--muted2); }
-  .comp-signal { display: flex; justify-content: flex-end; }
+  .comp-pct { text-align: center; font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--muted2); }
+  .comp-signal { display: flex; justify-content: center; }
   .signal-badge { padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; white-space: nowrap; }
   .signal-vlow  { background: #22C55E18; color: #22C55E; border: 1px solid #22C55E30; }
   .signal-low   { background: #4ADE8018; color: #16A34A; border: 1px solid #4ADE8030; }
@@ -156,7 +158,7 @@
   .footer-links a:hover { color: var(--text); }
 
   @media (max-width: 900px) {
-    nav { padding: 0 16px; }
+    .nav-inner { padding: 0 16px; }
     .nav-links { display: none; }
     main { padding: 20px 16px 48px; }
     .hero { grid-template-columns: 1fr; }
@@ -169,21 +171,23 @@
 <body class="lang-en">
 
 <nav>
-  <div class="nav-logo">BTCBRI <span>Bitcoin Buy Risk Index</span></div>
-  <div class="nav-links">
-    <a href="about.html#philosophy"><span class="en">About</span><span class="ua">Про індикатор</span></a>
-    <a href="about.html#construction"><span class="en">Methodology</span><span class="ua">Методологія</span></a>
-    <a href="compare.html"><span class="en">Compare</span><span class="ua">Порівняння</span></a>
-    <a href="#history"><span class="en">History</span><span class="ua">Історія</span></a>
-  </div>
-  <div class="nav-right">
-    <button class="theme-btn" id="themeToggle" title="Toggle theme">
-      <svg width="15" height="15" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="7.5" cy="7.5" r="2.8"/><line x1="7.5" y1="1" x2="7.5" y2="2.6"/><line x1="7.5" y1="12.4" x2="7.5" y2="14"/><line x1="1" y1="7.5" x2="2.6" y2="7.5"/><line x1="12.4" y1="7.5" x2="14" y2="7.5"/><line x1="2.75" y1="2.75" x2="3.86" y2="3.86"/><line x1="11.14" y1="11.14" x2="12.25" y2="12.25"/><line x1="12.25" y1="2.75" x2="11.14" y2="3.86"/><line x1="3.86" y1="11.14" x2="2.75" y2="12.25"/></svg>
-    </button>
-    <button class="lang-btn" id="langToggle">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="7" cy="7" r="5.5"/><path d="M7 1.5C7 1.5 5.5 4 5.5 7s1.5 5.5 1.5 5.5"/><path d="M7 1.5C7 1.5 8.5 4 8.5 7s-1.5 5.5-1.5 5.5"/><line x1="1.6" y1="5.2" x2="12.4" y2="5.2"/><line x1="1.6" y1="8.8" x2="12.4" y2="8.8"/></svg>
-      <span id="lang-label">EN</span>
-    </button>
+  <div class="nav-inner">
+    <div class="nav-logo">BTCBRI <span>Bitcoin Buy Risk Index</span></div>
+    <div class="nav-links">
+      <a href="about.html#philosophy"><span class="en">About</span><span class="ua">Про індикатор</span></a>
+      <a href="about.html#construction"><span class="en">Methodology</span><span class="ua">Методологія</span></a>
+      <a href="compare.html"><span class="en">Compare</span><span class="ua">Порівняння</span></a>
+      <a href="#history"><span class="en">History</span><span class="ua">Історія</span></a>
+    </div>
+    <div class="nav-right">
+      <button class="theme-btn" id="themeToggle" title="Toggle theme">
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="7.5" cy="7.5" r="2.8"/><line x1="7.5" y1="1" x2="7.5" y2="2.6"/><line x1="7.5" y1="12.4" x2="7.5" y2="14"/><line x1="1" y1="7.5" x2="2.6" y2="7.5"/><line x1="12.4" y1="7.5" x2="14" y2="7.5"/><line x1="2.75" y1="2.75" x2="3.86" y2="3.86"/><line x1="11.14" y1="11.14" x2="12.25" y2="12.25"/><line x1="12.25" y1="2.75" x2="11.14" y2="3.86"/><line x1="3.86" y1="11.14" x2="2.75" y2="12.25"/></svg>
+      </button>
+      <button class="lang-btn" id="langToggle">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="7" cy="7" r="5.5"/><path d="M7 1.5C7 1.5 5.5 4 5.5 7s1.5 5.5 1.5 5.5"/><path d="M7 1.5C7 1.5 8.5 4 8.5 7s-1.5 5.5-1.5 5.5"/><line x1="1.6" y1="5.2" x2="12.4" y2="5.2"/><line x1="1.6" y1="8.8" x2="12.4" y2="8.8"/></svg>
+        <span id="lang-label">EN</span>
+      </button>
+    </div>
   </div>
 </nav>
 
@@ -218,13 +222,13 @@
             </linearGradient>
           </defs>
           <!-- Track -->
-          <path d="M 20 120 A 100 100 0 0 1 220 120" stroke="var(--surface2)" stroke-width="6" stroke-linecap="round" fill="none"/>
+          <path d="M 20 120 A 100 100 0 0 1 220 120" stroke="var(--surface2)" stroke-width="6" stroke-linecap="round" fill="none" vector-effect="non-scaling-stroke"/>
           <!-- Faint gradient track -->
-          <path d="M 20 120 A 100 100 0 0 1 220 120" stroke="url(#arcGrad)" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.18"/>
+          <path d="M 20 120 A 100 100 0 0 1 220 120" stroke="url(#arcGrad)" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.18" vector-effect="non-scaling-stroke"/>
           <!-- Active arc -->
-          <path id="gauge-arc" d="" stroke="#22C55E" stroke-width="6" stroke-linecap="round" fill="none"/>
+          <path id="gauge-arc" d="" stroke="#22C55E" stroke-width="6" stroke-linecap="round" fill="none" vector-effect="non-scaling-stroke"/>
           <!-- Needle dot -->
-          <circle id="gauge-needle" cx="20" cy="120" r="5" fill="var(--bg)" stroke="#22C55E" stroke-width="2"/>
+          <circle id="gauge-needle" cx="20" cy="120" r="5" fill="var(--bg)" stroke="#22C55E" stroke-width="2" vector-effect="non-scaling-stroke"/>
         </svg>
         <div class="gauge-arc-number">
           <span class="gauge-val" id="gauge-val">—</span><span class="gauge-denom">/100</span>
@@ -250,7 +254,7 @@
       <div class="market-rows">
         <div class="market-row">
           <div class="market-row-left">
-            <svg class="market-row-icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M8 5v3l2 1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+            <svg class="market-row-icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/><text x="8" y="12" text-anchor="middle" font-size="9" font-weight="700" font-family="sans-serif" fill="currentColor">$</text></svg>
             <span class="en">Price (USD)</span><span class="ua">Ціна (USD)</span>
           </div>
           <span class="market-row-val" id="market-price">—</span>
@@ -295,7 +299,7 @@
   <div class="components-grid">
     <div class="comp-header">
       <span><span class="en">Indicator</span><span class="ua">Індикатор</span></span>
-      <span><span class="en">Value</span><span class="ua">Значення</span></span>
+      <span><span class="en">Score</span><span class="ua">Бал</span></span>
       <span><span class="en">vs History (1Y)</span><span class="ua">vs Іст. (1Р)</span></span>
       <span><span class="en">Pctile</span><span class="ua">Перц.</span></span>
       <span><span class="en">Signal</span><span class="ua">Сигнал</span></span>
@@ -305,35 +309,35 @@
     <div class="comp-group-hdr"><div class="comp-group-dot" style="background:#8B5CF6"></div><span class="en">On-Chain</span><span class="ua">Он-Чейн</span></div>
     <div class="comp-row">
       <div><div class="comp-name">NUPL</div><div class="comp-sub"><span class="en">Net Unrealized Profit/Loss</span><span class="ua">Нереалізований прибуток/збиток</span></div></div>
-      <div class="comp-value"><div class="val" id="v-nupl">—</div><div class="range">(-100 – 100)</div></div>
+      <div class="comp-value"><div class="val" id="v-nupl">—</div><div class="range" id="r-nupl"></div></div>
       <div class="comp-spark"><canvas id="s1" width="130" height="36"></canvas></div>
       <div class="comp-pct" id="p-nupl">—</div>
       <div class="comp-signal"><span class="signal-badge" id="sig-nupl">—</span></div>
     </div>
     <div class="comp-row">
       <div><div class="comp-name">MVRV Z-Score</div><div class="comp-sub"><span class="en">Market Value to Realized Value</span><span class="ua">Ринкова до реалізованої вартості</span></div></div>
-      <div class="comp-value"><div class="val" id="v-mvrv">—</div><div class="range">(-1 – 10)</div></div>
+      <div class="comp-value"><div class="val" id="v-mvrv">—</div><div class="range" id="r-mvrv"></div></div>
       <div class="comp-spark"><canvas id="s2" width="130" height="36"></canvas></div>
       <div class="comp-pct" id="p-mvrv">—</div>
       <div class="comp-signal"><span class="signal-badge" id="sig-mvrv">—</span></div>
     </div>
     <div class="comp-row">
       <div><div class="comp-name">RHODL Ratio</div><div class="comp-sub"><span class="en">Realized HODL Ratio</span><span class="ua">Реалізований HODL Ratio</span></div></div>
-      <div class="comp-value"><div class="val" id="v-rhodl">—</div><div class="range">(1K – 100K)</div></div>
+      <div class="comp-value"><div class="val" id="v-rhodl">—</div><div class="range" id="r-rhodl"></div></div>
       <div class="comp-spark"><canvas id="s3" width="130" height="36"></canvas></div>
       <div class="comp-pct" id="p-rhodl">—</div>
       <div class="comp-signal"><span class="signal-badge" id="sig-rhodl">—</span></div>
     </div>
     <div class="comp-row">
       <div><div class="comp-name">CVDD Ratio</div><div class="comp-sub"><span class="en">Coin Value Days Destroyed</span><span class="ua">Знищені дні вартості монети</span></div></div>
-      <div class="comp-value"><div class="val" id="v-cvdd">—</div><div class="range">(0.5 – 3.0)</div></div>
+      <div class="comp-value"><div class="val" id="v-cvdd">—</div><div class="range" id="r-cvdd"></div></div>
       <div class="comp-spark"><canvas id="s4" width="130" height="36"></canvas></div>
       <div class="comp-pct" id="p-cvdd">—</div>
       <div class="comp-signal"><span class="signal-badge" id="sig-cvdd">—</span></div>
     </div>
     <div class="comp-row">
       <div><div class="comp-name">Adjusted SOPR</div><div class="comp-sub"><span class="en">Spent Output Profit Ratio</span><span class="ua">Відношення прибутку витраченого виводу</span></div></div>
-      <div class="comp-value"><div class="val" id="v-asopr">—</div><div class="range">(0.5 – 2.0)</div></div>
+      <div class="comp-value"><div class="val" id="v-asopr">—</div><div class="range" id="r-asopr"></div></div>
       <div class="comp-spark"><canvas id="s5" width="130" height="36"></canvas></div>
       <div class="comp-pct" id="p-asopr">—</div>
       <div class="comp-signal"><span class="signal-badge" id="sig-asopr">—</span></div>
@@ -343,14 +347,14 @@
     <div class="comp-group-hdr"><div class="comp-group-dot" style="background:#3B82F6"></div><span class="en">Technical</span><span class="ua">Технічний</span></div>
     <div class="comp-row">
       <div><div class="comp-name">CipherB</div><div class="comp-sub"><span class="en">Wavetrend Oscillator (weekly)</span><span class="ua">Хвильовий осцилятор (тижнево)</span></div></div>
-      <div class="comp-value"><div class="val" id="v-cipherb">—</div><div class="range">(0 – 100)</div></div>
+      <div class="comp-value"><div class="val" id="v-cipherb">—</div><div class="range" id="r-cipherb"></div></div>
       <div class="comp-spark"><canvas id="s6" width="130" height="36"></canvas></div>
       <div class="comp-pct" id="p-cipherb">—</div>
       <div class="comp-signal"><span class="signal-badge" id="sig-cipherb">—</span></div>
     </div>
     <div class="comp-row">
       <div><div class="comp-name">Mayer Multiple</div><div class="comp-sub"><span class="en">Price / 200-day MA</span><span class="ua">Ціна / 200-денна СС</span></div></div>
-      <div class="comp-value"><div class="val" id="v-mayer">—</div><div class="range">(0.5 – 4.0)</div></div>
+      <div class="comp-value"><div class="val" id="v-mayer">—</div><div class="range" id="r-mayer"></div></div>
       <div class="comp-spark"><canvas id="s7" width="130" height="36"></canvas></div>
       <div class="comp-pct" id="p-mayer">—</div>
       <div class="comp-signal"><span class="signal-badge" id="sig-mayer">—</span></div>
@@ -360,28 +364,28 @@
     <div class="comp-group-hdr"><div class="comp-group-dot" style="background:#F59E0B"></div><span class="en">Macro</span><span class="ua">Макро</span></div>
     <div class="comp-row">
       <div><div class="comp-name"><span class="en">ETF Net Flows (14D)</span><span class="ua">ETF Потоки (14Д)</span></div><div class="comp-sub"><span class="en">US Spot ETF Net Flows</span><span class="ua">Чисті потоки спот ETF США</span></div></div>
-      <div class="comp-value"><div class="val" id="v-etf">—</div><div class="range">($M)</div></div>
+      <div class="comp-value"><div class="val" id="v-etf">—</div><div class="range" id="r-etf"></div></div>
       <div class="comp-spark"><canvas id="s8" width="130" height="36"></canvas></div>
       <div class="comp-pct" id="p-etf">—</div>
       <div class="comp-signal"><span class="signal-badge" id="sig-etf">—</span></div>
     </div>
     <div class="comp-row">
       <div><div class="comp-name"><span class="en">Fear & Greed Index</span><span class="ua">Індекс страху і жадібності</span></div><div class="comp-sub"><span class="en">Market Sentiment (7D avg)</span><span class="ua">Ринковий настрій (сер. 7Д)</span></div></div>
-      <div class="comp-value"><div class="val" id="v-fg">—</div><div class="range">(0 – 100)</div></div>
+      <div class="comp-value"><div class="val" id="v-fg">—</div><div class="range" id="r-fg"></div></div>
       <div class="comp-spark"><canvas id="s9" width="130" height="36"></canvas></div>
       <div class="comp-pct" id="p-fg">—</div>
       <div class="comp-signal"><span class="signal-badge" id="sig-fg">—</span></div>
     </div>
     <div class="comp-row">
       <div><div class="comp-name"><span class="en">Yield Curve (10Y-2Y)</span><span class="ua">Крива дохідності (10Р-2Р)</span></div><div class="comp-sub"><span class="en">US Treasury Spread</span><span class="ua">Спред держоблігацій США</span></div></div>
-      <div class="comp-value"><div class="val" id="v-yc">—</div><div class="range">(-1% – 2%)</div></div>
+      <div class="comp-value"><div class="val" id="v-yc">—</div><div class="range" id="r-yc"></div></div>
       <div class="comp-spark"><canvas id="s10" width="130" height="36"></canvas></div>
       <div class="comp-pct" id="p-yc">—</div>
       <div class="comp-signal"><span class="signal-badge" id="sig-yc">—</span></div>
     </div>
     <div class="comp-row">
       <div><div class="comp-name">M2 Global Liquidity (YoY)</div><div class="comp-sub"><span class="en">Global M2 Money Supply YoY%</span><span class="ua">Глобальна грошова маса M2 р/р</span></div></div>
-      <div class="comp-value"><div class="val" id="v-m2">—</div><div class="range">(-5% – 15%)</div></div>
+      <div class="comp-value"><div class="val" id="v-m2">—</div><div class="range" id="r-m2"></div></div>
       <div class="comp-spark"><canvas id="s11" width="130" height="36"></canvas></div>
       <div class="comp-pct" id="p-m2">—</div>
       <div class="comp-signal"><span class="signal-badge" id="sig-m2">—</span></div>
@@ -784,18 +788,24 @@ async function loadData() {
   const mayer   = m.mayer_multiple && m.mayer_multiple.value ? m.mayer_multiple.value.value : null;
   const ac      = data.adaptive_calibration || {};
 
-  const setVal = (id, v, fmt) => { const el = document.getElementById(id); if (el) el.textContent = v != null ? fmt(v) : '—'; };
-  setVal('v-mvrv',    mvrv,   v => (+v).toFixed(2));
-  setVal('v-nupl',    nupl,   v => (+v).toFixed(1) + '%');
-  setVal('v-rhodl',   rhodl,  v => Math.round(v).toLocaleString('en-US'));
-  setVal('v-yc',      ycVal,  v => (+v).toFixed(2) + '%');
-  setVal('v-etf',     etfVal, v => '$' + (v / 1000).toFixed(2) + 'B');
-  setVal('v-fg',      fgVal,  v => (+v).toFixed(0));
-  setVal('v-m2',      m2Val,  v => (+v).toFixed(1) + '%');
-  setVal('v-cipherb', cbVal,  v => (+v).toFixed(1));
-  setVal('v-asopr',   asopr,  v => (+v).toFixed(4));
-  setVal('v-cvdd',    cvdd,   v => (+v).toFixed(3));
-  setVal('v-mayer',   mayer,  v => (+v).toFixed(3));
+  const setScore = (vid, rid, key, val, rawFmt) => {
+    const ve = document.getElementById(vid);
+    const re = document.getElementById(rid);
+    const sc = mapScore(key, val);
+    if (ve) ve.textContent = sc != null ? sc : '—';
+    if (re) re.textContent = val != null ? rawFmt(val) : '';
+  };
+  setScore('v-nupl',    'r-nupl',    'nupl',        nupl,    v => (+v).toFixed(1) + '%');
+  setScore('v-mvrv',    'r-mvrv',    'mvrv',        mvrv,    v => (+v).toFixed(2));
+  setScore('v-rhodl',   'r-rhodl',   'rhodl',       rhodl,   v => Math.round(v).toLocaleString('en-US'));
+  setScore('v-cvdd',    'r-cvdd',    'cvdd',        cvdd,    v => (+v).toFixed(3));
+  setScore('v-asopr',   'r-asopr',   'asopr',       asopr,   v => (+v).toFixed(4));
+  setScore('v-cipherb', 'r-cipherb', 'cipherb',     cbScore, v => (+v).toFixed(1));
+  setScore('v-mayer',   'r-mayer',   'mayer',       mayer,   v => (+v).toFixed(3));
+  setScore('v-etf',     'r-etf',     'etf',         etfVal,  v => '$' + (v / 1000).toFixed(2) + 'B');
+  setScore('v-fg',      'r-fg',      'fg',          fgVal,   v => (+v).toFixed(0));
+  setScore('v-yc',      'r-yc',      'yield_curve', ycVal,   v => (+v).toFixed(2) + '%');
+  setScore('v-m2',      'r-m2',      'm2',          m2Val,   v => (+v).toFixed(1) + '%');
 
   const setP = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v != null ? v + '%' : '—'; };
   setP('p-mvrv', ac.mvrv ? ac.mvrv.adaptive : null);
