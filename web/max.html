@@ -945,26 +945,28 @@
     }
 
     .commentary-gear {
-      position: static;
-      width: auto;
-      background: none;
-      border: none;
+      position: fixed;
+      bottom: max(60px, calc(34px + env(safe-area-inset-bottom)));
+      left: 24px;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
       cursor: pointer;
       display: none;
       align-items: center;
       justify-content: center;
-      gap: 6px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      z-index: 90;
       color: var(--text);
-      padding: 12px 0;
-      margin-top: 8px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      letter-spacing: 0.05em;
-      opacity: 0.6;
-      transition: opacity 0.2s ease;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      transition: background 0.3s ease, border-color 0.3s ease;
     }
     .commentary-gear:hover {
-      opacity: 1;
+      background: var(--bg-card-hover);
+      border-color: var(--border-hover);
     }
 
     /* --- Settings Drawer (Right Side Card, bento style) --- */
@@ -1261,24 +1263,24 @@
     @media (min-width: 860px) {
       .lockscreen-wrapper {
         padding: 32px 40px max(80px, calc(80px + env(safe-area-inset-bottom)));
-        align-items: flex-start;
       }
       .bento-row-1 {
         display: grid;
         grid-template-columns: 1fr 1fr;
         align-items: start;
-        max-width: 900px;
+        max-width: 940px;
         gap: 16px;
       }
+      .bento-row-1 > * { min-width: 0; }
       .bento-row-2 {
         display: grid;
         grid-template-columns: 1fr 1fr;
         align-items: start;
-        max-width: 900px;
+        max-width: 940px;
         gap: 16px;
       }
+      .bento-row-2 > * { min-width: 0; }
       .bento-row-1 { margin-top: 6vh; }
-      .commentary-gear { max-width: 900px; }
     }
 
     /* Mobile adjustments */
@@ -1516,17 +1518,16 @@
 
     </div><!-- /.bento-row-2 -->
 
-    <!-- Commentary Footer Button (in-flow, appears at bottom of content) -->
-    <button class="commentary-gear" id="commentary-gear" onclick="toggleCommentary(true)">
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-      <span class="en">Important Information</span><span class="ua">Важлива інформація</span>
-    </button>
-
     <div class="drawer-backdrop" id="drawer-backdrop" onclick="toggleDrawer(false); toggleCommentary(false); closeMetricHelp();"></div>
 
   </div>
 
   <div class="wallpaper-floor" aria-hidden="true"></div>
+
+  <!-- Commentary Floating Button (left, fixed) -->
+  <button class="commentary-gear" id="commentary-gear" onclick="toggleCommentary(true)">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+  </button>
 
   <!-- Settings Gear Floating Button -->
   <button class="settings-gear" onclick="toggleDrawer(true)">
