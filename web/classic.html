@@ -33,11 +33,11 @@
   .nav-links a { padding: 6px 14px; border-radius: 6px; text-decoration: none; color: var(--muted2); font-size: 13px; font-weight: 500; transition: color 0.15s, background 0.15s; }
   .nav-links a:hover, .nav-links a.active { color: var(--text); background: var(--surface2); }
   .nav-right { display: flex; align-items: center; gap: 8px; }
-  .theme-btn { width: 32px; height: 32px; border-radius: 7px; border: 1px solid var(--border2); background: var(--surface2); color: var(--muted2); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
-  .theme-btn:hover { color: var(--text); border-color: var(--muted2); }
+  .theme-btn { width: 32px; height: 32px; border-radius: 7px; border: none; background: var(--surface2); color: var(--muted2); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+  .theme-btn:hover { color: var(--text); background: var(--border2); }
   .theme-btn svg { display: block; }
-  .lang-btn { display: flex; align-items: center; gap: 5px; padding: 5px 10px; border-radius: 7px; border: 1px solid var(--border2); background: var(--surface2); color: var(--muted2); cursor: pointer; font-size: 12px; font-weight: 500; font-family: inherit; transition: all 0.15s; }
-  .lang-btn:hover { color: var(--text); border-color: var(--muted2); }
+  .lang-btn { display: flex; align-items: center; gap: 5px; padding: 5px 10px; border-radius: 7px; border: none; background: var(--surface2); color: var(--muted2); cursor: pointer; font-size: 12px; font-weight: 500; font-family: inherit; transition: all 0.15s; }
+  .lang-btn:hover { color: var(--text); background: var(--border2); }
   .lang-btn svg { display: block; flex-shrink: 0; }
 
   main { max-width: 1200px; margin: 0 auto; padding: 32px 32px 64px; }
@@ -56,13 +56,19 @@
   .score-hint { display: flex; align-items: flex-start; gap: 8px; border-radius: 8px; padding: 10px 12px; font-size: 11px; line-height: 1.4; border: 1px solid transparent; }
   .score-hint svg { flex-shrink: 0; margin-top: 1px; }
 
-  .gauge-card { display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 28px 32px 20px; }
-  .gauge-flat-bar { height: 8px; border-radius: 4px; background: linear-gradient(to right, #22C55E 0%, #EAB308 33%, #F97316 66%, #EF4444 100%); position: relative; margin-bottom: 4px; }
+  .gauge-card { display: flex; flex-direction: column; align-items: stretch; justify-content: space-between; padding: 28px 32px 20px; }
+  .gauge-flat-bar { width: 100%; height: 8px; border-radius: 4px; background: linear-gradient(to right, #22C55E 0%, #EAB308 33%, #F97316 66%, #EF4444 100%); position: relative; margin-bottom: 4px; }
   .gauge-flat-needle { position: absolute; top: 50%; left: 0%; width: 16px; height: 16px; border-radius: 50%; background: var(--bg); border: 2.5px solid #22C55E; transform: translate(-50%, -50%); transition: left 0.5s ease, border-color 0.3s; box-shadow: 0 1px 5px rgba(0,0,0,0.25); }
   .gauge-number { display: flex; align-items: baseline; gap: 6px; margin: 20px 0 20px; }
   .gauge-val { font-size: 64px; font-weight: 700; letter-spacing: -0.04em; line-height: 1; }
   .gauge-denom { font-size: 22px; color: var(--muted); font-weight: 400; }
   .gauge-scale { width: 100%; display: flex; flex-direction: column; gap: 6px; }
+  .gauge-tags { display: flex; flex-direction: column; gap: 6px; width: 100%; margin-top: 14px; }
+  .gauge-tag { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: 9px; font-size: 11px; font-weight: 600; line-height: 1.3; }
+  .gauge-tag svg { flex-shrink: 0; }
+  .tag-buy      { background: #F7931A14; color: #D97706; border: 1px solid #F7931A28; }
+  .tag-overheat { background: #EF444414; color: #EF4444; border: 1px solid #EF444428; }
+  .tag-diverge  { background: #F59E0B14; color: #B45309; border: 1px solid #F59E0B28; }
   .gauge-bar { height: 6px; border-radius: 3px; background: linear-gradient(to right, #22C55E 0%, #22C55E 25%, #EAB308 25%, #EAB308 50%, #F97316 50%, #F97316 75%, #EF4444 75%, #EF4444 100%); }
   .gauge-bar-ticks { display: flex; justify-content: space-between; font-size: 10px; color: var(--muted); padding: 0 1px; }
   .gauge-labels { display: grid; grid-template-columns: repeat(4, 1fr); font-size: 10px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; margin-top: 2px; }
@@ -82,10 +88,10 @@
   .section-title { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
 
   .components-grid { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; box-shadow: var(--shadow); margin-bottom: 24px; }
-  .comp-header { display: grid; grid-template-columns: 220px 100px 1fr 72px 82px; padding: 10px 20px; border-bottom: 1px solid var(--border); background: var(--surface2); }
+  .comp-header { display: grid; grid-template-columns: 220px 100px 1fr 72px 82px; column-gap: 16px; padding: 10px 20px; border-bottom: 1px solid var(--border); background: var(--surface2); }
   .comp-header span { font-size: 10px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
   .comp-header span:not(:first-child) { text-align: right; }
-  .comp-row { display: grid; grid-template-columns: 220px 100px 1fr 72px 82px; padding: 14px 20px; border-bottom: 1px solid var(--border); align-items: center; transition: background 0.1s; }
+  .comp-row { display: grid; grid-template-columns: 220px 100px 1fr 72px 82px; column-gap: 16px; padding: 14px 20px; border-bottom: 1px solid var(--border); align-items: center; transition: background 0.1s; }
   .comp-row:last-child { border-bottom: none; }
   .comp-row:hover { background: var(--surface2); }
   .comp-name { font-size: 13px; font-weight: 600; }
@@ -98,9 +104,11 @@
   .comp-pct { text-align: right; font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--muted2); }
   .comp-signal { display: flex; justify-content: flex-end; }
   .signal-badge { padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; white-space: nowrap; }
-  .signal-bullish { background: #22C55E18; color: #22C55E; border: 1px solid #22C55E25; }
-  .signal-neutral  { background: #EAB30818; color: #CA9A0A; border: 1px solid #EAB30825; }
-  .signal-bearish  { background: #EF444418; color: #EF4444; border: 1px solid #EF444425; }
+  .signal-vlow  { background: #22C55E18; color: #22C55E; border: 1px solid #22C55E30; }
+  .signal-low   { background: #4ADE8018; color: #16A34A; border: 1px solid #4ADE8030; }
+  .signal-mod   { background: #EAB30818; color: #CA9A0A; border: 1px solid #EAB30830; }
+  .signal-high  { background: #F9731618; color: #F97316; border: 1px solid #F9731630; }
+  .signal-vhigh { background: #EF444418; color: #EF4444; border: 1px solid #EF444430; }
   .comp-group-hdr { padding: 7px 20px; background: var(--surface2); border-bottom: 1px solid var(--border); font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); display: flex; align-items: center; gap: 8px; }
   .comp-group-hdr + .comp-row { border-top: none; }
   .comp-group-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
@@ -216,6 +224,7 @@
           <span class="gl-4"><span class="en">V.HIGH</span><span class="ua">НАДМ.</span></span>
         </div>
       </div>
+      <div class="gauge-tags" id="gauge-tags"></div>
     </div>
 
     <!-- Market state card -->
@@ -543,16 +552,20 @@ function mapScore(key, v) {
 
 function getSignal(key, v) {
   const score = mapScore(key, v);
-  if (score == null) return 'neutral';
-  if (score < 35) return 'bullish';
-  if (score < 65) return 'neutral';
-  return 'bearish';
+  if (score == null) return 'mod';
+  if (score < 25) return 'vlow';
+  if (score < 35) return 'low';
+  if (score < 55) return 'mod';
+  if (score < 75) return 'high';
+  return 'vhigh';
 }
 
 const SIG_LABELS = {
-  bullish: { en: 'Low',      ua: 'Низький',   cls: 'signal-bullish' },
-  neutral: { en: 'Moderate', ua: 'Помірний',  cls: 'signal-neutral' },
-  bearish: { en: 'High',     ua: 'Високий',   cls: 'signal-bearish' },
+  vlow:  { en: 'Very Low',  ua: 'Мінімальний', cls: 'signal-vlow',  color: '#22C55E' },
+  low:   { en: 'Low',       ua: 'Незначний',   cls: 'signal-low',   color: '#4ADE80' },
+  mod:   { en: 'Moderate',  ua: 'Помірний',    cls: 'signal-mod',   color: '#EAB308' },
+  high:  { en: 'High',      ua: 'Значний',     cls: 'signal-high',  color: '#F97316' },
+  vhigh: { en: 'Very High', ua: 'Надмірний',   cls: 'signal-vhigh', color: '#EF4444' },
 };
 
 function applySignal(elId, key, val) {
@@ -758,10 +771,11 @@ async function loadData() {
   const vals = [mvrv, nupl, rhodl, asopr, cvdd, cbVal, mayer, ycVal, etfVal, fgVal, m2Val];
   const keys = ['mvrv','nupl','rhodl','asopr','cvdd','cipherb','mayer','yield_curve','etf','fg','m2'];
   const ids  = ['sig-mvrv','sig-nupl','sig-rhodl','sig-asopr','sig-cvdd','sig-cipherb','sig-mayer','sig-yc','sig-etf','sig-fg','sig-m2'];
-  const colorOf = { bullish: '#22C55E', neutral: '#EAB308', bearish: '#EF4444' };
-
   ids.forEach((id, i) => applySignal(id, keys[i], vals[i]));
-  sparkColors = vals.map((v, i) => v != null ? colorOf[getSignal(keys[i], v)] : '#22C55E');
+  sparkColors = vals.map((v, i) => {
+    const sig = getSignal(keys[i], v);
+    return (SIG_LABELS[sig] || SIG_LABELS.mod).color;
+  });
 
   // Zone price levels
   const zf = data.zone_forecast || {};
@@ -769,10 +783,55 @@ async function loadData() {
   if (zf.realized_price) set('zone-realized', '≈ ' + fmtPrice(zf.realized_price));
   if (zf.buy)            set('zone-buy',      '≤ ' + fmtPrice(zf.buy.price));
 
+  // Gauge tags
+  const frObj = m.funding_rate && m.funding_rate.value ? m.funding_rate.value : null;
+  const frAvg = frObj ? (frObj.avg_7d != null ? frObj.avg_7d : frObj.latest) : null;
+  updateGaugeTags(score, vals, keys, frAvg);
+
   // History
   historyScores = (data.score_history || []).filter(e => e.score != null).map(e => e.score);
   drawHistory(activeRange);
   drawSparklines();
+}
+
+function updateGaugeTags(score, vals, keys, fr) {
+  const el = document.getElementById('gauge-tags');
+  if (!el) return;
+
+  const ICON_BTC = `<svg width="15" height="15" viewBox="0 0 15 15" fill="none"><circle cx="7.5" cy="7.5" r="6.5" stroke="currentColor" stroke-width="1.3"/><text x="7.5" y="11.5" text-anchor="middle" font-size="8" font-weight="700" font-family="sans-serif" fill="currentColor">₿</text></svg>`;
+  const ICON_USD = `<svg width="15" height="15" viewBox="0 0 15 15" fill="none"><circle cx="7.5" cy="7.5" r="6.5" stroke="currentColor" stroke-width="1.3"/><text x="7.5" y="11.5" text-anchor="middle" font-size="9" font-weight="700" font-family="sans-serif" fill="currentColor">$</text></svg>`;
+  const ICON_WARN = `<svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M7.5 2L13.5 13H1.5L7.5 2Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><line x1="7.5" y1="6" x2="7.5" y2="9.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="7.5" cy="11.2" r="0.7" fill="currentColor"/></svg>`;
+
+  const tags = [];
+
+  // Tactical Buy: score ≤ 30 AND funding < 0
+  if (score <= 30 && fr != null && fr < 0) {
+    tags.push({ cls: 'tag-buy', icon: ICON_BTC,
+      en: 'Tactical Buy — leverage capitulation',
+      ua: 'Тактична купівля — капітуляція плеча' });
+  }
+
+  // Leverage Overheat: score ≥ 50 AND funding ≥ 0.05%
+  if (score >= 50 && fr != null && fr >= 0.05) {
+    tags.push({ cls: 'tag-overheat', icon: ICON_USD,
+      en: 'Leverage Overheat — long squeeze risk',
+      ua: 'Перегрів плеча — ризик лонг-сквізу' });
+  }
+
+  // Divergence: overall low (≤40) but some indicator high (≥65), or vice versa (≥60 / ≤35)
+  const scores = vals.map((v, i) => mapScore(keys[i], v)).filter(s => s != null);
+  const hasDivergence =
+    (score <= 40 && scores.some(s => s >= 65)) ||
+    (score >= 60 && scores.some(s => s <= 35));
+  if (hasDivergence) {
+    tags.push({ cls: 'tag-diverge', icon: ICON_WARN,
+      en: 'Divergence — indicators conflict',
+      ua: 'Розбіжність — індикатори суперечать' });
+  }
+
+  el.innerHTML = tags.map(t =>
+    `<div class="gauge-tag ${t.cls}">${t.icon}<span class="en">${t.en}</span><span class="ua">${t.ua}</span></div>`
+  ).join('');
 }
 
 window.addEventListener('load', loadData);
