@@ -1145,7 +1145,7 @@ async function loadData() {
 
   const scoreToSig = (v) => v == null ? null : v < 25 ? 'vlow' : v < 35 ? 'low' : v < 55 ? 'mod' : v < 75 ? 'high' : 'vhigh';
 
-  // rawSum → displayed number; avg → badge and dot color (normalized 0–100)
+  // Fills the 5-column grid: [name | score | spark | pct | signal]
   const updateHeader = (id, baseEn, baseUa, rawSum, avg) => {
     const el = document.getElementById(id);
     if (el) {
@@ -1162,9 +1162,11 @@ async function loadData() {
           <div class="comp-group-dot" style="background:${dotColor}"></div>
           <span class="en">${baseEn}</span>
           <span class="ua">${baseUa}</span>
-          ${badgeHtml}
         </div>
         <div style="text-align: center; font-weight: 700;">${displayNum != null ? displayNum : '—'}</div>
+        <div></div>
+        <div></div>
+        <div class="comp-signal">${badgeHtml}</div>
       `;
     }
   };
