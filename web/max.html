@@ -60,6 +60,7 @@
       width: 100%;
       display: grid;
       grid-template-columns: repeat(2, 1fr);
+      grid-auto-rows: 1fr;
       gap: 12px;
     }
     .bento-sub-card {
@@ -68,22 +69,31 @@
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
       border-radius: 20px;
-      padding: 16px;
+      padding: 20px;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0;
+      cursor: pointer;
+      transition: background 0.2s ease, border-color 0.2s ease;
+    }
+    .bento-sub-card:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--border-hover);
     }
     .bento-sub-title {
-      font-size: 0.62rem;
+      font-size: 0.6rem;
       font-weight: 700;
       letter-spacing: 0.1em;
       text-transform: uppercase;
       color: var(--text);
       text-align: center;
+      opacity: 0.65;
     }
     .bento-sub-value {
       font-family: 'Outfit', sans-serif;
-      font-size: 2.6rem;
+      font-size: 2.8rem;
       font-weight: 800;
       line-height: 1;
       color: var(--text);
@@ -104,11 +114,11 @@
       transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
     }
     .bento-sub-desc {
-      font-size: 0.62rem;
+      font-size: 0.6rem;
       color: var(--text);
       font-weight: 500;
       text-align: center;
-      opacity: 0.7;
+      opacity: 0.55;
     }
     .bento-section {
       width: 100%;
@@ -1309,11 +1319,13 @@
         padding: 24px 12px;
       }
       .bento-sub-row {
-        grid-template-columns: repeat(2, 1fr);
         gap: 10px;
       }
       .bento-sub-value {
-        font-size: 2rem;
+        font-size: 2.2rem;
+      }
+      .bento-sub-card {
+        padding: 16px;
       }
       .mini-indicator-row {
         grid-template-columns: 95px 50px 1fr 25px;
