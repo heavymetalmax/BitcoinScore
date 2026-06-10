@@ -913,47 +913,7 @@ function drawSparklines() {
 let historyScores = [];
 let activeRange = 'ALL';
 
-function drawHistory(range) {
-  activeRange = range || 'ALL';
-  const c = document.getElementById('historyChart');
-  if (!c || !historyScores.length) return;
-  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-  const dpr = window.devicePixelRatio || 1;
-  c.width = c.offsetWidth * dpr; c.height = c.offsetHeight * dpr;
-  const ctx = c.getContext('2d'); ctx.scale(dpr, dpr);
-  const W = c.offsetWidth, H = c.offsetHeight; ctx.clearRect(0, 0, W, H);
 
-  const days = { '1M': 30, '3M': 90, '6M': 180, 'ALL': 99999 };
-  const pts = historyScores.slice(-(days[activeRange] || 99999));
-  if (!pts.length) return;
-
-  const pad = { t: 10, b: 20, l: 30, r: 10 };
-  const cw = W - pad.l - pad.r, ch = H - pad.t - pad.b;
-
-  [{ mn: 75, mx: 100, c: isDark ? '#EF444415' : '#EF444410' },
-   { mn: 50, mx: 75,  c: isDark ? '#F9731610' : '#F9731608' },
-   { mn: 25, mx: 50,  c: isDark ? '#EAB30810' : '#EAB30808' },
-   { mn: 0,  mx: 25,  c: isDark ? '#22C55E12' : '#22C55E0A' }].forEach(z => {
-    ctx.fillStyle = z.c;
-    ctx.fillRect(pad.l, pad.t + ch - (z.mx / 100) * ch, cw, ((z.mx - z.mn) / 100) * ch);
-  });
-
-  ctx.strokeStyle = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)'; ctx.lineWidth = 1;
-  [0, 25, 50, 75, 100].forEach(v => {
-    const y = pad.t + ch - (v / 100) * ch;
-    ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(pad.l + cw, y); ctx.stroke();
-    ctx.fillStyle = isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.3)';
-    ctx.font = '10px Inter'; ctx.fillText(v, 2, y + 4);
-  });
-
-  ctx.beginPath();
-  pts.forEach((v, i) => {
-    const x = pad.l + (i / Math.max(pts.length - 1, 1)) * cw;
-    const y = pad.t + ch - (v / 100) * ch;
-    i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
-  });
-  ctx.strokeStyle = isDark ? '#F0F0F5' : '#0A0A0F'; ctx.lineWidth = 1.5; ctx.stroke();
-}
 
 document.querySelectorAll('.time-btn').forEach(b => {
   b.addEventListener('click', () => {
