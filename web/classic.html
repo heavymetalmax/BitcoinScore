@@ -1130,18 +1130,26 @@ async function loadData() {
   const techAvg  = groupAvg(techList.filter(i => i.group === 'tech'));
   const macroAvg = groupAvg(techList.filter(i => i.group === 'macro'));
 
-  const updateHeader = (id, baseEn, baseUa, cont, avg) => {
+  const scoreToSig = (v) => v == null ? null : v < 25 ? 'vlow' : v < 35 ? 'low' : v < 55 ? 'mod' : v < 75 ? 'high' : 'vhigh';
+
+  const updateHeader = (id, baseEn, baseUa, _cont, avg) => {
     const el = document.getElementById(id);
     if (el) {
-      const pts = Math.round(cont);
-      const dotColor = avg != null ? riskZone(Math.round(avg)).color : '#888';
+      const rounded = avg != null ? Math.round(avg) : null;
+      const dotColor = rounded != null ? riskZone(rounded).color : '#888';
+      const sig = scoreToSig(rounded);
+      const sigInfo = sig ? SIG_LABELS[sig] : null;
+      const badgeHtml = sigInfo
+        ? `<span class="signal-badge ${sigInfo.cls}" style="font-size:10px;padding:2px 8px;"><span class="en">${sigInfo.en}</span><span class="ua">${sigInfo.ua}</span></span>`
+        : '';
       el.innerHTML = `
         <div style="display: flex; align-items: center; gap: 8px;">
           <div class="comp-group-dot" style="background:${dotColor}"></div>
           <span class="en">${baseEn}</span>
           <span class="ua">${baseUa}</span>
+          ${badgeHtml}
         </div>
-        <div style="text-align: center; font-weight: 700;">+${pts}</div>
+        <div style="text-align: center; font-weight: 700;">${rounded != null ? rounded : '—'}</div>
       `;
     }
   };
