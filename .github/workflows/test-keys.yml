@@ -1,0 +1,25 @@
+name: Test API Keys and List Models
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-keys:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run list models script
+        env:
+          OPENAI_API_KEY: ${{ secrets.gpt_api }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python scratch/list_models.py
