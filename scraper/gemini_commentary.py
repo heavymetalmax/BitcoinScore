@@ -228,22 +228,28 @@ def _call_openai(prompt: str, api_key: str) -> Optional[str]:
     return None
 
 
-def _translate_via_gemini(text: str, api_key: str) -> Optional[str]:
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key={api_key}"
-    headers = {"Content-Type": "application/json"}
-    prompt = (
-        "Translate the following Bitcoin market commentary into Ukrainian. "
-        "Keep it factual and natural, matching the style, tone, and precise meaning of the original text exactly. "
-        "Do not add any extra commentary, explanations, or introductory/concluding phrases:\n\n"
-        f"{text}"
-    )
+def _translate_via_grok(text: str, api_key: str) -> Optional[str]:
+    url = 'https://api.x.ai/v1/chat/completions'
+    headers = {
+        'Authorization': f'Bearer {api_key}',
+        'Content-Type': 'application/json',
+    }
     body = {
-        "contents": [{
-            "parts": [{"text": prompt}]
-        }],
-        "generationConfig": {
-            "temperature": 0.2
-        }
+        'model': 'grok-3-mini',
+        'messages': [
+            {
+                'role': 'system',
+                'content': (
+                    'You are a professional Ukrainian translator. '
+                    'Translate the given Bitcoin market commentary into Ukrainian exactly — '
+                    'preserve tone, style, and all specific numeric values. '
+                    'Output only the translated text, no extra words.'
+                ),
+            },
+            {'role': 'user', 'content': text},
+        ],
+        'temperature': 0.2,
+        'max_tokens': 1000,
     }
     last_exc = None
     for attempt in range(3):
@@ -252,16 +258,15 @@ def _translate_via_gemini(text: str, api_key: str) -> Optional[str]:
         try:
             resp = requests.post(url, json=body, headers=headers, timeout=30)
             if not resp.ok:
-                print(f'Gemini translation attempt {attempt + 1} failed: {resp.status_code} — {resp.text[:200]}', flush=True)
+                print(f'Grok translation attempt {attempt + 1} failed: {resp.status_code} — {resp.text[:200]}', flush=True)
                 last_exc = resp.text
                 continue
-            res_json = resp.json()
-            translated = res_json['candidates'][0]['content']['parts'][0]['text'].strip()
+            translated = resp.json()['choices'][0]['message']['content'].strip()
             return translated
         except Exception as exc:
             last_exc = exc
-            print(f'Gemini translation attempt {attempt + 1} failed: {exc}', flush=True)
-    print(f'Gemini translation failed after 3 attempts: {last_exc}', flush=True)
+            print(f'Grok translation attempt {attempt + 1} failed: {exc}', flush=True)
+    print(f'Grok translation failed after 3 attempts: {last_exc}', flush=True)
     return None
 
 
@@ -282,15 +287,15 @@ def generate_commentary(payload: dict, slider_map: dict) -> Optional[dict]:
         return None
     print(f'OpenAI commentary (en): {en_text[:100]}…')
 
-    gemini_key = os.environ.get('GEMINI_API_KEY')
+    grok_key = os.environ.get('GROK_API_KEY')
     ua_text = None
-    if gemini_key:
-        ua_text = _translate_via_gemini(en_text, gemini_key)
-    
+    if grok_key:
+        ua_text = _translate_via_grok(en_text, grok_key)
+
     if not ua_text:
         ua_text = en_text
-        print('Gemini translation unavailable — using English fallback for UA')
+        print('Grok translation unavailable — using English fallback for UA', flush=True)
     else:
-        print(f'Gemini commentary (ua): {ua_text[:100]}…')
+        print(f'Grok translation (ua): {ua_text[:100]}…', flush=True)
 
     return {'en': en_text, 'ua': ua_text}
