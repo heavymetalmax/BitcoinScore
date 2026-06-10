@@ -354,16 +354,15 @@
     .status-dot.ok  { background: #4ade80; box-shadow: 0 0 7px #4ade80; }
     .status-dot.err { background: #f87171; box-shadow: 0 0 7px #f87171; }
 
-    /* --- Bento row wrappers for desktop 2-col layout --- */
-    .bento-row-1, .bento-row-2 {
+    /* --- Bento 2×2 grid (mobile: single column) --- */
+    .bento-grid {
       width: 100%;
       max-width: 500px;
       display: flex;
       flex-direction: column;
       gap: 12px;
+      margin-top: 10vh;
     }
-    .bento-row-1 { margin-top: 10vh; }
-    .bento-row-2 { margin-top: 0; }
 
     /* --- Center Display Area (Flipping Card) --- */
     .center-display {
@@ -1273,28 +1272,21 @@
     .drawer-nav-item:hover { opacity: 0.7; }
 
 
-    /* Desktop 2-column layout */
+    /* Desktop: 2×2 equal bento grid */
     @media (min-width: 860px) {
       .lockscreen-wrapper {
         padding: 32px 40px max(80px, calc(80px + env(safe-area-inset-bottom)));
       }
-      .bento-row-1 {
+      .bento-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        align-items: start;
+        grid-auto-rows: auto;
+        align-items: stretch;
         max-width: 940px;
         gap: 16px;
+        margin-top: 6vh;
       }
-      .bento-row-1 > * { min-width: 0; }
-      .bento-row-2 {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        align-items: start;
-        max-width: 940px;
-        gap: 16px;
-      }
-      .bento-row-2 > * { min-width: 0; }
-      .bento-row-1 { margin-top: 6vh; }
+      .bento-grid > * { min-width: 0; }
     }
 
     /* Mobile adjustments */
@@ -1383,10 +1375,10 @@
       <span class="status-price" id="hero-card-price">—</span>
     </div>
 
-    <!-- Row 1: main index card + 4 sub-score cards -->
-    <div class="bento-row-1">
+    <!-- 2×2 bento grid: cell1=main, cell2=sub-scores, cell3=onchain, cell4=tech -->
+    <div class="bento-grid">
 
-    <!-- Main Index Card -->
+    <!-- Cell 1: Main Index Card -->
     <div class="center-display" id="center-display">
       <div class="center-display-inner" id="center-display-inner">
         
@@ -1509,12 +1501,7 @@
       </div>
     </div>
 
-    </div><!-- /.bento-row-1 -->
-
-    <!-- Row 2: on-chain + tech/macro indicator detail sections -->
-    <div class="bento-row-2">
-
-    <!-- On-chain indicators section -->
+    <!-- Cell 3: On-chain indicators section -->
     <div class="bento-section">
       <div class="bento-section-title"><span class="en">On-Chain Indicators</span><span class="ua">Ончейн-індикатори</span></div>
       <div class="mini-indicators-list" id="list-onchain-main"></div>
@@ -1532,7 +1519,7 @@
       </a>
     </div>
 
-    </div><!-- /.bento-row-2 -->
+    </div><!-- /.bento-grid -->
 
     <div class="drawer-backdrop" id="drawer-backdrop" onclick="toggleDrawer(false); toggleCommentary(false); closeMetricHelp();"></div>
 
