@@ -254,10 +254,19 @@ Be specific: always cite the actual metric values.
    If no protocols fire, omit this section entirely.
 
 7. TREND CONTINUATION  (1–2 sentences)
-   Assess the probability that the current index direction (rising/falling/flat)
-   extends. Reference momentum alignment between OC and TM groups, active regime,
-   and any divergence signals. Use language like "high/moderate/low probability
-   of continuation" and name the single factor most likely to confirm or invalidate it.
+   Step 1: Infer current direction from dominant metrics (ETF flows, MVRV Z, aSOPR,
+   group sub-scores). Is the index falling / rising / flat?
+   Step 2: Check if the PRIMARY DRIVER of that direction is still active and strong,
+   losing force, or reversing.
+   Step 3: Assign HIGH / MODERATE / LOW probability of continuation:
+     HIGH — driver still strong, no counter-signals. ETF outflows deepening while
+       on-chain metrics deteriorate = high probability of further decline.
+     MODERATE — driver present but showing early stalling signs.
+     LOW — driver weakening, or a counter-signal emerging.
+   Step 4: Name the ONE leading indicator whose reversal would mark a trend change.
+   CRITICAL: for a declining index driven by ETF outflows, say "high probability of
+   further decline" — do NOT frame it as "contingent on ETF flows reversing" as if
+   inflows are the base case. The base case is continuation, reversal is the exception.
 
 8. NET ASSESSMENT  (1 sentence)
    Overall risk posture. No investment advice or action recommendations.

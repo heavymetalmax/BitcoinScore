@@ -349,11 +349,6 @@
         </div>
       </div>
     </div>
-    <!-- AI Commentary row -->
-    <div class="card commentary-row">
-      <span class="commentary-label">AI</span>
-      <span class="commentary-text" id="ai-commentary">—</span>
-    </div>
   </div>
 
   <!-- COMPONENTS -->
@@ -968,9 +963,9 @@ async function loadData() {
   if (snEl) snEl.innerHTML = '<span class="score-val">' + score + '</span><span class="score-denom">/100</span>';
   const szEl = document.getElementById('score-zone');
   if (szEl) { szEl.innerHTML = `<span class="en">${z.label}</span><span class="ua">${z.labelUa}</span>`; szEl.style.color = z.color; }
-  const acEl = document.getElementById('ai-commentary');
-  if (acEl && data.commentary) {
-    acEl.innerHTML = `<span class="en">${data.commentary.en || ''}</span><span class="ua">${data.commentary.ua || ''}</span>`;
+  const sdEl = document.getElementById('score-desc');
+  if (sdEl && data.commentary) {
+    sdEl.innerHTML = `<span class="en">${data.commentary.en || ''}</span><span class="ua">${data.commentary.ua || ''}</span>`;
   }
   const hintEl = document.getElementById('score-hint');
   if (hintEl) { hintEl.style.color = z.color; hintEl.style.background = z.color + '12'; hintEl.style.borderColor = z.color + '25'; }
