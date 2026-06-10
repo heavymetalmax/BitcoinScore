@@ -126,6 +126,7 @@ def _call_openai(prompt: str, api_key: str) -> Optional[str]:
         'Authorization': f'Bearer {api_key}',
         'Content-Type': 'application/json',
     }
+    print(f'OpenAI: initiating call, key_prefix={api_key[:8]}…, prompt_len={len(prompt)}', flush=True)
     
     developer_instruction = (
         "You are a senior Bitcoin macro and on-chain analyst. "
@@ -202,8 +203,17 @@ def _call_openai(prompt: str, api_key: str) -> Optional[str]:
             time.sleep(2 ** attempt)
         try:
             resp = requests.post(url, json=body, headers=headers, timeout=45)
+            print(f'OpenAI: attempt {attempt+1} status={resp.status_code}', flush=True)
             resp.raise_for_status()
-            return resp.json()['choices'][0]['message']['content'].strip()
+            data = resp.json()
+            choice = data['choices'][0]
+            content = choice['message'].get('content')
+            print(f'OpenAI: finish_reason={choice.get("finish_reason")}, content_len={len(content) if content else 0}', flush=True)
+            if content:
+                return content.strip()
+            # content is None or empty (e.g. refusal / content_filter)
+            print(f'OpenAI: empty content — choice={choice}', flush=True)
+            return None
         except Exception as exc:
             last_exc = exc
             print(f'OpenAI o3-mini attempt {attempt + 1} failed: {exc}', flush=True)
