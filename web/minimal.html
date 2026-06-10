@@ -1037,6 +1037,47 @@
       border-radius: 99px;
       margin: 16px auto 28px;
     }
+    .about-footer-close { display: none; }
+    @media (min-width: 860px) {
+      .about-footer {
+        inset: auto;
+        top: 50%;
+        left: 50%;
+        width: min(580px, 90vw);
+        max-height: 80vh;
+        border-radius: 24px;
+        border: 1px solid rgba(255,255,255,0.12);
+        transform: translate(-50%, calc(-50% + 40px));
+        opacity: 0;
+        pointer-events: none;
+        transition: transform 0.3s ease, opacity 0.3s ease;
+        padding: 28px 32px 36px;
+      }
+      .about-footer.open {
+        transform: translate(-50%, -50%);
+        opacity: 1;
+        pointer-events: all;
+      }
+      .about-footer-handle { display: none; }
+      .about-footer-close {
+        display: flex;
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.1);
+        border: none;
+        color: #fff;
+        font-size: 1.1rem;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+      .about-footer-close:hover { background: rgba(255,255,255,0.2); }
+    }
     .about-footer p {
       font-size: 0.82rem;
       line-height: 1.8;
@@ -1526,9 +1567,10 @@
   <!-- About footer bottom sheet -->
   <div class="about-footer" id="about-footer">
     <div class="about-footer-handle" onclick="toggleAbout(false)" style="cursor:pointer;padding:8px 0;"></div>
+    <button class="about-footer-close" onclick="toggleAbout(false)">×</button>
     <p class="about-score-line">
-      <span class="en">As of the latest daily update, the Bitcoin Buy Risk Index reads <strong id="about-score-en">—</strong> / 100 — <span id="about-status-en">—</span>.</span>
-      <span class="ua">Станом на останнє щоденне оновлення Індекс ризику купівлі Bitcoin становить <strong id="about-score-ua">—</strong> / 100 — <span id="about-status-ua">—</span>.</span>
+      <span class="en">This is not a call to action, financial advice, or an objective measure of risk. The index is a personal analytical tool — use it as one data point among many. No liability is accepted for any decisions made based on this information.</span>
+      <span class="ua">Це не заклик до дії, не фінансова порада і не об'єктивний спосіб вимірювання ризику. Індекс є особистим аналітичним інструментом — використовуйте його як один із багатьох орієнтирів. Жодної відповідальності за рішення, прийняті на основі цієї інформації, не несеться.</span>
     </p>
     <p>
       <span class="en">The <strong>Bitcoin Buy Risk Index</strong> answers a single question: <strong>is it a good time to buy Bitcoin?</strong> It condenses 10+ on-chain and macro indicators into one <strong>0–100 score</strong>, updated daily. A low score means Bitcoin is in historically undervalued territory. A high score signals elevated risk and historically expensive prices.</span>
