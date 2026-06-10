@@ -125,7 +125,7 @@
   .signal-mod   { background: #EAB30818; color: #CA9A0A; border: 1px solid #EAB30830; }
   .signal-high  { background: #F9731618; color: #F97316; border: 1px solid #F9731630; }
   .signal-vhigh { background: #EF444418; color: #EF4444; border: 1px solid #EF444430; }
-  .comp-group-hdr { padding: 7px 20px; background: #FFFFFF; border-bottom: 1px solid var(--border); font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #000000; display: flex; align-items: center; gap: 8px; }
+  .comp-group-hdr { padding: 7px 20px; background: #FFFFFF; border-bottom: 1px solid var(--border); font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #000000; display: grid; grid-template-columns: 220px 100px 1fr 72px 82px; column-gap: 16px; align-items: center; }
   .comp-group-hdr + .comp-row { border-top: none; }
   .comp-group-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
 
@@ -197,7 +197,7 @@
     .view-switch { display: none; }
     .hero { grid-template-columns: 1fr; }
     .bottom-grid { grid-template-columns: 1fr; }
-    .comp-header, .comp-row { grid-template-columns: 1fr 90px 80px; }
+    .comp-header, .comp-row, .comp-group-hdr { grid-template-columns: 1fr 90px 80px; }
     .comp-spark, .comp-pct { display: none; }
     .comp-header span:nth-child(3),
     .comp-header span:nth-child(4) { display: none; }
@@ -1107,7 +1107,14 @@ async function loadData() {
       const pts = Math.round(cont);
       const dot = el.querySelector('.comp-group-dot');
       const dotBg = dot ? dot.style.background : '#888';
-      el.innerHTML = `<div class="comp-group-dot" style="background:${dotBg}"></div><span class="en">${baseEn} (+${pts})</span><span class="ua">${baseUa} (+${pts})</span>`;
+      el.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <div class="comp-group-dot" style="background:${dotBg}"></div>
+          <span class="en">${baseEn}</span>
+          <span class="ua">${baseUa}</span>
+        </div>
+        <div style="text-align: center; font-weight: 700;">+${pts}</div>
+      `;
     }
   };
 
