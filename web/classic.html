@@ -56,12 +56,12 @@
   .score-hint { display: flex; align-items: flex-start; gap: 8px; border-radius: 8px; padding: 10px 12px; font-size: 11px; line-height: 1.4; border: 1px solid transparent; }
   .score-hint svg { flex-shrink: 0; margin-top: 1px; }
 
-  .gauge-card { display: flex; flex-direction: column; align-items: stretch; justify-content: space-between; padding: 28px 32px 20px; }
-  .gauge-flat-bar { width: 100%; height: 8px; border-radius: 4px; background: linear-gradient(to right, #22C55E 0%, #EAB308 33%, #F97316 66%, #EF4444 100%); position: relative; margin-bottom: 4px; }
-  .gauge-flat-needle { position: absolute; top: 50%; left: 0%; width: 16px; height: 16px; border-radius: 50%; background: var(--bg); border: 2.5px solid #22C55E; transform: translate(-50%, -50%); transition: left 0.5s ease, border-color 0.3s; box-shadow: 0 1px 5px rgba(0,0,0,0.25); }
-  .gauge-number { display: flex; align-items: baseline; gap: 6px; margin: 20px 0 20px; }
-  .gauge-val { font-size: 64px; font-weight: 700; letter-spacing: -0.04em; line-height: 1; }
-  .gauge-denom { font-size: 22px; color: var(--muted); font-weight: 400; }
+  .gauge-card { display: flex; flex-direction: column; align-items: stretch; justify-content: space-between; padding: 24px 28px 20px; }
+  .gauge-arc-wrap { position: relative; width: 100%; }
+  .gauge-svg { display: block; width: 100%; overflow: visible; }
+  .gauge-arc-number { position: absolute; bottom: 4%; left: 0; right: 0; display: flex; justify-content: center; align-items: baseline; gap: 5px; }
+  .gauge-val { font-size: 56px; font-weight: 700; letter-spacing: -0.04em; line-height: 1; }
+  .gauge-denom { font-size: 20px; color: var(--muted); font-weight: 400; }
   .gauge-scale { width: 100%; display: flex; flex-direction: column; gap: 6px; }
   .gauge-tags { display: flex; flex-direction: column; gap: 6px; width: 100%; margin-top: 14px; }
   .gauge-tag { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: 9px; font-size: 11px; font-weight: 600; line-height: 1.3; }
@@ -208,11 +208,28 @@
 
     <!-- Gauge card -->
     <div class="card gauge-card">
-      <div class="gauge-flat-bar">
-        <div class="gauge-flat-needle" id="gauge-flat-needle"></div>
-      </div>
-      <div class="gauge-number">
-        <span class="gauge-val" id="gauge-val">—</span><span class="gauge-denom">/100</span>
+      <div class="gauge-arc-wrap">
+        <svg class="gauge-svg" viewBox="0 0 240 130" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="arcGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%"   stop-color="#22C55E"/>
+              <stop offset="33%"  stop-color="#EAB308"/>
+              <stop offset="66%"  stop-color="#F97316"/>
+              <stop offset="100%" stop-color="#EF4444"/>
+            </linearGradient>
+          </defs>
+          <!-- Track -->
+          <path d="M 20 120 A 100 100 0 0 1 220 120" stroke="var(--surface2)" stroke-width="14" stroke-linecap="round" fill="none"/>
+          <!-- Faint gradient track -->
+          <path d="M 20 120 A 100 100 0 0 1 220 120" stroke="url(#arcGrad)" stroke-width="14" stroke-linecap="round" fill="none" opacity="0.18"/>
+          <!-- Active arc -->
+          <path id="gauge-arc" d="" stroke="#22C55E" stroke-width="14" stroke-linecap="round" fill="none"/>
+          <!-- Needle dot -->
+          <circle id="gauge-needle" cx="20" cy="120" r="8" fill="var(--bg)" stroke="#22C55E" stroke-width="2.5"/>
+        </svg>
+        <div class="gauge-arc-number">
+          <span class="gauge-val" id="gauge-val">—</span><span class="gauge-denom">/100</span>
+        </div>
       </div>
       <div class="gauge-scale">
         <div class="gauge-bar"></div>
@@ -580,10 +597,16 @@ function applySignal(elId, key, val) {
 // ─── GAUGE ─────────────────────────────────────────────
 function updateGauge(score) {
   const z = riskZone(score);
-  const needle = document.getElementById('gauge-flat-needle');
-  if (needle) { needle.style.left = score + '%'; needle.style.borderColor = z.color; }
+  const ang = Math.PI - (score / 100) * Math.PI;
+  const nx = (120 + 100 * Math.cos(ang)).toFixed(1);
+  const ny = (120 - 100 * Math.sin(ang)).toFixed(1);
+  const la = score > 50 ? 1 : 0;
+  const arc = document.getElementById('gauge-arc');
+  const needle = document.getElementById('gauge-needle');
+  if (arc) { arc.setAttribute('d', score > 0 ? `M 20 120 A 100 100 0 ${la} 1 ${nx} ${ny}` : ''); arc.setAttribute('stroke', z.color); }
+  if (needle) { needle.setAttribute('cx', nx); needle.setAttribute('cy', ny); needle.setAttribute('stroke', z.color); }
   const gv = document.getElementById('gauge-val');
-  if (gv) gv.textContent = score;
+  if (gv) { gv.textContent = score; gv.style.color = z.color; }
 }
 
 // ─── SPARKLINES ────────────────────────────────────────
