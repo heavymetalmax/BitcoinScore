@@ -93,6 +93,10 @@
   .market-row:last-child > .market-row-left,
   .market-row:last-child > .market-row-val { border-bottom: none; }
 
+  .commentary-row { grid-column: 1 / -1; padding: 16px 20px; display: flex; gap: 12px; align-items: flex-start; }
+  .commentary-label { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); white-space: nowrap; padding-top: 2px; flex-shrink: 0; }
+  .commentary-text { font-size: 12px; color: var(--muted2); line-height: 1.65; }
+
   .section-header { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
   .section-title { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
 
@@ -299,6 +303,11 @@
           <span class="market-row-val" id="market-next">—</span>
         </div>
       </div>
+    </div>
+    <!-- AI Commentary row -->
+    <div class="card commentary-row">
+      <span class="commentary-label">AI</span>
+      <span class="commentary-text" id="ai-commentary">—</span>
     </div>
   </div>
 
@@ -745,6 +754,10 @@ async function loadData() {
   if (sdEl && data.commentary) {
     const crop = (t) => t ? (t.length > 130 ? t.slice(0, 130) + '…' : t) : '';
     sdEl.innerHTML = `<span class="en">${crop(data.commentary.en)}</span><span class="ua">${crop(data.commentary.ua)}</span>`;
+  }
+  const acEl = document.getElementById('ai-commentary');
+  if (acEl && data.commentary) {
+    acEl.innerHTML = `<span class="en">${data.commentary.en || ''}</span><span class="ua">${data.commentary.ua || ''}</span>`;
   }
   const hintEl = document.getElementById('score-hint');
   if (hintEl) { hintEl.style.color = z.color; hintEl.style.background = z.color + '12'; hintEl.style.borderColor = z.color + '25'; }
