@@ -194,7 +194,7 @@
     main { background: var(--bg); padding: 20px 16px 48px; }
     .nav-inner { padding: 0 16px; }
     .nav-links { display: none; }
-    .view-switch { display: none; }
+    .nav-right .view-switch { display: none; }
     .hero { grid-template-columns: 1fr; }
     .bottom-grid { grid-template-columns: 1fr; }
     .comp-header, .comp-row, .comp-group-hdr { grid-template-columns: 1fr 90px 80px; }
@@ -224,7 +224,9 @@
         <button class="view-btn active"><span class="en">Financial</span><span class="ua">Фінансовий</span></button>
         <button class="view-btn" onclick="location.href='minimal.html'"><span class="en">Lifestyle</span><span class="ua">Лайфстайл</span></button>
       </div>
-      <button class="theme-btn theme-btn-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle theme"></button>
+      <button class="theme-btn" id="themeToggle" title="Toggle theme">
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="7.5" cy="7.5" r="2.8"/><line x1="7.5" y1="1" x2="7.5" y2="2.6"/><line x1="7.5" y1="12.4" x2="7.5" y2="14"/><line x1="1" y1="7.5" x2="2.6" y2="7.5"/><line x1="12.4" y1="7.5" x2="14" y2="7.5"/><line x1="2.75" y1="2.75" x2="3.86" y2="3.86"/><line x1="11.14" y1="11.14" x2="12.25" y2="12.25"/><line x1="12.25" y1="2.75" x2="11.14" y2="3.86"/><line x1="3.86" y1="11.14" x2="2.75" y2="12.25"/></svg>
+      </button>
       <button class="lang-btn" id="langToggle">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="7" cy="7" r="5.5"/><path d="M7 1.5C7 1.5 5.5 4 5.5 7s1.5 5.5 1.5 5.5"/><path d="M7 1.5C7 1.5 8.5 4 8.5 7s-1.5 5.5-1.5 5.5"/><line x1="1.6" y1="5.2" x2="12.4" y2="5.2"/><line x1="1.6" y1="8.8" x2="12.4" y2="8.8"/></svg>
         <span id="lang-label">EN</span>
@@ -517,10 +519,15 @@
       <a href="compare.html" onclick="toggleMobileMenu(false)"><span class="en">Compare</span><span class="ua">Порівняння</span></a>
       <a href="#history" onclick="toggleMobileMenu(false)"><span class="en">History</span><span class="ua">Історія</span></a>
     </div>
-    <div class="mobile-menu-footer" style="margin-top: auto; border-top: 1px solid var(--border); padding-top: 16px; display: flex; align-items: center; justify-content: space-between;">
-      <span class="en" style="font-size: 13px; color: var(--muted2);">Theme</span>
-      <span class="ua" style="font-size: 13px; color: var(--muted2);">Тема</span>
-      <button class="theme-btn theme-btn-toggle" onclick="toggleTheme()" title="Toggle theme" style="width: 36px; height: 36px; border-radius: 8px; background: var(--surface2); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; color: var(--text); cursor: pointer;"></button>
+    <div class="mobile-menu-footer" style="margin-top: auto; border-top: 1px solid var(--border); padding-top: 16px; display: flex; flex-direction: column; gap: 10px;">
+      <div style="font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted2);">
+        <span class="en">View Mode</span>
+        <span class="ua">Режим перегляду</span>
+      </div>
+      <div class="view-switch" style="display: flex; align-items: center; border: 1px solid var(--border2); border-radius: 8px; overflow: hidden; width: 100%;">
+        <button class="view-btn active" style="flex: 1; text-align: center; padding: 8px;"><span class="en">Financial</span><span class="ua">Фінансовий</span></button>
+        <button class="view-btn" onclick="location.href='minimal.html'" style="flex: 1; text-align: center; padding: 8px;"><span class="en">Lifestyle</span><span class="ua">Лайфстайл</span></button>
+      </div>
     </div>
   </div>
 </main>
@@ -556,25 +563,22 @@ function toggleMobileMenu(open) {
 const SVG_SUN  = '<svg width="15" height="15" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="7.5" cy="7.5" r="2.8"/><line x1="7.5" y1="1" x2="7.5" y2="2.6"/><line x1="7.5" y1="12.4" x2="7.5" y2="14"/><line x1="1" y1="7.5" x2="2.6" y2="7.5"/><line x1="12.4" y1="7.5" x2="14" y2="7.5"/><line x1="2.75" y1="2.75" x2="3.86" y2="3.86"/><line x1="11.14" y1="11.14" x2="12.25" y2="12.25"/><line x1="12.25" y1="2.75" x2="11.14" y2="3.86"/><line x1="3.86" y1="11.14" x2="2.75" y2="12.25"/></svg>';
 const SVG_MOON = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9.5A5.5 5.5 0 0 1 4.5 2a5.5 5.5 0 1 0 7.5 7.5z"/></svg>';
 
-function toggleTheme() {
+(function() {
+  const t = localStorage.getItem('bbr-theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', t);
+  const btn = document.getElementById('themeToggle');
+  if (btn) btn.innerHTML = t === 'dark' ? SVG_SUN : SVG_MOON;
+})();
+
+document.getElementById('themeToggle').addEventListener('click', () => {
   const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
   const next = isDark ? 'light' : 'dark';
   document.documentElement.setAttribute('data-theme', next);
   localStorage.setItem('bbr-theme', next);
-  document.querySelectorAll('.theme-btn-toggle').forEach(btn => {
-    btn.innerHTML = next === 'dark' ? SVG_SUN : SVG_MOON;
-  });
+  document.getElementById('themeToggle').innerHTML = next === 'dark' ? SVG_SUN : SVG_MOON;
   drawSparklines();
   if (historyScores.length) drawHistory(activeRange);
-}
-
-(function() {
-  const t = localStorage.getItem('bbr-theme') || 'dark';
-  document.documentElement.setAttribute('data-theme', t);
-  document.querySelectorAll('.theme-btn-toggle').forEach(btn => {
-    btn.innerHTML = t === 'dark' ? SVG_SUN : SVG_MOON;
-  });
-})();
+});
 
 // ─── LANGUAGE ──────────────────────────────────────────
 (function() {
