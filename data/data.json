@@ -1,7 +1,7 @@
 {
-  "timestamp": "2026-06-11T05:44:42Z",
-  "btc_price": 62603,
-  "btc_dominance": 58.41,
+  "timestamp": "2026-06-11T09:37:46Z",
+  "btc_price": 62854,
+  "btc_dominance": 58.45,
   "fear_greed": 15.3,
   "fear_greed_label": "CMC",
   "nupl": 12.0043,
@@ -18,46 +18,46 @@
   "rainbow_band": {
     "band": "Below model",
     "color": "rgba(68, 114, 196, 0.8)",
-    "price": 61658,
-    "band_upper": 73526.22,
-    "date": "2026-06-09"
+    "price": 61493,
+    "band_upper": 73597.09,
+    "date": "2026-06-10"
   },
   "m2": 9.47,
   "metrics": {
     "nupl": {
       "value": 12.0043,
       "source": "BMP",
-      "updated": "2026-06-11T05:44:34Z"
+      "updated": "2026-06-11T09:37:39Z"
     },
     "mvrv": {
       "value": 0.2417,
       "source": "BMP",
-      "updated": "2026-06-11T05:44:34Z"
+      "updated": "2026-06-11T09:37:39Z"
     },
     "m2": {
       "value": 9.47,
       "source": "MacroMicro",
-      "updated": "2026-06-11T05:44:34Z"
+      "updated": "2026-06-11T09:37:39Z"
     },
     "yield_curve": {
       "value": 0.48,
       "source": "BMP",
-      "updated": "2026-06-11T05:44:34Z"
+      "updated": "2026-06-11T09:37:39Z"
     },
     "cvdd_ratio": {
       "value": 1.266,
       "source": "BMP",
-      "updated": "2026-06-11T05:44:34Z"
+      "updated": "2026-06-11T09:37:39Z"
     },
     "rhodl_ratio": {
       "value": 1257.9609,
       "source": "BMP",
-      "updated": "2026-06-11T05:44:34Z"
+      "updated": "2026-06-11T09:37:39Z"
     },
     "asopr": {
       "value": 0.9833142857142858,
       "source": "BMP",
-      "updated": "2026-06-11T05:44:34Z"
+      "updated": "2026-06-11T09:37:39Z"
     },
     "etf_flows": {
       "value": {
@@ -67,25 +67,25 @@
         "date": "2026-06-05"
       },
       "source": "Farside",
-      "updated": "2026-06-11T05:44:34Z"
+      "updated": "2026-06-11T09:37:39Z"
     },
     "rainbow_band": {
       "value": {
         "band": "Below model",
         "color": "rgba(68, 114, 196, 0.8)",
-        "price": 61658,
-        "band_upper": 73526.22,
-        "date": "2026-06-09"
+        "price": 61493,
+        "band_upper": 73597.09,
+        "date": "2026-06-10"
       },
       "source": "BMP",
-      "updated": "2026-06-11T05:44:42Z"
+      "updated": "2026-06-11T09:37:46Z"
     },
     "fear_greed": {
       "latest": 14.0,
       "avg_7d": 15.3,
       "label": "CMC",
       "source": "CMC",
-      "updated": "2026-06-11T05:44:42Z"
+      "updated": "2026-06-11T09:37:46Z"
     },
     "cipherb": {
       "value": {
@@ -102,7 +102,7 @@
         "daily_fast_bullish_div": false
       },
       "source": "Local",
-      "updated": "2026-06-11T05:44:42Z"
+      "updated": "2026-06-11T09:37:46Z"
     },
     "smc": {
       "value": {
@@ -116,7 +116,7 @@
         "size": 10
       },
       "source": "Local",
-      "updated": "2026-06-11T05:44:42Z"
+      "updated": "2026-06-11T09:37:46Z"
     },
     "mayer_multiple": {
       "value": {
@@ -126,23 +126,23 @@
         "score": 18
       },
       "source": "Kraken",
-      "updated": "2026-06-11T05:44:43Z"
+      "updated": "2026-06-11T09:37:46Z"
     },
     "funding_rate": {
       "value": {
-        "latest": 0.00288,
-        "avg_7d": 0.00288,
-        "score": 35,
+        "latest": 0.06352,
+        "avg_7d": 0.06352,
+        "score": 76,
         "periods": 1,
         "source": "Kraken Futures"
       },
       "source": "Kraken Futures",
-      "updated": "2026-06-11T05:44:43Z"
+      "updated": "2026-06-11T09:37:47Z"
     },
     "m2_mom": {
       "value": 9.47,
       "source": "MacroMicro",
-      "updated": "2026-06-11T05:44:44Z"
+      "updated": "2026-06-11T09:37:49Z"
     }
   },
   "m2_mom": 9.47,
@@ -174,26 +174,26 @@
   },
   "zone_forecast": {
     "buy": {
-      "price": 56929,
+      "price": 57157,
       "pct": -9.0
     },
     "sell": {
-      "price": 178962,
+      "price": 179681,
       "pct": 185.9
     },
     "buy_threshold": 20,
     "sell_threshold": 80,
-    "realized_price": 55078,
-    "ref_price": 62592
+    "realized_price": 55300,
+    "ref_price": 62844
   },
   "commentary": {
     "en": {
-      "summary": "Bitcoin is structurally positioned near a cycle bottom with the primary risk stemming from sustained institutional outflows, indicating a high probability of further price weakness.",
-      "analysis": "On-chain structural indicators—NUPL at 12.00%, MVRV Z-score at 0.24, and a RHODL Ratio of 1258—suggest that long-term holders are likely holding rather than distributing, given the lack of profitability indicated by NUPL. Momentum dynamics reveal ETF outflows of $-3,138M and an aSOPR at 0.983, forming a distribution regime where negative institutional flows compress spot demand. The funding rate remains very low at 0.0029%, so there is no active liquidation cascade risk at this time. Overall, the low-risk index (26/100) coupled with negative ETF flows underscores a high probability of further decline, with a reversal in ETF flows serving as a potential early signal for trend change; additionally, the adaptive gap of 20 points serves as a stealth signal of underlying market strain."
+      "summary": "Bitcoin remains structurally undervalued with active liquidation cascade risk; there is a high probability of further decline if current flows persist.",
+      "analysis": "On-chain metrics show a NUPL of 12.00% and an MVRV of 0.24, indicating that holders are not in a profitable zone and are likely holding despite a RHODL Ratio of 1,258, which under these conditions does not signal active distribution. Momentum dynamics are challenged by negative ETF flows of $-3,138M and an aSOPR of 0.983, suggesting that short-term selling pressure is present and contributing to a liquidity run scenario. The 7-day average funding rate of 0.0635% explicitly triggers a liquidation cascade risk, where ETF outflows compress spot demand and could force leveraged positions into liquidation. Overall, the metrics imply a high probability of further decline, with any reversal in ETF flows likely serving as the leading indicator for a trend change."
     },
     "ua": {
-      "summary": "Біткойн структурно розташований поблизу дна циклу, при цьому основний ризик походить від тривалих інституційних відтоків, що вказує на високу ймовірність подальшої слабкості цін.",
-      "analysis": "Структурні показники на блокчейні — NUPL на рівні 12.00%, Z-оцінка MVRV на рівні 0.24 та RHODL-коефіцієнт 1258 — свідчать про те, що довгострокові утримувачі, ймовірно, утримують активи, а не розподіляють їх, враховуючи відсутність прибутковості, вказану NUPL. Динаміка моменту виявляє відтоки ETF на рівні $-3,138M та aSOPR на рівні 0.983, формуючи режим розподілу, де негативні інституційні відтоки стискають спотовий попит. Рівень фінансування залишається дуже низьким на рівні 0.0029%, тому наразі немає ризику активної ліквідаційної каскади. Загалом, низький ризиковий індекс (26/100) у поєднанні з негативними відтоками ETF підкреслює високу ймовірність подальшого зниження, при цьому зміна в відтоках ETF може слугувати потенційним раннім сигналом для зміни тренду; додатково, адаптивний розрив у 20 пунктів слугує прихованим сигналом про приховане напруження на ринку."
+      "summary": "Біткоїн залишається структурно недооціненим з активним ризиком каскаду ліквідацій; існує висока ймовірність подальшого зниження, якщо поточні потоки збережуться.",
+      "analysis": "Ончейн метрики показують NUPL на рівні 12,00% та MVRV на рівні 0,24, що вказує на те, що тримачі не перебувають у прибутковій зоні і, ймовірно, утримують активи незважаючи на RHODL Ratio на рівні 1,258, що в цих умовах не сигналізує про активний розподіл. Динаміка моменту піддається викликам через негативні потоки ETF у розмірі $-3,138M та aSOPR на рівні 0,983, що свідчить про наявність короткострокового тиску на продаж і сприяє сценарію ліквідності. 7-денна середня ставка фінансування на рівні 0,0635% явно викликає ризик каскаду ліквідацій, де виводи з ETF стискають спотовий попит і можуть змусити позиції з важелем до ліквідації. Загалом, метрики вказують на високу ймовірність подальшого зниження, причому будь-який реверс у потоках ETF, ймовірно, слугуватиме провідним індикатором зміни тренду."
     }
   },
   "prev_day": {
@@ -432,7 +432,7 @@
     {
       "date": "2026-06-11",
       "score": 26,
-      "price": 62603
+      "price": 62854
     }
   ]
 }
