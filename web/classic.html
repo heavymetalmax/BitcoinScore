@@ -27,7 +27,7 @@
     --bg: #0A0A0F; --surface: #111118; --surface2: #18181F;
     --border: #ffffff0f; --border2: #ffffff18;
     --text: #CCCCCC; --muted: #6B6B7E; --muted2: #9494A8;
-    --shadow: 0 1px 3px #00000060, 0 8px 32px #00000040;
+    --shadow: 0 1px 3px #0c0c1e70, 0 8px 32px #0c0c1e50;
     --hdr-bg: #22222f; --hdr-text: #CCCCCC;
     --logo-text: #FFFFFF;
   }
@@ -186,9 +186,9 @@
   .disclaimer-btn svg { color: var(--muted); flex-shrink: 0; }
   .disclaimer-btn strong { color: var(--text); }
   .disclaimer-btn .disc-arrow { margin-left: auto; color: var(--muted); font-size: 10px; }
-  .disc-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 500; display: none; align-items: center; justify-content: center; padding: 24px; }
+  .disc-modal-overlay { position: fixed; inset: 0; background: rgba(12,12,22,0.72); z-index: 500; display: none; align-items: center; justify-content: center; padding: 24px; }
   .disc-modal-overlay.open { display: flex; }
-  .disc-modal { background: var(--surface); border: 1px solid var(--border2); border-radius: 20px; padding: 28px 32px 32px; max-width: 560px; width: 100%; position: relative; box-shadow: 0 8px 48px rgba(0,0,0,0.4); }
+  .disc-modal { background: var(--surface); border: 1px solid var(--border2); border-radius: 20px; padding: 28px 32px 32px; max-width: 560px; width: 100%; position: relative; box-shadow: 0 8px 48px rgba(12,12,22,0.55); }
   .disc-modal-title { font-size: 15px; font-weight: 700; margin-bottom: 16px; }
   .disc-modal-body { font-size: 13px; color: var(--muted2); line-height: 1.7; }
   .disc-modal-body strong { color: var(--text); }
@@ -205,7 +205,7 @@
   .menu-toggle-btn:hover { color: var(--text); }
   .menu-toggle-btn svg { display: block; }
   
-  .mobile-menu-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; display: none; opacity: 0; transition: opacity 0.2s ease; }
+  .mobile-menu-backdrop { position: fixed; inset: 0; background: rgba(12,12,22,0.72); z-index: 200; display: none; opacity: 0; transition: opacity 0.2s ease; }
   .mobile-menu-backdrop.open { display: block; opacity: 1; }
   
   .mobile-menu { position: fixed; top: 0; right: -280px; width: 280px; height: 100%; background: var(--surface); border-left: 1px solid var(--border); z-index: 201; transition: right 0.2s ease; padding: 24px; display: flex; flex-direction: column; gap: 24px; box-shadow: var(--shadow); }
@@ -1004,7 +1004,7 @@ function getSparkTooltip() {
     _sparkTT.style.cssText = 'position:fixed;pointer-events:none;z-index:300;display:none;' +
       'background:var(--surface2);border:1px solid var(--border2);border-radius:8px;' +
       'padding:6px 11px;font-size:11px;color:var(--text);white-space:nowrap;' +
-      'box-shadow:0 2px 10px rgba(0,0,0,0.18);line-height:1.5;';
+      'box-shadow:0 2px 10px rgba(12,12,22,0.28);line-height:1.5;';
     document.body.appendChild(_sparkTT);
   }
   return _sparkTT;
