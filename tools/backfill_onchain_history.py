@@ -19,12 +19,15 @@ from scraper.mm_utils import get_bmp_trace_full
 
 # metric -> (chart URL, trace-name substring, multiply)  [matches the live scraper]
 SOURCES = {
-    'nupl':  ('https://www.bitcoinmagazinepro.com/charts/relative-unrealized-profit--loss/', 'nupl',        100.0),
-    'mvrv':  ('https://www.bitcoinmagazinepro.com/charts/mvrv-zscore/',                       'z-score',     1.0),
-    'rhodl': ('https://www.bitcoinmagazinepro.com/charts/rhodl-ratio/',                       'rhodl ratio', 1.0),
-    'cvdd':  ('https://www.bitcoinmagazinepro.com/charts/bitcoin-price-prediction/',          'cvdd',        1.0),
-    'asopr': ('https://www.bitcoinmagazinepro.com/charts/sopr-spent-output-profit-ratio/',    'adjusted',    1.0),
-    'mayer': ('https://www.bitcoinmagazinepro.com/charts/mayer-multiple/',                    'mayer',       1.0),
+    'nupl':          ('https://www.bitcoinmagazinepro.com/charts/relative-unrealized-profit--loss/', 'nupl',              100.0),
+    'mvrv':          ('https://www.bitcoinmagazinepro.com/charts/mvrv-zscore/',                       'z-score',           1.0),
+    'rhodl':         ('https://www.bitcoinmagazinepro.com/charts/rhodl-ratio/',                       'rhodl ratio',       1.0),
+    'cvdd':          ('https://www.bitcoinmagazinepro.com/charts/bitcoin-price-prediction/',          'cvdd',              1.0),
+    'asopr':         ('https://www.bitcoinmagazinepro.com/charts/sopr-spent-output-profit-ratio/',    'adjusted',          1.0),
+    'mayer':         ('https://www.bitcoinmagazinepro.com/charts/mayer-multiple/',                    'mayer',             1.0),
+    'puell':         ('https://www.bitcoinmagazinepro.com/charts/puell-multiple/',                    'puell',             1.0),
+    'lth_supply':    ('https://www.bitcoinmagazinepro.com/charts/long-term-holder-supply/',           'long',              1.0),
+    'pi_cycle':      ('https://www.bitcoinmagazinepro.com/charts/pi-cycle-top-indicator/',            '111',               1.0),
 }
 
 def main(metrics):

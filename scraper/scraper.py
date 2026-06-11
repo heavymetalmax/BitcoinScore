@@ -302,6 +302,49 @@ def main():
     except Exception as e:
         print('funding_rate error', e)
 
+    # ── Cycle metrics (data collection only — not scored yet) ────────────────
+    # Halving Cycle Day: days since last halving (April 19, 2024)
+    try:
+        _halving = datetime.date(2024, 4, 19)
+        halving_cycle_day = (datetime.date.today() - _halving).days
+        p['metrics']['halving_cycle_day'] = {'value': halving_cycle_day, 'source': 'Local', 'updated': now_iso()}
+        print(f'Halving cycle day: {halving_cycle_day}')
+    except Exception as e:
+        print('halving_cycle_day error', e)
+
+    # Pi Cycle Top (111DMA vs 2×350DMA)
+    try:
+        from . import pi_cycle as pi_cycle_mod
+        pc = pi_cycle_mod.get_pi_cycle()
+        if pc is not None:
+            p['metrics']['pi_cycle'] = {'value': pc, 'source': 'Kraken', 'updated': now_iso()}
+            write_json('data/data.json', p)
+            print(f"Pi Cycle: gap={pc['gap_pct']}%  cross={pc['cross']}  score={pc['score']}")
+    except Exception as e:
+        print('pi_cycle error', e)
+
+    # Puell Multiple (miner revenue / 365d MA)
+    try:
+        from . import puell as puell_mod
+        puell_val = puell_mod.get_puell_multiple()
+        if puell_val is not None:
+            p['metrics']['puell_multiple'] = {'value': puell_val, 'source': 'BMP', 'updated': now_iso()}
+            write_json('data/data.json', p)
+            print(f'Puell Multiple: {puell_val}')
+    except Exception as e:
+        print('puell_multiple error', e)
+
+    # LTH Supply % (long-term holder share of total supply)
+    try:
+        from . import lth_supply as lth_mod
+        lth_val = lth_mod.get_lth_supply_pct()
+        if lth_val is not None:
+            p['metrics']['lth_supply_pct'] = {'value': lth_val, 'source': 'BMP', 'updated': now_iso()}
+            write_json('data/data.json', p)
+            print(f'LTH Supply: {lth_val}%')
+    except Exception as e:
+        print('lth_supply_pct error', e)
+
     # Append M2 snapshot to history
     try:
         hist_path = 'data/history/m2.json'
@@ -521,6 +564,12 @@ def main():
                 'm2_yoy':         p.get('m2_mom', raw('m2_mom')),
                 'funding_rate':   sclr(raw('funding_rate'), 'avg_7d', 'latest'),
                 'smc':            sclr(raw('smc'), 'position'),
+                # cycle metrics (collected for future use)
+                'halving_cycle_day': sclr(raw('halving_cycle_day')),
+                'pi_cycle_gap_pct':  sclr(raw('pi_cycle'), 'gap_pct'),
+                'pi_cycle_cross':    sclr(raw('pi_cycle'), 'cross'),
+                'puell_multiple':    sclr(raw('puell_multiple')),
+                'lth_supply_pct':    sclr(raw('lth_supply_pct')),
             },
             # mapped 0-100 risk scores per indicator (what the weights act on)
             'mapped': mapped,
