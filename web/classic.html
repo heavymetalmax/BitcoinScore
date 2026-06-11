@@ -98,8 +98,9 @@
   .gauge-labels { display: grid; grid-template-columns: repeat(4, 1fr); font-size: 10px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; margin-top: 2px; }
   .gl-1 { color: #22C55E; } .gl-2 { color: #EAB308; text-align: center; } .gl-3 { color: #F97316; text-align: center; } .gl-4 { color: #EF4444; text-align: right; }
 
-  .market-title { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; color: var(--muted); text-transform: uppercase; margin-bottom: 14px; }
-  .market-state-badge { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; margin-bottom: 20px; border: 1px solid transparent; }
+  .market-state-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .market-title { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; color: var(--muted); text-transform: uppercase; }
+  .market-state-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 11px; border-radius: 20px; font-size: 12px; font-weight: 600; border: 1px solid transparent; }
   .market-state-badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
   .market-rows { display: grid; grid-template-columns: 1fr auto; }
   .market-row { display: contents; }
@@ -312,8 +313,10 @@
 
     <!-- Market state card -->
     <div class="card">
-      <div class="market-title"><span class="en">Market State</span><span class="ua">Стан ринку</span></div>
-      <div class="market-state-badge" id="market-badge">—</div>
+      <div class="market-state-top">
+        <div class="market-title"><span class="en">Market State</span><span class="ua">Стан ринку</span></div>
+        <div class="market-state-badge" id="market-badge">—</div>
+      </div>
       <div class="market-rows">
         <div class="market-row">
           <div class="market-row-left">
