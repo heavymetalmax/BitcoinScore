@@ -2185,7 +2185,7 @@
       // Populate price forecast inversion values
       const zf = data.zone_forecast;
       if (zf) {
-        const fmtP = (p) => (p != null) ? '$' + Math.round(p).toLocaleString() : '—';
+        const fmtP = (p) => (p != null) ? '$' + (p / 1000).toFixed(1) + 'K' : '—';
         const buyEl = document.getElementById('forecast-buy-price');
         const sellEl = document.getElementById('forecast-sell-price');
         if (buyEl) buyEl.textContent = zf.buy && zf.buy.price ? fmtP(zf.buy.price) : '—';
