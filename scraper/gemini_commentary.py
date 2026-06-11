@@ -225,6 +225,7 @@ _DEVELOPER_INSTRUCTION = (
     "  - Do NOT suggest buy/sell actions or investment advice.\n"
     "  - Do NOT use: safe, stable, secure, guaranteed, certain.\n"
     "  - Do NOT invent numbers.\n"
+    "  - Do NOT include 'S1:', 'S2:', 'S3:', 'S4:', 'S5:' labels in the output text.\n"
     "  - Professional, factual, direct tone."
 )
 
@@ -377,7 +378,4 @@ def generate_commentary(payload: dict, slider_map: dict) -> Optional[dict]:
     else:
         print(f'OpenAI (ua summary): {ua_data.get("summary", "")[:120]}', flush=True)
 
-    def flatten(d):
-        return (d.get('summary', '') + ' ' + d.get('analysis', '')).strip()
-
-    return {'en': flatten(en_data), 'ua': flatten(ua_data)}
+    return {'en': en_data, 'ua': ua_data}
