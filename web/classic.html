@@ -109,9 +109,11 @@
   .market-row:last-child > .market-row-left,
   .market-row:last-child > .market-row-val { border-bottom: none; }
 
-  .commentary-row { padding: 16px 20px; display: flex; gap: 12px; align-items: flex-start; margin-bottom: 24px; }
-  .commentary-label { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); white-space: nowrap; padding-top: 2px; flex-shrink: 0; }
-  .commentary-text { font-size: 12px; color: var(--muted2); line-height: 1.65; }
+  .ai-block { padding: 18px 22px; margin-bottom: 24px; }
+  .ai-block-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .ai-block-label { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  .ai-block-badge { font-size: 10px; color: var(--muted); border: 1px solid var(--border); border-radius: 4px; padding: 2px 7px; opacity: 0.6; }
+  .ai-block-text { font-size: 13px; color: var(--muted2); line-height: 1.75; }
 
   .section-header { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
   .section-title { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
@@ -261,6 +263,7 @@
       <div>
         <div class="score-number" id="score-number"><span class="score-val">—</span><span class="score-denom">/100</span></div>
         <div class="score-zone" id="score-zone"></div>
+        <div class="score-desc" id="score-desc" style="display:none"></div>
         <div class="score-hint" id="score-hint">
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/><circle cx="7" cy="4.5" r="0.75" fill="currentColor"/><line x1="7" y1="6.5" x2="7" y2="10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
           <span id="hint-text"></span>
@@ -350,10 +353,13 @@
     </div>
   </div>
 
-  <!-- AI Commentary -->
-  <div class="card commentary-row">
-    <span class="commentary-label">AI</span>
-    <span class="commentary-text" id="ai-commentary">—</span>
+  <!-- AI Analysis -->
+  <div class="card ai-block" id="ai-block" style="display:none">
+    <div class="ai-block-header">
+      <span class="ai-block-label"><span class="en">AI Analysis</span><span class="ua">AI Аналіз</span></span>
+      <span class="ai-block-badge">o3-mini</span>
+    </div>
+    <div class="ai-block-text" id="ai-block-text"></div>
   </div>
 
   <!-- COMPONENTS -->
@@ -968,9 +974,28 @@ async function loadData() {
   if (snEl) snEl.innerHTML = '<span class="score-val">' + score + '</span><span class="score-denom">/100</span>';
   const szEl = document.getElementById('score-zone');
   if (szEl) { szEl.innerHTML = `<span class="en">${z.label}</span><span class="ua">${z.labelUa}</span>`; szEl.style.color = z.color; }
-  const sdEl = document.getElementById('ai-commentary');
-  if (sdEl && data.commentary) {
-    sdEl.innerHTML = `<span class="en">${data.commentary.en || ''}</span><span class="ua">${data.commentary.ua || ''}</span>`;
+  // Commentary (supports both old string format and new {summary, analysis} object format)
+  if (data.commentary) {
+    const c = data.commentary;
+    const getField = (lang, field) => {
+      const lv = c[lang];
+      if (!lv) return '';
+      if (typeof lv === 'object') return lv[field] || '';
+      return field === 'analysis' ? lv : ''; // old string format: show in analysis only
+    };
+    const sumEn = getField('en', 'summary'), sumUa = getField('ua', 'summary');
+    const anaEn = getField('en', 'analysis'), anaUa = getField('ua', 'analysis');
+    const sdEl = document.getElementById('score-desc');
+    if (sdEl && (sumEn || sumUa)) {
+      sdEl.innerHTML = `<span class="en">${sumEn}</span><span class="ua">${sumUa}</span>`;
+      sdEl.style.display = '';
+    }
+    const aiBlock = document.getElementById('ai-block');
+    const aiText = document.getElementById('ai-block-text');
+    if (aiText && (anaEn || anaUa)) {
+      aiText.innerHTML = `<span class="en">${anaEn}</span><span class="ua">${anaUa}</span>`;
+      if (aiBlock) aiBlock.style.display = '';
+    }
   }
   const hintEl = document.getElementById('score-hint');
   if (hintEl) { hintEl.style.color = z.color; hintEl.style.background = z.color + '12'; hintEl.style.borderColor = z.color + '25'; }
@@ -992,7 +1017,8 @@ async function loadData() {
   if (fg7d != null) set('market-fg', (+fg7d).toFixed(0));
   if (data.timestamp) {
     const d = new Date(data.timestamp);
-    set('market-updated', d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }));
+    const pad2 = n => String(n).padStart(2, '0');
+    set('market-updated', `${pad2(d.getDate())}.${pad2(d.getMonth()+1)}.${String(d.getFullYear()).slice(-2)} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`);
     window._dataTimestamp = data.timestamp;
     updateCountdown();
   }
@@ -1150,7 +1176,7 @@ async function loadData() {
   const updateHeader = (id, baseEn, baseUa, rawSum, avg) => {
     const el = document.getElementById(id);
     if (el) {
-      const displayNum = rawSum != null ? Math.round(rawSum) : null;
+      const displayNum = avg != null ? Math.round(avg) : null;
       const normAvg = avg != null ? Math.round(avg) : null;
       const dotColor = normAvg != null ? riskZone(normAvg).color : '#888';
       const sig = scoreToSig(normAvg);
