@@ -505,15 +505,11 @@
 
     <div class="card">
       <div class="zone-title"><span class="en">Zone Price Levels</span><span class="ua">Цінові рівні зон</span></div>
-      <div class="zone-desc"><span class="en">Estimated BTC price at each risk threshold.</span><span class="ua">Орієнтовна ціна BTC для кожного рівня ризику.</span></div>
+      <div class="zone-desc"><span class="en">Holding today's on-chain cost basis fixed, this solves for the price at which the score would reach each zone.</span><span class="ua">Тримаючи сьогоднішню ончейн-собівартість незмінною, формула розв'язується щодо ціни, за якої бал дійшов би до кожної зони.</span></div>
       <div class="zone-rows">
         <div class="zone-row">
           <div class="zone-row-left"><div class="zone-dot" style="background:#EF4444"></div><span class="en">Sell Zone (≥80)</span><span class="ua">Продаж (≥80)</span></div>
           <span class="zone-price" id="zone-sell">—</span>
-        </div>
-        <div class="zone-row">
-          <div class="zone-row-left"><div class="zone-dot" style="background:#EAB308"></div><span class="en">Realized Price</span><span class="ua">Реалізована ціна</span></div>
-          <span class="zone-price" id="zone-realized">—</span>
         </div>
         <div class="zone-row">
           <div class="zone-row-left"><div class="zone-dot" style="background:#22C55E"></div><span class="en">Buy Zone (≤20)</span><span class="ua">Купівля (≤20)</span></div>
@@ -1200,7 +1196,6 @@ async function loadData() {
   // Zone price levels
   const zf = data.zone_forecast || {};
   if (zf.sell)           set('zone-sell',     '≥ ' + fmtPriceK(zf.sell.price));
-  if (zf.realized_price) set('zone-realized', '≈ ' + fmtPriceK(zf.realized_price));
   if (zf.buy)            set('zone-buy',      '≤ ' + fmtPriceK(zf.buy.price));
 
   // Gauge tags
