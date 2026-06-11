@@ -1,8 +1,8 @@
 {
-  "timestamp": "2026-06-10T17:24:37Z",
-  "btc_price": 62038,
-  "btc_dominance": 58.32,
-  "fear_greed": 16.6,
+  "timestamp": "2026-06-11T04:22:13Z",
+  "btc_price": 62584,
+  "btc_dominance": 58.43,
+  "fear_greed": 15.3,
   "fear_greed_label": "CMC",
   "nupl": 12.0043,
   "mvrv_z_score": 0.2417,
@@ -27,37 +27,37 @@
     "nupl": {
       "value": 12.0043,
       "source": "BMP",
-      "updated": "2026-06-10T17:24:30Z"
+      "updated": "2026-06-11T04:22:06Z"
     },
     "mvrv": {
       "value": 0.2417,
       "source": "BMP",
-      "updated": "2026-06-10T17:24:30Z"
+      "updated": "2026-06-11T04:22:06Z"
     },
     "m2": {
       "value": 9.47,
       "source": "MacroMicro",
-      "updated": "2026-06-10T17:24:30Z"
+      "updated": "2026-06-11T04:22:06Z"
     },
     "yield_curve": {
       "value": 0.48,
       "source": "BMP",
-      "updated": "2026-06-10T17:24:30Z"
+      "updated": "2026-06-11T04:22:06Z"
     },
     "cvdd_ratio": {
       "value": 1.266,
       "source": "BMP",
-      "updated": "2026-06-10T17:24:30Z"
+      "updated": "2026-06-11T04:22:06Z"
     },
     "rhodl_ratio": {
       "value": 1257.9609,
       "source": "BMP",
-      "updated": "2026-06-10T17:24:30Z"
+      "updated": "2026-06-11T04:22:06Z"
     },
     "asopr": {
       "value": 0.9833142857142858,
       "source": "BMP",
-      "updated": "2026-06-10T17:24:30Z"
+      "updated": "2026-06-11T04:22:06Z"
     },
     "etf_flows": {
       "value": {
@@ -67,7 +67,7 @@
         "date": "2026-06-05"
       },
       "source": "Farside",
-      "updated": "2026-06-10T17:24:30Z"
+      "updated": "2026-06-11T04:22:06Z"
     },
     "rainbow_band": {
       "value": {
@@ -78,23 +78,23 @@
         "date": "2026-06-09"
       },
       "source": "BMP",
-      "updated": "2026-06-10T17:24:37Z"
+      "updated": "2026-06-11T04:22:13Z"
     },
     "fear_greed": {
       "latest": 14.0,
-      "avg_7d": 16.6,
+      "avg_7d": 15.3,
       "label": "CMC",
       "source": "CMC",
-      "updated": "2026-06-10T17:24:37Z"
+      "updated": "2026-06-11T04:22:13Z"
     },
     "cipherb": {
       "value": {
-        "timestamp": 1779926400,
-        "close": 64035.8,
-        "wt1": -12.028626004621847,
-        "wt2": 2.8943186100548997,
-        "mfi": -1.4602546304777735,
-        "weekly_score": 34.17507999701816,
+        "timestamp": 1780531200,
+        "close": 61464.4,
+        "wt1": -30.54277771963116,
+        "wt2": -11.564851462982906,
+        "mfi": -3.0666556336303588,
+        "weekly_score": 22.230465987334735,
         "fast_bearish_div": false,
         "fast_bullish_div": false,
         "daily_score": 0.0,
@@ -102,7 +102,7 @@
         "daily_fast_bullish_div": false
       },
       "source": "Local",
-      "updated": "2026-06-10T17:24:37Z"
+      "updated": "2026-06-11T04:22:14Z"
     },
     "smc": {
       "value": {
@@ -111,49 +111,49 @@
         "swing_low": 60500.0,
         "swing_low_ts": 1770249600,
         "equilibrium": 93349.05,
-        "current_price": 64035.8,
-        "position": 5.38,
+        "current_price": 61464.4,
+        "position": 1.47,
         "size": 10
       },
       "source": "Local",
-      "updated": "2026-06-10T17:24:38Z"
+      "updated": "2026-06-11T04:22:14Z"
     },
     "mayer_multiple": {
       "value": {
-        "value": 0.788,
-        "dma_200": 78242.3,
-        "current_price": 61690.4,
+        "value": 0.787,
+        "dma_200": 78126.2,
+        "current_price": 61464.4,
         "score": 18
       },
       "source": "Kraken",
-      "updated": "2026-06-10T17:24:38Z"
+      "updated": "2026-06-11T04:22:14Z"
     },
     "funding_rate": {
       "value": {
-        "latest": 0.00815,
-        "avg_7d": 0.00815,
-        "score": 39,
+        "latest": 0.04861,
+        "avg_7d": 0.04861,
+        "score": 66,
         "periods": 1,
         "source": "Kraken Futures"
       },
       "source": "Kraken Futures",
-      "updated": "2026-06-10T17:24:38Z"
+      "updated": "2026-06-11T04:22:14Z"
     },
     "m2_mom": {
       "value": 9.47,
       "source": "MacroMicro",
-      "updated": "2026-06-10T17:24:40Z"
+      "updated": "2026-06-11T04:22:17Z"
     }
   },
   "m2_mom": 9.47,
-  "onchain_score": 32,
-  "tech_score": 24,
-  "final_score": 28,
+  "onchain_score": 31,
+  "tech_score": 20,
+  "final_score": 26,
   "adaptive_calibration": {
     "mayer": {
       "fixed": 18,
-      "adaptive": 17,
-      "blended": 18,
+      "adaptive": 15,
+      "blended": 16,
       "win_years": 4,
       "blend_w": 0.5
     },
@@ -174,33 +174,33 @@
   },
   "zone_forecast": {
     "buy": {
-      "price": 54537,
-      "pct": -12.0
+      "price": 56954,
+      "pct": -9.0
     },
     "sell": {
-      "price": 177259,
+      "price": 179042,
       "pct": 185.9
     },
     "buy_threshold": 20,
     "sell_threshold": 80,
-    "realized_price": 54554,
-    "ref_price": 61997
+    "realized_price": 55103,
+    "ref_price": 62620
   },
   "commentary": {
-    "en": "Bitcoin’s market structure reflects a bear bottom regime, with the MVRV Z-score at 0.24 and aSOPR near 0.98 accompanied by significant ETF outflows of $-3,138M and a Fear & Greed reading of 16.6, indicating pronounced capitulation amid low to moderate risk indicators. Given these persistent ETF outflows and accompanying signals, the current downward trend is likely to continue with high probability of further decline, with any reversal in ETF flows serving as the leading indicator of a potential change in direction.",
-    "ua": "Ринкова структура Bitcoin відображає режим ведмежого дна, з MVRV Z-score на рівні 0.24 та aSOPR близько 0.98, супроводжуваними значними відтоками ETF у розмірі $-3,138M та показником страху і жадібності 16.6, що вказує на виражену капітуляцію на фоні низьких до помірних ризикових індикаторів. Враховуючи ці постійні відтоки ETF та супутні сигнали, поточна низхідна тенденція, ймовірно, продовжиться з високою ймовірністю подальшого зниження, при цьому будь-який реверс у потоках ETF слугуватиме провідним індикатором потенційної зміни напрямку."
+    "en": "Bitcoin is structurally positioned in an accumulation zone with primary risk emerging from sustained institutional outflows and a high probability of further decline. S1: On-chain positioning shows a NUPL at 12.00% and MVRV Z-score at 0.24, indicating relatively low profitability for holders, and although the RHODL Ratio is high at 1,258, the low NUPL prevents categorizing this as active distribution among long-term holders. S2: Momentum dynamics are underscored by ETF flows of –$3,138M and an aSOPR at 0.983, suggesting a regime of institutional exit and liquidity run that is compressing spot demand. S3: With a 7-day average funding rate at 0.0486%, it remains below the explicit threshold for liquidation cascade risk, so the primary near-term risk is driven by institutional outflows compressing demand. S4: The continuation probability is high given the current low overall risk index (26/100) and negative ETF flows, with a reversal in institutional flows serving as the key indictor for a potential trend change. S5: Additionally, an adaptive gap of 19 points signals a stealth elevation relative to historical norms, representing a hidden risk that may amplify market sensitivity.",
+    "ua": "Біткоїн структурно розташований у зоні накопичення, з основним ризиком, що виникає через тривалі інституційні виводи та високу ймовірність подальшого зниження. S1: Позиціонування в ланцюзі показує NUPL на рівні 12,00% та Z-коефіцієнт MVRV на рівні 0,24, що вказує на відносно низьку прибутковість для тримачів, і хоча RHODL Ratio високий на рівні 1,258, низький NUPL не дозволяє класифікувати це як активний розподіл серед довгострокових тримачів. S2: Динаміка моменту підкреслюється виводами ETF на рівні –3,138 млн доларів та aSOPR на рівні 0,983, що свідчить про режим виходу інституцій та ліквідності, який стискає спотовий попит. S3: З 7-денною середньою ставкою фінансування на рівні 0,0486% вона залишається нижче явного порогу ризику каскаду ліквідацій, тому основний ризик у найближчій перспективі викликаний інституційними виводами, які стискають попит. S4: Ймовірність продовження висока, враховуючи поточний низький загальний індекс ризику (26/100) та негативні виводи ETF, при цьому зміна в інституційних потоках слугує ключовим індикатором для потенційної зміни тренду. S5: Крім того, адаптивний розрив у 19 пунктів сигналізує про приховане підвищення відносно історичних норм, що представляє собою прихований ризик, який може посилити чутливість ринку."
   },
   "prev_day": {
-    "date": "2026-06-09",
+    "date": "2026-06-10",
     "final_score": 28,
     "onchain_score": 32,
     "tech_score": 24
   },
   "prev_week": {
-    "date": "2026-06-03",
-    "final_score": 32,
-    "onchain_score": 35,
-    "tech_score": 30
+    "date": "2026-06-04",
+    "final_score": 29,
+    "onchain_score": 33,
+    "tech_score": 25
   },
   "score_history": [
     {
@@ -422,6 +422,11 @@
       "date": "2026-06-10",
       "score": 28,
       "price": 62038
+    },
+    {
+      "date": "2026-06-11",
+      "score": 26,
+      "price": 62584
     }
   ]
 }
