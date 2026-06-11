@@ -60,8 +60,8 @@ def _metrics_block(payload: dict, slider_map: dict) -> str:
     if nupl is not None:
         gap = adaptive_gap('nupl')
         gap_str = f'  ADAPTIVE GAP: fixed={gap[0]}, adaptive={gap[1]}' if gap else ''
-        lines.append(f'  NUPL: {nupl:.2f}  [{_risk_label(fixed_or_slider("nupl", "nupl"))}]'
-                     '  (>0.75 euphoria; 0.25–0.50 optimism; <0 capitulation)'
+        lines.append(f'  NUPL: {nupl:.2f}%  [{_risk_label(fixed_or_slider("nupl", "nupl"))}]'
+                     '  (percentage scale: >75% euphoria; 25–50% optimism; <0% capitulation)'
                      + gap_str)
 
     mvrv = payload.get('mvrv_z_score')
@@ -149,7 +149,7 @@ _DEVELOPER_INSTRUCTION = (
     "Distribution/sell zone now begins near 65, not 80.\n\n"
 
     "METRIC THRESHOLDS:\n"
-    "  NUPL: >0.75 euphoria; 0.25–0.50 optimism; <0 capitulation.\n"
+    "  NUPL: >75% euphoria; 25–50% optimism; <0% capitulation. (stored as %, e.g. 12 = 12%)\n"
     "  MVRV Z: >3.5 elevated; <0.5 historically cheap.\n"
     "  RHODL Ratio: LOW = wealth in long-term holders (LTH) who are HOLDING. "
     "HIGH = wealth shifting to short-term holders (retail FOMO / LTH distributing).\n"
@@ -377,4 +377,7 @@ def generate_commentary(payload: dict, slider_map: dict) -> Optional[dict]:
     else:
         print(f'OpenAI (ua summary): {ua_data.get("summary", "")[:120]}', flush=True)
 
-    return {'en': en_data, 'ua': ua_data}
+    def flatten(d):
+        return (d.get('summary', '') + ' ' + d.get('analysis', '')).strip()
+
+    return {'en': flatten(en_data), 'ua': flatten(ua_data)}
