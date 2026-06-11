@@ -150,6 +150,21 @@ PROTOCOL 2 — INDIVIDUAL METRIC OUTLIER
   a neutral composite. Or Final = 50 but Funding rate = 85 → crowded longs
   hidden by moderating on-chain.
 
+PROTOCOL 2.5 — LTH / WHALE BEHAVIOR GATE
+  Apply BEFORE making any claim about whale selling or LTH distribution.
+  → Check RHODL: if LOW → LTH are HOLDING, not selling.
+    Low RHODL + declining price = patient accumulation, NOT distribution.
+  → Check NUPL: if <0.50 → holders are not in profitable-enough zone to distribute.
+  → Only claim distribution if RHODL is HIGH AND NUPL >0.50.
+  Violating this rule produces factually wrong analysis.
+
+PROTOCOL 2.6 — FUNDING RATE CASCADE TRIGGER
+  If funding_rate >0.05%: MUST name this "liquidation cascade risk" — not context.
+  Mechanism: ETF outflows → spot price falls → leveraged longs get liquidated →
+    selling accelerates → further decline (feedback loop).
+  In trend analysis, trace the full causal chain:
+    [Primary trigger] → [mechanism] → [amplifier: funding rate] → [potential cascade]
+
 PROTOCOL 3 — REGIME IDENTIFICATION
   Evaluate and name ONE active regime from the list below.
   If multiple apply, name all and flag the dominant one.
@@ -253,11 +268,11 @@ Be specific: always cite the actual metric values.
    List each fired protocol with a 1-sentence explanation.
    If no protocols fire, omit this section entirely.
 
-7. TREND CONTINUATION  (1–2 sentences)
+7. TREND CONTINUATION  (2–3 sentences)
    Step 1: Infer current direction from dominant metrics (ETF flows, MVRV Z, aSOPR,
    group sub-scores). Is the index falling / rising / flat?
-   Step 2: Check if the PRIMARY DRIVER of that direction is still active and strong,
-   losing force, or reversing.
+   Step 2: Trace the full causal chain (apply Protocol 2.6 if funding >0.05%):
+     [Primary trigger] → [mechanism] → [amplifier: funding rate if >0.05%] → [cascade risk]
    Step 3: Assign HIGH / MODERATE / LOW probability of continuation:
      HIGH — driver still strong, no counter-signals. ETF outflows deepening while
        on-chain metrics deteriorate = high probability of further decline.
