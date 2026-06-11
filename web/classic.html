@@ -581,20 +581,40 @@ function toggleMobileMenu(open) {
 // ─── THEME ─────────────────────────────────────────────
 const SVG_SUN  = '<svg width="15" height="15" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="7.5" cy="7.5" r="2.8"/><line x1="7.5" y1="1" x2="7.5" y2="2.6"/><line x1="7.5" y1="12.4" x2="7.5" y2="14"/><line x1="1" y1="7.5" x2="2.6" y2="7.5"/><line x1="12.4" y1="7.5" x2="14" y2="7.5"/><line x1="2.75" y1="2.75" x2="3.86" y2="3.86"/><line x1="11.14" y1="11.14" x2="12.25" y2="12.25"/><line x1="12.25" y1="2.75" x2="11.14" y2="3.86"/><line x1="3.86" y1="11.14" x2="2.75" y2="12.25"/></svg>';
 const SVG_MOON = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9.5A5.5 5.5 0 0 1 4.5 2a5.5 5.5 0 1 0 7.5 7.5z"/></svg>';
+const SVG_AUTO = '<svg width="15" height="15" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="3" width="12" height="8" rx="1.5"/><path d="M5 11v1.5M10 11v1.5M3.5 12.5h8"/><path d="M5.5 7l1.5-2.5L8.5 7"/><path d="M5.8 6.5h2.4"/></svg>';
+
+const _sysDark = () => window.matchMedia('(prefers-color-scheme: dark)').matches;
+const _themeIcons = { dark: SVG_SUN, light: SVG_MOON, auto: SVG_AUTO };
+const _themeNext  = { dark: 'light', light: 'auto', auto: 'dark' };
+const _themeTitles = { dark: 'Dark', light: 'Light', auto: 'Auto (system)' };
+
+function applyTheme(mode) {
+  const actual = mode === 'auto' ? (_sysDark() ? 'dark' : 'light') : mode;
+  document.documentElement.setAttribute('data-theme', actual);
+  const btn = document.getElementById('themeToggle');
+  if (btn) { btn.innerHTML = _themeIcons[mode]; btn.title = _themeTitles[mode]; }
+}
 
 (function() {
-  const t = localStorage.getItem('bbr-theme') || 'dark';
-  document.documentElement.setAttribute('data-theme', t);
-  const btn = document.getElementById('themeToggle');
-  if (btn) btn.innerHTML = t === 'dark' ? SVG_SUN : SVG_MOON;
+  const saved = localStorage.getItem('bbr-theme') || 'auto';
+  applyTheme(saved);
+  if (saved === 'auto') {
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+      if (localStorage.getItem('bbr-theme') === 'auto') applyTheme('auto');
+    });
+  }
 })();
 
 document.getElementById('themeToggle').addEventListener('click', () => {
-  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-  const next = isDark ? 'light' : 'dark';
-  document.documentElement.setAttribute('data-theme', next);
+  const cur = localStorage.getItem('bbr-theme') || 'auto';
+  const next = _themeNext[cur] || 'auto';
   localStorage.setItem('bbr-theme', next);
-  document.getElementById('themeToggle').innerHTML = next === 'dark' ? SVG_SUN : SVG_MOON;
+  if (next === 'auto') {
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+      if (localStorage.getItem('bbr-theme') === 'auto') applyTheme('auto');
+    });
+  }
+  applyTheme(next);
   drawSparklines();
   if (historyScores.length) drawHistory(activeRange);
 });
