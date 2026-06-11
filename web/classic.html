@@ -909,35 +909,111 @@ function drawHistory(range, hoverIndex) {
   }
 }
 
-function drawSparklines() {
+function drawSingleSparkline(i, hoverIdx) {
   const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const c = document.getElementById('s' + i);
+  if (!c) return;
+  const w = c.width, h = c.height;
+  const ctx = c.getContext('2d');
+  ctx.clearRect(0, 0, w, h);
+  const d = SPARK_DATA[i - 1], mn = Math.min(...d), mx = Math.max(...d), rng = mx - mn || 1;
+  const pts = d.map((v, j) => ({ x: (j / (d.length - 1)) * w, y: h - ((v - mn) / rng) * (h - 8) - 4 }));
+  const color = sparkColors[i - 1];
   const grid = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
+
+  ctx.strokeStyle = grid; ctx.lineWidth = 1; ctx.setLineDash([3, 3]);
+  ctx.beginPath(); ctx.moveTo(0, h / 2); ctx.lineTo(w, h / 2); ctx.stroke(); ctx.setLineDash([]);
+
+  const gr = ctx.createLinearGradient(0, 0, 0, h);
+  gr.addColorStop(0, color + '30'); gr.addColorStop(1, color + '00');
+  ctx.beginPath(); ctx.moveTo(pts[0].x, h);
+  pts.forEach(p => ctx.lineTo(p.x, p.y));
+  ctx.lineTo(pts[pts.length - 1].x, h); ctx.closePath(); ctx.fillStyle = gr; ctx.fill();
+
+  ctx.beginPath(); pts.forEach((p, j) => j ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y));
+  ctx.strokeStyle = color; ctx.lineWidth = 1.5; ctx.stroke();
+
+  if (hoverIdx != null) {
+    const hp = pts[hoverIdx];
+    ctx.strokeStyle = isDark ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.12)';
+    ctx.lineWidth = 1; ctx.setLineDash([2, 2]);
+    ctx.beginPath(); ctx.moveTo(hp.x, 0); ctx.lineTo(hp.x, h); ctx.stroke(); ctx.setLineDash([]);
+    ctx.beginPath(); ctx.arc(hp.x, hp.y, 3.5, 0, Math.PI * 2);
+    ctx.fillStyle = isDark ? '#fff' : '#111'; ctx.fill();
+    ctx.strokeStyle = color; ctx.lineWidth = 1.5; ctx.stroke();
+  } else {
+    const lp = pts[pts.length - 1];
+    ctx.beginPath(); ctx.arc(lp.x, lp.y, 3, 0, Math.PI * 2); ctx.fillStyle = color; ctx.fill();
+  }
+}
+
+function drawSparklines() {
   for (let i = 1; i <= 11; i++) {
     const c = document.getElementById('s' + i);
     if (!c) continue;
-    const w = c.parentElement.offsetWidth || 130;
-    const h = 36;
-    c.width = w;
-    c.height = h;
-    const ctx = c.getContext('2d');
-    ctx.clearRect(0, 0, w, h);
-    const d = SPARK_DATA[i - 1], mn = Math.min(...d), mx = Math.max(...d), rng = mx - mn || 1;
-    const pts = d.map((v, j) => ({ x: (j / (d.length - 1)) * w, y: h - ((v - mn) / rng) * (h - 8) - 4 }));
-    const color = sparkColors[i - 1];
+    c.width = c.parentElement.offsetWidth || 130;
+    c.height = 36;
+    drawSingleSparkline(i, null);
+  }
+}
 
-    ctx.strokeStyle = grid; ctx.lineWidth = 1; ctx.setLineDash([3, 3]);
-    ctx.beginPath(); ctx.moveTo(0, h / 2); ctx.lineTo(w, h / 2); ctx.stroke(); ctx.setLineDash([]);
+const SPARK_METRIC_NAMES = ['NUPL','MVRV Z-Score','RHODL Ratio','CVDD Ratio','aSOPR',
+  'CipherB','Mayer Multiple','ETF Flows','Fear & Greed','Yield Curve','M2 YoY'];
 
-    const gr = ctx.createLinearGradient(0, 0, 0, h);
-    gr.addColorStop(0, color + '30'); gr.addColorStop(1, color + '00');
-    ctx.beginPath(); ctx.moveTo(pts[0].x, h);
-    pts.forEach(p => ctx.lineTo(p.x, p.y));
-    ctx.lineTo(pts[pts.length - 1].x, h); ctx.closePath(); ctx.fillStyle = gr; ctx.fill();
+let _sparkTT = null;
+function getSparkTooltip() {
+  if (!_sparkTT) {
+    _sparkTT = document.createElement('div');
+    _sparkTT.style.cssText = 'position:fixed;pointer-events:none;z-index:300;display:none;' +
+      'background:var(--surface2);border:1px solid var(--border2);border-radius:8px;' +
+      'padding:6px 11px;font-size:11px;color:var(--text);white-space:nowrap;' +
+      'box-shadow:0 2px 10px rgba(0,0,0,0.18);line-height:1.5;';
+    document.body.appendChild(_sparkTT);
+  }
+  return _sparkTT;
+}
 
-    ctx.beginPath(); pts.forEach((p, j) => j ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y));
-    ctx.strokeStyle = color; ctx.lineWidth = 1.5; ctx.stroke();
-    const lp = pts[pts.length - 1];
-    ctx.beginPath(); ctx.arc(lp.x, lp.y, 3, 0, Math.PI * 2); ctx.fillStyle = color; ctx.fill();
+let sparkHoversAttached = false;
+function attachSparkHovers() {
+  if (sparkHoversAttached) return;
+  sparkHoversAttached = true;
+  const tt = getSparkTooltip();
+  for (let i = 1; i <= 11; i++) {
+    const canvas = document.getElementById('s' + i);
+    if (!canvas) continue;
+    const idx = i - 1;
+    canvas.style.cursor = 'crosshair';
+
+    canvas.addEventListener('mousemove', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const d = SPARK_DATA[idx];
+      const n = d.length;
+      const ptIdx = Math.max(0, Math.min(n - 1, Math.round((x / rect.width) * (n - 1))));
+      drawSingleSparkline(i, ptIdx);
+
+      const mn = Math.min(...d), mx = Math.max(...d);
+      const pct = Math.round(((d[ptIdx] - mn) / (mx - mn || 1)) * 100);
+      const monthsAgo = Math.round((1 - ptIdx / (n - 1)) * 12);
+      const timeStr = monthsAgo === 0 ? '<span class="en">Today</span><span class="ua">Сьогодні</span>'
+        : monthsAgo === 1 ? '<span class="en">1 month ago</span><span class="ua">1 міс. тому</span>'
+        : `<span class="en">${monthsAgo} months ago</span><span class="ua">${monthsAgo} міс. тому</span>`;
+      const riskWord = pct > 65 ? '<span class="en">↑ Higher risk</span><span class="ua">↑ Вищий ризик</span>'
+        : pct < 35 ? '<span class="en">↓ Lower risk</span><span class="ua">↓ Нижчий ризик</span>'
+        : '<span class="en">→ Moderate</span><span class="ua">→ Помірний</span>';
+      tt.innerHTML = `<strong>${SPARK_METRIC_NAMES[idx]}</strong> · ${timeStr}<br><span style="opacity:0.65">${riskWord}</span>`;
+      tt.style.display = 'block';
+
+      let tx = e.clientX + 14;
+      if (tx + 180 > window.innerWidth) tx = e.clientX - 190;
+      tt.style.left = tx + 'px';
+      tt.style.top = (e.clientY - 22) + 'px';
+    });
+
+    canvas.addEventListener('mouseleave', () => {
+      tt.style.display = 'none';
+      drawSingleSparkline(i, null);
+    });
   }
 }
 
@@ -1211,6 +1287,7 @@ async function loadData() {
   initHistoryEvents();
   drawHistory(activeRange);
   drawSparklines();
+  attachSparkHovers();
 }
 
 function updateGaugeTags(score, vals, keys, fr) {
