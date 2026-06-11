@@ -33,11 +33,11 @@
   }
   :root[data-theme="light"] {
     --bg: #F4F4F8; --surface: #FFFFFF; --surface2: #F0F0F6;
-    --border: #00000010; --border2: #00000018;
-    --text: #0A0A0F; --muted: #888899; --muted2: #555566;
-    --shadow: 0 1px 3px #00000010, 0 8px 32px #00000008;
-    --hdr-bg: #FFFFFF; --hdr-text: #000000;
-    --logo-text: #0A0A0F;
+    --border: #1a1a1a10; --border2: #1a1a1a18;
+    --text: #1a1a1a; --muted: #888899; --muted2: #555566;
+    --shadow: 0 1px 3px #1a1a1a10, 0 8px 32px #1a1a1a08;
+    --hdr-bg: #FFFFFF; --hdr-text: #1a1a1a;
+    --logo-text: #1a1a1a;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -844,15 +844,15 @@ function drawHistory(range, hoverIndex) {
      ctx.fillRect(pad.l, pad.t + ch - (z.mx / 100) * ch, cw, ((z.mx - z.mn) / 100) * ch);
    });
 
-  ctx.strokeStyle = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)'; ctx.lineWidth = 1;
+  ctx.strokeStyle = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(26,26,26,0.06)'; ctx.lineWidth = 1;
   [0, 25, 50, 75, 100].forEach(v => {
     const y = pad.t + ch - (v / 100) * ch;
     ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(pad.l + cw, y); ctx.stroke();
-    ctx.fillStyle = isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.3)';
+    ctx.fillStyle = isDark ? 'rgba(255,255,255,0.3)' : 'rgba(26,26,26,0.3)';
     ctx.font = '10px Inter'; ctx.fillText(v, 2, y + 4);
   });
 
-  const dateTextCol = isDark ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.4)';
+  const dateTextCol = isDark ? 'rgba(255, 255, 255, 0.4)' : 'rgba(26, 26, 26, 0.4)';
   [0, Math.floor((pts.length - 1) / 2), pts.length - 1].forEach(i => {
     if (i < 0 || i >= pts.length) return;
     const x = pad.l + (i / Math.max(pts.length - 1, 1)) * cw;
@@ -869,14 +869,14 @@ function drawHistory(range, hoverIndex) {
     const y = pad.t + ch - (v.score / 100) * ch;
     i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
   });
-  ctx.strokeStyle = isDark ? '#F0F0F5' : '#0A0A0F'; ctx.lineWidth = 1.5; ctx.stroke();
+  ctx.strokeStyle = isDark ? '#F0F0F5' : '#1a1a1a'; ctx.lineWidth = 1.5; ctx.stroke();
 
   if (hoverIndex != null && hoverIndex >= 0 && hoverIndex < pts.length) {
     const e = pts[hoverIndex];
     const x = pad.l + (hoverIndex / Math.max(pts.length - 1, 1)) * cw;
     const y = pad.t + ch - (e.score / 100) * ch;
 
-    ctx.strokeStyle = isDark ? 'rgba(255, 255, 255, 0.25)' : 'rgba(0, 0, 0, 0.2)';
+    ctx.strokeStyle = isDark ? 'rgba(255, 255, 255, 0.25)' : 'rgba(26, 26, 26, 0.2)';
     ctx.lineWidth = 1;
     ctx.setLineDash([3, 3]);
     ctx.beginPath();
@@ -917,7 +917,7 @@ function drawHistory(range, hoverIndex) {
     if (boxY < pad.t) boxY = y + 8;
 
     ctx.fillStyle = isDark ? '#18181F' : '#F0F0F6';
-    ctx.strokeStyle = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
+    ctx.strokeStyle = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(26,26,26,0.1)';
     ctx.lineWidth = 1;
     ctx.beginPath();
     if (ctx.roundRect) {
@@ -930,7 +930,7 @@ function drawHistory(range, hoverIndex) {
 
     ctx.textAlign = 'left';
     ctx.textBaseline = 'top';
-    ctx.fillStyle = isDark ? '#F0F0F5' : '#0A0A0F';
+    ctx.fillStyle = isDark ? '#F0F0F5' : '#1a1a1a';
     ctx.font = 'bold 10px Inter, sans-serif';
     ctx.fillText(dateFormatted, boxX + padX, boxY + padY);
 
@@ -956,7 +956,7 @@ function drawSingleSparkline(i, hoverIdx) {
   const d = SPARK_DATA[i - 1], mn = Math.min(...d), mx = Math.max(...d), rng = mx - mn || 1;
   const pts = d.map((v, j) => ({ x: (j / (d.length - 1)) * w, y: h - ((v - mn) / rng) * (h - 8) - 4 }));
   const color = sparkColors[i - 1];
-  const grid = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
+  const grid = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(26,26,26,0.06)';
 
   ctx.strokeStyle = grid; ctx.lineWidth = 1; ctx.setLineDash([3, 3]);
   ctx.beginPath(); ctx.moveTo(0, h / 2); ctx.lineTo(w, h / 2); ctx.stroke(); ctx.setLineDash([]);
@@ -972,7 +972,7 @@ function drawSingleSparkline(i, hoverIdx) {
 
   if (hoverIdx != null) {
     const hp = pts[hoverIdx];
-    ctx.strokeStyle = isDark ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.12)';
+    ctx.strokeStyle = isDark ? 'rgba(255,255,255,0.18)' : 'rgba(26,26,26,0.12)';
     ctx.lineWidth = 1; ctx.setLineDash([2, 2]);
     ctx.beginPath(); ctx.moveTo(hp.x, 0); ctx.lineTo(hp.x, h); ctx.stroke(); ctx.setLineDash([]);
     ctx.beginPath(); ctx.arc(hp.x, hp.y, 3.5, 0, Math.PI * 2);
