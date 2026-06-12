@@ -11,7 +11,8 @@ Sources (by metric):
   mayer_multiple mayer_daily.json          2018+  {date, mayer_multiple}
                  mayer_history.json        2014+  [date, value]  (fills pre-2018 gap)
   fear_greed    fear_greed.json            2018+  {date, score}
-  m2_yoy        global_m2_history.json     2014+  computed YoY % from absolute values
+  m2_yoy        m2_yoy_history.json         2010+  direct YoY % (digitized from MacroMicro)
+                global_m2_history.json     2014+  fallback: computed YoY % from absolute values
   cipherb_daily cipherb_btcusdt_1d.json    2017+  {date, daily_score}
   pi_gap_pct    pi_cycle_daily.json        2018+  {date, gap_pct, cross}
   btc_price     btc_price_history.json     2017+  [date, value] or {date, value/close}
@@ -130,7 +131,14 @@ def main():
     mayer_d  = load_dict_series('mayer_daily.json', 'mayer_multiple')
     mayer_h  = load_list_series('mayer_history.json')
     fg       = load_dict_series('fear_greed.json', 'score')
-    m2_yoy   = compute_m2_yoy('global_m2_history.json')
+    m2_yoy_path = os.path.join(BASE, 'm2_yoy_history.json')
+    if os.path.exists(m2_yoy_path):
+        raw_m2 = json.load(open(m2_yoy_path, encoding='utf-8'))
+        m2_ser = raw_m2.get('series', raw_m2) if isinstance(raw_m2, dict) else raw_m2
+        m2_yoy = {str(r.get('date', ''))[:10]: float(r['value'])
+                  for r in m2_ser if isinstance(r, dict) and r.get('date') and r.get('value') is not None}
+    else:
+        m2_yoy = compute_m2_yoy('global_m2_history.json')
     cb_d     = load_dict_series('cipherb_btcusdt_1d.json', 'daily_score')
     pi       = load_dict_series('pi_cycle_daily.json', 'gap_pct')
     btc      = load_btc_price('btc_price_history.json')
@@ -190,13 +198,13 @@ def main():
             'note': (
                 'Unified raw metric history. On-chain (nupl/mvrv/puell/rhodl) from 2010; '
                 'cvdd_ratio/mayer/cipherb from 2017-2018; fear_greed from 2018; '
-                'm2_yoy (computed YoY from MacroMicro global M2 absolute) from 2014.'
+                'm2_yoy (digitized from MacroMicro image) from 2010.'
             ),
             'periods': {
                 'on_chain_full': '2010+  (nupl, mvrv, puell, rhodl_ratio)',
                 'on_chain_partial': '2016+  (asopr),  2017+  (cvdd_ratio)',
                 'tech': '2017-2018+  (mayer, cipherb, pi_gap_pct)',
-                'macro': '2014+  (m2_yoy),  2018+  (fear_greed)',
+                'macro': '2010+  (m2_yoy),  2018+  (fear_greed)',
             },
         },
         'series': series,
