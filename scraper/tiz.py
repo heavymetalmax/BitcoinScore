@@ -17,7 +17,7 @@ import datetime
 _SCORES_PATH     = 'data/history/scores.json'
 _THRESHOLD       = 40    # zone boundary (composite score ≤ this)
 _WINDOW_DAYS     = 180   # cumulative window for counting zone days
-_CALIBRATION     = 120   # days for full maturity (avg of 2018~150d, 2022~210d)
+_CALIBRATION     = 200   # days for full maturity (2018: 231d, 2022: 280d → avg ~255, use 200 as conservative)
 _SCORE_FRESH     = 38    # risk at day 0 in zone
 _SCORE_MATURE    = 5     # risk at calibration_days
 
