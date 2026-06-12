@@ -37,7 +37,9 @@ jobs:
         run: python tools/generate_ics.py
 
       - name: Copy data.json next to index.html
-        run: cp data/data.json web/data.json
+        run: |
+          cp data/data.json web/data.json
+          cp data/data_exp.json web/data_exp.json
 
       - name: Commit and push data
         run: |

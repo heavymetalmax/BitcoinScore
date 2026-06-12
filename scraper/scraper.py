@@ -525,18 +525,31 @@ def main():
         import copy
         p_exp = copy.deepcopy(p)
         scores_v2 = compute_scores_v2(p.get('metrics', {}))
-        p_exp['onchain_score']  = scores_v2['onchain_score']
-        p_exp['tech_score']     = scores_v2['tech_score']
-        p_exp['final_score']    = scores_v2['final_score']
-        p_exp['scoring_regime'] = scores_v2['regime']
-        p_exp['tiz_score']      = scores_v2['tiz_score']
-        p_exp['tiz_days']       = scores_v2['tiz_days']
+        p_exp['onchain_score']   = scores_v2['onchain_score']
+        p_exp['tech_score']      = scores_v2['tech_score']
+        p_exp['final_score']     = scores_v2['final_score']
+        p_exp['scoring_regime']  = scores_v2['regime']
+        p_exp['tiz_score']       = scores_v2['tiz_score']
+        p_exp['tiz_days']        = scores_v2['tiz_days']
+        p_exp['oc_coherence']    = scores_v2.get('oc_coherence')
+        p_exp['coh_factor']      = scores_v2.get('coh_factor')
+        p_exp['pi_cross']        = scores_v2.get('pi_cross')
         if scores_v2.get('adaptive'):
             p_exp['adaptive_calibration'] = scores_v2['adaptive']
+        if scores_v2.get('wave_resonance'):
+            p_exp['wave_resonance'] = scores_v2['wave_resonance']
+        if scores_v2.get('signal'):
+            p_exp['signal'] = scores_v2['signal']
         write_json('data/data_exp.json', p_exp)
+        wr  = scores_v2.get('wave_resonance', {})
+        sig = scores_v2.get('signal', {})
         print(f"V2 scores: regime={scores_v2['regime']}  onchain={scores_v2['onchain_score']}  "
               f"tech={scores_v2['tech_score']}  tiz={scores_v2['tiz_score']}(day {scores_v2['tiz_days']})  "
               f"final={scores_v2['final_score']}")
+        if wr.get('score') is not None:
+            print(f"WR={wr['score']} coh={wr['coherence']}  "
+                  f"Signal: meta={sig.get('meta_score')} conv={sig.get('conviction')} "
+                  f"flag={sig.get('flag')}")
     except Exception as e:
         print(f'Failed to compute v2 scores: {e}')
 

@@ -2,14 +2,13 @@
 Decision matrix scoring — shared between report.py and scraper.py.
 
 On-chain group  (5 metrics, weights sum to 1.0):
-  rhodl_ratio ×20  mvrv_z_score ×20  cvdd_ratio ×20  nupl ×20  asopr ×20
+  nupl ×30  rhodl_ratio ×20  mvrv_z_score ×20  cvdd_ratio ×15  asopr ×15
 
-Tech/Macro group  (5 metrics, weights sum to 1.0):
-  cipherb ×50  smc ×10  fear_greed ×20  real_yield ×10  m2_yoy ×10
+Tech/Macro group  (6 metrics, weights sum to 1.0):
+  cipherb ×40  mayer_multiple ×20  fear_greed ×10  etf_flows ×10  yield_curve_spread ×10  m2_yoy ×10
   (cipherb — price/momentum осцилятор; +12 penalty при активній bearish divergence;
-   smc — ретроспективний, знижено з ×25 → ×10;
     yield_curve_spread = US 10Y-2Y Yield Curve (T10Y2Y, FRED), обернена логіка: ↓ спред (інверсія) = ↑ ризик;
-    m2_yoy = US M2 WM2NS YoY % change (FRED), обернена логіка: ↑ ліквідність = ↓ ризик;
+    m2_yoy = Global M2 YoY % change (MacroMicro chart 3439), обернена логіка: ↑ ліквідність = ↓ ризик;
 
 Index 1 (onchain_score) = 80% OC + 20% Tech
 Index 2 (tech_score)    = 20% OC + 80% Tech
@@ -25,31 +24,78 @@ import datetime
 # Valuation metrics whose cyclical extremes COMPRESS as Bitcoin matures get a
 # blended risk score:  w·(rolling-percentile) + (1-w)·(fixed map).
 # Only linear-mapped valuation metrics that age fastest are included; log/floor
-# metrics (rhodl, cvdd) and oscillators (asopr, fear_greed, funding) keep their
+# metrics (rhodl) and oscillators (asopr, fear_greed, funding) keep their
 # fixed maps — applying a percentile to a stable-envelope oscillator would
 # inject noise. Evidence: tools/adaptive_norm_probe.py (NUPL peaks 0.87→0.64,
 # MVRV Z 11→3.4; fixed under-reads modern tops and over-reads modern bottoms).
-ADAPTIVE_METRICS   = {'nupl', 'mvrv', 'mayer'}  # linear valuation maps that age fastest
+ADAPTIVE_METRICS   = {'nupl', 'mvrv', 'mayer', 'cvdd_ratio', 'puell'}
 # daily_vector raw key differs from the adaptive metric name for some metrics
-_DV_KEY            = {'mayer': 'mayer_multiple'}
+_DV_KEY            = {'mayer': 'mayer_multiple', 'cvdd_ratio': 'cvdd_ratio'}
+# field name in unified_history.json when it differs from the metric key
+_UNIFIED_FIELD     = {'mayer': 'mayer_multiple', 'cvdd_ratio': 'cvdd_ratio'}
+# seed history files that use dict rows: maps metric → value key inside the dict
+_SEED_VAL          = {'cvdd_ratio': 'ratio'}
 ADAPTIVE_BLEND     = 0.5                 # weight on the adaptive (percentile) part
 ADAPTIVE_WIN_YEARS = 4                   # trailing window for the percentile
 ADAPTIVE_DEBUG     = {}                  # per-run breakdown for transparency
 _HIST_CACHE        = {}
+_UNIFIED_CACHE     = None               # lazy-loaded unified_history series
+
+def _load_unified_cache():
+    """Load unified_history.json into a list of dicts, once per process."""
+    global _UNIFIED_CACHE
+    if _UNIFIED_CACHE is not None:
+        return _UNIFIED_CACHE
+    path = 'data/history/unified_history.json'
+    if os.path.exists(path):
+        data = json.load(open(path, encoding='utf-8'))
+        _UNIFIED_CACHE = data.get('series', [])
+    else:
+        _UNIFIED_CACHE = []
+    return _UNIFIED_CACHE
 
 def _load_metric_history(metric):
-    """Return [(date, value)] from the backfilled seed + recent daily vectors."""
+    """Return [(date, value)] from unified_history + recent daily vectors.
+
+    Primary source: data/history/unified_history.json (built by
+    tools/build_unified_history.py).  Falls back to individual seed files
+    when unified_history.json is absent or missing the metric.
+    Daily vector is always appended to capture the most recent runs.
+    """
     if metric in _HIST_CACHE:
         return _HIST_CACHE[metric]
+
     pts = []
-    seed = f'data/history/{metric}_history.json'
+    unified_field = _UNIFIED_FIELD.get(metric, metric)
+
+    # ── Primary: unified_history.json ───────────────────────────────────────
+    for row in _load_unified_cache():
+        v = row.get(unified_field)
+        d = row.get('date', '')[:10]
+        if d and v is not None:
+            pts.append((d, float(v)))
+
+    # ── Fallback: individual seed file (when unified is missing/empty) ───────
+    if not pts:
+        seed = f'data/history/{metric}_history.json'
+        val_key = _SEED_VAL.get(metric)
+        try:
+            if os.path.exists(seed):
+                for r in json.load(open(seed, encoding='utf-8')).get('series', []):
+                    if isinstance(r, list):
+                        date, val = str(r[0])[:10], r[1]
+                    elif isinstance(r, dict):
+                        date = r.get('date', '')[:10]
+                        val = r.get(val_key) if val_key else r.get('value')
+                    else:
+                        continue
+                    if date and val is not None:
+                        pts.append((date, float(val)))
+        except Exception:
+            pass
+
+    # ── Tail: daily vector (most recent runs, not yet in unified) ────────────
     try:
-        if os.path.exists(seed):
-            d = json.load(open(seed, encoding='utf-8'))
-            pts = [(r[0], float(r[1])) for r in d.get('series', []) if r[1] is not None]
-    except Exception:
-        pts = []
-    try:  # refine the tail with the growing daily vector log
         dv = 'data/history/daily_vector.json'
         if os.path.exists(dv):
             dv_key = _DV_KEY.get(metric, metric)
@@ -59,6 +105,7 @@ def _load_metric_history(metric):
                     pts.append((row['date'], float(v)))
     except Exception:
         pass
+
     pts.sort(key=lambda r: r[0])
     _HIST_CACHE[metric] = pts
     return pts
@@ -106,7 +153,7 @@ TECH_WEIGHTS = {
     'etf_flows':           0.10,   # Spot ETF flows 14d rolling sum (новий тактичний ліквідний індикатор)
     'fear_greed':          0.10,
     'yield_curve_spread':  0.10,   # US 10Y-2Y Spread (T10Y2Y). Inversion (<0) = high risk
-    'm2_yoy':              0.10,   # US M2 YoY (обернена логіка: ↑ ліквідність = ↓ ризик)
+    'm2_yoy':              0.10,   # Global M2 YoY (обернена логіка: ↑ ліквідність = ↓ ризик)
 }
 
 
@@ -149,14 +196,15 @@ def map_m2_mom(v):  # legacy — kept for reference only
     return round(((4 - v) / 6) * 100)
 
 
-def map_m2(v):  # US M2 YoY, inverted: high expansion = low risk score
+def map_m2(v):  # Global M2 YoY %, inverted: high expansion = low risk score
     if v is None: return None
-    # US M2 year-over-year % change (FRED WM2NS)
-    # HIGH YoY → system flooded with liquidity → low macro risk → LOW score
-    # LOW/negative YoY → liquidity tightening → high macro risk → HIGH score
-    # Range: -5% to +10%
-    v = max(-5, min(10, v))
-    return round(((10 - v) / 15) * 100)
+    # Global M2 YoY % change (MacroMicro chart 3439, major central banks combined)
+    # HIGH YoY → global liquidity expansion → tailwind for BTC → LOW risk score
+    # LOW/negative YoY → global tightening → headwind for BTC → HIGH risk score
+    # Range calibrated for global M2: strong expansion floor ~15%, contraction cap ~-2%
+    # Normal peacetime growth 4-6% → score 50-65; high growth 9-10% → ~30-33 (low risk)
+    v = max(-2, min(15, v))
+    return round(((15 - v) / 17) * 100)
 
 def map_yield_curve(v):
     # US 10Y-2Y Yield Curve Spread (T10Y2Y).
@@ -273,13 +321,14 @@ def build_slider_map(metrics: dict) -> dict:
     mayer_ratio = mayer_val.get('value') if isinstance(mayer_val, dict) else mayer_val
     mayer_score = _adaptive('mayer', mayer_ratio, map_mayer_multiple(mayer_val))
 
+    cvdd_raw = mv('cvdd_ratio')
     return {
         'nupl':                _adaptive('nupl', mv('nupl'), map_nupl(mv('nupl'))),
         'mvrv_z_score':        _adaptive('mvrv', mv('mvrv'), map_mvrv(mv('mvrv'))),
         'fear_greed':          map_fear_greed(mv('fear_greed')),
         'm2_yoy':              map_m2(mv('m2_mom')),  # field key in data.json still 'm2_mom'
         'yield_curve_spread':  map_yield_curve(mv('yield_curve')),
-        'cvdd_ratio':          map_cvdd(mv('cvdd_ratio')),
+        'cvdd_ratio':          _adaptive('cvdd_ratio', cvdd_raw, map_cvdd(cvdd_raw)),
         'rhodl_ratio':         map_rhodl(mv('rhodl_ratio')),
         'asopr':               map_asopr(mv('asopr')),
         'etf_flows':           map_etf_flow(mv('etf_flows')),
@@ -301,10 +350,27 @@ def weighted_score(weights: dict, slider_map: dict):
     return round(total_s / total_w) if total_w > 0 else None
 
 
+def _oc_coherence(sm: dict) -> float:
+    """Measure phase synchrony of on-chain metrics.
+    Returns [0, 1]: 1 = all metrics in agreement, 0 = maximally dispersed.
+    Used downstream (scoring_v2) to dampen the final score when OC signals conflict.
+    """
+    keys = [k for k in OC_WEIGHTS if sm.get(k) is not None]
+    if len(keys) < 3:
+        return 1.0
+    weights = [OC_WEIGHTS[k] for k in keys]
+    vals    = [sm[k] / 100.0 for k in keys]
+    total_w = sum(weights)
+    mean_v  = sum(w * v for w, v in zip(weights, vals)) / total_w
+    var     = sum(w * (v - mean_v) ** 2 for w, v in zip(weights, vals)) / total_w
+    # 0.289 = 1/(2√3) = theoretical max std for uniform [0,1] distribution
+    return max(0.0, 1.0 - var ** 0.5 / 0.289)
+
+
 def compute_scores(metrics: dict) -> dict:
     """
     Returns {'onchain_score', 'tech_score', 'final_score',
-             'onchain_avg', 'tech_avg'}.
+             'onchain_avg', 'tech_avg', 'oc_coherence'}.
     """
     sm = build_slider_map(metrics)
     oc_avg   = weighted_score(OC_WEIGHTS,   sm)
@@ -322,5 +388,6 @@ def compute_scores(metrics: dict) -> dict:
         'onchain_score':  blend(oc_avg, tech_avg, 0.80),
         'tech_score':     blend(oc_avg, tech_avg, 0.20),
         'final_score':    blend(oc_avg, tech_avg, 0.50),
-        'adaptive':       dict(ADAPTIVE_DEBUG),   # per-metric fixed/adaptive/blended breakdown
+        'adaptive':       dict(ADAPTIVE_DEBUG),
+        'oc_coherence':   round(_oc_coherence(sm), 3),
     }
