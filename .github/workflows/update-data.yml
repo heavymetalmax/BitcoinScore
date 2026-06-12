@@ -27,6 +27,9 @@ jobs:
       - name: Install Python dependencies
         run: pip install -r scraper/requirements.txt
 
+      - name: Build unified history
+        run: python tools/build_unified_history.py
+
       - name: Run scraper
         run: python -m scraper.scraper
 
