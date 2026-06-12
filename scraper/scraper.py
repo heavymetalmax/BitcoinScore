@@ -243,6 +243,35 @@ def build_payload():
     return payload
 
 
+def _build_metric_history(n_days=365):
+    """Last n_days of per-metric 0-100 scores for sparklines in data_exp.json."""
+    KEYS = ['nupl', 'mvrv_z_score', 'rhodl_ratio', 'cvdd_ratio', 'asopr',
+            'cipherb', 'mayer_multiple', 'etf_flows', 'fear_greed',
+            'yield_curve_spread', 'm2_yoy']
+    cutoff = (datetime.date.today() - datetime.timedelta(days=n_days)).isoformat()
+    bf = {}
+    bf_path = 'data/history/backfill_scores.json'
+    if os.path.exists(bf_path):
+        raw = json.load(open(bf_path, encoding='utf-8'))
+        for row in (raw.get('series', raw) if isinstance(raw, dict) else raw):
+            d = row.get('date', '')[:10]
+            if d >= cutoff:
+                bf[d] = row.get('mapped', {})
+    dv = {}
+    dv_path = 'data/history/daily_vector.json'
+    if os.path.exists(dv_path):
+        for row in json.load(open(dv_path, encoding='utf-8')):
+            d = row.get('date', '')[:10]
+            if d >= cutoff:
+                dv[d] = row.get('mapped', {})
+    dates = sorted(set(bf) | set(dv))
+    out = {'dates': dates}
+    for k in KEYS:
+        out[k] = [(dv.get(d, {}).get(k) if dv.get(d, {}).get(k) is not None
+                   else bf.get(d, {}).get(k)) for d in dates]
+    return out
+
+
 def main():
     p = build_payload()
     # Basic validation and clipping for suspicious values
@@ -540,6 +569,7 @@ def main():
             p_exp['wave_resonance'] = scores_v2['wave_resonance']
         if scores_v2.get('signal'):
             p_exp['signal'] = scores_v2['signal']
+        p_exp['metric_history'] = _build_metric_history()
         write_json('data/data_exp.json', p_exp)
         wr  = scores_v2.get('wave_resonance', {})
         sig = scores_v2.get('signal', {})
