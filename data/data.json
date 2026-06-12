@@ -1,8 +1,8 @@
 {
-  "timestamp": "2026-06-11T09:37:46Z",
-  "btc_price": 62854,
-  "btc_dominance": 58.45,
-  "fear_greed": 15.3,
+  "timestamp": "2026-06-12T09:32:13Z",
+  "btc_price": 63697,
+  "btc_dominance": 58.48,
+  "fear_greed": 14.7,
   "fear_greed_label": "CMC",
   "nupl": 12.0043,
   "mvrv_z_score": 0.2417,
@@ -18,46 +18,46 @@
   "rainbow_band": {
     "band": "Below model",
     "color": "rgba(68, 114, 196, 0.8)",
-    "price": 61493,
-    "band_upper": 73597.09,
-    "date": "2026-06-10"
+    "price": 63552,
+    "band_upper": 73668.02,
+    "date": "2026-06-11"
   },
   "m2": 9.47,
   "metrics": {
     "nupl": {
       "value": 12.0043,
       "source": "BMP",
-      "updated": "2026-06-11T09:37:39Z"
+      "updated": "2026-06-12T09:32:05Z"
     },
     "mvrv": {
       "value": 0.2417,
       "source": "BMP",
-      "updated": "2026-06-11T09:37:39Z"
+      "updated": "2026-06-12T09:32:05Z"
     },
     "m2": {
       "value": 9.47,
       "source": "MacroMicro",
-      "updated": "2026-06-11T09:37:39Z"
+      "updated": "2026-06-12T09:32:05Z"
     },
     "yield_curve": {
       "value": 0.48,
       "source": "BMP",
-      "updated": "2026-06-11T09:37:39Z"
+      "updated": "2026-06-12T09:32:05Z"
     },
     "cvdd_ratio": {
       "value": 1.266,
       "source": "BMP",
-      "updated": "2026-06-11T09:37:39Z"
+      "updated": "2026-06-12T09:32:05Z"
     },
     "rhodl_ratio": {
       "value": 1257.9609,
       "source": "BMP",
-      "updated": "2026-06-11T09:37:39Z"
+      "updated": "2026-06-12T09:32:05Z"
     },
     "asopr": {
       "value": 0.9833142857142858,
       "source": "BMP",
-      "updated": "2026-06-11T09:37:39Z"
+      "updated": "2026-06-12T09:32:05Z"
     },
     "etf_flows": {
       "value": {
@@ -67,25 +67,25 @@
         "date": "2026-06-05"
       },
       "source": "Farside",
-      "updated": "2026-06-11T09:37:39Z"
+      "updated": "2026-06-12T09:32:05Z"
     },
     "rainbow_band": {
       "value": {
         "band": "Below model",
         "color": "rgba(68, 114, 196, 0.8)",
-        "price": 61493,
-        "band_upper": 73597.09,
-        "date": "2026-06-10"
+        "price": 63552,
+        "band_upper": 73668.02,
+        "date": "2026-06-11"
       },
       "source": "BMP",
-      "updated": "2026-06-11T09:37:46Z"
+      "updated": "2026-06-12T09:32:13Z"
     },
     "fear_greed": {
-      "latest": 14.0,
-      "avg_7d": 15.3,
+      "latest": 16.0,
+      "avg_7d": 14.7,
       "label": "CMC",
       "source": "CMC",
-      "updated": "2026-06-11T09:37:46Z"
+      "updated": "2026-06-12T09:32:13Z"
     },
     "cipherb": {
       "value": {
@@ -97,12 +97,12 @@
         "weekly_score": 22.230465987334735,
         "fast_bearish_div": false,
         "fast_bullish_div": false,
-        "daily_score": 0.0,
+        "daily_score": 1.6445744232334853,
         "daily_fast_bearish_div": false,
         "daily_fast_bullish_div": false
       },
       "source": "Local",
-      "updated": "2026-06-11T09:37:46Z"
+      "updated": "2026-06-12T09:32:13Z"
     },
     "smc": {
       "value": {
@@ -116,94 +116,114 @@
         "size": 10
       },
       "source": "Local",
-      "updated": "2026-06-11T09:37:46Z"
+      "updated": "2026-06-12T09:32:13Z"
     },
     "mayer_multiple": {
       "value": {
-        "value": 0.787,
-        "dma_200": 78126.2,
-        "current_price": 61464.4,
-        "score": 18
+        "value": 0.815,
+        "dma_200": 78010.1,
+        "current_price": 63552.3,
+        "score": 20
       },
       "source": "Kraken",
-      "updated": "2026-06-11T09:37:46Z"
+      "updated": "2026-06-12T09:32:14Z"
     },
     "funding_rate": {
       "value": {
-        "latest": 0.06352,
-        "avg_7d": 0.06352,
-        "score": 76,
+        "latest": -0.00648,
+        "avg_7d": -0.00648,
+        "score": 29,
         "periods": 1,
         "source": "Kraken Futures"
       },
       "source": "Kraken Futures",
-      "updated": "2026-06-11T09:37:47Z"
+      "updated": "2026-06-12T09:32:14Z"
     },
-    "m2_mom": {
-      "value": 9.47,
-      "source": "MacroMicro",
-      "updated": "2026-06-11T09:37:49Z"
+    "halving_cycle_day": {
+      "value": 784,
+      "source": "Local",
+      "updated": "2026-06-12T09:32:14Z"
+    },
+    "pi_cycle": {
+      "value": {
+        "ma111": 72227.0,
+        "ma350x2": 184899.0,
+        "gap_pct": 60.94,
+        "score": 39,
+        "cross": false
+      },
+      "source": "Kraken",
+      "updated": "2026-06-12T09:32:15Z"
+    },
+    "puell_multiple": {
+      "value": 0.641,
+      "source": "BMP",
+      "updated": "2026-06-12T09:32:22Z"
+    },
+    "lth_supply_pct": {
+      "value": 16459764.2827,
+      "source": "BMP",
+      "updated": "2026-06-12T09:32:29Z"
     }
   },
-  "m2_mom": 9.47,
   "onchain_score": 31,
-  "tech_score": 21,
-  "final_score": 26,
+  "tech_score": 23,
+  "final_score": 27,
   "adaptive_calibration": {
     "mayer": {
-      "fixed": 18,
-      "adaptive": 17,
-      "blended": 18,
+      "fixed": 20,
+      "adaptive": 27,
+      "blended": 24,
       "win_years": 4,
       "blend_w": 0.5
     },
     "nupl": {
       "fixed": 41,
-      "adaptive": 20,
-      "blended": 30,
+      "adaptive": 16,
+      "blended": 28,
       "win_years": 4,
       "blend_w": 0.5
     },
     "mvrv": {
       "fixed": 32,
-      "adaptive": 23,
-      "blended": 28,
+      "adaptive": 18,
+      "blended": 25,
       "win_years": 4,
       "blend_w": 0.5
     }
   },
   "zone_forecast": {
     "buy": {
-      "price": 57157,
-      "pct": -9.0
+      "price": 56564,
+      "pct": -11.2
     },
     "sell": {
-      "price": 179681,
-      "pct": 185.9
+      "price": 142211,
+      "pct": 123.3
     },
     "buy_threshold": 20,
     "sell_threshold": 80,
-    "realized_price": 55300,
-    "ref_price": 62844
+    "realized_price": 56049,
+    "ref_price": 63695
   },
   "commentary": {
     "en": {
-      "summary": "Bitcoin remains structurally undervalued with active liquidation cascade risk; there is a high probability of further decline if current flows persist.",
-      "analysis": "On-chain metrics show a NUPL of 12.00% and an MVRV of 0.24, indicating that holders are not in a profitable zone and are likely holding despite a RHODL Ratio of 1,258, which under these conditions does not signal active distribution. Momentum dynamics are challenged by negative ETF flows of $-3,138M and an aSOPR of 0.983, suggesting that short-term selling pressure is present and contributing to a liquidity run scenario. The 7-day average funding rate of 0.0635% explicitly triggers a liquidation cascade risk, where ETF outflows compress spot demand and could force leveraged positions into liquidation. Overall, the metrics imply a high probability of further decline, with any reversal in ETF flows likely serving as the leading indicator for a trend change."
+      "summary": "Bitcoin is structurally modest with primary risk from institutional exit pressures; there is a high probability of further decline unless ETF flows reverse.",
+      "analysis": "On-chain indicators show a NUPL of 12.00% and an MVRV of 0.24, suggesting that long-term holders are not in a profit zone despite a relatively high RHODL Ratio of 1,258, which does not currently signal distribution due to the low NUPL. Price momentum is under pressure with ETF flows of -$3,138M and an aSOPR of 0.983, placing the market in a regime of institutional exit and cautious short-term selling. With a funding rate of -0.0065% and CipherB at 22.2, the explicit liquidation cascade risk is not active; however, ETF outflows remain a key trigger. The overall probability of continued price decline is high, with the ETF flows being the leading indicator whose reversal would signal a potential trend change."
     },
     "ua": {
-      "summary": "Біткоїн залишається структурно недооціненим з активним ризиком каскаду ліквідацій; існує висока ймовірність подальшого зниження, якщо поточні потоки збережуться.",
-      "analysis": "Ончейн метрики показують NUPL на рівні 12,00% та MVRV на рівні 0,24, що вказує на те, що тримачі не перебувають у прибутковій зоні і, ймовірно, утримують активи незважаючи на RHODL Ratio на рівні 1,258, що в цих умовах не сигналізує про активний розподіл. Динаміка моменту піддається викликам через негативні потоки ETF у розмірі $-3,138M та aSOPR на рівні 0,983, що свідчить про наявність короткострокового тиску на продаж і сприяє сценарію ліквідності. 7-денна середня ставка фінансування на рівні 0,0635% явно викликає ризик каскаду ліквідацій, де виводи з ETF стискають спотовий попит і можуть змусити позиції з важелем до ліквідації. Загалом, метрики вказують на високу ймовірність подальшого зниження, причому будь-який реверс у потоках ETF, ймовірно, слугуватиме провідним індикатором зміни тренду."
+      "summary": "Біткойн структурно скромний, з основним ризиком від тиску виходу інституцій; існує висока ймовірність подальшого зниження, якщо потоки ETF не зміняться.",
+      "analysis": "Індикатори на блокчейні показують NUPL на рівні 12,00% та MVRV на рівні 0,24, що свідчить про те, що довгострокові тримачі не знаходяться в зоні прибутку, незважаючи на відносно високий RHODL Ratio на рівні 1,258, який наразі не сигналізує про розподіл через низький NUPL. Ціновий імпульс під тиском з потоками ETF у розмірі -3,138 млн доларів США та aSOPR на рівні 0,983, що ставить ринок у режим виходу інституцій та обережного короткострокового продажу. З рівнем фінансування -0,0065% та CipherB на рівні 22,2, явний ризик каскаду ліквідацій неактивний; проте, відтік ETF залишається ключовим тригером. Загальна ймовірність подальшого зниження цін висока, при цьому потоки ETF є провідним індикатором, чий зворотний рух сигналізував би про потенційні зміни тренду."
     }
   },
   "prev_day": {
-    "date": "2026-06-10",
-    "final_score": 28,
-    "onchain_score": 32,
-    "tech_score": 24
+    "date": "2026-06-11",
+    "final_score": 26,
+    "onchain_score": 31,
+    "tech_score": 21
   },
   "prev_week": {
-    "date": "2026-06-04",
+    "date": "2026-06-05",
     "final_score": 29,
     "onchain_score": 33,
     "tech_score": 25
@@ -433,6 +453,11 @@
       "date": "2026-06-11",
       "score": 26,
       "price": 62854
+    },
+    {
+      "date": "2026-06-12",
+      "score": 27,
+      "price": 63697
     }
   ]
 }
