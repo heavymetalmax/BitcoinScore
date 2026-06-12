@@ -130,6 +130,24 @@
   .ai-block-badge { font-size: 10px; color: var(--muted); border: 1px solid var(--border); border-radius: 4px; padding: 2px 7px; opacity: 0.6; }
   .ai-block-text { font-size: 13px; color: var(--muted2); line-height: 1.75; }
 
+  .signal-block { padding: 18px 22px; margin-bottom: 24px; }
+  .signal-block-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 8px; }
+  .signal-block-label { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); display: flex; align-items: center; gap: 7px; }
+  .signal-block-dot { width: 8px; height: 8px; border-radius: 50%; background: #F97316; flex-shrink: 0; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
+  .signal-main-badge { padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; letter-spacing: 0.04em; border: 1px solid transparent; }
+  .signal-stats { display: flex; flex-wrap: wrap; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 10px; }
+  .signal-stat { flex: 1; min-width: 80px; padding: 10px 14px; border-right: 1px solid var(--border); }
+  .signal-stat:last-child { border-right: none; }
+  .signal-stat-val { font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.1; }
+  .signal-stat-label { font-size: 10px; color: var(--muted); margin-top: 3px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .signal-trust { display: flex; align-items: center; gap: 10px; }
+  .signal-trust-bar { flex: 1; height: 3px; border-radius: 2px; background: var(--border); overflow: hidden; }
+  .signal-trust-v2 { height: 100%; background: #3B82F6; }
+  .signal-trust-wr { height: 100%; background: #8B5CF6; }
+  .signal-trust-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); width: 100%; }
+  .signal-trust-wrap { flex: 1; }
+
   .section-header { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
   .section-title { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
 
@@ -377,6 +395,42 @@
       <span class="ai-block-badge">o3-mini</span>
     </div>
     <div class="ai-block-text" id="ai-block-text"></div>
+  </div>
+
+  <!-- SIGNAL BLOCK -->
+  <div class="card signal-block" id="signal-block" style="display:none">
+    <div class="signal-block-header">
+      <span class="signal-block-label"><span class="signal-block-dot"></span><span class="en">Composite Signal</span><span class="ua">Композитний сигнал</span></span>
+      <span class="signal-main-badge" id="sig-flag">—</span>
+    </div>
+    <div class="signal-stats">
+      <div class="signal-stat">
+        <div class="signal-stat-val" id="sig-meta">—</div>
+        <div class="signal-stat-label"><span class="en">Meta Score</span><span class="ua">Мета-бал</span></div>
+      </div>
+      <div class="signal-stat">
+        <div class="signal-stat-val" id="sig-conv">—</div>
+        <div class="signal-stat-label"><span class="en">Conviction</span><span class="ua">Переконання</span></div>
+      </div>
+      <div class="signal-stat">
+        <div class="signal-stat-val" id="sig-wr-score">—</div>
+        <div class="signal-stat-label"><span class="en">Wave Res.</span><span class="ua">Хвиля</span></div>
+      </div>
+      <div class="signal-stat">
+        <div class="signal-stat-val" id="sig-wr-coh">—</div>
+        <div class="signal-stat-label"><span class="en">WR Coherence</span><span class="ua">Когерентність</span></div>
+      </div>
+      <div class="signal-stat" id="sig-tiz-wrap" style="display:none">
+        <div class="signal-stat-val" id="sig-tiz">—</div>
+        <div class="signal-stat-label"><span class="en">TiZ Maturity</span><span class="ua">Зрілість TiZ</span></div>
+      </div>
+    </div>
+    <div class="signal-trust">
+      <div class="signal-trust-wrap">
+        <div class="signal-trust-bar"><div class="signal-trust-v2" id="trust-v2-bar" style="width:20%"></div></div>
+        <div class="signal-trust-labels"><span>V2 <span id="trust-v2-pct">—</span></span><span>WR <span id="trust-wr-pct">—</span></span></div>
+      </div>
+    </div>
   </div>
 
   <!-- COMPONENTS -->
@@ -1192,6 +1246,50 @@ async function loadData() {
     const sig = getSignal(keys[i], v);
     return (SIG_LABELS[sig] || SIG_LABELS.mod).color;
   });
+
+  // Composite Signal block
+  const sig = data.signal;
+  const wrData = data.wave_resonance;
+  if (sig && sig.flag) {
+    const block = document.getElementById('signal-block');
+    if (block) block.style.display = '';
+    const FLAG_STYLES = {
+      'CONFIRMED_BOTTOM': { bg:'#22C55E18', color:'#22C55E', border:'#22C55E40' },
+      'PROBABLE_BOTTOM':  { bg:'#4ADE8018', color:'#16A34A', border:'#4ADE8040' },
+      'EARLY_ZONE':       { bg:'#EAB30818', color:'#CA9A0A', border:'#EAB30840' },
+      'CONFIRMED_TOP':    { bg:'#EF444418', color:'#EF4444', border:'#EF444440' },
+      'PROBABLE_TOP':     { bg:'#F9731618', color:'#F97316', border:'#F9731640' },
+      'UNCERTAIN':        { bg:'#94A3B818', color:'#94A3B8', border:'#94A3B840' },
+      'NEUTRAL':          { bg:'#64748B18', color:'#64748B', border:'#64748B40' },
+    };
+    const st = FLAG_STYLES[sig.flag] || FLAG_STYLES['NEUTRAL'];
+    const flagEl = document.getElementById('sig-flag');
+    if (flagEl) {
+      flagEl.textContent = sig.flag.replace(/_/g, ' ');
+      flagEl.style.background = st.bg;
+      flagEl.style.color = st.color;
+      flagEl.style.borderColor = st.border;
+    }
+    set('sig-meta', sig.meta_score != null ? sig.meta_score : '—');
+    set('sig-conv', sig.conviction != null ? Math.round(sig.conviction * 100) + '%' : '—');
+    if (wrData) {
+      set('sig-wr-score', wrData.score != null ? wrData.score : '—');
+      set('sig-wr-coh', wrData.coherence != null ? Math.round(wrData.coherence * 100) + '%' : '—');
+    }
+    if (sig.tiz_maturity != null) {
+      const tizWrap = document.getElementById('sig-tiz-wrap');
+      if (tizWrap) tizWrap.style.display = '';
+      set('sig-tiz', Math.round(sig.tiz_maturity * 100) + '%');
+    }
+    if (sig.trust) {
+      const v2p = Math.round((sig.trust.v2 || 0) * 100);
+      const wrp = Math.round((sig.trust.wr || 0) * 100);
+      set('trust-v2-pct', v2p + '%');
+      set('trust-wr-pct', wrp + '%');
+      const bar = document.getElementById('trust-v2-bar');
+      if (bar) bar.style.width = v2p + '%';
+    }
+  }
 
   // Zone price levels
   const zf = data.zone_forecast || {};
