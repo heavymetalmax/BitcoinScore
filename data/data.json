@@ -1,7 +1,7 @@
 {
-  "timestamp": "2026-06-12T15:18:39Z",
-  "btc_price": 64300,
-  "btc_dominance": 58.57,
+  "timestamp": "2026-06-12T15:32:02Z",
+  "btc_price": 64021,
+  "btc_dominance": 58.55,
   "fear_greed": 14.7,
   "fear_greed_label": "CMC",
   "nupl": 12.0043,
@@ -27,37 +27,37 @@
     "nupl": {
       "value": 12.0043,
       "source": "BMP",
-      "updated": "2026-06-12T15:18:31Z"
+      "updated": "2026-06-12T15:31:54Z"
     },
     "mvrv": {
       "value": 0.2417,
       "source": "BMP",
-      "updated": "2026-06-12T15:18:31Z"
+      "updated": "2026-06-12T15:31:54Z"
     },
     "m2": {
       "value": 9.47,
       "source": "MacroMicro",
-      "updated": "2026-06-12T15:18:31Z"
+      "updated": "2026-06-12T15:31:54Z"
     },
     "yield_curve": {
       "value": 0.48,
       "source": "BMP",
-      "updated": "2026-06-12T15:18:31Z"
+      "updated": "2026-06-12T15:31:54Z"
     },
     "cvdd_ratio": {
       "value": 1.266,
       "source": "BMP",
-      "updated": "2026-06-12T15:18:31Z"
+      "updated": "2026-06-12T15:31:54Z"
     },
     "rhodl_ratio": {
       "value": 1257.9609,
       "source": "BMP",
-      "updated": "2026-06-12T15:18:31Z"
+      "updated": "2026-06-12T15:31:54Z"
     },
     "asopr": {
       "value": 0.9833142857142858,
       "source": "BMP",
-      "updated": "2026-06-12T15:18:31Z"
+      "updated": "2026-06-12T15:31:54Z"
     },
     "etf_flows": {
       "value": {
@@ -67,7 +67,7 @@
         "date": "2026-06-05"
       },
       "source": "Farside",
-      "updated": "2026-06-12T15:18:31Z"
+      "updated": "2026-06-12T15:31:54Z"
     },
     "rainbow_band": {
       "value": {
@@ -78,14 +78,14 @@
         "date": "2026-06-11"
       },
       "source": "BMP",
-      "updated": "2026-06-12T15:18:39Z"
+      "updated": "2026-06-12T15:32:02Z"
     },
     "fear_greed": {
       "latest": 16.0,
       "avg_7d": 14.7,
       "label": "CMC",
       "source": "CMC",
-      "updated": "2026-06-12T15:18:39Z"
+      "updated": "2026-06-12T15:32:02Z"
     },
     "cipherb": {
       "value": {
@@ -102,7 +102,7 @@
         "daily_fast_bullish_div": false
       },
       "source": "Local",
-      "updated": "2026-06-12T15:18:39Z"
+      "updated": "2026-06-12T15:32:02Z"
     },
     "smc": {
       "value": {
@@ -116,7 +116,7 @@
         "size": 10
       },
       "source": "Local",
-      "updated": "2026-06-12T15:18:39Z"
+      "updated": "2026-06-12T15:32:03Z"
     },
     "mayer_multiple": {
       "value": {
@@ -126,7 +126,7 @@
         "score": 20
       },
       "source": "Kraken",
-      "updated": "2026-06-12T15:18:39Z"
+      "updated": "2026-06-12T15:32:03Z"
     },
     "funding_rate": {
       "value": {
@@ -137,12 +137,12 @@
         "source": "Kraken Futures"
       },
       "source": "Kraken Futures",
-      "updated": "2026-06-12T15:18:39Z"
+      "updated": "2026-06-12T15:32:03Z"
     },
     "halving_cycle_day": {
       "value": 784,
       "source": "Local",
-      "updated": "2026-06-12T15:18:39Z"
+      "updated": "2026-06-12T15:32:03Z"
     },
     "pi_cycle": {
       "value": {
@@ -153,17 +153,17 @@
         "cross": false
       },
       "source": "Kraken",
-      "updated": "2026-06-12T15:18:40Z"
+      "updated": "2026-06-12T15:32:04Z"
     },
     "puell_multiple": {
       "value": 0.641,
       "source": "BMP",
-      "updated": "2026-06-12T15:18:47Z"
+      "updated": "2026-06-12T15:32:11Z"
     },
     "lth_supply_pct": {
       "value": 16459764.2827,
       "source": "BMP",
-      "updated": "2026-06-12T15:18:55Z"
+      "updated": "2026-06-12T15:32:19Z"
     }
   },
   "onchain_score": 31,
@@ -190,30 +190,37 @@
       "blended": 25,
       "win_years": 4,
       "blend_w": 0.5
+    },
+    "cvdd_ratio": {
+      "fixed": 15,
+      "adaptive": 8,
+      "blended": 12,
+      "win_years": 4,
+      "blend_w": 0.5
     }
   },
   "zone_forecast": {
     "buy": {
-      "price": 57067,
-      "pct": -11.2
+      "price": 57103,
+      "pct": -10.9
     },
     "sell": {
-      "price": 143475,
-      "pct": 123.3
+      "price": 140902,
+      "pct": 119.8
     },
     "buy_threshold": 20,
     "sell_threshold": 80,
-    "realized_price": 56547,
-    "ref_price": 64261
+    "realized_price": 56415,
+    "ref_price": 64111
   },
   "commentary": {
     "en": {
-      "summary": "Bitcoin is structurally in an accumulation phase with the primary risk stemming from significant institutional outflows; there is a high probability of further decline as indicated by negative ETF flows.",
-      "analysis": "The on-chain structural positioning shows a NUPL of 12.00% and an MVRV Z-score of 0.24, suggesting that holders are not in a profitable zone and are remaining patient, with the RHODL Ratio at 1,258 not triggering distribution signals due to low NUPL. ETF flows have been negative at $-3,138M over 14 days, indicating sustained institutional exit which is exerting downward pressure on price. The funding rate averaging -0.0997% negates any immediate liquidation cascade risk, while the aSOPR at 0.983 suggests that short-term holders are not broadly selling at a loss. Overall, negative market flows coupled with these measurements point to a high probability of further decline unless ETF flows reverse, signalling a trend change."
+      "summary": "Bitcoin appears structurally undervalued with ETF outflows and extreme fear driving near-term pressure, implying a moderate chance of further decline until institutional flows reverse.",
+      "analysis": "The on-chain metrics show a deep value setup with NUPL at 12.00% and a MVRV Z-score of 0.24, indicating prices near historical buy floors, while the high RHODL Ratio does not trigger distribution concerns given the low profitability indicated by NUPL. Momentum dynamics feature significant ETF outflows of $-3,138M and an aSOPR slightly below 1.00 at 0.983, suggesting selling pressure amid low CipherB readings, categorizing the current regime as a liquidity run. There is no liquidity cascade risk since the funding rate is -0.0997%, keeping that mechanism in check. With the overall risk index at 27 and Fear & Greed at 14.7, the likelihood of a continued decline is moderate until a bullish reversal is triggered by a positive turn in ETF flows."
     },
     "ua": {
-      "summary": "Біткойн структурно перебуває в фазі накопичення, при цьому основний ризик походить від значних інституційних виводів; існує висока ймовірність подальшого зниження, що підтверджується негативними потоками ETF.",
-      "analysis": "Структурне позиціонування в мережі показує NUPL на рівні 12,00% та Z-оцінку MVRV на рівні 0,24, що свідчить про те, що тримачі не перебувають у прибутковій зоні і залишаються терплячими, при цьому співвідношення RHODL становить 1 258, не викликаючи сигналів про розподіл через низький NUPL. Потоки ETF були негативними на рівні -3 138 млн доларів за 14 днів, що вказує на тривалий вихід інституцій, який чинить тиск на ціну. Середня ставка фінансування -0,0997% нівелює будь-який ризик негайної ліквідації, тоді як aSOPR на рівні 0,983 свідчить про те, що короткострокові тримачі не продають в широкому масштабі зі збитками. Загалом, негативні ринкові потоки в поєднанні з цими показниками вказують на високу ймовірність подальшого зниження, якщо тільки потоки ETF не зміняться, сигналізуючи про зміну тренду."
+      "summary": "Біткоїн виглядає структурно недооціненим, оскільки виведення коштів з ETF та екстремальний страх створюють тиск у короткостроковій перспективі, що вказує на помірну ймовірність подальшого зниження, поки інституційні потоки не зміняться.",
+      "analysis": "Метрики на блокчейні показують глибоку цінову установку з NUPL на рівні 12.00% та Z-оцінкою MVRV на рівні 0.24, що вказує на ціни поблизу історичних рівнів покупки, тоді як високий RHODL Ratio не викликає занепокоєння щодо розподілу, враховуючи низьку прибутковість, вказану NUPL. Динаміка моментуму демонструє значні виведення коштів з ETF у розмірі $-3,138M та aSOPR трохи нижче 1.00 на рівні 0.983, що свідчить про тиск продажу на фоні низьких показників CipherB, класифікуючи поточний режим як ліквідний забіг. Немає ризику каскаду ліквідності, оскільки ставка фінансування становить -0.0997%, що утримує цей механізм під контролем. Загальний індекс ризику становить 27, а індекс Страху та Жадібності - 14.7, ймовірність подальшого зниження є помірною, поки не відбудеться бичачий розворот, викликаний позитивним зміною в потоках ETF."
     }
   },
   "prev_day": {
@@ -457,7 +464,7 @@
     {
       "date": "2026-06-12",
       "score": 27,
-      "price": 64300
+      "price": 64021
     }
   ]
 }
