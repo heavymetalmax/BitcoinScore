@@ -594,12 +594,15 @@ def main():
         phases = phase_signals(curr_scores, prev_scores)
 
         # ML scorer: contextual risk using RF trained on metric × 90d-return history.
-        # Replaces fixed 50/50 weighting — model learns which metrics matter when.
+        # Learns which metrics matter in each context; replaces fixed 50/50 OC/Tech.
         try:
             from .ml_scorer import predict_risk_score as _ml_predict
             ml_score = _ml_predict(curr_scores)
             if ml_score is not None:
-                p['ml_score'] = ml_score
+                p['v1_score']   = p.get('final_score')   # keep v1 for reference
+                p['final_score'] = ml_score              # ML is now the primary score
+                p['ml_score']   = ml_score
+                print(f"ML scorer: {ml_score}  (v1 was {p['v1_score']})")
         except Exception as _ml_e:
             print(f'ML scorer skipped: {_ml_e}')
 
