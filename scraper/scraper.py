@@ -593,15 +593,34 @@ def main():
         sp_v2  = score_processor_v2(curr_scores, prev_scores)
         phases = phase_signals(curr_scores, prev_scores)
 
-        # ML scorer: contextual risk using RF trained on metric × 90d-return history.
-        # Learns which metrics matter in each context; replaces fixed 50/50 OC/Tech.
+        # ML scorer: augment curr_scores with phase context, then predict.
+        # Model sees both "what metrics say" AND "what kind of moment this is".
         try:
             from .ml_scorer import predict_risk_score as _ml_predict
-            ml_score = _ml_predict(curr_scores)
+            scores_with_phase = dict(curr_scores)
+            scores_with_phase['sp_v2']      = sp_v2
+            scores_with_phase['top_signal'] = phases.get('top_signal')
+            scores_with_phase['bot_signal'] = phases.get('bot_signal')
+            scores_with_phase['tiz_days']   = p.get('tiz_days', 0)
+            try:
+                import json as _json
+                _aw_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'data', 'adaptive_weights.json')
+                with open(_aw_path) as _awf:
+                    _bds = sorted(_json.load(_awf).get('bottom_dates', []))
+                _today_str = _dt.date.today().isoformat()
+                _dsb = 0
+                for _bd in reversed(_bds):
+                    if _bd <= _today_str:
+                        _dsb = (_dt.date.today() - _dt.date.fromisoformat(_bd)).days
+                        break
+                scores_with_phase['days_since_bottom'] = _dsb
+            except Exception:
+                scores_with_phase['days_since_bottom'] = 0
+            ml_score = _ml_predict(scores_with_phase)
             if ml_score is not None:
-                p['v1_score']   = p.get('final_score')   # keep v1 for reference
-                p['final_score'] = ml_score              # ML is now the primary score
-                p['ml_score']   = ml_score
+                p['v1_score']    = p.get('final_score')
+                p['final_score'] = ml_score
+                p['ml_score']    = ml_score
                 print(f"ML scorer: {ml_score}  (v1 was {p['v1_score']})")
         except Exception as _ml_e:
             print(f'ML scorer skipped: {_ml_e}')

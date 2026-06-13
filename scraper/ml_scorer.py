@@ -17,8 +17,11 @@ _ROOT       = os.path.join(os.path.dirname(__file__), '..')
 _MODEL_PATH = os.path.join(_ROOT, 'data', 'ml_scorer.pkl')
 
 FEATURE_KEYS = [
+    # Metric scores (what the metrics say right now)
     'nupl', 'mvrv_z_score', 'rhodl_ratio', 'cvdd_ratio', 'mayer_multiple',
     'asopr', 'cipherb_weekly', 'cipherb_daily', 'fear_greed', 'm2_yoy',
+    # Phase context (what KIND of moment this is)
+    'sp_v2', 'top_signal', 'bot_signal', 'tiz_days', 'days_since_bottom',
 ]
 
 _cache = None
