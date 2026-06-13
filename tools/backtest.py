@@ -11,17 +11,17 @@ Correctness rules:
   - adaptive calibration: rolling percentile uses only data available ≤ milestone date
   - composite score computed only when all CORE_REQUIRED metrics are present
 """
-import sys, json, math, datetime, bisect, ssl, urllib.request
+import sys, os, json, math, datetime, bisect, ssl, urllib.request
 sys.path.insert(0, '.')
 
 from scraper.scoring import (
-    map_nupl, map_mvrv, map_cvdd, map_rhodl, map_asopr,
-    map_mayer_multiple, map_fear_greed, map_m2, map_yield_curve, map_etf_flow,
+    score_from_raw,
     OC_WEIGHTS, TECH_WEIGHTS, weighted_score,
 )
+from scraper.scoring_v2 import score_processor_v2, _METRIC_LOOKBACK
 
 MAX_STALENESS = 45           # days — beyond this treat metric as absent
-ADAPTIVE_WIN  = 4 * 365      # days for rolling-percentile window
+ADAPTIVE_WIN  = 4 * 365      # days for rolling-percentile window (same as scoring.py)
 ADAPTIVE_BLEND = 0.50        # weight on percentile vs fixed map
 
 # Metrics that must all be present for a composite score to be meaningful.
@@ -43,6 +43,7 @@ MILESTONES = [
     ("2023-01-14", "Recovery start",      21_000),
     ("2024-03-14", "2024 ATH",            73_500),
     ("2025-01-20", "Jan 2025 top",       109_000),
+    ("2025-07-17", "CB weekly peak",     118_735),
     ("2025-09-29", "Intraday ATH",       129_000),
     ("2025-11-10", "Post-ATH dump",       94_000),
     ("2026-04-25", "Local low",           77_500),
@@ -79,8 +80,28 @@ def load_data():
         'cipherb':        _series(rows, 'cipherb_daily'),
     }
 
+    # Weekly CipherB — matches live scoring formula (0.8×weekly + 0.2×daily)
+    wk_path = os.path.join('data', 'history', 'cipherb_btcusdt_1w.json')
+    cipherb_weekly = []
+    cipherb_weekly_fb = []  # fast_bearish_div flag as 1/0 series
+    if os.path.exists(wk_path):
+        raw_wk = json.load(open(wk_path, encoding='utf-8'))
+        wk_rows = raw_wk if isinstance(raw_wk, list) else raw_wk.get('series', raw_wk)
+        for r in wk_rows:
+            ts = r.get('timestamp')
+            ws = r.get('weekly_score')
+            fb = r.get('fast_bearish_div', False)
+            if ts is not None and ws is not None:
+                d = datetime.datetime.utcfromtimestamp(ts).strftime('%Y-%m-%d')
+                cipherb_weekly.append((d, float(ws)))
+                cipherb_weekly_fb.append((d, 1.0 if fb else 0.0))
+        cipherb_weekly.sort()
+        cipherb_weekly_fb.sort()
+        print(f"  {'cipherb_weekly':<20s}: {len(cipherb_weekly):5d} pts  ({cipherb_weekly[0][0]} → {cipherb_weekly[-1][0]})")
+    series['cipherb_weekly']    = cipherb_weekly
+    series['cipherb_weekly_fb'] = cipherb_weekly_fb
+
     # ETF flows
-    import os
     etf_path = os.path.join('data', 'history', 'etf_flows.json')
     etf = []
     if os.path.exists(etf_path):
@@ -158,81 +179,100 @@ def pct_rank_at(series, target_date, value):
     return round(sum(1 for v in win if v <= value) / len(win) * 100)
 
 
-def adaptive(static_score, pct):
-    if static_score is None: return None
-    if pct is None: return static_score
-    return round(ADAPTIVE_BLEND * pct + (1 - ADAPTIVE_BLEND) * static_score)
-
-
 # ── Score computation at a single date ───────────────────────────────────────
 
 def compute_at(target_date, series):
     td = target_date
 
-    raw = {}
+    raw_vals = {}
     days_off = {}
     for k in series:
+        if k in ('cipherb_weekly', 'cipherb_weekly_fb'):
+            continue
         v, d = nearest_strict(series[k], td)
-        raw[k] = v
+        raw_vals[k] = v
         days_off[k] = d
 
-    # unit-correct (already applied via tx in _series — confirm)
-    nupl_v   = raw['nupl']
-    mvrv_v   = raw['mvrv']
-    rhodl_v  = raw['rhodl_ratio']
-    cvdd_v   = raw['cvdd_ratio']
-    asopr_v  = raw['asopr']
-    mayer_v  = raw['mayer_multiple']
-    fg_v     = raw['fear_greed']
-    m2_v     = raw['m2_yoy']
-    cb_v     = raw['cipherb']
-    etf_v    = raw['etf_flows']
-    yc_v     = raw['yield_curve_spread']
+    # Weekly CipherB — separate lookup, then assemble dict for score_from_raw()
+    wk_score, _ = nearest_strict(series['cipherb_weekly'], td)
+    wk_fb, _    = nearest_strict(series['cipherb_weekly_fb'], td)
+    cb_dict = None
+    if wk_score is not None:
+        cb_dict = {
+            'weekly_score':     wk_score,
+            'daily_score':      raw_vals.get('cipherb'),
+            'fast_bearish_div': bool(wk_fb),
+        }
 
-    s_nupl  = adaptive(map_nupl(nupl_v),         pct_rank_at(series['nupl'],   td, nupl_v))
-    s_mvrv  = adaptive(map_mvrv(mvrv_v),         pct_rank_at(series['mvrv'],   td, mvrv_v))
-    s_rhodl = map_rhodl(rhodl_v)
-    s_cvdd  = adaptive(map_cvdd(cvdd_v),         pct_rank_at(series['cvdd_ratio'], td, cvdd_v))
-    s_asopr = map_asopr(asopr_v)
-    s_mayer = adaptive(map_mayer_multiple(mayer_v), pct_rank_at(series['mayer_multiple'], td, mayer_v))
-    s_fg    = map_fear_greed(fg_v)
-    s_m2    = map_m2(m2_v)
-    s_cb    = round(max(0, min(100, cb_v))) if cb_v is not None else None
-    s_etf   = map_etf_flow(etf_v)
-    s_yc    = map_yield_curve(yc_v)
+    raw = {
+        'nupl':               raw_vals.get('nupl'),           # tx=×100 applied in _series()
+        'mvrv':               raw_vals.get('mvrv'),
+        'rhodl_ratio':        raw_vals.get('rhodl_ratio'),
+        'cvdd_ratio':         raw_vals.get('cvdd_ratio'),
+        'asopr':              raw_vals.get('asopr'),           # tx=+1.0 applied in _series()
+        'mayer_multiple':     raw_vals.get('mayer_multiple'),
+        'fear_greed':         raw_vals.get('fear_greed'),
+        'm2_yoy':             raw_vals.get('m2_yoy'),
+        'yield_curve_spread': raw_vals.get('yield_curve_spread'),
+        'cipherb':            cb_dict,
+        'etf_flows':          raw_vals.get('etf_flows'),
+    }
 
-    oc_map = {
-        'nupl': s_nupl, 'mvrv_z_score': s_mvrv,
-        'rhodl_ratio': s_rhodl, 'cvdd_ratio': s_cvdd, 'asopr': s_asopr,
-    }
-    tech_map = {
-        'cipherb': s_cb, 'mayer_multiple': s_mayer, 'fear_greed': s_fg,
-        'm2_yoy': s_m2, 'yield_curve_spread': s_yc, 'etf_flows': s_etf,
-    }
+    # Point-in-time adaptive percentiles (only data ≤ target_date)
+    adaptive_pcts = {}
+    for metric, key in [('nupl', 'nupl'), ('mvrv', 'mvrv'),
+                         ('cvdd_ratio', 'cvdd_ratio'), ('mayer', 'mayer_multiple')]:
+        pct = pct_rank_at(series[key], td, raw_vals.get(key))
+        if pct is not None:
+            adaptive_pcts[metric] = pct
+
+    scores = score_from_raw(raw, adaptive_pcts)
+
+    oc_map   = {k: scores.get(k) for k in OC_WEIGHTS}
+    tech_map = {k: scores.get(k) for k in TECH_WEIGHTS}
 
     oc   = weighted_score(OC_WEIGHTS,   oc_map)
     tech = weighted_score(TECH_WEIGHTS, tech_map)
 
-    # Check core coverage — composite valid only when all CORE_REQUIRED present
     present = {k for k, v in {**oc_map, **tech_map}.items()
                if k in CORE_REQUIRED and v is not None}
     full_coverage = (present == CORE_REQUIRED)
 
-    if full_coverage:
-        if oc is not None and tech is not None:
-            final = round(oc * 0.5 + tech * 0.5)
-        elif oc is not None: final = oc
-        elif tech is not None: final = tech
-        else: final = None
+    if full_coverage and oc is not None and tech is not None:
+        final = round(oc * 0.5 + tech * 0.5)
+    elif full_coverage and oc is not None:
+        final = oc
+    elif full_coverage and tech is not None:
+        final = tech
     else:
         final = None
 
     return {
-        'raw': raw, 'days_off': days_off,
-        'scores': {**oc_map, **tech_map},
+        'raw': raw_vals, 'days_off': days_off,
+        'scores': scores,
         'oc': oc, 'tech': tech, 'final': final,
         'present': present, 'full_coverage': full_coverage,
     }
+
+
+# ── Score Processor v2 helper ─────────────────────────────────────────────────
+
+def _prev_scores(td, series):
+    """Build prev_scores dict for score_processor_v2: each metric from its lookback ago."""
+    unique_lbs = set(_METRIC_LOOKBACK.values())
+    lb_scores = {}
+    for lb in unique_lbs:
+        prev_td = td - datetime.timedelta(days=lb)
+        r = compute_at(prev_td, series)
+        lb_scores[lb] = r['scores']
+    return {m: lb_scores[lb].get(m) for m, lb in _METRIC_LOOKBACK.items()}
+
+
+def v2_at(td, series):
+    """Return score_processor_v2 score (int or None) for a given date."""
+    r = compute_at(td, series)
+    prev = _prev_scores(td, series)
+    return score_processor_v2(r['scores'], prev)
 
 
 # ── Output ────────────────────────────────────────────────────────────────────
@@ -255,10 +295,16 @@ def run():
         r = compute_at(td, series)
         results.append((date_str, label, price, r))
 
+    # ── Compute v2 scores ────────────────────────────────────────────────────
+    v2_scores = {}
+    for date_str, label, price, _ in results:
+        td = datetime.date.fromisoformat(date_str)
+        v2_scores[date_str] = v2_at(td, series)
+
     # ── Score table ──────────────────────────────────────────────────────────
     header_metrics = " ".join(f"{SHORT[c]:>4}" for c in SCORE_COLS)
-    print(f"\n{'Date':<12} {'Label':<22} {'BTC':>8}  {'OC':>4} {'TC':>4} {'IDX':>4}  {header_metrics}")
-    print("─" * 140)
+    print(f"\n{'Date':<12} {'Label':<22} {'BTC':>8}  {'OC':>4} {'TC':>4} {'v1':>4} {'v2':>4}  {header_metrics}")
+    print("─" * 148)
 
     for date_str, label, price, r in results:
         sc = r['scores']
@@ -266,7 +312,9 @@ def run():
         idx_str = f"{r['final']:3d}" if r['final'] is not None else " ✗ "
         oc_str  = fmt(r['oc'])
         tc_str  = fmt(r['tech'])
-        print(f"{date_str:<12} {label:<22} ${price:>8,}  {oc_str} {tc_str} {idx_str}  {metric_vals}")
+        v2s     = v2_scores.get(date_str)
+        v2_str  = f"{v2s:3d}" if v2s is not None else " — "
+        print(f"{date_str:<12} {label:<22} ${price:>8,}  {oc_str} {tc_str} {idx_str} {v2_str}  {metric_vals}")
 
     # ── Coverage matrix ──────────────────────────────────────────────────────
     RAW_COLS = ['nupl', 'mvrv', 'rhodl_ratio', 'cvdd_ratio', 'asopr',

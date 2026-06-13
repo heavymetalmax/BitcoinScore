@@ -115,13 +115,17 @@
   .market-title { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; color: var(--muted); text-transform: uppercase; }
   .market-state-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 11px; border-radius: 20px; font-size: 12px; font-weight: 600; border: 1px solid transparent; }
   .market-state-badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
-  .market-rows { display: grid; grid-template-columns: 1fr auto; }
-  .market-row { display: contents; }
-  .market-row-left { display: flex; align-items: center; gap: 10px; color: var(--muted2); font-size: 13px; padding: 11px 0; border-bottom: 1px solid var(--border); }
+  .market-rows { display: flex; flex-direction: column; }
+  .market-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); gap: 8px; }
+  .market-row:last-child { border-bottom: none; }
+  .market-row-left { display: flex; align-items: center; gap: 10px; color: var(--muted2); font-size: 13px; }
   .market-row-icon { width: 16px; height: 16px; opacity: 0.6; flex-shrink: 0; }
-  .market-row-val { font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; padding: 11px 0; border-bottom: 1px solid var(--border); text-align: right; }
-  .market-row:last-child > .market-row-left,
-  .market-row:last-child > .market-row-val { border-bottom: none; }
+  .market-row-right { display: flex; flex-direction: column; align-items: flex-end; }
+  .market-row-val { font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; text-align: right; }
+  .market-row-sub { font-size: 10px; color: var(--muted); margin-top: 2px; font-variant-numeric: tabular-nums; }
+  .delta-up   { color: #22C55E; }
+  .delta-down { color: #EF4444; }
+  .delta-zero { color: var(--muted); }
 
   .ai-block { padding: 18px 22px; margin-bottom: 24px; }
   .ai-block-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
@@ -141,12 +145,27 @@
   .signal-stat:last-child { border-right: none; }
   .signal-stat-val { font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.1; }
   .signal-stat-label { font-size: 10px; color: var(--muted); margin-top: 3px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .signal-stat-sub { font-size: 9px; color: var(--muted); opacity: 0.7; margin-top: 2px; }
+  .signal-explain { font-size: 12px; color: var(--muted); padding: 10px 14px 4px; line-height: 1.5; border-top: 1px solid var(--border); margin-top: 6px; }
   .signal-trust { display: flex; align-items: center; gap: 10px; }
   .signal-trust-bar { flex: 1; height: 3px; border-radius: 2px; background: var(--border); overflow: hidden; }
   .signal-trust-v2 { height: 100%; background: #3B82F6; }
   .signal-trust-wr { height: 100%; background: #8B5CF6; }
   .signal-trust-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); width: 100%; }
   .signal-trust-wrap { flex: 1; }
+
+  .sp2-block { padding: 18px 22px; margin-bottom: 24px; }
+  .sp2-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 8px; }
+  .sp2-label { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); display: flex; align-items: center; gap: 7px; }
+  .sp2-dot { width: 8px; height: 8px; border-radius: 50%; background: #8B5CF6; flex-shrink: 0; }
+  .sp2-phase-badge { padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; letter-spacing: 0.04em; border: 1px solid transparent; }
+  .sp2-rows { display: flex; flex-direction: column; gap: 10px; }
+  .sp2-row { display: flex; align-items: center; gap: 12px; }
+  .sp2-row-label { font-size: 11px; color: var(--muted2); width: 84px; flex-shrink: 0; }
+  .sp2-bar-wrap { flex: 1; height: 6px; background: var(--surface2); border: 1px solid var(--border); border-radius: 3px; overflow: hidden; }
+  .sp2-bar-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
+  .sp2-row-val { font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; width: 44px; text-align: right; color: var(--muted2); }
+  .sp2-desc { margin-top: 12px; font-size: 11px; color: var(--muted); line-height: 1.5; padding-top: 10px; border-top: 1px solid var(--border); }
 
   .section-header { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
   .section-title { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
@@ -354,35 +373,43 @@
             <svg class="market-row-icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/><text x="8" y="12" text-anchor="middle" font-size="9" font-weight="700" font-family="sans-serif" fill="currentColor">$</text></svg>
             <span class="en">Bitcoin</span><span class="ua">Bitcoin</span>
           </div>
-          <span class="market-row-val" id="market-price">—</span>
+          <div class="market-row-right">
+            <span class="market-row-val" id="market-price">—</span>
+            <span class="market-row-sub" id="market-price-7d"></span>
+          </div>
         </div>
         <div class="market-row">
           <div class="market-row-left">
-            <svg class="market-row-icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/><text x="8" y="11.5" text-anchor="middle" font-size="9" font-weight="700" font-family="sans-serif" fill="currentColor">₿</text></svg>
-            <span class="en">BTC Dominance</span><span class="ua">Домінація BTC</span>
+            <svg class="market-row-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><rect x="2" y="4" width="12" height="9" rx="1.5"/><path d="M5 4V3a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v1"/><line x1="8" y1="7" x2="8" y2="10"/><line x1="6" y1="8.5" x2="10" y2="8.5"/></svg>
+            <span class="en">Risk Score</span><span class="ua">Індекс ризику</span>
           </div>
-          <span class="market-row-val" id="market-dom">—</span>
+          <div class="market-row-right">
+            <span class="market-row-val" id="market-score">—</span>
+            <span class="market-row-sub">
+              <span class="en">1d</span><span class="ua">1д</span>&nbsp;<span id="delta-1d">—</span>
+              &nbsp;·&nbsp;
+              <span class="en">7d</span><span class="ua">7д</span>&nbsp;<span id="delta-7d">—</span>
+            </span>
+          </div>
         </div>
         <div class="market-row">
           <div class="market-row-left">
             <svg class="market-row-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 11.5a6 6 0 1 1 11 0"/><path d="M8 8l2.5 -2.5"/></svg>
             <span class="en">Fear & Greed</span><span class="ua">F&amp;G</span>
           </div>
-          <span class="market-row-val" id="market-fg">—</span>
+          <div class="market-row-right">
+            <span class="market-row-val" id="market-fg">—</span>
+          </div>
         </div>
         <div class="market-row">
           <div class="market-row-left">
             <svg class="market-row-icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 5v3.5l2 1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
             <span class="en">Updated</span><span class="ua">Оновлено</span>
           </div>
-          <span class="market-row-val" id="market-updated">—</span>
-        </div>
-        <div class="market-row">
-          <div class="market-row-left">
-            <svg class="market-row-icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="1.4"/><path d="M8 5v3l2 1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M11 3l1 1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
-            <span class="en">Time left</span><span class="ua">До оновлення</span>
+          <div class="market-row-right">
+            <span class="market-row-val" id="market-updated">—</span>
+            <span class="market-row-sub"><span class="en">next in</span><span class="ua">наст. через</span>&nbsp;<span id="market-next">—</span></span>
           </div>
-          <span class="market-row-val" id="market-next">—</span>
         </div>
       </div>
     </div>
@@ -404,33 +431,67 @@
       <span class="signal-main-badge" id="sig-flag">—</span>
     </div>
     <div class="signal-stats">
-      <div class="signal-stat">
+      <div class="signal-stat" title="Зважений мікс V2-індексу та Wave Resonance. 0–100: нижче = менше ризику.&#10;Weighted blend of V2 index and Wave Resonance. 0–100: lower = less risk.">
         <div class="signal-stat-val" id="sig-meta">—</div>
         <div class="signal-stat-label"><span class="en">Meta Score</span><span class="ua">Мета-бал</span></div>
       </div>
-      <div class="signal-stat">
+      <div class="signal-stat" title="Впевненість моделі у поточному сигналі. Знижується при ранньому TiZ.&#10;Model confidence in the current signal. Scaled down during early TiZ phase.">
         <div class="signal-stat-val" id="sig-conv">—</div>
         <div class="signal-stat-label"><span class="en">Conviction</span><span class="ua">Переконання</span></div>
       </div>
-      <div class="signal-stat">
+      <div class="signal-stat" title="On-chain осцилятори (NUPL, MVRV, CVDD, Mayer, Pi). 0 = максимально перепроданий, 100 = максимально перекуплений.&#10;On-chain oscillator alignment. 0 = max oversold, 100 = max overbought.">
         <div class="signal-stat-val" id="sig-wr-score">—</div>
-        <div class="signal-stat-label"><span class="en">Wave Res.</span><span class="ua">Хвиля</span></div>
+        <div class="signal-stat-label"><span class="en">Wave Res.</span><span class="ua">Хвиля рез.</span></div>
       </div>
-      <div class="signal-stat">
+      <div class="signal-stat" title="Наскільки синхронізовані між собою on-chain осцилятори. Висока когерентність = сильний сигнал.&#10;How synchronized on-chain oscillators are. High coherence = strong signal.">
         <div class="signal-stat-val" id="sig-wr-coh">—</div>
         <div class="signal-stat-label"><span class="en">WR Coherence</span><span class="ua">Когерентність</span></div>
       </div>
-      <div class="signal-stat" id="sig-tiz-wrap" style="display:none">
+      <div class="signal-stat" id="sig-tiz-wrap" style="display:none" title="Скільки часу ми перебуваємо у зоні дна відносно еталону ~200 днів. До 25% = сигнал ще не підтверджений.&#10;How long we have been in the bottom zone vs. ~200-day calibration. Below 25% = not yet confirmed.">
         <div class="signal-stat-val" id="sig-tiz">—</div>
         <div class="signal-stat-label"><span class="en">TiZ Maturity</span><span class="ua">Зрілість TiZ</span></div>
+        <div class="signal-stat-sub" id="sig-tiz-days"></div>
       </div>
     </div>
     <div class="signal-trust">
       <div class="signal-trust-wrap">
         <div class="signal-trust-bar"><div class="signal-trust-v2" id="trust-v2-bar" style="width:20%"></div></div>
-        <div class="signal-trust-labels"><span>V2 <span id="trust-v2-pct">—</span></span><span>WR <span id="trust-wr-pct">—</span></span></div>
+        <div class="signal-trust-labels">
+          <span title="Вага V2-індексу у фінальному балі&#10;Weight of V2 index in the final score">V2 <span id="trust-v2-pct">—</span></span>
+          <span title="Вага Wave Resonance у фінальному балі&#10;Weight of Wave Resonance in the final score">WR <span id="trust-wr-pct">—</span></span>
+        </div>
       </div>
     </div>
+    <div id="sig-explain" class="signal-explain"></div>
+  </div>
+
+  <!-- SCORE PROCESSOR v2 / PHASE SIGNALS -->
+  <div class="card sp2-block" id="sp2-block" style="display:none">
+    <div class="sp2-header">
+      <span class="sp2-label">
+        <span class="sp2-dot"></span>
+        <span class="en">Score Processor v2</span><span class="ua">Процесор балів v2</span>
+      </span>
+      <span class="sp2-phase-badge" id="sp2-phase">—</span>
+    </div>
+    <div class="sp2-rows">
+      <div class="sp2-row">
+        <span class="sp2-row-label" title="Distance-based score: 0 = near historical bottom, 100 = near historical top"><span class="en">v2 Score</span><span class="ua">Бал v2</span></span>
+        <div class="sp2-bar-wrap"><div class="sp2-bar-fill" id="sp2-score-bar" style="background:#6366F1"></div></div>
+        <span class="sp2-row-val" id="sp2-score-val">—</span>
+      </div>
+      <div class="sp2-row">
+        <span class="sp2-row-label" title="Similarity to confirmed cycle tops (Nov 2021, Sep 2025). 100% = top-like conditions"><span class="en">↑ Top Signal</span><span class="ua">↑ Сигнал топа</span></span>
+        <div class="sp2-bar-wrap"><div class="sp2-bar-fill" id="sp2-top-bar" style="background:#EF4444"></div></div>
+        <span class="sp2-row-val" id="sp2-top-val">—</span>
+      </div>
+      <div class="sp2-row">
+        <span class="sp2-row-label" title="Similarity to confirmed cycle bottoms (Dec 2018, Jun/Nov 2022). 100% = bottom-like conditions"><span class="en">↓ Bot Signal</span><span class="ua">↓ Сигнал дна</span></span>
+        <div class="sp2-bar-wrap"><div class="sp2-bar-fill" id="sp2-bot-bar" style="background:#22C55E"></div></div>
+        <span class="sp2-row-val" id="sp2-bot-val">—</span>
+      </div>
+    </div>
+    <div class="sp2-desc" id="sp2-desc"></div>
   </div>
 
   <!-- COMPONENTS -->
@@ -1121,8 +1182,19 @@ document.querySelectorAll('.time-btn').forEach(b => {
 // ─── LOAD DATA ─────────────────────────────────────────
 async function loadData() {
   let data;
-  try { const r = await fetch('data_exp.json', { cache: 'no-store' }); data = await r.json(); }
-  catch (e) { return; }
+  try {
+    const [r1, r2] = await Promise.allSettled([
+      fetch('data.json',     { cache: 'no-store' }).then(r => r.json()),
+      fetch('data_exp.json', { cache: 'no-store' }).then(r => r.json()),
+    ]);
+    const main = r1.status === 'fulfilled' ? r1.value : {};
+    const exp  = r2.status === 'fulfilled' ? r2.value : {};
+    data = Object.assign({}, main, exp);
+    if (main.score_history?.length) data.score_history = main.score_history;
+    if (main.sp_v2 != null)         data.sp_v2         = main.sp_v2;
+    if (main.phase)                 data.phase         = main.phase;
+    if (!Object.keys(data).length)  return;
+  } catch (e) { return; }
 
   const score = data.final_score ?? 0;
   const z = riskZone(score);
@@ -1174,8 +1246,43 @@ async function loadData() {
 
   // Market rows
   const set = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
-  if (data.btc_price) set('market-price', fmtPrice(data.btc_price));
-  if (data.btc_dominance) set('market-dom', data.btc_dominance.toFixed(1) + '%');
+  const setHTML = (id, html) => { const el = document.getElementById(id); if (el) el.innerHTML = html; };
+
+  // BTC price + 7D change
+  if (data.btc_price) {
+    set('market-price', fmtPrice(data.btc_price));
+    const hist = (data.score_history || []).filter(e => e.price != null);
+    if (hist.length >= 7) {
+      const p7 = hist[hist.length - 7]?.price;
+      if (p7) {
+        const pct = ((data.btc_price - p7) / p7 * 100);
+        const sign = pct >= 0 ? '+' : '';
+        const cls = pct >= 0 ? 'delta-up' : 'delta-down';
+        set('market-price-7d', '');
+        const el = document.getElementById('market-price-7d');
+        if (el) { el.innerHTML = `<span class="${cls}">${sign}${pct.toFixed(1)}%</span> <span class="en">vs 7d ago</span><span class="ua">vs 7 днів</span>`; }
+      }
+    }
+  }
+
+  // Risk score + 1D/7D delta
+  set('market-score', score + '/100');
+  const makeDelta = (current, prev, invertColor) => {
+    if (prev == null) return '<span class="delta-zero">—</span>';
+    const d = current - prev;
+    if (d === 0) return '<span class="delta-zero">→ 0</span>';
+    const up = d > 0;
+    // For risk score: up = more risk = bad (red); down = less risk = good (green)
+    const cls = invertColor ? (up ? 'delta-down' : 'delta-up') : (up ? 'delta-up' : 'delta-down');
+    return `<span class="${cls}">${up ? '↑' : '↓'}${Math.abs(d)}</span>`;
+  };
+  const prev1d = data.prev_day?.final_score ?? null;
+  const prev7d = data.prev_week?.final_score ?? null;
+  const d1El = document.getElementById('delta-1d');
+  const d7El = document.getElementById('delta-7d');
+  if (d1El) d1El.innerHTML = makeDelta(score, prev1d, true);
+  if (d7El) d7El.innerHTML = makeDelta(score, prev7d, true);
+
   const fg7d = m.fear_greed ? (m.fear_greed.avg_7d ?? m.fear_greed.latest) : data.fear_greed;
   if (fg7d != null) set('market-fg', (+fg7d).toFixed(0));
   if (data.timestamp) {
@@ -1288,10 +1395,12 @@ async function loadData() {
       set('sig-wr-score', wrData.score != null ? wrData.score : '—');
       set('sig-wr-coh', wrData.coherence != null ? Math.round(wrData.coherence * 100) + '%' : '—');
     }
+    const tizDays = data.tiz_days || 0;
     if (sig.tiz_maturity != null) {
       const tizWrap = document.getElementById('sig-tiz-wrap');
       if (tizWrap) tizWrap.style.display = '';
       set('sig-tiz', Math.round(sig.tiz_maturity * 100) + '%');
+      if (tizDays > 0) set('sig-tiz-days', 'День ' + tizDays + ' / 200');
     }
     if (sig.trust) {
       const v2p = Math.round((sig.trust.v2 || 0) * 100);
@@ -1300,6 +1409,45 @@ async function loadData() {
       set('trust-wr-pct', wrp + '%');
       const bar = document.getElementById('trust-v2-bar');
       if (bar) bar.style.width = v2p + '%';
+    }
+
+    // Dynamic plain-language explanation
+    const FLAG_EXPLAIN = {
+      'CONFIRMED_BOTTOM': {
+        en: 'All signals align at a historic low with high conviction — strong buy zone.',
+        ua: 'Всі сигнали збігаються у зоні дна з высокой впевненістю — сильна зона покупки.'
+      },
+      'PROBABLE_BOTTOM': {
+        en: 'Most signals point to a bottom with moderate confidence.',
+        ua: 'Більшість сигналів вказують на дно з помірною впевненістю.'
+      },
+      'EARLY_ZONE': {
+        en: 'Metrics suggest a bottom, but we are only ' + tizDays + ' days in — too early to confirm. Monitor over the next few weeks.',
+        ua: 'Метрики вказують на дно, але лише ' + tizDays + ' днів у зоні — ще зарано підтверджувати. Стежте протягом найближчих тижнів.'
+      },
+      'NEUTRAL': {
+        en: 'Bottom zone metrics detected but conviction is low (TiZ day ' + tizDays + ' of 200). Signal strengthens as time in zone grows.',
+        ua: 'Метрики зони дна виявлені, але впевненість низька (TiZ день ' + tizDays + ' з 200). Сигнал посилюється з часом у зоні.'
+      },
+      'PROBABLE_TOP': {
+        en: 'Signals suggest elevated risk. Consider reducing exposure.',
+        ua: 'Сигнали вказують на підвищений ризик. Розгляньте скорочення позиції.'
+      },
+      'CONFIRMED_TOP': {
+        en: 'All signals align at historic highs with high conviction — high-risk zone.',
+        ua: 'Всі сигнали збігаються на вершині з高ою впевненістю — зона高ого ризику.'
+      },
+      'UNCERTAIN': {
+        en: 'Signals are mixed and confidence is low. Do not rely solely on this indicator.',
+        ua: 'Сигнали суперечать, впевненість низька. Не покладайтесь лише на цей індикатор.'
+      }
+    };
+    const expl = FLAG_EXPLAIN[sig.flag];
+    const explEl = document.getElementById('sig-explain');
+    if (expl && explEl) {
+      const isUa = document.documentElement.lang === 'uk' ||
+                   (localStorage && localStorage.getItem('lang') === 'ua');
+      explEl.textContent = isUa ? expl.ua : expl.en;
     }
   }
 
@@ -1421,12 +1569,84 @@ async function loadData() {
   updateHeader('hdr-macro', 'Macro', 'Макро', macroRawSum, macroAvg);
 
 
+  // Score Processor v2 / Phase Signals
+  if (data.sp_v2 != null || data.phase) {
+    const sp2Block = document.getElementById('sp2-block');
+    if (sp2Block) sp2Block.style.display = '';
+
+    const v2 = data.sp_v2;
+    const ph = data.phase || {};
+
+    const setBar = (barId, valId, pct, color) => {
+      const bar = document.getElementById(barId);
+      const val = document.getElementById(valId);
+      if (bar) { bar.style.width = pct + '%'; bar.style.background = color; }
+      if (val) val.textContent = pct + '%';
+    };
+
+    if (v2 != null) {
+      const v2Color = v2 < 25 ? '#22C55E' : v2 < 55 ? '#EAB308' : v2 < 75 ? '#F97316' : '#EF4444';
+      setBar('sp2-score-bar', 'sp2-score-val', v2, v2Color);
+    }
+    if (ph.top_signal != null) setBar('sp2-top-bar', 'sp2-top-val', ph.top_signal, '#EF4444');
+    if (ph.bot_signal != null) setBar('sp2-bot-bar', 'sp2-bot-val', ph.bot_signal, '#22C55E');
+
+    const PHASE_STYLES = {
+      'TOP':     { bg: '#EF444418', color: '#EF4444', border: '#EF444440', labelEn: 'TOP',     labelUa: 'ТОП' },
+      'BOTTOM':  { bg: '#22C55E18', color: '#22C55E', border: '#22C55E40', labelEn: 'BOTTOM',  labelUa: 'ДНО' },
+      'BULL':    { bg: '#EAB30818', color: '#CA9A0A', border: '#EAB30840', labelEn: 'BULL',    labelUa: 'БИЧАЧИЙ' },
+      'BEAR':    { bg: '#F9731618', color: '#F97316', border: '#F9731640', labelEn: 'BEAR',    labelUa: 'ВЕДМЕЖИЙ' },
+      'NEUTRAL': { bg: '#94A3B818', color: '#94A3B8', border: '#94A3B840', labelEn: 'NEUTRAL', labelUa: 'НЕЙТРАЛЬНИЙ' },
+    };
+    const PHASE_DESC = {
+      'TOP':     { en: 'Metrics align with confirmed cycle tops — elevated risk territory.',    ua: 'Метрики збігаються з підтвердженими топами — підвищений ризик.' },
+      'BOTTOM':  { en: 'Metrics align with confirmed cycle bottoms — accumulation territory.',  ua: 'Метрики збігаються з підтвердженими днами — зона накопичення.' },
+      'BULL':    { en: 'Metrics transitioning from bottom toward top territory.',               ua: 'Метрики у переході від дна до топа.' },
+      'BEAR':    { en: 'Metrics transitioning from top toward bottom territory.',               ua: 'Метрики у переході від топа до дна.' },
+      'NEUTRAL': { en: 'Both signals are low — genuine uncertainty, no dominant phase.',        ua: 'Обидва сигнали низькі — щира невизначеність, немає домінантної фази.' },
+    };
+
+    const phase = ph.phase || 'NEUTRAL';
+    const pSt = PHASE_STYLES[phase] || PHASE_STYLES['NEUTRAL'];
+    const pDesc = PHASE_DESC[phase] || {};
+    const isUa = document.body.classList.contains('lang-ua');
+
+    const pBadge = document.getElementById('sp2-phase');
+    if (pBadge) {
+      pBadge.textContent = isUa ? pSt.labelUa : pSt.labelEn;
+      pBadge.style.background = pSt.bg;
+      pBadge.style.color = pSt.color;
+      pBadge.style.borderColor = pSt.border;
+    }
+    const pDescEl = document.getElementById('sp2-desc');
+    if (pDescEl && (pDesc.en || pDesc.ua)) {
+      pDescEl.innerHTML = `<span class="en">${pDesc.en || ''}</span><span class="ua">${pDesc.ua || ''}</span>`;
+    }
+  }
+
   // History
   historyScores = (data.score_history || []).filter(e => e.score != null);
   initHistoryEvents();
   drawHistory(activeRange);
   drawSparklines();
   attachSparkHovers();
+
+  // Real sparklines from sparklines.json
+  fetch('sparklines.json', { cache: 'no-store' })
+    .then(r => r.json())
+    .then(sl => {
+      const MH_MAP = [
+        'nupl', 'mvrv_z_score', 'rhodl_ratio', 'cvdd_ratio', 'asopr',
+        'cipherb', 'mayer_multiple', null, 'fear_greed', null, 'm2_yoy'
+      ];
+      MH_MAP.forEach((key, i) => {
+        if (!key) return;
+        const vals = (sl[key] || []).filter(v => v != null);
+        if (vals.length >= 5) SPARK_DATA[i] = vals;
+      });
+      drawSparklines();
+    })
+    .catch(() => {});
 }
 
 function updateGaugeTags(score, vals, keys, fr) {

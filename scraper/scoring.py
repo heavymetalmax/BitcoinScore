@@ -283,6 +283,79 @@ def map_etf_flow(v):
     return round(max(0.0, min(100.0, score)))
 
 
+def score_from_raw(raw, adaptive_pcts=None):
+    """Single source of truth for scoring. Used by both live scraper and backtest.
+
+    raw keys (all optional, None → metric absent):
+      nupl              float  percent (-50..100)
+      mvrv              float  Z-score
+      rhodl_ratio       float  ratio
+      cvdd_ratio        float  ratio
+      asopr             float  standard scale ~1.0
+      mayer_multiple    float or dict
+      fear_greed        float  0-100
+      m2_yoy            float  YoY %
+      cipherb           dict   {weekly_score, daily_score, fast_bearish_div,
+                                fast_bullish_div, daily_fast_bearish_div,
+                                daily_fast_bullish_div}
+      yield_curve_spread float
+      etf_flows         float or dict
+      funding_rate      float or dict  (optional)
+
+    adaptive_pcts: {metric_key: percentile_0_to_100}
+      Supported: 'nupl', 'mvrv', 'cvdd_ratio', 'mayer'
+      Score = ADAPTIVE_BLEND*pct + (1-ADAPTIVE_BLEND)*fixed_map_score
+    """
+    if adaptive_pcts is None:
+        adaptive_pcts = {}
+
+    def _blend(key, fixed):
+        pct = adaptive_pcts.get(key)
+        if pct is None or fixed is None:
+            return fixed
+        return round(ADAPTIVE_BLEND * pct + (1 - ADAPTIVE_BLEND) * fixed)
+
+    cb = raw.get('cipherb')
+    cipherb_score = None
+    cb_weekly_raw = None   # raw weekly score, no divergence penalty — for v2 wave vector
+    cb_daily_raw  = None   # raw daily score, no penalty — for v2 wave vector
+    if isinstance(cb, dict):
+        w = cb.get('weekly_score')
+        d = cb.get('daily_score')
+        cb_weekly_raw = round(w) if w is not None else None
+        cb_daily_raw  = round(d) if d is not None else None
+        if w is not None:
+            if cb.get('fast_bearish_div'):
+                w = min(100.0, w + 12)
+            elif cb.get('fast_bullish_div'):
+                w = max(0.0, w - 12)
+            if d is not None:
+                if cb.get('daily_fast_bearish_div'):
+                    d = min(100.0, d + 12)
+                elif cb.get('daily_fast_bullish_div'):
+                    d = max(0.0, d - 12)
+                cipherb_score = round(0.8 * w + 0.2 * d)
+            else:
+                cipherb_score = round(w)
+
+    return {
+        'nupl':               _blend('nupl',       map_nupl(raw.get('nupl'))),
+        'mvrv_z_score':       _blend('mvrv',       map_mvrv(raw.get('mvrv'))),
+        'rhodl_ratio':        map_rhodl(raw.get('rhodl_ratio')),
+        'cvdd_ratio':         _blend('cvdd_ratio', map_cvdd(raw.get('cvdd_ratio'))),
+        'asopr':              map_asopr(raw.get('asopr')),
+        'mayer_multiple':     _blend('mayer',      map_mayer_multiple(raw.get('mayer_multiple'))),
+        'fear_greed':         map_fear_greed(raw.get('fear_greed')),
+        'm2_yoy':             map_m2(raw.get('m2_yoy')),
+        'yield_curve_spread': map_yield_curve(raw.get('yield_curve_spread')),
+        'cipherb':            cipherb_score,       # combined + penalty (v1 weights)
+        'cipherb_weekly':     cb_weekly_raw,        # raw weekly, no penalty (v2 wave vector)
+        'cipherb_daily':      cb_daily_raw,         # raw daily, no penalty (v2 wave vector)
+        'etf_flows':          map_etf_flow(raw.get('etf_flows')),
+        'funding_rate':       map_funding(raw.get('funding_rate')),
+    }
+
+
 def build_slider_map(metrics: dict) -> dict:
     """
     Given metrics dict (from data.json['metrics']),
@@ -297,45 +370,40 @@ def build_slider_map(metrics: dict) -> dict:
             return obj['value']
         return obj
 
-    cipherb = mv('cipherb')
-    cipherb_score = None
-    if isinstance(cipherb, dict):
-        w_score = cipherb.get('weekly_score')
-        d_score = cipherb.get('daily_score')
-        if w_score is not None:
-            if cipherb.get('fast_bearish_div'):
-                w_score = min(100.0, w_score + 12)
-            elif cipherb.get('fast_bullish_div'):
-                w_score = max(0.0, w_score - 12)
-            
-            if d_score is not None:
-                if cipherb.get('daily_fast_bearish_div'):
-                    d_score = min(100.0, d_score + 12)
-                elif cipherb.get('daily_fast_bullish_div'):
-                    d_score = max(0.0, d_score - 12)
-                cipherb_score = round(0.8 * w_score + 0.2 * d_score)
-            else:
-                cipherb_score = round(w_score)
+    # Compute trailing-window adaptive percentiles and record debug breakdown
+    adaptive_pcts = {}
+    _fixed_fn = {'nupl': map_nupl, 'mvrv': map_mvrv,
+                 'cvdd_ratio': map_cvdd, 'mayer': map_mayer_multiple}
+    _raw_key  = {'nupl': 'nupl', 'mvrv': 'mvrv',
+                 'cvdd_ratio': 'cvdd_ratio', 'mayer': 'mayer_multiple'}
+    for metric in ('nupl', 'mvrv', 'cvdd_ratio', 'mayer'):
+        val   = mv(_raw_key[metric])
+        pct   = _percentile_score(metric, val)
+        fixed = _fixed_fn[metric](val)
+        if pct is not None and fixed is not None:
+            blended = round(ADAPTIVE_BLEND * pct + (1 - ADAPTIVE_BLEND) * fixed)
+            ADAPTIVE_DEBUG[metric] = {'fixed': fixed, 'adaptive': pct, 'blended': blended,
+                                      'win_years': ADAPTIVE_WIN_YEARS, 'blend_w': ADAPTIVE_BLEND}
+            adaptive_pcts[metric] = pct
+        elif fixed is not None:
+            ADAPTIVE_DEBUG[metric] = {'fixed': fixed, 'adaptive': None, 'blended': fixed}
 
-    mayer_val = mv('mayer_multiple')
-    mayer_ratio = mayer_val.get('value') if isinstance(mayer_val, dict) else mayer_val
-    mayer_score = _adaptive('mayer', mayer_ratio, map_mayer_multiple(mayer_val))
-
-    cvdd_raw = mv('cvdd_ratio')
-    return {
-        'nupl':                _adaptive('nupl', mv('nupl'), map_nupl(mv('nupl'))),
-        'mvrv_z_score':        _adaptive('mvrv', mv('mvrv'), map_mvrv(mv('mvrv'))),
-        'fear_greed':          map_fear_greed(mv('fear_greed')),
-        'm2_yoy':              map_m2(mv('m2_mom')),  # field key in data.json still 'm2_mom'
-        'yield_curve_spread':  map_yield_curve(mv('yield_curve')),
-        'cvdd_ratio':          _adaptive('cvdd_ratio', cvdd_raw, map_cvdd(cvdd_raw)),
-        'rhodl_ratio':         map_rhodl(mv('rhodl_ratio')),
-        'asopr':               map_asopr(mv('asopr')),
-        'etf_flows':           map_etf_flow(mv('etf_flows')),
-        'cipherb':             cipherb_score,
-        'mayer_multiple':      mayer_score,
-        'funding_rate':        map_funding(mv('funding_rate')),
+    raw = {
+        'nupl':               mv('nupl'),
+        'mvrv':               mv('mvrv'),
+        'rhodl_ratio':        mv('rhodl_ratio'),
+        'cvdd_ratio':         mv('cvdd_ratio'),
+        'asopr':              mv('asopr'),
+        'mayer_multiple':     mv('mayer_multiple'),
+        'fear_greed':         mv('fear_greed'),
+        'm2_yoy':             mv('m2_mom'),           # data.json key is m2_mom
+        'yield_curve_spread': mv('yield_curve'),       # data.json key is yield_curve
+        'cipherb':            mv('cipherb'),
+        'etf_flows':          mv('etf_flows'),
+        'funding_rate':       mv('funding_rate'),
     }
+
+    return score_from_raw(raw, adaptive_pcts)
 
 
 def weighted_score(weights: dict, slider_map: dict):

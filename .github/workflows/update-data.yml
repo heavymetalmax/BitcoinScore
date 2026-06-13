@@ -39,6 +39,9 @@ jobs:
       - name: Generate ICS calendar feed
         run: python tools/generate_ics.py
 
+      - name: Generate sparklines for VS History charts
+        run: python tools/generate_sparklines.py
+
       - name: Copy data.json next to index.html
         run: |
           cp data/data.json web/data.json

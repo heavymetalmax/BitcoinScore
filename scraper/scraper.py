@@ -414,6 +414,19 @@ def main():
                                 break
                 except Exception:
                     pass
+            # Final fallback: m2_yoy_history.json (digitized MacroMicro, updated manually)
+            if last_good is None:
+                try:
+                    with open('data/history/m2_yoy_history.json', encoding='utf-8') as hf:
+                        raw_h = json.load(hf)
+                        series = raw_h.get('series', raw_h) if isinstance(raw_h, dict) else raw_h
+                        for row in reversed(series):
+                            v = row.get('value') if isinstance(row, dict) else None
+                            if v is not None:
+                                last_good = float(v)
+                                break
+                except Exception:
+                    pass
             if last_good is not None:
                 mom_val = last_good
                 m2_src = 'MacroMicro (cached: live fetch failed)'
@@ -582,6 +595,38 @@ def main():
                   f"flag={sig.get('flag')}")
     except Exception as e:
         print(f'Failed to compute v2 scores: {e}')
+
+    # ── Score Processor v2 + Phase Signals (distance-based, zero params) ────────
+    try:
+        from .scoring_v2 import score_processor_v2, phase_signals, _METRIC_LOOKBACK
+        from .scoring import score_from_raw, build_slider_map
+        from .wave_history import build_prev_scores_for_wave
+        import datetime as _dt
+
+        today       = _dt.date.today()
+        curr_scores = build_slider_map(p.get('metrics', {}))
+        prev_scores = build_prev_scores_for_wave(today, _METRIC_LOOKBACK)
+
+        sp_v2  = score_processor_v2(curr_scores, prev_scores)
+        phases = phase_signals(curr_scores, prev_scores)
+
+        p['sp_v2']   = sp_v2
+        p['phase']   = phases
+        write_json('data/data.json', p)
+
+        try:
+            p_exp['sp_v2'] = sp_v2
+            p_exp['phase'] = phases
+            write_json('data/data_exp.json', p_exp)
+        except NameError:
+            pass
+
+        print(f"SP-v2: score={sp_v2}  "
+              f"top={phases.get('top_signal')}%  "
+              f"bot={phases.get('bot_signal')}%  "
+              f"phase={phases.get('phase')}")
+    except Exception as e:
+        print(f'Failed to compute SP-v2: {e}')
 
     # ── Append the FULL daily indicator vector to history ──────────────────────
     # Builds the per-day training matrix (raw inputs + mapped 0-100 scores +

@@ -330,4 +330,123 @@ def compute_scores_v2(metrics: dict) -> dict:
     }
 
 
-__all__ = ['compute_scores_v2', 'map_puell', 'adaptive_cipherb_blend']
+__all__ = ['compute_scores_v2', 'map_puell', 'adaptive_cipherb_blend',
+           'score_processor_v2', 'build_wave_vector', 'phase_signals']
+
+# ── Score Processor v2 — distance-based (zero free parameters) ───────────────
+# wave_vector = [score × 11] + [delta × 11]
+# score = d_bottom / (d_top + d_bottom) × 100
+# Centroids precomputed by tools/train_adaptive_weights.py → data/adaptive_weights.json
+
+import json as _json, math as _math, os as _os
+
+_V2_PARAMS_PATH = _os.path.join('data', 'adaptive_weights.json')
+_v2_cache = {}
+
+_METRIC_LOOKBACK = {
+    'nupl': 30, 'mvrv_z_score': 30, 'rhodl_ratio': 30,
+    'cvdd_ratio': 30, 'mayer_multiple': 30,
+    'asopr': 14, 'etf_flows': 14,
+    'cipherb_weekly': 14, 'cipherb_daily': 7, 'fear_greed': 7,
+    'm2_yoy': 60, 'yield_curve_spread': 60,
+}
+
+def _load_v2_centroids():
+    if _v2_cache:
+        return _v2_cache
+    try:
+        p = _json.load(open(_V2_PARAMS_PATH, encoding='utf-8'))
+        _v2_cache['top']         = p['top_centroid']
+        _v2_cache['bottom']      = p['bottom_centroid']
+        _v2_cache['order']       = p['metric_order']
+        _v2_cache['calibration'] = p.get('calibration', {})
+    except Exception:
+        pass
+    return _v2_cache
+
+
+def _euclidean(v1, v2):
+    """RMS distance, skipping None pairs."""
+    total, n = 0.0, 0
+    for a, b in zip(v1, v2):
+        if a is not None and b is not None:
+            total += (a - b) ** 2
+            n += 1
+    return _math.sqrt(total / n) if n > 0 else None
+
+
+def build_wave_vector(current_scores: dict, prev_scores: dict) -> list:
+    """22-dim vector: [scores × 11, deltas × 11] ordered by _METRIC_LOOKBACK."""
+    order = list(_METRIC_LOOKBACK)
+    vec = [current_scores.get(m) for m in order]
+    for m in order:
+        s, p = current_scores.get(m), prev_scores.get(m)
+        vec.append(s - p if s is not None and p is not None else None)
+    return vec
+
+
+def phase_signals(current_scores: dict, prev_scores: dict) -> dict:
+    """
+    Dual proximity signals — where in the cycle are we?
+
+    top_signal:  0-100%  how close metrics are to confirmed TOP territory
+                 100% = identical to Nov 2021 ATH (most extreme top in training)
+    bot_signal:  0-100%  how close metrics are to confirmed BOTTOM territory
+                 100% = identical to Jun 2022 capitulation (most extreme bottom)
+
+    phase: 'TOP' | 'BOTTOM' | 'BULL' | 'BEAR' | 'NEUTRAL'
+      TOP/BOTTOM   — one signal > 50% AND clearly dominant
+      BULL/BEAR    — neither > 50%, but one wins by > 10 points (direction signal)
+      NEUTRAL      — signals within 10 points of each other (genuine uncertainty)
+
+    Key property: top_sig + bot_sig do NOT sum to 100.
+    Both can be low (transition), never both high (geometry prevents it).
+    """
+    params = _load_v2_centroids()
+    if not params or 'top' not in params or 'calibration' not in params:
+        return {'top_signal': None, 'bot_signal': None, 'phase': 'UNKNOWN'}
+
+    cal = params['calibration']
+    top_c = params['top']
+    bot_c = params['bottom']
+    vec   = build_wave_vector(current_scores, prev_scores)
+    d_top = _euclidean(vec, top_c)
+    d_bot = _euclidean(vec, bot_c)
+    if d_top is None or d_bot is None:
+        return {'top_signal': None, 'bot_signal': None, 'phase': 'UNKNOWN'}
+
+    top_range = cal['d_top_max'] - cal['d_top_min']
+    bot_range = cal['d_bot_max'] - cal['d_bot_min']
+    tsig = max(0, min(100, round((cal['d_top_max'] - d_top) / top_range * 100)))
+    bsig = max(0, min(100, round((cal['d_bot_max'] - d_bot) / bot_range * 100)))
+
+    diff = tsig - bsig
+    if   tsig > 50 and tsig > bsig: phase = 'TOP'
+    elif bsig > 50 and bsig > tsig: phase = 'BOTTOM'
+    elif diff >  10:                 phase = 'BULL'
+    elif diff < -10:                 phase = 'BEAR'
+    else:                            phase = 'NEUTRAL'
+
+    return {'top_signal': tsig, 'bot_signal': bsig, 'phase': phase}
+
+
+def score_processor_v2(current_scores: dict, prev_scores: dict) -> int | None:
+    """
+    Distance-based risk score — zero free parameters.
+
+    current_scores: {metric: score_0_100} — from score_from_raw() at today
+    prev_scores:    {metric: score_0_100} — each metric from its natural lookback ago
+                    (7d for cipherb/fear_greed, 14d for asopr/etf, 30d for OC, 60d for macro)
+
+    Returns 0-100 (100 = closest to confirmed cycle top).
+    """
+    params = _load_v2_centroids()
+    if not params:
+        return None
+    vec     = build_wave_vector(current_scores, prev_scores)
+    d_top   = _euclidean(vec, params['top'])
+    d_bot   = _euclidean(vec, params['bottom'])
+    if d_top is None or d_bot is None:
+        return None
+    denom = d_top + d_bot
+    return round(d_bot / denom * 100) if denom > 0 else 50

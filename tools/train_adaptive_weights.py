@@ -1,0 +1,244 @@
+"""
+Compute Score Processor v2 parameters:
+  - top_centroid:    mean wave-vector at confirmed cycle tops
+  - bottom_centroid: mean wave-vector at confirmed cycle bottoms
+
+Wave vector = [current_scores × 11] + [delta_scores × 11]
+  where delta = score_now - score_N_days_ago (N depends on metric speed)
+
+Distance-based scoring (zero free parameters):
+  d_top    = euclidean_distance(current_wave, top_centroid)
+  d_bottom = euclidean_distance(current_wave, bottom_centroid)
+  score    = d_bottom / (d_top + d_bottom) × 100
+
+Run: python3 tools/train_adaptive_weights.py
+Output: data/adaptive_weights.json
+"""
+import sys, os, json, math, datetime
+sys.path.insert(0, '.')
+
+from tools.backtest import load_data, compute_at
+
+# ── Labeled extremes ──────────────────────────────────────────────────────────
+TOP_DATES = [
+    '2021-04-14',   # Spring 2021 ATH
+    '2021-11-10',   # Nov 2021 ATH — NUPL/MVRV/CB all extreme
+    '2024-03-14',   # 2024 cycle ATH
+    '2025-07-17',   # CB weekly peak (price not peak yet, wave peak)
+    '2025-09-29',   # Price ATH (CB already diverging — intentionally moderate)
+]
+
+BOTTOM_DATES = [
+    '2018-12-15',   # 2018 cycle bottom — confirmed
+    '2022-06-18',   # Capitulation
+    '2022-11-21',   # FTX bottom — deepest in cycle
+]
+
+# ── Metric ordering and trajectory lookbacks ──────────────────────────────────
+# Lookback period reflects natural signal frequency of each metric:
+#   SLOW  (monthly cycle rhythm): 30d
+#   MEDIUM (biweekly):            14d
+#   FAST  (weekly momentum):       7d
+#   MACRO (quarterly):            60d
+METRIC_ORDER = [
+    'nupl', 'mvrv_z_score', 'rhodl_ratio', 'cvdd_ratio', 'mayer_multiple',
+    'asopr',
+    'etf_flows',
+    'cipherb_weekly', 'cipherb_daily', 'fear_greed',
+    'm2_yoy', 'yield_curve_spread',
+]
+
+METRIC_LOOKBACK = {
+    'nupl':               30,
+    'mvrv_z_score':       30,
+    'rhodl_ratio':        30,
+    'cvdd_ratio':         30,
+    'mayer_multiple':     30,
+    'asopr':              14,
+    'etf_flows':          14,
+    'cipherb_weekly':     14,   # weekly bar — 2-week trajectory
+    'cipherb_daily':       7,   # daily — 1-week trajectory
+    'fear_greed':          7,
+    'm2_yoy':             60,
+    'yield_curve_spread': 60,
+}
+
+# ── Wave vector ───────────────────────────────────────────────────────────────
+
+def wave_vector(date_str, series):
+    """
+    Compute 22-dim wave vector for a date:
+      [score_0..score_10, delta_0..delta_10]
+
+    Uses backtest.compute_at() for point-in-time accuracy.
+    Returns None if date has insufficient data.
+    """
+    td = datetime.date.fromisoformat(date_str)
+    r  = compute_at(td, series)
+    scores = r['scores']
+
+    # For each metric: get score from lookback date
+    prev = {}
+    for metric, lb in METRIC_LOOKBACK.items():
+        prev_td = td - datetime.timedelta(days=lb)
+        pr = compute_at(prev_td, series)
+        prev[metric] = pr['scores'].get(metric)
+
+    vec = []
+    for m in METRIC_ORDER:
+        vec.append(scores.get(m))                     # position
+    for m in METRIC_ORDER:
+        s_now  = scores.get(m)
+        s_prev = prev.get(m)
+        if s_now is not None and s_prev is not None:
+            vec.append(s_now - s_prev)                # direction (delta)
+        else:
+            vec.append(None)
+
+    # Require at least 6 of 11 position scores to be non-None
+    n_present = sum(1 for v in vec[:11] if v is not None)
+    return vec if n_present >= 6 else None
+
+
+def centroid(vectors):
+    """Element-wise mean, ignoring None."""
+    valid = [v for v in vectors if v is not None]
+    if not valid:
+        return None
+    n = len(valid[0])
+    result = []
+    for i in range(n):
+        vals = [v[i] for v in valid if v[i] is not None]
+        result.append(round(sum(vals) / len(vals), 4) if vals else None)
+    return result
+
+
+# ── Distance scoring ──────────────────────────────────────────────────────────
+
+def euclidean(v1, v2):
+    """Mean squared distance per dimension, ignoring None pairs."""
+    if not v1 or not v2:
+        return None
+    total, n = 0.0, 0
+    for a, b in zip(v1, v2):
+        if a is not None and b is not None:
+            total += (a - b) ** 2
+            n += 1
+    return math.sqrt(total / n) if n > 0 else None
+
+
+def v2_score(wave_vec, top_c, bottom_c):
+    """score = d_bottom / (d_top + d_bottom) × 100"""
+    d_top    = euclidean(wave_vec, top_c)
+    d_bottom = euclidean(wave_vec, bottom_c)
+    if d_top is None or d_bottom is None:
+        return None
+    denom = d_top + d_bottom
+    return round(d_bottom / denom * 100) if denom > 0 else 50
+
+
+# ── Main ──────────────────────────────────────────────────────────────────────
+
+def main():
+    print("Loading series data...")
+    series = load_data()
+
+    print(f"\nComputing wave vectors for {len(TOP_DATES)} tops + {len(BOTTOM_DATES)} bottoms...")
+
+    top_vecs, bottom_vecs = [], []
+
+    for d in TOP_DATES:
+        v = wave_vector(d, series)
+        if v:
+            top_vecs.append(v)
+            pos = [round(x) for x in v[:11] if x is not None]
+            print(f"  TOP    {d}: {pos}")
+        else:
+            print(f"  TOP    {d}: INSUFFICIENT DATA — skipped")
+
+    for d in BOTTOM_DATES:
+        v = wave_vector(d, series)
+        if v:
+            bottom_vecs.append(v)
+            pos = [round(x) for x in v[:11] if x is not None]
+            print(f"  BOTTOM {d}: {pos}")
+        else:
+            print(f"  BOTTOM {d}: INSUFFICIENT DATA — skipped")
+
+    top_c    = centroid(top_vecs)
+    bottom_c = centroid(bottom_vecs)
+
+    if not top_c or not bottom_c:
+        print("\nERROR: insufficient data for centroids"); return
+
+    print(f"\nTop centroid    (pos): {[round(x) if x else None for x in top_c[:11]]}")
+    print(f"Bottom centroid (pos): {[round(x) if x else None for x in bottom_c[:11]]}")
+
+    # ── Calibration anchors for phase signals ─────────────────────────────────
+    # top_signal = 100% when d_top = d_top_min (closest to top centroid, at confirmed ATH)
+    # bot_signal = 100% when d_bot = d_bot_min (closest to bottom centroid, at confirmed bottom)
+    # Anchors derived from labeled dates only — no free parameters.
+    top_d_tops, top_d_bots = [], []
+    bot_d_tops, bot_d_bots = [], []
+    for d in TOP_DATES:
+        v = wave_vector(d, series)
+        if v:
+            top_d_tops.append(euclidean(v, top_c))
+            top_d_bots.append(euclidean(v, bottom_c))
+    for d in BOTTOM_DATES:
+        v = wave_vector(d, series)
+        if v:
+            bot_d_tops.append(euclidean(v, top_c))
+            bot_d_bots.append(euclidean(v, bottom_c))
+
+    cal = {
+        'd_top_min': round(min(top_d_tops), 4),   # at confirmed TOP → top_sig = 100%
+        'd_top_max': round(max(bot_d_tops), 4),   # at confirmed BOTTOM → top_sig = 0%
+        'd_bot_min': round(min(bot_d_bots), 4),   # at confirmed BOTTOM → bot_sig = 100%
+        'd_bot_max': round(max(top_d_bots), 4),   # at confirmed TOP → bot_sig = 0%
+    }
+    print(f"\nCalibration anchors: {cal}")
+
+    # ── Validate: scores + phase signals at labeled dates ─────────────────────
+    print(f"\nValidation — v2 + phase signals at labeled dates:")
+    print(f"  {'Date':<12} {'Role':<8} {'v2':>4} {'top_sig':>8} {'bot_sig':>8}  phase")
+    print("  " + "─" * 65)
+    for d, role in [(d, 'TOP') for d in TOP_DATES] + [(d, 'BTM') for d in BOTTOM_DATES]:
+        v = wave_vector(d, series)
+        if not v:
+            print(f"  {d:<12} {role:<8}   —   MISSING"); continue
+        s    = v2_score(v, top_c, bottom_c)
+        dt   = euclidean(v, top_c)
+        db   = euclidean(v, bottom_c)
+        tsig = max(0, min(100, round((cal['d_top_max'] - dt) / (cal['d_top_max'] - cal['d_top_min']) * 100)))
+        bsig = max(0, min(100, round((cal['d_bot_max'] - db) / (cal['d_bot_max'] - cal['d_bot_min']) * 100)))
+        diff = tsig - bsig
+        if   tsig > 50 and tsig > bsig: phase = 'TOP'
+        elif bsig > 50 and bsig > tsig: phase = 'BOTTOM'
+        elif diff >  10:                phase = 'BULL'
+        elif diff < -10:                phase = 'BEAR'
+        else:                           phase = 'NEUTRAL'
+        print(f"  {d:<12} {role:<8} {s or 0:>4}  {tsig:>6}%  {bsig:>6}%  {phase}")
+
+    # ── Save ──────────────────────────────────────────────────────────────────
+    out = {
+        'version':        2,
+        'top_centroid':   top_c,
+        'bottom_centroid':bottom_c,
+        'calibration':    cal,
+        'metric_order':   METRIC_ORDER,
+        'metric_lookback':METRIC_LOOKBACK,
+        'top_dates':      TOP_DATES,
+        'bottom_dates':   BOTTOM_DATES,
+        'generated':      datetime.datetime.now(datetime.timezone.utc).isoformat(),
+        'formula':        'd_bottom / (d_top + d_bottom) × 100  [euclidean, calibrated anchors]',
+        'vector_dims':    f'{len(METRIC_ORDER)} scores + {len(METRIC_ORDER)} deltas = {2*len(METRIC_ORDER)}d',
+    }
+    path = 'data/adaptive_weights.json'
+    with open(path, 'w') as f:
+        json.dump(out, f, indent=2)
+    print(f"\nSaved → {path}")
+
+
+if __name__ == '__main__':
+    main()
