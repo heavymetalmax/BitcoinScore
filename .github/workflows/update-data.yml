@@ -45,7 +45,7 @@ jobs:
       - name: Copy data.json next to index.html
         run: |
           cp data/data.json web/data.json
-          cp data/data_exp.json web/data_exp.json
+          [ -f data/data_exp.json ] && cp data/data_exp.json web/data_exp.json || true
 
       - name: Commit and push data
         run: |
