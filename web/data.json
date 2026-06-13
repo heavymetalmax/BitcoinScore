@@ -1,7 +1,7 @@
 {
-  "timestamp": "2026-06-13T11:01:09Z",
-  "btc_price": 63803,
-  "btc_dominance": 58.58,
+  "timestamp": "2026-06-13T11:15:40Z",
+  "btc_price": 63884,
+  "btc_dominance": 58.55,
   "fear_greed": 15.0,
   "fear_greed_label": "CMC",
   "nupl": 12.0043,
@@ -27,37 +27,37 @@
     "nupl": {
       "value": 12.0043,
       "source": "BMP",
-      "updated": "2026-06-13T11:01:02Z"
+      "updated": "2026-06-13T11:15:33Z"
     },
     "mvrv": {
       "value": 0.2417,
       "source": "BMP",
-      "updated": "2026-06-13T11:01:02Z"
+      "updated": "2026-06-13T11:15:33Z"
     },
     "m2": {
       "value": 9.47,
       "source": "MacroMicro",
-      "updated": "2026-06-13T11:01:02Z"
+      "updated": "2026-06-13T11:15:33Z"
     },
     "yield_curve": {
       "value": 0.48,
       "source": "BMP",
-      "updated": "2026-06-13T11:01:02Z"
+      "updated": "2026-06-13T11:15:33Z"
     },
     "cvdd_ratio": {
       "value": 1.266,
       "source": "BMP",
-      "updated": "2026-06-13T11:01:02Z"
+      "updated": "2026-06-13T11:15:33Z"
     },
     "rhodl_ratio": {
       "value": 1257.9609,
       "source": "BMP",
-      "updated": "2026-06-13T11:01:02Z"
+      "updated": "2026-06-13T11:15:33Z"
     },
     "asopr": {
       "value": 0.9833142857142858,
       "source": "BMP",
-      "updated": "2026-06-13T11:01:02Z"
+      "updated": "2026-06-13T11:15:33Z"
     },
     "etf_flows": {
       "value": {
@@ -67,7 +67,7 @@
         "date": "2026-06-05"
       },
       "source": "Farside",
-      "updated": "2026-06-13T11:01:02Z"
+      "updated": "2026-06-13T11:15:33Z"
     },
     "rainbow_band": {
       "value": {
@@ -78,14 +78,14 @@
         "date": "2026-06-12"
       },
       "source": "BMP",
-      "updated": "2026-06-13T11:01:09Z"
+      "updated": "2026-06-13T11:15:40Z"
     },
     "fear_greed": {
       "latest": 18.0,
       "avg_7d": 15.0,
       "label": "CMC",
       "source": "CMC",
-      "updated": "2026-06-13T11:01:09Z"
+      "updated": "2026-06-13T11:15:40Z"
     },
     "cipherb": {
       "value": {
@@ -102,7 +102,7 @@
         "daily_fast_bullish_div": false
       },
       "source": "Local",
-      "updated": "2026-06-13T11:01:09Z"
+      "updated": "2026-06-13T11:15:41Z"
     },
     "smc": {
       "value": {
@@ -116,7 +116,7 @@
         "size": 10
       },
       "source": "Local",
-      "updated": "2026-06-13T11:01:10Z"
+      "updated": "2026-06-13T11:15:41Z"
     },
     "mayer_multiple": {
       "value": {
@@ -126,7 +126,7 @@
         "score": 20
       },
       "source": "Kraken",
-      "updated": "2026-06-13T11:01:10Z"
+      "updated": "2026-06-13T11:15:41Z"
     },
     "funding_rate": {
       "value": {
@@ -137,12 +137,12 @@
         "source": "Kraken Futures"
       },
       "source": "Kraken Futures",
-      "updated": "2026-06-13T11:01:10Z"
+      "updated": "2026-06-13T11:15:42Z"
     },
     "halving_cycle_day": {
       "value": 785,
       "source": "Local",
-      "updated": "2026-06-13T11:01:10Z"
+      "updated": "2026-06-13T11:15:42Z"
     },
     "pi_cycle": {
       "value": {
@@ -153,25 +153,88 @@
         "cross": false
       },
       "source": "Kraken",
-      "updated": "2026-06-13T11:01:10Z"
+      "updated": "2026-06-13T11:15:42Z"
     },
     "puell_multiple": {
       "value": 0.6987,
       "source": "BMP",
-      "updated": "2026-06-13T11:01:17Z"
+      "updated": "2026-06-13T11:15:49Z"
     },
     "lth_supply_pct": {
       "value": 16462719.0165,
       "source": "BMP",
-      "updated": "2026-06-13T11:01:24Z"
+      "updated": "2026-06-13T11:15:56Z"
     },
     "m2_mom": {
       "value": 9.47,
       "source": "MacroMicro",
-      "updated": "2026-06-13T11:01:24Z"
+      "updated": "2026-06-13T11:15:56Z"
     }
   },
   "m2_mom": 9.47,
+  "onchain_score": 31,
+  "tech_score": 24,
+  "final_score": 28,
+  "adaptive_calibration": {
+    "nupl": {
+      "fixed": 41,
+      "adaptive": 16,
+      "blended": 28,
+      "win_years": 4,
+      "blend_w": 0.5
+    },
+    "mvrv": {
+      "fixed": 32,
+      "adaptive": 18,
+      "blended": 25,
+      "win_years": 4,
+      "blend_w": 0.5
+    },
+    "cvdd_ratio": {
+      "fixed": 15,
+      "adaptive": 8,
+      "blended": 12,
+      "win_years": 4,
+      "blend_w": 0.5
+    },
+    "mayer": {
+      "fixed": 20,
+      "adaptive": 19,
+      "blended": 20,
+      "win_years": 4,
+      "blend_w": 0.5
+    }
+  },
+  "zone_forecast": {
+    "buy": {
+      "price": 54707,
+      "pct": -14.4
+    },
+    "sell": {
+      "price": 155917,
+      "pct": 144.1
+    },
+    "buy_threshold": 20,
+    "sell_threshold": 80,
+    "realized_price": 56211,
+    "ref_price": 63879
+  },
+  "commentary": {
+    "en": {
+      "summary": "The market shows a quiet buildup with patient holders accumulating, but institutional exits are weighing on price sentiment.",
+      "analysis": "The current trajectory points to a stable environment where fundamentals favor accumulation, yet the heavy ETF outflows are acting as a direct drag on near-term price action. A reversal in institutional flows would serve as a clear catalyst to shift the balance toward upward movement."
+    },
+    "ua": {
+      "summary": "Ринок демонструє спокійне накопичення, де терплячі тримачі накопичують активи, але виходи інституцій тиснуть на цінове сприйняття.",
+      "analysis": "Поточна траєкторія вказує на стабільне середовище, де фундаментальні фактори сприяють накопиченню, але великі виводи з ETF діють як прямий гальмівний чинник для цінової динаміки в найближчій перспективі. Зворотний рух інституційних потоків став би чітким каталізатором для зміщення балансу в бік зростання."
+    }
+  },
+  "sp_v2": 28,
+  "phase": {
+    "top_signal": 14,
+    "bot_signal": 79,
+    "phase": "BOTTOM"
+  },
   "prev_day": {
     "date": "2026-06-12",
     "final_score": 26,
@@ -15609,6 +15672,11 @@
       "date": "2026-06-12",
       "score": 26,
       "price": 63702
+    },
+    {
+      "date": "2026-06-13",
+      "score": 28,
+      "price": 63884
     }
   ]
 }
