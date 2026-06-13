@@ -1,29 +1,38 @@
 """
-Retrospective check — compute Bitcoin Buy Risk at key historical BTC price milestones.
+Bitcoin Buy Risk — historical backtest.
 
 Data sources:
-  - NUPL, MVRV, CVDD, RHODL, SOPR, Addr-in-loss : BitcoinMagazinePro (Playwright)
-  - DXY, M2 MoM                                  : FRED public CSVs
-  - Fear & Greed                                  : alternative.me historical API
-  - CipherB                                       : data/history/cipherb_btcusdt_1w.json
+  unified_history.json   on-chain + macro, 2010+  (no Playwright needed)
+  etf_flows.json         spot ETF flows, 2024-01+
+  FRED T10Y2Y            yield curve spread, 2000+
 
-SMC and Geopolitical Risk are excluded from the backtest (not available historically).
-Weights are renormalised over available metrics automatically.
+Correctness rules:
+  - nearest_strict: metric treated as None if nearest point > MAX_STALENESS days away
+  - adaptive calibration: rolling percentile uses only data available ≤ milestone date
+  - composite score computed only when all CORE_REQUIRED metrics are present
 """
-
-import sys, json, math, datetime, urllib.request, ssl, io, time
+import sys, json, math, datetime, bisect, ssl, urllib.request
 sys.path.insert(0, '.')
 
 from scraper.scoring import (
-    map_nupl, map_mvrv, map_fear_greed,
-    map_m2, map_yield_curve, map_cvdd, map_rhodl, map_asopr, map_etf_flow, OC_WEIGHTS, TECH_WEIGHTS, weighted_score
+    map_nupl, map_mvrv, map_cvdd, map_rhodl, map_asopr,
+    map_mayer_multiple, map_fear_greed, map_m2, map_yield_curve, map_etf_flow,
+    OC_WEIGHTS, TECH_WEIGHTS, weighted_score,
 )
-from scraper.smc import fetch_ohlcv_kraken as fetch_ohlcv_binance, compute_smc
 
-# ── Key BTC milestones ───────────────────────────────────────────────────────
+MAX_STALENESS = 45           # days — beyond this treat metric as absent
+ADAPTIVE_WIN  = 4 * 365      # days for rolling-percentile window
+ADAPTIVE_BLEND = 0.50        # weight on percentile vs fixed map
+
+# Metrics that must all be present for a composite score to be meaningful.
+# ETF flows excluded: pre-2024 they don't exist (not the same as "missing").
+# yield_curve_spread excluded from CORE: FRED data fetched live, use as bonus when available
+CORE_REQUIRED = {'nupl', 'mvrv_z_score', 'rhodl_ratio', 'cvdd_ratio',
+                 'cipherb', 'mayer_multiple', 'fear_greed', 'm2_yoy'}
+
 MILESTONES = [
-    ("2018-12-15", "Cycle bear bottom",    3_200),
-    ("2019-06-26", "Local peak",          13_880),
+    ("2018-12-15", "2018 cycle bottom",    3_200),
+    ("2019-06-26", "2019 local peak",     13_880),
     ("2020-03-13", "COVID crash",          3_800),
     ("2020-10-01", "Pre-bull start",      10_800),
     ("2021-04-14", "Spring ATH",          63_500),
@@ -34,372 +43,270 @@ MILESTONES = [
     ("2023-01-14", "Recovery start",      21_000),
     ("2024-03-14", "2024 ATH",            73_500),
     ("2025-01-20", "Jan 2025 top",       109_000),
-    ("2025-09-26", "Close ATH",          123_000),
     ("2025-09-29", "Intraday ATH",       129_000),
     ("2025-11-10", "Post-ATH dump",       94_000),
-    ("2026-04-25", "Today",               77_500),
+    ("2026-04-25", "Local low",           77_500),
+    ("2026-06-12", "Today",               97_000),
 ]
 
-# ── Helpers ──────────────────────────────────────────────────────────────────
+# ── Data loading ─────────────────────────────────────────────────────────────
 
-def parse_date(s):
-    return datetime.date.fromisoformat(s)
-
-def closest(series, target_date):
-    """Return value from series [(date_str_or_date, value), ...] closest to target_date."""
-    best, best_val = None, None
-    for d, v in series:
-        if isinstance(d, str):
-            d = parse_date(d[:10])
-        diff = abs((d - target_date).days)
-        if best is None or diff < best:
-            best, best_val = diff, v
-    return best_val
-
-def ssl_ctx():
-    ctx = ssl.create_default_context()
-    return ctx
-
-# ── 1. Fetch BMP full time series via Playwright ─────────────────────────────
-
-BMP_CHARTS = {
-    'nupl':    ('https://www.bitcoinmagazinepro.com/charts/relative-unrealized-profit--loss/',
-                'net unrealised', 1.0),        # multiply by 100 (comes as fraction 0-1)
-    'mvrv':   ('https://www.bitcoinmagazinepro.com/charts/mvrv-zscore/',
-                'mvrv z-score', 1.0),
-    'addr':   ('https://www.bitcoinmagazinepro.com/charts/percent-addresses-in-loss/',
-                'addresses in loss', 1.0),     # will be inverted later
-    'rhodl':  ('https://www.bitcoinmagazinepro.com/charts/rhodl-ratio/',
-                'rhodl ratio', 1.0),
-    'cvdd':   ('https://www.bitcoinmagazinepro.com/charts/bitcoin-price-prediction/',
-                'cvdd', 1.0),                  # BTC/CVDD ratio computed below
-}
-
-def fetch_bmp_series(url, trace_keyword, multiply=1.0):
-    """Return list of (date_str, value) for a BMP Plotly chart."""
-    from playwright.sync_api import sync_playwright
-
-    JS = """(kw) => {
-        const el = document.querySelector('.js-plotly-plot');
-        if (!el || !el._fullData) return null;
-        const t = el._fullData.find(t => t.name && t.name.toLowerCase().includes(kw));
-        if (!t) return {names: el._fullData.map(t => t.name)};
-        return t.x.map((x, i) => [x, t.y[i]]);
-    }"""
-
-    with sync_playwright() as p:
-        br = p.chromium.launch(headless=True)
-        ctx = br.new_context(user_agent=(
-            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) '
-            'AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-        ))
-        pg = ctx.new_page()
-        pg.goto(url, wait_until='networkidle', timeout=90_000)
-        pg.wait_for_timeout(5_000)
-        raw = pg.evaluate(JS, trace_keyword.lower())
-        br.close()
-
-    if not isinstance(raw, list):
-        print(f"  WARNING: no trace for '{trace_keyword}' at {url}: {raw}")
-        return []
-    result = []
-    for x, y in raw:
-        if y is None:
-            continue
-        result.append((x[:10], y * multiply))
-    return result
+def _series(uh_rows, key, tx=None):
+    """Build sorted [(date_str, value)] from unified_history rows."""
+    out = []
+    for r in uh_rows:
+        v = r.get(key)
+        if v is not None:
+            out.append((r['date'], tx(v) if tx else v))
+    out.sort()
+    return out
 
 
-def fetch_cvdd_ratio_series():
-    """
-    CVDD ratio = BTC price / CVDD.
-    BMP chart has both 'Bitcoin Price' and 'CVDD' traces.
-    Returns [(date, ratio), ...].
-    """
-    from playwright.sync_api import sync_playwright
+def load_data():
+    print("Loading data files...")
+    uh = json.load(open('data/history/unified_history.json', encoding='utf-8'))
+    rows = uh['series']
 
-    JS = """() => {
-        const el = document.querySelector('.js-plotly-plot');
-        if (!el || !el._fullData) return null;
-        const btc  = el._fullData.find(t => t.name && t.name.toLowerCase().includes('btc price'));
-        const cvdd = el._fullData.find(t => t.name && t.name.toLowerCase() === 'cvdd');
-        if (!btc || !cvdd) return {names: el._fullData.map(t => t.name)};
-        const out = [];
-        for (let i = 0; i < btc.x.length; i++) {
-            if (btc.y[i] && cvdd.y[i] && cvdd.y[i] !== 0)
-                out.push([btc.x[i], btc.y[i] / cvdd.y[i]]);
-        }
-        return out;
-    }"""
+    series = {
+        'nupl':           _series(rows, 'nupl',         tx=lambda v: v * 100),
+        'mvrv':           _series(rows, 'mvrv'),
+        'rhodl_ratio':    _series(rows, 'rhodl_ratio'),
+        'cvdd_ratio':     _series(rows, 'cvdd_ratio'),
+        'asopr':          _series(rows, 'asopr',        tx=lambda v: v + 1.0),
+        'mayer_multiple': _series(rows, 'mayer_multiple'),
+        'fear_greed':     _series(rows, 'fear_greed'),
+        'm2_yoy':         _series(rows, 'm2_yoy'),
+        'cipherb':        _series(rows, 'cipherb_daily'),
+    }
 
-    url = 'https://www.bitcoinmagazinepro.com/charts/bitcoin-price-prediction/'
-    with sync_playwright() as p:
-        br = p.chromium.launch(headless=True)
-        ctx = br.new_context(user_agent=(
-            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) '
-            'AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-        ))
-        pg = ctx.new_page()
-        pg.goto(url, wait_until='networkidle', timeout=90_000)
-        pg.wait_for_timeout(5_000)
-        raw = pg.evaluate(JS)
-        br.close()
+    # ETF flows
+    import os
+    etf_path = os.path.join('data', 'history', 'etf_flows.json')
+    etf = []
+    if os.path.exists(etf_path):
+        raw = json.load(open(etf_path, encoding='utf-8'))
+        for p in raw:
+            d = p.get('timestamp', '')[:10]
+            v = p.get('etf_flow_14d')
+            if d and v is not None:
+                etf.append((d, v))
+        etf.sort()
+    series['etf_flows'] = etf
 
-    if not isinstance(raw, list):
-        print(f"  WARNING cvdd_ratio: {raw}")
-        return []
-    return [(x[:10], y) for x, y in raw]
-
-# ── 2. FRED ──────────────────────────────────────────────────────────────────
-
-def fetch_fred_series(series_id):
-    """Return list of (date_str, float) from FRED CSV."""
-    url = f'https://fred.stlouisfed.org/graph/fredgraph.csv?id={series_id}'
-    req = urllib.request.Request(url, headers={'User-Agent': 'curl/7.88'})
-    with urllib.request.urlopen(req, timeout=30, context=ssl_ctx()) as r:
-        lines = r.read().decode().strip().splitlines()
-    result = []
-    for line in lines:
-        if line.startswith('DATE') or not line:
-            continue
-        parts = line.split(',')
-        if len(parts) != 2:
-            continue
+    # Yield curve — prefer local file, fall back to FRED
+    yc = []
+    yc_local = os.path.join('data', 'history', 'yield_curve_history.json')
+    if os.path.exists(yc_local):
+        raw_yc = json.load(open(yc_local, encoding='utf-8'))
+        for r in raw_yc.get('series', raw_yc) if isinstance(raw_yc, dict) else raw_yc:
+            if isinstance(r, dict) and r.get('date') and r.get('value') is not None:
+                yc.append((r['date'][:10], float(r['value'])))
+        print(f"  yield_curve_spread: {len(yc)} pts from local file")
+    else:
         try:
-            result.append((parts[0], float(parts[1])))
-        except ValueError:
-            pass
-    return result
+            url = 'https://fred.stlouisfed.org/graph/fredgraph.csv?id=T10Y2Y'
+            req = urllib.request.Request(url, headers={'User-Agent': 'curl/7.88'})
+            ctx = ssl.create_default_context()
+            with urllib.request.urlopen(req, timeout=15, context=ctx) as r:
+                for line in r.read().decode().strip().splitlines():
+                    if line.startswith('DATE') or not line: continue
+                    parts = line.split(',')
+                    if len(parts) == 2:
+                        try: yc.append((parts[0], float(parts[1])))
+                        except ValueError: pass
+            print(f"  yield_curve_spread: {len(yc)} pts from FRED")
+        except Exception as e:
+            print(f"  yield_curve_spread: FRED unavailable ({e.__class__.__name__}) — skipped")
+    series['yield_curve_spread'] = yc
+
+    for k, s in series.items():
+        if s:
+            print(f"  {k:<20s}: {len(s):5d} pts  ({s[0][0]} → {s[-1][0]})")
+    return series
 
 
-def load_us_m2_yoy():
-    """
-    Fetch US M2 (WM2NS) from FRED and compute year-over-year % change for each point.
-    Returns [(date_str, yoy_pct), ...] sorted by date.
-    Direct logic: high YoY = liquidity flood = high risk score.
-    """
-    import csv, io, ssl, urllib.request
-    url = 'https://fred.stlouisfed.org/graph/fredgraph.csv?id=WM2NS'
-    ctx = ssl.create_default_context()
-    req = urllib.request.Request(url, headers={'User-Agent': 'curl/7.88'})
-    with urllib.request.urlopen(req, timeout=30, context=ctx) as r:
-        text = r.read().decode()
-    rows = list(csv.reader(io.StringIO(text)))
-    series = [(r[0], float(r[1])) for r in rows[1:] if r[1] != '.']
-    series.sort(key=lambda x: x[0])
-    result = []
-    for i in range(52, len(series)):
-        d_str, val = series[i]
-        past_val = series[i - 52][1]   # ~52 weeks ago
-        yoy = round((val - past_val) / past_val * 100, 2)
-        result.append((d_str, yoy))
-    return result
+# ── Core helpers ─────────────────────────────────────────────────────────────
+
+def nearest_strict(series, target_date, max_days=MAX_STALENESS):
+    """Return (value, days_diff) of nearest point, or (None, None) if > max_days away."""
+    if not series:
+        return None, None
+    dates = [d for d, _ in series]
+    td = target_date.isoformat()
+    idx = bisect.bisect_left(dates, td)
+    best_v, best_d = None, None
+    for i in (idx - 1, idx):
+        if 0 <= i < len(series):
+            d, v = series[i]
+            diff = abs((target_date - datetime.date.fromisoformat(d)).days)
+            if best_d is None or diff < best_d:
+                best_v, best_d = v, diff
+    if best_d is None or best_d > max_days:
+        return None, None
+    return best_v, best_d
 
 
-# legacy alias
-def load_us_m2_10w_momentum():
-    return load_us_m2_yoy()
-
-# ── 3. Fear & Greed ──────────────────────────────────────────────────────────
-
-def fetch_fg_series():
-    """Return list of (date_str, int) from BMP history file (data/history/fear_greed.json)."""
-    import os
-    path = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', 'data', 'history', 'fear_greed.json'))
-    with open(path) as f:
-        data = json.load(f)
-    result = [(p['date'], int(p['score'])) for p in data['series'] if p.get('score') is not None]
-    result.sort(key=lambda x: x[0])
-    return result
-
-# ── 4. CipherB (weekly) ──────────────────────────────────────────────────────
-
-def load_cipherb_series():
-    """Return [(date_str, adjusted_score), ...] from existing JSON."""
-    with open('data/history/cipherb_btcusdt_1w.json') as f:
-        data = json.load(f)
-    result = []
-    for candle in data.get('series', []):
-        score = candle.get('weekly_score')
-        if score is None:
-            continue
-        if candle.get('fast_bearish_div'):
-            score = min(100.0, score + 12.0)
-        elif candle.get('fast_bullish_div'):
-            score = max(0.0, score - 12.0)
-        d = datetime.datetime.utcfromtimestamp(candle['timestamp']).date().isoformat()
-        result.append((d, score))
-    return result
-
-
-def load_etf_flows_series():
-    """Return [(date_str, 14d_flow_sum), ...] from data/history/etf_flows.json."""
-    import os
-    path = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', 'data', 'history', 'etf_flows.json'))
-    if not os.path.exists(path):
-        return []
-    with open(path) as f:
-        data = json.load(f)
-    result = []
-    for p in data:
-        date_str = p['timestamp'][:10]
-        val = p.get('etf_flow_14d')
-        result.append((date_str, val))
-    result.sort(key=lambda x: x[0])
-    return result
-
-
-def compute_smc_at_date(ohlcv_series, target_date, size=10):
-    """
-    Compute SMC position using only candles available up to target_date.
-    Returns position 0-100, or None if insufficient data.
-    """
-    cutoff_ts = int(datetime.datetime(
-        target_date.year, target_date.month, target_date.day
-    ).timestamp()) + 86400  # include target day
-    sliced = [c for c in ohlcv_series if c['timestamp'] <= cutoff_ts]
-    if len(sliced) < size * 2 + 1:
+def pct_rank_at(series, target_date, value):
+    """Rolling-percentile of value in data ≤ target_date, last ADAPTIVE_WIN days."""
+    if value is None or not series:
         return None
-    result = compute_smc(sliced, size=size)
-    return result.get('position')
-
-# ── Main ─────────────────────────────────────────────────────────────────────
-
-def run():
-    print("Fetching historical data...\n")
-
-    print("  [0/7] SMC (Binance weekly OHLCV)...")
-    binance_ohlcv = fetch_ohlcv_binance(symbol='BTCUSDT', interval='1w', limit=500)
-    print(f"        {len(binance_ohlcv)} weekly candles")
+    hi = target_date.isoformat()
+    lo = (target_date - datetime.timedelta(days=ADAPTIVE_WIN)).isoformat()
+    win = [v for d, v in series if lo <= d <= hi]
+    if len(win) < 24:
+        return None
+    return round(sum(1 for v in win if v <= value) / len(win) * 100)
 
 
-    print("  [1/7] NUPL from BMP...")
-    nupl_series = fetch_bmp_series(
-        'https://www.bitcoinmagazinepro.com/charts/relative-unrealized-profit--loss/',
-        'net unrealised', multiply=100.0)
-    print(f"        {len(nupl_series)} points")
-
-    print("  [2/7] MVRV Z-score from BMP...")
-    mvrv_series = fetch_bmp_series(
-        'https://www.bitcoinmagazinepro.com/charts/mvrv-zscore/',
-        'z-score')
-    print(f"        {len(mvrv_series)} points")
+def adaptive(static_score, pct):
+    if static_score is None: return None
+    if pct is None: return static_score
+    return round(ADAPTIVE_BLEND * pct + (1 - ADAPTIVE_BLEND) * static_score)
 
 
-    asopr_raw = fetch_bmp_series(
-        'https://www.bitcoinmagazinepro.com/charts/sopr-spent-output-profit-ratio/',
-        'sopr')
-    
-    # Process aSOPR: add 1.0 if average is near 0
-    asopr_avg = sum(y for x, y in asopr_raw) / max(1, len(asopr_raw))
-    if abs(asopr_avg) < 0.5:
-        asopr_raw = [(x, y + 1.0) for x, y in asopr_raw]
-        
-    # Calculate 7-day SMA for aSOPR
-    asopr_series = []
-    for i in range(len(asopr_raw)):
-        start_idx = max(0, i - 6)
-        window = [val for _, val in asopr_raw[start_idx:i+1]]
-        sma = sum(window) / len(window)
-        asopr_series.append((asopr_raw[i][0], sma))
-    print(f"        asopr: {len(asopr_series)} points")
+# ── Score computation at a single date ───────────────────────────────────────
 
-    rhodl_series = fetch_bmp_series(
-        'https://www.bitcoinmagazinepro.com/charts/rhodl-ratio/',
-        'rhodl ratio')
-    print(f"        rhodl: {len(rhodl_series)} points")
+def compute_at(target_date, series):
+    td = target_date
 
-    print("  [5/7] CVDD ratio from BMP...")
-    cvdd_series = fetch_cvdd_ratio_series()
-    print(f"        {len(cvdd_series)} points")
+    raw = {}
+    days_off = {}
+    for k in series:
+        v, d = nearest_strict(series[k], td)
+        raw[k] = v
+        days_off[k] = d
 
-    print("  [6/7] Real Yield (DFII10) from FRED + US M2 YoY from FRED...")
-    ry_series   = fetch_fred_series('DFII10')
-    m2_momentum = load_us_m2_10w_momentum()
-    print(f"        real_yield: {len(ry_series)}, us m2 yoy: {len(m2_momentum)} points")
+    # unit-correct (already applied via tx in _series — confirm)
+    nupl_v   = raw['nupl']
+    mvrv_v   = raw['mvrv']
+    rhodl_v  = raw['rhodl_ratio']
+    cvdd_v   = raw['cvdd_ratio']
+    asopr_v  = raw['asopr']
+    mayer_v  = raw['mayer_multiple']
+    fg_v     = raw['fear_greed']
+    m2_v     = raw['m2_yoy']
+    cb_v     = raw['cipherb']
+    etf_v    = raw['etf_flows']
+    yc_v     = raw['yield_curve_spread']
 
-    print("  [7/7] Fear & Greed from alternative.me...")
-    fg_series = fetch_fg_series()
-    print(f"        {len(fg_series)} points")
+    s_nupl  = adaptive(map_nupl(nupl_v),         pct_rank_at(series['nupl'],   td, nupl_v))
+    s_mvrv  = adaptive(map_mvrv(mvrv_v),         pct_rank_at(series['mvrv'],   td, mvrv_v))
+    s_rhodl = map_rhodl(rhodl_v)
+    s_cvdd  = adaptive(map_cvdd(cvdd_v),         pct_rank_at(series['cvdd_ratio'], td, cvdd_v))
+    s_asopr = map_asopr(asopr_v)
+    s_mayer = adaptive(map_mayer_multiple(mayer_v), pct_rank_at(series['mayer_multiple'], td, mayer_v))
+    s_fg    = map_fear_greed(fg_v)
+    s_m2    = map_m2(m2_v)
+    s_cb    = round(max(0, min(100, cb_v))) if cb_v is not None else None
+    s_etf   = map_etf_flow(etf_v)
+    s_yc    = map_yield_curve(yc_v)
 
-    cb_series = load_cipherb_series()
-    print(f"  CipherB weekly: {len(cb_series)} points\n")
+    oc_map = {
+        'nupl': s_nupl, 'mvrv_z_score': s_mvrv,
+        'rhodl_ratio': s_rhodl, 'cvdd_ratio': s_cvdd, 'asopr': s_asopr,
+    }
+    tech_map = {
+        'cipherb': s_cb, 'mayer_multiple': s_mayer, 'fear_greed': s_fg,
+        'm2_yoy': s_m2, 'yield_curve_spread': s_yc, 'etf_flows': s_etf,
+    }
 
-    print("  [8/8] ETF flows from data/history/etf_flows.json...")
-    etf_series = load_etf_flows_series()
-    print(f"        etf_flows: {len(etf_series)} points\n")
+    oc   = weighted_score(OC_WEIGHTS,   oc_map)
+    tech = weighted_score(TECH_WEIGHTS, tech_map)
 
-    # ── Compute scores at milestones ─────────────────────────────────────────
-    print(f"{'Date':<12} {'Label':<22} {'BTC':>8}  "
-          f"{'OC':>4} {'Tech':>4} {'Final':>5}  "
-          f"{'NUPL':>4} {'MVRV':>4} {'SOPR':>4} {'RHDL':>4} {'CVDD':>4}  "
-          f"{'FG':>3} {'RY':>4} {'M2':>4} {'CB':>4} {'SMC':>4} {'ETF':>4}")
-    print("-" * 122)
+    # Check core coverage — composite valid only when all CORE_REQUIRED present
+    present = {k for k, v in {**oc_map, **tech_map}.items()
+               if k in CORE_REQUIRED and v is not None}
+    full_coverage = (present == CORE_REQUIRED)
 
-    for date_str, label, btc_price in MILESTONES:
-        td = parse_date(date_str)
-
-        nupl    = closest(nupl_series, td)
-        mvrv    = closest(mvrv_series, td)
-        asopr   = closest(asopr_series, td)
-        rhodl   = closest(rhodl_series, td)
-        cvdd    = closest(cvdd_series, td)
-        ry      = closest(ry_series, td)
-        m2      = closest(m2_momentum, td)
-        fg      = closest(fg_series, td)
-        cb      = closest(cb_series, td)
-        etf_val = closest(etf_series, td)
-        s_smc   = compute_smc_at_date(binance_ohlcv, td)
-        if s_smc is not None:
-            s_smc = round(s_smc)
-
-        s_nupl  = map_nupl(nupl)
-        s_mvrv  = map_mvrv(mvrv)
-        s_asopr = map_asopr(asopr)
-        s_rhodl = map_rhodl(rhodl)
-        s_cvdd  = map_cvdd(cvdd)
-        s_ry    = map_yield_curve(ry)
-        s_m2    = map_m2(m2)
-        s_fg    = map_fear_greed(fg)
-        s_cb    = round(max(0, min(100, cb))) if cb is not None else None
-        s_etf   = map_etf_flow(etf_val)
-
-        oc_map = {
-            'nupl': s_nupl, 'mvrv_z_score': s_mvrv,
-            'rhodl_ratio': s_rhodl, 'cvdd_ratio': s_cvdd,
-            'asopr': s_asopr
-        }
-        # geopolitical_risk excluded
-        tech_map = {
-            'cipherb': s_cb, 'm2_yoy': s_m2, 'fear_greed': s_fg, 'yield_curve_spread': s_ry,
-            'smc': s_smc, 'etf_flows': s_etf
-        }
-
-        oc   = weighted_score(OC_WEIGHTS, oc_map)
-        tech = weighted_score(TECH_WEIGHTS, tech_map)
-
-        final = None
+    if full_coverage:
         if oc is not None and tech is not None:
             final = round(oc * 0.5 + tech * 0.5)
-        elif oc is not None:
-            final = oc
-        elif tech is not None:
-            final = tech
+        elif oc is not None: final = oc
+        elif tech is not None: final = tech
+        else: final = None
+    else:
+        final = None
 
-        def fmt(v):
-            return f"{v:4d}" if v is not None else "  — "
+    return {
+        'raw': raw, 'days_off': days_off,
+        'scores': {**oc_map, **tech_map},
+        'oc': oc, 'tech': tech, 'final': final,
+        'present': present, 'full_coverage': full_coverage,
+    }
 
-        print(
-            f"{date_str:<12} {label:<22} ${btc_price:>7,}  "
-            f"{fmt(oc)} {fmt(tech)} {fmt(final)}  "
-            f"{fmt(s_nupl)} {fmt(s_mvrv)} {fmt(s_asopr)} {fmt(s_rhodl)} {fmt(s_cvdd)}  "
-            f"{fmt(s_fg)} {fmt(s_ry)} {fmt(s_m2)} {fmt(s_cb)} {fmt(s_smc)} {fmt(s_etf)}"
-        )
 
-    print("\nNote: Geopolitical Risk excluded (not available historically).")
-    print("SMC computed retroactively from Binance weekly OHLCV (only data up to each milestone date used).")
-    print("Binance 1w data starts 2017-08-14; milestones before that will show SMC=—.")
-    print("Weights renormalised over available metrics at each date.")
+# ── Output ────────────────────────────────────────────────────────────────────
+
+SCORE_COLS = ['nupl', 'mvrv_z_score', 'rhodl_ratio', 'cvdd_ratio', 'asopr',
+              'cipherb', 'mayer_multiple', 'fear_greed', 'm2_yoy', 'yield_curve_spread', 'etf_flows']
+SHORT = {'nupl':'NUPL','mvrv_z_score':'MVRV','rhodl_ratio':'RHDL','cvdd_ratio':'CVDD','asopr':'SOPR',
+         'cipherb':'CB','mayer_multiple':'MAY','fear_greed':'FG','m2_yoy':'M2',
+         'yield_curve_spread':'YC','etf_flows':'ETF'}
+
+def fmt(v):
+    return f"{v:3d}" if v is not None else " — "
+
+
+def run():
+    series = load_data()
+    results = []
+    for date_str, label, price in MILESTONES:
+        td = datetime.date.fromisoformat(date_str)
+        r = compute_at(td, series)
+        results.append((date_str, label, price, r))
+
+    # ── Score table ──────────────────────────────────────────────────────────
+    header_metrics = " ".join(f"{SHORT[c]:>4}" for c in SCORE_COLS)
+    print(f"\n{'Date':<12} {'Label':<22} {'BTC':>8}  {'OC':>4} {'TC':>4} {'IDX':>4}  {header_metrics}")
+    print("─" * 140)
+
+    for date_str, label, price, r in results:
+        sc = r['scores']
+        metric_vals = " ".join(fmt(sc.get(c)) for c in SCORE_COLS)
+        idx_str = f"{r['final']:3d}" if r['final'] is not None else " ✗ "
+        oc_str  = fmt(r['oc'])
+        tc_str  = fmt(r['tech'])
+        print(f"{date_str:<12} {label:<22} ${price:>8,}  {oc_str} {tc_str} {idx_str}  {metric_vals}")
+
+    # ── Coverage matrix ──────────────────────────────────────────────────────
+    RAW_COLS = ['nupl', 'mvrv', 'rhodl_ratio', 'cvdd_ratio', 'asopr',
+                'cipherb', 'mayer_multiple', 'fear_greed', 'm2_yoy', 'yield_curve_spread', 'etf_flows']
+    RAW_SHORT = {'nupl':'NUPL','mvrv':'MVRV','rhodl_ratio':'RHDL','cvdd_ratio':'CVDD','asopr':'SOPR',
+                 'cipherb':'CB','mayer_multiple':'MAY','fear_greed':'FG','m2_yoy':'M2',
+                 'yield_curve_spread':'YC','etf_flows':'ETF'}
+
+    cov_header = " ".join(f"{RAW_SHORT[c]:>5}" for c in RAW_COLS)
+    print(f"\nCoverage matrix  (✓ = present, N = days offset, ✗ = missing)")
+    print(f"{'Date':<12} {'Label':<22} {cov_header}  FULL")
+    print("─" * 130)
+
+    for date_str, label, price, r in results:
+        doff = r['days_off']
+        raw  = r['raw']
+
+        def cell(k):
+            v = raw.get(k)
+            d = doff.get(k)
+            if v is None:
+                return "   ✗ "
+            if d == 0:
+                return "   ✓ "
+            return f" +{d:2d}d"
+
+        cells = " ".join(cell(k) for k in RAW_COLS)
+        full = "✓" if r['full_coverage'] else "✗"
+        print(f"{date_str:<12} {label:<22} {cells}  {full}")
+
+    # ── Legend ───────────────────────────────────────────────────────────────
+    print(f"""
+Notes:
+  ✗ (IDX)  composite score not computed — one or more CORE metrics missing
+  CORE     = {sorted(CORE_REQUIRED)}
+  ETF      included in TECH weight only from 2024-01-11 (spot ETF launch); renormalized before
+  adaptive = 50% fixed map + 50% rolling {ADAPTIVE_WIN//365}yr percentile  (nupl, mvrv, cvdd, mayer)
+  staleness limit = {MAX_STALENESS} days — nearest datapoint beyond this treated as absent
+""")
+
 
 if __name__ == '__main__':
     run()
