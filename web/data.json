@@ -171,28 +171,14 @@
       "updated": "2026-06-13T04:56:44.519700Z"
     }
   },
-  "onchain_score": 30,
-  "tech_score": 23,
+  "onchain_score": 31,
+  "tech_score": 20,
   "final_score": 26,
   "adaptive_calibration": {
-    "mayer": {
-      "fixed": 20,
-      "adaptive": 19,
-      "blended": 20,
-      "win_years": 4,
-      "blend_w": 0.5
-    },
     "nupl": {
       "fixed": 41,
-      "adaptive": 17,
-      "blended": 29,
-      "win_years": 4,
-      "blend_w": 0.5
-    },
-    "mvrv": {
-      "fixed": 32,
-      "adaptive": 18,
-      "blended": 25,
+      "adaptive": 16,
+      "blended": 28,
       "win_years": 4,
       "blend_w": 0.5
     },

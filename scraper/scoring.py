@@ -35,6 +35,9 @@ _DV_KEY            = {'mayer': 'mayer_multiple', 'cvdd_ratio': 'cvdd_ratio'}
 _UNIFIED_FIELD     = {'mayer': 'mayer_multiple', 'cvdd_ratio': 'cvdd_ratio'}
 # seed history files that use dict rows: maps metric → value key inside the dict
 _SEED_VAL          = {'cvdd_ratio': 'ratio'}
+# unified_history/seed files store NUPL as fraction (0–1); data.json uses % (0–100).
+# Divide incoming value by this factor before percentile comparison so units match.
+_PCTILE_DIVISOR    = {'nupl': 100}
 ADAPTIVE_BLEND     = 0.5                 # weight on the adaptive (percentile) part
 ADAPTIVE_WIN_YEARS = 4                   # trailing window for the percentile
 ADAPTIVE_DEBUG     = {}                  # per-run breakdown for transparency
@@ -122,7 +125,9 @@ def _percentile_score(metric, value):
     win = [v for (d, v) in pts if d[:10] >= lo]
     if len(win) < 12:
         return None
-    le = sum(1 for v in win if v <= value)  # nupl/mvrv: higher value = higher risk
+    # Normalize value to match the units stored in history (e.g. NUPL: % → fraction)
+    cmp = value / _PCTILE_DIVISOR.get(metric, 1)
+    le = sum(1 for v in win if v <= cmp)   # higher value = higher risk
     return round(le / len(win) * 100)
 
 def _adaptive(metric, value, fixed_score):
