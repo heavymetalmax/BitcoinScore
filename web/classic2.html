@@ -1440,10 +1440,10 @@ async function loadData() {
       flagEl.style.color = st.color;
       flagEl.style.borderColor = st.border;
     }
-    set('sig-meta', sig.meta_score != null ? sig.meta_score + '/100' : '—');
+    set('sig-meta', sig.meta_score != null ? sig.meta_score + '%' : '—');
     set('sig-conv', sig.conviction != null ? Math.round(sig.conviction * 100) + '%' : '—');
     if (wrData) {
-      set('sig-wr-score', wrData.score != null ? wrData.score + '/100' : '—');
+      set('sig-wr-score', wrData.score != null ? wrData.score + '%' : '—');
       set('sig-wr-coh', wrData.coherence != null ? Math.round(wrData.coherence * 100) + '%' : '—');
     }
     const tizDays = data.tiz_days || 0;
