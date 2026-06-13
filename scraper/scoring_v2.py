@@ -360,18 +360,30 @@ def _load_v2_centroids():
         _v2_cache['bottom']      = p['bottom_centroid']
         _v2_cache['order']       = p['metric_order']
         _v2_cache['calibration'] = p.get('calibration', {})
+        _v2_cache['stds']        = p.get('metric_stds')   # diagonal Mahalanobis σ
     except Exception:
         pass
     return _v2_cache
 
 
-def _euclidean(v1, v2):
-    """RMS distance, skipping None pairs."""
+def _mahalanobis_diag(v1, v2, stds):
+    """Standardised Euclidean (diagonal Mahalanobis): each dim / σ.
+
+    High-volatility tech metrics (CipherB, FG) have large σ → less influence.
+    Stable on-chain metrics (NUPL, MVRV) have small σ → more influence.
+    Falls back to plain Euclidean when stds is None.
+    """
     total, n = 0.0, 0
-    for a, b in zip(v1, v2):
-        if a is not None and b is not None:
-            total += (a - b) ** 2
-            n += 1
+    if stds:
+        for a, b, s in zip(v1, v2, stds):
+            if a is not None and b is not None and s and s > 0:
+                total += ((a - b) / s) ** 2
+                n += 1
+    else:
+        for a, b in zip(v1, v2):
+            if a is not None and b is not None:
+                total += (a - b) ** 2
+                n += 1
     return _math.sqrt(total / n) if n > 0 else None
 
 
@@ -406,12 +418,13 @@ def phase_signals(current_scores: dict, prev_scores: dict) -> dict:
     if not params or 'top' not in params or 'calibration' not in params:
         return {'top_signal': None, 'bot_signal': None, 'phase': 'UNKNOWN'}
 
-    cal = params['calibration']
+    cal   = params['calibration']
     top_c = params['top']
     bot_c = params['bottom']
+    stds  = params.get('stds')
     vec   = build_wave_vector(current_scores, prev_scores)
-    d_top = _euclidean(vec, top_c)
-    d_bot = _euclidean(vec, bot_c)
+    d_top = _mahalanobis_diag(vec, top_c, stds)
+    d_bot = _mahalanobis_diag(vec, bot_c, stds)
     if d_top is None or d_bot is None:
         return {'top_signal': None, 'bot_signal': None, 'phase': 'UNKNOWN'}
 
@@ -430,7 +443,7 @@ def phase_signals(current_scores: dict, prev_scores: dict) -> dict:
     return {'top_signal': tsig, 'bot_signal': bsig, 'phase': phase}
 
 
-def score_processor_v2(current_scores: dict, prev_scores: dict) -> int | None:
+def score_processor_v2(current_scores: dict, prev_scores: dict):
     """
     Distance-based risk score — zero free parameters.
 
@@ -443,9 +456,10 @@ def score_processor_v2(current_scores: dict, prev_scores: dict) -> int | None:
     params = _load_v2_centroids()
     if not params:
         return None
+    stds    = params.get('stds')
     vec     = build_wave_vector(current_scores, prev_scores)
-    d_top   = _euclidean(vec, params['top'])
-    d_bot   = _euclidean(vec, params['bottom'])
+    d_top   = _mahalanobis_diag(vec, params['top'],    stds)
+    d_bot   = _mahalanobis_diag(vec, params['bottom'], stds)
     if d_top is None or d_bot is None:
         return None
     denom = d_top + d_bot

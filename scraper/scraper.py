@@ -593,6 +593,16 @@ def main():
         sp_v2  = score_processor_v2(curr_scores, prev_scores)
         phases = phase_signals(curr_scores, prev_scores)
 
+        # ML scorer: contextual risk using RF trained on metric × 90d-return history.
+        # Replaces fixed 50/50 weighting — model learns which metrics matter when.
+        try:
+            from .ml_scorer import predict_risk_score as _ml_predict
+            ml_score = _ml_predict(curr_scores)
+            if ml_score is not None:
+                p['ml_score'] = ml_score
+        except Exception as _ml_e:
+            print(f'ML scorer skipped: {_ml_e}')
+
         p['sp_v2']   = sp_v2
         p['phase']   = phases
         write_json('data/data.json', p)

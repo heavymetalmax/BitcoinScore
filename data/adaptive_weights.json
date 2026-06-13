@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "top_centroid": [
     78.1103,
     77.5862,
@@ -52,11 +52,37 @@
     10.092,
     null
   ],
+  "metric_stds": [
+    19.9318,
+    22.0157,
+    24.0909,
+    25.2359,
+    25.1518,
+    5.9537,
+    30.0192,
+    36.4777,
+    29.9172,
+    21.5693,
+    26.8142,
+    1.0,
+    10.237,
+    10.5337,
+    8.0663,
+    10.9794,
+    15.796,
+    6.6519,
+    33.3648,
+    12.3895,
+    25.8871,
+    12.5125,
+    12.077,
+    1.0
+  ],
   "calibration": {
-    "d_top_min": 9.6737,
-    "d_top_max": 47.9331,
-    "d_bot_min": 7.2942,
-    "d_bot_max": 52.9732
+    "d_top_min": 0.4751,
+    "d_top_max": 2.5377,
+    "d_bot_min": 0.5774,
+    "d_bot_max": 2.2331
   },
   "metric_order": [
     "nupl",
@@ -98,7 +124,7 @@
     "2022-06-18",
     "2022-11-21"
   ],
-  "generated": "2026-06-13T14:09:02.293118+00:00",
-  "formula": "d_bottom / (d_top + d_bottom) \u00d7 100  [euclidean, calibrated anchors]",
+  "generated": "2026-06-13T14:32:35.915395+00:00",
+  "formula": "d_bottom / (d_top + d_bottom) \u00d7 100  [mahalanobis-diag, calibrated anchors]",
   "vector_dims": "12 scores + 12 deltas = 24d"
 }

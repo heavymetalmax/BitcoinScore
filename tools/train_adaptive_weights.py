@@ -2,13 +2,16 @@
 Compute Score Processor v2 parameters:
   - top_centroid:    mean wave-vector at confirmed cycle tops
   - bottom_centroid: mean wave-vector at confirmed cycle bottoms
+  - metric_stds:     per-dimension std across all market conditions
+                     (used for diagonal Mahalanobis distance — downweights
+                      high-volatility tech metrics automatically)
 
 Wave vector = [current_scores × 11] + [delta_scores × 11]
   where delta = score_now - score_N_days_ago (N depends on metric speed)
 
-Distance-based scoring (zero free parameters):
-  d_top    = euclidean_distance(current_wave, top_centroid)
-  d_bottom = euclidean_distance(current_wave, bottom_centroid)
+Distance-based scoring:
+  d_top    = mahalanobis_diag(current_wave, top_centroid,    metric_stds)
+  d_bottom = mahalanobis_diag(current_wave, bottom_centroid, metric_stds)
   score    = d_bottom / (d_top + d_bottom) × 100
 
 Run: python3 tools/train_adaptive_weights.py
@@ -125,24 +128,75 @@ def centroid(vectors):
     return result
 
 
+# ── Per-dimension std for Mahalanobis ────────────────────────────────────────
+
+def compute_std_vector(series, sample_every=14):
+    """Sample wave vectors every N days across full history; return per-dim std.
+
+    High-volatility metrics (CipherB, Fear&Greed) get large sigma → smaller
+    normalised distance → less influence on the score.
+    Stable on-chain metrics (NUPL, MVRV) get small sigma → more influence.
+    """
+    # Use NUPL dates as the backbone (longest series, 2010+)
+    nupl_dates = sorted(d for d, _ in series.get('nupl', []))
+    # Restrict to post-2016 where most metrics exist
+    all_dates = [d for d in nupl_dates if d >= '2016-01-01']
+    sample_dates = [d for i, d in enumerate(all_dates) if i % sample_every == 0]
+
+    print(f"  Sampling {len(sample_dates)} dates for σ estimation...")
+    all_vecs = []
+    for d in sample_dates:
+        try:
+            v = wave_vector(d, series)
+            if v is not None:
+                all_vecs.append(v)
+        except Exception:
+            pass
+
+    if len(all_vecs) < 10:
+        return None
+
+    n_dims = len(all_vecs[0])
+    stds = []
+    for i in range(n_dims):
+        vals = [v[i] for v in all_vecs if v[i] is not None]
+        if len(vals) < 5:
+            stds.append(1.0)
+            continue
+        mean = sum(vals) / len(vals)
+        var  = sum((x - mean) ** 2 for x in vals) / len(vals)
+        stds.append(max(var ** 0.5, 0.5))   # floor at 0.5 to avoid division by near-zero
+    return [round(s, 4) for s in stds]
+
+
 # ── Distance scoring ──────────────────────────────────────────────────────────
 
-def euclidean(v1, v2):
-    """Mean squared distance per dimension, ignoring None pairs."""
-    if not v1 or not v2:
+def mahalanobis_diag(v1, v2, stds):
+    """Standardised Euclidean (diagonal Mahalanobis): each dim divided by sigma."""
+    if not v1 or not v2 or not stds:
         return None
     total, n = 0.0, 0
-    for a, b in zip(v1, v2):
-        if a is not None and b is not None:
-            total += (a - b) ** 2
+    for a, b, s in zip(v1, v2, stds):
+        if a is not None and b is not None and s > 0:
+            total += ((a - b) / s) ** 2
             n += 1
     return math.sqrt(total / n) if n > 0 else None
 
 
-def v2_score(wave_vec, top_c, bottom_c):
+def v2_score(wave_vec, top_c, bottom_c, stds=None):
     """score = d_bottom / (d_top + d_bottom) × 100"""
-    d_top    = euclidean(wave_vec, top_c)
-    d_bottom = euclidean(wave_vec, bottom_c)
+    dist = mahalanobis_diag if stds else (lambda v1, v2, _: _euclidean_plain(v1, v2))
+
+    def _euclidean_plain(v1, v2):
+        total, n = 0.0, 0
+        for a, b in zip(v1, v2):
+            if a is not None and b is not None:
+                total += (a - b) ** 2
+                n += 1
+        return math.sqrt(total / n) if n > 0 else None
+
+    d_top    = mahalanobis_diag(wave_vec, top_c, stds) if stds else _euclidean_plain(wave_vec, top_c)
+    d_bottom = mahalanobis_diag(wave_vec, bottom_c, stds) if stds else _euclidean_plain(wave_vec, bottom_c)
     if d_top is None or d_bottom is None:
         return None
     denom = d_top + d_bottom
@@ -186,32 +240,43 @@ def main():
     print(f"\nTop centroid    (pos): {[round(x) if x else None for x in top_c[:11]]}")
     print(f"Bottom centroid (pos): {[round(x) if x else None for x in bottom_c[:11]]}")
 
+    # ── Per-dimension σ for Mahalanobis ──────────────────────────────────────
+    print("\nComputing per-dimension σ from historical sample...")
+    stds = compute_std_vector(series)
+    if stds:
+        score_stds = [round(s, 2) for s in stds[:11]]
+        delta_stds = [round(s, 2) for s in stds[11:]]
+        print(f"  Score σ: {score_stds}")
+        print(f"  Delta σ: {delta_stds}")
+    else:
+        print("  WARNING: could not compute σ — falling back to Euclidean")
+
+    def dist(v, c):
+        return mahalanobis_diag(v, c, stds) if stds else None
+
     # ── Calibration anchors for phase signals ─────────────────────────────────
-    # top_signal = 100% when d_top = d_top_min (closest to top centroid, at confirmed ATH)
-    # bot_signal = 100% when d_bot = d_bot_min (closest to bottom centroid, at confirmed bottom)
-    # Anchors derived from labeled dates only — no free parameters.
     top_d_tops, top_d_bots = [], []
     bot_d_tops, bot_d_bots = [], []
     for d in TOP_DATES:
         v = wave_vector(d, series)
         if v:
-            top_d_tops.append(euclidean(v, top_c))
-            top_d_bots.append(euclidean(v, bottom_c))
+            top_d_tops.append(dist(v, top_c))
+            top_d_bots.append(dist(v, bottom_c))
     for d in BOTTOM_DATES:
         v = wave_vector(d, series)
         if v:
-            bot_d_tops.append(euclidean(v, top_c))
-            bot_d_bots.append(euclidean(v, bottom_c))
+            bot_d_tops.append(dist(v, top_c))
+            bot_d_bots.append(dist(v, bottom_c))
 
     cal = {
-        'd_top_min': round(min(top_d_tops), 4),   # at confirmed TOP → top_sig = 100%
-        'd_top_max': round(max(bot_d_tops), 4),   # at confirmed BOTTOM → top_sig = 0%
-        'd_bot_min': round(min(bot_d_bots), 4),   # at confirmed BOTTOM → bot_sig = 100%
-        'd_bot_max': round(max(top_d_bots), 4),   # at confirmed TOP → bot_sig = 0%
+        'd_top_min': round(min(top_d_tops), 4),
+        'd_top_max': round(max(bot_d_tops), 4),
+        'd_bot_min': round(min(bot_d_bots), 4),
+        'd_bot_max': round(max(top_d_bots), 4),
     }
     print(f"\nCalibration anchors: {cal}")
 
-    # ── Validate: scores + phase signals at labeled dates ─────────────────────
+    # ── Validate ──────────────────────────────────────────────────────────────
     print(f"\nValidation — v2 + phase signals at labeled dates:")
     print(f"  {'Date':<12} {'Role':<8} {'v2':>4} {'top_sig':>8} {'bot_sig':>8}  phase")
     print("  " + "─" * 65)
@@ -219,9 +284,9 @@ def main():
         v = wave_vector(d, series)
         if not v:
             print(f"  {d:<12} {role:<8}   —   MISSING"); continue
-        s    = v2_score(v, top_c, bottom_c)
-        dt   = euclidean(v, top_c)
-        db   = euclidean(v, bottom_c)
+        s    = v2_score(v, top_c, bottom_c, stds)
+        dt   = dist(v, top_c)
+        db   = dist(v, bottom_c)
         tsig = max(0, min(100, round((cal['d_top_max'] - dt) / (cal['d_top_max'] - cal['d_top_min']) * 100)))
         bsig = max(0, min(100, round((cal['d_bot_max'] - db) / (cal['d_bot_max'] - cal['d_bot_min']) * 100)))
         diff = tsig - bsig
@@ -234,16 +299,17 @@ def main():
 
     # ── Save ──────────────────────────────────────────────────────────────────
     out = {
-        'version':        2,
+        'version':        3,
         'top_centroid':   top_c,
         'bottom_centroid':bottom_c,
+        'metric_stds':    stds,
         'calibration':    cal,
         'metric_order':   METRIC_ORDER,
         'metric_lookback':METRIC_LOOKBACK,
         'top_dates':      TOP_DATES,
         'bottom_dates':   BOTTOM_DATES,
         'generated':      datetime.datetime.now(datetime.timezone.utc).isoformat(),
-        'formula':        'd_bottom / (d_top + d_bottom) × 100  [euclidean, calibrated anchors]',
+        'formula':        'd_bottom / (d_top + d_bottom) × 100  [mahalanobis-diag, calibrated anchors]',
         'vector_dims':    f'{len(METRIC_ORDER)} scores + {len(METRIC_ORDER)} deltas = {2*len(METRIC_ORDER)}d',
     }
     path = 'data/adaptive_weights.json'
