@@ -944,7 +944,7 @@ function drawHistory(range, hoverIndex) {
   const pts = historyScores.slice(-(days[activeRange] || 99999));
   if (!pts.length) return;
 
-  const pad = { t: 10, b: 28, l: 30, r: 10 };
+  const pad = { t: 10, b: 28, l: 30, r: 52 };
   const cw = W - pad.l - pad.r, ch = H - pad.t - pad.b;
 
   [{ mn: 75, mx: 100, c: isDark ? '#EF444415' : '#EF444410' },
@@ -973,6 +973,45 @@ function drawHistory(range, hoverIndex) {
     const dateStr = pts[i].date ? pts[i].date.slice(5) : '';
     ctx.fillText(dateStr, x, H - 6);
   });
+
+  // BTC price line — secondary right-axis scale, drawn behind the score line
+  const pricePts = pts.map(e => e.price != null && e.price > 0 ? e.price : null);
+  const validPrices = pricePts.filter(v => v != null);
+  if (validPrices.length >= 2) {
+    const minP = Math.min(...validPrices), maxP = Math.max(...validPrices);
+    const priceRange = maxP - minP || 1;
+    const priceToY = p => pad.t + ch * 0.075 + ((maxP - p) / priceRange) * ch * 0.85;
+    const fmtP = v => v >= 1000 ? `$${(v / 1000).toFixed(0)}k` : `$${Math.round(v)}`;
+
+    ctx.beginPath();
+    let started = false;
+    pts.forEach((e, i) => {
+      if (pricePts[i] == null) { started = false; return; }
+      const x = pad.l + (i / Math.max(pts.length - 1, 1)) * cw;
+      const y = priceToY(pricePts[i]);
+      if (!started) { ctx.moveTo(x, y); started = true; } else ctx.lineTo(x, y);
+    });
+    ctx.strokeStyle = isDark ? 'rgba(247,147,26,0.32)' : 'rgba(247,147,26,0.28)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // Right-axis price labels
+    const priceAxisCol = isDark ? 'rgba(247,147,26,0.55)' : 'rgba(200,110,0,0.70)';
+    ctx.textAlign = 'left';
+    ctx.font = '9px Inter, sans-serif';
+    ctx.fillStyle = priceAxisCol;
+    const yMax = priceToY(maxP), yMin = priceToY(minP);
+    ctx.fillText(fmtP(maxP), W - pad.r + 5, yMax + 3);
+    if (yMin - yMax > 14) ctx.fillText(fmtP(minP), W - pad.r + 5, yMin + 3);
+    // Current price label
+    const lastPrice = pricePts[pts.length - 1];
+    if (lastPrice != null) {
+      const yLast = priceToY(lastPrice);
+      if (Math.abs(yLast - yMax) > 14 && Math.abs(yLast - yMin) > 14) {
+        ctx.fillText(fmtP(lastPrice), W - pad.r + 5, yLast + 3);
+      }
+    }
+  }
 
   ctx.beginPath();
   pts.forEach((v, i) => {
