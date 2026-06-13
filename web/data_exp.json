@@ -1,7 +1,7 @@
 {
-  "timestamp": "2026-06-13T11:15:40Z",
-  "btc_price": 63879.4145548915,
-  "btc_dominance": 58.55,
+  "timestamp": "2026-06-13T14:13:11Z",
+  "btc_price": 64122.85723682046,
+  "btc_dominance": 58.58,
   "fear_greed": 15.0,
   "fear_greed_label": "CMC",
   "nupl": 12.0043,
@@ -27,37 +27,37 @@
     "nupl": {
       "value": 12.0043,
       "source": "BMP",
-      "updated": "2026-06-13T11:15:33Z"
+      "updated": "2026-06-13T14:13:03Z"
     },
     "mvrv": {
       "value": 0.2417,
       "source": "BMP",
-      "updated": "2026-06-13T11:15:33Z"
+      "updated": "2026-06-13T14:13:03Z"
     },
     "m2": {
       "value": 9.47,
       "source": "MacroMicro",
-      "updated": "2026-06-13T11:15:33Z"
+      "updated": "2026-06-13T14:13:03Z"
     },
     "yield_curve": {
       "value": 0.48,
       "source": "BMP",
-      "updated": "2026-06-13T11:15:33Z"
+      "updated": "2026-06-13T14:13:03Z"
     },
     "cvdd_ratio": {
       "value": 1.266,
       "source": "BMP",
-      "updated": "2026-06-13T11:15:33Z"
+      "updated": "2026-06-13T14:13:03Z"
     },
     "rhodl_ratio": {
       "value": 1257.9609,
       "source": "BMP",
-      "updated": "2026-06-13T11:15:33Z"
+      "updated": "2026-06-13T14:13:03Z"
     },
     "asopr": {
       "value": 0.9833142857142858,
       "source": "BMP",
-      "updated": "2026-06-13T11:15:33Z"
+      "updated": "2026-06-13T14:13:03Z"
     },
     "etf_flows": {
       "value": {
@@ -67,7 +67,7 @@
         "date": "2026-06-05"
       },
       "source": "Farside",
-      "updated": "2026-06-13T11:15:33Z"
+      "updated": "2026-06-13T14:13:03Z"
     },
     "rainbow_band": {
       "value": {
@@ -78,14 +78,14 @@
         "date": "2026-06-12"
       },
       "source": "BMP",
-      "updated": "2026-06-13T11:15:40Z"
+      "updated": "2026-06-13T14:13:11Z"
     },
     "fear_greed": {
       "latest": 18.0,
       "avg_7d": 15.0,
       "label": "CMC",
       "source": "CMC",
-      "updated": "2026-06-13T11:15:40Z"
+      "updated": "2026-06-13T14:13:11Z"
     },
     "cipherb": {
       "value": {
@@ -102,7 +102,7 @@
         "daily_fast_bullish_div": false
       },
       "source": "Local",
-      "updated": "2026-06-13T11:15:41Z"
+      "updated": "2026-06-13T14:13:11Z"
     },
     "smc": {
       "value": {
@@ -116,7 +116,7 @@
         "size": 10
       },
       "source": "Local",
-      "updated": "2026-06-13T11:15:41Z"
+      "updated": "2026-06-13T14:13:11Z"
     },
     "mayer_multiple": {
       "value": {
@@ -126,23 +126,23 @@
         "score": 20
       },
       "source": "Kraken",
-      "updated": "2026-06-13T11:15:41Z"
+      "updated": "2026-06-13T14:13:11Z"
     },
     "funding_rate": {
       "value": {
-        "latest": -0.00859,
-        "avg_7d": -0.00859,
-        "score": 28,
+        "latest": -0.04235,
+        "avg_7d": -0.04235,
+        "score": 5,
         "periods": 1,
         "source": "Kraken Futures"
       },
       "source": "Kraken Futures",
-      "updated": "2026-06-13T11:15:42Z"
+      "updated": "2026-06-13T14:13:11Z"
     },
     "halving_cycle_day": {
       "value": 785,
       "source": "Local",
-      "updated": "2026-06-13T11:15:42Z"
+      "updated": "2026-06-13T14:13:11Z"
     },
     "pi_cycle": {
       "value": {
@@ -153,28 +153,28 @@
         "cross": false
       },
       "source": "Kraken",
-      "updated": "2026-06-13T11:15:42Z"
+      "updated": "2026-06-13T14:13:11Z"
     },
     "puell_multiple": {
       "value": 0.6987,
       "source": "BMP",
-      "updated": "2026-06-13T11:15:49Z"
+      "updated": "2026-06-13T14:13:18Z"
     },
     "lth_supply_pct": {
       "value": 16462719.0165,
       "source": "BMP",
-      "updated": "2026-06-13T11:15:56Z"
+      "updated": "2026-06-13T14:13:25Z"
     },
     "m2_mom": {
       "value": 9.47,
       "source": "MacroMicro",
-      "updated": "2026-06-13T11:15:56Z"
+      "updated": "2026-06-13T14:13:25Z"
     }
   },
   "m2_mom": 9.47,
   "onchain_score": 29,
   "tech_score": 24,
-  "final_score": 31,
+  "final_score": 32,
   "adaptive_calibration": {
     "nupl": {
       "fixed": 41,
@@ -214,31 +214,31 @@
   },
   "zone_forecast": {
     "buy": {
-      "price": 54707,
+      "price": 54915,
       "pct": -14.4
     },
     "sell": {
-      "price": 155917,
+      "price": 156511,
       "pct": 144.1
     },
     "buy_threshold": 20,
     "sell_threshold": 80,
-    "realized_price": 56211,
-    "ref_price": 63879
+    "realized_price": 56425,
+    "ref_price": 64123
   },
   "commentary": {
     "en": {
-      "summary": "The market shows a quiet buildup with patient holders accumulating, but institutional exits are weighing on price sentiment.",
-      "analysis": "The current trajectory points to a stable environment where fundamentals favor accumulation, yet the heavy ETF outflows are acting as a direct drag on near-term price action. A reversal in institutional flows would serve as a clear catalyst to shift the balance toward upward movement."
+      "summary": "Despite institutional money leaving, patient holders are quietly stepping in, setting up for a potential price rally amid macro normalization.",
+      "analysis": "The mix of heavy ETF outflows with a low-profit accumulation environment signals that well-informed holders are building positions while technical and macro factors stabilize. The primary risk remains the ongoing institutional retreat, but a further steepening of the yield curve could act as a catalyst to reenergize market sentiment."
     },
     "ua": {
-      "summary": "Ринок демонструє спокійне накопичення, де терплячі тримачі накопичують активи, але виходи інституцій тиснуть на цінове сприйняття.",
-      "analysis": "Поточна траєкторія вказує на стабільне середовище, де фундаментальні фактори сприяють накопиченню, але великі виводи з ETF діють як прямий гальмівний чинник для цінової динаміки в найближчій перспективі. Зворотний рух інституційних потоків став би чітким каталізатором для зміщення балансу в бік зростання."
+      "summary": "Незважаючи на вихід інституційних грошей, терплячі тримачі тихо входять у гру, готуючись до потенційного зростання цін на фоні макроекономічної нормалізації.",
+      "analysis": "Комбінація значних відтоків з ETF з низьким прибутковим середовищем накопичення сигналізує про те, що добре обізнані тримачі формують позиції, поки технічні та макроекономічні фактори стабілізуються. Основний ризик залишається в триваючому відході інституцій, але подальше різке підвищення кривої доходності може стати каталізатором для відновлення ринкових настроїв."
     }
   },
   "scoring_regime": "bottom",
-  "tiz_score": null,
-  "tiz_days": 0,
+  "tiz_score": 35,
+  "tiz_days": 17,
   "oc_coherence": 0.513,
   "coh_factor": 0.805,
   "pi_cross": false,
@@ -259,16 +259,16 @@
     "window_pts": 1096
   },
   "signal": {
-    "meta_score": 32,
+    "meta_score": 33,
     "zone": "bottom",
-    "conviction": 0.131,
+    "conviction": 0.059,
     "flag": "UNCERTAIN",
     "trust": {
       "v2": 0.928,
       "wr": 0.072
     },
     "agreement": "partial_v2_leads",
-    "tiz_maturity": null
+    "tiz_maturity": 0.085
   },
   "metric_history": {
     "dates": [
@@ -1005,7 +1005,7 @@
       30,
       30,
       29,
-      70
+      28
     ],
     "mvrv_z_score": [
       63,
@@ -4685,7 +4685,7 @@
       4,
       4,
       null,
-      null
+      33
     ]
   },
   "sp_v2": 28,
