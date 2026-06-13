@@ -427,25 +427,25 @@
   <!-- SIGNAL BLOCK -->
   <div class="card signal-block" id="signal-block" style="display:none">
     <div class="signal-block-header">
-      <span class="signal-block-label"><span class="signal-block-dot"></span><span class="en">Composite Signal</span><span class="ua">Композитний сигнал</span></span>
+      <span class="signal-block-label"><span class="signal-block-dot"></span><span class="en">Market Signal</span><span class="ua">Ринковий сигнал</span></span>
       <span class="signal-main-badge" id="sig-flag">—</span>
     </div>
     <div class="signal-stats">
-      <div class="signal-stat" title="Зважений мікс V2-індексу та Wave Resonance. 0–100: нижче = менше ризику.&#10;Weighted blend of V2 index and Wave Resonance. 0–100: lower = less risk.">
+      <div class="signal-stat" title="Загальна оцінка ризику від 0 (дно) до 100 (топ), поєднує кілька моделей.&#10;Combined risk reading 0–100: lower = less risk, closer to a cycle bottom.">
         <div class="signal-stat-val" id="sig-meta">—</div>
-        <div class="signal-stat-label"><span class="en">Meta Score</span><span class="ua">Мета-бал</span></div>
+        <div class="signal-stat-label"><span class="en">Risk Reading</span><span class="ua">Оцінка ризику</span></div>
       </div>
-      <div class="signal-stat" title="Впевненість моделі у поточному сигналі. Знижується при ранньому TiZ.&#10;Model confidence in the current signal. Scaled down during early TiZ phase.">
+      <div class="signal-stat" title="Наскільки модель впевнена у своєму сигналі. Низька впевненість = сигнали суперечать одне одному.&#10;How confident the model is. Low = indicators disagree with each other.">
         <div class="signal-stat-val" id="sig-conv">—</div>
-        <div class="signal-stat-label"><span class="en">Conviction</span><span class="ua">Переконання</span></div>
+        <div class="signal-stat-label"><span class="en">Confidence</span><span class="ua">Впевненість</span></div>
       </div>
-      <div class="signal-stat" title="On-chain осцилятори (NUPL, MVRV, CVDD, Mayer, Pi). 0 = максимально перепроданий, 100 = максимально перекуплений.&#10;On-chain oscillator alignment. 0 = max oversold, 100 = max overbought.">
+      <div class="signal-stat" title="Середня позиція on-chain осциляторів: 0 = всі на дні, 100 = всі на піку. Поточне значення показує де ми у циклі.&#10;Average position of on-chain oscillators: 0 = all at bottom, 100 = all at peak.">
         <div class="signal-stat-val" id="sig-wr-score">—</div>
-        <div class="signal-stat-label"><span class="en">Wave Res.</span><span class="ua">Хвиля рез.</span></div>
+        <div class="signal-stat-label"><span class="en">Cycle Position</span><span class="ua">Позиція у циклі</span></div>
       </div>
-      <div class="signal-stat" title="Наскільки синхронізовані між собою on-chain осцилятори. Висока когерентність = сильний сигнал.&#10;How synchronized on-chain oscillators are. High coherence = strong signal.">
+      <div class="signal-stat" title="Наскільки погоджуються між собою всі on-chain індикатори. 0% = суперечать, 100% = всі вказують в один бік.&#10;How much the on-chain indicators agree. 0% = conflicting, 100% = all pointing the same way.">
         <div class="signal-stat-val" id="sig-wr-coh">—</div>
-        <div class="signal-stat-label"><span class="en">WR Coherence</span><span class="ua">Когерентність</span></div>
+        <div class="signal-stat-label"><span class="en">Agreement</span><span class="ua">Узгодженість</span></div>
       </div>
       <div class="signal-stat" id="sig-tiz-wrap" style="display:none" title="Скільки часу ми перебуваємо у зоні дна відносно еталону ~200 днів. До 25% = сигнал ще не підтверджений.&#10;How long we have been in the bottom zone vs. ~200-day calibration. Below 25% = not yet confirmed.">
         <div class="signal-stat-val" id="sig-tiz">—</div>
@@ -457,8 +457,8 @@
       <div class="signal-trust-wrap">
         <div class="signal-trust-bar"><div class="signal-trust-v2" id="trust-v2-bar" style="width:20%"></div></div>
         <div class="signal-trust-labels">
-          <span title="Вага V2-індексу у фінальному балі&#10;Weight of V2 index in the final score">V2 <span id="trust-v2-pct">—</span></span>
-          <span title="Вага Wave Resonance у фінальному балі&#10;Weight of Wave Resonance in the final score">WR <span id="trust-wr-pct">—</span></span>
+          <span title="Частка трендової моделі у фінальній оцінці&#10;Trend model's share of the final reading"><span class="en">Trend model</span><span class="ua">Трендова модель</span> <span id="trust-v2-pct">—</span></span>
+          <span title="Частка осциляторів у фінальній оцінці&#10;Oscillator model's share of the final reading"><span class="en">Oscillators</span><span class="ua">Осцилятори</span> <span id="trust-wr-pct">—</span></span>
         </div>
       </div>
     </div>
@@ -470,7 +470,7 @@
     <div class="sp2-header">
       <span class="sp2-label">
         <span class="sp2-dot"></span>
-        <span class="en">Score Processor v2</span><span class="ua">Процесор балів v2</span>
+        <span class="en">Phase Signals</span><span class="ua">Фазові сигнали</span>
       </span>
       <span class="sp2-phase-badge" id="sp2-phase">—</span>
     </div>
@@ -1421,9 +1421,21 @@ async function loadData() {
       'NEUTRAL':          { bg:'#64748B18', color:'#64748B', border:'#64748B40' },
     };
     const st = FLAG_STYLES[sig.flag] || FLAG_STYLES['NEUTRAL'];
+    const FLAG_LABELS = {
+      'CONFIRMED_BOTTOM': { en: 'Strong Accumulation', ua: 'Сильне накопичення' },
+      'PROBABLE_BOTTOM':  { en: 'Likely Bottom',       ua: 'Імовірне дно' },
+      'EARLY_ZONE':       { en: 'Early Accumulation',  ua: 'Раннє накопичення' },
+      'CONFIRMED_TOP':    { en: 'High Risk Zone',      ua: 'Зона високого ризику' },
+      'PROBABLE_TOP':     { en: 'Elevated Risk',       ua: 'Підвищений ризик' },
+      'UNCERTAIN':        { en: 'No Clear Signal',     ua: 'Немає чіткого сигналу' },
+      'NEUTRAL':          { en: 'Weak Signal',         ua: 'Слабкий сигнал' },
+    };
+    const isUaFlag = document.documentElement.lang === 'uk' ||
+                     (localStorage && localStorage.getItem('lang') === 'ua');
     const flagEl = document.getElementById('sig-flag');
     if (flagEl) {
-      flagEl.textContent = sig.flag.replace(/_/g, ' ');
+      const lbl = FLAG_LABELS[sig.flag];
+      flagEl.textContent = lbl ? (isUaFlag ? lbl.ua : lbl.en) : sig.flag.replace(/_/g, ' ');
       flagEl.style.background = st.bg;
       flagEl.style.color = st.color;
       flagEl.style.borderColor = st.border;
@@ -1453,40 +1465,38 @@ async function loadData() {
     // Dynamic plain-language explanation
     const FLAG_EXPLAIN = {
       'CONFIRMED_BOTTOM': {
-        en: 'All signals align at a historic low with high conviction — strong buy zone.',
-        ua: 'Всі сигнали збігаються у зоні дна з высокой впевненістю — сильна зона покупки.'
+        en: 'On-chain indicators are in strong agreement: price is historically cheap relative to the network\'s fundamentals. Historically these readings precede a multi-month recovery.',
+        ua: 'Он-чейн індикатори одностайні: ціна історично дешева відносно фундаменталів мережі. Такі показники зазвичай передують відновленню.'
       },
       'PROBABLE_BOTTOM': {
-        en: 'Most signals point to a bottom with moderate confidence.',
-        ua: 'Більшість сигналів вказують на дно з помірною впевненістю.'
+        en: 'Most indicators point to a cycle low. The picture isn\'t unanimous yet, but the risk/reward here leans toward long-term accumulation.',
+        ua: 'Більшість індикаторів вказують на циклове дно. Картина не однозначна, але співвідношення ризик/дохід схиляється до накопичення.'
       },
       'EARLY_ZONE': {
-        en: 'Metrics suggest a bottom, but we are only ' + tizDays + ' days in — too early to confirm. Monitor over the next few weeks.',
-        ua: 'Метрики вказують на дно, але лише ' + tizDays + ' днів у зоні — ще зарано підтверджувати. Стежте протягом найближчих тижнів.'
+        en: 'Metrics entered the accumulation zone ' + tizDays + ' days ago — historically, the signal gets more reliable after 40–60 days. It\'s early but the direction is promising.',
+        ua: 'Метрики увійшли у зону накопичення ' + tizDays + ' днів тому. Сигнал стає надійнішим після 40–60 днів у зоні. Рано, але напрямок перспективний.'
       },
       'NEUTRAL': {
-        en: 'Bottom zone metrics detected but conviction is low (TiZ day ' + tizDays + ' of 200). Signal strengthens as time in zone grows.',
-        ua: 'Метрики зони дна виявлені, але впевненість низька (TiZ день ' + tizDays + ' з 200). Сигнал посилюється з часом у зоні.'
+        en: 'The indicators lean toward a bottom, but they don\'t all agree yet (' + tizDays + ' days in zone). The signal will strengthen if the market holds these levels.',
+        ua: 'Індикатори схиляються до дна, але ще не одностайні (' + tizDays + ' днів у зоні). Сигнал посилиться якщо ринок утримає ці рівні.'
       },
       'PROBABLE_TOP': {
-        en: 'Signals suggest elevated risk. Consider reducing exposure.',
-        ua: 'Сигнали вказують на підвищений ризик. Розгляньте скорочення позиції.'
+        en: 'Multiple signals point to an overheated market. Historically these conditions precede a correction or prolonged consolidation.',
+        ua: 'Кілька сигналів вказують на перегрів ринку. Такі умови зазвичай передують корекції або тривалій консолідації.'
       },
       'CONFIRMED_TOP': {
-        en: 'All signals align at historic highs with high conviction — high-risk zone.',
-        ua: 'Всі сигнали збігаються на вершині з高ою впевненістю — зона高ого ризику.'
+        en: 'Indicators are near extreme cycle highs with strong agreement — a reading historically associated with major cycle tops.',
+        ua: 'Індикатори біля екстремальних циклових максимумів з высокою узгодженістю — такий показник асоціюється з великими цикловими топами.'
       },
       'UNCERTAIN': {
-        en: 'Signals are mixed and confidence is low. Do not rely solely on this indicator.',
-        ua: 'Сигнали суперечать, впевненість низька. Не покладайтесь лише на цей індикатор.'
+        en: 'The indicators are pointing in different directions right now. Some lean bullish, others neutral or bearish — there\'s no clear edge. Worth watching, but not acting on.',
+        ua: 'Індикатори зараз вказують у різні боки. Одні схиляються до зростання, інші до нейтралу чи падіння — чіткого переваги немає. Варто спостерігати, але не діяти.'
       }
     };
     const expl = FLAG_EXPLAIN[sig.flag];
     const explEl = document.getElementById('sig-explain');
     if (expl && explEl) {
-      const isUa = document.documentElement.lang === 'uk' ||
-                   (localStorage && localStorage.getItem('lang') === 'ua');
-      explEl.textContent = isUa ? expl.ua : expl.en;
+      explEl.textContent = isUaFlag ? expl.ua : expl.en;
     }
   }
 
