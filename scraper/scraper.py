@@ -391,54 +391,37 @@ def main():
     except Exception as e:
         print('Failed to write M2 history:', e)
 
-    # Global M2 YoY% — use get_m2() (reads BMP history + US FRED fallback adjustment)
+    # Global M2 YoY% — alias of the already-fetched metrics.m2 value.
+    # m2_mom is the key scoring.py reads (see scoring.py line: mv('m2_mom')).
+    # build_payload() already called get_m2() via metric_specs; reuse that result
+    # instead of making a second HTTP call and hitting the prev_metrics scoping bug.
     try:
-        from .m2_metric import get_m2 as _get_m2_yoy
-        mom_val = _get_m2_yoy()
-        m2_src = 'MacroMicro'
+        m2_entry = p.get('metrics', {}).get('m2') or {}
+        mom_val  = m2_entry.get('value') if isinstance(m2_entry, dict) else m2_entry
+        m2_src   = m2_entry.get('source', 'MacroMicro') if isinstance(m2_entry, dict) else 'MacroMicro'
+        # Fallback: m2_yoy_history.json (digitized MacroMicro, updated manually)
         if mom_val is None:
-            # Both MacroMicro and FRED failed. M2 YoY moves slowly, so reuse the
-            # last known good value rather than writing None: a missing metric
-            # silently drops out of the index average and skews every score.
-            last_good = None
-            pm = (prev_metrics or {}).get('m2_mom') if prev_metrics else None
-            if isinstance(pm, dict) and pm.get('value') is not None:
-                last_good = pm['value']
-            if last_good is None:
-                try:
-                    with open('data/history/daily_vector.json', encoding='utf-8') as hf:
-                        for row in reversed(json.load(hf)):
-                            v = (row.get('raw') or {}).get('m2_yoy')
-                            if v is not None:
-                                last_good = v
-                                break
-                except Exception:
-                    pass
-            # Final fallback: m2_yoy_history.json (digitized MacroMicro, updated manually)
-            if last_good is None:
-                try:
-                    with open('data/history/m2_yoy_history.json', encoding='utf-8') as hf:
-                        raw_h = json.load(hf)
-                        series = raw_h.get('series', raw_h) if isinstance(raw_h, dict) else raw_h
-                        for row in reversed(series):
-                            v = row.get('value') if isinstance(row, dict) else None
-                            if v is not None:
-                                last_good = float(v)
-                                break
-                except Exception:
-                    pass
-            if last_good is not None:
-                mom_val = last_good
-                m2_src = 'MacroMicro (cached: live fetch failed)'
-                print(f'M2 live fetch failed; reused last known M2 YoY = {last_good}')
-            else:
-                print('M2 live fetch failed and no cached value found; leaving None')
-        if 'metrics' not in p:
-            p['metrics'] = {}
-        p['metrics']['m2_mom'] = {'value': mom_val, 'source': m2_src, 'updated': now_iso()}
-        p['m2_mom'] = mom_val
-        write_json('data/data.json', p)
-        print(f'Updated data/data.json with M2 MoM = {mom_val} ({m2_src})')
+            try:
+                with open('data/history/m2_yoy_history.json', encoding='utf-8') as hf:
+                    raw_h  = json.load(hf)
+                    series = raw_h.get('series', raw_h) if isinstance(raw_h, dict) else raw_h
+                    for row in reversed(series):
+                        v = row.get('value') if isinstance(row, dict) else None
+                        if v is not None:
+                            mom_val = float(v)
+                            m2_src  = f'MacroMicro history ({row.get("date", "unknown")})'
+                            break
+            except Exception:
+                pass
+        if mom_val is not None:
+            if 'metrics' not in p:
+                p['metrics'] = {}
+            p['metrics']['m2_mom'] = {'value': mom_val, 'source': m2_src, 'updated': now_iso()}
+            p['m2_mom'] = mom_val
+            write_json('data/data.json', p)
+            print(f'Updated data/data.json with M2 MoM = {mom_val} ({m2_src})')
+        else:
+            print('M2 MoM: no value from metrics.m2 or history fallback; leaving None')
     except Exception as e:
         print('Failed to compute/include M2 MoM:', e)
 
