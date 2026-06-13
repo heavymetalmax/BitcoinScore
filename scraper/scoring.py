@@ -117,6 +117,11 @@ def _percentile_score(metric, value):
     """0-100 rolling percentile of `value` within the trailing window, or None."""
     if value is None:
         return None
+    # Unwrap doubly-nested dicts (e.g. mayer_multiple: {value:{value:0.815,...}})
+    while isinstance(value, dict):
+        value = value.get('value')
+    if not isinstance(value, (int, float)):
+        return None
     pts = _load_metric_history(metric)
     if len(pts) < 24:                       # need a couple of years of context
         return None
