@@ -204,6 +204,32 @@ def patch_data_json(data: dict, entries: list) -> None:
 
     data['score_history'] = sorted(score_map.values(), key=lambda e: e['date'])
 
+    # Recovery Window: was score ≤22 within last 120 days, and is current score 25-45?
+    current_score = data.get('final_score')
+    cutoff_120d = (today - datetime.timedelta(days=120)).isoformat()
+    rw_entry = None
+    for sh_entry in reversed(data['score_history']):
+        d = sh_entry.get('date', '')
+        if d < cutoff_120d:
+            break
+        if d == today_str:
+            continue
+        sc = sh_entry.get('score')
+        if sc is not None and sc <= 22:
+            rw_entry = sh_entry
+            break
+
+    if rw_entry and current_score is not None and 25 <= current_score <= 45:
+        days_since = (today - datetime.date.fromisoformat(rw_entry['date'])).days
+        data['recovery_window'] = {
+            'active': True,
+            'days_since_bottom': days_since,
+            'bottom_date': rw_entry['date'],
+            'bottom_score': rw_entry['score'],
+        }
+    else:
+        data['recovery_window'] = {'active': False}
+
     with open(DATA_JSON, 'w', encoding='utf-8') as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
 

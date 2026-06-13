@@ -19,6 +19,18 @@ sys.path.insert(0, '.')
 
 from tools.backtest import load_data, compute_at
 
+# ── Centroid window ──────────────────────────────────────────────────────────
+# Each labeled date is expanded to a ±WINDOW_DAYS range to stabilise the centroid.
+# A 22D space is underdetermined with 5 single points; ±14d gives ~100+ vectors.
+WINDOW_DAYS = 14
+
+def dates_around(date_str, window=WINDOW_DAYS):
+    """Yield dates in [date - window, date + window]."""
+    center = datetime.date.fromisoformat(date_str)
+    for delta in range(-window, window + 1):
+        yield (center + datetime.timedelta(days=delta)).isoformat()
+
+
 # ── Labeled extremes ──────────────────────────────────────────────────────────
 TOP_DATES = [
     '2021-04-14',   # Spring 2021 ATH
@@ -143,27 +155,27 @@ def main():
     print("Loading series data...")
     series = load_data()
 
-    print(f"\nComputing wave vectors for {len(TOP_DATES)} tops + {len(BOTTOM_DATES)} bottoms...")
+    print(f"\nComputing wave vectors (±{WINDOW_DAYS}d windows) for {len(TOP_DATES)} tops + {len(BOTTOM_DATES)} bottoms...")
 
     top_vecs, bottom_vecs = [], []
 
     for d in TOP_DATES:
-        v = wave_vector(d, series)
-        if v:
-            top_vecs.append(v)
-            pos = [round(x) for x in v[:11] if x is not None]
-            print(f"  TOP    {d}: {pos}")
-        else:
-            print(f"  TOP    {d}: INSUFFICIENT DATA — skipped")
+        count = 0
+        for dd in dates_around(d):
+            v = wave_vector(dd, series)
+            if v:
+                top_vecs.append(v)
+                count += 1
+        print(f"  TOP    {d}: {count} vectors")
 
     for d in BOTTOM_DATES:
-        v = wave_vector(d, series)
-        if v:
-            bottom_vecs.append(v)
-            pos = [round(x) for x in v[:11] if x is not None]
-            print(f"  BOTTOM {d}: {pos}")
-        else:
-            print(f"  BOTTOM {d}: INSUFFICIENT DATA — skipped")
+        count = 0
+        for dd in dates_around(d):
+            v = wave_vector(dd, series)
+            if v:
+                bottom_vecs.append(v)
+                count += 1
+        print(f"  BOTTOM {d}: {count} vectors")
 
     top_c    = centroid(top_vecs)
     bottom_c = centroid(bottom_vecs)
