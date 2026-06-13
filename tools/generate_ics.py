@@ -175,19 +175,34 @@ def patch_data_json(data: dict, entries: list) -> None:
     data['prev_day']  = entry_summary(yesterday)
     data['prev_week'] = entry_summary(week_ago)
 
-    # Embed last 90 days for the score history chart (includes today)
-    cutoff = today - datetime.timedelta(days=89)
-    history_90 = [
-        {
-            'date':  e['date'],
-            'score': e.get('final_score'),
-            'price': e.get('btc_price'),
-        }
-        for e in entries
-        if datetime.date.fromisoformat(e['date']) >= cutoff
-    ]
-    history_90.sort(key=lambda e: e['date'])
-    data['score_history'] = history_90
+    # Build full score_history from backfill + current scores (2018-present)
+    score_map = {}
+
+    backfill_path = os.path.join(ROOT, 'data', 'history', 'backfill_scores.json')
+    unified_path  = os.path.join(ROOT, 'data', 'history', 'unified_history.json')
+    if os.path.exists(backfill_path) and os.path.exists(unified_path):
+        with open(backfill_path, encoding='utf-8') as f:
+            backfill = json.load(f).get('series', [])
+        with open(unified_path, encoding='utf-8') as f:
+            price_by_date = {r['date']: r.get('btc_price') for r in json.load(f).get('series', [])}
+        for row in backfill:
+            d = row.get('date', '')
+            if d < '2018-01-01':
+                continue
+            sc = row.get('v2_final')
+            if sc is None:
+                continue
+            score_map[d] = {'date': d, 'score': sc, 'price': price_by_date.get(d)}
+
+    # Current scores.json entries override backfill for recent dates
+    for e in entries:
+        d = e['date']
+        sc = e.get('final_score')
+        if sc is None:
+            continue
+        score_map[d] = {'date': d, 'score': sc, 'price': e.get('btc_price')}
+
+    data['score_history'] = sorted(score_map.values(), key=lambda e: e['date'])
 
     with open(DATA_JSON, 'w', encoding='utf-8') as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
