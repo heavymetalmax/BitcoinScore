@@ -416,10 +416,6 @@
         <div class="card gauge-card gauge-card-front" style="backface-visibility: hidden; -webkit-backface-visibility: hidden; width: 100%; height: 100%; position: absolute; top:0; left:0; display:flex; flex-direction:column; padding: 22px 24px; box-sizing: border-box; margin:0;">
           <div style="display:flex; justify-content:space-between; align-items:center; width:100%; margin-bottom:2px;">
             <div style="font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted2);"><span class="en">TODAY</span><span class="ua">СЬОГОДНІ</span></div>
-            <div class="flip-info-badge" style="font-size:9px; font-weight:700; color:var(--accent); display:flex; align-items:center; gap:4px; padding: 2px 6px; border-radius: 4px; background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.2);" title="Click to see engine algorithm / Натисніть, щоб побачити алгоритм">
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="animation: spinPulse 2s infinite ease-in-out;"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
-              <span class="en">HOW IT WORKS</span><span class="ua">ЯК ЦЕ ПРАЦЮЄ</span>
-            </div>
           </div>
           <div class="gauge-arc-wrap">
             <svg class="gauge-svg" viewBox="0 0 240 130" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -506,7 +502,6 @@
               <path id="p-coh-div" d="M 205 100 C 220 100, 222 110, 230 110" fill="none" stroke="#60A5FA" stroke-width="1" stroke-linecap="round" opacity="0.3" filter="url(#glow-blue)"/>
               
               <!-- Volatility -> Lookback -> Divergence -->
-              <path id="p-vol-lb" d="M 205 30 L 230 30" fill="none" stroke="#F59E0B" stroke-width="1" stroke-linecap="round" opacity="0.35" filter="url(#glow-purple)"/>
               <path id="p-lb-div" d="M 270 30 C 275 30, 275 110, 260 110" fill="none" stroke="#F59E0B" stroke-width="1" stroke-linecap="round" opacity="0.3" filter="url(#glow-purple)"/>
               
               <!-- Divergence Logic -> Final Score Circle -->
@@ -519,7 +514,6 @@
               <circle r="1.5" fill="#E9D5FF" filter="url(#glow-purple)"><animateMotion dur="1.5s" repeatCount="indefinite"><mpath href="#p-norm-wt"/></animateMotion></circle>
               <circle r="1.5" fill="#DBEAFE" filter="url(#glow-blue)"><animateMotion dur="1.7s" repeatCount="indefinite"><mpath href="#p-ml-coh"/></animateMotion></circle>
               <circle r="1.5" fill="#DBEAFE" filter="url(#glow-blue)"><animateMotion dur="2.0s" repeatCount="indefinite"><mpath href="#p-coh-div"/></animateMotion></circle>
-              <circle r="1.5" fill="#FEF3C7" filter="url(#glow-purple)"><animateMotion dur="1.4s" repeatCount="indefinite"><mpath href="#p-vol-lb"/></animateMotion></circle>
               <circle r="1.5" fill="#FEF3C7" filter="url(#glow-purple)"><animateMotion dur="2.3s" repeatCount="indefinite"><mpath href="#p-lb-div"/></animateMotion></circle>
               <circle r="2.2" fill="#D1FAE5" filter="url(#glow-green)"><animateMotion dur="0.9s" repeatCount="indefinite"><mpath href="#p-div-score"/></animateMotion></circle>
 
