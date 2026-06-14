@@ -1,0 +1,81 @@
+{
+  "version": 1,
+  "generated": "2026-06-14T04:45:21.584621+00:00",
+  "weights": {
+    "nupl": 0.1529,
+    "mvrv_z_score": 0.1341,
+    "rhodl_ratio": 0.1078,
+    "cvdd_ratio": 0.1356,
+    "asopr": 0.0069,
+    "cipherb": 0.1198,
+    "mayer_multiple": 0.1078,
+    "fear_greed": 0.1094,
+    "m2_yoy": 0.0758,
+    "etf_flows": 0.05,
+    "yield_curve_spread": 0.0
+  },
+  "separations": {
+    "nupl": 3.1663,
+    "mvrv_z_score": 2.7765,
+    "rhodl_ratio": 2.233,
+    "cvdd_ratio": 2.807,
+    "asopr": 0.1433,
+    "cipherb": 2.4799,
+    "mayer_multiple": 2.2312,
+    "fear_greed": 2.2646,
+    "m2_yoy": 1.5701
+  },
+  "top_means": {
+    "nupl": 78.11,
+    "mvrv_z_score": 77.59,
+    "rhodl_ratio": 88.5,
+    "cvdd_ratio": 79.81,
+    "asopr": 57.81,
+    "cipherb": 87.52,
+    "mayer_multiple": 65.54,
+    "fear_greed": 67.18,
+    "m2_yoy": 42.08
+  },
+  "bottom_means": {
+    "nupl": 15.0,
+    "mvrv_z_score": 16.46,
+    "rhodl_ratio": 34.7,
+    "cvdd_ratio": 8.98,
+    "asopr": 58.67,
+    "cipherb": 5.11,
+    "mayer_multiple": 9.43,
+    "fear_greed": 18.33,
+    "m2_yoy": 84.18
+  },
+  "top_dates": [
+    "2021-04-14",
+    "2021-11-10",
+    "2024-03-14",
+    "2025-07-17",
+    "2025-09-29"
+  ],
+  "bottom_dates": [
+    "2018-12-15",
+    "2022-06-18",
+    "2022-11-21"
+  ],
+  "formula": "|mean_top - mean_bottom| / std_historical; normalized to available pool weight",
+  "fixed_weights": {
+    "etf_flows": 0.05,
+    "yield_curve_spread": 0.0
+  },
+  "fisher_pool": [
+    "nupl",
+    "mvrv_z_score",
+    "rhodl_ratio",
+    "cvdd_ratio",
+    "asopr",
+    "cipherb",
+    "mayer_multiple",
+    "fear_greed",
+    "m2_yoy"
+  ],
+  "wr_boost": 1.0046,
+  "wr_sep": 1.9761,
+  "v2_sep": 1.9669
+}

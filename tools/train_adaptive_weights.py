@@ -60,7 +60,7 @@ METRIC_ORDER = [
     'asopr',
     'etf_flows',
     'cipherb_weekly', 'cipherb_daily', 'fear_greed',
-    'm2_yoy', 'yield_curve_spread',
+    'm2_yoy',
 ]
 
 METRIC_LOOKBACK = {
@@ -75,7 +75,6 @@ METRIC_LOOKBACK = {
     'cipherb_daily':       7,   # daily — 1-week trajectory
     'fear_greed':          7,
     'm2_yoy':             60,
-    'yield_curve_spread': 60,
 }
 
 # ── Wave vector ───────────────────────────────────────────────────────────────
@@ -169,6 +168,89 @@ def compute_std_vector(series, sample_every=14):
     return [round(s, 4) for s in stds]
 
 
+def _invert_matrix(mat):
+    """Gauss-Jordan matrix inversion. Returns None if singular."""
+    n = len(mat)
+    aug = [row[:] + [float(i == j) for j in range(n)] for i, row in enumerate(mat)]
+    for col in range(n):
+        pivot = None
+        for row in range(col, n):
+            if abs(aug[row][col]) > 1e-12:
+                pivot = row
+                break
+        if pivot is None:
+            return None
+        aug[col], aug[pivot] = aug[pivot], aug[col]
+        scale = aug[col][col]
+        aug[col] = [x / scale for x in aug[col]]
+        for row in range(n):
+            if row != col and abs(aug[row][col]) > 1e-12:
+                factor = aug[row][col]
+                aug[row] = [aug[row][k] - factor * aug[col][k] for k in range(2 * n)]
+    return [row[n:] for row in aug]
+
+
+def compute_cov_matrix(series, sample_every=14):
+    """Full inverse covariance matrix Σ⁻¹ with Ledoit-Wolf diagonal shrinkage λ=0.1.
+    Returns (cov_inv, cov_matrix) or (None, None) if insufficient data (<30 vectors).
+    """
+    nupl_dates = sorted(d for d, _ in series.get('nupl', []))
+    all_dates = [d for d in nupl_dates if d >= '2016-01-01']
+    sample_dates = [d for i, d in enumerate(all_dates) if i % sample_every == 0]
+
+    print(f"  Sampling {len(sample_dates)} dates for covariance matrix...")
+    all_vecs = []
+    for d in sample_dates:
+        try:
+            v = wave_vector(d, series)
+            if v is not None:
+                all_vecs.append(v)
+        except Exception:
+            pass
+
+    if len(all_vecs) < 30:
+        print(f"  WARNING: only {len(all_vecs)} vectors — skipping full Mahalanobis")
+        return None, None
+
+    n_dims = len(all_vecs[0])
+
+    col_means = []
+    for i in range(n_dims):
+        vals = [v[i] for v in all_vecs if v[i] is not None]
+        col_means.append(sum(vals) / len(vals) if vals else 0.0)
+
+    filled = []
+    for v in all_vecs:
+        filled.append([v[i] if v[i] is not None else col_means[i] for i in range(n_dims)])
+
+    means = [sum(row[i] for row in filled) / len(filled) for i in range(n_dims)]
+    cov = [[0.0] * n_dims for _ in range(n_dims)]
+    for row in filled:
+        centered = [row[i] - means[i] for i in range(n_dims)]
+        for i in range(n_dims):
+            for j in range(n_dims):
+                cov[i][j] += centered[i] * centered[j]
+    n = len(filled)
+    for i in range(n_dims):
+        for j in range(n_dims):
+            cov[i][j] /= n
+
+    lam = 0.1
+    cov_reg = [[(1 - lam) * cov[i][j] + (lam * cov[i][i] if i == j else 0.0)
+                for j in range(n_dims)] for i in range(n_dims)]
+
+    cov_inv = _invert_matrix(cov_reg)
+    if cov_inv is None:
+        print("  WARNING: matrix inversion failed — falling back to diagonal")
+        return None, None
+
+    print(f"  Covariance matrix {n_dims}×{n_dims} from {len(filled)} vectors — OK")
+    return (
+        [[round(x, 6) for x in row] for row in cov_inv],
+        [[round(x, 4) for x in row] for row in cov],
+    )
+
+
 # ── Distance scoring ──────────────────────────────────────────────────────────
 
 def mahalanobis_diag(v1, v2, stds):
@@ -251,6 +333,9 @@ def main():
     else:
         print("  WARNING: could not compute σ — falling back to Euclidean")
 
+    print("\nComputing full covariance matrix (Σ⁻¹)...")
+    cov_inv, _ = compute_cov_matrix(series)
+
     def dist(v, c):
         return mahalanobis_diag(v, c, stds) if stds else None
 
@@ -303,6 +388,7 @@ def main():
         'top_centroid':   top_c,
         'bottom_centroid':bottom_c,
         'metric_stds':    stds,
+        'cov_inv':        cov_inv,
         'calibration':    cal,
         'metric_order':   METRIC_ORDER,
         'metric_lookback':METRIC_LOOKBACK,

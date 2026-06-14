@@ -1,0 +1,67 @@
+{
+  "cvdd_ratio": {
+    "BOTTOM": 0.9,
+    "NEUTRAL": 0.9,
+    "TOP": 0.1
+  },
+  "puell": {
+    "BOTTOM": 1.0,
+    "NEUTRAL": 0.5,
+    "TOP": 0.2
+  },
+  "asopr": {
+    "BOTTOM": 1.0,
+    "NEUTRAL": 0.7,
+    "TOP": 0.05
+  },
+  "nupl": {
+    "BOTTOM": 0.9,
+    "NEUTRAL": 0.1,
+    "TOP": 0.8
+  },
+  "mvrv_z_score": {
+    "BOTTOM": 0.9,
+    "NEUTRAL": 0.1,
+    "TOP": 0.8
+  },
+  "rhodl_ratio": {
+    "BOTTOM": 0.4,
+    "NEUTRAL": 1.0,
+    "TOP": 1.0
+  },
+  "cipherb": {
+    "BOTTOM": 0.1,
+    "NEUTRAL": 1.0,
+    "TOP": 0.8
+  },
+  "mayer_multiple": {
+    "BOTTOM": 0.15,
+    "NEUTRAL": 1.0,
+    "TOP": 0.8
+  },
+  "fear_greed": {
+    "BOTTOM": 0.15,
+    "NEUTRAL": 0.45,
+    "TOP": 0.8
+  },
+  "etf_flows": {
+    "BOTTOM": 0.05,
+    "NEUTRAL": 0.1,
+    "TOP": 0.15
+  },
+  "yield_curve_spread": {
+    "BOTTOM": 0.15,
+    "NEUTRAL": 0.8,
+    "TOP": 0.3
+  },
+  "m2_yoy": {
+    "BOTTOM": 0.05,
+    "NEUTRAL": 0.25,
+    "TOP": 0.95
+  },
+  "pi_gap": {
+    "BOTTOM": 0.1,
+    "NEUTRAL": 0.5,
+    "TOP": 1.0
+  }
+}

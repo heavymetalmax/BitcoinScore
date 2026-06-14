@@ -7,6 +7,15 @@ def write_json(path, data):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, 'w', encoding='utf-8') as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
+    # Automatically mirror files to web/ if web/ exists
+    if path.startswith('data/') and os.path.exists('web'):
+        web_path = path.replace('data/', 'web/', 1)
+        try:
+            os.makedirs(os.path.dirname(web_path), exist_ok=True)
+            with open(web_path, 'w', encoding='utf-8') as f:
+                json.dump(data, f, ensure_ascii=False, indent=2)
+        except Exception:
+            pass
 
 def validate_data(data):
     # Minimal validation: required top-level keys

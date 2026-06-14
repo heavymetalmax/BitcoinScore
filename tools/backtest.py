@@ -78,6 +78,7 @@ def load_data():
         'fear_greed':     _series(rows, 'fear_greed'),
         'm2_yoy':         _series(rows, 'm2_yoy'),
         'cipherb':        _series(rows, 'cipherb_daily'),
+        'puell_multiple': _series(rows, 'puell'),
     }
 
     # Weekly CipherB — matches live scoring formula (0.8×weekly + 0.2×daily)
@@ -216,6 +217,7 @@ def compute_at(target_date, series):
         'yield_curve_spread': raw_vals.get('yield_curve_spread'),
         'cipherb':            cb_dict,
         'etf_flows':          raw_vals.get('etf_flows'),
+        'puell_multiple':     raw_vals.get('puell_multiple'),
     }
 
     # Point-in-time adaptive percentiles (only data ≤ target_date)
@@ -269,10 +271,82 @@ def _prev_scores(td, series):
 
 
 def v2_at(td, series):
-    """Return score_processor_v2 score (int or None) for a given date."""
+    """Return (diag_score, full_score) tuple for a given date."""
     r = compute_at(td, series)
     prev = _prev_scores(td, series)
-    return score_processor_v2(r['scores'], prev)
+    sp_v2_diag = score_processor_v2(r['scores'], prev, use_full_mahalanobis=False)
+    sp_v2_full = score_processor_v2(r['scores'], prev, use_full_mahalanobis=True)
+    return sp_v2_diag, sp_v2_full
+
+
+def v3_at(td, series):
+    """Return V3 dynamic score results dict for a given date."""
+    from scraper.scoring_v3 import compute_scores_v3
+    from scraper.orchestrator import orchestrate
+    r = compute_at(td, series)
+    prev = _prev_scores(td, series)
+    
+    # Reconstruct raw dict with correct keys for v3
+    raw = {
+        'nupl':               r['raw'].get('nupl'),
+        'mvrv':               r['raw'].get('mvrv'),
+        'rhodl_ratio':        r['raw'].get('rhodl_ratio'),
+        'cvdd_ratio':         r['raw'].get('cvdd_ratio'),
+        'asopr':              r['raw'].get('asopr'),
+        'puell_multiple':     r['raw'].get('puell_multiple'),
+        'mayer_multiple':     r['raw'].get('mayer_multiple'),
+        'fear_greed':         r['raw'].get('fear_greed'),
+        'm2_yoy':             r['raw'].get('m2_yoy'),
+        'yield_curve_spread': r['raw'].get('yield_curve_spread'),
+        'cipherb':            r['raw'].get('cipherb'),
+        'etf_flows':          r['raw'].get('etf_flows'),
+    }
+    
+    # Load scores_history causally from scores.json if available
+    scores_history_dicts = None
+    scores_history_tuples = None
+    btc_price = None
+    try:
+        scores_path = 'data/history/scores.json'
+        if os.path.exists(scores_path):
+            with open(scores_path, encoding='utf-8') as f:
+                history_data = json.load(f)
+                scores_history_dicts = history_data
+                scores_history_tuples = [
+                    (x['date'], x.get('final_score'), x.get('phase'), x.get('w_bot'))
+                    for x in history_data if x.get('date')
+                ]
+                # Find current price causally
+                td_str = td.isoformat()
+                for x in reversed(history_data):
+                    if x.get('date') == td_str and x.get('btc_price') is not None:
+                        btc_price = float(x['btc_price'])
+                        break
+    except Exception:
+        pass
+        
+    v3_out = compute_scores_v3(raw, target_date=td, prev_scores=prev, scores_history=scores_history_tuples)
+    
+    # Run Orchestrator V3
+    v3_sig = orchestrate(
+        v2_score         = v3_out['final_score'],
+        v2_oc_coherence  = v3_out.get('oc_coherence', 1.0),
+        wr_score         = None, # No WR in milestone backtest
+        wr_coherence     = 0,
+        tiz_maturity     = v3_out.get('tiz_maturity'),
+        top_signal       = v3_out.get('top_signal'),
+        bot_signal       = v3_out.get('bot_signal'),
+        is_v3            = True,
+        btc_price        = btc_price,
+        target_date      = td,
+        scores_history   = scores_history_dicts
+    )
+    
+    # Blend orchestrated score into the return output
+    v3_out['final_score'] = v3_sig['meta_score']
+    v3_out['bear_div'] = v3_sig.get('bear_div', False)
+    v3_out['bull_div'] = v3_sig.get('bull_div', False)
+    return v3_out
 
 
 # ── Output ────────────────────────────────────────────────────────────────────
@@ -301,20 +375,46 @@ def run():
         td = datetime.date.fromisoformat(date_str)
         v2_scores[date_str] = v2_at(td, series)
 
+    # ── Compute v3 scores ────────────────────────────────────────────────────
+    v3_scores = {}
+    for date_str, label, price, _ in results:
+        td = datetime.date.fromisoformat(date_str)
+        try:
+            v3_scores[date_str] = v3_at(td, series)
+        except Exception as e:
+            print(f"Error computing V3 at {date_str}: {e}")
+            v3_scores[date_str] = {}
+
     # ── Score table ──────────────────────────────────────────────────────────
     header_metrics = " ".join(f"{SHORT[c]:>4}" for c in SCORE_COLS)
-    print(f"\n{'Date':<12} {'Label':<22} {'BTC':>8}  {'OC':>4} {'TC':>4} {'v1':>4} {'v2':>4}  {header_metrics}")
-    print("─" * 148)
+    print(f"\n{'Date':<12} {'Label':<22} {'BTC':>8}  {'OC':>4} {'TC':>4} {'v1':>4} {'diag':>5} {'full':>5} {'v3':>4}  {header_metrics}")
+    print("─" * 162)
 
     for date_str, label, price, r in results:
         sc = r['scores']
         metric_vals = " ".join(fmt(sc.get(c)) for c in SCORE_COLS)
-        idx_str = f"{r['final']:3d}" if r['final'] is not None else " ✗ "
-        oc_str  = fmt(r['oc'])
-        tc_str  = fmt(r['tech'])
-        v2s     = v2_scores.get(date_str)
-        v2_str  = f"{v2s:3d}" if v2s is not None else " — "
-        print(f"{date_str:<12} {label:<22} ${price:>8,}  {oc_str} {tc_str} {idx_str} {v2_str}  {metric_vals}")
+        idx_str  = f"{r['final']:3d}" if r['final'] is not None else " ✗ "
+        oc_str   = fmt(r['oc'])
+        tc_str   = fmt(r['tech'])
+        v2_pair  = v2_scores.get(date_str, (None, None))
+        diag_s, full_s = v2_pair if v2_pair else (None, None)
+        diag_str = f"{diag_s:4d}" if diag_s is not None else "  — "
+        full_str = f"{full_s:4d}" if full_s is not None else "  — "
+        
+        v3_res   = v3_scores.get(date_str, {})
+        v3_val   = v3_res.get('final_score')
+        
+        if v3_val is not None:
+            if v3_res.get('bear_div'):
+                v3_str = f"{v3_val:2d}*"
+            elif v3_res.get('bull_div'):
+                v3_str = f"{v3_val:2d}#"
+            else:
+                v3_str = f"{v3_val:3d}"
+        else:
+            v3_str = "  ✗ "
+        
+        print(f"{date_str:<12} {label:<22} ${price:>8,}  {oc_str} {tc_str} {idx_str} {diag_str}  {full_str} {v3_str}  {metric_vals}")
 
     # ── Coverage matrix ──────────────────────────────────────────────────────
     RAW_COLS = ['nupl', 'mvrv', 'rhodl_ratio', 'cvdd_ratio', 'asopr',

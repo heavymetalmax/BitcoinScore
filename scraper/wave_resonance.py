@@ -121,6 +121,8 @@ def compute_wave_resonance(date=None, raw_overrides=None):
         current = overrides.get(cfg['field'], row.get(cfg['field']))
         if current is None:
             continue
+        if key == 'nupl' and cfg['field'] in overrides:
+            current = current / 100.0
         window = [
             unified[d][cfg['field']]
             for d in sorted_dates

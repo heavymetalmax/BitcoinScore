@@ -211,7 +211,7 @@ def build_payload():
     try:
         rainbow_band = rainbow_mod.get_rainbow_band()
     except Exception as e:
-        logger.warning('rainbow band failed: %s', e)
+        print(f'rainbow band failed: {e}')
     if 'metrics' not in locals():
         metrics = {}
     metrics['rainbow_band'] = {'value': rainbow_band, 'source': 'BMP', 'updated': now_iso()}
@@ -510,7 +510,8 @@ def main():
         scores = compute_scores(p.get('metrics', {}))
         p['onchain_score'] = scores['onchain_score']
         p['tech_score']    = scores['tech_score']
-        p['final_score']   = scores['final_score']
+        p['v1_score']    = scores['final_score']
+        p['final_score'] = scores['final_score']   # placeholder; overwritten by orchestrator below
         if scores.get('adaptive'):
             p['adaptive_calibration'] = scores['adaptive']  # transparency: fixed vs blended per metric
         # Invert the index -> Buy/Sell zone prices (not a forecast; see zone_forecast.py)
@@ -522,21 +523,23 @@ def main():
                 print(f"Zone prices: buy={zf['buy']['price']}  sell={zf['sell']['price']}  (realized={zf['realized_price']})")
         except Exception as e:
             print('Failed to compute zone forecast:', e)
-        # ── Gemini commentary ──────────────────────────────────────────────────
-        import sys
-        print('Commentary: starting…', flush=True)
-        try:
-            from .gemini_commentary import generate_commentary
-            from .scoring import build_slider_map
-            sm = build_slider_map(p.get('metrics', {}))
-            commentary = generate_commentary(p, sm)
-            if commentary:
-                p['commentary'] = commentary
-                print('Commentary: OK', flush=True)
-            else:
-                print('Commentary: generate_commentary returned None', flush=True)
-        except Exception as e:
-            print(f'Commentary: exception — {e}', flush=True)
+        # ── Gemini commentary (CI/scheduled runs only) ─────────────────────────
+        if os.environ.get('GITHUB_ACTIONS') == 'true':
+            print('Commentary: starting…', flush=True)
+            try:
+                from .gemini_commentary import generate_commentary
+                from .scoring import build_slider_map
+                sm = build_slider_map(p.get('metrics', {}))
+                commentary = generate_commentary(p, sm)
+                if commentary:
+                    p['commentary'] = commentary
+                    print('Commentary: OK', flush=True)
+                else:
+                    print('Commentary: generate_commentary returned None', flush=True)
+            except Exception as e:
+                print(f'Commentary: exception — {e}', flush=True)
+        else:
+            print('Commentary: skipped (local run)', flush=True)
         write_json('data/data.json', p)
         print(f"Scores: onchain={scores['onchain_score']}  tech={scores['tech_score']}  final={scores['final_score']}")
         for mk, mv in (scores.get('adaptive') or {}).items():
@@ -567,6 +570,23 @@ def main():
             p_exp['signal'] = scores_v2['signal']
         p_exp['metric_history'] = _build_metric_history()
         write_json('data/data_exp.json', p_exp)
+        # Promote orchestrator output into main payload
+        p['v2_score']       = scores_v2['final_score']
+        p['scoring_regime'] = scores_v2['regime']
+        p['tiz_score']      = scores_v2['tiz_score']
+        p['tiz_days']       = scores_v2['tiz_days']
+        p['oc_coherence']   = scores_v2.get('oc_coherence')
+        p['coh_factor']     = scores_v2.get('coh_factor')
+        p['pi_cross']       = scores_v2.get('pi_cross')
+        if scores_v2.get('wave_resonance'):
+            p['wave_resonance'] = scores_v2['wave_resonance']
+        _sig = scores_v2.get('signal')
+        if _sig and _sig.get('meta_score') is not None:
+            p['signal']      = _sig
+            p['final_score'] = _sig['meta_score']
+            print(f"Orchestrator: meta={_sig['meta_score']} flag={_sig.get('flag')} conv={_sig.get('conviction'):.2f}")
+        else:
+            print('Orchestrator: signal not available, keeping V1 final_score')
         wr  = scores_v2.get('wave_resonance', {})
         sig = scores_v2.get('signal', {})
         print(f"V2 scores: regime={scores_v2['regime']}  onchain={scores_v2['onchain_score']}  "
@@ -578,6 +598,80 @@ def main():
                   f"flag={sig.get('flag')}")
     except Exception as e:
         print(f'Failed to compute v2 scores: {e}')
+        print('Falling back to V1 final_score')
+
+    # ── Scoring v3 (dynamic z-weighted mixing) ────────────────────────────────
+    try:
+        from .scoring_v3 import compute_scores_v3
+        scores_v3 = compute_scores_v3(p.get('metrics', {}))
+        p['v3_score'] = scores_v3['final_score']
+        p['v3_onchain_score'] = scores_v3['onchain_avg']
+        p['v3_tech_score'] = scores_v3['tech_avg']
+        p['v3_phase'] = scores_v3['phase']
+        p['v3_utilities'] = scores_v3['utilities']
+        print(f"V3 scores: phase={scores_v3['phase']}  "
+              f"onchain={scores_v3['onchain_avg']}  "
+              f"tech={scores_v3['tech_avg']}  "
+              f"final={scores_v3['final_score']}")
+        
+        # Also save to p_exp if name is defined
+        try:
+            p_exp['v3_score'] = scores_v3['final_score']
+            p_exp['v3_onchain_score'] = scores_v3['onchain_avg']
+            p_exp['v3_tech_score'] = scores_v3['tech_avg']
+            p_exp['v3_phase'] = scores_v3['phase']
+            p_exp['v3_utilities'] = scores_v3['utilities']
+        except NameError:
+            pass
+    except Exception as e:
+        print(f'Failed to compute v3 scores: {e}')
+
+    # ── Fisher score → Orchestrator → final_score ────────────────────────────
+    try:
+        from .scoring import compute_scores_v2_fisher
+        from .orchestrator import orchestrate
+        fisher_out = compute_scores_v2_fisher(p.get('metrics', {}))
+        if fisher_out and fisher_out.get('final_score') is not None:
+            p['fisher_score'] = fisher_out['final_score']
+            # pull wave resonance + tiz from scores_v2 if available
+            _wr   = p.get('wave_resonance', {})
+            _tiz  = p.get('tiz_days', 0)
+            _tiz_cal = p.get('tiz_calibration', 200)
+            _tiz_mat = round(_tiz / _tiz_cal, 3) if _tiz > 0 else None
+            # Early phase_signals call to get geometric top/bot proximity for orchestrator
+            _top_sig, _bot_sig = None, None
+            try:
+                from .scoring_v2 import phase_signals as _ps_early, _METRIC_LOOKBACK as _ML_LB
+                from .scoring import build_slider_map as _bsm
+                from .wave_history import build_prev_scores_for_wave as _bpw
+                import datetime as _dt_ps
+                _cs = _bsm(p.get('metrics', {}))
+                _ps_prev = _bpw(_dt_ps.date.today(), _ML_LB)
+                _ps_out = _ps_early(_cs, _ps_prev)
+                _top_sig = _ps_out.get('top_signal')
+                _bot_sig = _ps_out.get('bot_signal')
+            except Exception:
+                pass
+            _fisher_sig = orchestrate(
+                v2_score         = fisher_out['final_score'],
+                v2_oc_coherence  = fisher_out.get('oc_coherence', 1.0),
+                wr_score         = _wr.get('score'),
+                wr_coherence     = _wr.get('coherence'),
+                tiz_maturity     = _tiz_mat,
+                top_signal       = _top_sig,
+                bot_signal       = _bot_sig,
+                btc_price        = p.get('btc_price'),
+                target_date      = _dt_ps.date.today()
+            )
+            p['signal']      = _fisher_sig
+            p['final_score'] = _fisher_sig['meta_score']
+            print(f"Fisher+Orch: fisher={fisher_out['final_score']}  "
+                  f"meta={_fisher_sig['meta_score']}  "
+                  f"flag={_fisher_sig.get('flag')}  "
+                  f"conv={_fisher_sig.get('conviction', 0):.2f}  "
+                  f"geo={_top_sig}/{_bot_sig}")
+    except Exception as _fe:
+        print(f'Fisher scorer skipped: {_fe}')
 
     # ── Score Processor v2 + Phase Signals (distance-based, zero params) ────────
     try:
@@ -593,45 +687,94 @@ def main():
         sp_v2  = score_processor_v2(curr_scores, prev_scores)
         phases = phase_signals(curr_scores, prev_scores)
 
-        # ML scorer: augment curr_scores with phase context, then predict.
-        # Model sees both "what metrics say" AND "what kind of moment this is".
-        try:
-            from .ml_scorer import predict_risk_score as _ml_predict
-            scores_with_phase = dict(curr_scores)
-            scores_with_phase['sp_v2']      = sp_v2
-            scores_with_phase['top_signal'] = phases.get('top_signal')
-            scores_with_phase['bot_signal'] = phases.get('bot_signal')
-            scores_with_phase['tiz_days']   = p.get('tiz_days', 0)
-            try:
-                import json as _json
-                _aw_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'data', 'adaptive_weights.json')
-                with open(_aw_path) as _awf:
-                    _bds = sorted(_json.load(_awf).get('bottom_dates', []))
-                _today_str = _dt.date.today().isoformat()
-                _dsb = 0
-                for _bd in reversed(_bds):
-                    if _bd <= _today_str:
-                        _dsb = (_dt.date.today() - _dt.date.fromisoformat(_bd)).days
-                        break
-                scores_with_phase['days_since_bottom'] = _dsb
-            except Exception:
-                scores_with_phase['days_since_bottom'] = 0
-            ml_score = _ml_predict(scores_with_phase)
-            if ml_score is not None:
-                p['v1_score']    = p.get('final_score')
-                p['final_score'] = ml_score
-                p['ml_score']    = ml_score
-                print(f"ML scorer: {ml_score}  (v1 was {p['v1_score']})")
-        except Exception as _ml_e:
-            print(f'ML scorer skipped: {_ml_e}')
+        # ML scorer disabled (AUC=0.583, misses ETF-era ATH — to be re-enabled after model improvement)
+        # p['ml_score'] = None
 
-        p['sp_v2']   = sp_v2
-        p['phase']   = phases
+        # ── Override with V3.2 Scorer + Orchestrator V3 (Master Index) ──────────
+        try:
+            from .scoring_v3 import compute_scores_v3
+            from .orchestrator import orchestrate
+            
+            scores_v3 = compute_scores_v3(p.get('metrics', {}))
+            _wr = p.get('wave_resonance', {})
+            
+            # Run orchestrator for V3
+            _tiz_mat_v3 = scores_v3.get('tiz_maturity')
+            v3_sig = orchestrate(
+                v2_score         = scores_v3['final_score'],
+                v2_oc_coherence  = scores_v3.get('oc_coherence', 1.0),
+                wr_score         = _wr.get('score'),
+                wr_coherence     = _wr.get('coherence'),
+                tiz_maturity     = _tiz_mat_v3,
+                top_signal       = scores_v3.get('top_signal'),
+                bot_signal       = scores_v3.get('bot_signal'),
+                is_v3            = True,
+                btc_price        = p.get('btc_price'),
+                target_date      = today
+            )
+            
+            p['v3_score'] = scores_v3['final_score']
+            p['v3_onchain_score'] = scores_v3['onchain_avg']
+            p['v3_tech_score'] = scores_v3['tech_avg']
+            p['v3_phase'] = scores_v3['phase']
+            p['v3_w_bot'] = scores_v3['w_bot']
+            p['v3_w_neutral'] = scores_v3['w_neutral']
+            p['v3_w_top'] = scores_v3['w_top']
+            p['v3_utilities'] = scores_v3['utilities']
+            p['v3_signal'] = v3_sig
+            p['v3_tiz_score'] = scores_v3['tiz_score']
+            p['v3_tiz_days'] = scores_v3['tiz_days']
+            p['v3_tiz_maturity'] = scores_v3['tiz_maturity']
+            p['v3_tiz_calibration'] = scores_v3['tiz_calibration']
+            p['v3_oc_coherence'] = scores_v3['oc_coherence']
+            
+            # Override main parameters in p for classic2.html to read as primary
+            p['final_score'] = v3_sig['meta_score']
+            p['signal'] = v3_sig
+            p['onchain_score'] = scores_v3['onchain_avg']
+            p['tech_score'] = scores_v3['tech_avg']
+            p['sp_v2'] = scores_v3['final_score']
+            p['phase'] = {
+                'phase': scores_v3['phase'],
+                'top_signal': scores_v3['top_signal'],
+                'bot_signal': scores_v3['bot_signal'],
+                'w_bot': scores_v3['w_bot'],
+                'w_neutral': scores_v3['w_neutral'],
+                'w_top': scores_v3['w_top'],
+            }
+            
+            try:
+                p_exp['v3_score'] = scores_v3['final_score']
+                p_exp['v3_onchain_score'] = scores_v3['onchain_avg']
+                p_exp['v3_tech_score'] = scores_v3['tech_avg']
+                p_exp['v3_phase'] = scores_v3['phase']
+                p_exp['v3_w_bot'] = scores_v3['w_bot']
+                p_exp['v3_w_neutral'] = scores_v3['w_neutral']
+                p_exp['v3_w_top'] = scores_v3['w_top']
+                p_exp['v3_utilities'] = scores_v3['utilities']
+                p_exp['v3_signal'] = v3_sig
+                p_exp['v3_tiz_score'] = scores_v3['tiz_score']
+                p_exp['v3_tiz_days'] = scores_v3['tiz_days']
+                p_exp['v3_tiz_maturity'] = scores_v3['tiz_maturity']
+                p_exp['v3_tiz_calibration'] = scores_v3['tiz_calibration']
+                p_exp['v3_oc_coherence'] = scores_v3['oc_coherence']
+                
+                p_exp['final_score'] = v3_sig['meta_score']
+                p_exp['signal'] = v3_sig
+                p_exp['onchain_score'] = scores_v3['onchain_avg']
+                p_exp['tech_score'] = scores_v3['tech_avg']
+                p_exp['sp_v2'] = scores_v3['final_score']
+                p_exp['phase'] = p['phase']
+            except NameError:
+                pass
+                
+            print(f"V3.2 Overwrite Success: final={p['final_score']} phase={scores_v3['phase']}")
+        except Exception as ve:
+            print(f"Failed to override V3.2 scores: {ve}")
+
         write_json('data/data.json', p)
 
         try:
-            p_exp['sp_v2'] = sp_v2
-            p_exp['phase'] = phases
             write_json('data/data_exp.json', p_exp)
         except NameError:
             pass

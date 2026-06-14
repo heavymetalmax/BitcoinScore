@@ -1,0 +1,1616 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bitcoin Risk Index Components Playground</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --accent-color: #ff9500; /* Vibrant orange from the screenshot */
+      --border-color: #000000;
+      --bg-color: #ffffff;
+      --bg-right-half: #d9d9d9; /* Gray right half background for Style 2 */
+      --badge-bg-color: #8c8c8c; /* Gray background for Style 3 status badge */
+      --text-color: #000000;
+      --card-border-width: 5px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: #f4f4f7;
+      color: #333;
+      padding: 40px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 800px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 30px;
+    }
+
+    /* Style Selector Header */
+    .style-selector {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px;
+      background: rgba(0, 0, 0, 0.05);
+      padding: 6px;
+      border-radius: 30px;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .style-tab-btn {
+      background: none;
+      border: none;
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: #666;
+      cursor: pointer;
+      padding: 8px 16px;
+      border-radius: 20px;
+      transition: all 0.2s;
+    }
+
+    .style-tab-btn.active {
+      color: #fff;
+      background: #000;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    }
+
+    /* --- COMMON CARD CONTAINER WRAPPER --- */
+    .card-wrapper {
+      width: 100%;
+      max-width: 620px;
+      min-height: 310px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* --- DESIGN STYLE 1 (Asymmetric Card) --- */
+    .risk-card-s1 {
+      position: relative;
+      width: 100%;
+      background-color: var(--bg-color);
+      border: var(--card-border-width) solid var(--border-color);
+      padding: 35px 45px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--text-color);
+      border-radius: 0; 
+      box-shadow: 8px 8px 0px rgba(0, 0, 0, 0.08);
+      margin-top: 30px; 
+    }
+
+    .risk-card-s1 .risk-card-left {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      flex: 1;
+      padding-right: 20px;
+    }
+
+    .risk-card-s1 .risk-card-title {
+      font-size: 2.1rem;
+      font-weight: 900;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      text-transform: uppercase;
+    }
+
+    .risk-card-s1 .risk-card-subtitle {
+      font-size: 1.05rem;
+      font-weight: 500;
+      margin-top: 15px;
+      letter-spacing: -0.01em;
+      opacity: 0.9;
+    }
+
+    .risk-card-s1 .risk-card-right {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      min-width: 150px;
+    }
+
+    .risk-card-s1 .risk-card-score {
+      font-size: 8rem;
+      font-weight: 900;
+      line-height: 0.8;
+      letter-spacing: -0.04em;
+      user-select: none;
+      font-feature-settings: "tnum";
+    }
+
+    .risk-card-s1 .risk-progress-container {
+      position: absolute;
+      top: 0;
+      right: 55px;
+      transform: translateY(-50%);
+      width: 180px;
+      height: 55px;
+      background-color: var(--bg-color);
+      border: var(--card-border-width) solid var(--border-color);
+      border-radius: 0;
+      overflow: hidden;
+      display: flex;
+    }
+
+    .risk-card-s1 .risk-progress-fill {
+      height: 100%;
+      background-color: var(--accent-color);
+      width: 39%;
+      transition: width 0.4s cubic-bezier(0.1, 0.8, 0.25, 1);
+    }
+
+    /* --- DESIGN STYLE 2 (Symmetric Split-Half Card) --- */
+    .risk-card-s2 {
+      position: relative;
+      width: 100%;
+      height: 240px;
+      background-color: var(--bg-color);
+      border: var(--card-border-width) solid var(--border-color);
+      display: flex;
+      color: var(--text-color);
+      border-radius: 0; 
+      box-shadow: 8px 8px 0px rgba(0, 0, 0, 0.08);
+      margin-top: 50px; 
+      overflow: visible;
+    }
+
+    .risk-card-s2 .dividing-line {
+      position: absolute;
+      left: 50%;
+      top: 0;
+      bottom: 0;
+      width: var(--card-border-width);
+      background-color: var(--border-color);
+      transform: translateX(-50%);
+      z-index: 2;
+    }
+
+    .risk-card-s2 .section-left {
+      width: 50%;
+      background-color: var(--bg-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .risk-card-s2 .risk-status-label {
+      font-size: 2.1rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: -0.02em;
+      text-align: center;
+      line-height: 1.1;
+    }
+
+    .risk-card-s2 .section-right {
+      width: 50%;
+      background-color: var(--bg-right-half);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .risk-card-s2 .risk-card-score {
+      font-size: 8.5rem;
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: -0.04em;
+      user-select: none;
+      font-feature-settings: "tnum";
+    }
+
+    .risk-card-s2 .top-header-box {
+      position: absolute;
+      top: 0;
+      right: calc(0px - var(--card-border-width));
+      transform: translateY(-100%);
+      width: 65%; 
+      height: 48px;
+      background-color: var(--accent-color);
+      border: var(--card-border-width) solid var(--border-color);
+      border-bottom: none; 
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 16px;
+      z-index: 1;
+    }
+
+    .risk-card-s2 .top-header-title {
+      font-size: 1.15rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+      color: #000000;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .risk-card-s2 .vertical-progress-container {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 60px;
+      height: 160px;
+      background-color: var(--bg-color);
+      border: var(--card-border-width) solid var(--border-color);
+      border-radius: 0;
+      z-index: 10;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+
+    .risk-card-s2 .vertical-progress-fill {
+      width: 100%;
+      background-color: var(--accent-color);
+      height: 39%; 
+      transition: height 0.4s cubic-bezier(0.1, 0.8, 0.25, 1);
+    }
+
+    /* --- DESIGN STYLE 3 (Modified Asymmetric Card with Status Badge) --- */
+    .risk-card-s3 {
+      position: relative;
+      width: 100%;
+      background-color: var(--bg-color);
+      border: var(--card-border-width) solid var(--border-color);
+      padding: 35px 45px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--text-color);
+      border-radius: 0; 
+      box-shadow: 8px 8px 0px rgba(0, 0, 0, 0.08);
+      margin-top: 30px; 
+    }
+
+    .risk-card-s3 .risk-card-left {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      flex: 1;
+      padding-right: 20px;
+    }
+
+    .risk-card-s3 .risk-card-title {
+      font-size: 2.1rem;
+      font-weight: 900;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      text-transform: uppercase;
+    }
+
+    .risk-card-s3 .status-badge-wrapper {
+      position: relative;
+      margin: 18px 0;
+      width: fit-content;
+      display: flex;
+      align-items: center;
+    }
+
+    .risk-card-s3 .status-badge-line {
+      position: absolute;
+      left: -45px; 
+      width: 45px;
+      height: var(--card-border-width);
+      background-color: var(--border-color);
+      z-index: 1;
+    }
+
+    .risk-card-s3 .status-badge {
+      position: relative;
+      background-color: var(--badge-bg-color);
+      border: var(--card-border-width) solid var(--border-color);
+      color: #ffffff;
+      font-size: 1.25rem;
+      font-weight: 700;
+      padding: 10px 24px;
+      text-transform: lowercase; 
+      border-radius: 0;
+      z-index: 2;
+    }
+
+    .risk-card-s3 .risk-card-subtitle {
+      font-size: 1.05rem;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      opacity: 0.9;
+    }
+
+    .risk-card-s3 .risk-card-right {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      min-width: 150px;
+    }
+
+    .risk-card-s3 .risk-card-score {
+      font-size: 8rem;
+      font-weight: 900;
+      line-height: 0.8;
+      letter-spacing: -0.04em;
+      user-select: none;
+      font-feature-settings: "tnum";
+    }
+
+    .risk-card-s3 .risk-progress-container {
+      position: absolute;
+      top: 0;
+      right: 55px;
+      transform: translateY(-50%);
+      width: 180px;
+      height: 55px;
+      background-color: var(--bg-color);
+      border: var(--card-border-width) solid var(--border-color);
+      border-radius: 0;
+      overflow: hidden;
+      display: flex;
+    }
+
+    .risk-card-s3 .risk-progress-fill {
+      height: 100%;
+      background-color: var(--accent-color);
+      width: 39%;
+      transition: width 0.4s cubic-bezier(0.1, 0.8, 0.25, 1);
+    }
+
+    /* --- NEW INLINE METRIC ROW STYLE --- */
+    .brutalist-metric-row {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      max-width: 620px;
+      color: var(--text-color);
+      user-select: none;
+    }
+
+    .brutalist-metric-label {
+      font-size: 1.25rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: -0.02em;
+      color: #000000;
+      white-space: nowrap;
+      min-width: 100px; /* ensure clean alignment for labels */
+    }
+
+    .brutalist-metric-line-left {
+      height: var(--card-border-width);
+      background-color: var(--border-color);
+      width: 25px;
+      flex-shrink: 0;
+    }
+
+    .brutalist-metric-bar-container {
+      flex-grow: 1; /* let it stretch to fit container width */
+      height: 38px;
+      background-color: var(--bg-color);
+      border: var(--card-border-width) solid var(--border-color);
+      border-radius: 0;
+      overflow: hidden;
+      display: flex;
+    }
+
+    .brutalist-metric-bar-fill {
+      height: 100%;
+      background-color: var(--accent-color);
+      width: 39%; /* dynamic width */
+      transition: width 0.4s cubic-bezier(0.1, 0.8, 0.25, 1);
+    }
+
+    .brutalist-metric-line-right {
+      height: var(--card-border-width);
+      background-color: var(--border-color);
+      width: 25px;
+      flex-shrink: 0;
+    }
+
+    .brutalist-metric-value {
+      font-size: 1.25rem;
+      font-weight: 900;
+      color: #000000;
+      min-width: 35px;
+      text-align: right;
+      font-feature-settings: "tnum";
+    }
+
+
+    /* --- INTERACTIVE CONTROL PANEL --- */
+    .control-panel {
+      width: 100%;
+      max-width: 620px;
+      background: white;
+      border: 2px solid #ddd;
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+    .control-panel h3 {
+      margin-bottom: 16px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .control-row {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .control-row label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #666;
+    }
+
+    .slider-container {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .slider {
+      flex: 1;
+      height: 6px;
+      -webkit-appearance: none;
+      appearance: none;
+      background: #e0e0e0;
+      border-radius: 3px;
+      outline: none;
+    }
+
+    .slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--accent-color);
+      cursor: pointer;
+      border: 2px solid #000;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .value-input {
+      width: 60px;
+      padding: 6px 10px;
+      border: 2px solid #000;
+      font-weight: 700;
+      font-size: 1rem;
+      text-align: center;
+    }
+
+    .inputs-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .text-input {
+      padding: 8px 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      outline: none;
+    }
+
+    .text-input:focus {
+      border-color: #000;
+    }
+
+    /* Copy Code Section */
+    .code-tabs {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 8px;
+    }
+
+    .tab-btn {
+      background: none;
+      border: none;
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: #888;
+      cursor: pointer;
+      padding: 6px 12px;
+      border-radius: 4px;
+    }
+
+    .tab-btn.active {
+      color: #000;
+      background: #f0f0f0;
+    }
+
+    .code-display {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      padding: 16px;
+      border-radius: 8px;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.8rem;
+      overflow-x: auto;
+      max-height: 250px;
+      margin-top: 10px;
+      white-space: pre-wrap;
+    }
+
+    .copy-btn {
+      margin-top: 10px;
+      padding: 8px 16px;
+      background: #000;
+      color: #fff;
+      border: none;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: background 0.2s;
+    }
+
+    .copy-btn:hover {
+      background: #333;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 600px) {
+      .risk-card-s1, .risk-card-s3 {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 35px 25px;
+        gap: 20px;
+      }
+      
+      .risk-card-s1 .risk-card-right,
+      .risk-card-s3 .risk-card-right {
+        width: 100%;
+        justify-content: flex-start;
+      }
+      
+      .risk-card-s1 .risk-card-score,
+      .risk-card-s3 .risk-card-score {
+        font-size: 6rem;
+      }
+
+      .risk-card-s1 .risk-progress-container,
+      .risk-card-s3 .risk-progress-container {
+        right: 25px;
+        width: 140px;
+        height: 45px;
+      }
+
+      .risk-card-s3 .status-badge-line {
+        left: -25px;
+        width: 25px;
+      }
+
+      .risk-card-s2 {
+        height: auto;
+        flex-direction: column;
+      }
+
+      .risk-card-s2 .section-left,
+      .risk-card-s2 .section-right {
+        width: 100%;
+        height: 120px;
+      }
+
+      .risk-card-s2 .dividing-line {
+        left: 0;
+        right: 0;
+        top: 50%;
+        width: 100%;
+        height: var(--card-border-width);
+        transform: translateY(-50%);
+      }
+
+      .risk-card-s2 .vertical-progress-container {
+        width: 160px;
+        height: 50px;
+        flex-direction: row;
+        justify-content: flex-start;
+      }
+
+      .risk-card-s2 .vertical-progress-fill {
+        height: 100%;
+        width: 39%;
+      }
+
+      .risk-card-s2 .top-header-box {
+        width: 80%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    
+    <!-- STYLE SELECTOR -->
+    <div class="style-selector">
+      <button id="selector-s1" class="style-tab-btn" onclick="selectStyle(1)">Дизайн 1 (Асиметричний)</button>
+      <button id="selector-s2" class="style-tab-btn" onclick="selectStyle(2)">Дизайн 2 (Розділений)</button>
+      <button id="selector-s3" class="style-tab-btn" onclick="selectStyle(3)">Дизайн 3 (З плашкою)</button>
+      <button id="selector-s4" class="style-tab-btn active" onclick="selectStyle(4)">Дизайн 4 (Рядок метрики)</button>
+    </div>
+
+    <!-- CARDS DISPLAY CONTAINER -->
+    <div class="card-wrapper">
+      
+      <!-- CARD STYLE 1 -->
+      <div class="risk-card-s1" id="card-s1" style="display: none;">
+        <div class="risk-progress-container" title="Risk Progress Indicator">
+          <div class="risk-progress-fill" id="cardFill1" style="width: 39%;"></div>
+        </div>
+        <div class="risk-card-left">
+          <div class="risk-card-title" id="cardTitle1">ІНДЕКС РИЗИКУ<br>BITCOIN</div>
+          <div class="risk-card-subtitle" id="cardSubtitle1">50% ончейн + 50 тех/макро</div>
+        </div>
+        <div class="risk-card-right">
+          <div class="risk-card-score" id="cardScore1">39</div>
+        </div>
+      </div>
+      
+      <!-- CARD STYLE 2 -->
+      <div class="risk-card-s2" id="card-s2" style="display: none;">
+        <div class="top-header-box">
+          <div class="top-header-title" id="cardHeaderTitle2">ІНДЕКС РИЗИКУ BITCOIN</div>
+        </div>
+        <div class="dividing-line"></div>
+        <div class="vertical-progress-container" title="Risk Progress Indicator">
+          <div class="vertical-progress-fill" id="cardFill2" style="height: 39%;"></div>
+        </div>
+        <div class="section-left">
+          <div class="risk-status-label" id="cardStatusLabel2">ПОМІРНИЙ</div>
+        </div>
+        <div class="section-right">
+          <div class="risk-card-score" id="cardScore2">39</div>
+        </div>
+      </div>
+
+      <!-- CARD STYLE 3 (Modified Style 1 with status badge & horizontal connecting line) -->
+      <div class="risk-card-s3" id="card-s3" style="display: none;">
+        <div class="risk-progress-container" title="Risk Progress Indicator">
+          <div class="risk-progress-fill" id="cardFill3" style="width: 39%;"></div>
+        </div>
+        <div class="risk-card-left">
+          <div class="risk-card-title" id="cardTitle3">ІНДЕКС РИЗИКУ<br>BITCOIN</div>
+          <div class="status-badge-wrapper">
+            <div class="status-badge-line"></div>
+            <div class="status-badge" id="cardStatusLabel3">помірний</div>
+          </div>
+          <div class="risk-card-subtitle" id="cardSubtitle3">50% ончейн + 50 тех/макро</div>
+        </div>
+        <div class="risk-card-right">
+          <div class="risk-card-score" id="cardScore3">39</div>
+        </div>
+      </div>
+
+      <!-- STYLE 4: INLINE METRIC ROW -->
+      <div class="brutalist-metric-row" id="card-s4">
+        <!-- Label -->
+        <div class="brutalist-metric-label" id="metricLabel4">CIPHER</div>
+
+        <!-- Left Line Connector -->
+        <div class="brutalist-metric-line-left"></div>
+
+        <!-- Progress Bar Container -->
+        <div class="brutalist-metric-bar-container" title="Metric Level Indicator">
+          <div class="brutalist-metric-bar-fill" id="cardFill4" style="width: 39%;"></div>
+        </div>
+
+        <!-- Right Line Connector -->
+        <div class="brutalist-metric-line-right"></div>
+
+        <!-- Value -->
+        <div class="brutalist-metric-value" id="cardScore4">39</div>
+      </div>
+
+    </div>
+
+    <!-- CONTROL PANEL -->
+    <div class="control-panel">
+      <h3>
+        <span>Налаштування картки (Interactive Controls)</span>
+        <button id="langToggle" class="tab-btn active" style="padding: 2px 8px;">Змінити мову (EN/UA)</button>
+      </h3>
+      
+      <!-- Score slider -->
+      <div class="control-row">
+        <label for="scoreSlider">Показник ризику (Risk Score):</label>
+        <div class="slider-container">
+          <input type="range" id="scoreSlider" class="slider" min="0" max="100" value="39">
+          <input type="number" id="scoreInput" class="value-input" min="0" max="100" value="39">
+        </div>
+      </div>
+
+      <!-- Editable text inputs (Style 1) -->
+      <div class="inputs-grid" id="editor-s1" style="display: none;">
+        <div class="control-row">
+          <label for="titleInput1">Текст заголовку (Title):</label>
+          <textarea id="titleInput1" class="text-input" rows="2" style="resize: none;">ІНДЕКС РИЗИКУ&#10;BITCOIN</textarea>
+        </div>
+        <div class="control-row">
+          <label for="subtitleInput1">Текст підзаголовку (Subtitle):</label>
+          <input type="text" id="subtitleInput1" class="text-input" value="50% ончейн + 50 тех/макро">
+        </div>
+      </div>
+
+      <!-- Editable text inputs (Style 2) -->
+      <div class="inputs-grid" id="editor-s2" style="display: none;">
+        <div class="control-row">
+          <label for="headerTitleInput2">Текст верхнього блоку (Header Title):</label>
+          <input type="text" id="headerTitleInput2" class="text-input" value="ІНДЕКС РИЗИКУ BITCOIN">
+        </div>
+        <div class="control-row">
+          <label>Статус ризику (Auto-calculated):</label>
+          <input type="text" id="statusLabel2" class="text-input" value="ПОМІРНИЙ" disabled style="background-color: #f0f0f0; color: #555; font-weight: bold;">
+        </div>
+      </div>
+
+      <!-- Editable text inputs (Style 3) -->
+      <div class="inputs-grid" id="editor-s3" style="display: none;">
+        <div class="control-row">
+          <label for="titleInput3">Текст заголовку (Title):</label>
+          <textarea id="titleInput3" class="text-input" rows="2" style="resize: none;">ІНДЕКС РИЗИКУ&#10;BITCOIN</textarea>
+        </div>
+        <div class="control-row">
+          <label for="subtitleInput3">Текст підзаголовку (Subtitle):</label>
+          <input type="text" id="subtitleInput3" class="text-input" value="50% ончейн + 50 тех/макро">
+        </div>
+      </div>
+
+      <!-- Editable text inputs (Style 4) -->
+      <div class="inputs-grid" id="editor-s4">
+        <div class="control-row">
+          <label for="labelInput4">Текст мітки (Label):</label>
+          <input type="text" id="labelInput4" class="text-input" value="CIPHER">
+        </div>
+      </div>
+
+      <!-- Code generation section -->
+      <div class="code-tabs">
+        <button class="tab-btn active" onclick="switchTab('html')">HTML Code</button>
+        <button class="tab-btn" onclick="switchTab('css')">CSS Code</button>
+      </div>
+      <pre class="code-display" id="codeBox"></pre>
+      <button class="copy-btn" onclick="copyCode()">Скопіювати код</button>
+    </div>
+
+  </div>
+
+  <script>
+    const scoreSlider = document.getElementById('scoreSlider');
+    const scoreInput = document.getElementById('scoreInput');
+    
+    // Style 1 Elements
+    const cardS1 = document.getElementById('card-s1');
+    const cardScore1 = document.getElementById('cardScore1');
+    const cardFill1 = document.getElementById('cardFill1');
+    const titleInput1 = document.getElementById('titleInput1');
+    const subtitleInput1 = document.getElementById('subtitleInput1');
+    const cardTitle1 = document.getElementById('cardTitle1');
+    const cardSubtitle1 = document.getElementById('cardSubtitle1');
+    const editorS1 = document.getElementById('editor-s1');
+
+    // Style 2 Elements
+    const cardS2 = document.getElementById('card-s2');
+    const cardScore2 = document.getElementById('cardScore2');
+    const cardFill2 = document.getElementById('cardFill2');
+    const cardStatusLabel2 = document.getElementById('cardStatusLabel2');
+    const statusLabel2 = document.getElementById('statusLabel2');
+    const headerTitleInput2 = document.getElementById('headerTitleInput2');
+    const cardHeaderTitle2 = document.getElementById('cardHeaderTitle2');
+    const editorS2 = document.getElementById('editor-s2');
+
+    // Style 3 Elements
+    const cardS3 = document.getElementById('card-s3');
+    const cardScore3 = document.getElementById('cardScore3');
+    const cardFill3 = document.getElementById('cardFill3');
+    const titleInput3 = document.getElementById('titleInput3');
+    const subtitleInput3 = document.getElementById('subtitleInput3');
+    const cardTitle3 = document.getElementById('cardTitle3');
+    const cardSubtitle3 = document.getElementById('cardSubtitle3');
+    const cardStatusLabel3 = document.getElementById('cardStatusLabel3');
+    const editorS3 = document.getElementById('editor-s3');
+
+    // Style 4 Elements
+    const cardS4 = document.getElementById('card-s4');
+    const cardScore4 = document.getElementById('cardScore4');
+    const cardFill4 = document.getElementById('cardFill4');
+    const labelInput4 = document.getElementById('labelInput4');
+    const metricLabel4 = document.getElementById('metricLabel4');
+    const editorS4 = document.getElementById('editor-s4');
+
+    const langToggle = document.getElementById('langToggle');
+    const codeBox = document.getElementById('codeBox');
+
+    let currentStyle = 4; // Default to style 4 as requested
+    let activeTab = 'html';
+    let currentLang = 'ua';
+
+    // Status classifications
+    const statusLabels = {
+      ua: [
+        { max: 20, text: "дуже низький" },
+        { max: 40, text: "помірний" },
+        { max: 60, text: "нейтральний" },
+        { max: 80, text: "високий" },
+        { max: 100, text: "екстремальний" }
+      ],
+      en: [
+        { max: 20, text: "very low" },
+        { max: 40, text: "moderate" },
+        { max: 60, text: "neutral" },
+        { max: 80, text: "high" },
+        { max: 100, text: "extreme" }
+      ]
+    };
+
+    function getStatusText(score, lang) {
+      const list = statusLabels[lang];
+      for (let item of list) {
+        if (score <= item.max) return item.text;
+      }
+      return list[list.length - 1].text;
+    }
+
+    // Select Card Style
+    function selectStyle(styleNum) {
+      currentStyle = styleNum;
+      
+      // Toggle active tab header buttons
+      document.getElementById('selector-s1').classList.toggle('active', styleNum === 1);
+      document.getElementById('selector-s2').classList.toggle('active', styleNum === 2);
+      document.getElementById('selector-s3').classList.toggle('active', styleNum === 3);
+      document.getElementById('selector-s4').classList.toggle('active', styleNum === 4);
+      
+      // Toggle visibility
+      cardS1.style.display = styleNum === 1 ? 'flex' : 'none';
+      cardS2.style.display = styleNum === 2 ? 'flex' : 'none';
+      cardS3.style.display = styleNum === 3 ? 'flex' : 'none';
+      cardS4.style.display = styleNum === 4 ? 'flex' : 'none';
+
+      // Toggle editors
+      editorS1.style.display = styleNum === 1 ? 'grid' : 'none';
+      editorS2.style.display = styleNum === 2 ? 'grid' : 'none';
+      editorS3.style.display = styleNum === 3 ? 'grid' : 'none';
+      editorS4.style.display = styleNum === 4 ? 'grid' : 'none';
+
+      // Sync responsive container minHeight
+      const wrap = document.querySelector('.card-wrapper');
+      if (styleNum === 2) {
+        wrap.style.minHeight = '310px';
+      } else if (styleNum === 3) {
+        wrap.style.minHeight = '340px';
+      } else if (styleNum === 4) {
+        wrap.style.minHeight = '140px'; // shorter for inline row
+      } else {
+        wrap.style.minHeight = '270px';
+      }
+
+      updateScore(scoreSlider.value);
+    }
+
+    // Update Score and Layouts
+    function updateScore(val) {
+      val = Math.max(0, Math.min(100, val));
+      
+      scoreSlider.value = val;
+      scoreInput.value = val;
+      
+      // Style 1
+      cardScore1.textContent = val;
+      cardFill1.style.width = val + '%';
+
+      // Style 2
+      cardScore2.textContent = val;
+      if (window.innerWidth <= 600) {
+        cardFill2.style.height = '100%';
+        cardFill2.style.width = val + '%';
+      } else {
+        cardFill2.style.width = '100%';
+        cardFill2.style.height = val + '%';
+      }
+      const statText2 = getStatusText(val, currentLang).toUpperCase();
+      cardStatusLabel2.textContent = statText2;
+      statusLabel2.value = statText2;
+
+      // Style 3
+      cardScore3.textContent = val;
+      cardFill3.style.width = val + '%';
+      const statText3 = getStatusText(val, currentLang).toLowerCase();
+      cardStatusLabel3.textContent = statText3;
+
+      // Style 4
+      cardScore4.textContent = val;
+      cardFill4.style.width = val + '%';
+      
+      generateCode();
+    }
+
+    scoreSlider.addEventListener('input', (e) => updateScore(e.target.value));
+    scoreInput.addEventListener('input', (e) => updateScore(e.target.value));
+
+    // Handle Resize (for Style 2 mobile direction change)
+    window.addEventListener('resize', () => {
+      updateScore(scoreSlider.value);
+    });
+
+    // Style 1 Editors Listeners
+    titleInput1.addEventListener('input', (e) => {
+      cardTitle1.innerHTML = e.target.value.replace(/\n/g, '<br>');
+      generateCode();
+    });
+    subtitleInput1.addEventListener('input', (e) => {
+      cardSubtitle1.textContent = e.target.value;
+      generateCode();
+    });
+
+    // Style 2 Editors Listeners
+    headerTitleInput2.addEventListener('input', (e) => {
+      cardHeaderTitle2.textContent = e.target.value;
+      generateCode();
+    });
+
+    // Style 3 Editors Listeners
+    titleInput3.addEventListener('input', (e) => {
+      cardTitle3.innerHTML = e.target.value.replace(/\n/g, '<br>');
+      generateCode();
+    });
+    subtitleInput3.addEventListener('input', (e) => {
+      cardSubtitle3.textContent = e.target.value;
+      generateCode();
+    });
+
+    // Style 4 Editors Listeners
+    labelInput4.addEventListener('input', (e) => {
+      metricLabel4.textContent = e.target.value;
+      generateCode();
+    });
+
+    // Language Toggle
+    langToggle.addEventListener('click', () => {
+      if (currentLang === 'ua') {
+        currentLang = 'en';
+        titleInput1.value = "BITCOIN BUY\nRISK INDEX";
+        subtitleInput1.value = "50% on-chain + 50 tech/macro";
+        
+        headerTitleInput2.value = "BITCOIN RISK INDEX";
+        
+        titleInput3.value = "BITCOIN BUY\nRISK INDEX";
+        subtitleInput3.value = "50% on-chain + 50 tech/macro";
+      } else {
+        currentLang = 'ua';
+        titleInput1.value = "ІНДЕКС РИЗИКУ\nBITCOIN";
+        subtitleInput1.value = "50% ончейн + 50 тех/макро";
+        
+        headerTitleInput2.value = "ІНДЕКС РИЗИКУ BITCOIN";
+        
+        titleInput3.value = "ІНДЕКС РИЗИКУ\nBITCOIN";
+        subtitleInput3.value = "50% ончейн + 50 тех/макро";
+      }
+      
+      cardTitle1.innerHTML = titleInput1.value.replace(/\n/g, '<br>');
+      cardSubtitle1.textContent = subtitleInput1.value;
+      cardHeaderTitle2.textContent = headerTitleInput2.value;
+      cardTitle3.innerHTML = titleInput3.value.replace(/\n/g, '<br>');
+      cardSubtitle3.textContent = subtitleInput3.value;
+
+      updateScore(scoreSlider.value);
+    });
+
+    // Code Generator & Tab Switcher
+    function switchTab(tab) {
+      activeTab = tab;
+      document.querySelectorAll('.code-tabs .tab-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.textContent.toLowerCase().includes(tab));
+      });
+      generateCode();
+    }
+
+    function generateCode() {
+      const scoreVal = scoreSlider.value;
+
+      if (currentStyle === 1) {
+        const titleText = cardTitle1.innerHTML;
+        const subtitleText = cardSubtitle1.textContent;
+
+        if (activeTab === 'html') {
+          codeBox.textContent = `<div class="risk-card">
+  <!-- Progress bar sticking over the top border -->
+  <div class="risk-progress-container" title="Risk Progress Indicator">
+    <div class="risk-progress-fill" style="width: ${scoreVal}%;"></div>
+  </div>
+  
+  <!-- Left Side: Labels -->
+  <div class="risk-card-left">
+    <div class="risk-card-title">${titleText}</div>
+    <div class="risk-card-subtitle">${subtitleText}</div>
+  </div>
+  
+  <!-- Right Side: Score -->
+  <div class="risk-card-right">
+    <div class="risk-card-score">${scoreVal}</div>
+  </div>
+</div>`;
+        } else {
+          codeBox.textContent = `/* CSS Variables */
+:root {
+  --accent-color: #ff9500;
+  --border-color: #000000;
+  --bg-color: #ffffff;
+  --text-color: #000000;
+  --card-border-width: 5px;
+}
+
+/* Card Wrapper */
+.risk-card {
+  position: relative;
+  width: 100%;
+  max-width: 620px;
+  background-color: var(--bg-color);
+  border: var(--card-border-width) solid var(--border-color);
+  padding: 35px 45px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--text-color);
+  border-radius: 0;
+  box-shadow: 8px 8px 0px rgba(0, 0, 0, 0.08); /* Neo-brutalist shadow */
+  margin-top: 30px; /* spacing for top overlapping element */
+}
+
+/* Left Content */
+.risk-card-left {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex: 1;
+  padding-right: 20px;
+}
+
+.risk-card-title {
+  font-family: 'Inter', sans-serif;
+  font-size: 2.1rem;
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+}
+
+.risk-card-subtitle {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 500;
+  margin-top: 15px;
+  letter-spacing: -0.01em;
+  opacity: 0.9;
+}
+
+/* Right Content */
+.risk-card-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 150px;
+}
+
+.risk-card-score {
+  font-family: 'Inter', sans-serif;
+  font-size: 8rem;
+  font-weight: 900;
+  line-height: 0.8;
+  letter-spacing: -0.04em;
+  font-feature-settings: "tnum";
+}
+
+/* Top Progress Indicator */
+.risk-progress-container {
+  position: absolute;
+  top: 0;
+  right: 55px;
+  transform: translateY(-50%);
+  width: 180px;
+  height: 55px;
+  background-color: var(--bg-color);
+  border: var(--card-border-width) solid var(--border-color);
+  border-radius: 0;
+  overflow: hidden;
+  display: flex;
+}
+
+.risk-progress-fill {
+  height: 100%;
+  background-color: var(--accent-color);
+  transition: width 0.4s cubic-bezier(0.1, 0.8, 0.25, 1);
+}`;
+        }
+      } else if (currentStyle === 2) {
+        const headerText = cardHeaderTitle2.textContent;
+        const statusText = cardStatusLabel2.textContent;
+
+        if (activeTab === 'html') {
+          codeBox.textContent = `<div class="risk-card-s2">
+  <!-- Top header box -->
+  <div class="top-header-box">
+    <div class="top-header-title">${headerText}</div>
+  </div>
+
+  <!-- Vertical dividing line -->
+  <div class="dividing-line"></div>
+
+  <!-- Middle Vertical progress container -->
+  <div class="vertical-progress-container" title="Risk Progress Indicator">
+    <div class="vertical-progress-fill" style="height: ${scoreVal}%;"></div>
+  </div>
+
+  <!-- Left half: Status -->
+  <div class="section-left">
+    <div class="risk-status-label">${statusText}</div>
+  </div>
+
+  <!-- Right half: Score -->
+  <div class="section-right">
+    <div class="risk-card-score">${scoreVal}</div>
+  </div>
+</div>`;
+        } else {
+          codeBox.textContent = `/* CSS Variables */
+:root {
+  --accent-color: #ff9500;
+  --border-color: #000000;
+  --bg-color: #ffffff;
+  --bg-right-half: #d9d9d9;
+  --card-border-width: 5px;
+}
+
+/* Card Wrapper */
+.risk-card-s2 {
+  position: relative;
+  width: 100%;
+  max-width: 620px;
+  height: 240px;
+  background-color: var(--bg-color);
+  border: var(--card-border-width) solid var(--border-color);
+  display: flex;
+  color: #000000;
+  border-radius: 0; 
+  box-shadow: 8px 8px 0px rgba(0, 0, 0, 0.08);
+  margin-top: 50px;
+  overflow: visible;
+}
+
+/* Dividing line */
+.risk-card-s2 .dividing-line {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: var(--card-border-width);
+  background-color: var(--border-color);
+  transform: translateX(-50%);
+  z-index: 2;
+}
+
+/* Left Half: Status text */
+.risk-card-s2 .section-left {
+  width: 50%;
+  background-color: var(--bg-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.risk-card-s2 .risk-status-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 2.1rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  text-align: center;
+  line-height: 1.1;
+}
+
+/* Right Half: Score number */
+.risk-card-s2 .section-right {
+  width: 50%;
+  background-color: var(--bg-right-half);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.risk-card-s2 .risk-card-score {
+  font-family: 'Inter', sans-serif;
+  font-size: 8.5rem;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  font-feature-settings: "tnum";
+}
+
+/* Top Overlapping Box */
+.risk-card-s2 .top-header-box {
+  position: absolute;
+  top: 0;
+  right: calc(0px - var(--card-border-width));
+  transform: translateY(-100%);
+  width: 65%;
+  height: 48px;
+  background-color: var(--accent-color);
+  border: var(--card-border-width) solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 16px;
+  z-index: 1;
+}
+
+.risk-card-s2 .top-header-title {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: #000000;
+  text-align: center;
+}
+
+/* Middle Progress Indicator */
+.risk-card-s2 .vertical-progress-container {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 60px;
+  height: 160px;
+  background-color: var(--bg-color);
+  border: var(--card-border-width) solid var(--border-color);
+  z-index: 10;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.risk-card-s2 .vertical-progress-fill {
+  width: 100%;
+  background-color: var(--accent-color);
+  transition: height 0.4s cubic-bezier(0.1, 0.8, 0.25, 1);
+}`;
+        }
+      } else if (currentStyle === 3) {
+        const titleText = cardTitle3.innerHTML;
+        const subtitleText = cardSubtitle3.textContent;
+        const statusText = cardStatusLabel3.textContent;
+
+        if (activeTab === 'html') {
+          codeBox.textContent = `<div class="risk-card-s3">
+  <!-- Progress bar sticking over the top border -->
+  <div class="risk-progress-container" title="Risk Progress Indicator">
+    <div class="risk-progress-fill" style="width: ${scoreVal}%;"></div>
+  </div>
+  
+  <!-- Left Side: Title, Status Badge and Subtitle -->
+  <div class="risk-card-left">
+    <div class="risk-card-title">${titleText}</div>
+    
+    <!-- Connected Status Badge -->
+    <div class="status-badge-wrapper">
+      <div class="status-badge-line"></div>
+      <div class="status-badge">${statusText}</div>
+    </div>
+
+    <div class="risk-card-subtitle">${subtitleText}</div>
+  </div>
+  
+  <!-- Right Side: Score -->
+  <div class="risk-card-right">
+    <div class="risk-card-score">${scoreVal}</div>
+  </div>
+</div>`;
+        } else {
+          codeBox.textContent = `/* CSS Variables */
+:root {
+  --accent-color: #ff9500;
+  --border-color: #000000;
+  --bg-color: #ffffff;
+  --badge-bg-color: #8c8c8c;
+  --text-color: #000000;
+  --card-border-width: 5px;
+}
+
+/* Card Wrapper */
+.risk-card-s3 {
+  position: relative;
+  width: 100%;
+  max-width: 620px;
+  background-color: var(--bg-color);
+  border: var(--card-border-width) solid var(--border-color);
+  padding: 35px 45px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--text-color);
+  border-radius: 0;
+  box-shadow: 8px 8px 0px rgba(0, 0, 0, 0.08);
+  margin-top: 30px;
+}
+
+/* Left Content Column */
+.risk-card-s3 .risk-card-left {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex: 1;
+  padding-right: 20px;
+}
+
+.risk-card-s3 .risk-card-title {
+  font-family: 'Inter', sans-serif;
+  font-size: 2.1rem;
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+}
+
+/* Status Badge Wrapper and Connecting Line */
+.risk-card-s3 .status-badge-wrapper {
+  position: relative;
+  margin: 18px 0;
+  width: fit-content;
+  display: flex;
+  align-items: center;
+}
+
+.risk-card-s3 .status-badge-line {
+  position: absolute;
+  left: -45px; /* extends to the left card border, matching card padding-left */
+  width: 45px;
+  height: var(--card-border-width);
+  background-color: var(--border-color);
+  z-index: 1;
+}
+
+.risk-card-s3 .status-badge {
+  position: relative;
+  font-family: 'Inter', sans-serif;
+  background-color: var(--badge-bg-color);
+  border: var(--card-border-width) solid var(--border-color);
+  color: #ffffff;
+  font-size: 1.25rem;
+  font-weight: 700;
+  padding: 10px 24px;
+  text-transform: lowercase;
+  border-radius: 0;
+  z-index: 2;
+}
+
+.risk-card-s3 .risk-card-subtitle {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  opacity: 0.9;
+}
+
+/* Right Content Column */
+.risk-card-s3 .risk-card-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 150px;
+}
+
+.risk-card-s3 .risk-card-score {
+  font-family: 'Inter', sans-serif;
+  font-size: 8rem;
+  font-weight: 900;
+  line-height: 0.8;
+  letter-spacing: -0.04em;
+  font-feature-settings: "tnum";
+}
+
+/* Top Overlapping Box */
+.risk-card-s3 .risk-progress-container {
+  position: absolute;
+  top: 0;
+  right: 55px;
+  transform: translateY(-50%);
+  width: 180px;
+  height: 55px;
+  background-color: var(--bg-color);
+  border: var(--card-border-width) solid var(--border-color);
+  border-radius: 0;
+  overflow: hidden;
+  display: flex;
+}
+
+.risk-card-s3 .risk-progress-fill {
+  height: 100%;
+  background-color: var(--accent-color);
+  transition: width 0.4s cubic-bezier(0.1, 0.8, 0.25, 1);
+}
+
+/* Mobile Responsive Adjustments */
+@media (max-width: 600px) {
+  .risk-card-s3 {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 35px 25px;
+    gap: 20px;
+  }
+  .risk-card-s3 .risk-card-right {
+    width: 100%;
+    justify-content: flex-start;
+  }
+  .risk-card-s3 .risk-card-score {
+    font-size: 6rem;
+  }
+  .risk-card-s3 .risk-progress-container {
+    right: 25px;
+    width: 140px;
+    height: 45px;
+  }
+  .risk-card-s3 .status-badge-line {
+    left: -25px;
+    width: 25px;
+  }
+}`;
+        }
+      } else if (currentStyle === 4) {
+        // STYLE 4: INLINE METRIC ROW
+        const labelText = metricLabel4.textContent;
+
+        if (activeTab === 'html') {
+          codeBox.textContent = `<div class="brutalist-metric-row">
+  <!-- Label -->
+  <div class="brutalist-metric-label">${labelText}</div>
+
+  <!-- Left line connector -->
+  <div class="brutalist-metric-line-left"></div>
+
+  <!-- Progress bar box -->
+  <div class="brutalist-metric-bar-container" title="Metric Level">
+    <div class="brutalist-metric-bar-fill" style="width: ${scoreVal}%;"></div>
+  </div>
+
+  <!-- Right line connector -->
+  <div class="brutalist-metric-line-right"></div>
+
+  <!-- Score Value -->
+  <div class="brutalist-metric-value">${scoreVal}</div>
+</div>`;
+        } else {
+          codeBox.textContent = `/* CSS Variables */
+:root {
+  --accent-color: #ff9500;
+  --border-color: #000000;
+  --bg-color: #ffffff;
+  --card-border-width: 5px;
+}
+
+/* Metric Row Container */
+.brutalist-metric-row {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 620px;
+  color: #000000;
+}
+
+/* Left Label text */
+.brutalist-metric-row .brutalist-metric-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  color: #000000;
+  white-space: nowrap;
+  min-width: 100px; /* Aligns all rows neatly if multiple */
+}
+
+/* Connectors */
+.brutalist-metric-row .brutalist-metric-line-left {
+  height: var(--card-border-width);
+  background-color: var(--border-color);
+  width: 25px;
+  flex-shrink: 0;
+}
+
+.brutalist-metric-row .brutalist-metric-line-right {
+  height: var(--card-border-width);
+  background-color: var(--border-color);
+  width: 25px;
+  flex-shrink: 0;
+}
+
+/* Progress bar container */
+.brutalist-metric-row .brutalist-metric-bar-container {
+  flex-grow: 1;
+  height: 38px;
+  background-color: var(--bg-color);
+  border: var(--card-border-width) solid var(--border-color);
+  border-radius: 0;
+  overflow: hidden;
+  display: flex;
+}
+
+.brutalist-metric-row .brutalist-metric-bar-fill {
+  height: 100%;
+  background-color: var(--accent-color);
+  transition: width 0.4s cubic-bezier(0.1, 0.8, 0.25, 1);
+}
+
+/* Right Value */
+.brutalist-metric-row .brutalist-metric-value {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: #000000;
+  min-width: 35px;
+  text-align: right;
+  font-feature-settings: "tnum";
+}`;
+        }
+      }
+    }
+
+    function copyCode() {
+      navigator.clipboard.writeText(codeBox.textContent).then(() => {
+        const btn = document.querySelector('.copy-btn');
+        const oldText = btn.textContent;
+        btn.textContent = 'Скопійовано!';
+        btn.style.background = '#28a745';
+        setTimeout(() => {
+          btn.textContent = oldText;
+          btn.style.background = '#000';
+        }, 1500);
+      });
+    }
+
+    // Initialize with Style 4
+    selectStyle(4);
+  </script>
+</body>
+</html>

@@ -50,6 +50,10 @@ def update_history(entries: list, data: dict) -> list:
     ts = data.get('timestamp', '')
     date_str = ts[:10] if ts else datetime.date.today().isoformat()
 
+    phase_data = data.get('phase', {})
+    phase_str = phase_data.get('phase') if isinstance(phase_data, dict) else None
+    w_bot = phase_data.get('w_bot') if isinstance(phase_data, dict) else None
+
     entry = {
         'date':          date_str,
         'timestamp':     ts,
@@ -57,6 +61,8 @@ def update_history(entries: list, data: dict) -> list:
         'onchain_score': data.get('onchain_score'),
         'tech_score':    data.get('tech_score'),
         'btc_price':     data.get('btc_price'),
+        'phase':         phase_str,
+        'w_bot':         w_bot,
     }
 
     # Replace existing entry for same date, otherwise append
@@ -232,6 +238,15 @@ def patch_data_json(data: dict, entries: list) -> None:
 
     with open(DATA_JSON, 'w', encoding='utf-8') as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
+
+    # Mirror data.json to web/ if web/ exists
+    web_data_json = os.path.join(ROOT, 'web', 'data.json')
+    if os.path.exists(os.path.join(ROOT, 'web')):
+        try:
+            with open(web_data_json, 'w', encoding='utf-8') as f:
+                json.dump(data, f, ensure_ascii=False, indent=2)
+        except Exception:
+            pass
 
 
 def main():

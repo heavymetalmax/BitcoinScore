@@ -35,7 +35,7 @@ from .scoring import (
     map_fear_greed, map_m2, map_yield_curve, map_mayer_multiple,
     map_etf_flow, map_funding,
 )
-from .tiz import compute_tiz, _CALIBRATION as _TIZ_CALIBRATION
+from .tiz import compute_tiz
 from .wave_resonance import compute_wave_resonance
 from .orchestrator import orchestrate
 
@@ -200,7 +200,7 @@ def compute_scores_v2(metrics: dict) -> dict:
 
     if prelim is None:
         return {**v1, 'regime': 'neutral', 'tiz_score': None, 'tiz_days': 0,
-                'coh_factor': 1.0, 'pi_cross': False}
+                'tiz_calibration': 200, 'coh_factor': 1.0, 'pi_cross': False}
 
     # ── Detect regime (uses undampened prelim for clean threshold logic) ─────
     if prelim <= BOTTOM_THRESHOLD:
@@ -229,8 +229,8 @@ def compute_scores_v2(metrics: dict) -> dict:
     tech_avg = weighted_score(tech_w, sm)
 
     # ── TiZ (bottom regime only) ─────────────────────────────────────────────
-    tiz_score, tiz_days = compute_tiz() if regime == 'bottom' else (None, 0)
-    tiz_maturity = round(tiz_days / _TIZ_CALIBRATION, 3) if tiz_days > 0 else None
+    tiz_score, tiz_days, tiz_cal = compute_tiz() if regime == 'bottom' else (None, 0, 200)
+    tiz_maturity = round(tiz_days / tiz_cal, 3) if tiz_days > 0 else None
 
     # ── Final blend ──────────────────────────────────────────────────────────
     def safe(v): return v if v is not None else 0
@@ -319,6 +319,7 @@ def compute_scores_v2(metrics: dict) -> dict:
         'regime':           regime,
         'tiz_score':        tiz_score,
         'tiz_days':         tiz_days,
+        'tiz_calibration':  tiz_cal,
         'oc_weights':       list(oc_w.keys()),
         'cipherb_blend_w':  cb_ratio,
         'cipherb_crash':    is_crash,
@@ -348,7 +349,7 @@ _METRIC_LOOKBACK = {
     'cvdd_ratio': 30, 'mayer_multiple': 30,
     'asopr': 14, 'etf_flows': 14,
     'cipherb_weekly': 14, 'cipherb_daily': 7, 'fear_greed': 7,
-    'm2_yoy': 60, 'yield_curve_spread': 60,
+    'm2_yoy': 60,
 }
 
 def _load_v2_centroids():
@@ -361,6 +362,7 @@ def _load_v2_centroids():
         _v2_cache['order']       = p['metric_order']
         _v2_cache['calibration'] = p.get('calibration', {})
         _v2_cache['stds']        = p.get('metric_stds')   # diagonal Mahalanobis σ
+        _v2_cache['cov_inv']     = p.get('cov_inv')
     except Exception:
         pass
     return _v2_cache
@@ -387,6 +389,23 @@ def _mahalanobis_diag(v1, v2, stds):
     return _math.sqrt(total / n) if n > 0 else None
 
 
+def _mahalanobis_full(v1, v2, cov_inv, fallback=None):
+    """Full Mahalanobis: d = sqrt((v1-v2)^T Σ⁻¹ (v1-v2)). None dims → fallback."""
+    if cov_inv is None:
+        return None
+    n = len(v1)
+    fb = fallback or [0.0] * n
+    def _val(vec, i):
+        v = vec[i]
+        if v is not None:
+            return v
+        f = fb[i]
+        return f if f is not None else 0.0
+    diff = [_val(v1, i) - _val(v2, i) for i in range(n)]
+    d_sq = sum(diff[i] * sum(cov_inv[i][j] * diff[j] for j in range(n)) for i in range(n))
+    return _math.sqrt(max(d_sq, 0.0))
+
+
 def build_wave_vector(current_scores: dict, prev_scores: dict) -> list:
     """22-dim vector: [scores × 11, deltas × 11] ordered by _METRIC_LOOKBACK."""
     order = list(_METRIC_LOOKBACK)
@@ -397,7 +416,7 @@ def build_wave_vector(current_scores: dict, prev_scores: dict) -> list:
     return vec
 
 
-def phase_signals(current_scores: dict, prev_scores: dict) -> dict:
+def phase_signals(current_scores: dict, prev_scores: dict, use_full_mahalanobis: bool = False) -> dict:
     """
     Dual proximity signals — where in the cycle are we?
 
@@ -418,13 +437,18 @@ def phase_signals(current_scores: dict, prev_scores: dict) -> dict:
     if not params or 'top' not in params or 'calibration' not in params:
         return {'top_signal': None, 'bot_signal': None, 'phase': 'UNKNOWN'}
 
-    cal   = params['calibration']
-    top_c = params['top']
-    bot_c = params['bottom']
-    stds  = params.get('stds')
-    vec   = build_wave_vector(current_scores, prev_scores)
-    d_top = _mahalanobis_diag(vec, top_c, stds)
-    d_bot = _mahalanobis_diag(vec, bot_c, stds)
+    cal     = params['calibration']
+    top_c   = params['top']
+    bot_c   = params['bottom']
+    vec     = build_wave_vector(current_scores, prev_scores)
+    cov_inv = params.get('cov_inv') if use_full_mahalanobis else None
+    if use_full_mahalanobis and cov_inv:
+        d_top = _mahalanobis_full(vec, top_c, cov_inv, top_c)
+        d_bot = _mahalanobis_full(vec, bot_c, cov_inv, bot_c)
+    else:
+        stds  = params.get('stds')
+        d_top = _mahalanobis_diag(vec, top_c, stds)
+        d_bot = _mahalanobis_diag(vec, bot_c, stds)
     if d_top is None or d_bot is None:
         return {'top_signal': None, 'bot_signal': None, 'phase': 'UNKNOWN'}
 
@@ -443,7 +467,7 @@ def phase_signals(current_scores: dict, prev_scores: dict) -> dict:
     return {'top_signal': tsig, 'bot_signal': bsig, 'phase': phase}
 
 
-def score_processor_v2(current_scores: dict, prev_scores: dict):
+def score_processor_v2(current_scores: dict, prev_scores: dict, use_full_mahalanobis: bool = False):
     """
     Distance-based risk score — zero free parameters.
 
@@ -456,10 +480,15 @@ def score_processor_v2(current_scores: dict, prev_scores: dict):
     params = _load_v2_centroids()
     if not params:
         return None
-    stds    = params.get('stds')
     vec     = build_wave_vector(current_scores, prev_scores)
-    d_top   = _mahalanobis_diag(vec, params['top'],    stds)
-    d_bot   = _mahalanobis_diag(vec, params['bottom'], stds)
+    cov_inv = params.get('cov_inv') if use_full_mahalanobis else None
+    if use_full_mahalanobis and cov_inv:
+        d_top = _mahalanobis_full(vec, params['top'],    cov_inv, params['top'])
+        d_bot = _mahalanobis_full(vec, params['bottom'], cov_inv, params['bottom'])
+    else:
+        stds  = params.get('stds')
+        d_top = _mahalanobis_diag(vec, params['top'],    stds)
+        d_bot = _mahalanobis_diag(vec, params['bottom'], stds)
     if d_top is None or d_bot is None:
         return None
     denom = d_top + d_bot

@@ -445,6 +445,45 @@ def _oc_coherence(sm: dict) -> float:
     return max(0.0, 1.0 - var ** 0.5 / 0.289)
 
 
+# ── Fisher-weighted scoring (data-driven weights) ─────────────────────────
+
+import json as _json
+import os as _os
+
+_FISHER_PATH = _os.path.join(_os.path.dirname(__file__), '..', 'data', 'fisher_weights.json')
+_fisher_cache = {}
+
+def _load_fisher_weights():
+    if _fisher_cache:
+        return _fisher_cache
+    try:
+        with open(_FISHER_PATH, encoding='utf-8') as f:
+            d = _json.load(f)
+        _fisher_cache.update(d.get('weights', {}))
+    except Exception:
+        pass
+    return _fisher_cache
+
+
+def compute_scores_v2_fisher(metrics: dict) -> dict:
+    """
+    Fisher-weighted scoring: single metric pool, data-driven weights.
+    Returns dict with final_score, oc_coherence, weights_used.
+    Returns None if fisher_weights.json not found.
+    """
+    weights = _load_fisher_weights()
+    if not weights:
+        return None
+    sm = build_slider_map(metrics)
+    raw_score = weighted_score(weights, sm)
+    oc_coh = _oc_coherence(sm)
+    return {
+        'final_score':  raw_score,
+        'oc_coherence': oc_coh,
+        'weights_used': dict(weights),
+    }
+
+
 def compute_scores(metrics: dict) -> dict:
     """
     Returns {'onchain_score', 'tech_score', 'final_score',
