@@ -170,7 +170,7 @@ def orchestrate(v2_score, v2_oc_coherence, wr_score, wr_coherence, tiz_maturity=
     if conviction > 0.40:
         pull_factor = (conviction - 0.40) / 0.60
         bot_coef = 0.60 * (tiz_maturity if tiz_maturity is not None else 1.0)
-        pull_top = (85.0 - meta) * mu_top_eff * pull_factor * 0.60
+        pull_top = (92.0 - meta) * mu_top_eff * pull_factor * 0.75
         pull_bot = (15.0 - meta) * mu_bot_eff * pull_factor * bot_coef
         meta = round(meta + pull_top + pull_bot)
 
@@ -256,7 +256,7 @@ def orchestrate(v2_score, v2_oc_coherence, wr_score, wr_coherence, tiz_maturity=
                 if price_near_high and score_decayed and is_elevated:
                     bear_div = True
                     # Override meta score to stay elevated (prevent fake cooldown)
-                    meta = max(meta, 72)
+                    meta = max(meta, 82)
 
                 # Bullish Divergence conditions:
                 # 1. Price is near or below dynamic low (within 3%)

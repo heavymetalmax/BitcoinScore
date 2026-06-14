@@ -336,7 +336,7 @@ def compute_scores_v3(raw_metrics, target_date=None, prev_scores=None, scores_hi
             neutral_target = 30
         elif phase == 'TOP':
             coh_floor = 0.55
-            neutral_target = 70
+            neutral_target = 78
         else:
             coh_floor = 0.45
             neutral_target = 50
