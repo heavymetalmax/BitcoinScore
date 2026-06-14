@@ -113,10 +113,9 @@
     border-color: rgba(99, 102, 241, 0.25);
   }
 
-  .status-bar { display: flex; flex-direction: column; gap: 4px; padding: 8px 4px 4px; margin-top: 10px; font-size: 11px; color: var(--muted2); border-top: 1px solid var(--border); }
-  .status-bar .status-row { display: flex; align-items: center; gap: 6px; }
+  .status-bar { display: flex; flex-direction: column; gap: 4px; padding: 8px 4px 4px; margin-top: 10px; font-size: 11px; color: var(--text); border-top: 1px solid var(--border); }
+  .status-bar .status-row { display: flex; align-items: center; justify-content: space-between; }
   .status-bar .status-val { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; }
-  .status-bar .status-sep { color: var(--border2); }
   .status-bar .status-countdown { color: var(--accent, #8B5CF6); }
   .market-state-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
   .market-title { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; color: var(--muted); text-transform: uppercase; }
@@ -378,7 +377,6 @@
       <div class="status-bar">
         <div class="status-row">
           <span><span class="en">Price</span><span class="ua">Ціна</span></span>
-          <span class="status-sep">—</span>
           <span class="status-val" id="market-price">—</span>
         </div>
         <div class="status-row">
@@ -1133,7 +1131,14 @@ function drawHistory(range, hoverIndex) {
     const y = pad.t + ch - (v.score / 100) * ch;
     i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
   });
-  ctx.strokeStyle = isDark ? '#F0F0F5' : '#1a1a1a'; ctx.lineWidth = 1.5; ctx.stroke();
+  const grad = ctx.createLinearGradient(pad.l, pad.t + ch, pad.l, pad.t);
+  grad.addColorStop(0.1, '#22c55e');  // Green (Bottom/Capitulation)
+  grad.addColorStop(0.35, '#eab308'); // Yellow (Discount/Accumulation)
+  grad.addColorStop(0.65, '#f97316'); // Orange (Neutral)
+  grad.addColorStop(0.9, '#ef4444');  // Red (Overheating/Caution/Sell)
+  ctx.strokeStyle = grad;
+  ctx.lineWidth = 2;
+  ctx.stroke();
 
   if (hoverIndex != null && hoverIndex >= 0 && hoverIndex < pts.length) {
     const e = pts[hoverIndex];

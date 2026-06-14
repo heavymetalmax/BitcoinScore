@@ -118,3 +118,5 @@ Static HTML5 + vanilla JS. No build step; files are served directly from GitHub 
 4. Wire the fetch into `build_payload()` in `scraper/scraper.py` (follow the existing `metric_specs` list pattern for cacheable metrics).
 5. If the metric benefits from adaptive calibration, add it to `ADAPTIVE_METRICS` and provide a seed history file in `data/history/`.
 6. Run `python tools/backtest.py` to verify the score impact on historical key dates.
+
+Обовязково використовувати звернення до архітектури і планування проектування при внесені змін, аби зміни були узгоджені з рештою логіки коду і алгоритмів у цілому!
