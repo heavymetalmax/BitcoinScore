@@ -1828,33 +1828,8 @@ async function loadData() {
     }
   }
 
-  // History — load from score_history, then override last 366 days using
-  // metric_history (data_exp.json) recomputed with the current model weights.
+  // History
   historyScores = (data.score_history || []).filter(e => e.score != null);
-
-  const mh = data.metric_history;
-  if (mh && Array.isArray(mh.dates) && mh.dates.length) {
-    const OC_W   = { nupl: 0.30, mvrv_z_score: 0.20, rhodl_ratio: 0.20, cvdd_ratio: 0.15, asopr: 0.15 };
-    const TECH_W = { cipherb: 0.40, mayer_multiple: 0.20, etf_flows: 0.10, fear_greed: 0.10, yield_curve_spread: 0.10, m2_yoy: 0.10 };
-    const recomputed = {};
-    mh.dates.forEach((date, i) => {
-      const wsum = (w) => {
-        let s = 0, tot = 0;
-        for (const [k, wt] of Object.entries(w)) {
-          const v = mh[k]?.[i];
-          if (v != null) { s += v * wt; tot += wt; }
-        }
-        return tot > 0 ? s / tot : null;
-      };
-      const oc = wsum(OC_W), tech = wsum(TECH_W);
-      const parts = [oc, tech].filter(v => v != null);
-      if (parts.length) recomputed[date] = Math.round(parts.reduce((a, b) => a + b, 0) / parts.length);
-    });
-    historyScores = historyScores.map(e =>
-      recomputed[e.date] != null ? { ...e, score: recomputed[e.date] } : e
-    );
-  }
-
   initHistoryEvents();
   drawHistory(activeRange);
   drawSparklines();
