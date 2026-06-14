@@ -113,6 +113,11 @@
     border-color: rgba(99, 102, 241, 0.25);
   }
 
+  .status-bar { display: flex; flex-direction: column; gap: 4px; padding: 8px 4px 4px; margin-top: 10px; font-size: 11px; color: var(--muted2); border-top: 1px solid var(--border); }
+  .status-bar .status-row { display: flex; align-items: center; gap: 6px; }
+  .status-bar .status-val { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .status-bar .status-sep { color: var(--border2); }
+  .status-bar .status-countdown { color: var(--accent, #8B5CF6); }
   .market-state-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
   .market-title { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; color: var(--muted); text-transform: uppercase; }
   .health-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; border: 1px solid transparent; }
@@ -360,7 +365,7 @@
 
     <!-- Score card -->
     <div class="card score-card">
-      <div class="score-label">BTCBRI <span class="en">SCORE</span><span class="ua">ІНДЕКС</span></div>
+      <div class="score-label" style="display:flex;align-items:center;gap:6px;">BTCBRI <span class="en">SCORE</span><span class="ua">ІНДЕКС</span><span id="health-indicator" style="width:7px;height:7px;border-radius:50%;background:#22C55E;flex-shrink:0;margin-left:2px;"></span></div>
       <div>
         <div class="score-number" id="score-number"><span class="score-val">—</span><span class="score-denom">/100</span></div>
         <div class="score-zone" id="score-zone"></div>
@@ -368,6 +373,21 @@
         <div class="score-hint" id="score-hint">
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/><circle cx="7" cy="4.5" r="0.75" fill="currentColor"/><line x1="7" y1="6.5" x2="7" y2="10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
           <span id="hint-text"></span>
+        </div>
+      </div>
+      <div class="status-bar">
+        <div class="status-row">
+          <span><span class="en">Price</span><span class="ua">Ціна</span></span>
+          <span class="status-sep">—</span>
+          <span class="status-val" id="market-price">—</span>
+        </div>
+        <div class="status-row">
+          <span><span class="en">Updated</span><span class="ua">Оновлено</span></span>
+          <span class="status-val" id="market-updated">—</span>
+        </div>
+        <div class="status-row">
+          <span><span class="en">Next in</span><span class="ua">Наступне за</span></span>
+          <span class="status-val status-countdown" id="market-next">—:—</span>
         </div>
       </div>
     </div>
@@ -435,8 +455,15 @@
             <span class="mini-gauge-val" id="mini-val-1d" style="color:#22C55E">—</span>
           </div>
         </div>
-        <div style="display:flex;justify-content:flex-end;margin-top:4px;">
-          <span style="font-size:11px;color:var(--muted2)" id="yesterday-delta"></span>
+        <div class="gauge-scale">
+          <div class="gauge-bar"></div>
+          <div class="gauge-bar-ticks"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
+          <div class="gauge-labels">
+            <span class="gl-1"><span class="en">V.LOW</span><span class="ua">МІН.</span></span>
+            <span class="gl-2"><span class="en">MODER.</span><span class="ua">ПОМІР.</span></span>
+            <span class="gl-3"><span class="en">HIGH</span><span class="ua">ЗНАЧН.</span></span>
+            <span class="gl-4"><span class="en">V.HIGH</span><span class="ua">НАДМ.</span></span>
+          </div>
         </div>
       </div>
       <!-- 7 days ago -->
@@ -461,8 +488,15 @@
             <span class="mini-gauge-val" id="mini-val-7d" style="color:#22C55E">—</span>
           </div>
         </div>
-        <div style="display:flex;justify-content:flex-end;margin-top:4px;">
-          <span style="font-size:11px;color:var(--muted2)" id="week-delta"></span>
+        <div class="gauge-scale">
+          <div class="gauge-bar"></div>
+          <div class="gauge-bar-ticks"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
+          <div class="gauge-labels">
+            <span class="gl-1"><span class="en">V.LOW</span><span class="ua">МІН.</span></span>
+            <span class="gl-2"><span class="en">MODER.</span><span class="ua">ПОМІР.</span></span>
+            <span class="gl-3"><span class="en">HIGH</span><span class="ua">ЗНАЧН.</span></span>
+            <span class="gl-4"><span class="en">V.HIGH</span><span class="ua">НАДМ.</span></span>
+          </div>
         </div>
       </div>
     </div>
@@ -1855,14 +1889,14 @@ async function loadData() {
     }
 
     if (isStale) {
-      healthIndicator.className = 'health-badge health-stale';
-      healthIndicator.innerHTML = '<span class="health-dot"></span><span class="en">Stale</span><span class="ua">Застарілий</span>';
+      healthIndicator.style.background = '#EF4444';
+      healthIndicator.title = 'Stale / Застарілий';
     } else if (isDegraded || !isHealthy) {
-      healthIndicator.className = 'health-badge health-degraded';
-      healthIndicator.innerHTML = '<span class="health-dot"></span><span class="en">Degraded</span><span class="ua">Обмежений</span>';
+      healthIndicator.style.background = '#EAB308';
+      healthIndicator.title = 'Degraded / Обмежений';
     } else {
-      healthIndicator.className = 'health-badge health-healthy';
-      healthIndicator.innerHTML = '<span class="health-dot"></span><span class="en">Healthy</span><span class="ua">Здоровий</span>';
+      healthIndicator.style.background = '#22C55E';
+      healthIndicator.title = 'Healthy / Здоровий';
     }
   };
   checkHealth(data);
