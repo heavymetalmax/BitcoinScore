@@ -163,6 +163,16 @@
   .tag-buy      { background: #F7931A14; color: #D97706; border: 1px solid #F7931A28; }
   .tag-overheat { background: #EF444414; color: #EF4444; border: 1px solid #EF444428; }
   .tag-diverge  { background: #F59E0B14; color: #B45309; border: 1px solid #F59E0B28; }
+
+  /* Card Flip & Animation Styles */
+  .gauge-card-inner.flipped {
+    transform: rotateY(180deg);
+  }
+  @keyframes spinPulse {
+    0% { transform: rotate(0deg) scale(1); }
+    50% { transform: rotate(180deg) scale(1.1); }
+    100% { transform: rotate(360deg) scale(1); }
+  }
   .tag-recovery { background: #22C55E14; color: #16A34A; border: 1px solid #22C55E28; }
   .gauge-bar { height: 6px; border-radius: 3px; background: linear-gradient(to right, #22C55E 0%, #22C55E 25%, #EAB308 25%, #EAB308 50%, #F97316 50%, #F97316 75%, #EF4444 75%, #EF4444 100%); }
   .gauge-bar-ticks { position: relative; height: 14px; font-size: 10px; color: var(--muted); }
@@ -391,42 +401,127 @@
     </div>
 
     <!-- Gauge card -->
-    <div class="card gauge-card" style="position:relative;">
-      <div style="font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted2);margin-bottom:2px;"><span class="en">TODAY</span><span class="ua">СЬОГОДНІ</span></div>
-      <div class="gauge-arc-wrap">
-        <svg class="gauge-svg" viewBox="0 0 240 130" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <linearGradient id="arcGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%"   stop-color="#22C55E"/>
-              <stop offset="33%"  stop-color="#EAB308"/>
-              <stop offset="66%"  stop-color="#F97316"/>
-              <stop offset="100%" stop-color="#EF4444"/>
-            </linearGradient>
-          </defs>
-          <!-- Track -->
-          <path d="M 20 120 A 100 100 0 0 1 220 120" stroke="var(--surface2)" stroke-width="6" stroke-linecap="round" fill="none" vector-effect="non-scaling-stroke"/>
-          <!-- Faint gradient track -->
-          <path d="M 20 120 A 100 100 0 0 1 220 120" stroke="url(#arcGrad)" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.18" vector-effect="non-scaling-stroke"/>
-          <!-- Active arc -->
-          <path id="gauge-arc" d="" stroke="#22C55E" stroke-width="6" stroke-linecap="round" fill="none" vector-effect="non-scaling-stroke"/>
-          <!-- Needle dot -->
-          <circle id="gauge-needle" cx="20" cy="120" r="5" fill="var(--bg)" stroke="#22C55E" stroke-width="2" vector-effect="non-scaling-stroke"/>
-        </svg>
-        <div class="gauge-arc-number">
-          <span class="gauge-val" id="gauge-val">—</span>
+    <div class="gauge-card-container" style="position:relative; perspective: 1000px; height: 100%;">
+      <div class="gauge-card-inner" id="gauge-card-inner" onclick="this.classList.toggle('flipped')" style="transform-style: preserve-3d; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); width: 100%; height: 100%; position: relative; cursor: pointer;">
+        
+        <!-- FRONT SIDE (Gauge Card) -->
+        <div class="card gauge-card gauge-card-front" style="backface-visibility: hidden; -webkit-backface-visibility: hidden; width: 100%; height: 100%; position: absolute; top:0; left:0; display:flex; flex-direction:column; padding: 22px 24px; box-sizing: border-box; margin:0;">
+          <div style="display:flex; justify-content:space-between; align-items:center; width:100%; margin-bottom:2px;">
+            <div style="font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted2);"><span class="en">TODAY</span><span class="ua">СЬОГОДНІ</span></div>
+            <div class="flip-info-badge" style="font-size:9px; font-weight:700; color:var(--accent); display:flex; align-items:center; gap:4px; padding: 2px 6px; border-radius: 4px; background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.2);" title="Click to see engine algorithm / Натисніть, щоб побачити алгоритм">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="animation: spinPulse 2s infinite ease-in-out;"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+              <span class="en">HOW IT WORKS</span><span class="ua">ЯК ЦЕ ПРАЦЮЄ</span>
+            </div>
+          </div>
+          <div class="gauge-arc-wrap">
+            <svg class="gauge-svg" viewBox="0 0 240 130" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="arcGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%"   stop-color="#22C55E"/>
+                  <stop offset="33%"  stop-color="#EAB308"/>
+                  <stop offset="66%"  stop-color="#F97316"/>
+                  <stop offset="100%" stop-color="#EF4444"/>
+                </linearGradient>
+              </defs>
+              <!-- Track -->
+              <path d="M 20 120 A 100 100 0 0 1 220 120" stroke="var(--surface2)" stroke-width="6" stroke-linecap="round" fill="none" vector-effect="non-scaling-stroke"/>
+              <!-- Faint gradient track -->
+              <path d="M 20 120 A 100 100 0 0 1 220 120" stroke="url(#arcGrad)" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.18" vector-effect="non-scaling-stroke"/>
+              <!-- Active arc -->
+              <path id="gauge-arc" d="" stroke="#22C55E" stroke-width="6" stroke-linecap="round" fill="none" vector-effect="non-scaling-stroke"/>
+              <!-- Needle dot -->
+              <circle id="gauge-needle" cx="20" cy="120" r="5" fill="var(--bg)" stroke="#22C55E" stroke-width="2" vector-effect="non-scaling-stroke"/>
+            </svg>
+            <div class="gauge-arc-number">
+              <span class="gauge-val" id="gauge-val">—</span>
+            </div>
+          </div>
+          <div class="gauge-scale">
+            <div class="gauge-bar"></div>
+            <div class="gauge-bar-ticks"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
+            <div class="gauge-labels">
+              <span class="gl-1"><span class="en">V.LOW</span><span class="ua">МІН.</span></span>
+              <span class="gl-2"><span class="en">MODER.</span><span class="ua">ПОМІР.</span></span>
+              <span class="gl-3"><span class="en">HIGH</span><span class="ua">ЗНАЧН.</span></span>
+              <span class="gl-4"><span class="en">V.HIGH</span><span class="ua">НАДМ.</span></span>
+            </div>
+          </div>
+          <div class="gauge-tags" id="gauge-tags"></div>
         </div>
-      </div>
-      <div class="gauge-scale">
-        <div class="gauge-bar"></div>
-        <div class="gauge-bar-ticks"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
-        <div class="gauge-labels">
-          <span class="gl-1"><span class="en">V.LOW</span><span class="ua">МІН.</span></span>
-          <span class="gl-2"><span class="en">MODER.</span><span class="ua">ПОМІР.</span></span>
-          <span class="gl-3"><span class="en">HIGH</span><span class="ua">ЗНАЧН.</span></span>
-          <span class="gl-4"><span class="en">V.HIGH</span><span class="ua">НАДМ.</span></span>
+
+        <!-- BACK SIDE (Algorithm schematic) -->
+        <div class="card gauge-card-back" style="backface-visibility: hidden; -webkit-backface-visibility: hidden; transform: rotateY(180deg); width: 100%; height: 100%; position: absolute; top:0; left:0; display:flex; flex-direction:column; padding: 22px 24px; box-sizing: border-box; margin:0; justify-content: space-between;">
+          <div style="display:flex; justify-content:space-between; align-items:center; width:100%; margin-bottom:8px;">
+            <div style="font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted2);"><span class="en">ALGORITHM</span><span class="ua">АЛГОРИТМ</span></div>
+            <div style="font-size:9px; font-weight:700; color:var(--accent); display:flex; align-items:center; gap:4px; padding: 2px 6px; border-radius: 4px; background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.2);">
+              <span class="en">BACK</span><span class="ua">НАЗАД</span>
+            </div>
+          </div>
+          
+          <!-- Flow schematic -->
+          <div style="display: flex; flex: 1; align-items: center; justify-content: space-between; position: relative; gap: 4px; height: 130px; margin-top: 10px; margin-bottom: 10px;">
+            <svg style="position:absolute; top:0; left:0; width:100%; height:100%; z-index:0; pointer-events:none;" viewBox="0 0 320 130">
+              <defs>
+                <linearGradient id="flowGrad1" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#8B5CF6" stop-opacity="0.4"/>
+                  <stop offset="100%" stop-color="#3B82F6" stop-opacity="0.4"/>
+                </linearGradient>
+                <linearGradient id="flowGrad2" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#3B82F6" stop-opacity="0.4"/>
+                  <stop offset="100%" stop-color="#10B981" stop-opacity="0.4"/>
+                </linearGradient>
+              </defs>
+              <path d="M 64 32 Q 110 32 125 50" stroke="url(#flowGrad1)" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-dasharray="3,3"/>
+              <path d="M 64 92 Q 110 92 125 76" stroke="url(#flowGrad1)" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-dasharray="3,3"/>
+              <path d="M 195 62 L 236 62" stroke="url(#flowGrad2)" stroke-width="2" fill="none" stroke-linecap="round"/>
+            </svg>
+
+            <!-- Inputs -->
+            <div style="z-index: 1; display:flex; flex-direction:column; gap:8px; width:70px; flex-shrink:0;">
+              <div style="background: rgba(139, 92, 246, 0.08); border: 1px solid rgba(139, 92, 246, 0.2); border-radius: 6px; padding: 4px; text-align:center;">
+                <div style="font-size:7px; font-weight:700; color:#A78BFA; letter-spacing:0.04em;">ON-CHAIN</div>
+                <div style="font-size:8px; font-weight:600; color:var(--text); margin-top:2px; line-height:1.2;">NUPL, MVRV<br>RHODL, CVDD</div>
+              </div>
+              <div style="background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 6px; padding: 4px; text-align:center;">
+                <div style="font-size:7px; font-weight:700; color:#93C5FD; letter-spacing:0.04em;">TECH/MACRO</div>
+                <div style="font-size:8px; font-weight:600; color:var(--text); margin-top:2px; line-height:1.2;">CipherB, ETF<br>M2, Yield</div>
+              </div>
+            </div>
+
+            <!-- Processing -->
+            <div style="z-index: 1; display:flex; flex-direction:column; align-items:center; justify-content:center; background: rgba(17, 17, 24, 0.85); border: 1px solid var(--border); border-radius: 8px; padding: 6px; width:114px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); flex-shrink:0;">
+              <div style="font-size:7px; font-weight:800; color:#3B82F6; letter-spacing:0.06em; margin-bottom:5px; text-transform:uppercase;"><span class="en">Processing</span><span class="ua">Аналіз</span></div>
+              <div style="display:flex; flex-direction:column; gap:3px; width:100%;">
+                <div style="font-size:7px; color:var(--muted2); background:var(--surface2); padding: 3px; border-radius:3px; text-align:center; border:1px solid var(--border);" title="Causal rolling normalization / Нормалізація">
+                  1. Normalization
+                </div>
+                <div style="font-size:7px; color:var(--muted2); background:var(--surface2); padding: 3px; border-radius:3px; text-align:center; border:1px solid var(--border);" title="ML Phase Proximities / Класифікатор фаз">
+                  2. ML Phase Classifier
+                </div>
+                <div style="font-size:7px; color:var(--muted2); background:var(--surface2); padding: 3px; border-radius:3px; text-align:center; border:1px solid var(--border);" title="Continuous utility dynamic weights / Зважування">
+                  3. Utility Blend & Coh.
+                </div>
+              </div>
+            </div>
+
+            <!-- Output -->
+            <div style="z-index: 1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; width:64px; flex-shrink:0;">
+              <div style="width: 42px; height: 42px; border-radius: 50%; background: radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0) 70%); border: 1.5px solid #10B981; display:flex; flex-direction:column; align-items:center; justify-content:center; box-shadow: 0 0 10px rgba(16, 185, 129, 0.25);">
+                <div style="font-size:7px; font-weight:700; color:#34D399; letter-spacing:0.04em; line-height: 1;">SCORE</div>
+                <div style="font-size:12px; font-weight:800; color:#34D399; line-height: 1.1;" class="meta-indicator">—</div>
+              </div>
+              <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 4px; padding: 2px 4px; text-align:center; width:100%;">
+                <div style="font-size:7px; font-weight:600; color:var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" class="zone-indicator">—</div>
+              </div>
+            </div>
+          </div>
+          
+          <div style="font-size: 8px; color: var(--muted); text-align: center; border-top: 1px solid var(--border); padding-top: 6px; margin-top: auto;">
+            <span class="en">Click to flip back</span><span class="ua">Натисніть для повернення</span>
+          </div>
         </div>
+
       </div>
-      <div class="gauge-tags" id="gauge-tags"></div>
     </div>
 
     <!-- Mini gauges: Yesterday + 7 days -->
@@ -969,6 +1064,18 @@ function updateGauge(score) {
   if (needle) { needle.setAttribute('cx', nx); needle.setAttribute('cy', ny); needle.setAttribute('stroke', z.color); }
   const gv = document.getElementById('gauge-val');
   if (gv) { gv.textContent = score; gv.style.color = z.color; }
+  
+  // Update back side of the card
+  const metaInd = document.querySelector('.meta-indicator');
+  const zoneInd = document.querySelector('.zone-indicator');
+  if (metaInd) { metaInd.textContent = score; metaInd.style.color = z.color; }
+  if (zoneInd) { 
+    const isUa = document.documentElement.lang === 'uk' || 
+                 (localStorage && localStorage.getItem('lang') === 'ua') || 
+                 (localStorage && localStorage.getItem('bbr-lang') === 'ua');
+    zoneInd.textContent = isUa ? z.labelUa : z.label;
+    zoneInd.style.color = z.color; 
+  }
 }
 function updateMiniGauge(arcId, needleId, valId, score) {
   if (score == null) return;
