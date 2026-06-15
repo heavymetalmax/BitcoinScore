@@ -135,7 +135,7 @@ def build_precomputed_dataset(series, btc_price, scores_history):
         # 4. TiZ
         tiz_score = None
         if phase == 'BOTTOM' and scores_history:
-            tiz_score, _ = compute_tiz_causal_v3(scores_history, td)
+            tiz_score, _, _ = compute_tiz_causal_v3(scores_history, td)
             
         oc_coherence = _oc_coherence(normalized)
         
