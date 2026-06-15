@@ -116,7 +116,7 @@
   .status-bar { display: flex; flex-direction: column; gap: 4px; padding: 8px 4px 4px; margin-top: 10px; font-size: 11px; color: var(--text); border-top: 1px solid var(--border); }
   .status-bar .status-row { display: flex; align-items: center; justify-content: space-between; }
   .status-bar .status-val { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; }
-  .status-bar .status-countdown { color: var(--accent, #8B5CF6); }
+  .status-bar .status-countdown { color: #000000; font-weight: 700; }
   .market-state-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
   .market-title { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; color: var(--muted); text-transform: uppercase; }
   .health-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; border: 1px solid transparent; }
@@ -167,6 +167,78 @@
   /* Card Flip & Animation Styles */
   .gauge-card-inner.flipped {
     transform: rotateY(180deg);
+  }
+  .flip-card-wrap {
+    perspective: 1000px;
+    width: 100%;
+    position: relative;
+  }
+  .flip-card-inner {
+    transform-style: preserve-3d;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 100%;
+    position: relative;
+    cursor: pointer;
+  }
+  .flip-card-inner.flipped {
+    transform: rotateY(180deg);
+  }
+  .flip-card-front {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    width: 100%;
+    display: block;
+  }
+  .flip-card-back {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transform: rotateY(180deg);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+  }
+  .comp-card-wrap {
+    perspective: 1000px;
+    width: 100%;
+  }
+  .comp-card-inner {
+    transform-style: preserve-3d;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 100%;
+    position: relative;
+    cursor: pointer;
+  }
+  .comp-card-inner.flipped {
+    transform: rotateY(180deg);
+  }
+  .comp-card-front {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    width: 100%;
+  }
+  .comp-card-back {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transform: rotateY(180deg);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    background: var(--surface);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: var(--shadow);
   }
   @keyframes spinPulse {
     0% { transform: rotate(0deg) scale(1); }
@@ -340,6 +412,8 @@
     .comp-spark, .comp-pct { display: none; }
     .comp-header span:nth-child(3),
     .comp-header span:nth-child(4) { display: none; }
+    .comp-card-back { padding: 8px 16px; }
+    .comp-card-back-desc { font-size: 10px !important; line-height: 1.35 !important; }
     .gauge-val { font-size: 60px; }
     .menu-toggle-btn { display: flex; }
     footer { flex-direction: column; align-items: flex-start; gap: 20px; }
@@ -687,71 +761,103 @@
   <!-- SIGNALS CONTAINER -->
   <div class="signals-container">
     <!-- SIGNAL BLOCK -->
-    <div class="card signal-block" id="signal-block" style="display:none">
-      <div class="signal-block-header">
-        <span class="signal-block-label"><span class="en">Market Signal</span><span class="ua">Ринковий сигнал</span></span>
-        <span class="signal-main-badge" id="sig-flag">—</span>
-      </div>
-      <div class="signal-stats">
-        <div class="signal-stat" title="Наскільки модель впевнена у своєму сигналі. Низька впевненість = сигнали суперечать одне одному.&#10;How confident the model is. Low = indicators disagree with each other.">
-          <div class="signal-stat-val" id="sig-conv">—</div>
-          <div class="signal-stat-label"><span class="en">Confidence</span><span class="ua">Впевненість</span></div>
-        </div>
-        <div class="signal-stat" title="Середня позиція on-chain осциляторів: 0 = всі на дні, 100 = всі на піку. Поточне значення показує де ми у циклі.&#10;Average position of on-chain oscillators: 0 = all at bottom, 100 = all at peak.">
-          <div class="signal-stat-val" id="sig-wr-score">—</div>
-          <div class="signal-stat-label"><span class="en">Cycle Position</span><span class="ua">Позиція у циклі</span></div>
-        </div>
-        <div class="signal-stat" title="Наскільки погоджуються між собою всі on-chain індикатори. 0% = суперечать, 100% = всі вказують в один бік.&#10;How much the on-chain indicators agree. 0% = conflicting, 100% = all pointing the same way.">
-          <div class="signal-stat-val" id="sig-wr-coh">—</div>
-          <div class="signal-stat-label"><span class="en">Agreement</span><span class="ua">Узгодженість</span></div>
-        </div>
-        <div class="signal-stat" id="sig-tiz-wrap" style="display:none" title="Скільки часу ми перебуваємо у зоні дна відносно еталону ~200 днів. До 25% = сигнал ще не підтверджений.&#10;How long we have been in the bottom zone vs. ~200-day calibration. Below 25% = not yet confirmed.">
-          <div class="signal-stat-val" id="sig-tiz">—</div>
-          <div class="signal-stat-label"><span class="en">TiZ Maturity</span><span class="ua">Зрілість TiZ</span></div>
-          <div class="signal-stat-sub" id="sig-tiz-days"></div>
-        </div>
-      </div>
-      <div class="signal-trust">
-        <div class="signal-trust-wrap">
-          <div class="signal-trust-bar"><div class="signal-trust-v2" id="trust-v2-bar" style="width:20%"></div></div>
-          <div class="signal-trust-labels">
-            <span title="Частка трендової моделі у фінальній оцінці&#10;Trend model's share of the final reading"><span class="en">Trend model</span><span class="ua">Трендова модель</span> <span id="trust-v2-pct">—</span></span>
-            <span title="Частка осциляторів у фінальній оцінці&#10;Oscillator model's share of the final reading"><span class="en">Oscillators</span><span class="ua">Осцилятори</span> <span id="trust-wr-pct">—</span></span>
+    <div class="flip-card-wrap" id="signal-block" style="display:none">
+      <div class="flip-card-inner" onclick="this.classList.toggle('flipped')">
+        <!-- Front -->
+        <div class="card signal-block flip-card-front" style="display:block">
+          <div class="signal-block-header">
+            <span class="signal-block-label"><span class="en">Market Signal</span><span class="ua">Ринковий сигнал</span></span>
+            <span class="signal-main-badge" id="sig-flag">—</span>
           </div>
+          <div class="signal-stats">
+            <div class="signal-stat" title="Наскільки модель впевнена у своєму сигналі. Низька впевненість = сигнали суперечать одне одному.&#10;How confident the model is. Low = indicators disagree with each other.">
+              <div class="signal-stat-val" id="sig-conv">—</div>
+              <div class="signal-stat-label"><span class="en">Confidence</span><span class="ua">Впевненість</span></div>
+            </div>
+            <div class="signal-stat" title="Середня позиція on-chain осциляторів: 0 = всі на дні, 100 = всі на піку. Поточне значення показує де ми у циклі.&#10;Average position of on-chain oscillators: 0 = all at bottom, 100 = all at peak.">
+              <div class="signal-stat-val" id="sig-wr-score">—</div>
+              <div class="signal-stat-label"><span class="en">Cycle Position</span><span class="ua">Позиція у циклі</span></div>
+            </div>
+            <div class="signal-stat" title="Наскільки погоджуються між собою всі on-chain індикатори. 0% = суперечать, 100% = всі вказують в один бік.&#10;How much the on-chain indicators agree. 0% = conflicting, 100% = all pointing the same way.">
+              <div class="signal-stat-val" id="sig-wr-coh">—</div>
+              <div class="signal-stat-label"><span class="en">Agreement</span><span class="ua">Узгодженість</span></div>
+            </div>
+            <div class="signal-stat" id="sig-tiz-wrap" style="display:none" title="Скільки часу ми перебуваємо у зоні дна відносно еталону ~200 днів. До 25% = сигнал ще не підтверджений.&#10;How long we have been in the bottom zone vs. ~200-day calibration. Below 25% = not yet confirmed.">
+              <div class="signal-stat-val" id="sig-tiz">—</div>
+              <div class="signal-stat-label"><span class="en">TiZ Maturity</span><span class="ua">Зрілість TiZ</span></div>
+              <div class="signal-stat-sub" id="sig-tiz-days"></div>
+            </div>
+          </div>
+          <div class="signal-trust">
+            <div class="signal-trust-wrap">
+              <div class="signal-trust-bar"><div class="signal-trust-v2" id="trust-v2-bar" style="width:20%"></div></div>
+              <div class="signal-trust-labels">
+                <span title="Частка трендової моделі у фінальній оцінці&#10;Trend model's share of the final reading"><span class="en">Trend model</span><span class="ua">Трендова модель</span> <span id="trust-v2-pct">—</span></span>
+                <span title="Частка осциляторів у фінальній оцінці&#10;Oscillator model's share of the final reading"><span class="en">Oscillators</span><span class="ua">Осцилятори</span> <span id="trust-wr-pct">—</span></span>
+              </div>
+            </div>
+          </div>
+          <div id="sig-explain" class="signal-explain"></div>
+        </div>
+        <!-- Back -->
+        <div class="card flip-card-back" style="display:flex; flex-direction:column; justify-content:space-between; padding: 20px 22px;">
+          <div>
+            <div style="font-size: 11px; font-weight: 600; letter-spacing: 0.08em; color: var(--muted); text-transform: uppercase; margin-bottom: 12px;"><span class="en">Market Signal Info</span><span class="ua">Про ринковий сигнал</span></div>
+            <div style="font-size: 13px; color: var(--muted2); line-height: 1.6;">
+              <span class="en">Market Signal represents the combined engine output, analyzing on-chain oscillator coherence, trend models, and time in the bottom zone (Time in Zone - TiZ) to determine current cycle risk and conviction.</span>
+              <span class="ua">Ринковий сигнал представляє комбінований вихід математичної моделі, аналізуючи узгодженість ончейн-осциляторів, трендові моделі та час перебування в зоні дна (Time in Zone - TiZ) для визначення ризику та впевненості сигналу.</span>
+            </div>
+          </div>
+          <div style="font-size:9px; font-weight:700; color:var(--accent); text-transform:uppercase; text-align:right;"><span class="en">Click to flip</span><span class="ua">Назад</span></div>
         </div>
       </div>
-      <div id="sig-explain" class="signal-explain"></div>
     </div>
 
     <!-- PHASE SIGNALS (V3.2 ML Phase Probabilities) -->
-    <div class="card sp2-block" id="sp2-block" style="display:none">
-      <div class="sp2-header">
-        <span class="sp2-label">
-          <span class="en">Phase Signals</span><span class="ua">Фазові сигнали</span>
-        </span>
-        <span class="sp2-phase-badge" id="sp2-phase">—</span>
+    <div class="flip-card-wrap" id="sp2-block" style="display:none">
+      <div class="flip-card-inner" onclick="this.classList.toggle('flipped')">
+        <!-- Front -->
+        <div class="card sp2-block flip-card-front" style="display:block">
+          <div class="sp2-header">
+            <span class="sp2-label">
+              <span class="en">Phase Signals</span><span class="ua">Фазові сигнали</span>
+            </span>
+            <span class="sp2-phase-badge" id="sp2-phase">—</span>
+          </div>
+          <div class="sp2-rows">
+            <!-- Top Phase -->
+            <div class="sp2-row">
+              <span class="sp2-row-label" title="ML probability of being in a cycle top zone. 100% = clear peak conditions."><span class="en">↑ Top Phase</span><span class="ua">↑ Фаза топа</span></span>
+              <div class="sp2-bar-wrap"><div class="sp2-bar-fill" id="sp2-top-bar" style="background:#EF4444"></div></div>
+              <span class="sp2-row-val" id="sp2-top-val">—</span>
+            </div>
+            <!-- Neutral Phase -->
+            <div class="sp2-row">
+              <span class="sp2-row-label" title="ML probability of being in a neutral/mid-cycle zone. 100% = standard market conditions."><span class="en">→ Neutral Phase</span><span class="ua">→ Нейтральна</span></span>
+              <div class="sp2-bar-wrap"><div class="sp2-bar-fill" id="sp2-neutral-bar" style="background:#3B82F6"></div></div>
+              <span class="sp2-row-val" id="sp2-neutral-val">—</span>
+            </div>
+            <!-- Bottom Phase -->
+            <div class="sp2-row">
+              <span class="sp2-row-label" title="ML probability of being in a cycle bottom zone. 100% = clear accumulation conditions."><span class="en">↓ Bottom Phase</span><span class="ua">↓ Фаза дна</span></span>
+              <div class="sp2-bar-wrap"><div class="sp2-bar-fill" id="sp2-bot-bar" style="background:#22C55E"></div></div>
+              <span class="sp2-row-val" id="sp2-bot-val">—</span>
+            </div>
+          </div>
+          <div class="sp2-desc" id="sp2-desc"></div>
+        </div>
+        <!-- Back -->
+        <div class="card flip-card-back" style="display:flex; flex-direction:column; justify-content:space-between; padding: 20px 22px;">
+          <div>
+            <div style="font-size: 11px; font-weight: 600; letter-spacing: 0.08em; color: var(--muted); text-transform: uppercase; margin-bottom: 12px;"><span class="en">Phase Signals Info</span><span class="ua">Про фазові сигнали</span></div>
+            <div style="font-size: 13px; color: var(--muted2); line-height: 1.6;">
+              <span class="en">Phase Signals show the machine learning model's continuous probabilities of being in a Top, Neutral, or Bottom cycle phase, determining dynamic weighting allocations for all indicators.</span>
+              <span class="ua">Фазові сигнали відображають безперервні ймовірності перебування ринку у фазі Вершини (Top), Нейтральній (Neutral) або Дна (Bottom) згідно з моделлю машинного навчання, що визначає динамічний розподіл ваг показників.</span>
+            </div>
+          </div>
+          <div style="font-size:9px; font-weight:700; color:var(--accent); text-transform:uppercase; text-align:right;"><span class="en">Click to flip</span><span class="ua">Назад</span></div>
+        </div>
       </div>
-      <div class="sp2-rows">
-        <!-- Top Phase -->
-        <div class="sp2-row">
-          <span class="sp2-row-label" title="ML probability of being in a cycle top zone. 100% = clear peak conditions."><span class="en">↑ Top Phase</span><span class="ua">↑ Фаза топа</span></span>
-          <div class="sp2-bar-wrap"><div class="sp2-bar-fill" id="sp2-top-bar" style="background:#EF4444"></div></div>
-          <span class="sp2-row-val" id="sp2-top-val">—</span>
-        </div>
-        <!-- Neutral Phase -->
-        <div class="sp2-row">
-          <span class="sp2-row-label" title="ML probability of being in a neutral/mid-cycle zone. 100% = standard market conditions."><span class="en">→ Neutral Phase</span><span class="ua">→ Нейтральна</span></span>
-          <div class="sp2-bar-wrap"><div class="sp2-bar-fill" id="sp2-neutral-bar" style="background:#3B82F6"></div></div>
-          <span class="sp2-row-val" id="sp2-neutral-val">—</span>
-        </div>
-        <!-- Bottom Phase -->
-        <div class="sp2-row">
-          <span class="sp2-row-label" title="ML probability of being in a cycle bottom zone. 100% = clear accumulation conditions."><span class="en">↓ Bottom Phase</span><span class="ua">↓ Фаза дна</span></span>
-          <div class="sp2-bar-wrap"><div class="sp2-bar-fill" id="sp2-bot-bar" style="background:#22C55E"></div></div>
-          <span class="sp2-row-val" id="sp2-bot-val">—</span>
-        </div>
-      </div>
-      <div class="sp2-desc" id="sp2-desc"></div>
     </div>
   </div>
 
@@ -770,43 +876,118 @@
       <span><span class="en">Influence</span><span class="ua">Вплив</span></span>
       <span><span class="en">Risk</span><span class="ua">Ризик</span></span>
     </div>
-    <div class="comp-row">
-      <div><div class="comp-name">NUPL</div><div class="comp-sub"><span class="en">Net Unrealized Profit/Loss</span><span class="ua">Нереалізований прибуток/збиток</span></div></div>
-      <div class="comp-value"><div class="val" id="v-nupl">—</div><div class="range" id="r-nupl"></div></div>
-      <div class="comp-spark"><canvas id="s1" width="130" height="36"></canvas></div>
-      <div class="comp-pct" id="p-nupl">—</div>
-      <div class="comp-signal"><span class="signal-badge" id="sig-nupl">—</span></div>
-    </div>
-    <div class="comp-row">
-      <div><div class="comp-name">MVRV Z-Score</div><div class="comp-sub"><span class="en">Market Value to Realized Value</span><span class="ua">Ринкова до реалізованої вартості</span></div></div>
-      <div class="comp-value"><div class="val" id="v-mvrv">—</div><div class="range" id="r-mvrv"></div></div>
-      <div class="comp-spark"><canvas id="s2" width="130" height="36"></canvas></div>
-      <div class="comp-pct" id="p-mvrv">—</div>
-      <div class="comp-signal"><span class="signal-badge" id="sig-mvrv">—</span></div>
-    </div>
-    <div class="comp-row">
-      <div><div class="comp-name">RHODL Ratio</div><div class="comp-sub"><span class="en">Realized HODL Ratio</span><span class="ua">Реалізований HODL Ratio</span></div></div>
-      <div class="comp-value"><div class="val" id="v-rhodl">—</div><div class="range" id="r-rhodl"></div></div>
-      <div class="comp-spark"><canvas id="s3" width="130" height="36"></canvas></div>
-      <div class="comp-pct" id="p-rhodl">—</div>
-      <div class="comp-signal"><span class="signal-badge" id="sig-rhodl">—</span></div>
-    </div>
-    <div class="comp-row">
-      <div><div class="comp-name">CVDD Ratio</div><div class="comp-sub"><span class="en">Coin Value Days Destroyed</span><span class="ua">Знищені дні вартості монети</span></div></div>
-      <div class="comp-value"><div class="val" id="v-cvdd">—</div><div class="range" id="r-cvdd"></div></div>
-      <div class="comp-spark"><canvas id="s4" width="130" height="36"></canvas></div>
-      <div class="comp-pct" id="p-cvdd">—</div>
-      <div class="comp-signal"><span class="signal-badge" id="sig-cvdd">—</span></div>
-    </div>
-    <div class="comp-row">
-      <div><div class="comp-name">Adjusted SOPR</div><div class="comp-sub"><span class="en">Spent Output Profit Ratio</span><span class="ua">Відношення прибутку витраченого виводу</span></div></div>
-      <div class="comp-value"><div class="val" id="v-asopr">—</div><div class="range" id="r-asopr"></div></div>
-      <div class="comp-spark"><canvas id="s5" width="130" height="36"></canvas></div>
-      <div class="comp-pct" id="p-asopr">—</div>
-      <div class="comp-signal"><span class="signal-badge" id="sig-asopr">—</span></div>
+    <!-- On-Chain Indicators -->
+    <div class="comp-card-wrap">
+      <div class="comp-card-inner" onclick="this.classList.toggle('flipped')">
+        <div class="comp-row comp-card-front">
+          <div><div class="comp-name">NUPL</div><div class="comp-sub"><span class="en">Net Unrealized Profit/Loss</span><span class="ua">Нереалізований прибуток/збиток</span></div></div>
+          <div class="comp-value"><div class="val" id="v-nupl">—</div><div class="range" id="r-nupl"></div></div>
+          <div class="comp-spark"><canvas id="s1" width="130" height="36"></canvas></div>
+          <div class="comp-pct" id="p-nupl">—</div>
+          <div class="comp-signal"><span class="signal-badge" id="sig-nupl">—</span></div>
+        </div>
+        <div class="comp-card-back">
+          <div>
+            <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 2px;"><span class="en">NUPL</span><span class="ua">NUPL</span></div>
+            <div class="comp-card-back-desc" style="font-size: 11px; color: var(--muted2); line-height: 1.4;">
+              <span class="en">Net Unrealized Profit/Loss measures the total amount of profit or loss in coins currently held by investors to estimate market peaks/bottoms.</span>
+              <span class="ua">Net Unrealized Profit/Loss вимірює загальну суму прибутку або збитку в монетах, які зараз тримають інвестори, для оцінки ринкових вершин/дна.</span>
+            </div>
+          </div>
+          <div style="font-size:9px; font-weight:700; color:var(--accent); text-transform:uppercase; text-align:right; flex-shrink:0; margin-left:15px;"><span class="en">Back</span><span class="ua">Назад</span></div>
+        </div>
+      </div>
     </div>
 
-    <!-- Tech -->
+    <div class="comp-card-wrap">
+      <div class="comp-card-inner" onclick="this.classList.toggle('flipped')">
+        <div class="comp-row comp-card-front">
+          <div><div class="comp-name">MVRV Z-Score</div><div class="comp-sub"><span class="en">Market Value to Realized Value</span><span class="ua">Ринкова до реалізованої вартості</span></div></div>
+          <div class="comp-value"><div class="val" id="v-mvrv">—</div><div class="range" id="r-mvrv"></div></div>
+          <div class="comp-spark"><canvas id="s2" width="130" height="36"></canvas></div>
+          <div class="comp-pct" id="p-mvrv">—</div>
+          <div class="comp-signal"><span class="signal-badge" id="sig-mvrv">—</span></div>
+        </div>
+        <div class="comp-card-back">
+          <div>
+            <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 2px;"><span class="en">MVRV Z-Score</span><span class="ua">MVRV Z-Score</span></div>
+            <div class="comp-card-back-desc" style="font-size: 11px; color: var(--muted2); line-height: 1.4;">
+              <span class="en">Uses standard deviation to highlight extremes between market cap and realized cap, marking cycle bottoms and tops.</span>
+              <span class="ua">Використовує стандартне відхилення для виявлення екстремумів між ринковою та реалізованою капіталізацією, маркуючи дно і вершини циклу.</span>
+            </div>
+          </div>
+          <div style="font-size:9px; font-weight:700; color:var(--accent); text-transform:uppercase; text-align:right; flex-shrink:0; margin-left:15px;"><span class="en">Back</span><span class="ua">Назад</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="comp-card-wrap">
+      <div class="comp-card-inner" onclick="this.classList.toggle('flipped')">
+        <div class="comp-row comp-card-front">
+          <div><div class="comp-name">RHODL Ratio</div><div class="comp-sub"><span class="en">Realized HODL Ratio</span><span class="ua">Реалізований HODL Ratio</span></div></div>
+          <div class="comp-value"><div class="val" id="v-rhodl">—</div><div class="range" id="r-rhodl"></div></div>
+          <div class="comp-spark"><canvas id="s3" width="130" height="36"></canvas></div>
+          <div class="comp-pct" id="p-rhodl">—</div>
+          <div class="comp-signal"><span class="signal-badge" id="sig-rhodl">—</span></div>
+        </div>
+        <div class="comp-card-back">
+          <div>
+            <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 2px;"><span class="en">RHODL Ratio</span><span class="ua">RHODL Ratio</span></div>
+            <div class="comp-card-back-desc" style="font-size: 11px; color: var(--muted2); line-height: 1.4;">
+              <span class="en">Compares the wealth held by 1-week and 1-2 year holders, highlighting market overheating and cooling periods.</span>
+              <span class="ua">Порівнює багатство, що утримується короткостроковими (1 тиж.) та довгостроковими (1-2 р.) холдерами, вказуючи на перегрів ринку.</span>
+            </div>
+          </div>
+          <div style="font-size:9px; font-weight:700; color:var(--accent); text-transform:uppercase; text-align:right; flex-shrink:0; margin-left:15px;"><span class="en">Back</span><span class="ua">Назад</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="comp-card-wrap">
+      <div class="comp-card-inner" onclick="this.classList.toggle('flipped')">
+        <div class="comp-row comp-card-front">
+          <div><div class="comp-name">CVDD Ratio</div><div class="comp-sub"><span class="en">Coin Value Days Destroyed</span><span class="ua">Знищені дні вартості монети</span></div></div>
+          <div class="comp-value"><div class="val" id="v-cvdd">—</div><div class="range" id="r-cvdd"></div></div>
+          <div class="comp-spark"><canvas id="s4" width="130" height="36"></canvas></div>
+          <div class="comp-pct" id="p-cvdd">—</div>
+          <div class="comp-signal"><span class="signal-badge" id="sig-cvdd">—</span></div>
+        </div>
+        <div class="comp-card-back">
+          <div>
+            <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 2px;"><span class="en">CVDD Ratio</span><span class="ua">CVDD Ratio</span></div>
+            <div class="comp-card-back-desc" style="font-size: 11px; color: var(--muted2); line-height: 1.4;">
+              <span class="en">Tracks the cumulative value of coin days destroyed relative to market age, offering a historical floor price model.</span>
+              <span class="ua">Відстежує кумулятивну вартість знищених днів монет відносно віку ринку, пропонуючи історичну модель мінімальної ціни.</span>
+            </div>
+          </div>
+          <div style="font-size:9px; font-weight:700; color:var(--accent); text-transform:uppercase; text-align:right; flex-shrink:0; margin-left:15px;"><span class="en">Back</span><span class="ua">Назад</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="comp-card-wrap">
+      <div class="comp-card-inner" onclick="this.classList.toggle('flipped')">
+        <div class="comp-row comp-card-front">
+          <div><div class="comp-name">Adjusted SOPR</div><div class="comp-sub"><span class="en">Spent Output Profit Ratio</span><span class="ua">Відношення прибутку витраченого виводу</span></div></div>
+          <div class="comp-value"><div class="val" id="v-asopr">—</div><div class="range" id="r-asopr"></div></div>
+          <div class="comp-spark"><canvas id="s5" width="130" height="36"></canvas></div>
+          <div class="comp-pct" id="p-asopr">—</div>
+          <div class="comp-signal"><span class="signal-badge" id="sig-asopr">—</span></div>
+        </div>
+        <div class="comp-card-back">
+          <div>
+            <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 2px;"><span class="en">Adjusted SOPR</span><span class="ua">Adjusted SOPR</span></div>
+            <div class="comp-card-back-desc" style="font-size: 11px; color: var(--muted2); line-height: 1.4;">
+              <span class="en">Reflects whether coins moved on-chain are being spent at a profit or loss, filtering out short-term noise.</span>
+              <span class="ua">Відображає, чи монети, переміщені ончейн, витрачаються у прибуток чи збиток, відфільтровуючи короткостроковий шум.</span>
+            </div>
+          </div>
+          <div style="font-size:9px; font-weight:700; color:var(--accent); text-transform:uppercase; text-align:right; flex-shrink:0; margin-left:15px;"><span class="en">Back</span><span class="ua">Назад</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tech Indicators -->
     <div class="comp-group-hdr" id="hdr-tech"><div class="comp-group-dot" style="background:#3B82F6"></div><span class="en">Technical</span><span class="ua">Технічний</span></div>
     <div class="comp-header">
       <span><span class="en">Indicator</span><span class="ua">Індикатор</span></span>
@@ -815,22 +996,52 @@
       <span><span class="en">Influence</span><span class="ua">Вплив</span></span>
       <span><span class="en">Risk</span><span class="ua">Ризик</span></span>
     </div>
-    <div class="comp-row">
-      <div><div class="comp-name">CipherB</div><div class="comp-sub"><span class="en">Wavetrend Oscillator (weekly)</span><span class="ua">Хвильовий осцилятор (тижнево)</span></div></div>
-      <div class="comp-value"><div class="val" id="v-cipherb">—</div><div class="range" id="r-cipherb"></div></div>
-      <div class="comp-spark"><canvas id="s6" width="130" height="36"></canvas></div>
-      <div class="comp-pct" id="p-cipherb">—</div>
-      <div class="comp-signal"><span class="signal-badge" id="sig-cipherb">—</span></div>
-    </div>
-    <div class="comp-row">
-      <div><div class="comp-name">Mayer Multiple</div><div class="comp-sub"><span class="en">Price / 200-day MA</span><span class="ua">Ціна / 200-денна СС</span></div></div>
-      <div class="comp-value"><div class="val" id="v-mayer">—</div><div class="range" id="r-mayer"></div></div>
-      <div class="comp-spark"><canvas id="s7" width="130" height="36"></canvas></div>
-      <div class="comp-pct" id="p-mayer">—</div>
-      <div class="comp-signal"><span class="signal-badge" id="sig-mayer">—</span></div>
+
+    <div class="comp-card-wrap">
+      <div class="comp-card-inner" onclick="this.classList.toggle('flipped')">
+        <div class="comp-row comp-card-front">
+          <div><div class="comp-name">CipherB</div><div class="comp-sub"><span class="en">Wavetrend Oscillator (weekly)</span><span class="ua">Хвильовий осцилятор (тижнево)</span></div></div>
+          <div class="comp-value"><div class="val" id="v-cipherb">—</div><div class="range" id="r-cipherb"></div></div>
+          <div class="comp-spark"><canvas id="s6" width="130" height="36"></canvas></div>
+          <div class="comp-pct" id="p-cipherb">—</div>
+          <div class="comp-signal"><span class="signal-badge" id="sig-cipherb">—</span></div>
+        </div>
+        <div class="comp-card-back">
+          <div>
+            <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 2px;"><span class="en">CipherB</span><span class="ua">CipherB</span></div>
+            <div class="comp-card-back-desc" style="font-size: 11px; color: var(--muted2); line-height: 1.4;">
+              <span class="en">Weekly momentum oscillator detecting buying and selling pressure to identify cycle turning points.</span>
+              <span class="ua">Тижневий осцилятор імпульсу, що визначає тиск покупців і продавців для виявлення точок розвороту циклу.</span>
+            </div>
+          </div>
+          <div style="font-size:9px; font-weight:700; color:var(--accent); text-transform:uppercase; text-align:right; flex-shrink:0; margin-left:15px;"><span class="en">Back</span><span class="ua">Назад</span></div>
+        </div>
+      </div>
     </div>
 
-    <!-- Macro -->
+    <div class="comp-card-wrap">
+      <div class="comp-card-inner" onclick="this.classList.toggle('flipped')">
+        <div class="comp-row comp-card-front">
+          <div><div class="comp-name">Mayer Multiple</div><div class="comp-sub"><span class="en">Price / 200-day MA</span><span class="ua">Ціна / 200-денна СС</span></div></div>
+          <div class="comp-value"><div class="val" id="v-mayer">—</div><div class="range" id="r-mayer"></div></div>
+          <div class="comp-spark"><canvas id="s7" width="130" height="36"></canvas></div>
+          <div class="comp-pct" id="p-mayer">—</div>
+          <div class="comp-signal"><span class="signal-badge" id="sig-mayer">—</span></div>
+        </div>
+        <div class="comp-card-back">
+          <div>
+            <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 2px;"><span class="en">Mayer Multiple</span><span class="ua">Mayer Multiple</span></div>
+            <div class="comp-card-back-desc" style="font-size: 11px; color: var(--muted2); line-height: 1.4;">
+              <span class="en">Measures the ratio of the current price to its 200-day moving average, showing local overbought or oversold states.</span>
+              <span class="ua">Вимірює відношення поточної ціни до її 200-денної ковзної середньої, показуючи локальний перекуплений або перепроданий стан.</span>
+            </div>
+          </div>
+          <div style="font-size:9px; font-weight:700; color:var(--accent); text-transform:uppercase; text-align:right; flex-shrink:0; margin-left:15px;"><span class="en">Back</span><span class="ua">Назад</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Macro Indicators -->
     <div class="comp-group-hdr" id="hdr-macro"><div class="comp-group-dot" style="background:#F59E0B"></div><span class="en">Macro</span><span class="ua">Макро</span></div>
     <div class="comp-header">
       <span><span class="en">Indicator</span><span class="ua">Індикатор</span></span>
@@ -839,34 +1050,95 @@
       <span><span class="en">Influence</span><span class="ua">Вплив</span></span>
       <span><span class="en">Risk</span><span class="ua">Ризик</span></span>
     </div>
-    <div class="comp-row">
-      <div><div class="comp-name"><span class="en">ETF Net Flows (14D)</span><span class="ua">ETF Потоки (14Д)</span></div><div class="comp-sub"><span class="en">US Spot ETF Net Flows</span><span class="ua">Чисті потоки спот ETF США</span></div></div>
-      <div class="comp-value"><div class="val" id="v-etf">—</div><div class="range" id="r-etf"></div></div>
-      <div class="comp-spark"><canvas id="s8" width="130" height="36"></canvas></div>
-      <div class="comp-pct" id="p-etf">—</div>
-      <div class="comp-signal"><span class="signal-badge" id="sig-etf">—</span></div>
+
+    <div class="comp-card-wrap">
+      <div class="comp-card-inner" onclick="this.classList.toggle('flipped')">
+        <div class="comp-row comp-card-front">
+          <div><div class="comp-name"><span class="en">ETF Net Flows (14D)</span><span class="ua">ETF Потоки (14Д)</span></div><div class="comp-sub"><span class="en">US Spot ETF Net Flows</span><span class="ua">Чисті потоки спот ETF США</span></div></div>
+          <div class="comp-value"><div class="val" id="v-etf">—</div><div class="range" id="r-etf"></div></div>
+          <div class="comp-spark"><canvas id="s8" width="130" height="36"></canvas></div>
+          <div class="comp-pct" id="p-etf">—</div>
+          <div class="comp-signal"><span class="signal-badge" id="sig-etf">—</span></div>
+        </div>
+        <div class="comp-card-back">
+          <div>
+            <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 2px;"><span class="en">ETF Net Flows</span><span class="ua">ETF Потоки</span></div>
+            <div class="comp-card-back-desc" style="font-size: 11px; color: var(--muted2); line-height: 1.4;">
+              <span class="en">Tracks the 14-day cumulative capital entering or exiting US Spot Bitcoin ETFs, reflecting institutional demand.</span>
+              <span class="ua">Відстежує 14-денний сукупний капітал, що надходить або виходить з американських спотових Bitcoin ETF, відображаючи інституційний попит.</span>
+            </div>
+          </div>
+          <div style="font-size:9px; font-weight:700; color:var(--accent); text-transform:uppercase; text-align:right; flex-shrink:0; margin-left:15px;"><span class="en">Back</span><span class="ua">Назад</span></div>
+        </div>
+      </div>
     </div>
-    <div class="comp-row">
-      <div><div class="comp-name"><span class="en">Fear & Greed Index</span><span class="ua">F&amp;G Index</span></div><div class="comp-sub"><span class="en">Market Sentiment (7D avg)</span><span class="ua">Ринковий настрій (сер. 7Д)</span></div></div>
-      <div class="comp-value"><div class="val" id="v-fg">—</div><div class="range" id="r-fg"></div></div>
-      <div class="comp-spark"><canvas id="s9" width="130" height="36"></canvas></div>
-      <div class="comp-pct" id="p-fg">—</div>
-      <div class="comp-signal"><span class="signal-badge" id="sig-fg">—</span></div>
+
+    <div class="comp-card-wrap">
+      <div class="comp-card-inner" onclick="this.classList.toggle('flipped')">
+        <div class="comp-row comp-card-front">
+          <div><div class="comp-name"><span class="en">Fear & Greed Index</span><span class="ua">F&amp;G Index</span></div><div class="comp-sub"><span class="en">Market Sentiment (7D avg)</span><span class="ua">Ринковий настрій (сер. 7Д)</span></div></div>
+          <div class="comp-value"><div class="val" id="v-fg">—</div><div class="range" id="r-fg"></div></div>
+          <div class="comp-spark"><canvas id="s9" width="130" height="36"></canvas></div>
+          <div class="comp-pct" id="p-fg">—</div>
+          <div class="comp-signal"><span class="signal-badge" id="sig-fg">—</span></div>
+        </div>
+        <div class="comp-card-back">
+          <div>
+            <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 2px;"><span class="en">Fear & Greed Index</span><span class="ua">Індекс страху та жадібності</span></div>
+            <div class="comp-card-back-desc" style="font-size: 11px; color: var(--muted2); line-height: 1.4;">
+              <span class="en">Gauges emotional sentiment (7-day average), where extreme fear signals value and extreme greed caution.</span>
+              <span class="ua">Вимірює емоційний настрій (середнє за 7 днів): крайній страх свідчить про цінність, крайня жадібність — про обережність.</span>
+            </div>
+          </div>
+          <div style="font-size:9px; font-weight:700; color:var(--accent); text-transform:uppercase; text-align:right; flex-shrink:0; margin-left:15px;"><span class="en">Back</span><span class="ua">Назад</span></div>
+        </div>
+      </div>
     </div>
-    <div class="comp-row">
-      <div><div class="comp-name"><span class="en">Yield Curve (10Y-2Y)</span><span class="ua">Крива дохідності (10Р-2Р)</span></div><div class="comp-sub"><span class="en">US Treasury Spread</span><span class="ua">Спред держоблігацій США</span></div></div>
-      <div class="comp-value"><div class="val" id="v-yc">—</div><div class="range" id="r-yc"></div></div>
-      <div class="comp-spark"><canvas id="s10" width="130" height="36"></canvas></div>
-      <div class="comp-pct" id="p-yc">—</div>
-      <div class="comp-signal"><span class="signal-badge" id="sig-yc">—</span></div>
+
+    <div class="comp-card-wrap">
+      <div class="comp-card-inner" onclick="this.classList.toggle('flipped')">
+        <div class="comp-row comp-card-front">
+          <div><div class="comp-name"><span class="en">Yield Curve (10Y-2Y)</span><span class="ua">Крива дохідності (10Р-2Р)</span></div><div class="comp-sub"><span class="en">US Treasury Spread</span><span class="ua">Спред держоблігацій США</span></div></div>
+          <div class="comp-value"><div class="val" id="v-yc">—</div><div class="range" id="r-yc"></div></div>
+          <div class="comp-spark"><canvas id="s10" width="130" height="36"></canvas></div>
+          <div class="comp-pct" id="p-yc">—</div>
+          <div class="comp-signal"><span class="signal-badge" id="sig-yc">—</span></div>
+        </div>
+        <div class="comp-card-back">
+          <div>
+            <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 2px;"><span class="en">Yield Curve (10Y-2Y)</span><span class="ua">Крива дохідності (10Р-2Р)</span></div>
+            <div class="comp-card-back-desc" style="font-size: 11px; color: var(--muted2); line-height: 1.4;">
+              <span class="en">Spread indicating macroeconomic health; inversions historically precede recessions and broader market shifts.</span>
+              <span class="ua">Спред вказує на макроекономічне здоров'я; інверсії історично передують рецесіям і великим змінам на ринку.</span>
+            </div>
+          </div>
+          <div style="font-size:9px; font-weight:700; color:var(--accent); text-transform:uppercase; text-align:right; flex-shrink:0; margin-left:15px;"><span class="en">Back</span><span class="ua">Назад</span></div>
+        </div>
+      </div>
     </div>
-    <div class="comp-row">
-      <div><div class="comp-name">M2 Global Liquidity (YoY)</div><div class="comp-sub"><span class="en">Global M2 Money Supply YoY%</span><span class="ua">Глобальна грошова маса M2 р/р</span></div></div>
-      <div class="comp-value"><div class="val" id="v-m2">—</div><div class="range" id="r-m2"></div></div>
-      <div class="comp-spark"><canvas id="s11" width="130" height="36"></canvas></div>
-      <div class="comp-pct" id="p-m2">—</div>
-      <div class="comp-signal"><span class="signal-badge" id="sig-m2">—</span></div>
+
+    <div class="comp-card-wrap">
+      <div class="comp-card-inner" onclick="this.classList.toggle('flipped')">
+        <div class="comp-row comp-card-front">
+          <div><div class="comp-name">M2 Global Liquidity (YoY)</div><div class="comp-sub"><span class="en">Global M2 Money Supply YoY%</span><span class="ua">Глобальна грошова маса M2 р/р</span></div></div>
+          <div class="comp-value"><div class="val" id="v-m2">—</div><div class="range" id="r-m2"></div></div>
+          <div class="comp-spark"><canvas id="s11" width="130" height="36"></canvas></div>
+          <div class="comp-pct" id="p-m2">—</div>
+          <div class="comp-signal"><span class="signal-badge" id="sig-m2">—</span></div>
+        </div>
+        <div class="comp-card-back">
+          <div>
+            <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 2px;"><span class="en">M2 Global Liquidity (YoY)</span><span class="ua">Глобальна ліквідність M2 (YoY)</span></div>
+            <div class="comp-card-back-desc" style="font-size: 11px; color: var(--muted2); line-height: 1.4;">
+              <span class="en">Tracks expansion/contraction of global fiat money supply, which is a major driver of risk assets liquidity.</span>
+              <span class="ua">Відстежує розширення або скорочення світової фіатної грошової маси, яка є рушійною силою ліквідності ризикових активів.</span>
+            </div>
+          </div>
+          <div style="font-size:9px; font-weight:700; color:var(--accent); text-transform:uppercase; text-align:right; flex-shrink:0; margin-left:15px;"><span class="en">Back</span><span class="ua">Назад</span></div>
+        </div>
+      </div>
     </div>
+  </div>
   </div>
 
   <!-- BOTTOM GRID -->
@@ -879,10 +1151,10 @@
         <canvas id="historyChart"></canvas>
       </div>
       <div class="time-toggles">
-        <button class="time-btn active" data-range="ALL">ALL</button>
+        <button class="time-btn" data-range="ALL">ALL</button>
+        <button class="time-btn active" data-range="2Y">2Y</button>
         <button class="time-btn" data-range="6M">6M</button>
         <button class="time-btn" data-range="3M">3M</button>
-        <button class="time-btn" data-range="1M">1M</button>
       </div>
       <div class="chart-legend">
         <span><span class="legend-dot" style="background:#22C55E"></span><span class="en">Very Low</span><span class="ua">Мінімальний</span></span>
@@ -1196,12 +1468,18 @@ function initHistoryEvents() {
   const getHoverIndex = (e) => {
     const rect = c.getBoundingClientRect();
     const clientX = (e.touches && e.touches[0]) ? e.touches[0].clientX : e.clientX;
+    const clientY = (e.touches && e.touches[0]) ? e.touches[0].clientY : e.clientY;
     const mx = clientX - rect.left;
-    const days = { '1M': 30, '3M': 90, '6M': 180, 'ALL': 99999 };
+    const my = clientY - rect.top;
+    
+    const pad = { t: 10, b: 28, l: 30, r: 52 };
+    if (mx < pad.l || mx > rect.width - pad.r || my < pad.t || my > rect.height - pad.b) {
+      return null;
+    }
+    const days = { '3M': 90, '6M': 180, '2Y': 730, 'ALL': 99999 };
     const pts = historyScores.slice(-(days[activeRange] || 99999));
     if (!pts.length) return null;
     
-    const pad = { t: 10, b: 28, l: 30, r: 10 };
     const cw = rect.width - pad.l - pad.r;
     const rel = (mx - pad.l) / cw;
     const idx = Math.round(rel * (pts.length - 1));
@@ -1210,7 +1488,7 @@ function initHistoryEvents() {
 
   const handleMove = (e) => {
     const idx = getHoverIndex(e);
-    if (idx != null && idx !== c._hoverIdx) {
+    if (idx !== c._hoverIdx) {
       c._hoverIdx = idx;
       drawHistory(activeRange, idx);
     }
@@ -1231,7 +1509,7 @@ function initHistoryEvents() {
 }
 
 function drawHistory(range, hoverIndex) {
-  activeRange = range || 'ALL';
+  activeRange = range || '2Y';
   const c = document.getElementById('historyChart');
   if (!c || !historyScores.length) return;
   const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
@@ -1240,7 +1518,7 @@ function drawHistory(range, hoverIndex) {
   const ctx = c.getContext('2d'); ctx.scale(dpr, dpr);
   const W = c.offsetWidth, H = c.offsetHeight; ctx.clearRect(0, 0, W, H);
 
-  const days = { '1M': 30, '3M': 90, '6M': 180, 'ALL': 99999 };
+  const days = { '3M': 90, '6M': 180, '2Y': 730, 'ALL': 99999 };
   const pts = historyScores.slice(-(days[activeRange] || 99999));
   if (!pts.length) return;
 
@@ -1270,7 +1548,7 @@ function drawHistory(range, hoverIndex) {
     ctx.fillStyle = dateTextCol;
     ctx.font = '500 10px Inter, sans-serif';
     ctx.textAlign = i === 0 ? 'left' : (i === pts.length - 1 ? 'right' : 'center');
-    const dateStr = pts[i].date ? (['ALL', '6M'].includes(activeRange) ? pts[i].date.slice(0, 7) : pts[i].date.slice(5)) : '';
+    const dateStr = pts[i].date ? (['ALL', '2Y', '6M'].includes(activeRange) ? pts[i].date.slice(0, 7) : pts[i].date.slice(5)) : '';
     ctx.fillText(dateStr, x, H - 6);
   });
 
@@ -1291,12 +1569,12 @@ function drawHistory(range, hoverIndex) {
       const y = priceToY(pricePts[i]);
       if (!started) { ctx.moveTo(x, y); started = true; } else ctx.lineTo(x, y);
     });
-    ctx.strokeStyle = isDark ? 'rgba(247,147,26,0.32)' : 'rgba(247,147,26,0.28)';
+    ctx.strokeStyle = isDark ? 'rgba(150,150,150,0.22)' : 'rgba(80,80,80,0.18)';
     ctx.lineWidth = 1;
     ctx.stroke();
 
     // Right-axis price labels
-    const priceAxisCol = isDark ? 'rgba(247,147,26,0.55)' : 'rgba(200,110,0,0.70)';
+    const priceAxisCol = isDark ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.28)';
     ctx.textAlign = 'left';
     ctx.font = '9px Inter, sans-serif';
     ctx.fillStyle = priceAxisCol;
@@ -1319,13 +1597,14 @@ function drawHistory(range, hoverIndex) {
     const y = pad.t + ch - (v.score / 100) * ch;
     i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
   });
+  const isAll = activeRange === 'ALL';
   const grad = ctx.createLinearGradient(pad.l, pad.t + ch, pad.l, pad.t);
-  grad.addColorStop(0.1, '#22c55e');  // Green (Bottom/Capitulation)
-  grad.addColorStop(0.35, '#eab308'); // Yellow (Discount/Accumulation)
-  grad.addColorStop(0.65, '#f97316'); // Orange (Neutral)
-  grad.addColorStop(0.9, '#ef4444');  // Red (Overheating/Caution/Sell)
+  grad.addColorStop(0.1, isAll ? 'rgba(34, 197, 94, 0.45)' : '#22c55e');  // Green
+  grad.addColorStop(0.35, isAll ? 'rgba(234, 179, 8, 0.45)' : '#eab308'); // Yellow
+  grad.addColorStop(0.65, isAll ? 'rgba(249, 115, 22, 0.45)' : '#f97316'); // Orange
+  grad.addColorStop(0.9, isAll ? 'rgba(239, 68, 68, 0.45)' : '#ef4444');  // Red
   ctx.strokeStyle = grad;
-  ctx.lineWidth = 2;
+  ctx.lineWidth = isAll ? 0.75 : 2;
   ctx.stroke();
 
   if (hoverIndex != null && hoverIndex >= 0 && hoverIndex < pts.length) {
@@ -1479,8 +1758,20 @@ function attachSparkHovers() {
     canvas.style.cursor = 'crosshair';
 
     canvas.addEventListener('mousemove', (e) => {
+      const cardInner = canvas.closest('.comp-card-inner');
+      if (cardInner && cardInner.classList.contains('flipped')) {
+        tt.style.display = 'none';
+        drawSingleSparkline(i, null);
+        return;
+      }
       const rect = canvas.getBoundingClientRect();
       const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      if (x < 0 || x > rect.width || y < 0 || y > rect.height) {
+        tt.style.display = 'none';
+        drawSingleSparkline(i, null);
+        return;
+      }
       const d = SPARK_DATA[idx];
       const n = d.length;
       const ptIdx = Math.max(0, Math.min(n - 1, Math.round((x / rect.width) * (n - 1))));
@@ -1513,7 +1804,7 @@ function attachSparkHovers() {
 
 // ─── HISTORY CHART ─────────────────────────────────────
 let historyScores = [];
-let activeRange = 'ALL';
+let activeRange = '2Y';
 
 
 
