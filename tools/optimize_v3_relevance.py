@@ -276,7 +276,7 @@ def get_param_bounds(key, state):
     return 0.1, 1.0
 
 
-def compute_trader_loss(dataset, profiles):
+def compute_trader_loss(dataset, profiles, prior_profiles=None, l2_lambda=50.0):
     # 1. Run trading simulation
     cash = 10000.0
     btc = 0.0
@@ -346,69 +346,85 @@ def compute_trader_loss(dataset, profiles):
                         
     # Loss = -1.0 * total_return_pct + 4.0 * (max_dd * 100) + 0.25 * mse + hinge_loss
     loss = -1.0 * total_return_pct + 4.0 * (max_dd * 100) + 0.25 * mse + hinge_loss
+
+    # L2 regularization: penalize deviation from prior weights to reduce overfitting
+    if prior_profiles is not None:
+        l2 = 0.0
+        for key in profiles:
+            if key in prior_profiles:
+                for state in profiles[key]:
+                    if state in prior_profiles[key]:
+                        diff = profiles[key][state] - prior_profiles[key][state]
+                        l2 += diff * diff
+        loss += l2_lambda * l2
+
     return loss, total_return_pct, max_dd, mse, hinge_loss
 
 
-def optimize_relevance_weights(dataset, initial_profiles):
-    """Run pure-Python coordinate descent to optimize weights for trader loss."""
+def optimize_relevance_weights(dataset, initial_profiles, l2_lambda=50.0):
+    """Run pure-Python coordinate descent to optimize weights for trader loss.
+
+    l2_lambda controls regularization strength toward initial_profiles.
+    Higher values keep weights closer to their prior (reduces overfitting).
+    """
     profiles = {k: dict(v) for k, v in initial_profiles.items()}
-    
-    keys = list(profiles.keys())
+    prior    = {k: dict(v) for k, v in initial_profiles.items()}
+
+    keys   = list(profiles.keys())
     states = ['BOTTOM', 'NEUTRAL', 'TOP']
-    
-    # Tweak settings
-    delta = 0.05
+
+    delta  = 0.05
     epochs = 15
-    
-    best_loss, ret_pct, max_dd, mse, hinge_loss = compute_trader_loss(dataset, profiles)
+
+    best_loss, ret_pct, max_dd, mse, hinge_loss = compute_trader_loss(
+        dataset, profiles, prior_profiles=prior, l2_lambda=l2_lambda)
     print(f"Initial Baseline Trader Loss: {best_loss:.2f} (Return: {ret_pct:.1f}%, Max DD: {max_dd*100:.1f}%, MSE: {mse:.2f}, Hinge: {hinge_loss:.2f})")
-    
+
     for epoch in range(1, epochs + 1):
         improved = False
         print(f"Epoch {epoch}/{epochs}...")
-        
-        # Coordinate descent pass
+
         for key in keys:
             for state in states:
                 curr_val = profiles[key][state]
                 min_b, max_b = get_param_bounds(key, state)
-                
-                # Make sure current value satisfies bounds (clip if necessary)
+
                 curr_val = max(min_b, min(max_b, curr_val))
                 profiles[key][state] = curr_val
-                
+
                 # Try adding delta
                 new_val_up = min(max_b, curr_val + delta)
                 if new_val_up != curr_val:
                     profiles[key][state] = new_val_up
-                    loss_up, _, _, _, _ = compute_trader_loss(dataset, profiles)
+                    loss_up, _, _, _, _ = compute_trader_loss(
+                        dataset, profiles, prior_profiles=prior, l2_lambda=l2_lambda)
                     if loss_up < best_loss:
                         best_loss = loss_up
                         improved = True
                         curr_val = new_val_up
-                        continue  # Tweak accepted
-                        
+                        continue
+
                 # Try subtracting delta
                 new_val_down = max(min_b, curr_val - delta)
                 if new_val_down != curr_val:
                     profiles[key][state] = new_val_down
-                    loss_down, _, _, _, _ = compute_trader_loss(dataset, profiles)
+                    loss_down, _, _, _, _ = compute_trader_loss(
+                        dataset, profiles, prior_profiles=prior, l2_lambda=l2_lambda)
                     if loss_down < best_loss:
                         best_loss = loss_down
                         improved = True
                         curr_val = new_val_down
-                        continue  # Tweak accepted
-                        
-                # Revert to original if no improvement
+                        continue
+
                 profiles[key][state] = curr_val
-                
-        # Calculate current metrics
-        _, ret_pct, max_dd, mse, hinge_loss = compute_trader_loss(dataset, profiles)
+
+        _, ret_pct, max_dd, mse, hinge_loss = compute_trader_loss(
+            dataset, profiles, prior_profiles=prior, l2_lambda=l2_lambda)
         print(f"  Current Best Trader Loss: {best_loss:.2f} (Return: {ret_pct:.1f}%, Max DD: {max_dd*100:.1f}%, MSE: {mse:.2f}, Hinge: {hinge_loss:.2f})")
         if not improved:
             print("  Optimizer converged.")
             break
-            
+
     return profiles, best_loss
 
 
