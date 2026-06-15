@@ -175,14 +175,6 @@ The active backend calculations are stored in the public `data.json` schema, ser
 }
 ```
 
-### 2. Scaled Grid Accumulation (DCA 2.0)
-For fund releases, we recommend avoiding single-bullet entries. Instead, execute capital using a **Risk-Score Grid**:
-1.  **Stage 1 (30% Allocation)**: Enter at **Risk Score $\le 25$** (Guarantees cycle exposure).
-2.  **Stage 2 (40% Allocation)**: Enter at **Risk Score $\le 20$** (Averages entry price down).
-3.  **Stage 3 (30% Allocation)**: Enter at **Risk Score $\le 15$** (Captures deep capitulation wicks).
-
-This grid ensures maximum exposure efficiency, minimizing drawdown stress while preserving absolute upside participation.
-
 ---
 
 ## 8. Limitations & Personal Disclaimer
