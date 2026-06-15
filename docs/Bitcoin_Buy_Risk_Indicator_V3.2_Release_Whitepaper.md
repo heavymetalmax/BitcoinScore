@@ -179,7 +179,7 @@ The active backend calculations are stored in the public `data.json` schema, ser
 
 ## 8. The Rower's Metaphor: Rowing into the Unknown
 
-To understand how to navigate using this index, consider the metaphor of academic rowing. 
+To understand how to navigate using this index, consider the metaphor of academic rowing (a discipline practiced actively by the creator of this indicator, from which this perspective is directly born). 
 
 When you sit in a rowing shell, you propel yourself forward but face entirely backward. You move into the future, yet your eyes can only see where you have already been—the past. The riverbed of the market is winding, the currents are strong, and hidden rocks lie beneath the surface. You can only guess how the river will turn next by looking at the contours of the banks you have already passed and the flow of the water behind you. You cannot turn your head to look forward. 
 
