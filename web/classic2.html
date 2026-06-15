@@ -107,7 +107,7 @@
     box-shadow: var(--shadow);
     transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
   }
-  .card:hover {
+  .card:not(.flip-card-front):not(.flip-card-back):hover {
     transform: translateY(-2px);
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3), 0 0 15px rgba(99, 102, 241, 0.08);
     border-color: rgba(99, 102, 241, 0.25);
@@ -172,6 +172,10 @@
     perspective: 1000px;
     width: 100%;
     position: relative;
+    transition: transform 0.2s ease;
+  }
+  .flip-card-wrap:hover {
+    transform: translateY(-2px);
   }
   .flip-card-inner {
     transform-style: preserve-3d;
@@ -239,6 +243,7 @@
     align-items: center;
     justify-content: space-between;
     box-shadow: var(--shadow);
+    transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
   }
   @keyframes spinPulse {
     0% { transform: rotate(0deg) scale(1); }
@@ -318,7 +323,8 @@
   .comp-header span { font-size: 10px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
   .comp-header span:not(:first-child) { text-align: center; }
   .comp-row { display: grid; grid-template-columns: 220px 90px 1fr 90px 85px; column-gap: 16px; padding: 20px 24px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; align-items: center; transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease; box-shadow: var(--shadow); }
-  .comp-row:hover { background: var(--surface2); border-color: rgba(99, 102, 241, 0.25); transform: translateY(-1px); }
+  .comp-card-wrap:hover .comp-row { background: var(--surface2); border-color: rgba(99, 102, 241, 0.25); transform: translateY(-1px); }
+  .comp-card-wrap:hover .comp-card-back { background: var(--surface2); border-color: rgba(99, 102, 241, 0.25); transform: rotateY(180deg) translateY(-1px); }
   .comp-name { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
   .comp-sub { font-size: 11px; color: var(--muted); margin-top: 1px; }
   .comp-value { text-align: center; }
