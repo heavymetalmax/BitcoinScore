@@ -27,14 +27,17 @@ jobs:
       - name: Install Python dependencies
         run: pip install -r scraper/requirements.txt
 
-      - name: Build unified history
-        run: python tools/build_unified_history.py
-
       - name: Run scraper
         run: python -m scraper.scraper
 
       - name: Retry stale metrics
         run: python tools/retry_stale_metrics.py || true
+
+      - name: Build unified history
+        run: python tools/build_unified_history.py
+
+      - name: Update signal ledger
+        run: python tools/signal_ledger.py || true
 
       - name: Generate ICS calendar feed
         run: python tools/generate_ics.py
