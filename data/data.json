@@ -1,7 +1,7 @@
 {
-  "timestamp": "2026-06-15T07:40:49Z",
-  "btc_price": 65706,
-  "btc_dominance": 58.81,
+  "timestamp": "2026-06-15T10:14:59Z",
+  "btc_price": 65703,
+  "btc_dominance": 58.73,
   "fear_greed": 17.1,
   "fear_greed_label": "CMC",
   "nupl": 12.0043,
@@ -27,37 +27,37 @@
     "nupl": {
       "value": 12.0043,
       "source": "BMP",
-      "updated": "2026-06-15T07:40:42Z"
+      "updated": "2026-06-15T10:14:51Z"
     },
     "mvrv": {
       "value": 0.2417,
       "source": "BMP",
-      "updated": "2026-06-15T07:40:42Z"
+      "updated": "2026-06-15T10:14:51Z"
     },
     "m2": {
       "value": 9.47,
       "source": "MacroMicro",
-      "updated": "2026-06-15T07:40:42Z"
+      "updated": "2026-06-15T10:14:51Z"
     },
     "yield_curve": {
       "value": 0.48,
       "source": "BMP",
-      "updated": "2026-06-15T07:40:42Z"
+      "updated": "2026-06-15T10:14:51Z"
     },
     "cvdd_ratio": {
       "value": 1.266,
       "source": "BMP",
-      "updated": "2026-06-15T07:40:42Z"
+      "updated": "2026-06-15T10:14:51Z"
     },
     "rhodl_ratio": {
       "value": 1257.9609,
       "source": "BMP",
-      "updated": "2026-06-15T07:40:42Z"
+      "updated": "2026-06-15T10:14:51Z"
     },
     "asopr": {
       "value": 0.9833142857142858,
       "source": "BMP",
-      "updated": "2026-06-15T07:40:42Z"
+      "updated": "2026-06-15T10:14:51Z"
     },
     "etf_flows": {
       "value": {
@@ -67,7 +67,7 @@
         "date": "2026-06-05"
       },
       "source": "Farside",
-      "updated": "2026-06-15T07:40:42Z"
+      "updated": "2026-06-15T10:14:51Z"
     },
     "rainbow_band": {
       "value": {
@@ -78,14 +78,14 @@
         "date": "2026-06-14"
       },
       "source": "BMP",
-      "updated": "2026-06-15T07:40:49Z"
+      "updated": "2026-06-15T10:14:59Z"
     },
     "fear_greed": {
       "latest": 23.0,
       "avg_7d": 17.1,
       "label": "CMC",
       "source": "CMC",
-      "updated": "2026-06-15T07:40:49Z"
+      "updated": "2026-06-15T10:14:59Z"
     },
     "cipherb": {
       "value": {
@@ -102,7 +102,7 @@
         "daily_fast_bullish_div": false
       },
       "source": "Local",
-      "updated": "2026-06-15T07:40:50Z"
+      "updated": "2026-06-15T10:15:00Z"
     },
     "smc": {
       "value": {
@@ -116,7 +116,7 @@
         "size": 10
       },
       "source": "Local",
-      "updated": "2026-06-15T07:40:50Z"
+      "updated": "2026-06-15T10:15:00Z"
     },
     "mayer_multiple": {
       "value": {
@@ -126,23 +126,23 @@
         "score": 22
       },
       "source": "Kraken",
-      "updated": "2026-06-15T07:40:50Z"
+      "updated": "2026-06-15T10:15:00Z"
     },
     "funding_rate": {
       "value": {
-        "latest": 0.02056,
-        "avg_7d": 0.02056,
-        "score": 47,
+        "latest": 0.03289,
+        "avg_7d": 0.03289,
+        "score": 55,
         "periods": 1,
         "source": "Kraken Futures"
       },
       "source": "Kraken Futures",
-      "updated": "2026-06-15T07:40:50Z"
+      "updated": "2026-06-15T10:15:00Z"
     },
     "halving_cycle_day": {
       "value": 787,
       "source": "Local",
-      "updated": "2026-06-15T07:40:50Z"
+      "updated": "2026-06-15T10:15:00Z"
     },
     "pi_cycle": {
       "value": {
@@ -153,29 +153,29 @@
         "cross": false
       },
       "source": "Kraken",
-      "updated": "2026-06-15T07:40:50Z"
+      "updated": "2026-06-15T10:15:00Z"
     },
     "puell_multiple": {
       "value": 0.7197,
       "source": "BMP",
-      "updated": "2026-06-15T07:40:57Z"
+      "updated": "2026-06-15T10:15:08Z"
     },
     "lth_supply_pct": {
       "value": 16537615.8556,
       "source": "BMP",
-      "updated": "2026-06-15T07:41:04Z"
+      "updated": "2026-06-15T10:15:15Z"
     },
     "m2_mom": {
       "value": 9.47,
       "source": "MacroMicro",
-      "updated": "2026-06-15T07:41:04Z"
+      "updated": "2026-06-15T10:15:15Z"
     }
   },
   "m2_mom": 9.47,
   "onchain_score": 28,
   "tech_score": 14,
   "v1_score": 26,
-  "final_score": 23,
+  "final_score": 22,
   "adaptive_calibration": {
     "nupl": {
       "fixed": 30,
@@ -208,31 +208,31 @@
   },
   "zone_forecast": {
     "buy": {
-      "price": 58844,
+      "price": 58838,
       "pct": -10.4
     },
     "sell": {
-      "price": 160372,
+      "price": 160356,
       "pct": 144.1
     },
     "buy_threshold": 20,
     "sell_threshold": 80,
-    "realized_price": 57817,
-    "ref_price": 65705
+    "realized_price": 57811,
+    "ref_price": 65698
   },
   "commentary": {
     "en": {
-      "summary": "Market sentiment is shifting as institutional money exits while accumulation signals persist among holders, setting the stage for a bumpy path ahead.",
-      "analysis": "The current environment reflects a disconnect between patient holder behavior and pronounced institutional retreat, indicating a market that is compressing into an accumulation zone despite macro normalization cues. The biggest risk remains the heavy ETF outflows dragging short-term momentum, and a sustained rebound in inflows would be needed to reset the narrative."
+      "summary": "Institutional caution is chipping away at price momentum even as dedicated holders quietly accumulate.",
+      "analysis": "Current signals tell a story of deep-seated accumulation by patient holders amid an environment where institutional ETF outflows weigh on near-term price strength. The key risk remains the influence of significant institutional de-risking against a backdrop of a normalizing macro stance that could alter momentum if ETF flows reverse."
     },
     "ua": {
-      "summary": "Настрої на ринку змінюються, оскільки інституційні інвестиції виходять, тоді як сигнали накопичення залишаються серед тримачів, готуючи ґрунт для нерівного шляху вперед.",
-      "analysis": "Поточне середовище відображає розрив між поведінкою терплячих тримачів і помітним відступом інституцій, що вказує на ринок, який стискається в зону накопичення, незважаючи на сигнали макро-нормалізації. Найбільший ризик залишається у великих відтоках з ETF, які тягнуть за собою короткострокову динаміку, і для відновлення наративу знадобиться стійке зростання припливів."
+      "summary": "Інституційна обережність поступово знижує цінову динаміку, навіть коли віддані тримачі тихо накопичують активи.",
+      "analysis": "Поточні сигнали розповідають про глибоке накопичення терплячих тримачів на фоні середовища, де виведення коштів з інституційних ETF тисне на короткострокову цінову силу. Основний ризик залишається в впливі значного зниження ризиків з боку інституцій на фоні нормалізації макроекономічної ситуації, що може змінити динаміку, якщо потоки ETF зміняться."
     }
   },
   "v2_score": 33,
   "scoring_regime": "bottom",
-  "tiz_score": 24,
+  "tiz_score": 23,
   "tiz_days": 117,
   "oc_coherence": 0.152,
   "coh_factor": 0.661,
@@ -254,16 +254,16 @@
     "window_pts": 1096
   },
   "signal": {
-    "meta_score": 23,
+    "meta_score": 22,
     "zone": "bottom",
-    "conviction": 0.938,
+    "conviction": 0.657,
     "flag": "PROBABLE_BOTTOM",
     "trust": {
       "v3": 0.152,
       "wr": 0.84
     },
     "agreement": "confirmed",
-    "tiz_maturity": 0.418,
+    "tiz_maturity": 0.45,
     "geo_signal": {
       "top": 28,
       "bot": 81
@@ -271,7 +271,7 @@
     "bear_div": false,
     "bull_div": false
   },
-  "v3_score": 22,
+  "v3_score": 23,
   "v3_onchain_score": 28,
   "v3_tech_score": 14,
   "v3_phase": "BOTTOM",
@@ -298,16 +298,16 @@
   "v3_w_neutral": 0.0,
   "v3_w_top": 0.257,
   "v3_signal": {
-    "meta_score": 23,
+    "meta_score": 22,
     "zone": "bottom",
-    "conviction": 0.938,
+    "conviction": 0.657,
     "flag": "PROBABLE_BOTTOM",
     "trust": {
       "v3": 0.152,
       "wr": 0.84
     },
     "agreement": "confirmed",
-    "tiz_maturity": 0.418,
+    "tiz_maturity": 0.45,
     "geo_signal": {
       "top": 28,
       "bot": 81
@@ -315,19 +315,19 @@
     "bear_div": false,
     "bull_div": false
   },
-  "v3_tiz_score": 24,
+  "v3_tiz_score": 23,
   "v3_tiz_days": 117,
-  "v3_tiz_maturity": 0.418,
-  "v3_tiz_calibration": 280,
+  "v3_tiz_maturity": 0.45,
+  "v3_tiz_calibration": 260,
   "v3_oc_coherence": 0.152,
-  "sp_v2": 22,
+  "sp_v2": 23,
   "phase": {
     "phase": "BOTTOM",
-    "top_signal": 24,
-    "bot_signal": 66,
-    "w_bot": 0.66,
-    "w_neutral": 0.1,
-    "w_top": 0.24
+    "top_signal": 28,
+    "bot_signal": 81,
+    "w_bot": 0.743,
+    "w_neutral": 0.0,
+    "w_top": 0.257
   },
   "prev_day": {
     "date": "2026-06-14",
@@ -15779,21 +15779,11 @@
     },
     {
       "date": "2026-06-15",
-      "score": 23,
-      "price": 65855
+      "score": 22,
+      "price": 65703
     }
   ],
   "recovery_window": {
     "active": false
-  },
-  "commentary": {
-    "en": {
-      "summary": "Patient accumulation dominates despite institutional exits, indicating a market bracing for consolidation.",
-      "analysis": "The market narrative is one of steady holder accumulation with patience, as those in low-profit positions sit tight amid a backdrop of normalization in macro conditions. However, heavy ETF outflows continue to weigh on sentiment, and a shift in institutional activity—either a resurgence or further withdrawal—would decisively alter the near-term trajectory."
-    },
-    "ua": {
-      "summary": "Пацієнтське накопичення домінує, незважаючи на виходи інституцій, що вказує на ринок, який готується до консолідації.",
-      "analysis": "Ринкова наратив є таким, що характеризується стабільним накопиченням тримачів з терпінням, оскільки ті, хто знаходиться в позиціях з низьким прибутком, залишаються спокійними на фоні нормалізації макроекономічних умов. Проте, значні відтоки з ETF продовжують тиснути на настрій, і зміна в інституційній активності — або відновлення, або подальше виведення — рішуче змінить короткострокову траєкторію."
-    }
   }
 }
