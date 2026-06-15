@@ -297,7 +297,7 @@
   .signal-stat-val { font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.1; }
   .signal-stat-label { font-size: 10px; color: var(--muted); margin-top: 3px; text-transform: uppercase; letter-spacing: 0.05em; }
   .signal-stat-sub { font-size: 9px; color: var(--muted); opacity: 0.7; margin-top: 2px; }
-  .signal-explain { font-size: 12px; color: var(--muted2); padding: 10px 14px 4px; line-height: 1.5; border-top: 1px solid var(--border); margin-top: auto; }
+  .signal-explain { font-size: 12px; color: var(--muted2); padding: 10px 14px 4px; line-height: 1.5; border-top: 1px solid var(--border); margin-top: auto; height: 72px; box-sizing: border-box; }
   .signal-trust { display: flex; align-items: center; gap: 10px; }
   .signal-trust-bar { flex: 1; height: 3px; border-radius: 2px; background: var(--border); overflow: hidden; }
   .signal-trust-v2 { height: 100%; background: #3B82F6; }
@@ -316,7 +316,7 @@
   .sp2-bar-wrap { flex: 1; height: 6px; background: var(--surface2); border: 1px solid var(--border); border-radius: 3px; overflow: hidden; }
   .sp2-bar-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
   .sp2-row-val { font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; width: 44px; text-align: right; color: var(--muted2); }
-  .sp2-desc { margin-top: auto; font-size: 12px; color: var(--muted2); line-height: 1.5; padding: 10px 14px 4px; border-top: 1px solid var(--border); }
+  .sp2-desc { margin-top: auto; font-size: 12px; color: var(--muted2); line-height: 1.5; padding: 10px 14px 4px; border-top: 1px solid var(--border); height: 72px; box-sizing: border-box; }
 
   .section-header { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
   .section-title { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
@@ -423,6 +423,7 @@
     .comp-header span:nth-child(4) { display: none; }
     .comp-card-back { padding: 8px 16px; }
     .comp-card-back-desc { font-size: 10px !important; line-height: 1.35 !important; }
+    .signal-explain, .sp2-desc { height: auto !important; }
     .gauge-val { font-size: 60px; }
     .menu-toggle-btn { display: flex; }
     footer { flex-direction: column; align-items: flex-start; gap: 20px; }
