@@ -333,7 +333,7 @@ def compute_scores_v3(raw_metrics, target_date=None, prev_scores=None, scores_hi
         # Determine coherence floor and neutral target based on phase/regime
         if phase == 'BOTTOM':
             coh_floor = 0.60
-            neutral_target = 23
+            neutral_target = 26
         elif phase == 'TOP':
             coh_floor = 0.55
             neutral_target = 68
