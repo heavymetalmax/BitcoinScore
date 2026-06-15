@@ -36,6 +36,16 @@ What is retained from technical analysis is narrow, deliberate, and focused on m
 
 On-chain metrics occupy the other half of the index. They offer a window into the actual economic behaviour of buyers and sellers — what prices people paid, what they are currently sitting on in profit or loss, how liquidity is rotating. These signals have a meaningful basis in economic theory. They are also a measure of *human* behaviour, which means they are frequently irrational, subject to feedback loops, and not reliably predictive — including, notably, your own behaviour when reading them.
 
+### The Card Table Metaphor: Reading the State of Play
+
+To visualize how these diverse dimensions interact, imagine a high-stakes card game:
+*   **Technical Analysis (TA)** looks at the action in the present moment and the cards already visible on the table (momentum, price velocity, chart patterns).
+*   **On-Chain Analysis** looks at the cards currently held in the players' hands—and even what might be slipped up their sleeves (unrealized profit/loss distribution, coin ages, wallet rotation).
+*   **Macro Analysis** checks if there is any money left in the players' pockets to keep bidding (global central bank liquidity, interest rates).
+*   **Sentiment (Fear & Greed)** monitors the players' emotions, looking for signs of panic or hubris.
+
+Our indicator tries to assess the state of play by monitoring all of these variables simultaneously. However, because this game has millions of active players who are all human, no machine can predict their final decisions. Therefore, the indicator evaluates the current state of the game, not the final outcome. It measures the playing conditions, not the future cards.
+
 ---
 
 ## 3. Core Mathematical & Technical Architecture
