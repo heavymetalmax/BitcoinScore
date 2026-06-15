@@ -7,7 +7,38 @@ Through the combination of regularized phase classification, dynamic utility wei
 
 ---
 
-## 1. Core Mathematical & Technical Architecture
+## 1. What This Is — and What It Is Not
+
+There is no universally correct way to measure the risk of buying Bitcoin. Anyone who claims otherwise is selling something. This index does not attempt to be that.
+
+What it is: a structured, data-driven tool built to inform personal decisions — specifically to reduce the influence of emotion, noise, and short-term market psychology when evaluating whether a given moment is historically cheap or historically expensive relative to past cycles. Whether it will work in future cycles is unknown. Markets evolve, participants evolve, and the signals that mattered in 2018 may matter less in 2030.
+
+The index updates once per day. Its potential value lies in calm, long-horizon positioning — not in timing day-to-day moves.
+
+> *"Be fearful when others are greedy, and greedy when others are fearful."*
+> — Warren Buffett
+
+If you are looking for a tool to generate quick profits, this index will not help you.
+
+---
+
+## 2. Philosophy
+
+**Bitcoin price behaviour is rooted in macroeconomics and human psychology — not in patterns drawn on charts.**
+
+This project deliberately excludes the class of technical analysis that searches for predictive lines, fractals, harmonic patterns, and similar constructs. The draw of such tools is understandable: they offer the comfort of a story. But a pattern that appears to work in hindsight, on a hand-picked chart, in a market driven by human emotion, is not a reliable signal — it is a coincidence with a compelling visual.
+
+What is retained from technical analysis is narrow, deliberate, and focused on momentum and capital flow:
+*   **Cipher B** on the weekly timeframe is included as the primary price and momentum oscillator. The implementation here is a customized approximation that integrates:
+    *   **WaveTrend (WT)**: A momentum oscillator tracking trend waves (WT1 and WT2).
+    *   **Money Flow Index (MFI)**: A volume-weighted measure of capital inflow/outflow, capturing institutional rotation.
+    *   **Fast Weekly Divergences**: Immediate detection of bullish or bearish momentum divergence on a weekly scale (1-week detection window, max peak age 3 weeks). Active divergences apply a $\pm 12$ risk modifier to promptly capture cycle turning points without lag.
+
+On-chain metrics occupy the other half of the index. They offer a window into the actual economic behaviour of buyers and sellers — what prices people paid, what they are currently sitting on in profit or loss, how liquidity is rotating. These signals have a meaningful basis in economic theory. They are also a measure of *human* behaviour, which means they are frequently irrational, subject to feedback loops, and not reliably predictive — including, notably, your own behaviour when reading them.
+
+---
+
+## 3. Core Mathematical & Technical Architecture
 
 The indicator processes daily incoming market feeds through a causal, lookahead-free 5-stage pipeline:
 
@@ -22,7 +53,7 @@ graph TD
 ```
 
 ### Stage 1: Causal Point-in-Time Normalization
-To prevent lookahead bias (historically leak future highs/lows into the past), all indicators are dynamically scaled using a causal percentile ranking:
+To prevent lookahead bias (historically leaking future highs/lows into the past), all indicators are dynamically scaled using a causal percentile ranking:
 *   **Adaptive Metrics** (`nupl`, `mvrv_z_score`, `cvdd_ratio`, `mayer_multiple`): Normalized against a rolling 4-year (1460-day) lookback window.
 *   **Formula**: Let $x_t$ be the raw metric value at day $t$. The rolling percentile rank $P_t$ is:
     $$P_t = \frac{1}{1460} \sum_{i=0}^{1459} I(x_{t-i} < x_t)$$
@@ -47,7 +78,7 @@ $$U_i = w_{\text{top}} \times \text{Profile}_i[\text{TOP}] + w_{\text{bottom}} \
 ### Stage 4: Phase-Aware Coherence Dampening
 When on-chain indicators diverge (high standard deviation among indicators), the raw average is dynamically pulled towards a phase-appropriate target rather than a fixed neutral midpoint (50):
 *   **`BOTTOM` Phase Target**: **30** (keeps the score in the accumulation/buy zone despite minor indicator deviations).
-*   **`TOP` Phase Target**: **70** (keeps the score in the warning/ caution zone).
+*   **`TOP` Phase Target**: **70** (keeps the score in the warning/caution zone).
 *   **`NEUTRAL` Phase Target**: **50**.
 
 The dispersion adjustor is calculated using a Coherence Factor $C \in [0, 1]$ based on the standard deviation of mapped metrics:
@@ -60,7 +91,7 @@ The Orchestrator combines the composite indicator score with the Wave Resonance 
 
 ---
 
-## 2. Advanced Divergence Overrides (Preventing Fake Cooldowns)
+## 4. Advanced Divergence Overrides (Preventing Fake Cooldowns)
 
 A primary risk for long-term indicators is the **Fake Cooldown** at market tops: price remains near all-time highs, but momentum indicators drop, causing a naive index to cool down (e.g. dropping from 85 to 60) and signaling a fake buying opportunity.
 
@@ -75,7 +106,7 @@ V3.2 addresses this via **Causal Bearish & Bullish Divergence Detection**:
 
 ---
 
-## 3. The Trading Observer: Trailing Score Decision Engine
+## 5. The Trading Observer: Trailing Score Decision Engine
 
 To convert the continuous Risk Score (0-100) into actionable trade executions, the backend implements a **Trading Observer State Machine**:
 
@@ -103,7 +134,7 @@ Price-based trailing stops are vulnerable to Bitcoin's intraday volatility wicks
 
 ---
 
-## 4. Historical Backtest Milestones (V3.2 Precision)
+## 6. Historical Backtest Milestones (V3.2 Precision)
 
 The table below demonstrates V3.2's precision at historical cyclical bottom and peak dates:
 
@@ -112,9 +143,9 @@ The table below demonstrates V3.2's precision at historical cyclical bottom and 
 | **2018-12-15** | Bear Market Bottom | $3,200 | **25** | **BUY** (Threshold reached) |
 | **2019-06-26** | Mid-Cycle Top | $13,880 | **80** | **SELL** (Triggered via trailing exit) |
 | **2020-03-13** | COVID Liquidity Crash | $3,800 | **26** | **BUY** (Extreme OPPORTUNITY) |
-| **2021-04-14** | Spring ATH | $63,500 | **91** | **DISTRIBUTION** (Severe caution) |
+| **2021-04-14** | Spring ATH | $63,500 | **88** | **DISTRIBUTION** (Severe caution) |
 | **2021-07-20** | Summer Consolidation | $29,800 | **44** | **HOLD** (Neutral accumulation) |
-| **2021-11-10** | Double Top ATH | $69,000 | **86** | **SELL** (Triggered via score rollover) |
+| **2021-11-10** | Double Top ATH | $69,000 | **80** | **SELL** (Triggered via score rollover) |
 | **2022-06-18** | Three Arrows Capitulation | $17,600 | **24** | **BUY** (Accumulation active) |
 | **2022-11-21** | FTX Exchange Collapse | $15,500 | **16** | **BUY** (Maximum Opportunity) |
 | **2024-03-14** | Halving Anticipation ATH | $73,500 | **82** | **SELL** (Triggered via score rollover) |
@@ -123,7 +154,7 @@ The table below demonstrates V3.2's precision at historical cyclical bottom and 
 
 ---
 
-## 5. Practical Implementation & Release Roadmap
+## 7. Practical Implementation & Release Roadmap
 
 ### 1. Web & API JSON Payload Integration
 The active backend calculations are stored in the public `data.json` schema, serving as the master feed for web dashboards:
@@ -151,3 +182,13 @@ For fund releases, we recommend avoiding single-bullet entries. Instead, execute
 3.  **Stage 3 (30% Allocation)**: Enter at **Risk Score $\le 15$** (Captures deep capitulation wicks).
 
 This grid ensures maximum exposure efficiency, minimizing drawdown stress while preserving absolute upside participation.
+
+---
+
+## 8. Limitations & Personal Disclaimer
+
+*   **This is a personal composite index, not financial advice.** Do not make allocation decisions based solely on this tool.
+*   **The weight calibration** and model targets represent optimizations on historical data which may not repeat.
+*   **Cipher B** is an approximation of the original indicator, not an exact reproduction.
+*   **Past performance** across historical cycles does not guarantee that the index will remain calibrated or yield profits in future market regimes.
+*   **Nobody knows** what the market will do tomorrow. Distrust anyone who claims otherwise with confidence.
