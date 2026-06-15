@@ -286,7 +286,7 @@ def orchestrate(v2_score, v2_oc_coherence, wr_score, wr_coherence, tiz_maturity=
         if flag not in ('CONFIRMED_BOTTOM', 'PROBABLE_BOTTOM'):
             flag = 'PROBABLE_BOTTOM'
 
-    flag = _tiz_gate(flag, tiz_maturity, meta)
+    flag = _tiz_gate(flag, tiz_maturity, meta, conviction)
 
     return {
         'meta_score':   meta,
@@ -302,22 +302,33 @@ def orchestrate(v2_score, v2_oc_coherence, wr_score, wr_coherence, tiz_maturity=
     }
 
 
-def _tiz_gate(flag, tiz_maturity, meta):
-    """Hard cap on bottom flags based on temporal maturity.
+def _tiz_gate(flag, tiz_maturity, meta, conviction=None):
+    """Dynamic cap on bottom flags based on temporal maturity × conviction.
 
-    < 25% maturity (~50 days): too early to call any bottom → EARLY_ZONE
-    < 50% maturity (~100 days): cannot confirm yet → cap at PROBABLE_BOTTOM
-    ≥ 50%: no override (conviction threshold applies normally)
+    The required maturity for CONFIRMED_BOTTOM decreases as conviction rises:
+      conviction=0.60 (min) → requires tiz ≥ 0.50  (conservative)
+      conviction=0.95 (max) → requires tiz ≥ 0.20  (high confidence overrides time)
+
+    Absolute floor: tiz < 0.15 → EARLY_ZONE regardless of conviction.
     Only applied when meta is in bottom zone and tiz_maturity is provided.
     """
     if tiz_maturity is None or meta is None or meta > _BOTTOM_T:
         return flag
-    if tiz_maturity < 0.25:
+
+    # Hard minimum: too early regardless of conviction
+    if tiz_maturity < 0.15:
         if flag in ('CONFIRMED_BOTTOM', 'PROBABLE_BOTTOM'):
             return 'EARLY_ZONE'
-    elif tiz_maturity < 0.50:
+
+    # Dynamic CONFIRMED threshold: slides from 0.50 → 0.20 as conviction 0.60 → 0.95
+    conv = conviction if (conviction is not None and conviction >= 0.60) else 0.60
+    span = min(1.0, (conv - 0.60) / 0.35)
+    confirmed_threshold = 0.50 - span * 0.30
+
+    if tiz_maturity < confirmed_threshold:
         if flag == 'CONFIRMED_BOTTOM':
             return 'PROBABLE_BOTTOM'
+
     return flag
 
 
