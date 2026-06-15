@@ -1,9 +1,9 @@
 {
-  "timestamp": "2026-06-15T07:20:52Z",
-  "btc_price": 65855,
-  "btc_dominance": null,
-  "fear_greed": 13.4,
-  "fear_greed_label": "Extreme Fear",
+  "timestamp": "2026-06-15T07:40:49Z",
+  "btc_price": 65706,
+  "btc_dominance": 58.81,
+  "fear_greed": 17.1,
+  "fear_greed_label": "CMC",
   "nupl": 12.0043,
   "mvrv_z_score": 0.2417,
   "cvdd_ratio": 1.266,
@@ -27,37 +27,37 @@
     "nupl": {
       "value": 12.0043,
       "source": "BMP",
-      "updated": "2026-06-15T07:20:43Z"
+      "updated": "2026-06-15T07:40:42Z"
     },
     "mvrv": {
       "value": 0.2417,
       "source": "BMP",
-      "updated": "2026-06-15T07:20:43Z"
+      "updated": "2026-06-15T07:40:42Z"
     },
     "m2": {
       "value": 9.47,
       "source": "MacroMicro",
-      "updated": "2026-06-15T07:20:43Z"
+      "updated": "2026-06-15T07:40:42Z"
     },
     "yield_curve": {
       "value": 0.48,
       "source": "BMP",
-      "updated": "2026-06-15T07:20:43Z"
+      "updated": "2026-06-15T07:40:42Z"
     },
     "cvdd_ratio": {
       "value": 1.266,
       "source": "BMP",
-      "updated": "2026-06-15T07:20:43Z"
+      "updated": "2026-06-15T07:40:42Z"
     },
     "rhodl_ratio": {
       "value": 1257.9609,
       "source": "BMP",
-      "updated": "2026-06-15T07:20:43Z"
+      "updated": "2026-06-15T07:40:42Z"
     },
     "asopr": {
       "value": 0.9833142857142858,
       "source": "BMP",
-      "updated": "2026-06-15T07:20:43Z"
+      "updated": "2026-06-15T07:40:42Z"
     },
     "etf_flows": {
       "value": {
@@ -67,7 +67,7 @@
         "date": "2026-06-05"
       },
       "source": "Farside",
-      "updated": "2026-06-15T07:20:43Z"
+      "updated": "2026-06-15T07:40:42Z"
     },
     "rainbow_band": {
       "value": {
@@ -78,21 +78,21 @@
         "date": "2026-06-14"
       },
       "source": "BMP",
-      "updated": "2026-06-15T07:20:52Z"
+      "updated": "2026-06-15T07:40:49Z"
     },
     "fear_greed": {
-      "latest": 20,
-      "avg_7d": 13.4,
-      "label": "Extreme Fear",
-      "source": "Extreme Fear",
-      "updated": "2026-06-15T07:20:52Z"
+      "latest": 23.0,
+      "avg_7d": 17.1,
+      "label": "CMC",
+      "source": "CMC",
+      "updated": "2026-06-15T07:40:49Z"
     },
     "cipherb": {
       "value": {
         "timestamp": 1780531200,
         "close": 61464.4,
         "wt1": -30.54277771963116,
-        "wt2": -11.564851462982867,
+        "wt2": -11.564851462982906,
         "mfi": -3.0666556336303588,
         "weekly_score": 22.230465987334735,
         "fast_bearish_div": false,
@@ -102,7 +102,7 @@
         "daily_fast_bullish_div": false
       },
       "source": "Local",
-      "updated": "2026-06-15T07:20:53Z"
+      "updated": "2026-06-15T07:40:50Z"
     },
     "smc": {
       "value": {
@@ -116,7 +116,7 @@
         "size": 10
       },
       "source": "Local",
-      "updated": "2026-06-15T07:20:53Z"
+      "updated": "2026-06-15T07:40:50Z"
     },
     "mayer_multiple": {
       "value": {
@@ -126,7 +126,7 @@
         "score": 22
       },
       "source": "Kraken",
-      "updated": "2026-06-15T07:20:53Z"
+      "updated": "2026-06-15T07:40:50Z"
     },
     "funding_rate": {
       "value": {
@@ -137,12 +137,12 @@
         "source": "Kraken Futures"
       },
       "source": "Kraken Futures",
-      "updated": "2026-06-15T07:20:53Z"
+      "updated": "2026-06-15T07:40:50Z"
     },
     "halving_cycle_day": {
       "value": 787,
       "source": "Local",
-      "updated": "2026-06-15T07:20:53Z"
+      "updated": "2026-06-15T07:40:50Z"
     },
     "pi_cycle": {
       "value": {
@@ -153,22 +153,22 @@
         "cross": false
       },
       "source": "Kraken",
-      "updated": "2026-06-15T07:20:54Z"
+      "updated": "2026-06-15T07:40:50Z"
     },
     "puell_multiple": {
       "value": 0.7197,
       "source": "BMP",
-      "updated": "2026-06-15T07:21:03Z"
+      "updated": "2026-06-15T07:40:57Z"
     },
     "lth_supply_pct": {
       "value": 16537615.8556,
       "source": "BMP",
-      "updated": "2026-06-15T07:21:12Z"
+      "updated": "2026-06-15T07:41:04Z"
     },
     "m2_mom": {
       "value": 9.47,
       "source": "MacroMicro",
-      "updated": "2026-06-15T07:21:12Z"
+      "updated": "2026-06-15T07:41:04Z"
     }
   },
   "m2_mom": 9.47,
@@ -208,17 +208,27 @@
   },
   "zone_forecast": {
     "buy": {
-      "price": 58979,
+      "price": 58844,
       "pct": -10.4
     },
     "sell": {
-      "price": 160739,
+      "price": 160372,
       "pct": 144.1
     },
     "buy_threshold": 20,
     "sell_threshold": 80,
-    "realized_price": 57950,
-    "ref_price": 65855
+    "realized_price": 57817,
+    "ref_price": 65705
+  },
+  "commentary": {
+    "en": {
+      "summary": "Market sentiment is shifting as institutional money exits while accumulation signals persist among holders, setting the stage for a bumpy path ahead.",
+      "analysis": "The current environment reflects a disconnect between patient holder behavior and pronounced institutional retreat, indicating a market that is compressing into an accumulation zone despite macro normalization cues. The biggest risk remains the heavy ETF outflows dragging short-term momentum, and a sustained rebound in inflows would be needed to reset the narrative."
+    },
+    "ua": {
+      "summary": "Настрої на ринку змінюються, оскільки інституційні інвестиції виходять, тоді як сигнали накопичення залишаються серед тримачів, готуючи ґрунт для нерівного шляху вперед.",
+      "analysis": "Поточне середовище відображає розрив між поведінкою терплячих тримачів і помітним відступом інституцій, що вказує на ринок, який стискається в зону накопичення, незважаючи на сигнали макро-нормалізації. Найбільший ризик залишається у великих відтоках з ETF, які тягнуть за собою короткострокову динаміку, і для відновлення наративу знадобиться стійке зростання припливів."
+    }
   },
   "v2_score": 33,
   "scoring_regime": "bottom",
@@ -246,7 +256,7 @@
   "signal": {
     "meta_score": 23,
     "zone": "bottom",
-    "conviction": 0.547,
+    "conviction": 0.938,
     "flag": "PROBABLE_BOTTOM",
     "trust": {
       "v3": 0.152,
@@ -255,42 +265,42 @@
     "agreement": "confirmed",
     "tiz_maturity": 0.418,
     "geo_signal": {
-      "top": 24,
-      "bot": 66
+      "top": 28,
+      "bot": 81
     },
     "bear_div": false,
     "bull_div": false
   },
-  "v3_score": 23,
+  "v3_score": 22,
   "v3_onchain_score": 28,
   "v3_tech_score": 14,
   "v3_phase": "BOTTOM",
   "v3_utilities": {
-    "nupl": 0.796,
-    "mvrv_z_score": 0.796,
-    "rhodl_ratio": 0.604,
-    "cvdd_ratio": 0.7080000000000001,
-    "asopr": 0.742,
-    "puell": 0.758,
-    "mayer_multiple": 0.391,
-    "fear_greed": 0.336,
+    "nupl": 0.8743119266055046,
+    "mvrv_z_score": 0.8743119266055046,
+    "rhodl_ratio": 0.5541284403669725,
+    "cvdd_ratio": 0.6944954128440367,
+    "asopr": 0.7559633027522936,
+    "puell": 0.7944954128440367,
+    "mayer_multiple": 0.31697247706422016,
+    "fear_greed": 0.31697247706422016,
     "m2_yoy": 0.1,
     "yield_curve_spread": 0.1,
     "etf_flows": 0.1,
     "funding_rate": 0.5,
-    "pi_gap": 0.356,
-    "cipherb": 0.358,
+    "pi_gap": 0.3311926605504587,
+    "cipherb": 0.2798165137614679,
     "cipherb_weekly": 0.5,
     "cipherb_daily": 0.5
   },
-  "fisher_score": 22,
-  "v3_w_bot": 0.66,
-  "v3_w_neutral": 0.1,
-  "v3_w_top": 0.24,
+  "fisher_score": 23,
+  "v3_w_bot": 0.743,
+  "v3_w_neutral": 0.0,
+  "v3_w_top": 0.257,
   "v3_signal": {
     "meta_score": 23,
     "zone": "bottom",
-    "conviction": 0.547,
+    "conviction": 0.938,
     "flag": "PROBABLE_BOTTOM",
     "trust": {
       "v3": 0.152,
@@ -299,8 +309,8 @@
     "agreement": "confirmed",
     "tiz_maturity": 0.418,
     "geo_signal": {
-      "top": 24,
-      "bot": 66
+      "top": 28,
+      "bot": 81
     },
     "bear_div": false,
     "bull_div": false
@@ -310,7 +320,7 @@
   "v3_tiz_maturity": 0.418,
   "v3_tiz_calibration": 280,
   "v3_oc_coherence": 0.152,
-  "sp_v2": 23,
+  "sp_v2": 22,
   "phase": {
     "phase": "BOTTOM",
     "top_signal": 24,
