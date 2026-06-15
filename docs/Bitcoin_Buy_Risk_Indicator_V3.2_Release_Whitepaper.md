@@ -177,7 +177,19 @@ The active backend calculations are stored in the public `data.json` schema, ser
 
 ---
 
-## 8. Limitations & Personal Disclaimer
+## 8. The Rower's Metaphor: Rowing into the Unknown
+
+To understand how to navigate using this index, consider the metaphor of academic rowing. 
+
+When you sit in a rowing shell, you propel yourself forward but face entirely backward. You move into the future, yet your eyes can only see where you have already been—the past. The riverbed of the market is winding, the currents are strong, and hidden rocks lie beneath the surface. You can only guess how the river will turn next by looking at the contours of the banks you have already passed and the flow of the water behind you. You cannot turn your head to look forward. 
+
+Therefore, you must row in a way that moves you toward your destination while keeping the visible riverbanks in sight. Yet, even the most precise calculations of the past are no guarantee that the path ahead will remain calm. 
+
+This indicator is a route guide for a backward-facing rower. It tries its best to map the current and the banks, but it can never replace your own eyes, your mind, your pace, and your personal sense of safety and danger.
+
+---
+
+## 9. Limitations & Personal Disclaimer
 
 *   **This is a personal composite index, not financial advice.** Do not make allocation decisions based solely on this tool.
 *   **The weight calibration** and model targets represent optimizations on historical data which may not repeat.
