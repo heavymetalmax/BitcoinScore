@@ -435,21 +435,141 @@ def weighted_score(weights: dict, slider_map: dict):
     return round(total_s / total_w) if total_w > 0 else None
 
 
+_COV_PATH = os.path.join(os.path.dirname(__file__), '..', 'data', 'mahalanobis_covariance.json')
+_covariance_cache = None
+
+def _load_covariance():
+    global _covariance_cache
+    if _covariance_cache is not None:
+        return _covariance_cache
+    if os.path.exists(_COV_PATH):
+        try:
+            with open(_COV_PATH, 'r', encoding='utf-8') as f:
+                _covariance_cache = json.load(f)
+        except Exception:
+            _covariance_cache = {}
+    else:
+        _covariance_cache = {}
+    return _covariance_cache
+
+
 def _oc_coherence(sm: dict) -> float:
-    """Measure phase synchrony of on-chain metrics.
+    """Measure phase synchrony of on-chain metrics using Mahalanobis distance.
     Returns [0, 1]: 1 = all metrics in agreement, 0 = maximally dispersed.
-    Used downstream (scoring_v2) to dampen the final score when OC signals conflict.
+    Used downstream to dampen the final score when OC signals conflict.
     """
-    keys = [k for k in OC_WEIGHTS if sm.get(k) is not None]
-    if len(keys) < 3:
+    cov_data = _load_covariance()
+    if not cov_data or 'covariance' not in cov_data or 'keys' not in cov_data:
+        # Fallback to old weighted standard deviation coherence
+        keys = [k for k in OC_WEIGHTS if sm.get(k) is not None]
+        if len(keys) < 3:
+            return 1.0
+        weights = [OC_WEIGHTS[k] for k in keys]
+        vals    = [sm[k] / 100.0 for k in keys]
+        total_w = sum(weights)
+        mean_v  = sum(w * v for w, v in zip(weights, vals)) / total_w
+        var     = sum(w * (v - mean_v) ** 2 for w, v in zip(weights, vals)) / total_w
+        # 0.289 = 1/(2√3) = theoretical max std for uniform [0,1] distribution
+        return max(0.0, 1.0 - var ** 0.5 / 0.289)
+
+    oc_keys = cov_data['keys']
+    K = [k for k in oc_keys if sm.get(k) is not None]
+    n = len(K)
+    if n < 3:
         return 1.0
-    weights = [OC_WEIGHTS[k] for k in keys]
-    vals    = [sm[k] / 100.0 for k in keys]
-    total_w = sum(weights)
-    mean_v  = sum(w * v for w, v in zip(weights, vals)) / total_w
-    var     = sum(w * (v - mean_v) ** 2 for w, v in zip(weights, vals)) / total_w
-    # 0.289 = 1/(2√3) = theoretical max std for uniform [0,1] distribution
-    return max(0.0, 1.0 - var ** 0.5 / 0.289)
+
+    x_K = [sm[k] / 100.0 for k in K]
+
+    # Sub-covariance matrix
+    indices = [oc_keys.index(k) for k in K]
+    Sigma_K = []
+    for r in indices:
+        row_cov = [cov_data['covariance'][r][c] for c in indices]
+        Sigma_K.append(row_cov)
+
+    # 1. Get orthogonal basis (Orthonormal basis V_K of shape n x (n-1) orthogonal to [1,1,...,1]^T)
+    e = [1.0] * n
+    norm_e = math.sqrt(n)
+    u1 = [1.0 / norm_e] * n
+    
+    basis = []
+    for i in range(n - 1):
+        v = [0.0] * n
+        v[i] = 1.0
+        basis.append(v)
+        
+    all_vectors = [u1]
+    for v in basis:
+        for u in all_vectors:
+            dot = sum(a * b for a, b in zip(v, u))
+            v = [a - dot * b for a, b in zip(v, u)]
+        norm = math.sqrt(sum(a * a for a in v))
+        if norm > 1e-9:
+            v = [a / norm for a in v]
+            all_vectors.append(v)
+            
+    V_K = []
+    for r in range(n):
+        row = [all_vectors[c][r] for c in range(1, n)]
+        V_K.append(row)
+
+    # 2. Project x_K to y of length n-1
+    y = []
+    for col in range(n - 1):
+        val = sum(V_K[row_idx][col] * x_K[row_idx] for row_idx in range(n))
+        y.append(val)
+
+    # 3. Projected covariance Sigma_y = V_K^T * Sigma_K * V_K
+    temp = []
+    for r in range(n):
+        row_temp = []
+        for c in range(n - 1):
+            val = sum(Sigma_K[r][i] * V_K[i][c] for i in range(n))
+            row_temp.append(val)
+        temp.append(row_temp)
+        
+    Sigma_y = []
+    for r in range(n - 1):
+        row_y = []
+        for c in range(n - 1):
+            val = sum(V_K[i][r] * temp[i][c] for i in range(n))
+            row_y.append(val)
+        Sigma_y.append(row_y)
+
+    # 4. Invert Sigma_y (Gaussian elimination)
+    # Augment Sigma_y with Identity
+    aug = [row[:] + [1.0 if i == j else 0.0 for j in range(n - 1)] for i, row in enumerate(Sigma_y)]
+    for i in range(n - 1):
+        pivot_row = i
+        for r in range(i + 1, n - 1):
+            if abs(aug[r][i]) > abs(aug[pivot_row][i]):
+                pivot_row = r
+        if abs(aug[pivot_row][i]) < 1e-9:
+            # singular matrix fallback
+            return 1.0
+        aug[i], aug[pivot_row] = aug[pivot_row], aug[i]
+        factor = aug[i][i]
+        aug[i] = [val / factor for val in aug[i]]
+        for r in range(n - 1):
+            if r != i:
+                factor = aug[r][i]
+                aug[r] = [val_r - factor * val_i for val_r, val_i in zip(aug[r], aug[i])]
+                
+    inv_Sigma_y = [row[(n - 1):] for row in aug]
+
+    # 5. D_M^2 = y^T * inv_Sigma_y * y
+    temp_y = []
+    for r in range(n - 1):
+        val = sum(inv_Sigma_y[r][c] * y[c] for c in range(n - 1))
+        temp_y.append(val)
+    dm_sq = sum(y[i] * temp_y[i] for i in range(n - 1))
+    dm = math.sqrt(max(0.0, dm_sq))
+
+    # 6. Map Mahalanobis distance to coherence in [0, 1]
+    # Median is ~1.99, 95% is ~3.14. Scale dm=1.0 -> 1.0, dm=3.5 -> 0.0
+    coherence = 1.0 - (dm - 1.0) / 2.5
+    return max(0.0, min(1.0, coherence))
+
 
 
 # ── Fisher-weighted scoring (data-driven weights) ─────────────────────────
