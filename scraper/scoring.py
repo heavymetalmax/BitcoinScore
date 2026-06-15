@@ -171,14 +171,21 @@ TECH_WEIGHTS = {
 
 def map_nupl(v):
     if v is None: return None
-    v = max(-50, min(100, v))
-    return round(((v + 50) / 150) * 100)
+    v = max(-50.0, min(100.0, v))
+    if v <= 40.0:
+        score = 8 + ((v - (-20.0)) / (40.0 - (-20.0))) * (50 - 8)
+    else:
+        score = 50 + ((v - 40.0) / (75.0 - 40.0)) * (100 - 50)
+    return round(max(0, min(100, score)))
 
 def map_mvrv(v):
     if v is None: return None
-    # Range calibrated to current-era max Z-score ~5 (2013/2017 hit >10, no longer realistic)
-    v = max(-2, min(5, v))
-    return round(((v + 2) / 7) * 100)
+    v = max(-0.5, min(5.0, v))
+    if v <= 1.0:
+        score = 8 + ((v - (-0.3)) / (1.0 - (-0.3))) * (50 - 8)
+    else:
+        score = 50 + ((v - 1.0) / (5.0 - 1.0)) * (100 - 50)
+    return round(max(0, min(100, score)))
 
 def map_asopr(v):
     if v is None: return None
@@ -259,9 +266,9 @@ def map_cvdd(v):
 
 def map_rhodl(v):
     if v is None: return None
-    # Range calibrated to 10000 (2021 hit 100K historically, but 2024+ cycles cap ~8K)
-    v = max(100, min(10000, v))
-    return round((math.log10(v) - math.log10(100)) / (math.log10(10000) - math.log10(100)) * 100)
+    v = max(200, min(10000, v))
+    score = (math.log10(v) - math.log10(200)) / (math.log10(10000) - math.log10(200)) * 100
+    return round(max(0, min(100, score)))
 
 def map_etf_flow(v):
     """

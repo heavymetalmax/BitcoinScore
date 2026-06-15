@@ -1339,11 +1339,23 @@ function mapScore(key, v) {
   switch (key) {
     case 'nupl': {
       const c = Math.max(-50, Math.min(100, v));
-      return Math.round(((c + 50) / 150) * 100);
+      let score;
+      if (c <= 40.0) {
+        score = 8 + ((c - (-20.0)) / (40.0 - (-20.0))) * (50 - 8);
+      } else {
+        score = 50 + ((c - 40.0) / (75.0 - 40.0)) * (100 - 50);
+      }
+      return Math.round(Math.max(0, Math.min(100, score)));
     }
     case 'mvrv': {
-      const c = Math.max(-2, Math.min(5, v));
-      return Math.round(((c + 2) / 7) * 100);
+      const c = Math.max(-0.5, Math.min(5.0, v));
+      let score;
+      if (c <= 1.0) {
+        score = 8 + ((c - (-0.3)) / (1.0 - (-0.3))) * (50 - 8);
+      } else {
+        score = 50 + ((c - 1.0) / (5.0 - 1.0)) * (100 - 50);
+      }
+      return Math.round(Math.max(0, Math.min(100, score)));
     }
     case 'asopr': {
       const s = v <= 1.00
@@ -1356,8 +1368,9 @@ function mapScore(key, v) {
       return Math.round(Math.log10(c) / Math.log10(5) * 100);
     }
     case 'rhodl': {
-      const c = Math.max(100, Math.min(10000, v));
-      return Math.round((Math.log10(c) - 2) / (4 - 2) * 100);
+      const c = Math.max(200, Math.min(10000, v));
+      const score = (Math.log10(c) - Math.log10(200)) / (Math.log10(10000) - Math.log10(200)) * 100;
+      return Math.round(Math.max(0, Math.min(100, score)));
     }
     case 'cipherb':
       return Math.round(Math.max(0, Math.min(100, v)));
