@@ -101,7 +101,9 @@ def get_etf_flows():
         # Calculate 14-day rolling sum
         df_cal['Flow_14d_Sum'] = df_cal['Total'].rolling(window=14).sum()
         
-        latest_row = df_cal[df_cal['Date'].notna()].iloc[-1]
+        # Prefer last row with actual reported flows; fall back to last Farside row if all zero
+        _reported = df_cal[(df_cal['Date'].notna()) & (df_cal['Total'] != 0.0)]
+        latest_row = _reported.iloc[-1] if not _reported.empty else df_cal[df_cal['Date'].notna()].iloc[-1]
         
         result = {
             'value': float(latest_row['Flow_14d_Sum']),

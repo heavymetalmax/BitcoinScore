@@ -149,7 +149,16 @@ def build_payload():
         cached_val = None
         if prev_metrics and name in prev_metrics and prev_metrics[name].get('value') is not None and 'age' in locals() and age is not None and age <= 86400 and os.environ.get('FORCE_LIVE') != '1':
             if not (name == 'm2' and prev_metrics[name].get('source') == 'BMP'):
-                cached_val = prev_metrics[name].get('value')
+                _cv = prev_metrics[name].get('value')
+                if name == 'etf_flows' and isinstance(_cv, dict) and _cv.get('date'):
+                    try:
+                        import datetime as _dt_etf
+                        _etf_age_days = (_dt_etf.date.today() - _dt_etf.date.fromisoformat(_cv['date'])).days
+                        if _etf_age_days > 3:
+                            _cv = None  # data is >3 days stale — force live fetch
+                    except Exception:
+                        pass
+                cached_val = _cv
         if cached_val is not None:
             val = cached_val
         else:

@@ -236,6 +236,14 @@ def patch_data_json(data: dict, entries: list) -> None:
     else:
         data['recovery_window'] = {'active': False}
 
+    # Calculate active trading signals from history
+    try:
+        from trading_signals import calculate_active_signal
+        data['trading_signals'] = calculate_active_signal(data['score_history'])
+        print(f"Trading Signals calculated: {data['trading_signals']}")
+    except Exception as tse:
+        print('Failed to calculate trading signals:', tse)
+
     with open(DATA_JSON, 'w', encoding='utf-8') as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
 
