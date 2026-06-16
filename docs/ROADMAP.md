@@ -33,10 +33,10 @@
 ### Фронтенд
 | Елемент | Файл | Статус |
 |---------|------|--------|
-| Головний дашборд | `web/classic2.html` | ✅ |
+| Головний дашборд | `web/classic.html` | ✅ |
 | Sparklines (метрики) | `web/sparklines.json` | ✅ по Jun 14 |
 | Score history chart | `data.score_history` | ✅ 3087 точок |
-| Health badge | `classic2.html` JS | ✅ |
+| Health badge | `classic.html` JS | ✅ |
 
 ### Бекенд / CI
 | Компонент | Статус |

@@ -860,6 +860,12 @@
           <span class="ua">7. Адаптивне калібрування (v2)</span>
         </a>
       </li>
+      <li>
+        <a href="#version-comparison">
+          <span class="en">8. Version Comparison (V1 vs. V3.2)</span>
+          <span class="ua">8. Порівняння версій (V1 та V3.2)</span>
+        </a>
+      </li>
     </ul>
   </div>
 
@@ -1238,6 +1244,86 @@
   </ul>
   <p class="en">The deeper reason is structural: the useful content of a "money-flow" idea already lives in the on-chain group. NUPL, MVRV, RHODL and CVDD are all built on realized capitalization, the real cost basis of moved coins, which is a cleaner, manipulation-resistant measure of capital flow than any exchange volume feed. The exchange-flow result is also a live example of the diminishing-and-shifting-signal problem this whole section is about. So Cipher B stays a price-based tactical momentum oscillator, and the probe is kept in the repository as a reproducible record (<code>tools/coinmetrics_flow_probe.py</code>).</p>
   <p class="ua">Глибша причина структурна: корисний зміст ідеї «грошового потоку» вже живе в ончейн-групі. NUPL, MVRV, RHODL і CVDD усі побудовані на realized capitalization, реальній собівартості переміщених монет, а це чистіший і стійкіший до маніпуляцій вимір потоку капіталу, ніж будь-який біржовий обсяг. Результат із потоками бірж також є живим прикладом проблеми згасання й зсуву сигналів, про яку вся ця секція. Тож Cipher B лишається ціновим тактичним momentum-осцилятором, а пробу збережено в репозиторії як відтворюваний запис (<code>tools/coinmetrics_flow_probe.py</code>).</p>
+
+  <h2 id="version-comparison">
+    <span class="en">8. Version Comparison (V1 vs. V3.2)</span>
+    <span class="ua">8. Порівняння версій (V1 та V3.2)</span>
+  </h2>
+
+  <p class="en">The transition from legacy BitcoinScore V1 to V3.2 represents an evolution from a static, rigid aggregator to an adaptive, regime-aware framework. The table below details the core architectural differences:</p>
+  <p class="ua">Перехід від застарілої версії BitcoinScore V1 до V3.2 являє собою еволюцію від статичного, жорсткого агрегатора до адаптивної моделі, що враховує поточну фазу ринку. У таблиці нижче наведено детальні архітектурні відмінності:</p>
+
+  <div class="glass-card" style="margin-top: 16px; margin-bottom: 24px; overflow-x: auto;">
+  <table style="width: 100%; min-width: 600px;">
+    <thead>
+      <tr>
+        <th style="width: 25%;"><span class="en">Feature</span><span class="ua">Функція</span></th>
+        <th style="width: 35%;"><span class="en">Version 1 (Legacy)</span><span class="ua">Версія 1 (Застаріла)</span></th>
+        <th style="width: 40%;"><span class="en">Version 3.2 (Active Default)</span><span class="ua">Версія 3.2 (Поточна)</span></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong><span class="en">Weighting Model</span><span class="ua">Модель зважування</span></strong></td>
+        <td>
+          <span class="en"><strong>Static weights</strong>: Fixed allocations (50% On-Chain, 50% Tech/Macro) regardless of conditions.</span>
+          <span class="ua"><strong>Статичні ваги</strong>: Фіксований розподіл (50% On-Chain, 50% Tech/Macro) незалежно від умов.</span>
+        </td>
+        <td>
+          <span class="en"><strong>Dynamic weights</strong>: Metric weights scale dynamically (U_i in [0.1, 1.0]) based on the active market regime.</span>
+          <span class="ua"><strong>Динамічні ваги</strong>: Ваги метрик масштабуються динамічно (U_i in [0.1, 1.0]) на основі активного ринкового режиму.</span>
+        </td>
+      </tr>
+      <tr>
+        <td><strong><span class="en">Regime Detection</span><span class="ua">Визначення режиму</span></strong></td>
+        <td>
+          <span class="en"><strong>None</strong>: No concept of cycle phase; indicators are treated identically at tops and bottoms.</span>
+          <span class="ua"><strong>Відсутнє</strong>: Концепція фази циклу відсутня; індикатори трактуються однаково як на вершинах, так і на дні.</span>
+        </td>
+        <td>
+          <span class="en"><strong>ML Phase Classifier</strong>: Regularized Logistic Regression model classifies the market into <code>BOTTOM</code>, <code>NEUTRAL</code>, or <code>TOP</code>.</span>
+          <span class="ua"><strong>ML-класифікатор фаз</strong>: Модель регулярної логістичної регресії класифікує ринок на <code>BOTTOM</code>, <code>NEUTRAL</code> або <code>TOP</code>.</span>
+        </td>
+      </tr>
+      <tr>
+        <td><strong><span class="en">Indicator Calibration</span><span class="ua">Калібрування</span></strong></td>
+        <td>
+          <span class="en"><strong>Static bounds</strong>: Constant bounds that do not adapt to Bitcoin's structural maturity.</span>
+          <span class="ua"><strong>Статичні межі</strong>: Постійні межі, які не адаптуються до структурного дорослішання Bitcoin.</span>
+        </td>
+        <td>
+          <span class="en"><strong>Adaptive Calibration</strong>: Blends fixed mappings with a rolling 4-year percentile rank (50/50 blend).</span>
+          <span class="ua"><strong>Адаптивне калібрування</strong>: Змішує фіксовані карти з ковзним 4-річним історичним перцентильним рангом (50/50).</span>
+        </td>
+      </tr>
+      <tr>
+        <td><strong><span class="en">Indicator Dispersion</span><span class="ua">Розбіжність метрик</span></strong></td>
+        <td>
+          <span class="en"><strong>Unmanaged</strong>: Diverging metrics dilute the overall score, pushing it towards a neutral 50.</span>
+          <span class="ua"><strong>Некерована</strong>: Розбіжність метрик розмиває загальний бал, наближаючи його до нейтральних 50.</span>
+        </td>
+        <td>
+          <span class="en"><strong>Coherence Dampening</strong>: Pulls the score towards phase targets (30 for Bottom, 70 for Top) when metrics diverge.</span>
+          <span class="ua"><strong>Згасання узгодженості</strong>: Притягує оцінку до цілей фази (30 для дна, 70 для вершини) при розбіжності метрик.</span>
+        </td>
+      </tr>
+      <tr>
+        <td><strong><span class="en">Trend Modulators</span><span class="ua">Модулятори тренду</span></strong></td>
+        <td>
+          <span class="en"><strong>None</strong>: Hardcoded tactical alert thresholds.</span>
+          <span class="ua"><strong>Відсутні</strong>: Жорстко закодовані пороги тактичних сигналів.</span>
+        </td>
+        <td>
+          <span class="en"><strong>Active Modulators</strong>: Incorporates Spot ETF flows and the Recovery Entry Window (TiZ modulator).</span>
+          <span class="ua"><strong>Активні модулятори</strong>: Інтегрує потоки спотових ETF та вікно входу відновлення (модулятор TiZ).</span>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p class="en">By transitioning to V3.2, the index eliminates dilution from lagging indicators, automatically adjusts for diminishing volatility over multi-year cycles, and incorporates institutional flow signals for a more accurate evaluation of modern market cycles.</p>
+  <p class="ua">Переходячи на версію V3.2, індекс усуває розмиття від індикаторів, що відстають, автоматично компенсує згасання волатильності протягом багаторічних циклів та інтегрує інституційні потоки капіталу для точнішої оцінки сучасних циклів ринку.</p>
 
   <div class="disclaimer-box">
     <p class="en">This methodology document is for educational and informational purposes only. It is not financial advice. All data and calculations are processed automatically and reflect public historical records. Any decisions to trade are made solely at your own risk.</p>
