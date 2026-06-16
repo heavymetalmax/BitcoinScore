@@ -796,15 +796,14 @@
     <a class="back-link" href="index.html">← Back to Dashboard</a>
     <!-- Language is inherited from the index page (localStorage) -->
   </div>
-
   <h1>
-    <span class="en">Index Methodology</span>
-    <span class="ua">Методологія індексу</span>
+    <span class="en">Technical Whitepaper</span>
+    <span class="ua">Технічний Whitepaper</span>
   </h1>
   
   <div class="subtitle">
-    <span class="en">10 indicators &middot; 16 cycle milestones 2018–2026 &middot; Updated daily</span>
-    <span class="ua">10 індикаторів &middot; 16 ключових подій 2018–2026 &middot; Оновлюється щодня</span>
+    <span class="en">Bitcoin Buy Risk Indicator (V3.2) &middot; Machine Learning Phase Classifier &middot; Trailing Stop Engine</span>
+    <span class="ua">Індекс ризику купівлі Bitcoin (V3.2) &middot; Класифікатор фаз на базі ML &middot; Трейлінг-стоп двигун</span>
   </div>
 
   <p style="margin-top:-8px;">
@@ -819,525 +818,548 @@
     </div>
     <ul class="toc-list">
       <li>
+        <a href="#what-is-it">
+          <span class="en">1. What This Is — and What It Is Not</span>
+          <span class="ua">1. Що це таке — і чим воно не є</span>
+        </a>
+      </li>
+      <li>
         <a href="#philosophy">
-          <span class="en">1. Philosophy &amp; Concept</span>
-          <span class="ua">1. Філософія та концепція</span>
+          <span class="en">2. Philosophy &amp; Methodology</span>
+          <span class="ua">2. Філософія та методологія</span>
         </a>
       </li>
       <li>
-        <a href="#construction">
-          <span class="en">2. How the Index Is Constructed</span>
-          <span class="ua">2. Як побудований індекс</span>
+        <a href="#architecture">
+          <span class="en">3. Core Mathematical &amp; Technical Architecture</span>
+          <span class="ua">3. Математична та технічна архітектура</span>
         </a>
       </li>
       <li>
-        <a href="#on-chain">
-          <span class="en">3. On-Chain Indicators (OC)</span>
-          <span class="ua">3. Ончейн-індикатори (OC)</span>
+        <a href="#divergence">
+          <span class="en">4. Advanced Divergence Overrides</span>
+          <span class="ua">4. Розширені коригування дивергенцій</span>
         </a>
       </li>
       <li>
-        <a href="#tech-macro">
-          <span class="en">4. Tech / Macro Indicators</span>
-          <span class="ua">4. Технічні та макро-індикатори</span>
+        <a href="#observer">
+          <span class="en">5. The Trading Observer: Trailing Stop Engine</span>
+          <span class="ua">5. Трейлінг-стоп двигун за оцінкою</span>
         </a>
       </li>
       <li>
-        <a href="#retro">
-          <span class="en">5. Retrospective Analysis (2018–2026)</span>
-          <span class="ua">5. Ретроспективний аналіз (2018–2026)</span>
+        <a href="#milestones">
+          <span class="en">6. Historical Backtest Milestones</span>
+          <span class="ua">6. Історичні віхи бектесту</span>
         </a>
       </li>
       <li>
-        <a href="#findings">
-          <span class="en">6. Key Findings</span>
-          <span class="ua">6. Ключові висновки</span>
+        <a href="#implementation">
+          <span class="en">7. Practical Implementation</span>
+          <span class="ua">7. Практична імплементація</span>
         </a>
       </li>
       <li>
-        <a href="#adaptive">
-          <span class="en">7. Adaptive Calibration (v2)</span>
-          <span class="ua">7. Адаптивне калібрування (v2)</span>
+        <a href="#rower">
+          <span class="en">8. The Rower's Metaphor</span>
+          <span class="ua">8. Метафора весляра</span>
         </a>
       </li>
       <li>
         <a href="#version-comparison">
-          <span class="en">8. Version Comparison (V1 vs. V3.2)</span>
-          <span class="ua">8. Порівняння версій (V1 та V3.2)</span>
+          <span class="en">9. Version Comparison (V1 vs. V3.2)</span>
+          <span class="ua">9. Порівняння версій (V1 та V3.2)</span>
+        </a>
+      </li>
+      <li>
+        <a href="#limitations">
+          <span class="en">10. Limitations &amp; Disclaimer</span>
+          <span class="ua">10. Обмеження та дисклеймер</span>
         </a>
       </li>
     </ul>
   </div>
 
+  <!-- Section 1 -->
+  <h2 id="what-is-it">
+    <span class="en">1. What This Is — and What It Is Not</span>
+    <span class="ua">1. Що це таке — і чим воно не є</span>
+  </h2>
+  <p class="en">The Bitcoin Buy Risk Index (V3.2) is a lookahead-free, machine-learning-enhanced macro risk index calibrated on a 0–100 scale. It serves as a quantitative compass for long-term capital allocation, identifying cyclical bottoms and tops by synthesizing on-chain indicators, global macro liquidity, market sentiment, and spot ETF flows.</p>
+  <p class="ua">Індекс ризику купівлі Bitcoin (V3.2) — це макроекономічний індекс ризику без використання майбутніх даних (lookahead-free), покращений машинним навчанням та калібрований за шкалою від 0 до 100. Він є кількісним орієнтиром для довгострокового розподілу капіталу, виявляючи циклічні дна та вершини шляхом синтезу ончейн-показників, глобальної ліквідності, ринкового сентименту та спотових ETF.</p>
+
+  <p class="en">Through the combination of regularized phase classification, dynamic utility weighting, and the new <strong>Score-based Trailing Stop Decision Engine</strong>, the indicator establishes an actionable framework that outpaces traditional Buy &amp; Hold strategies by capturing macro trend expansions while mitigating severe drawdown periods.</p>
+  <p class="ua">Завдяки поєднанню класифікації фаз, динамічного зважування корисності та нового двигуна трейлінг-стопу за оцінкою (Score-based Trailing Stop), індикатор пропонує дієву стратегію, яка перевершує традиційне довгострокове утримання (Buy &amp; Hold), захоплюючи фази макроекономічного зростання та захищаючи від глибоких просідань.</p>
+
+  <p class="en">There is no universally correct way to measure the risk of buying Bitcoin. Anyone who claims otherwise is offering certainty where none exists. This index does not attempt to be that. It is a structured, data-driven tool built to inform personal decisions — specifically to reduce the influence of emotion, noise, and short-term market psychology when evaluating whether a given moment is historically cheap or historically expensive relative to past cycles. Whether it will work in future cycles is unknown.</p>
+  <p class="ua">Не існує єдиного правильного способу оцінити ризик купівлі Bitcoin. Кожен, хто стверджує зворотне, намагається продати вам ілюзію. Цей індекс є структурованим, заснованим на даних інструментом, створеним для зменшення впливу емоцій, новинного шуму та короткострокової ринкової психології при оцінці того, чи є поточний момент історично дешевим чи дорогим порівняно з минулими циклами. Невідомо, чи працюватиме він у майбутніх циклах.</p>
+
+  <!-- Section 2 -->
   <h2 id="philosophy">
-    <span class="en">1. Philosophy &amp; Concept</span>
-    <span class="ua">1. Філософія та концепція</span>
+    <span class="en">2. Philosophy &amp; Methodology</span>
+    <span class="ua">2. Філософія та методологія</span>
   </h2>
-  
-  <p class="en">There is no single correct way to evaluate the risk of buying Bitcoin. Anyone claiming otherwise is offering certainty where none exists. This index is a mathematical framework designed to minimize emotional biases, news noise, and short-term market psychology.</p>
-  <p class="ua">Не існує єдиного правильного способу оцінити ризик купівлі Bitcoin. Кожен, хто стверджує зворотне, намагається продати вам ілюзію. Цей індекс є математичною моделлю, створеною для мінімізації емоційних упереджень, новинного шуму та короткострокової ринкової психології.</p>
+  <p class="en"><strong>Price behavior is rooted in macroeconomics and human psychology — not in patterns drawn on charts.</strong></p>
+  <p class="ua"><strong>Поведінка ціни Bitcoin базується на макроекономіці та людській психології — а не на лініях і фігурах на графіках.</strong></p>
 
-  <p class="en">Rather than relying on speculative chart drawing, this index evaluates whether a given moment is <strong>historically cheap</strong> or <strong>historically expensive</strong> based on hard macroeconomic conditions and block-by-block user behavior.</p>
-  <p class="ua">Замість того, щоб спиратися на спекулятивне малювання ліній тренду, індекс визначає, чи є поточний момент <strong>історично дешевим</strong> чи <strong>історично дорогим</strong> на основі жорстких макроекономічних умов та ончейн-поведінки користувачів на рівні блоків.</p>
+  <p class="en">This project deliberately excludes the class of technical analysis that searches for predictive lines, fractals, harmonic patterns, and similar constructs. What is retained is narrow and focused on momentum and capital flow:</p>
+  <p class="ua">Цей проєкт свідомо ігнорує технічний аналіз, що шукає фрактали, гармонійні патерни тощо. Залишено лише вузькі інструменти моментуму та потоку капіталу:</p>
 
-  <p class="en">At its core, this is a deliberately simple — even primitive — instrument, built on one elementary premise: a market is a system that is always trying to find, and return to, a <strong>mathematical point of balance</strong>. Price can wander far from that point on emotion, leverage and narrative, but it is never truly free of it.</p>
-  <p class="ua">За своєю суттю це навмисно простий — навіть примітивний — інструмент, побудований на одній елементарній ідеї: ринок — це система, яка завжди намагається знайти і повернутися до <strong>математичної точки балансу</strong>. Ціна може далеко відходити від цієї точки під дією емоцій, кредитного плеча та наративів, але ніколи не буває по-справжньому вільною від неї.</p>
-
-  <p class="en">The further price drifts from equilibrium, the <strong>stronger the restoring force</strong> that pulls it back — yet the same distance also builds <strong>inertia</strong>. Momentum, crowd conviction and reflexive leverage all grow with the move, so the market routinely overshoots the balance point in both directions before it snaps back. This index is an attempt to measure that tension: how far we are from balance, and therefore how much latent force is stored on either side.</p>
-  <p class="ua">Чим далі ціна відхиляється від рівноваги, тим <strong>більша сила повернення</strong> діє на те, щоб повернути її назад — але разом із відстанню зростає й <strong>інерція</strong>. Моментум, переконаність натовпу та рефлексивне плече посилюються разом із рухом, тож ринок регулярно «перелітає» точку балансу в обидва боки, перш ніж відскочити назад. Цей індекс — спроба виміряти це напруження: наскільки далеко ми від балансу, а отже, яка прихована сила накопичена з кожного боку.</p>
-
-  <figure class="glass-card" style="margin:24px 0; padding:20px;">
-    <svg viewBox="0 0 640 250" width="100%" style="display:block; height:auto; overflow:visible;" role="img" aria-label="Diagram: price overshooting a balance line with restoring-force arrows that grow with distance">
-      <defs>
-        <marker id="rf-arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-          <path d="M0,0 L10,5 L0,10 z" fill="var(--index-color, #f7931a)"></path>
-        </marker>
-      </defs>
-
-      <!-- Equilibrium / balance line -->
-      <line x1="8" y1="130" x2="632" y2="130" stroke="var(--text-mute, #9ca3af)" stroke-width="1.5" stroke-dasharray="6 5"></line>
-      <text x="632" y="148" text-anchor="end" font-size="12" font-weight="600" fill="var(--text-mute, #9ca3af)" font-family="Outfit, sans-serif">
-        <tspan class="en">Mathematical point of balance</tspan><tspan class="ua">Математична точка балансу</tspan>
-      </text>
-
-      <!-- Restoring-force arrows (length grows with distance from the line) -->
-      <line x1="160" y1="52" x2="160" y2="116" stroke="var(--index-color, #f7931a)" stroke-width="2" marker-end="url(#rf-arrow)" opacity="0.85"></line>
-      <line x1="380" y1="188" x2="380" y2="146" stroke="var(--index-color, #f7931a)" stroke-width="2" marker-end="url(#rf-arrow)" opacity="0.85"></line>
-      <line x1="560" y1="106" x2="560" y2="123" stroke="var(--index-color, #f7931a)" stroke-width="2" marker-end="url(#rf-arrow)" opacity="0.85"></line>
-      <text x="172" y="84" font-size="11.5" font-weight="600" fill="var(--index-color, #f7931a)" font-family="Outfit, sans-serif">
-        <tspan class="en">restoring force grows with distance</tspan><tspan class="ua">сила повернення росте з відстанню</tspan>
-      </text>
-
-      <!-- Price path: overshoots the line in both directions, then converges -->
-      <path d="M20,130 C80,130 110,42 160,42 C210,42 230,130 270,130 C320,130 340,198 380,198 C430,198 440,130 480,130 C520,130 530,98 560,98 C590,98 600,130 620,130"
-            fill="none" stroke="var(--index-color, #f7931a)" stroke-width="2.5" stroke-linecap="round"></path>
-      <!-- markers at the extremes -->
-      <circle cx="160" cy="42" r="3.5" fill="var(--index-color, #f7931a)"></circle>
-      <circle cx="380" cy="198" r="3.5" fill="var(--index-color, #f7931a)"></circle>
-
-      <!-- price label -->
-      <text x="20" y="120" font-size="11.5" font-weight="600" fill="var(--text-sub, #475569)" font-family="Outfit, sans-serif">
-        <tspan class="en">price</tspan><tspan class="ua">ціна</tspan>
-      </text>
-    </svg>
-    <figcaption style="font-size:0.8rem; color:var(--text-mute); margin-top:8px; text-align:center; line-height:1.5;">
-      <span class="en">Price overshoots the balance point in both directions; the further it strays, the stronger the restoring force — while momentum (inertia) carries it past the line before it reverses.</span>
-      <span class="ua">Ціна перелітає точку балансу в обидва боки; чим далі вона відходить, тим сильніша сила повернення — а моментум (інерція) проносить її за лінію, перш ніж вона розвернеться.</span>
-    </figcaption>
-  </figure>
-
-  <p class="en">Keeping the model simple and transparent is intentional — every input and weight is visible, with no black box to trust blindly. In the future I intend to research whether <strong>machine learning and AI</strong> can be integrated so the index can read market structure and risk with more nuance than fixed weights allow — ideally without sacrificing that transparency.</p>
-  <p class="ua">Простота й прозорість моделі — це свідомий вибір: кожен вхідний показник і його вага видимі, тут немає «чорної скриньки», якій треба сліпо довіряти. У майбутньому я планую дослідити, чи можливо інтегрувати <strong>машинне навчання та ШІ</strong>, щоб індекс міг оцінювати структуру ринку й ризик тонше, ніж дозволяють фіксовані ваги, — в ідеалі не жертвуючи цією прозорістю.</p>
-
-  <p class="en" style="font-size:0.85rem; border-top:1px solid var(--divider); padding-top:16px; margin-top:4px;"><strong>Intellectual lineage.</strong> These ideas are not new. The notion that markets swing like a pendulum around a midpoint — overshooting in both directions, where the move toward an extreme itself supplies the energy for the reversal — is developed by Howard Marks in <a href="https://www.oaktreecapital.com/insights/memo/the-pendulum-in-international-affairs" target="_blank" rel="noopener">Mastering the Market Cycle</a>. The mathematical, Bitcoin-specific version — price tethered to an equilibrium trend line by a "rubber band" whose pull grows with distance, then overshoots symmetrically before snapping back — is the core of Giovanni Santostasi's <a href="https://giovannisantostasi.medium.com/the-bitcoin-power-law-theory-962dfaf99ee9" target="_blank" rel="noopener">Bitcoin Power Law Theory</a>. This index stands on those shoulders.</p>
-  <p class="ua" style="font-size:0.85rem; border-top:1px solid var(--divider); padding-top:16px; margin-top:4px;"><strong>Інтелектуальне коріння.</strong> Ці ідеї не нові. Уявлення про те, що ринки коливаються, мов маятник, навколо середини — перелітаючи в обидва боки, де сам рух до екстремуму дає енергію для розвороту, — розвинув Говард Маркс у книзі <a href="https://www.oaktreecapital.com/insights/memo/the-pendulum-in-international-affairs" target="_blank" rel="noopener">«Mastering the Market Cycle»</a>. Математичну, Bitcoin-специфічну версію — ціна, прив'язана до рівноважної лінії тренду «гумкою», тяг якої зростає з відстанню, а потім симетрично перелітає, перш ніж відскочити назад, — становить ядро <a href="https://giovannisantostasi.medium.com/the-bitcoin-power-law-theory-962dfaf99ee9" target="_blank" rel="noopener">Bitcoin Power Law Theory</a> Джованні Сантостазі. Цей індекс спирається на ці напрацювання.</p>
-
-  <blockquote>
-    <p class="en">"Be fearful when others are greedy, and greedy when others are fearful."</p>
-    <p class="ua">«Бійтесь, коли інші жадібні, і будьте жадібні, коли інші бояться.»</p>
-    <cite>— Warren Buffett</cite>
-  </blockquote>
-
-  <div style="border-left:3px solid var(--index-color); padding:4px 0 4px 16px; margin:24px 0; color:var(--text-sub);">
-    <p class="en" style="font-style:italic;">A personal note. I'm not a wealthy trader. I made just about every mistake there is, driven by naivety and the hope of easy money. What eventually pulled me back wasn't some clever logic or calculation. It was accepting a simple fact: all the knowledge I needed already existed in <strong>economic science</strong>. Understanding it is the non-negotiable foundation of any trading that doesn't come down to luck. This index is an attempt to formalize that knowledge. With it, I recovered almost everything I had lost. That isn't a promise of profit. It's the honest tool I wish I'd had at the start.</p>
-    <p class="ua" style="font-style:italic;">Особиста нота. Я не багатий трейдер. Я припустився чи не всіх можливих помилок через наївність і жагу легких грошей. Зрештою повернутися допомогла не якась хитра логіка чи розрахунок, а прийняття простого факту: усі потрібні знання вже були в <strong>економічній науці</strong>. Її розуміння є обов'язковою запорукою будь-якої торгівлі, що не покладається на вдачу. Цей індекс є спробою формалізувати ці знання. З ним я зміг повернути майже все втрачене. Це не обіцянка прибутку, а чесний інструмент, якого мені бракувало на старті.</p>
-  </div>
-
-  <p class="en" style="border-top:1px solid var(--divider); padding-top:16px;">A word of humility. The forces that move a market reach far beyond the handful of instruments we use to measure it. We are like the blind men in the parable of the elephant: each grasps a single part and tries to name the whole. No index escapes this, including this one. Treat every score as just one hand on the elephant. The point is not to find the one perfect metric. It is to keep widening your perception of all the processes at play, so that from a greater distance the shape of the whole can come into view.</p>
-  <p class="ua" style="border-top:1px solid var(--divider); padding-top:16px;">Слово смирення. Сили, що рухають ринок, сягають далеко за межі тієї жмені інструментів, якими ми його вимірюємо. Ми наче сліпі з притчі про слона: кожен тримається за окрему частину й намагається назвати ціле. Жоден індекс цього не уникає, зокрема й цей. Сприймайте будь-яку оцінку лише як одну руку на слоні. Сенс не в тому, щоб знайти єдину досконалу метрику. Він у тому, щоб постійно розширювати власне сприйняття всіх процесів, аби з більшої відстані могла проступити форма цілого.</p>
-
-  <p class="en">And the unknowable. Black swans are real, and one will certainly arrive. When it does, the index will register it, but only after the fact, never before. It reads the present and the past. It does not know the future. Accept this completely before you take any reading into account. The index is a discipline for ordinary times, not a shield against the rare shock that no metric can see coming.</p>
-  <p class="ua">І непізнаване. Чорні лебеді реальні, і один неодмінно прилетить. Коли це станеться, індекс це зафіксує, але вже постфактум, ніколи наперед. Він читає теперішнє й минуле. Майбутнього він не знає. Прийміть це повністю, перш ніж брати до уваги будь-яке його значення. Індекс є дисципліною для звичайних часів, а не щитом від рідкісного удару, який жодна метрика не здатна передбачити.</p>
-
-  <h2 id="construction">
-    <span class="en">2. How the Index Is Constructed</span>
-    <span class="ua">2. Як побудований індекс</span>
-  </h2>
-  
-  <p class="en">The final index value (Version 3.2) is computed via an adaptive, multi-stage pipeline. Rather than using static weights, the model dynamically adjusts the influence of <strong>11 indicators</strong> based on the current market phase identified by a machine learning classifier:</p>
-  <p class="ua">Фінальне значення індексу (Версія 3.2) розраховується за допомогою адаптивного багатоетапного конвеєра. Замість статичних ваг модель динамічно коригує вплив **11 індикаторів** на основі поточної фази ринку, визначеної класифікатором машинного навчання:</p>
-  
-  <ul style="margin-bottom: 20px;">
+  <ul>
     <li>
-      <span class="en"><strong>ML Phase Classification</strong>: A regularized Logistic Regression classifier evaluates a 22-dimensional wave vector (current metrics and their 11-day lookback momentum) to output continuous probabilities for three market regimes: <code>BOTTOM</code> (capitulation/accumulation), <code>NEUTRAL</code> (mid-cycle consolidation), and <code>TOP</code> (speculative frenzy).</span>
-      <span class="ua"><strong>Класифікація фаз за допомогою ШІ/ML</strong>: Класифікатор логістичної регресії оцінює 22-вимірний хвильовий вектор (поточні метрики та їхній 11-денний імпульс), розраховуючи безперервні ймовірності для трьох ринкових режимів: <code>BOTTOM</code> (капітуляція/накопичення), <code>NEUTRAL</code> (середина циклу) та <code>TOP</code> (спекулятивна вершина).</span>
+      <span class="en"><strong>Cipher B</strong> on the weekly timeframe (WT1/WT2 indicators and Money Flow Index) acts as the primary price-derived momentum oscillator.</span>
+      <span class="ua"><strong>Cipher B</strong> на тижневому таймфреймі (індикатори WT1/WT2 та індекс грошового потоку MFI) виступає як основний ціновий осцилятор моментуму.</span>
     </li>
     <li>
-      <span class="en"><strong>Dynamic Relevance Weighting</strong>: Each indicator has a specific relevance profile defining its utility coefficient $U_i \in [0.1, 1.0]$ for each phase. The active utility is computed as: $U_i = w_{\text{top}} U_i[\text{TOP}] + w_{\text{bot}} U_i[\text{BOTTOM}] + w_{\text{neutral}} U_i[\text{NEUTRAL}]$. Under-performing or noisy metrics are automatically suppressed in phases where they lack signal power.</span>
-      <span class="ua"><strong>Динамічне зважування важливості</strong>: Кожен індикатор має профіль відповідності, що визначає коефіцієнт корисності $U_i \in [0.1, 1.0]$ для кожної фази. Активна корисність розраховується як: $U_i = w_{\text{top}} U_i[\text{TOP}] + w_{\text{bot}} U_i[\text{BOTTOM}] + w_{\text{neutral}} U_i[\text{NEUTRAL}]$. Менш надійні чи зашумлені метрики автоматично пригнічуються в невідповідних фазах.</span>
-    </li>
-    <li>
-      <span class="en"><strong>Phase-Aware Coherence Dampening</strong>: When indicators strongly disagree (high dispersion), the index is pulled toward the active phase's target score (30 for Bottom, 70 for Top, 50 for Neutral) instead of diluting to a generic 50.</span>
-      <span class="ua"><strong>Узгодженість та амортизація</strong>: Коли індикатори сильно суперечать один одному, індекс притягується до цільового значення активної фази (30 для дна, 70 для вершини, 50 для нейтральної фази), щоб запобігти розмиванню сигналу.</span>
-    </li>
-    <li>
-      <span class="en"><strong>Adaptive Percentile Calibration</strong>: Heavy macro-structural shifts are mitigated by blending the fixed linear/sigmoid mappings 50/50 with a rolling 4-year point-in-time percentile rank for key metrics (NUPL, MVRV Z-Score, and Mayer Multiple).</span>
-      <span class="ua"><strong>Адаптивне калібрування</strong>: Довгострокові структурні зсуви компенсуються змішуванням фіксованого мапування 50/50 з рухомим 4-річним причинно-наслідковим перцентилем для ключових метрик (NUPL, MVRV Z-Score, Mayer Multiple).</span>
+      <span class="en"><strong>Fast Weekly Divergences</strong>: Detection of bullish or bearish momentum divergence on a weekly scale (1-week detection window, max peak age 3 weeks). Active divergences apply a &plusmn;12 risk modifier to promptly capture cycle turning points without lag.</span>
+      <span class="ua"><strong>Швидкі тижневі дивергенції</strong>: виявлення бичачих чи ведмежих розбіжностей моментуму на тижневому таймфреймі (вікно детекції 1 тиждень, макс. вік піку 3 тижні). Активні дивергенції застосовують модифікатор ризику &plusmn;12 для миттєвого захоплення точок розвороту без затримок.</span>
     </li>
   </ul>
 
-  <div class="rotation-tip">
-    <span class="ua">Порада: поверніть телефон горизонтально для зручного перегляду таблиці профілів відповідності.</span>
-    <span class="en">Tip: Rotate your phone to landscape mode to view the relevance profiles table comfortably.</span>
-  </div>
+  <p class="en">On-chain metrics occupy the other half of the index. They offer a window into the actual economic behaviour of buyers and sellers — what prices people paid, what they are currently sitting on in profit or loss, how liquidity is rotating. These signals have a meaningful basis in economic theory.</p>
+  <p class="ua">Ончейн-метрики складають іншу половину індексу. Вони показують реальну економічну поведінку покупців і продавців: за якими цінами купували монети, в якому прибутку чи збитку перебувають власники, як розподіляється ліквідність. Ці сигнали мають раціональне економічне обґрунтування.</p>
 
-  <div class="glass-card">
-    <table class="weights-table">
-      <thead>
-        <tr>
-          <th>
-            <span class="en">Indicator</span>
-            <span class="ua">Індикатор</span>
-          </th>
-          <th>
-            <span class="en">Bottom Phase Relevance</span>
-            <span class="ua">Важливість для Дна</span>
-          </th>
-          <th>
-            <span class="en">Neutral Phase Relevance</span>
-            <span class="ua">Нейтральна важливість</span>
-          </th>
-          <th>
-            <span class="en">Top Phase Relevance</span>
-            <span class="ua">Важливість для Вершини</span>
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr><td><strong>NUPL</strong></td><td>1.0</td><td>0.7</td><td>1.0</td></tr>
-        <tr><td><strong>MVRV Z-Score</strong></td><td>1.0</td><td>0.7</td><td>1.0</td></tr>
-        <tr><td><strong>CVDD Ratio</strong></td><td>1.0</td><td>0.4</td><td>0.1</td></tr>
-        <tr><td><strong>RHODL Ratio</strong></td><td>0.6</td><td>0.6</td><td>1.0</td></tr>
-        <tr><td><strong>aSOPR (7d SMA)</strong></td><td>0.9</td><td>0.6</td><td>0.2</td></tr>
-        <tr><td><strong>Cipher B momentum</strong></td><td>0.4</td><td>0.7</td><td>1.0</td></tr>
-        <tr><td><strong>Mayer Multiple</strong></td><td>0.4</td><td>0.6</td><td>1.0</td></tr>
-        <tr><td><strong>Fear &amp; Greed</strong></td><td>0.9</td><td>0.5</td><td>0.9</td></tr>
-        <tr><td><strong>Spot ETF Flows (14d)</strong></td><td>0.3</td><td>0.8</td><td>0.4</td></tr>
-        <tr><td><strong>Yield Curve (10Y-2Y)</strong></td><td>0.6</td><td>0.8</td><td>0.3</td></tr>
-        <tr><td><strong>Global M2 Growth</strong></td><td>0.7</td><td>0.8</td><td>0.3</td></tr>
-      </tbody>
-    </table>
-  </div>
+  <h3><span class="en">The Card Table Metaphor</span><span class="ua">Метафора за картковим столом</span></h3>
+  <p class="en">To visualize how these diverse dimensions interact, imagine a high-stakes card game:</p>
+  <p class="ua">Щоб уявити, як взаємодіють це різні виміри, уявіть гру в карти з високими ставками:</p>
 
-  <h3 id="tactical-signals" style="margin-top: 32px;">
-    <span class="en">Tactical Signals &amp; Warning Badges</span>
-    <span class="ua">Тактичні сигнали та значки попередження</span>
-  </h3>
-  <p class="en">To provide deeper insight into current market conditions and anomalous behaviors, the main index card displays real-time badges next to the risk score under specific conditions:</p>
-  <p class="ua">Для детальнішого аналізу поточного ринкового стану та аномальних явищ, головна картка індексу динамічно виводить спеціальні значки поруч із числовим значенням за певних умов:</p>
-  
-  <ul style="list-style-type: none; padding-left: 0; margin-bottom: 32px;">
-    <li style="margin-bottom: 20px;">
-      <strong>
-        <svg style="width:16px;height:16px;vertical-align:middle;margin-right:6px;color:#f7931a;position:relative;top:-1px;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M9 8h4.09c1.055 0 1.91 .895 1.91 2s-.855 2 -1.91 2c1.055 0 1.91 .895 1.91 2s-.855 2 -1.91 2h-4.09"/><path d="M10 12h4"/><path d="M10 7v10v-9"/><path d="M13 7v1"/><path d="M13 16v1"/></svg>
-        <span class="en">Bitcoin Coin Badge (Tactical Buy)</span>
-        <span class="ua">Значок монетки біткоїна (Тактична купівля)</span>
-      </strong>
-      <div class="en" style="margin-top: 6px; padding-left: 24px; color: var(--text-mute); font-size: 0.92rem; line-height: 1.5;">Appears when the final risk score is low (≤ 30) AND the 8h leverage funding rate is negative (< 0). This signals a leverage capitulation event, indicating futures traders are aggressively shorting at a long-term cyclical floor—historically a high-probability window for spot accumulation.</div>
-      <div class="ua" style="margin-top: 6px; padding-left: 24px; color: var(--text-mute); font-size: 0.92rem; line-height: 1.5;">З'являється, коли фінальне значення індексу низьке (≤ 30) ТА 8-годинна ставка фінансування (funding rate) є від'ємною (< 0). Це сигналізує про капітуляцію маржинального плеча, показуючи, що ф'ючерсні трейдери агресивно відкривають шорти на довгостроковому циклічному дні, що історично є сприятливим часом для спотового накопичення.</div>
+  <ul>
+    <li>
+      <span class="en"><strong>Technical Analysis (TA)</strong> looks at the action in the present moment and the cards already visible on the table (momentum, price velocity).</span>
+      <span class="ua"><strong>Технічний аналіз (TA)</strong> дивиться на гру в реальному часі та карти, вже викладені на стіл (моментум, швидкість ціни).</span>
     </li>
-    <li style="margin-bottom: 20px;">
-      <strong>
-        <svg style="width:16px;height:16px;vertical-align:middle;margin-right:6px;color:#f7931a;position:relative;top:-1px;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M14.8 9a2 2 0 0 0 -1.8 -1h-2a2 2 0 1 0 0 4h2a2 2 0 1 1 0 4h-2a2 2 0 0 1 -1.8 -1"/><path d="M12 7v10"/></svg>
-        <span class="en">Dollar Coin Badge (Leverage Overheat)</span>
-        <span class="ua">Значок монетки долара (Перегрів плеча)</span>
-      </strong>
-      <div class="en" style="margin-top: 6px; padding-left: 24px; color: var(--text-mute); font-size: 0.92rem; line-height: 1.5;">Appears when the final risk score is high (≥ 50) AND the leverage funding rate is heavily positive (≥ 0.05%). This flags a leverage overheat state, meaning long positions on futures are highly crowded and expensive to hold, warning of an elevated risk of a cascading long-squeeze.</div>
-      <div class="ua" style="margin-top: 6px; padding-left: 24px; color: var(--text-mute); font-size: 0.92rem; line-height: 1.5;">З'являється, коли фінальне значення індексу високе (≥ 50) ТА ставка фінансування є суттєво позитивною (≥ 0.05%). Це вказує на перегрів маржинального ринку, тобто лонг-позиції на ф'ючерсах переповнені і дорогі в утриманні, що попереджає про підвищений ризик лавиноподібного лонг-сквізу.</div>
+    <li>
+      <span class="en"><strong>On-Chain Analysis</strong> looks at the cards currently held in the players' hands (unrealized profit/loss distribution, coin ages, wallet rotation).</span>
+      <span class="ua"><strong>Ончейн-аналіз</strong> дивиться на карти, які гравці тримають у руках (розподіл нереалізованого прибутку/збитків, вік монет, ротація гаманців).</span>
     </li>
-    <li style="margin-bottom: 20px;">
-      <strong>
-        <svg style="width:16px;height:16px;vertical-align:middle;margin-right:6px;color:#ef4444;position:relative;top:-1px;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 9v4"/><path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0"/><path d="M12 16h.01"/></svg>
-        <span class="en">Red Warning Triangle (Divergence Warning)</span>
-        <span class="ua">Червоний трикутник попередження (Сигнал розбіжності)</span>
-      </strong>
-      <div class="en" style="margin-top: 6px; padding-left: 24px; color: var(--text-mute); font-size: 0.92rem; line-height: 1.5;">Appears next to the main index or subscores when one or more key underlying indicators strongly contradict the overall index value. It is triggered if the overall index points to accumulation (≤ 40) but some metric is in the risk zone (≥ 65), or if the index is high (≥ 60) but some metric remains deeply in the accumulation zone (≤ 35). This alerts the user to structural divergences across different on-chain or macro dimensions.</div>
-      <div class="ua" style="margin-top: 6px; padding-left: 24px; color: var(--text-mute); font-size: 0.92rem; line-height: 1.5;">З'являється поруч із основним індексом або суб-показниками, коли один або кілька ключових базових індикаторів сильно суперечать загальному значенню індексу. Він активується, якщо загальний індекс вказує на накопичення (≤ 40), але деякі показники перебувають у зоні високого ризику (≥ 65), або навпаки (індекс високий ≥ 60, але показник залишається глибоко в зоні накопичення ≤ 35). Це попереджає користувача про структурні розбіжності між різними ончейн- та макро-параметрами.</div>
+    <li>
+      <span class="en"><strong>Macro Analysis</strong> checks if there is any money left in the players' pockets to keep bidding (global central bank liquidity, interest rates).</span>
+      <span class="ua"><strong>Макроаналіз</strong> перевіряє, чи залишилися гроші в кишенях гравців, щоб продовжувати торги (глобальна ліквідність центробанків, ставки).</span>
+    </li>
+    <li>
+      <span class="en"><strong>Sentiment (Fear &amp; Greed)</strong> monitors the players' emotions, looking for signs of panic or hubris.</span>
+      <span class="ua"><strong>Сентимент (Страх і Жадібність)</strong> відстежує емоції гравців, виявляючи ознаки паніки чи ейфорії.</span>
     </li>
   </ul>
 
-  <h2 id="on-chain">
-    <span class="en">3. On-Chain Indicators (OC)</span>
-    <span class="ua">3. Ончейн-індикатори (OC)</span>
+  <!-- Section 3 -->
+  <h2 id="architecture">
+    <span class="en">3. Core Mathematical &amp; Technical Architecture</span>
+    <span class="ua">3. Математична та технічна архітектура</span>
   </h2>
-  
-  <h3 id="m-nupl">NUPL — Net Unrealized Profit/Loss</h3>
-  <p class="en">Measures the difference between total market unrealized profit and unrealized loss divided by Bitcoin's market capitalization. It captures the overall emotional state of holders: values &gt;0.75 represent euphoria, while values &lt;0 show total capitulation. Weight: <strong>30%</strong>.</p>
-  <p class="ua">Вимірює різницю між нереалізованим прибутком і збитком всього ринку, поділену на ринкову капіталізацію. Відображає загальний емоційний стан холдерів: значення &gt;0.75 вказують на ейфорію, тоді як значення &lt;0 вказують на повну капітуляцію. Вага: <strong>30%</strong>.</p>
+  <p class="en">The indicator processes daily incoming market feeds through a causal, lookahead-free 5-stage pipeline:</p>
+  <p class="ua">Індікатор обробляє щоденні вхідні дані ринку через послідовний 5-етапний конвеєр без забігання наперед:</p>
 
-  <h3 id="m-mvrv">MVRV Z-Score</h3>
-  <p class="en">Calculates the standard deviation distance between Bitcoin's market capitalization and realized capitalization (the total cost basis of all moved coins). A high score (e.g., &gt;7) means market price is unsustainably detached from holder value, while values below 0 represent deep value. Weight: <strong>20%</strong>.</p>
-  <p class="ua">Визначає відстань у стандартних відхиленнях між ринковою та реалізованою капіталізацією (загальною вартістю придбання всіх монет). Високі значення (&gt;7) свідчать про перегрітість ціни, тоді як значення нижче 0 вказують на глибоку циклічну недооціненість. Вага: <strong>20%</strong>.</p>
-
-  <h3 id="m-rhodl">RHODL Ratio</h3>
-  <p class="en">Compares the amount of coins held for 1 week against those held for 1–2 years. When the ratio surges, it signals that inexperienced new money is rapidly absorbing supply from seasoned holders—a classic cyclical peak behavior. Weight: <strong>20%</strong>.</p>
-  <p class="ua">Порівнює кількість монет, утримуваних 1 тиждень, з тими, що утримуються 1–2 роки. Стрімке зростання коефіцієнта свідчить про те, що нові недосвідчені гроші активно викуповують пропозицію у довгострокових інвесторів — класична поведінка на вершині циклу. Вага: <strong>20%</strong>.</p>
-
-  <h3 id="m-cvdd">CVDD Ratio</h3>
-  <p class="en">Cumulative Value Days Destroyed divided by the current price. It maps the aggregate destruction of "coin-days" (holding time multiplied by amount). In cyclical downturns, the price hitting this ratio level has historically marked absolute cycle bottoms. Weight: <strong>15%</strong>.</p>
-  <p class="ua">Накопичена вартість знищених монетоднів, поділена на поточну ціну. У періоди ведмежих ринків зниження ціни до рівня цього коефіцієнта історично позначало абсолютне макро-дно циклу. Вага: <strong>15%</strong>.</p>
-
-  <h3 id="m-asopr">aSOPR — Adjusted Spent Output Profit Ratio</h3>
-  <p class="en">Measures the average profit multiplier of spent coins (excluding day-trades under 1 hour). To filter noise, we apply a <strong>7-day Simple Moving Average (SMA)</strong>. If aSOPR drops to 1.0 (break-even point) and bounces, the bull market remains intact. We map aSOPR = 0.88 to 0 risk (maximum fear/capitulation) and 1.12 to 100 risk (local market extension). Weight: <strong>15%</strong>.</p>
-  <p class="ua">Вимірює середній мультиплікатор прибутку переміщених монет (без урахування транзакцій менше 1 години). Для фільтрації шуму застосовується **7-денна проста ковзна середня (SMA)**. Якщо aSOPR падає до 1.0 (точка беззбитковості) і відскакує вгору — бичачий тренд в силі. Значення 0.88 відповідає 0 ризику (максимальний страх), а 1.12 — 100 ризику (локальний перегрів). Вага: <strong>15%</strong>.</p>
-
-  <h2 id="tech-macro">
-    <span class="en">4. Tech / Macro Indicators</span>
-    <span class="ua">4. Технічні та макро-індикатори</span>
-  </h2>
-
-  <h3 id="m-cipherb">Cipher B Oscillator</h3>
-  <p class="en">An implementation of the WaveTrend momentum oscillator evaluated on a weekly timeframe. The weekly scale filters out daily noise, pinpointing major momentum shifts: 0 indicates deep correction/capitulation, and 100 represents an overextended bull market. Weight: <strong>40%</strong> of Tech/Macro.</p>
-  <p class="ua">Реалізація осцилятора WaveTrend на тижневому таймфреймі. Тижневий масштаб фільтрує денний шум, чітко визначаючи зміни імпульсу: 0 вказує на глибоку корекцію/капітуляцію, а 100 — на перегрітий бичачий ринок. Вага: <strong>40%</strong> від Tech/Macro.</p>
-
-  <h3 id="m-mayer">Mayer Multiple</h3>
-  <p class="en">Calculates the simple ratio between Bitcoin's price and its 200-day moving average (200DMA). It acts as a mean-reverting trigger, mapped linearly: values &le;0.5 represent extreme undervaluation, and &ge;2.1 represent major overvaluation. Weight: <strong>20%</strong> of Tech/Macro.</p>
-  <p class="ua">Співвідношення між ціною Bitcoin та його 200-денною ковзною середньою (200DMA). Використовується як показник повернення до середнього: значення &le;0.5 вказують на екстремальну недооціненість, а &ge;2.1 — на перегрітість. Вага: <strong>20%</strong> від Tech/Macro.</p>
-
-  <h3 id="m-etf">Spot ETF Flows (14d)</h3>
-  <p class="en">Tracks the 14-day rolling sum of net inflows into US Spot Bitcoin ETFs. This represents institutional liquidity momentum. Values &le; -$2.0B represent extreme capitulation/outflows (low risk, 0 points), while values &ge; +$4.0B represent speculative euphoria/overheating (high risk, 100 points). Weight: <strong>10%</strong> of Tech/Macro.</p>
-  <p class="ua">Відстежує 14-денну ковзну суму чистих потоків у спотові Bitcoin ETF у США. Це відображає інституційний імпульс ліквідності. Значення &le; -$2.0B свідчать про капітуляцію та відтік капіталу (низький ризик, 0 балів), тоді як значення &ge; +$4.0B — про ейфорію та локальний перегрів (високий ризик, 100 балів). Вага: <strong>10%</strong> від Tech/Macro.</p>
-
-  <h3 id="m-fg">Fear &amp; Greed Index</h3>
-  <p class="en">A contrarian sentiment proxy measuring social media, search trends, volatility, and volume. We use a <strong>7-day moving average</strong> instead of the daily reading to avoid transient spikes. A lower score (Fear) signals accumulation opportunities; a high score (Greed) alerts to caution. Weight: <strong>10%</strong> of Tech/Macro.</p>
-  <p class="ua">Контрарний показник настроїв, що вимірює згадки в соцмережах, тренди пошуку, волатильність та об'єм. Використовується **7-денне ковзне середнє** для уникнення випадкових сплесків. Низький скор (страх) сигналізує про можливості накопичення; високий (жадібність) — про обережність. Вага: <strong>10%</strong> від Tech/Macro.</p>
-
-  <h3 id="m-yc">Yield Curve Spread (10Y-2Y)</h3>
-  <p class="en">The spread between US 10-Year and 2-Year Treasury bonds. When the spread goes negative (inversion), it signals systemic liquidity starvation, tightening financial conditions, and high recession risk, which pushes the BTC risk score higher. Weight: <strong>10%</strong> of Tech/Macro.</p>
-  <p class="ua">Спред між 10-річними та 2-річними державними облігаціями США. Коли спред стає негативним (інверсія), це сигналізує про системний дефіцит ліквідності та високий ризик рецесії, що збільшує скор ризику для BTC. Вага: <strong>10%</strong> від Tech/Macro.</p>
-
-  <h3 id="m-m2">Global M2 YoY Growth</h3>
-  <p class="en">Tracks the year-over-year rate of change of global money supply (US, EU, China, Japan). High M2 expansion indicates system-wide debasement and liquidity inflows (low risk of asset collapse). Negative M2 growth indicates global monetary contraction (higher risk). Weight: <strong>10%</strong> of Tech/Macro.</p>
-  <p class="ua">Відстежує річну зміну глобальної грошової маси M2 (США, ЄС, Китай, Японія). Зростання M2 вказує на розширення ліквідності (низький ризик падіння активів), тоді як падіння M2 вказує на монетарне стиснення (вищий ризик). Вага: <strong>10%</strong> від Tech/Macro.</p>
-
-  <h3 id="m-funding">Funding Rate (Display Only)</h3>
-  <p class="en">The 7-day average of Bybit BTCUSDT perpetual futures funding rate. While shown on the dashboard, it is <strong>not included in the weighted risk calculation</strong> due to its high volatility and reduced signal reliability in the institutional ETF era.</p>
-  <p class="ua">7-денна середня ставка фінансування ф'ючерсів на Bybit. Відображається на дашборді, але **не входить до розрахунку ризику** через високу волатильність і зниження значущості в еру спотових ETF.</p>
-
-  <h2 id="retro">
-    <span class="en">5. Retrospective Analysis (2018–2026)</span>
-    <span class="ua">5. Ретроспективний аналіз (2018–2026)</span>
-  </h2>
-  
-  <p class="en">To verify the index's utility, the weights were backtested against 16 critical market events from prior cycles. Below are the historical calculated risk scores at each milestone date:</p>
-  <p class="ua">Щоб перевірити корисність індексу, ваги було протестовано на 16 критичних ринкових подіях попередніх циклів. Нижче наведено історичні розраховані показники ризику на кожну дату:</p>
-
-  <div class="rotation-tip">
-    <span class="ua">Порада: поверніть телефон горизонтально для зручного перегляду таблиці подій.</span>
-    <span class="en">Tip: Rotate your phone to landscape mode to view the milestone table comfortably.</span>
+  <div class="glass-card" style="padding: 20px; margin: 20px 0; overflow-x: auto;">
+    <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; min-width: 600px;">
+      <!-- Step 1 -->
+      <div style="flex: 1; text-align: center; background: rgba(255,255,255,0.03); border: 1px solid var(--border); padding: 12px 8px; border-radius: 12px;">
+        <div style="font-size: 10px; font-weight: 700; color: var(--index-color); margin-bottom: 4px;">STAGE 1</div>
+        <div style="font-size: 11px; font-weight: 600; line-height: 1.25;">
+          <span class="en">Normalization</span><span class="ua">Нормалізація</span>
+        </div>
+      </div>
+      <!-- Arrow -->
+      <div style="color: var(--text-sub); opacity: 0.5;">➔</div>
+      <!-- Step 2 -->
+      <div style="flex: 1; text-align: center; background: rgba(255,255,255,0.03); border: 1px solid var(--border); padding: 12px 8px; border-radius: 12px;">
+        <div style="font-size: 10px; font-weight: 700; color: var(--index-color); margin-bottom: 4px;">STAGE 2</div>
+        <div style="font-size: 11px; font-weight: 600; line-height: 1.25;">
+          <span class="en">ML Classifier</span><span class="ua">ML класифікація</span>
+        </div>
+      </div>
+      <!-- Arrow -->
+      <div style="color: var(--text-sub); opacity: 0.5;">➔</div>
+      <!-- Step 3 -->
+      <div style="flex: 1; text-align: center; background: rgba(255,255,255,0.03); border: 1px solid var(--border); padding: 12px 8px; border-radius: 12px;">
+        <div style="font-size: 10px; font-weight: 700; color: var(--index-color); margin-bottom: 4px;">STAGE 3</div>
+        <div style="font-size: 11px; font-weight: 600; line-height: 1.25;">
+          <span class="en">Utility Weights</span><span class="ua">Ваги корисності</span>
+        </div>
+      </div>
+      <!-- Arrow -->
+      <div style="color: var(--text-sub); opacity: 0.5;">➔</div>
+      <!-- Step 4 -->
+      <div style="flex: 1; text-align: center; background: rgba(255,255,255,0.03); border: 1px solid var(--border); padding: 12px 8px; border-radius: 12px;">
+        <div style="font-size: 10px; font-weight: 700; color: var(--index-color); margin-bottom: 4px;">STAGE 4</div>
+        <div style="font-size: 11px; font-weight: 600; line-height: 1.25;">
+          <span class="en">Coherence</span><span class="ua">Когерентність</span>
+        </div>
+      </div>
+      <!-- Arrow -->
+      <div style="color: var(--text-sub); opacity: 0.5;">➔</div>
+      <!-- Step 5 -->
+      <div style="flex: 1; text-align: center; background: rgba(255,255,255,0.03); border: 1px solid var(--border); padding: 12px 8px; border-radius: 12px;">
+        <div style="font-size: 10px; font-weight: 700; color: var(--index-color); margin-bottom: 4px;">STAGE 5</div>
+        <div style="font-size: 11px; font-weight: 600; line-height: 1.25;">
+          <span class="en">Orchestration</span><span class="ua">Оркестрація</span>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <div class="glass-card">
+  <ol>
+    <li>
+      <span class="en"><strong>Causal Point-in-Time Normalization</strong>: To prevent lookahead bias, indicators like <code>nupl</code>, <code>mvrv</code>, and <code>mayer</code> are dynamically scaled using a causal percentile ranking against a rolling 4-year (1460-day) lookback window. The final value is blended 50/50 with fixed sigmoid mappings for extreme expansions.</span>
+      <span class="ua"><strong>Причинно-наслідкова нормалізація</strong>: Щоб запобігти витоку майбутніх даних в минуле, такі показники як <code>nupl</code>, <code>mvrv</code> та <code>mayer</code> динамічно масштабуються за причинно-наслідковим перцентильним рангом у ковзному 4-річному (1460 днів) вікні. Фінальне значення змішується 50/50 з фіксованими сигмоїдними картами.</span>
+    </li>
+    <li>
+      <span class="en"><strong>ML-Driven Phase Regimes</strong>: A regularized Logistic Regression classifier evaluates a 22-dimensional wave vector (11 indicators and their 11-day lookback deltas) to output continuous probabilities for three market regimes: <code>BOTTOM</code>, <code>NEUTRAL</code>, and <code>TOP</code>.</span>
+      <span class="ua"><strong>Визначення фазових режимів на базі ML</strong>: Регуляризований класифікатор логістичної регресії оцінює 22-вимірний вектор хвиль (11 індикаторів та їхні 11-денні дельти) для виведення безперервних ймовірностей трьох ринкових режимів: <code>BOTTOM</code> (дно), <code>NEUTRAL</code> (нейтральний) та <code>TOP</code> (топ).</span>
+    </li>
+    <li>
+      <span class="en"><strong>Dynamic Utility Weighting</strong>: Metrics do not have static weights. Their utility coefficients scale dynamically ($U_i \in [0.1, 1.0]$) based on active phase probabilities. On-chain metrics dominate bottoms, while technical oscillators, sentiment, and Mayer Multiple dominate tops.</span>
+      <span class="ua"><strong>Динамічне зважування корисності</strong>: Метрики не мають фіксованих ваг. Їхні коефіцієнти корисності масштабуються динамічно ($U_i \in [0.1, 1.0]$) на основі ймовірностей фаз. Ончейн-показники домінують на дні ринку, тоді як технічні осцилятори, сентимент та Mayer Multiple домінують на вершинах.</span>
+    </li>
+    <li>
+      <span class="en"><strong>Phase-Aware Coherence Dampening</strong>: When metrics diverge, the score is pulled toward phase targets (30 for Bottom, 70 for Top, 50 for Neutral) using a standard deviation coherence factor, preventing signal dilution at cycle extremes.</span>
+      <span class="ua"><strong>Згасання узгодженості з урахуванням фази</strong>: Коли метрики розходяться, оцінка притягується до цілей фази (30 для дна, 70 для вершини, 50 для нейтральної фази) з використанням коефіцієнта когерентності на основі стандартного відхилення, що запобігає розмиттю сигналу.</span>
+    </li>
+    <li>
+      <span class="en"><strong>Hybrid Signal Orchestrator</strong>: Combines the score with the Wave Resonance vector, checks direction alignment, and applies the Time-in-Zone (TiZ) Maturity Gate (minimum 25% of cycle calibration, ~50 days) to prevent buying too early during a capitulation crash.</span>
+      <span class="ua"><strong>Гібридний оркестратор сигналів</strong>: Поєднує оцінку з вектором резонансу хвиль, перевіряє напрямок тренду та застосовує часовий фільтр TiZ (мінімум 25% від калібрувального вікна, ~50 днів), щоб запобігти покупкам занадто рано під час обвалу.</span>
+    </li>
+  </ol>
+
+  <!-- Section 4 -->
+  <h2 id="divergence">
+    <span class="en">4. Advanced Divergence Overrides</span>
+    <span class="ua">4. Розширені коригування дивергенцій</span>
+  </h2>
+  <p class="en">A primary risk for long-term indicators is the <strong>Fake Cooldown</strong> at market tops: price remains near all-time highs, but momentum indicators drop, causing a naive index to cool down (e.g. dropping from 85 to 60) and signaling a fake buying opportunity.</p>
+  <p class="ua">Основний ризик для довгострокових індикаторів — це <strong>хибне охолодження (Fake Cooldown)</strong> на вершинах ринку: ціна залишається поблизу історичних максимумів, але індикатори моментуму знижуються, через що простий індекс «охолоджується» (наприклад, падає з 85 до 60) і сигналізує про хибну точку входу.</p>
+
+  <p class="en">V3.2 addresses this via <strong>Causal Bearish &amp; Bullish Divergence Detection</strong>:</p>
+  <p class="ua">V3.2 вирішує це за допомогою <strong>причинно-наслідкового виявлення дивергенцій</strong>:</p>
+
+  <ul>
+    <li>
+      <span class="en"><strong>Bearish Divergence</strong>: If the BTC price is within 3% of its lookback maximum, but the Risk Score has decayed by $\ge 8$ points from its local peak while remaining elevated ($\ge 58$): The orchestrator triggers `bear_div = True`, overrides the score to $\max(	ext{meta\_score}, 82)$, and locks the status to `PROBABLE_TOP` or `CONFIRMED_TOP`.</span>
+      <span class="ua"><strong>Ведмежа дивергенція</strong>: Якщо ціна BTC знаходиться в межах 3% від локального максимуму, але оцінка ризику знизилася на $\ge 8$ пунктів від свого локального піку, залишаючись високою ($\ge 58$): Оркестратор активує `bear_div = True`, перевизначає оцінку як $\max(	ext{meta\_score}, 82)$ і фіксує статус `PROBABLE_TOP` або `CONFIRMED_TOP`.</span>
+    </li>
+    <li>
+      <span class="en"><strong>Bullish Divergence</strong>: If the price is within 3% of its lookback minimum, but the Risk Score has recovered by $\ge 8$ points from its local bottom: The orchestrator overrides the score to stay low ($\le 25$) and locks the status to `PROBABLE_BOTTOM`.</span>
+      <span class="ua"><strong>Бичача дивергенція</strong>: Якщо ціна знаходиться в межах 3% від локального мінімуму, але оцінка ризику зросла на $\ge 8$ пунктів від локального дна: Оркестратор обмежує оцінку зверху ($\le 25$), утримуючи її в зоні накопичення, і фіксує статус `PROBABLE_BOTTOM`.</span>
+    </li>
+  </ul>
+
+  <!-- Section 5 -->
+  <h2 id="observer">
+    <span class="en">5. The Trading Observer: Trailing Stop Engine</span>
+    <span class="ua">5. Трейлінг-стоп двигун за оцінкою</span>
+  </h2>
+  <p class="en">To convert the continuous Risk Score (0-100) into actionable trade executions, the backend implements a <strong>Trading Observer State Machine</strong>:</p>
+  <p class="ua">Для перетворення безперервної оцінки ризику (0–100) у конкретні торгові рішення, бекенд реалізує <strong>кінцевий автомат Trading Observer State Machine</strong>:</p>
+
+  <div class="glass-card" style="padding: 20px; margin: 20px 0; display: flex; flex-direction: column; align-items: center; gap: 16px;">
+    <div style="display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 12px;">
+      <!-- State CASH -->
+      <div style="border: 2px solid var(--border); border-radius: 12px; padding: 12px 18px; text-align: center; background: rgba(255,255,255,0.02); min-width: 130px;">
+        <div style="font-size: 10px; font-weight: 700; color: var(--text-mute);">STATE</div>
+        <div style="font-weight: 600; color: var(--text);">CASH</div>
+        <div style="font-size: 10px; color: var(--text-sub); margin-top: 4px;">
+          <span class="en">100% Fiat / Out</span><span class="ua">100% Фіат / Поза ринком</span>
+        </div>
+      </div>
+      
+      <!-- Arrow -->
+      <div style="text-align: center; color: var(--index-color); font-weight: 600; font-size: 12px; padding: 0 4px;">
+        ➔<br><span style="font-size: 9px; color: var(--text-sub);"><span class="en">Score &le; 25</span><span class="ua">Оцінка &le; 25</span></span>
+      </div>
+      
+      <!-- State HOLD_BTC -->
+      <div style="border: 2px solid var(--border); border-radius: 12px; padding: 12px 18px; text-align: center; background: rgba(34, 197, 94, 0.05); border-color: rgba(34, 197, 94, 0.2); min-width: 130px;">
+        <div style="font-size: 10px; font-weight: 700; color: #22C55E;">STATE</div>
+        <div style="font-weight: 600; color: var(--text);">HOLD_BTC</div>
+        <div style="font-size: 10px; color: var(--text-sub); margin-top: 4px;">
+          <span class="en">In the Market</span><span class="ua">В ринку</span>
+        </div>
+      </div>
+      
+      <!-- Arrow -->
+      <div style="text-align: center; color: var(--index-color); font-weight: 600; font-size: 12px; padding: 0 4px;">
+        ➔<br><span style="font-size: 9px; color: var(--text-sub);"><span class="en">Score &ge; 60</span><span class="ua">Оцінка &ge; 60</span></span>
+      </div>
+      
+      <!-- State TRAILING_EXIT -->
+      <div style="border: 2px solid var(--border); border-radius: 12px; padding: 12px 18px; text-align: center; background: rgba(239, 68, 68, 0.05); border-color: rgba(239, 68, 68, 0.2); min-width: 130px;">
+        <div style="font-size: 10px; font-weight: 700; color: #EF4444;">STATE</div>
+        <div style="font-weight: 600; color: var(--text);">TRAILING_EXIT</div>
+        <div style="font-size: 10px; color: var(--text-sub); margin-top: 4px;">
+          <span class="en">Stop Active (-5 pts)</span><span class="ua">Стоп активний (-5 п.)</span>
+        </div>
+      </div>
+    </div>
+    <div style="font-size: 11px; color: var(--text-mute); text-align: center; border-top: 1px dashed var(--divider); width: 100%; padding-top: 8px;">
+      <span class="en">★ If the score drops 5 points from peak $M$ during Trailing state, it triggers a SELL and loops back to CASH.</span>
+      <span class="ua">★ Якщо оцінка падає на 5 пунктів від піку $M$ у стані Трейлінгу, спрацьовує ПРОДАЖ і система повертається до CASH.</span>
+    </div>
+  </div>
+
+  <p class="en">This Score-based Trailing Stop strategy significantly outperforms fixed exits or price-based trailing stops by letting the score run high during blow-off tops and exiting only when the macro structure rolls over:</p>
+  <p class="ua">Цей підхід суттєво перевершує фіксовані виходи чи цінові трейлінг-стопи, оскільки дозволяє утримувати позицію під час вертикального параболічного зростання та фіксувати прибуток при початку розвороту макроструктури:</p>
+
+  <div class="glass-card" style="padding: 0; overflow-x: auto;">
     <table>
       <thead>
         <tr>
-          <th>
-            <span class="en">Date</span>
-            <span class="ua">Дата</span>
-          </th>
-          <th>
-            <span class="en">Milestone Event</span>
-            <span class="ua">Подія</span>
-          </th>
-          <th>
-            <span class="en">BTC Price</span>
-            <span class="ua">Ціна BTC</span>
-          </th>
-          <th>
-            <span class="en">Final Score</span>
-            <span class="ua">Фінальний індекс</span>
-          </th>
-          <th>
-            <span class="en">Active Zone</span>
-            <span class="ua">Активна зона</span>
-          </th>
+          <th><span class="en">Exit Strategy</span><span class="ua">Стратегія виходу</span></th>
+          <th><span class="en">Final Capital (from $1,000)</span><span class="ua">Фінальний капітал (з $1,000)</span></th>
+          <th><span class="en">Total Return</span><span class="ua">Загальний прибуток</span></th>
+          <th><span class="en">Trades</span><span class="ua">Угоди</span></th>
+          <th><span class="en">Peak Capture (2021)</span><span class="ua">Захоплення піку (2021)</span></th>
         </tr>
       </thead>
       <tbody>
-        <tr><td>2018-12-15</td><td><span class="en">2018 Cycle Bottom</span><span class="ua">Дно циклу 2018</span></td><td>$3,200</td><td><span class="zone-25"><strong>25</strong></span></td><td><span class="en">BOTTOM (Buy)</span><span class="ua">ДНО (Купівля)</span></td></tr>
-        <tr><td>2020-03-13</td><td><span class="en">COVID Crash Low</span><span class="ua">Дно паніки COVID-19</span></td><td>$3,800</td><td><span class="zone-25"><strong>26</strong></span></td><td><span class="en">BOTTOM (Buy)</span><span class="ua">ДНО (Купівля)</span></td></tr>
-        <tr><td>2022-06-18</td><td><span class="en">Capitulation Low</span><span class="ua">Дно капітуляції</span></td><td>$17,600</td><td><span class="zone-25"><strong>24</strong></span></td><td><span class="en">BOTTOM (Buy)</span><span class="ua">ДНО (Купівля)</span></td></tr>
-        <tr><td>2022-11-21</td><td><span class="en">FTX Bankruptcy Bottom</span><span class="ua">Дно банкрутства FTX</span></td><td>$15,500</td><td><span class="zone-25"><strong>27</strong></span></td><td><span class="en">BOTTOM (Buy)</span><span class="ua">ДНО (Купівля)</span></td></tr>
-        <tr><td>2021-04-14</td><td><span class="en">Spring Cycle Peak</span><span class="ua">Весняний пік циклу</span></td><td>$63,500</td><td><span class="zone-100"><strong>88</strong></span></td><td><span class="en">TOP (Sell)</span><span class="ua">ВЕРШИНА (Продаж)</span></td></tr>
-        <tr><td>2021-11-10</td><td><span class="en">November Cycle ATH</span><span class="ua">Осінній пік ATH</span></td><td>$69,000</td><td><span class="zone-100"><strong>80</strong></span></td><td><span class="en">TOP (Sell)</span><span class="ua">ВЕРШИНА (Продаж)</span></td></tr>
-        <tr><td>2024-03-14</td><td><span class="en">March 2024 ATH</span><span class="ua">Максимум березня 2024</span></td><td>$73,500</td><td><span class="zone-100"><strong>82</strong></span></td><td><span class="en">TOP (Sell)</span><span class="ua">ВЕРШИНА (Продаж)</span></td></tr>
-        <tr><td>2025-07-17</td><td><span class="en">CB Weekly Peak</span><span class="ua">Тижневий пік CB</span></td><td>$118,735</td><td><span class="zone-100"><strong>80</strong></span></td><td><span class="en">TOP (Sell)</span><span class="ua">ВЕРШИНА (Продаж)</span></td></tr>
-        <tr><td>2026-06-14</td><td><span class="en">Recent Valuation</span><span class="ua">Поточна ситуація</span></td><td>$64,279</td><td><span class="zone-50"><strong>32</strong></span></td><td><span class="en">NEUTRAL (Hold)</span><span class="ua">НЕЙТРАЛЬНО (Утримання)</span></td></tr>
+        <tr>
+          <td><strong><span class="en">Baseline (Sell at Score &ge; 60)</span><span class="ua">Базова (вихід при Score &ge; 60)</span></strong></td>
+          <td>$171,940</td>
+          <td>+17,094%</td>
+          <td>10</td>
+          <td><span class="en">Sold early at $35,404</span><span class="ua">Ранній продаж за $35,404</span></td>
+        </tr>
+        <tr>
+          <td><strong><span class="en">Price Trailing Stop (10%)</span><span class="ua">Ціновий трейлінг-стоп (10%)</span></strong></td>
+          <td>$152,009</td>
+          <td>+15,100%</td>
+          <td>9</td>
+          <td><span class="en">Premature volatility exit</span><span class="ua">Передчасний вихід через волатильність</span></td>
+        </tr>
+        <tr>
+          <td><strong><span class="en">Score Trailing Stop (5 pt drop)</span><span class="ua">Трейлінг-стоп за оцінкою (5 п.)</span></strong></td>
+          <td><strong>$313,479</strong></td>
+          <td><strong>+31,247%</strong></td>
+          <td>10</td>
+          <td><span class="en">Sold at peak rollover: $66,001</span><span class="ua">Продано на розвороті піку: $66,001</span></td>
+        </tr>
       </tbody>
     </table>
   </div>
 
-  <h2 id="findings">
-    <span class="en">6. Key Findings</span>
-    <span class="ua">6. Ключові висновки</span>
+  <!-- Section 6 -->
+  <h2 id="milestones">
+    <span class="en">6. Historical Backtest Milestones</span>
+    <span class="ua">6. Історичні віхи бектесту</span>
   </h2>
-  
-  <h3>1. <span class="en">High Separation Gap</span><span class="ua">Висока роздільна здатність</span></h3>
-  <p class="en">The index exhibits a significant separation between market cycle bottoms and tops. The average score at confirmed bottoms (2018, COVID, Capitulation, FTX) is <span class="zone-25"><strong>25.5</strong></span>. The average score at confirmed tops (2021 spring/autumn, 2024, 2025 tops) is <span class="zone-100"><strong>82.5</strong></span>. A ~57-point separation makes this index highly reliable for long-term positioning.</p>
-  <p class="ua">Індекс демонструє чітке розділення між макро-вершинами та дном циклів. Середній показник на підтверджених днах становить <span class="zone-25"><strong>25.5</strong></span>. Середнє значення на підтверджених вершинах (ATH) становить <span class="zone-100"><strong>82.5</strong></span>. Розрив у ~57 пунктів робить індекс надійним орієнтиром для довгострокового накопичення.</p>
+  <p class="en">The table below demonstrates V3.2's precision at historical cyclical bottom and peak dates:</p>
+  <p class="ua">У таблиці нижче показано точність V3.2 на історичних датах циклічних мінімумів та піків:</p>
 
-  <h3>2. <span class="en">Diminishing Peaks Phenomenon</span><span class="ua">Ефект згасання піків</span></h3>
-  <p class="en">Despite Bitcoin making a new price peak in late 2025 ($129,000, representing +76% over the 2024 high), the risk index only peaked at 62. This demonstrates that as mature, institutional capital (ETFs and corporate balance sheets) drives price, the underling on-chain metrics (such as MVRV Z-score and RHODL waves) do not reach the extreme speculative levels seen in 2018 or 2021. 
-  <strong>Takeaway: The practical cycle exit window starts at ~62+ in the modern era, rather than the ~85+ seen in earlier cycles.</strong></p>
-  <p class="ua">Незважаючи на новий ціновий ATH наприкінці 2025 року ($129,000, що на 76% більше за пік 2024 року), індекс ризику досяг лише 62. Це доводить, що приплив інституційного капіталу (ETF та покупки корпорацій) штовхає ціну вгору без екстремального перегріву ончейн-метрик (таких як MVRV або RHODL), які спостерігалися в 2018 чи 2021 роках.
-  <strong>Практичний висновок: у сучасну епоху зону продажу варто розглядати вже в діапазоні ~62+, а не очікувати ~85+.</strong></p>
-
-  <h3>3. <span class="en">Complimentary Sentiment</span><span class="ua">Комплементарність сентименту</span></h3>
-  <p class="en">While on-chain metrics are the anchor of cycle-scale trends, technical/macro signals are sensitive to shorter-term events. For example, during the Post-ATH Dump in November 2025, the On-Chain score remained structurally neutral (61), but the Tech/Macro score collapsed to 16, signaling a healthy, low-risk tactical buying window inside a structural trend.</p>
-  <p class="ua">У той час як ончейн-метрики відіграють роль якоря для довгострокових циклів, технічні сигнали швидше реагують на короткострокові події. Наприклад, під час дампу після ATH у листопаді 2025 року ончейн-скор залишався нейтральним (61), але тех-скор упав до 16, вказуючи на чудову тактичну точку входу всередині висхідного тренду.</p>
-
-  <h2 id="adaptive">
-    <span class="en">7. Adaptive Calibration (v2)</span>
-    <span class="ua">7. Адаптивне калібрування (v2)</span>
-  </h2>
-
-  <p class="en">The "diminishing peaks" effect above is not a curiosity — left unaddressed it slowly breaks any <em>fixed</em> threshold. If a metric's cycle peak shrinks every cycle, a static "this level = maximum risk" mapping becomes progressively unreachable, so the index quietly <strong>under-reads risk at modern tops</strong> (and, symmetrically, over-reads it at modern bottoms, which keep rising). Measured across 2010–2026 on-chain history, the compression is stark:</p>
-  <p class="ua">Ефект «згасання піків» вище — не курйоз: якщо його не враховувати, він поступово ламає будь-який <em>фіксований</em> поріг. Коли пік метрики стискається щоцикл, статичний маппінг «цей рівень = максимальний ризик» стає недосяжним, і індекс тихо <strong>недооцінює ризик на сучасних вершинах</strong> (і симетрично переоцінює його на сучасних днах, які піднімаються). За історією 2010–2026 стиснення разюче:</p>
-
-  <div class="glass-card">
-  <table>
-    <thead>
-      <tr>
-        <th><span class="en">Cycle peak</span><span class="ua">Пік циклу</span></th>
-        <th>NUPL</th><th>MVRV&nbsp;Z</th><th>RHODL</th><th>CVDD</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr><td>2013</td><td>0.83</td><td>10.5</td><td>212k</td><td>22.2</td></tr>
-      <tr><td>2017</td><td>0.79</td><td>10.0</td><td>106k</td><td>11.6</td></tr>
-      <tr><td>2021</td><td>0.75</td><td>7.1</td><td>15k</td><td>7.8</td></tr>
-      <tr><td>2024–26</td><td><strong>0.64</strong></td><td><strong>3.4</strong></td><td><strong>13k</strong></td><td><strong>3.7</strong></td></tr>
-    </tbody>
-  </table>
+  <div class="glass-card" style="padding: 0; overflow-x: auto;">
+    <table>
+      <thead>
+        <tr>
+          <th><span class="en">Milestone Date</span><span class="ua">Дата події</span></th>
+          <th><span class="en">Market Event</span><span class="ua">Подія на ринку</span></th>
+          <th><span class="en">BTC Price</span><span class="ua">Ціна BTC</span></th>
+          <th><span class="en">V3.2 Score</span><span class="ua">Оцінка V3.2</span></th>
+          <th><span class="en">Action / Interpretation</span><span class="ua">Дія / Інтерпретація</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>2018-12-15</strong></td>
+          <td><span class="en">Bear Market Bottom</span><span class="ua">Дно ведмежого ринку</span></td>
+          <td>$3,200</td>
+          <td><span class="zone-0">25</span></td>
+          <td><strong><span class="en">BUY</span><span class="ua">КУПІВЛЯ</span></strong></td>
+        </tr>
+        <tr>
+          <td><strong>2019-06-26</strong></td>
+          <td><span class="en">Mid-Cycle Top</span><span class="ua">Вершина середини циклу</span></td>
+          <td>$13,880</td>
+          <td><span class="zone-75">80</span></td>
+          <td><strong><span class="en">SELL</span><span class="ua">ПРОДАЖ</span></strong></td>
+        </tr>
+        <tr>
+          <td><strong>2020-03-13</strong></td>
+          <td><span class="en">COVID Liquidity Crash</span><span class="ua">COVID-криза ліквідності</span></td>
+          <td>$3,800</td>
+          <td><span class="zone-0">26</span></td>
+          <td><strong><span class="en">BUY</span><span class="ua">КУПІВЛЯ</span></strong></td>
+        </tr>
+        <tr>
+          <td><strong>2021-04-14</strong></td>
+          <td><span class="en">Spring ATH</span><span class="ua">Весняний максимум</span></td>
+          <td>$63,500</td>
+          <td><span class="zone-100">88</span></td>
+          <td><span class="en">DISTRIBUTION</span><span class="ua">ДИСТРИБУЦІЯ</span></td>
+        </tr>
+        <tr>
+          <td><strong>2021-11-10</strong></td>
+          <td><span class="en">Double Top ATH</span><span class="ua">Подвійна вершина ATH</span></td>
+          <td>$69,000</td>
+          <td><span class="zone-75">80</span></td>
+          <td><strong><span class="en">SELL</span><span class="ua">ПРОДАЖ</span></strong></td>
+        </tr>
+        <tr>
+          <td><strong>2022-06-18</strong></td>
+          <td><span class="en">Three Arrows Capitulation</span><span class="ua">Капітуляція Three Arrows</span></td>
+          <td>$17,600</td>
+          <td><span class="zone-0">24</span></td>
+          <td><strong><span class="en">BUY</span><span class="ua">КУПІВЛЯ</span></strong></td>
+        </tr>
+        <tr>
+          <td><strong>2022-11-21</strong></td>
+          <td><span class="en">FTX Exchange Collapse</span><span class="ua">Крах біржі FTX</span></td>
+          <td>$15,500</td>
+          <td><span class="zone-0">16</span></td>
+          <td><strong><span class="en">BUY</span><span class="ua">КУПІВЛЯ</span></strong></td>
+        </tr>
+        <tr>
+          <td><strong>2024-03-14</strong></td>
+          <td><span class="en">Halving Anticipation ATH</span><span class="ua">Максимум очікування халвінгу</span></td>
+          <td>$73,500</td>
+          <td><span class="zone-75">82</span></td>
+          <td><strong><span class="en">SELL</span><span class="ua">ПРОДАЖ</span></strong></td>
+        </tr>
+        <tr>
+          <td><strong>2025-09-29</strong></td>
+          <td><span class="en">Cycle Peak</span><span class="ua">Пік циклу</span></td>
+          <td>$129,000</td>
+          <td><span class="zone-50">68</span></td>
+          <td><strong><span class="en">SELL</span><span class="ua">ПРОДАЖ</span></strong></td>
+        </tr>
+        <tr>
+          <td><strong>2026-06-15</strong></td>
+          <td><span class="en">Today's Live Valuation</span><span class="ua">Поточна live-оцінка</span></td>
+          <td>$65,703</td>
+          <td><span class="zone-0">23</span></td>
+          <td><strong><span class="en">BUY / DCA ACCUMULATION</span><span class="ua">КУПІВЛЯ / DCA НАКОПИЧЕННЯ</span></strong></td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 
-  <p class="en">To keep the score calibrated as Bitcoin matures, the metrics whose <em>linear</em> mappings age fastest — <strong>NUPL</strong>, <strong>MVRV Z-Score</strong> and the <strong>Mayer Multiple</strong> (whose cycle peaks fell 3.2 → 2.5 → 1.8) — now use a <strong>blended</strong> reading:</p>
-  <p class="ua">Щоб оцінка лишалась каліброваною з дозріванням Bitcoin, метрики, чиї <em>лінійні</em> маппінги старіють найшвидше — <strong>NUPL</strong>, <strong>MVRV Z-Score</strong> та <strong>Mayer Multiple</strong> (піки якого впали 3.2 → 2.5 → 1.8) — тепер використовують <strong>блендоване</strong> зчитування:</p>
+  <!-- Section 7 -->
+  <h2 id="implementation">
+    <span class="en">7. Practical Implementation</span>
+    <span class="ua">7. Практична імплементація</span>
+  </h2>
+  <p class="en">The active calculations run daily on the backend and are exposed as a JSON payload (<code>data.json</code>) to drive the dashboard. It exposes the final risk score, phase, and the real-time observer state machine state (e.g. <code>state: 'HOLD_BTC'</code>, <code>trailing_trigger_score</code> etc.).</p>
+  <p class="ua">Активні обчислення виконуються щодня на бекенді та зберігаються в JSON-файл (<code>data.json</code>) для відображення на дашбордах. Сюди входять фінальна оцінка, активна фаза, а також детальний стан кінцевого автомата (наприклад, <code>state: 'HOLD_BTC'</code>, <code>trailing_trigger_score</code> тощо).</p>
 
-  <blockquote>
-    <p class="en">score = 50% × <strong>rolling percentile</strong> (4-year window) + 50% × <strong>fixed map</strong></p>
-    <p class="ua">оцінка = 50% × <strong>ковзний перцентиль</strong> (4-річне вікно) + 50% × <strong>фіксований маппінг</strong></p>
-  </blockquote>
+  <!-- Section 8 -->
+  <h2 id="rower">
+    <span class="en">8. The Rower's Metaphor</span>
+    <span class="ua">8. Метафора весляра</span>
+  </h2>
+  
+  <div style="text-align: center; margin: 20px 0;">
+    <img src="img/rowers_metaphor.png" alt="The Rower's Metaphor" style="max-width: 100%; border-radius: 12px; border: 1px solid var(--border); box-shadow: var(--shadow-glow);">
+  </div>
 
-  <p class="en">The percentile term tracks where today's value sits relative to its own recent range, so it stays calibrated even as the absolute range shrinks. The fixed term is the <strong>anchor</strong>: it never lets a genuinely large absolute reading (a 2017-scale spike) be normalized away, and it guarantees that a higher raw value always maps to at least as much risk. The two together are deliberately conservative.</p>
-  <p class="ua">Перцентильний член показує, де сьогоднішнє значення відносно власного недавнього діапазону, тож лишається каліброваним навіть коли абсолютний діапазон стискається. Фіксований член — це <strong>якір</strong>: він не дає занормалізувати справді велике абсолютне значення (сплеск масштабу 2017-го) і гарантує, що більше сире значення завжди дає принаймні не менший ризик. Разом вони навмисно консервативні.</p>
+  <p class="en">To understand how to navigate using this index, consider the metaphor of academic rowing (a discipline practiced actively by the creator of this indicator, from which this perspective is directly born).</p>
+  <p class="ua">Щоб зрозуміти, як користуватися цим індексом, розглянемо метафору академічного веслування (дисципліни, якою активно займається творець цього індикатора, і з якої безпосередньо народилося це бачення).</p>
 
-  <h3><span class="en">Why not every indicator</span><span class="ua">Чому не кожен індикатор</span></h3>
-  <p class="en">Adaptation is applied <em>selectively</em>, not blindly. <strong>RHODL</strong> and <strong>CVDD</strong> already use logarithmic maps — and log-space naturally absorbs multiplicative compression, so their fixed maps still read modern tops well (they only drift at the bottom). <strong>aSOPR</strong>, the Fear &amp; Greed Index and funding are <em>oscillators</em> around a stable mean (aSOPR's 7-day envelope has held ~0.97–1.05 across every cycle); applying a percentile to them would amplify noise rather than fix anything. So those metrics keep their fixed mappings.</p>
-  <p class="ua">Адаптація застосовується <em>вибірково</em>, не сліпо. <strong>RHODL</strong> та <strong>CVDD</strong> уже використовують логарифмічні маппінги — а лог-простір природно поглинає мультиплікативне стиснення, тож їхні фіксовані маппінги ще добре читають сучасні вершини (зсув лише на дні). <strong>aSOPR</strong>, Індекс страху та жадібності й funding — це <em>осцилятори</em> навколо стабільного середнього (7-денна обвідна aSOPR трималась ~0.97–1.05 у кожному циклі); перцентиль лише підсилив би шум. Тож ці метрики лишають фіксовані маппінги.</p>
+  <p class="en">When you sit in a rowing shell, you propel yourself forward but face entirely backward. You move into the future, yet your eyes can only see where you have already been—the past. The riverbed of the market is winding, the currents are strong, and hidden rocks lie beneath the surface. You can only guess how the river will turn next by looking at the contours of the banks you have already passed and the flow of the water behind you. You cannot turn your head to look forward.</p>
+  <p class="ua">Коли ви сидите в академічному човні, ви рухаєтеся вперед, але сидите спиною до напрямку руху. Ви пливете в майбутнє, але ваші очі бачать лише те, де ви вже були — минуле. Русло ринку звивисте, течії сильні, а під водою ховаються невидимі скелі. Ви можете лише припускати, куди поверне річка далі, дивлячись на контури берегів, які ви вже пройшли, і на рух води позаду вас. Ви не можете повернути голову і подивитися вперед.</p>
 
-  <p class="en">For transparency, the live <code>data.json</code> carries an <code>adaptive_calibration</code> block showing the fixed, adaptive and blended value for each affected metric — nothing is hidden behind a black box. This is an evolving "v2" calibration; the longer the daily indicator history grows, the sharper the percentile windows become.</p>
-  <p class="ua">Для прозорості живий <code>data.json</code> містить блок <code>adaptive_calibration</code> із фіксованим, адаптивним і блендованим значенням для кожної задіяної метрики — нічого не сховано в чорну скриньку. Це еволюційне калібрування «v2»; що довша щоденна історія індикаторів, то точніші перцентильні вікна.</p>
+  <p class="en">Therefore, you must row in a way that moves you toward your destination while keeping the visible riverbanks in sight. Yet, even the most precise calculations of the past are no guarantee that the path ahead will remain calm.</p>
+  <p class="ua">Тому ви повинні веслувати так, щоб рухатися до своєї мети, тримаючи в полі зору видимі береги. Проте навіть найточніші розрахунки минулого не гарантують, що шлях попереду залишиться спокійним.</p>
 
-  <h3><span class="en">What does <em>not</em> need calibrating</span><span class="ua">Що <em>не</em> потребує калібрування</span></h3>
-  <p class="en">Calibration is applied only where the data asks for it. Instead of a static 50/50 split, the V3.2 engine utilizes the machine learning phase classifier to dynamically distribute influence between On-Chain and Tech/Macro metrics based on the active cycle phase. This optimizes the balance between structural macro accuracy (dominant at cycle floors) and tactical responsiveness (dominant near peaks).</p>
-  <p class="ua">Калібрування застосовується лише там, де цього вимагають дані. Замість статичного розподілу 50/50, двигун V3.2 використовує класифікатор машинного навчання для динамічного розподілу впливу між показниками On-Chain та Tech/Macro залежно від активної фази циклу. Це оптимізує баланс між структурною макро-точністю (домінує на дні циклу) та тактичною чутливістю (домінує поблизу вершин).</p>
+  <p class="en">This indicator is a route guide for a backward-facing rower. It tries its best to map the current and the banks, but it can never replace your own eyes, your mind, your pace, and your personal sense of safety and danger.</p>
+  <p class="ua">Цей індикатор — лоція для весляра, який сидить спиною вперед. Він намагається з усіх сил нанести на карту течію та береги, але ніколи не замінить ваші власні очі, ваш розум, ваш темп та ваше особисте відчуття безпеки чи небезпеки.</p>
 
-  <h3><span class="en">Tested and rejected: market-wide money flow</span><span class="ua">Перевірено і відхилено: ринковий грошовий потік</span></h3>
-  <p class="en">A natural question is whether the index should add an objective, market-wide <em>money-flow</em> signal, in the spirit of the volume-weighted money flow popularized by trading oscillators. We tested exactly that on the full 2011 to 2026 daily history, using Coin Metrics' market-wide aggregates (reported spot volume across vetted exchanges, plus on-chain exchange in/out flows), rather than a single venue. The verdict was no, and the data is worth showing:</p>
-  <p class="ua">Природне питання: чи варто додати об'єктивний, ринковий сигнал <em>грошового потоку</em>, у дусі обсяго-зваженого money flow з торгових осциляторів. Ми перевірили саме це на повній денній історії 2011–2026, узявши ринкові агрегати Coin Metrics (звітний спот-обсяг по перевірених біржах плюс on-chain потоки на біржі й з бірж), а не один майданчик. Вердикт: ні, і дані варто показати:</p>
-  <ul>
-    <li class="en">A real volume-weighted money-flow index correlated with the next 90 days of returns at only <strong>r = 0.07</strong>, versus <strong>r = 0.20</strong> for MVRV, while overlapping ~30% with MVRV. It would dilute the score, not sharpen it. At the actual 2021 blow-off top it read a middling 43/100, so it does not even flag tops as a level.</li>
-    <li class="ua">Справжній обсяго-зважений індекс грошового потоку корелював із наступними 90 днями дохідності лише на <strong>r = 0.07</strong>, проти <strong>r = 0.20</strong> у MVRV, і при цьому на ~30% дублював MVRV. Він би розбавив оцінку, а не загострив. На реальному фінальному піку 2021 він показав посередні 43/100, тобто навіть як рівень піки не ловить.</li>
-    <li class="en">Net exchange flows <em>were</em> genuinely independent of MVRV, but carried essentially no forward signal (r = -0.06), and their sign relative to tops and bottoms <strong>flipped between cycles</strong>: coins flowed onto exchanges at the 2018 bottom yet off exchanges at the 2021 top, as custody, ETFs and institutional holding reshaped behavior. A signal whose meaning inverts each cycle is a liability, not an edge.</li>
-    <li class="ua">Чисті потоки бірж <em>справді</em> були незалежними від MVRV, але майже не несли випереджального сигналу (r = -0.06), а їхній знак відносно вершин і днів <strong>перевертався між циклами</strong>: монети заходили на біржі на дні 2018-го, але виходили з бірж на піку 2021-го, у міру того як кастоді, ETF та інституційний холд переписали поведінку. Сигнал, чий сенс інвертується щоцикл, це тягар, а не перевага.</li>
-  </ul>
-  <p class="en">The deeper reason is structural: the useful content of a "money-flow" idea already lives in the on-chain group. NUPL, MVRV, RHODL and CVDD are all built on realized capitalization, the real cost basis of moved coins, which is a cleaner, manipulation-resistant measure of capital flow than any exchange volume feed. The exchange-flow result is also a live example of the diminishing-and-shifting-signal problem this whole section is about. So Cipher B stays a price-based tactical momentum oscillator, and the probe is kept in the repository as a reproducible record (<code>tools/coinmetrics_flow_probe.py</code>).</p>
-  <p class="ua">Глибша причина структурна: корисний зміст ідеї «грошового потоку» вже живе в ончейн-групі. NUPL, MVRV, RHODL і CVDD усі побудовані на realized capitalization, реальній собівартості переміщених монет, а це чистіший і стійкіший до маніпуляцій вимір потоку капіталу, ніж будь-який біржовий обсяг. Результат із потоками бірж також є живим прикладом проблеми згасання й зсуву сигналів, про яку вся ця секція. Тож Cipher B лишається ціновим тактичним momentum-осцилятором, а пробу збережено в репозиторії як відтворюваний запис (<code>tools/coinmetrics_flow_probe.py</code>).</p>
-
+  <!-- Section 9 -->
   <h2 id="version-comparison">
-    <span class="en">8. Version Comparison (V1 vs. V3.2)</span>
-    <span class="ua">8. Порівняння версій (V1 та V3.2)</span>
+    <span class="en">9. Version Comparison (V1 vs. V3.2)</span>
+    <span class="ua">9. Порівняння версій (V1 та V3.2)</span>
   </h2>
 
   <p class="en">The transition from legacy BitcoinScore V1 to V3.2 represents an evolution from a static, rigid aggregator to an adaptive, regime-aware framework. The table below details the core architectural differences:</p>
   <p class="ua">Перехід від застарілої версії BitcoinScore V1 до V3.2 являє собою еволюцію від статичного, жорсткого агрегатора до адаптивної моделі, що враховує поточну фазу ринку. У таблиці нижче наведено детальні архітектурні відмінності:</p>
 
-  <div class="glass-card" style="margin-top: 16px; margin-bottom: 24px; overflow-x: auto;">
-  <table style="width: 100%; min-width: 600px;">
-    <thead>
-      <tr>
-        <th style="width: 25%;"><span class="en">Feature</span><span class="ua">Функція</span></th>
-        <th style="width: 35%;"><span class="en">Version 1 (Legacy)</span><span class="ua">Версія 1 (Застаріла)</span></th>
-        <th style="width: 40%;"><span class="en">Version 3.2 (Active Default)</span><span class="ua">Версія 3.2 (Поточна)</span></th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><strong><span class="en">Weighting Model</span><span class="ua">Модель зважування</span></strong></td>
-        <td>
-          <span class="en"><strong>Static weights</strong>: Fixed allocations (50% On-Chain, 50% Tech/Macro) regardless of conditions.</span>
-          <span class="ua"><strong>Статичні ваги</strong>: Фіксований розподіл (50% On-Chain, 50% Tech/Macro) незалежно від умов.</span>
-        </td>
-        <td>
-          <span class="en"><strong>Dynamic weights</strong>: Metric weights scale dynamically (U_i in [0.1, 1.0]) based on the active market regime.</span>
-          <span class="ua"><strong>Динамічні ваги</strong>: Ваги метрик масштабуються динамічно (U_i in [0.1, 1.0]) на основі активного ринкового режиму.</span>
-        </td>
-      </tr>
-      <tr>
-        <td><strong><span class="en">Regime Detection</span><span class="ua">Визначення режиму</span></strong></td>
-        <td>
-          <span class="en"><strong>None</strong>: No concept of cycle phase; indicators are treated identically at tops and bottoms.</span>
-          <span class="ua"><strong>Відсутнє</strong>: Концепція фази циклу відсутня; індикатори трактуються однаково як на вершинах, так і на дні.</span>
-        </td>
-        <td>
-          <span class="en"><strong>ML Phase Classifier</strong>: Regularized Logistic Regression model classifies the market into <code>BOTTOM</code>, <code>NEUTRAL</code>, or <code>TOP</code>.</span>
-          <span class="ua"><strong>ML-класифікатор фаз</strong>: Модель регулярної логістичної регресії класифікує ринок на <code>BOTTOM</code>, <code>NEUTRAL</code> або <code>TOP</code>.</span>
-        </td>
-      </tr>
-      <tr>
-        <td><strong><span class="en">Indicator Calibration</span><span class="ua">Калібрування</span></strong></td>
-        <td>
-          <span class="en"><strong>Static bounds</strong>: Constant bounds that do not adapt to Bitcoin's structural maturity.</span>
-          <span class="ua"><strong>Статичні межі</strong>: Постійні межі, які не адаптуються до структурного дорослішання Bitcoin.</span>
-        </td>
-        <td>
-          <span class="en"><strong>Adaptive Calibration</strong>: Blends fixed mappings with a rolling 4-year percentile rank (50/50 blend).</span>
-          <span class="ua"><strong>Адаптивне калібрування</strong>: Змішує фіксовані карти з ковзним 4-річним історичним перцентильним рангом (50/50).</span>
-        </td>
-      </tr>
-      <tr>
-        <td><strong><span class="en">Indicator Dispersion</span><span class="ua">Розбіжність метрик</span></strong></td>
-        <td>
-          <span class="en"><strong>Unmanaged</strong>: Diverging metrics dilute the overall score, pushing it towards a neutral 50.</span>
-          <span class="ua"><strong>Некерована</strong>: Розбіжність метрик розмиває загальний бал, наближаючи його до нейтральних 50.</span>
-        </td>
-        <td>
-          <span class="en"><strong>Coherence Dampening</strong>: Pulls the score towards phase targets (30 for Bottom, 70 for Top) when metrics diverge.</span>
-          <span class="ua"><strong>Згасання узгодженості</strong>: Притягує оцінку до цілей фази (30 для дна, 70 для вершини) при розбіжності метрик.</span>
-        </td>
-      </tr>
-      <tr>
-        <td><strong><span class="en">Trend Modulators</span><span class="ua">Модулятори тренду</span></strong></td>
-        <td>
-          <span class="en"><strong>None</strong>: Hardcoded tactical alert thresholds.</span>
-          <span class="ua"><strong>Відсутні</strong>: Жорстко закодовані пороги тактичних сигналів.</span>
-        </td>
-        <td>
-          <span class="en"><strong>Active Modulators</strong>: Incorporates Spot ETF flows and the Recovery Entry Window (TiZ modulator).</span>
-          <span class="ua"><strong>Активні модулятори</strong>: Інтегрує потоки спотових ETF та вікно входу відновлення (модулятор TiZ).</span>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+  <div class="glass-card" style="margin-top: 16px; margin-bottom: 24px; overflow-x: auto; padding: 0;">
+    <table style="width: 100%; min-width: 600px;">
+      <thead>
+        <tr>
+          <th style="width: 25%;"><span class="en">Feature</span><span class="ua">Функція</span></th>
+          <th style="width: 35%;"><span class="en">Version 1 (Legacy)</span><span class="ua">Версія 1 (Застаріла)</span></th>
+          <th style="width: 40%;"><span class="en">Version 3.2 (Active Default)</span><span class="ua">Версія 3.2 (Поточна)</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong><span class="en">Weighting Model</span><span class="ua">Модель зважування</span></strong></td>
+          <td>
+            <span class="en"><strong>Static weights</strong>: Fixed allocations (50% On-Chain, 50% Tech/Macro) regardless of conditions.</span>
+            <span class="ua"><strong>Статичні ваги</strong>: Фіксований розподіл (50% On-Chain, 50% Tech/Macro) незалежно від умов.</span>
+          </td>
+          <td>
+            <span class="en"><strong>Dynamic weights</strong>: Metric weights scale dynamically (U_i in [0.1, 1.0]) based on the active market regime.</span>
+            <span class="ua"><strong>Динамічні ваги</strong>: Ваги метрик масштабуються динамічно (U_i in [0.1, 1.0]) на основі активного ринкового режиму.</span>
+          </td>
+        </tr>
+        <tr>
+          <td><strong><span class="en">Regime Detection</span><span class="ua">Визначення режиму</span></strong></td>
+          <td>
+            <span class="en"><strong>None</strong>: No concept of cycle phase; indicators are treated identically at tops and bottoms.</span>
+            <span class="ua"><strong>Відсутнє</strong>: Концепція фази циклу відсутня; індикатори трактуються однаково як на вершинах, так і на дні.</span>
+          </td>
+          <td>
+            <span class="en"><strong>ML Phase Classifier</strong>: Regularized Logistic Regression model classifies the market into <code>BOTTOM</code>, <code>NEUTRAL</code>, or <code>TOP</code>.</span>
+            <span class="ua"><strong>ML-класифікатор фаз</strong>: Модель регулярної логістичної регресії класифікує ринок на <code>BOTTOM</code>, <code>NEUTRAL</code> або <code>TOP</code>.</span>
+          </td>
+        </tr>
+        <tr>
+          <td><strong><span class="en">Indicator Calibration</span><span class="ua">Калібрування</span></strong></td>
+          <td>
+            <span class="en"><strong>Static bounds</strong>: Constant bounds that do not adapt to Bitcoin's structural maturity.</span>
+            <span class="ua"><strong>Статичні межі</strong>: Постійні межі, які не адаптуються до структурного дорослішання Bitcoin.</span>
+          </td>
+          <td>
+            <span class="en"><strong>Adaptive Calibration</strong>: Blends fixed mappings with a rolling 4-year percentile rank (50/50 blend).</span>
+            <span class="ua"><strong>Адаптивне калібрування</strong>: Змішує фіксовані карти з ковзним 4-річним історичним перцентильним рангом (50/50).</span>
+          </td>
+        </tr>
+        <tr>
+          <td><strong><span class="en">Indicator Dispersion</span><span class="ua">Розбіжність метрик</span></strong></td>
+          <td>
+            <span class="en"><strong>Unmanaged</strong>: Diverging metrics dilute the overall score, pushing it towards a neutral 50.</span>
+            <span class="ua"><strong>Некерована</strong>: Розбіжність метрик розмиває загальний бал, наближаючи його до нейтральних 50.</span>
+          </td>
+          <td>
+            <span class="en"><strong>Coherence Dampening</strong>: Pulls the score towards phase targets (30 for Bottom, 70 for Top) when metrics diverge.</span>
+            <span class="ua"><strong>Згасання узгодженості</strong>: Притягує оцінку до цілей фази (30 для дна, 70 для вершини) при розбіжності метрик.</span>
+          </td>
+        </tr>
+        <tr>
+          <td><strong><span class="en">Trend Modulators</span><span class="ua">Модулятори тренду</span></strong></td>
+          <td>
+            <span class="en"><strong>None</strong>: Hardcoded tactical alert thresholds.</span>
+            <span class="ua"><strong>Відсутні</strong>: Жорстко закодовані пороги тактичних сигналів.</span>
+          </td>
+          <td>
+            <span class="en"><strong>Active Modulators</strong>: Incorporates Spot ETF flows and the Recovery Entry Window (TiZ modulator).</span>
+            <span class="ua"><strong>Активні модулятори</strong>: Інтегрує потоки спотових ETF та вікно входу відновлення (модулятор TiZ).</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 
   <p class="en">By transitioning to V3.2, the index eliminates dilution from lagging indicators, automatically adjusts for diminishing volatility over multi-year cycles, and incorporates institutional flow signals for a more accurate evaluation of modern market cycles.</p>
   <p class="ua">Переходячи на версію V3.2, індекс усуває розмиття від індикаторів, що відстають, автоматично компенсує згасання волатильності протягом багаторічних циклів та інтегрує інституційні потоки капіталу для точнішої оцінки сучасних циклів ринку.</p>
 
-  <div class="disclaimer-box">
+  <!-- Section 10 -->
+  <h2 id="limitations">
+    <span class="en">10. Limitations &amp; Disclaimer</span>
+    <span class="ua">10. Обмеження та дисклеймер</span>
+  </h2>
+  
+  <div class="disclaimer-box" style="margin-top: 12px; margin-bottom: 24px;">
     <p class="en">This methodology document is for educational and informational purposes only. It is not financial advice. All data and calculations are processed automatically and reflect public historical records. Any decisions to trade are made solely at your own risk.</p>
     <p class="ua">Цей документ створений виключно з освітньою та інформаційною метою і не є фінансовою порадою. Всі дані збираються автоматично та відображають публічні історичні рекорди. Будь-які рішення про торгівлю приймаються вами на власний ризик.</p>
+    <p class="en" style="margin-top: 10px;">Past performance across historical cycles does not guarantee that the index will remain calibrated or yield profits in future market regimes. Black swans are real, and one will certainly arrive. When it does, the index will register it, but only after the fact, never before. It reads the present and the past. It does not know the future.</p>
+    <p class="ua" style="margin-top: 10px;">Результати минулих періодів у попередніх циклах не гарантують, що індекс залишиться відкаліброваним або принесе прибуток у майбутніх ринкових режимах. Чорні лебеді реальні, і один неодмінно прилетить. Коли це станеться, індекс зафіксує це, але постфактум, ніколи наперед. Він читає теперішнє й минуле. Майбутнього він не знає.</p>
   </div>
-
-  <!-- Theme & mode are inherited from the index page (localStorage) -->
 
   <footer>
     <a href="index.html" style="color:var(--footer);text-decoration:none;">
-      <span class="en">← Back to Dashboard</span>
-      <span class="ua">← На головну</span>
+      <span class="en">&larr; Back to Dashboard</span>
+      <span class="ua">&larr; На головну</span>
     </a>
-    &nbsp;&middot;&nbsp; Bitcoin Buy Risk Index &middot; May 2026
+    &nbsp;&middot;&nbsp; Bitcoin Buy Risk Index &middot; June 2026
     &nbsp;&middot;&nbsp;
     <a href="https://github.com/heavymetalmax/BitcoinScore/discussions" target="_blank" rel="noopener" style="color:var(--index-color);text-decoration:none;font-weight:600;">
       <span class="en">Feedback on GitHub</span>
