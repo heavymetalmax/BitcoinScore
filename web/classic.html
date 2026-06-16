@@ -785,7 +785,7 @@
     <div class="flip-card-wrap" id="signal-block" style="display:none">
       <div class="flip-card-inner" onclick="this.classList.toggle('flipped')">
         <!-- Front -->
-        <div class="card signal-block flip-card-front" style="display:block">
+        <div class="card signal-block flip-card-front" style="display: flex; flex-direction: column;">
           <div class="signal-block-header">
             <span class="signal-block-label"><span class="en">Market Signal</span><span class="ua">Ринковий сигнал</span></span>
             <span class="signal-main-badge" id="sig-flag">—</span>
@@ -838,7 +838,7 @@
     <div class="flip-card-wrap" id="sp2-block" style="display:none">
       <div class="flip-card-inner" onclick="this.classList.toggle('flipped')">
         <!-- Front -->
-        <div class="card sp2-block flip-card-front" style="display:block">
+        <div class="card sp2-block flip-card-front" style="display: flex; flex-direction: column;">
           <div class="sp2-header">
             <span class="sp2-label">
               <span class="en">Phase Signals</span><span class="ua">Фазові сигнали</span>
@@ -2114,7 +2114,7 @@ async function loadData() {
       'NEUTRAL':          { en: 'Weak Signal',         ua: 'Слабкий сигнал' },
     };
     const isUaFlag = document.documentElement.lang === 'uk' ||
-                     (localStorage && localStorage.getItem('lang') === 'ua');
+                     (localStorage && (localStorage.getItem('lang') === 'ua' || localStorage.getItem('bbr-lang') === 'ua'));
     const flagEl = document.getElementById('sig-flag');
     if (flagEl) {
       const lbl = FLAG_LABELS[sig.flag];
