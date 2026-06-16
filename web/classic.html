@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BTCBRI — Bitcoin Buy Risk Index</title>
+<title>BTCBRI v2 EXP — Bitcoin Buy Risk Index</title>
 <meta name="description" content="Daily Bitcoin buy risk score (0–100) based on 10+ on-chain and macro indicators. Know when to accumulate and when to be cautious.">
 <meta name="theme-color" content="#0a0a0f">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
@@ -24,11 +24,17 @@
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
   :root[data-theme="dark"] {
-    --bg: #0A0A0F; --surface: #111118; --surface2: #18181F;
-    --border: #ffffff0f; --border2: #ffffff18;
-    --text: #CCCCCC; --muted: #6B6B7E; --muted2: #9494A8;
-    --shadow: 0 1px 3px #0c0c1e70, 0 8px 32px #0c0c1e50;
-    --hdr-bg: #22222f; --hdr-text: #CCCCCC;
+    --bg: #0A0A0F;
+    --surface: rgba(17, 17, 24, 0.65);
+    --surface2: rgba(24, 24, 31, 0.75);
+    --border: rgba(255, 255, 255, 0.08);
+    --border2: rgba(255, 255, 255, 0.14);
+    --text: #E2E8F0;
+    --muted: #6B7280;
+    --muted2: #94A3B8;
+    --shadow: 0 4px 30px rgba(0, 0, 0, 0.25), 0 8px 32px rgba(12, 12, 22, 0.4);
+    --hdr-bg: rgba(34, 34, 47, 0.85);
+    --hdr-text: #E2E8F0;
     --logo-text: #FFFFFF;
   }
   :root[data-theme="light"] {
@@ -42,7 +48,19 @@
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html { background: var(--surface); transition: background 0.3s; }
-  body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.5; transition: background 0.3s, color 0.3s; min-height: 100vh; display: flex; flex-direction: column; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: var(--bg);
+    background-image: radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.05) 0%, rgba(10, 10, 15, 0) 60%);
+    background-attachment: fixed;
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.5;
+    transition: background 0.3s, color 0.3s;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
 
 
   .lang-en .ua { display: none; }
@@ -70,19 +88,64 @@
 
   main { max-width: 1200px; margin: 0 auto; padding: 32px 32px 64px; flex: 1; width: 100%; }
 
-  .hero { display: grid; grid-template-columns: 260px 1fr 280px; gap: 20px; margin-bottom: 24px; }
+  .hero { display: grid; grid-template-columns: 260px 1fr 260px; gap: 20px; margin-bottom: 24px; }
+  .mini-gauges-col { display: flex; flex-direction: column; gap: 12px; }
+  .mini-gauge-card { display: flex; flex-direction: column; padding: 14px 16px 10px; flex: 1; }
+  .mini-gauge-title { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted2); margin-bottom: 4px; }
+  .mini-gauge-arc-wrap { position: relative; width: 100%; }
+  .mini-gauge-svg { display: block; width: 100%; overflow: visible; }
+  .mini-gauge-arc-number { position: absolute; top: 56%; left: 0; right: 0; display: flex; justify-content: center; align-items: center; transform: translateY(-50%); }
+  .mini-gauge-val { font-size: 38px; font-weight: 700; letter-spacing: -0.03em; line-height: 1; }
 
-  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 24px; box-shadow: var(--shadow); }
+  .card {
+    background: var(--surface);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: var(--shadow);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+  .card:not(.flip-card-front):not(.flip-card-back):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3), 0 0 15px rgba(99, 102, 241, 0.08);
+    border-color: rgba(99, 102, 241, 0.25);
+  }
+
+  .status-bar { display: flex; flex-direction: column; gap: 4px; padding: 8px 4px 4px; margin-top: 10px; font-size: 11px; color: var(--text); border-top: 1px solid var(--border); }
+  .status-bar .status-row { display: flex; align-items: center; justify-content: space-between; }
+  .status-bar .status-val { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .status-bar .status-countdown { color: #000000; font-weight: 700; }
+  .market-state-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .market-title { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; color: var(--muted); text-transform: uppercase; }
+  .health-badge { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; border: 1px solid transparent; }
+  .health-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+  .health-healthy   { background: #22C55E14; color: #22C55E; border: 1px solid #22C55E28; }
+  .health-degraded  { background: #EAB30814; color: #EAB308; border: 1px solid #EAB30828; }
+  .health-stale     { background: #EF444414; color: #EF4444; border: 1px solid #EF444428; }
+
+  .market-rows { display: flex; flex-direction: column; }
+  .market-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); gap: 8px; }
+  .market-row:last-child { border-bottom: none; }
+  .market-row-left { display: flex; align-items: center; gap: 10px; color: var(--muted2); font-size: 13px; }
+  .market-row-icon { width: 16px; height: 16px; opacity: 0.6; flex-shrink: 0; }
+  .market-row-right { display: flex; flex-direction: column; align-items: flex-end; }
+  .market-row-val { font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; text-align: right; }
+  .market-row-sub { font-size: 10px; color: var(--muted); margin-top: 2px; font-variant-numeric: tabular-nums; }
 
   .score-card { display: flex; flex-direction: column; justify-content: space-between; }
   .score-label { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; color: var(--muted); text-transform: uppercase; margin-bottom: 4px; }
   .score-number { display: flex; align-items: baseline; gap: 6px; line-height: 1; margin: 12px 0 4px; }
   .score-val { font-size: 80px; font-weight: 700; letter-spacing: -0.04em; color: var(--text); }
   .score-denom { font-size: 28px; font-weight: 400; color: var(--muted); }
-  .score-zone { font-size: 15px; font-weight: 700; letter-spacing: 0.02em; margin-bottom: 6px; }
+  .score-zone { font-size: 15px; font-weight: 700; letter-spacing: 0.02em; margin-bottom: 6px; display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
   .score-desc { font-size: 12px; color: var(--muted2); line-height: 1.5; margin-bottom: 16px; }
   .score-hint { display: flex; align-items: flex-start; gap: 8px; border-radius: 8px; padding: 10px 12px; font-size: 11px; line-height: 1.4; border: 1px solid transparent; }
   .score-hint svg { flex-shrink: 0; margin-top: 1px; }
+  .bear-div-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 4px; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); animation: briPulse 2s infinite; }
+  .bull-div-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 4px; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); animation: briPulse 2s infinite; }
+  @keyframes briPulse { 0% { opacity: 0.8; } 50% { opacity: 1; } 100% { opacity: 0.8; } }
 
   .gauge-card { display: flex; flex-direction: column; align-items: stretch; justify-content: space-between; padding: 24px 28px 20px; }
   .gauge-arc-wrap { position: relative; width: 100%; }
@@ -100,6 +163,102 @@
   .tag-buy      { background: #F7931A14; color: #D97706; border: 1px solid #F7931A28; }
   .tag-overheat { background: #EF444414; color: #EF4444; border: 1px solid #EF444428; }
   .tag-diverge  { background: #F59E0B14; color: #B45309; border: 1px solid #F59E0B28; }
+
+  /* Card Flip & Animation Styles */
+  .gauge-card-inner.flipped {
+    transform: rotateY(180deg);
+  }
+  .flip-card-wrap {
+    perspective: 1000px;
+    width: 100%;
+    position: relative;
+    transition: transform 0.2s ease;
+  }
+  .flip-card-wrap:hover {
+    transform: translateY(-2px);
+  }
+  .flip-card-inner {
+    transform-style: preserve-3d;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 100%;
+    position: relative;
+    cursor: pointer;
+  }
+  .flip-card-inner.flipped {
+    transform: rotateY(180deg);
+  }
+  .flip-card-front {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    width: 100%;
+    display: block;
+  }
+  .flip-card-back {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transform: rotateY(180deg);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+  }
+  .comp-card-wrap {
+    perspective: 1000px;
+    width: 100%;
+  }
+  .comp-card-inner {
+    transform-style: preserve-3d;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 100%;
+    position: relative;
+    cursor: pointer;
+  }
+  .comp-card-inner.flipped {
+    transform: rotateY(180deg);
+  }
+  .comp-card-front {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    width: 100%;
+  }
+  .comp-card-back {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transform: rotateY(180deg);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    background: var(--surface);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: var(--shadow);
+    transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+  }
+  @keyframes spinPulse {
+    0% { transform: rotate(0deg) scale(1); }
+    50% { transform: rotate(180deg) scale(1.1); }
+    100% { transform: rotate(360deg) scale(1); }
+  }
+  .pulsing-node {
+    animation: pulseGlow 3s infinite ease-in-out;
+  }
+  @keyframes pulseGlow {
+    0% { filter: drop-shadow(0 0 2px currentColor); }
+    50% { filter: drop-shadow(0 0 6px currentColor); }
+    100% { filter: drop-shadow(0 0 2px currentColor); }
+  }
+  .tag-recovery { background: #22C55E14; color: #16A34A; border: 1px solid #22C55E28; }
   .gauge-bar { height: 6px; border-radius: 3px; background: linear-gradient(to right, #22C55E 0%, #22C55E 25%, #EAB308 25%, #EAB308 50%, #F97316 50%, #F97316 75%, #EF4444 75%, #EF4444 100%); }
   .gauge-bar-ticks { position: relative; height: 14px; font-size: 10px; color: var(--muted); }
   .gauge-bar-ticks span { position: absolute; transform: translateX(-50%); }
@@ -111,17 +270,9 @@
   .gauge-labels { display: grid; grid-template-columns: repeat(4, 1fr); font-size: 10px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; margin-top: 2px; }
   .gl-1 { color: #22C55E; } .gl-2 { color: #EAB308; text-align: center; } .gl-3 { color: #F97316; text-align: center; } .gl-4 { color: #EF4444; text-align: right; }
 
-  .market-state-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-  .market-title { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; color: var(--muted); text-transform: uppercase; }
-  .market-state-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 11px; border-radius: 20px; font-size: 12px; font-weight: 600; border: 1px solid transparent; }
-  .market-state-badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
-  .market-rows { display: grid; grid-template-columns: 1fr auto; }
-  .market-row { display: contents; }
-  .market-row-left { display: flex; align-items: center; gap: 10px; color: var(--muted2); font-size: 13px; padding: 11px 0; border-bottom: 1px solid var(--border); }
-  .market-row-icon { width: 16px; height: 16px; opacity: 0.6; flex-shrink: 0; }
-  .market-row-val { font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; padding: 11px 0; border-bottom: 1px solid var(--border); text-align: right; }
-  .market-row:last-child > .market-row-left,
-  .market-row:last-child > .market-row-val { border-bottom: none; }
+  .delta-up   { color: #22C55E; }
+  .delta-down { color: #EF4444; }
+  .delta-zero { color: var(--muted); }
 
   .ai-block { padding: 18px 22px; margin-bottom: 24px; }
   .ai-block-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
@@ -129,17 +280,54 @@
   .ai-block-dot { width: 8px; height: 8px; border-radius: 50%; background: #38BDF8; flex-shrink: 0; }
   .ai-block-badge { font-size: 10px; color: var(--muted); border: 1px solid var(--border); border-radius: 4px; padding: 2px 7px; opacity: 0.6; }
   .ai-block-text { font-size: 13px; color: var(--muted2); line-height: 1.75; }
+  .signals-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+  .signals-container .flip-card-wrap { height: 100%; }
+  .signals-container .flip-card-inner { height: 100%; }
+  .signals-container .flip-card-front { height: 100%; box-sizing: border-box; }
+
+  .signal-block { padding: 18px 22px; margin-bottom: 0; display: flex; flex-direction: column; height: 100%; box-sizing: border-box; }
+  .signal-block-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 8px; }
+  .signal-block-label { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); display: flex; align-items: center; gap: 7px; }
+  .signal-block-dot { width: 8px; height: 8px; border-radius: 50%; background: #F97316; flex-shrink: 0; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
+  .signal-main-badge { padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; white-space: nowrap; border: 1px solid transparent; }
+  .signal-stats { display: flex; flex-wrap: wrap; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 10px; }
+  .signal-stat { flex: 1; min-width: 80px; padding: 10px 14px; border-right: 1px solid var(--border); }
+  .signal-stat:last-child { border-right: none; }
+  .signal-stat-val { font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.1; }
+  .signal-stat-label { font-size: 10px; color: var(--muted); margin-top: 3px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .signal-stat-sub { font-size: 9px; color: var(--muted); opacity: 0.7; margin-top: 2px; }
+  .signal-explain { font-size: 12px; color: var(--muted2); padding: 10px 14px 4px; line-height: 1.5; border-top: 1px solid var(--border); margin-top: auto; height: 72px; box-sizing: border-box; }
+  .signal-trust { display: flex; align-items: center; gap: 10px; }
+  .signal-trust-bar { flex: 1; height: 3px; border-radius: 2px; background: var(--border); overflow: hidden; }
+  .signal-trust-v2 { height: 100%; background: #3B82F6; }
+  .signal-trust-wr { height: 100%; background: #8B5CF6; }
+  .signal-trust-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); width: 100%; }
+  .signal-trust-wrap { flex: 1; }
+
+  .sp2-block { padding: 18px 22px; margin-bottom: 0; display: flex; flex-direction: column; height: 100%; box-sizing: border-box; }
+  .sp2-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 8px; }
+  .sp2-label { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); display: flex; align-items: center; gap: 7px; }
+  .sp2-dot { width: 8px; height: 8px; border-radius: 50%; background: #8B5CF6; flex-shrink: 0; }
+  .sp2-phase-badge { padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; white-space: nowrap; border: 1px solid transparent; }
+  .sp2-rows { display: flex; flex-direction: column; gap: 10px; }
+  .sp2-row { display: flex; align-items: center; gap: 12px; }
+  .sp2-row-label { font-size: 11px; color: var(--muted2); width: 84px; flex-shrink: 0; }
+  .sp2-bar-wrap { flex: 1; height: 6px; background: var(--surface2); border: 1px solid var(--border); border-radius: 3px; overflow: hidden; }
+  .sp2-bar-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
+  .sp2-row-val { font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; width: 44px; text-align: right; color: var(--muted2); }
+  .sp2-desc { margin-top: auto; font-size: 12px; color: var(--muted2); line-height: 1.5; padding: 10px 14px 4px; border-top: 1px solid var(--border); height: 72px; box-sizing: border-box; }
 
   .section-header { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
   .section-title { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
 
-  .components-grid { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; box-shadow: var(--shadow); margin-bottom: 24px; }
-  .comp-header { display: grid; grid-template-columns: 220px 100px 1fr 72px 82px; column-gap: 16px; padding: 10px 20px; border-bottom: 1px solid var(--border); background: var(--surface2); }
+  .components-grid { background: transparent; border: none; box-shadow: none; overflow: visible; margin-bottom: 24px; display: flex; flex-direction: column; gap: 8px; }
+  .comp-header { display: grid; grid-template-columns: 220px 90px 1fr 90px 85px; column-gap: 16px; padding: 10px 24px; background: transparent; border: none; }
   .comp-header span { font-size: 10px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
   .comp-header span:not(:first-child) { text-align: center; }
-  .comp-row { display: grid; grid-template-columns: 220px 100px 1fr 72px 82px; column-gap: 16px; padding: 14px 20px; border-bottom: 1px solid var(--border); align-items: center; transition: background 0.1s; }
-  .comp-row:last-child { border-bottom: none; }
-  .comp-row:hover { background: var(--surface2); }
+  .comp-row { display: grid; grid-template-columns: 220px 90px 1fr 90px 85px; column-gap: 16px; padding: 20px 24px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; align-items: center; transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease; box-shadow: var(--shadow); }
+  .comp-card-wrap:hover .comp-row { background: var(--surface2); border-color: rgba(99, 102, 241, 0.25); transform: translateY(-1px); }
+  .comp-card-wrap:hover .comp-card-back { background: var(--surface2); border-color: rgba(99, 102, 241, 0.25); transform: rotateY(180deg) translateY(-1px); }
   .comp-name { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
   .comp-sub { font-size: 11px; color: var(--muted); margin-top: 1px; }
   .comp-value { text-align: center; }
@@ -154,9 +342,7 @@
   .signal-low   { background: #4ADE8018; color: #16A34A; border: 1px solid #4ADE8030; }
   .signal-mod   { background: #EAB30818; color: #CA9A0A; border: 1px solid #EAB30830; }
   .signal-high  { background: #F9731618; color: #F97316; border: 1px solid #F9731630; }
-  .signal-vhigh { background: #EF444418; color: #EF4444; border: 1px solid #EF444430; }
-  .comp-group-hdr { padding: 7px 20px; background: var(--hdr-bg); border-bottom: 1px solid var(--border); font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--hdr-text); display: grid; grid-template-columns: 220px 100px 1fr 72px 82px; column-gap: 16px; align-items: center; }
-  .comp-group-hdr + .comp-row { border-top: none; }
+  .comp-group-hdr { padding: 16px 8px 8px; background: transparent; border: none; font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted2); display: flex; align-items: center; gap: 8px; margin-top: 12px; }
   .comp-group-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
 
   .bottom-grid { display: grid; grid-template-columns: 1fr 280px; gap: 20px; margin-bottom: 24px; }
@@ -226,11 +412,18 @@
     .nav-links { display: none; }
     .nav-right .view-switch { display: none; }
     .hero { grid-template-columns: 1fr; }
+    .gauge-card-container { height: 320px !important; }
     .bottom-grid { grid-template-columns: 1fr; }
-    .comp-header, .comp-row, .comp-group-hdr { grid-template-columns: 1fr 90px 80px; }
+    .signals-container { grid-template-columns: 1fr; gap: 16px; }
+    .comp-header, .comp-row { grid-template-columns: 1fr 90px 80px; }
+    .comp-header { padding: 10px 12px; }
+    .comp-row { padding: 16px 12px; }
     .comp-spark, .comp-pct { display: none; }
     .comp-header span:nth-child(3),
     .comp-header span:nth-child(4) { display: none; }
+    .comp-card-back { padding: 8px 16px; }
+    .comp-card-back-desc { font-size: 10px !important; line-height: 1.35 !important; }
+    .signal-explain, .sp2-desc { height: auto !important; }
     .gauge-val { font-size: 60px; }
     .menu-toggle-btn { display: flex; }
     footer { flex-direction: column; align-items: flex-start; gap: 20px; }
@@ -269,12 +462,23 @@
 </nav>
 
 <main>
+  <!-- RELEASE ANNOUNCEMENT BANNER -->
+  <div class="card" style="margin-bottom: 20px; padding: 14px 20px; border-color: rgba(99, 102, 241, 0.35); background: rgba(99, 102, 241, 0.05); display: flex; align-items: center; justify-content: space-between; font-size: 13px;">
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <span style="font-size: 16px;">🚀</span>
+      <div>
+        <span class="en"><strong>A new and improved version of the indicator (V3.2) is now live!</strong> The legacy version is still accessible <a href="classic_v1.html" style="color: #6366f1; text-decoration: underline; font-weight: 600;">here</a>.</span>
+        <span class="ua"><strong>Нову покращену версію індикатора (V3.2) запущено!</strong> Застаріла версія все ще доступна за <a href="classic_v1.html" style="color: #6366f1; text-decoration: underline; font-weight: 600;">цим посиланням</a>.</span>
+      </div>
+    </div>
+  </div>
+
   <!-- HERO -->
   <div class="hero">
 
     <!-- Score card -->
     <div class="card score-card">
-      <div class="score-label">BTCBRI <span class="en">SCORE</span><span class="ua">ІНДЕКС</span></div>
+      <div class="score-label" style="display:flex;align-items:center;gap:6px;">BTCBRI <span class="en">SCORE</span><span class="ua">ІНДЕКС</span><span id="health-indicator" style="width:7px;height:7px;border-radius:50%;background:#22C55E;flex-shrink:0;margin-left:2px;"></span></div>
       <div>
         <div class="score-number" id="score-number"><span class="score-val">—</span><span class="score-denom">/100</span></div>
         <div class="score-zone" id="score-zone"></div>
@@ -284,87 +488,284 @@
           <span id="hint-text"></span>
         </div>
       </div>
+      <div class="status-bar">
+        <div class="status-row">
+          <span><span class="en">Price</span><span class="ua">Ціна</span></span>
+          <span class="status-val" id="market-price">—</span>
+        </div>
+        <div class="status-row">
+          <span><span class="en">Updated</span><span class="ua">Оновлено</span></span>
+          <span class="status-val" id="market-updated">—</span>
+        </div>
+        <div class="status-row">
+          <span><span class="en">Next in</span><span class="ua">Наступне за</span></span>
+          <span class="status-val status-countdown" id="market-next">—:—</span>
+        </div>
+      </div>
     </div>
 
     <!-- Gauge card -->
-    <div class="card gauge-card">
-      <div class="gauge-arc-wrap">
-        <svg class="gauge-svg" viewBox="0 0 240 130" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <linearGradient id="arcGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%"   stop-color="#22C55E"/>
-              <stop offset="33%"  stop-color="#EAB308"/>
-              <stop offset="66%"  stop-color="#F97316"/>
-              <stop offset="100%" stop-color="#EF4444"/>
-            </linearGradient>
-          </defs>
-          <!-- Track -->
-          <path d="M 20 120 A 100 100 0 0 1 220 120" stroke="var(--surface2)" stroke-width="6" stroke-linecap="round" fill="none" vector-effect="non-scaling-stroke"/>
-          <!-- Faint gradient track -->
-          <path d="M 20 120 A 100 100 0 0 1 220 120" stroke="url(#arcGrad)" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.18" vector-effect="non-scaling-stroke"/>
-          <!-- Active arc -->
-          <path id="gauge-arc" d="" stroke="#22C55E" stroke-width="6" stroke-linecap="round" fill="none" vector-effect="non-scaling-stroke"/>
-          <!-- Needle dot -->
-          <circle id="gauge-needle" cx="20" cy="120" r="5" fill="var(--bg)" stroke="#22C55E" stroke-width="2" vector-effect="non-scaling-stroke"/>
-        </svg>
-        <div class="gauge-arc-number">
-          <span class="gauge-val" id="gauge-val">—</span>
+    <div class="gauge-card-container" style="position:relative; perspective: 1000px; height: 100%;">
+      <div class="gauge-card-inner" id="gauge-card-inner" onclick="this.classList.toggle('flipped')" style="transform-style: preserve-3d; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); width: 100%; height: 100%; position: relative; cursor: pointer;">
+        
+        <!-- FRONT SIDE (Gauge Card) -->
+        <div class="card gauge-card gauge-card-front" style="backface-visibility: hidden; -webkit-backface-visibility: hidden; width: 100%; height: 100%; position: absolute; top:0; left:0; display:flex; flex-direction:column; padding: 22px 24px; box-sizing: border-box; margin:0;">
+          <div style="display:flex; justify-content:space-between; align-items:center; width:100%; margin-bottom:2px;">
+            <div style="font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted2);"><span class="en">TODAY</span><span class="ua">СЬОГОДНІ</span></div>
+          </div>
+          <div class="gauge-arc-wrap">
+            <svg class="gauge-svg" viewBox="0 0 240 130" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="arcGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%"   stop-color="#22C55E"/>
+                  <stop offset="33%"  stop-color="#EAB308"/>
+                  <stop offset="66%"  stop-color="#F97316"/>
+                  <stop offset="100%" stop-color="#EF4444"/>
+                </linearGradient>
+              </defs>
+              <!-- Track -->
+              <path d="M 20 120 A 100 100 0 0 1 220 120" stroke="var(--surface2)" stroke-width="6" stroke-linecap="round" fill="none" vector-effect="non-scaling-stroke"/>
+              <!-- Faint gradient track -->
+              <path d="M 20 120 A 100 100 0 0 1 220 120" stroke="url(#arcGrad)" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.18" vector-effect="non-scaling-stroke"/>
+              <!-- Active arc -->
+              <path id="gauge-arc" d="" stroke="#22C55E" stroke-width="6" stroke-linecap="round" fill="none" vector-effect="non-scaling-stroke"/>
+              <!-- Needle dot -->
+              <circle id="gauge-needle" cx="20" cy="120" r="5" fill="var(--bg)" stroke="#22C55E" stroke-width="2" vector-effect="non-scaling-stroke"/>
+            </svg>
+            <div class="gauge-arc-number">
+              <span class="gauge-val" id="gauge-val">—</span>
+            </div>
+          </div>
+          <div class="gauge-scale">
+            <div class="gauge-bar"></div>
+            <div class="gauge-bar-ticks"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
+            <div class="gauge-labels">
+              <span class="gl-1"><span class="en">V.LOW</span><span class="ua">МІН.</span></span>
+              <span class="gl-2"><span class="en">MODER.</span><span class="ua">ПОМІР.</span></span>
+              <span class="gl-3"><span class="en">HIGH</span><span class="ua">ЗНАЧН.</span></span>
+              <span class="gl-4"><span class="en">V.HIGH</span><span class="ua">НАДМ.</span></span>
+            </div>
+          </div>
+          <div class="gauge-tags" id="gauge-tags"></div>
         </div>
-      </div>
-      <div class="gauge-scale">
-        <div class="gauge-bar"></div>
-        <div class="gauge-bar-ticks"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
-        <div class="gauge-labels">
-          <span class="gl-1"><span class="en">V.LOW</span><span class="ua">МІН.</span></span>
-          <span class="gl-2"><span class="en">MODER.</span><span class="ua">ПОМІР.</span></span>
-          <span class="gl-3"><span class="en">HIGH</span><span class="ua">ЗНАЧН.</span></span>
-          <span class="gl-4"><span class="en">V.HIGH</span><span class="ua">НАДМ.</span></span>
+
+        <!-- BACK SIDE (Algorithm schematic) -->
+        <div class="card gauge-card-back" style="backface-visibility: hidden; -webkit-backface-visibility: hidden; transform: rotateY(180deg); width: 100%; height: 100%; position: absolute; top:0; left:0; display:flex; flex-direction:column; padding: 18px 20px; box-sizing: border-box; margin:0; justify-content: space-between;">
+          <div style="display:flex; justify-content:space-between; align-items:center; width:100%; margin-bottom:2px; z-index: 2;">
+            <div style="font-size:9px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted2);"><span class="en">DETAILED PIPELINE (V4.2)</span><span class="ua">ДЕТАЛЬНИЙ КОНВЕЄР ОБРАХУНКУ (V4.2)</span></div>
+            <div style="font-size:9px; font-weight:700; color:var(--accent); display:flex; align-items:center; gap:4px; padding: 2px 6px; border-radius: 4px; background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.2);">
+              <span class="en">BACK</span><span class="ua">НАЗАД</span>
+            </div>
+          </div>
+          
+          <!-- Detailed Flow schematic (Neon pipeline diagram mapping technical_map.md) -->
+          <div style="display: flex; flex: 1; align-items: center; justify-content: center; position: relative; width: 100%; height: 146px; margin-top: 2px; margin-bottom: 2px;">
+            <svg style="width:100%; height:100%; z-index:1;" viewBox="0 0 360 146">
+              <!-- Glow Filters -->
+              <defs>
+                <filter id="glow-purple" x="-20%" y="-20%" width="140%" height="140%">
+                  <feGaussianBlur stdDeviation="2" result="blur" />
+                  <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                </filter>
+                <filter id="glow-blue" x="-20%" y="-20%" width="140%" height="140%">
+                  <feGaussianBlur stdDeviation="2" result="blur" />
+                  <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                </filter>
+                <filter id="glow-green" x="-20%" y="-20%" width="140%" height="140%">
+                  <feGaussianBlur stdDeviation="2" result="blur" />
+                  <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                </filter>
+              </defs>
+              
+              <!-- Neon Paths (Threads) -->
+              <!-- Inputs -> Normalizer -->
+              <path id="p-oc-norm" d="M 60 22 C 80 22, 85 30, 95 30" fill="none" stroke="#8B5CF6" stroke-width="1" stroke-linecap="round" opacity="0.3" filter="url(#glow-purple)"/>
+              <path id="p-tc-norm" d="M 60 70 C 80 70, 85 30, 95 30" fill="none" stroke="#6366F1" stroke-width="1" stroke-linecap="round" opacity="0.25" filter="url(#glow-purple)"/>
+              <path id="p-mc-norm" d="M 60 118 C 80 118, 85 30, 95 30" fill="none" stroke="#3B82F6" stroke-width="1" stroke-linecap="round" opacity="0.25" filter="url(#glow-blue)"/>
+              
+              <!-- Inputs -> ML Classifier -->
+              <path id="p-oc-ml" d="M 60 22 C 80 22, 85 110, 95 110" fill="none" stroke="#8B5CF6" stroke-width="1" stroke-linecap="round" opacity="0.2" filter="url(#glow-purple)"/>
+              <path id="p-tc-ml" d="M 60 70 C 80 70, 85 110, 95 110" fill="none" stroke="#6366F1" stroke-width="1" stroke-linecap="round" opacity="0.3" filter="url(#glow-purple)"/>
+              <path id="p-mc-ml" d="M 60 118 C 80 118, 85 110, 95 110" fill="none" stroke="#3B82F6" stroke-width="1" stroke-linecap="round" opacity="0.2" filter="url(#glow-blue)"/>
+              
+              <!-- Scoring Engine Output -> Weights / Coherence -->
+              <path id="p-norm-wt" d="M 135 30 C 150 30, 155 40, 165 40" fill="none" stroke="#A78BFA" stroke-width="1" stroke-linecap="round" opacity="0.3" filter="url(#glow-purple)"/>
+              <path id="p-ml-wt" d="M 135 110 C 150 110, 155 40, 165 40" fill="none" stroke="#818CF8" stroke-width="1" stroke-linecap="round" opacity="0.25" filter="url(#glow-purple)"/>
+              <path id="p-ml-coh" d="M 135 110 C 150 110, 155 100, 165 100" fill="none" stroke="#818CF8" stroke-width="1" stroke-linecap="round" opacity="0.25" filter="url(#glow-purple)"/>
+              
+              <!-- Weights/Coherence -> Divergence Logic -->
+              <path id="p-wt-div" d="M 205 40 C 220 40, 222 110, 230 110" fill="none" stroke="#60A5FA" stroke-width="1" stroke-linecap="round" opacity="0.3" filter="url(#glow-blue)"/>
+              <path id="p-coh-div" d="M 205 100 C 220 100, 222 110, 230 110" fill="none" stroke="#60A5FA" stroke-width="1" stroke-linecap="round" opacity="0.3" filter="url(#glow-blue)"/>
+              
+              <!-- Volatility -> Lookback -> Divergence -->
+              <path id="p-lb-div" d="M 270 30 C 275 30, 275 110, 260 110" fill="none" stroke="#F59E0B" stroke-width="1" stroke-linecap="round" opacity="0.3" filter="url(#glow-purple)"/>
+              
+              <!-- Divergence Logic -> Final Score Circle -->
+              <path id="p-div-score" d="M 270 110 C 290 110, 292 70, 305 70" fill="none" stroke="#10B981" stroke-width="1.8" stroke-linecap="round" opacity="0.45" filter="url(#glow-green)"/>
+
+              <!-- Animated Data Packets (Комочки даних) -->
+              <circle r="1.5" fill="#E9D5FF" filter="url(#glow-purple)"><animateMotion dur="1.3s" repeatCount="indefinite"><mpath href="#p-oc-norm"/></animateMotion></circle>
+              <circle r="1.5" fill="#DBEAFE" filter="url(#glow-blue)"><animateMotion dur="2.2s" repeatCount="indefinite"><mpath href="#p-mc-norm"/></animateMotion></circle>
+              <circle r="1.5" fill="#E9D5FF" filter="url(#glow-purple)"><animateMotion dur="1.8s" repeatCount="indefinite"><mpath href="#p-tc-ml"/></animateMotion></circle>
+              <circle r="1.5" fill="#E9D5FF" filter="url(#glow-purple)"><animateMotion dur="1.5s" repeatCount="indefinite"><mpath href="#p-norm-wt"/></animateMotion></circle>
+              <circle r="1.5" fill="#DBEAFE" filter="url(#glow-blue)"><animateMotion dur="1.7s" repeatCount="indefinite"><mpath href="#p-ml-coh"/></animateMotion></circle>
+              <circle r="1.5" fill="#DBEAFE" filter="url(#glow-blue)"><animateMotion dur="2.0s" repeatCount="indefinite"><mpath href="#p-coh-div"/></animateMotion></circle>
+              <circle r="1.5" fill="#FEF3C7" filter="url(#glow-purple)"><animateMotion dur="2.3s" repeatCount="indefinite"><mpath href="#p-lb-div"/></animateMotion></circle>
+              <circle r="2.2" fill="#D1FAE5" filter="url(#glow-green)"><animateMotion dur="0.9s" repeatCount="indefinite"><mpath href="#p-div-score"/></animateMotion></circle>
+
+              <!-- Node: On-Chain -->
+              <g transform="translate(5, 10)">
+                <rect width="55" height="24" rx="4" fill="#0C0A15" stroke="#8B5CF6" stroke-width="1" filter="drop-shadow(0 0 2px rgba(139, 92, 246, 0.3))"/>
+                <text x="27" y="10" fill="#C084FC" font-size="4.5" font-family="monospace" font-weight="bold" text-anchor="middle">ON-CHAIN</text>
+                <text x="27" y="18" fill="#9CA3AF" font-size="3.5" font-family="sans-serif" text-anchor="middle">NUPL, MVRV, RHODL</text>
+              </g>
+              
+              <!-- Node: Technical -->
+              <g transform="translate(5, 58)">
+                <rect width="55" height="24" rx="4" fill="#0C0A15" stroke="#6366F1" stroke-width="1" filter="drop-shadow(0 0 2px rgba(99, 102, 241, 0.3))"/>
+                <text x="27" y="10" fill="#818CF8" font-size="4.5" font-family="monospace" font-weight="bold" text-anchor="middle">TECHNICAL</text>
+                <text x="27" y="18" fill="#9CA3AF" font-size="3.5" font-family="sans-serif" text-anchor="middle">CipherB, SMC</text>
+              </g>
+              
+              <!-- Node: Macro -->
+              <g transform="translate(5, 106)">
+                <rect width="55" height="24" rx="4" fill="#0C0A15" stroke="#3B82F6" stroke-width="1" filter="drop-shadow(0 0 2px rgba(59, 130, 246, 0.3))"/>
+                <text x="27" y="10" fill="#60A5FA" font-size="4.5" font-family="monospace" font-weight="bold" text-anchor="middle">MACRO/FLOW</text>
+                <text x="27" y="18" fill="#9CA3AF" font-size="3.5" font-family="sans-serif" text-anchor="middle">M2 YoY, Yield, ETF</text>
+              </g>
+              
+              <!-- Node: Causal Normalizer -->
+              <g transform="translate(95, 15)">
+                <rect class="pulsing-node" style="color: rgba(167, 139, 250, 0.3);" width="40" height="30" rx="4" fill="#0C0A15" stroke="#A78BFA" stroke-width="1"/>
+                <text x="20" y="11" fill="#C084FC" font-size="4.5" font-family="monospace" font-weight="bold" text-anchor="middle">NORMALIZER</text>
+                <text x="20" y="19" fill="#9CA3AF" font-size="3.5" font-family="sans-serif" text-anchor="middle">Fixed maps +</text>
+                <text x="20" y="25" fill="#9CA3AF" font-size="3.5" font-family="sans-serif" text-anchor="middle">4Y Percentiles</text>
+              </g>
+              
+              <!-- Node: ML Phase Classifier -->
+              <g transform="translate(95, 95)">
+                <rect class="pulsing-node" style="color: rgba(96, 165, 250, 0.3);" width="40" height="30" rx="4" fill="#0C0A15" stroke="#60A5FA" stroke-width="1"/>
+                <text x="20" y="11" fill="#60A5FA" font-size="4.5" font-family="monospace" font-weight="bold" text-anchor="middle">ML CLASSIF</text>
+                <text x="20" y="19" fill="#9CA3AF" font-size="3.5" font-family="sans-serif" text-anchor="middle">w_top/bot/neut</text>
+                <text x="20" y="25" fill="#9CA3AF" font-size="3.5" font-family="sans-serif" text-anchor="middle">Centroid Proxim</text>
+              </g>
+              
+              <!-- Node: Dynamic Weighting -->
+              <g transform="translate(165, 25)">
+                <rect class="pulsing-node" style="color: rgba(52, 211, 153, 0.3);" width="40" height="30" rx="4" fill="#0C0A15" stroke="#34D399" stroke-width="1"/>
+                <text x="20" y="11" fill="#34D399" font-size="4.5" font-family="monospace" font-weight="bold" text-anchor="middle">DY WEIGHTS</text>
+                <text x="20" y="19" fill="#9CA3AF" font-size="3.5" font-family="sans-serif" text-anchor="middle">State-Space</text>
+                <text x="20" y="25" fill="#9CA3AF" font-size="3.5" font-family="sans-serif" text-anchor="middle">Utility Shifts</text>
+              </g>
+              
+              <!-- Node: Coherence Dampener -->
+              <g transform="translate(165, 85)">
+                <rect class="pulsing-node" style="color: rgba(52, 211, 153, 0.3);" width="40" height="30" rx="4" fill="#0C0A15" stroke="#34D399" stroke-width="1"/>
+                <text x="20" y="11" fill="#34D399" font-size="4.5" font-family="monospace" font-weight="bold" text-anchor="middle">COHERENCE</text>
+                <text x="20" y="19" fill="#9CA3AF" font-size="3.5" font-family="sans-serif" text-anchor="middle">Dampening</text>
+                <text x="20" y="25" fill="#9CA3AF" font-size="3.5" font-family="sans-serif" text-anchor="middle">OC Coherence</text>
+              </g>
+              
+              <!-- Node: Volatility & Lookback -->
+              <g transform="translate(230, 15)">
+                <rect class="pulsing-node" style="color: rgba(245, 158, 11, 0.3);" width="40" height="30" rx="4" fill="#0C0A15" stroke="#F59E0B" stroke-width="1"/>
+                <text x="20" y="11" fill="#F59E0B" font-size="4.5" font-family="monospace" font-weight="bold" text-anchor="middle">VOLATILITY</text>
+                <text x="20" y="19" fill="#9CA3AF" font-size="3.5" font-family="sans-serif" text-anchor="middle">365d returns σ</text>
+                <text x="20" y="25" fill="#E5E7EB" font-size="3.5" font-family="sans-serif" font-weight="bold" text-anchor="middle">Lookback L</text>
+              </g>
+              
+              <!-- Node: Divergence Logic -->
+              <g transform="translate(230, 95)">
+                <rect class="pulsing-node" style="color: rgba(245, 158, 11, 0.3);" width="40" height="30" rx="4" fill="#0C0A15" stroke="#F59E0B" stroke-width="1"/>
+                <text x="20" y="11" fill="#F59E0B" font-size="4.5" font-family="monospace" font-weight="bold" text-anchor="middle">DIVERGENCE</text>
+                <text x="20" y="19" fill="#9CA3AF" font-size="3.5" font-family="sans-serif" text-anchor="middle">Price-Score</text>
+                <text x="20" y="25" fill="#9CA3AF" font-size="3.5" font-family="sans-serif" text-anchor="middle">Bear/Bull Div</text>
+              </g>
+              
+              <!-- Node: Final Output Score -->
+              <g transform="translate(305, 47)">
+                <circle cx="23" cy="23" r="20" fill="#0C0A15" stroke="#10B981" stroke-width="1.5" filter="drop-shadow(0 0 5px rgba(16, 185, 129, 0.6))"/>
+                <text x="23" y="11" fill="#34D399" font-size="4.5" font-family="monospace" font-weight="bold" text-anchor="middle">INDEX</text>
+                <text x="23" y="24" fill="#34D399" font-size="11" font-family="sans-serif" font-weight="900" text-anchor="middle" class="meta-indicator">—</text>
+                <text x="23" y="34" fill="#E5E7EB" font-size="4.2" font-family="sans-serif" font-weight="bold" text-anchor="middle" class="zone-indicator">—</text>
+              </g>
+            </svg>
+          </div>
+          
+          <div style="font-size: 8px; color: var(--muted); text-align: center; border-top: 1px solid var(--border); padding-top: 6px; margin-top: auto;">
+            <span class="en">Click anywhere to flip back</span><span class="ua">Натисніть для повернення</span>
+          </div>
         </div>
+
       </div>
-      <div class="gauge-tags" id="gauge-tags"></div>
     </div>
 
-    <!-- Market state card -->
-    <div class="card">
-      <div class="market-state-top">
-        <div class="market-title"><span class="en">Market State</span><span class="ua">Стан ринку</span></div>
-        <div class="market-state-badge" id="market-badge">—</div>
+    <!-- Mini gauges: Yesterday + 7 days -->
+    <div class="mini-gauges-col">
+      <!-- Yesterday -->
+      <div class="card mini-gauge-card">
+        <div class="mini-gauge-title"><span class="en">YESTERDAY</span><span class="ua">ВЧОРА</span></div>
+        <div class="mini-gauge-arc-wrap">
+          <svg class="mini-gauge-svg" viewBox="0 0 240 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="arcGrad1d" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%"   stop-color="#22C55E"/>
+                <stop offset="33%"  stop-color="#EAB308"/>
+                <stop offset="66%"  stop-color="#F97316"/>
+                <stop offset="100%" stop-color="#EF4444"/>
+              </linearGradient>
+            </defs>
+            <path d="M 20 120 A 100 100 0 0 1 220 120" stroke="var(--surface2)" stroke-width="6" stroke-linecap="round" fill="none" vector-effect="non-scaling-stroke"/>
+            <path d="M 20 120 A 100 100 0 0 1 220 120" stroke="url(#arcGrad1d)" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.18" vector-effect="non-scaling-stroke"/>
+            <path id="mini-arc-1d" d="" stroke="#22C55E" stroke-width="6" stroke-linecap="round" fill="none" vector-effect="non-scaling-stroke"/>
+            <circle id="mini-needle-1d" cx="20" cy="120" r="5" fill="var(--bg)" stroke="#22C55E" stroke-width="2" vector-effect="non-scaling-stroke"/>
+          </svg>
+          <div class="mini-gauge-arc-number">
+            <span class="mini-gauge-val" id="mini-val-1d" style="color:#22C55E">—</span>
+          </div>
+        </div>
+        <div class="gauge-scale">
+          <div class="gauge-bar"></div>
+          <div class="gauge-bar-ticks"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
+          <div class="gauge-labels">
+            <span class="gl-1"><span class="en">V.LOW</span><span class="ua">МІН.</span></span>
+            <span class="gl-2"><span class="en">MODER.</span><span class="ua">ПОМІР.</span></span>
+            <span class="gl-3"><span class="en">HIGH</span><span class="ua">ЗНАЧН.</span></span>
+            <span class="gl-4"><span class="en">V.HIGH</span><span class="ua">НАДМ.</span></span>
+          </div>
+        </div>
       </div>
-      <div class="market-rows">
-        <div class="market-row">
-          <div class="market-row-left">
-            <svg class="market-row-icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/><text x="8" y="12" text-anchor="middle" font-size="9" font-weight="700" font-family="sans-serif" fill="currentColor">$</text></svg>
-            <span class="en">Bitcoin</span><span class="ua">Bitcoin</span>
+      <!-- 7 days ago -->
+      <div class="card mini-gauge-card">
+        <div class="mini-gauge-title"><span class="en">7 DAYS</span><span class="ua">7 ДНІВ</span></div>
+        <div class="mini-gauge-arc-wrap">
+          <svg class="mini-gauge-svg" viewBox="0 0 240 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="arcGrad7d" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%"   stop-color="#22C55E"/>
+                <stop offset="33%"  stop-color="#EAB308"/>
+                <stop offset="66%"  stop-color="#F97316"/>
+                <stop offset="100%" stop-color="#EF4444"/>
+              </linearGradient>
+            </defs>
+            <path d="M 20 120 A 100 100 0 0 1 220 120" stroke="var(--surface2)" stroke-width="6" stroke-linecap="round" fill="none" vector-effect="non-scaling-stroke"/>
+            <path d="M 20 120 A 100 100 0 0 1 220 120" stroke="url(#arcGrad7d)" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.18" vector-effect="non-scaling-stroke"/>
+            <path id="mini-arc-7d" d="" stroke="#22C55E" stroke-width="6" stroke-linecap="round" fill="none" vector-effect="non-scaling-stroke"/>
+            <circle id="mini-needle-7d" cx="20" cy="120" r="5" fill="var(--bg)" stroke="#22C55E" stroke-width="2" vector-effect="non-scaling-stroke"/>
+          </svg>
+          <div class="mini-gauge-arc-number">
+            <span class="mini-gauge-val" id="mini-val-7d" style="color:#22C55E">—</span>
           </div>
-          <span class="market-row-val" id="market-price">—</span>
         </div>
-        <div class="market-row">
-          <div class="market-row-left">
-            <svg class="market-row-icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/><text x="8" y="11.5" text-anchor="middle" font-size="9" font-weight="700" font-family="sans-serif" fill="currentColor">₿</text></svg>
-            <span class="en">BTC Dominance</span><span class="ua">Домінація BTC</span>
+        <div class="gauge-scale">
+          <div class="gauge-bar"></div>
+          <div class="gauge-bar-ticks"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
+          <div class="gauge-labels">
+            <span class="gl-1"><span class="en">V.LOW</span><span class="ua">МІН.</span></span>
+            <span class="gl-2"><span class="en">MODER.</span><span class="ua">ПОМІР.</span></span>
+            <span class="gl-3"><span class="en">HIGH</span><span class="ua">ЗНАЧН.</span></span>
+            <span class="gl-4"><span class="en">V.HIGH</span><span class="ua">НАДМ.</span></span>
           </div>
-          <span class="market-row-val" id="market-dom">—</span>
-        </div>
-        <div class="market-row">
-          <div class="market-row-left">
-            <svg class="market-row-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 11.5a6 6 0 1 1 11 0"/><path d="M8 8l2.5 -2.5"/></svg>
-            <span class="en">Fear & Greed</span><span class="ua">F&amp;G</span>
-          </div>
-          <span class="market-row-val" id="market-fg">—</span>
-        </div>
-        <div class="market-row">
-          <div class="market-row-left">
-            <svg class="market-row-icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 5v3.5l2 1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
-            <span class="en">Updated</span><span class="ua">Оновлено</span>
-          </div>
-          <span class="market-row-val" id="market-updated">—</span>
-        </div>
-        <div class="market-row">
-          <div class="market-row-left">
-            <svg class="market-row-icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="1.4"/><path d="M8 5v3l2 1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M11 3l1 1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
-            <span class="en">Time left</span><span class="ua">До оновлення</span>
-          </div>
-          <span class="market-row-val" id="market-next">—</span>
         </div>
       </div>
     </div>
@@ -378,106 +779,387 @@
     </div>
     <div class="ai-block-text" id="ai-block-text"></div>
   </div>
+  <!-- SIGNALS CONTAINER -->
+  <div class="signals-container">
+    <!-- SIGNAL BLOCK -->
+    <div class="flip-card-wrap" id="signal-block" style="display:none">
+      <div class="flip-card-inner" onclick="this.classList.toggle('flipped')">
+        <!-- Front -->
+        <div class="card signal-block flip-card-front" style="display:block">
+          <div class="signal-block-header">
+            <span class="signal-block-label"><span class="en">Market Signal</span><span class="ua">Ринковий сигнал</span></span>
+            <span class="signal-main-badge" id="sig-flag">—</span>
+          </div>
+          <div class="signal-stats">
+            <div class="signal-stat" title="Наскільки модель впевнена у своєму сигналі. Низька впевненість = сигнали суперечать одне одному.&#10;How confident the model is. Low = indicators disagree with each other.">
+              <div class="signal-stat-val" id="sig-conv">—</div>
+              <div class="signal-stat-label"><span class="en">Confidence</span><span class="ua">Впевненість</span></div>
+            </div>
+            <div class="signal-stat" title="Середня позиція on-chain осциляторів: 0 = всі на дні, 100 = всі на піку. Поточне значення показує де ми у циклі.&#10;Average position of on-chain oscillators: 0 = all at bottom, 100 = all at peak.">
+              <div class="signal-stat-val" id="sig-wr-score">—</div>
+              <div class="signal-stat-label"><span class="en">Cycle Position</span><span class="ua">Позиція у циклі</span></div>
+            </div>
+            <div class="signal-stat" title="Наскільки погоджуються між собою всі on-chain індикатори. 0% = суперечать, 100% = всі вказують в один бік.&#10;How much the on-chain indicators agree. 0% = conflicting, 100% = all pointing the same way.">
+              <div class="signal-stat-val" id="sig-wr-coh">—</div>
+              <div class="signal-stat-label"><span class="en">Agreement</span><span class="ua">Узгодженість</span></div>
+            </div>
+            <div class="signal-stat" id="sig-tiz-wrap" style="display:none" title="Скільки часу ми перебуваємо у зоні дна відносно еталону ~200 днів. До 25% = сигнал ще не підтверджений.&#10;How long we have been in the bottom zone vs. ~200-day calibration. Below 25% = not yet confirmed.">
+              <div class="signal-stat-val" id="sig-tiz">—</div>
+              <div class="signal-stat-label"><span class="en">TiZ Maturity</span><span class="ua">Зрілість TiZ</span></div>
+              <div class="signal-stat-sub" id="sig-tiz-days"></div>
+            </div>
+          </div>
+          <div class="signal-trust">
+            <div class="signal-trust-wrap">
+              <div class="signal-trust-bar"><div class="signal-trust-v2" id="trust-v2-bar" style="width:20%"></div></div>
+              <div class="signal-trust-labels">
+                <span title="Частка трендової моделі у фінальній оцінці&#10;Trend model's share of the final reading"><span class="en">Trend model</span><span class="ua">Трендова модель</span> <span id="trust-v2-pct">—</span></span>
+                <span title="Частка осциляторів у фінальній оцінці&#10;Oscillator model's share of the final reading"><span class="en">Oscillators</span><span class="ua">Осцилятори</span> <span id="trust-wr-pct">—</span></span>
+              </div>
+            </div>
+          </div>
+          <div id="sig-explain" class="signal-explain"></div>
+        </div>
+        <!-- Back -->
+        <div class="card flip-card-back" style="display:flex; flex-direction:column; justify-content:space-between; padding: 20px 22px;">
+          <div>
+            <div style="font-size: 11px; font-weight: 600; letter-spacing: 0.08em; color: var(--muted); text-transform: uppercase; margin-bottom: 12px;"><span class="en">Market Signal Info</span><span class="ua">Про ринковий сигнал</span></div>
+            <div style="font-size: 13px; color: var(--muted2); line-height: 1.6;">
+              <span class="en">Market Signal represents the combined engine output, analyzing on-chain oscillator coherence, trend models, and time in the bottom zone (Time in Zone - TiZ) to determine current cycle risk and conviction.</span>
+              <span class="ua">Ринковий сигнал представляє комбінований вихід математичної моделі, аналізуючи узгодженість ончейн-осциляторів, трендові моделі та час перебування в зоні дна (Time in Zone - TiZ) для визначення ризику та впевненості сигналу.</span>
+            </div>
+          </div>
+          <div style="font-size:9px; font-weight:700; color:var(--accent); text-transform:uppercase; text-align:right;"><span class="en">Click to flip</span><span class="ua">Назад</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PHASE SIGNALS (V3.2 ML Phase Probabilities) -->
+    <div class="flip-card-wrap" id="sp2-block" style="display:none">
+      <div class="flip-card-inner" onclick="this.classList.toggle('flipped')">
+        <!-- Front -->
+        <div class="card sp2-block flip-card-front" style="display:block">
+          <div class="sp2-header">
+            <span class="sp2-label">
+              <span class="en">Phase Signals</span><span class="ua">Фазові сигнали</span>
+            </span>
+            <span class="sp2-phase-badge" id="sp2-phase">—</span>
+          </div>
+          <div class="sp2-rows">
+            <!-- Top Phase -->
+            <div class="sp2-row">
+              <span class="sp2-row-label" title="ML probability of being in a cycle top zone. 100% = clear peak conditions."><span class="en">↑ Top Phase</span><span class="ua">↑ Фаза топа</span></span>
+              <div class="sp2-bar-wrap"><div class="sp2-bar-fill" id="sp2-top-bar" style="background:#EF4444"></div></div>
+              <span class="sp2-row-val" id="sp2-top-val">—</span>
+            </div>
+            <!-- Neutral Phase -->
+            <div class="sp2-row">
+              <span class="sp2-row-label" title="ML probability of being in a neutral/mid-cycle zone. 100% = standard market conditions."><span class="en">→ Neutral Phase</span><span class="ua">→ Нейтральна</span></span>
+              <div class="sp2-bar-wrap"><div class="sp2-bar-fill" id="sp2-neutral-bar" style="background:#3B82F6"></div></div>
+              <span class="sp2-row-val" id="sp2-neutral-val">—</span>
+            </div>
+            <!-- Bottom Phase -->
+            <div class="sp2-row">
+              <span class="sp2-row-label" title="ML probability of being in a cycle bottom zone. 100% = clear accumulation conditions."><span class="en">↓ Bottom Phase</span><span class="ua">↓ Фаза дна</span></span>
+              <div class="sp2-bar-wrap"><div class="sp2-bar-fill" id="sp2-bot-bar" style="background:#22C55E"></div></div>
+              <span class="sp2-row-val" id="sp2-bot-val">—</span>
+            </div>
+          </div>
+          <div class="sp2-desc" id="sp2-desc"></div>
+        </div>
+        <!-- Back -->
+        <div class="card flip-card-back" style="display:flex; flex-direction:column; justify-content:space-between; padding: 20px 22px;">
+          <div>
+            <div style="font-size: 11px; font-weight: 600; letter-spacing: 0.08em; color: var(--muted); text-transform: uppercase; margin-bottom: 12px;"><span class="en">Phase Signals Info</span><span class="ua">Про фазові сигнали</span></div>
+            <div style="font-size: 13px; color: var(--muted2); line-height: 1.6;">
+              <span class="en">Phase Signals show the machine learning model's continuous probabilities of being in a Top, Neutral, or Bottom cycle phase, determining dynamic weighting allocations for all indicators.</span>
+              <span class="ua">Фазові сигнали відображають безперервні ймовірності перебування ринку у фазі Вершини (Top), Нейтральній (Neutral) або Дна (Bottom) згідно з моделлю машинного навчання, що визначає динамічний розподіл ваг показників.</span>
+            </div>
+          </div>
+          <div style="font-size:9px; font-weight:700; color:var(--accent); text-transform:uppercase; text-align:right;"><span class="en">Click to flip</span><span class="ua">Назад</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- COMPONENTS -->
-  <div class="section-header">
+  <div class="section-header" style="justify-content: center; margin-top: 42px; margin-bottom: 8px;">
     <span class="section-title"><span class="en">Components</span><span class="ua">Компоненти</span></span>
   </div>
 
   <div class="components-grid">
+    <!-- On-Chain -->
+    <div class="comp-group-hdr" id="hdr-onchain"><div class="comp-group-dot" style="background:#8B5CF6"></div><span class="en">On-Chain</span><span class="ua">Он-Чейн</span></div>
     <div class="comp-header">
       <span><span class="en">Indicator</span><span class="ua">Індикатор</span></span>
       <span><span class="en">Score</span><span class="ua">Бал</span></span>
       <span><span class="en">vs History (1Y)</span><span class="ua">vs Іст. (1Р)</span></span>
-      <span><span class="en">Pctile</span><span class="ua">Перц.</span></span>
+      <span><span class="en">Influence</span><span class="ua">Вплив</span></span>
+      <span><span class="en">Risk</span><span class="ua">Ризик</span></span>
+    </div>
+    <!-- On-Chain Indicators -->
+    <div class="comp-card-wrap">
+      <div class="comp-card-inner" onclick="this.classList.toggle('flipped')">
+        <div class="comp-row comp-card-front">
+          <div><div class="comp-name">NUPL</div><div class="comp-sub"><span class="en">Net Unrealized Profit/Loss</span><span class="ua">Нереалізований прибуток/збиток</span></div></div>
+          <div class="comp-value"><div class="val" id="v-nupl">—</div><div class="range" id="r-nupl"></div></div>
+          <div class="comp-spark"><canvas id="s1" width="130" height="36"></canvas></div>
+          <div class="comp-pct" id="p-nupl">—</div>
+          <div class="comp-signal"><span class="signal-badge" id="sig-nupl">—</span></div>
+        </div>
+        <div class="comp-card-back">
+          <div>
+            <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 2px;"><span class="en">NUPL</span><span class="ua">NUPL</span></div>
+            <div class="comp-card-back-desc" style="font-size: 11px; color: var(--muted2); line-height: 1.4;">
+              <span class="en">Net Unrealized Profit/Loss measures the total amount of profit or loss in coins currently held by investors to estimate market peaks/bottoms.</span>
+              <span class="ua">Net Unrealized Profit/Loss вимірює загальну суму прибутку або збитку в монетах, які зараз тримають інвестори, для оцінки ринкових вершин/дна.</span>
+            </div>
+          </div>
+          <div style="font-size:9px; font-weight:700; color:var(--accent); text-transform:uppercase; text-align:right; flex-shrink:0; margin-left:15px;"><span class="en">Back</span><span class="ua">Назад</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="comp-card-wrap">
+      <div class="comp-card-inner" onclick="this.classList.toggle('flipped')">
+        <div class="comp-row comp-card-front">
+          <div><div class="comp-name">MVRV Z-Score</div><div class="comp-sub"><span class="en">Market Value to Realized Value</span><span class="ua">Ринкова до реалізованої вартості</span></div></div>
+          <div class="comp-value"><div class="val" id="v-mvrv">—</div><div class="range" id="r-mvrv"></div></div>
+          <div class="comp-spark"><canvas id="s2" width="130" height="36"></canvas></div>
+          <div class="comp-pct" id="p-mvrv">—</div>
+          <div class="comp-signal"><span class="signal-badge" id="sig-mvrv">—</span></div>
+        </div>
+        <div class="comp-card-back">
+          <div>
+            <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 2px;"><span class="en">MVRV Z-Score</span><span class="ua">MVRV Z-Score</span></div>
+            <div class="comp-card-back-desc" style="font-size: 11px; color: var(--muted2); line-height: 1.4;">
+              <span class="en">Uses standard deviation to highlight extremes between market cap and realized cap, marking cycle bottoms and tops.</span>
+              <span class="ua">Використовує стандартне відхилення для виявлення екстремумів між ринковою та реалізованою капіталізацією, маркуючи дно і вершини циклу.</span>
+            </div>
+          </div>
+          <div style="font-size:9px; font-weight:700; color:var(--accent); text-transform:uppercase; text-align:right; flex-shrink:0; margin-left:15px;"><span class="en">Back</span><span class="ua">Назад</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="comp-card-wrap">
+      <div class="comp-card-inner" onclick="this.classList.toggle('flipped')">
+        <div class="comp-row comp-card-front">
+          <div><div class="comp-name">RHODL Ratio</div><div class="comp-sub"><span class="en">Realized HODL Ratio</span><span class="ua">Реалізований HODL Ratio</span></div></div>
+          <div class="comp-value"><div class="val" id="v-rhodl">—</div><div class="range" id="r-rhodl"></div></div>
+          <div class="comp-spark"><canvas id="s3" width="130" height="36"></canvas></div>
+          <div class="comp-pct" id="p-rhodl">—</div>
+          <div class="comp-signal"><span class="signal-badge" id="sig-rhodl">—</span></div>
+        </div>
+        <div class="comp-card-back">
+          <div>
+            <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 2px;"><span class="en">RHODL Ratio</span><span class="ua">RHODL Ratio</span></div>
+            <div class="comp-card-back-desc" style="font-size: 11px; color: var(--muted2); line-height: 1.4;">
+              <span class="en">Compares the wealth held by 1-week and 1-2 year holders, highlighting market overheating and cooling periods.</span>
+              <span class="ua">Порівнює багатство, що утримується короткостроковими (1 тиж.) та довгостроковими (1-2 р.) холдерами, вказуючи на перегрів ринку.</span>
+            </div>
+          </div>
+          <div style="font-size:9px; font-weight:700; color:var(--accent); text-transform:uppercase; text-align:right; flex-shrink:0; margin-left:15px;"><span class="en">Back</span><span class="ua">Назад</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="comp-card-wrap">
+      <div class="comp-card-inner" onclick="this.classList.toggle('flipped')">
+        <div class="comp-row comp-card-front">
+          <div><div class="comp-name">CVDD Ratio</div><div class="comp-sub"><span class="en">Coin Value Days Destroyed</span><span class="ua">Знищені дні вартості монети</span></div></div>
+          <div class="comp-value"><div class="val" id="v-cvdd">—</div><div class="range" id="r-cvdd"></div></div>
+          <div class="comp-spark"><canvas id="s4" width="130" height="36"></canvas></div>
+          <div class="comp-pct" id="p-cvdd">—</div>
+          <div class="comp-signal"><span class="signal-badge" id="sig-cvdd">—</span></div>
+        </div>
+        <div class="comp-card-back">
+          <div>
+            <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 2px;"><span class="en">CVDD Ratio</span><span class="ua">CVDD Ratio</span></div>
+            <div class="comp-card-back-desc" style="font-size: 11px; color: var(--muted2); line-height: 1.4;">
+              <span class="en">Tracks the cumulative value of coin days destroyed relative to market age, offering a historical floor price model.</span>
+              <span class="ua">Відстежує кумулятивну вартість знищених днів монет відносно віку ринку, пропонуючи історичну модель мінімальної ціни.</span>
+            </div>
+          </div>
+          <div style="font-size:9px; font-weight:700; color:var(--accent); text-transform:uppercase; text-align:right; flex-shrink:0; margin-left:15px;"><span class="en">Back</span><span class="ua">Назад</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="comp-card-wrap">
+      <div class="comp-card-inner" onclick="this.classList.toggle('flipped')">
+        <div class="comp-row comp-card-front">
+          <div><div class="comp-name">Adjusted SOPR</div><div class="comp-sub"><span class="en">Spent Output Profit Ratio</span><span class="ua">Відношення прибутку витраченого виводу</span></div></div>
+          <div class="comp-value"><div class="val" id="v-asopr">—</div><div class="range" id="r-asopr"></div></div>
+          <div class="comp-spark"><canvas id="s5" width="130" height="36"></canvas></div>
+          <div class="comp-pct" id="p-asopr">—</div>
+          <div class="comp-signal"><span class="signal-badge" id="sig-asopr">—</span></div>
+        </div>
+        <div class="comp-card-back">
+          <div>
+            <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 2px;"><span class="en">Adjusted SOPR</span><span class="ua">Adjusted SOPR</span></div>
+            <div class="comp-card-back-desc" style="font-size: 11px; color: var(--muted2); line-height: 1.4;">
+              <span class="en">Reflects whether coins moved on-chain are being spent at a profit or loss, filtering out short-term noise.</span>
+              <span class="ua">Відображає, чи монети, переміщені ончейн, витрачаються у прибуток чи збиток, відфільтровуючи короткостроковий шум.</span>
+            </div>
+          </div>
+          <div style="font-size:9px; font-weight:700; color:var(--accent); text-transform:uppercase; text-align:right; flex-shrink:0; margin-left:15px;"><span class="en">Back</span><span class="ua">Назад</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tech Indicators -->
+    <div class="comp-group-hdr" id="hdr-tech"><div class="comp-group-dot" style="background:#3B82F6"></div><span class="en">Technical</span><span class="ua">Технічний</span></div>
+    <div class="comp-header">
+      <span><span class="en">Indicator</span><span class="ua">Індикатор</span></span>
+      <span><span class="en">Score</span><span class="ua">Бал</span></span>
+      <span><span class="en">vs History (1Y)</span><span class="ua">vs Іст. (1Р)</span></span>
+      <span><span class="en">Influence</span><span class="ua">Вплив</span></span>
       <span><span class="en">Risk</span><span class="ua">Ризик</span></span>
     </div>
 
-    <!-- On-Chain -->
-    <div class="comp-group-hdr" id="hdr-onchain"><div class="comp-group-dot" style="background:#8B5CF6"></div><span class="en">On-Chain</span><span class="ua">Он-Чейн</span></div>
-    <div class="comp-row">
-      <div><div class="comp-name">NUPL</div><div class="comp-sub"><span class="en">Net Unrealized Profit/Loss</span><span class="ua">Нереалізований прибуток/збиток</span></div></div>
-      <div class="comp-value"><div class="val" id="v-nupl">—</div><div class="range" id="r-nupl"></div></div>
-      <div class="comp-spark"><canvas id="s1" width="130" height="36"></canvas></div>
-      <div class="comp-pct" id="p-nupl">—</div>
-      <div class="comp-signal"><span class="signal-badge" id="sig-nupl">—</span></div>
-    </div>
-    <div class="comp-row">
-      <div><div class="comp-name">MVRV Z-Score</div><div class="comp-sub"><span class="en">Market Value to Realized Value</span><span class="ua">Ринкова до реалізованої вартості</span></div></div>
-      <div class="comp-value"><div class="val" id="v-mvrv">—</div><div class="range" id="r-mvrv"></div></div>
-      <div class="comp-spark"><canvas id="s2" width="130" height="36"></canvas></div>
-      <div class="comp-pct" id="p-mvrv">—</div>
-      <div class="comp-signal"><span class="signal-badge" id="sig-mvrv">—</span></div>
-    </div>
-    <div class="comp-row">
-      <div><div class="comp-name">RHODL Ratio</div><div class="comp-sub"><span class="en">Realized HODL Ratio</span><span class="ua">Реалізований HODL Ratio</span></div></div>
-      <div class="comp-value"><div class="val" id="v-rhodl">—</div><div class="range" id="r-rhodl"></div></div>
-      <div class="comp-spark"><canvas id="s3" width="130" height="36"></canvas></div>
-      <div class="comp-pct" id="p-rhodl">—</div>
-      <div class="comp-signal"><span class="signal-badge" id="sig-rhodl">—</span></div>
-    </div>
-    <div class="comp-row">
-      <div><div class="comp-name">CVDD Ratio</div><div class="comp-sub"><span class="en">Coin Value Days Destroyed</span><span class="ua">Знищені дні вартості монети</span></div></div>
-      <div class="comp-value"><div class="val" id="v-cvdd">—</div><div class="range" id="r-cvdd"></div></div>
-      <div class="comp-spark"><canvas id="s4" width="130" height="36"></canvas></div>
-      <div class="comp-pct" id="p-cvdd">—</div>
-      <div class="comp-signal"><span class="signal-badge" id="sig-cvdd">—</span></div>
-    </div>
-    <div class="comp-row">
-      <div><div class="comp-name">Adjusted SOPR</div><div class="comp-sub"><span class="en">Spent Output Profit Ratio</span><span class="ua">Відношення прибутку витраченого виводу</span></div></div>
-      <div class="comp-value"><div class="val" id="v-asopr">—</div><div class="range" id="r-asopr"></div></div>
-      <div class="comp-spark"><canvas id="s5" width="130" height="36"></canvas></div>
-      <div class="comp-pct" id="p-asopr">—</div>
-      <div class="comp-signal"><span class="signal-badge" id="sig-asopr">—</span></div>
+    <div class="comp-card-wrap">
+      <div class="comp-card-inner" onclick="this.classList.toggle('flipped')">
+        <div class="comp-row comp-card-front">
+          <div><div class="comp-name">CipherB</div><div class="comp-sub"><span class="en">Wavetrend Oscillator (weekly)</span><span class="ua">Хвильовий осцилятор (тижнево)</span></div></div>
+          <div class="comp-value"><div class="val" id="v-cipherb">—</div><div class="range" id="r-cipherb"></div></div>
+          <div class="comp-spark"><canvas id="s6" width="130" height="36"></canvas></div>
+          <div class="comp-pct" id="p-cipherb">—</div>
+          <div class="comp-signal"><span class="signal-badge" id="sig-cipherb">—</span></div>
+        </div>
+        <div class="comp-card-back">
+          <div>
+            <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 2px;"><span class="en">CipherB</span><span class="ua">CipherB</span></div>
+            <div class="comp-card-back-desc" style="font-size: 11px; color: var(--muted2); line-height: 1.4;">
+              <span class="en">Weekly momentum oscillator detecting buying and selling pressure to identify cycle turning points.</span>
+              <span class="ua">Тижневий осцилятор імпульсу, що визначає тиск покупців і продавців для виявлення точок розвороту циклу.</span>
+            </div>
+          </div>
+          <div style="font-size:9px; font-weight:700; color:var(--accent); text-transform:uppercase; text-align:right; flex-shrink:0; margin-left:15px;"><span class="en">Back</span><span class="ua">Назад</span></div>
+        </div>
+      </div>
     </div>
 
-    <!-- Tech -->
-    <div class="comp-group-hdr" id="hdr-tech"><div class="comp-group-dot" style="background:#3B82F6"></div><span class="en">Technical</span><span class="ua">Технічний</span></div>
-    <div class="comp-row">
-      <div><div class="comp-name">CipherB</div><div class="comp-sub"><span class="en">Wavetrend Oscillator (weekly)</span><span class="ua">Хвильовий осцилятор (тижнево)</span></div></div>
-      <div class="comp-value"><div class="val" id="v-cipherb">—</div><div class="range" id="r-cipherb"></div></div>
-      <div class="comp-spark"><canvas id="s6" width="130" height="36"></canvas></div>
-      <div class="comp-pct" id="p-cipherb">—</div>
-      <div class="comp-signal"><span class="signal-badge" id="sig-cipherb">—</span></div>
-    </div>
-    <div class="comp-row">
-      <div><div class="comp-name">Mayer Multiple</div><div class="comp-sub"><span class="en">Price / 200-day MA</span><span class="ua">Ціна / 200-денна СС</span></div></div>
-      <div class="comp-value"><div class="val" id="v-mayer">—</div><div class="range" id="r-mayer"></div></div>
-      <div class="comp-spark"><canvas id="s7" width="130" height="36"></canvas></div>
-      <div class="comp-pct" id="p-mayer">—</div>
-      <div class="comp-signal"><span class="signal-badge" id="sig-mayer">—</span></div>
+    <div class="comp-card-wrap">
+      <div class="comp-card-inner" onclick="this.classList.toggle('flipped')">
+        <div class="comp-row comp-card-front">
+          <div><div class="comp-name">Mayer Multiple</div><div class="comp-sub"><span class="en">Price / 200-day MA</span><span class="ua">Ціна / 200-денна СС</span></div></div>
+          <div class="comp-value"><div class="val" id="v-mayer">—</div><div class="range" id="r-mayer"></div></div>
+          <div class="comp-spark"><canvas id="s7" width="130" height="36"></canvas></div>
+          <div class="comp-pct" id="p-mayer">—</div>
+          <div class="comp-signal"><span class="signal-badge" id="sig-mayer">—</span></div>
+        </div>
+        <div class="comp-card-back">
+          <div>
+            <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 2px;"><span class="en">Mayer Multiple</span><span class="ua">Mayer Multiple</span></div>
+            <div class="comp-card-back-desc" style="font-size: 11px; color: var(--muted2); line-height: 1.4;">
+              <span class="en">Measures the ratio of the current price to its 200-day moving average, showing local overbought or oversold states.</span>
+              <span class="ua">Вимірює відношення поточної ціни до її 200-денної ковзної середньої, показуючи локальний перекуплений або перепроданий стан.</span>
+            </div>
+          </div>
+          <div style="font-size:9px; font-weight:700; color:var(--accent); text-transform:uppercase; text-align:right; flex-shrink:0; margin-left:15px;"><span class="en">Back</span><span class="ua">Назад</span></div>
+        </div>
+      </div>
     </div>
 
-    <!-- Macro -->
+    <!-- Macro Indicators -->
     <div class="comp-group-hdr" id="hdr-macro"><div class="comp-group-dot" style="background:#F59E0B"></div><span class="en">Macro</span><span class="ua">Макро</span></div>
-    <div class="comp-row">
-      <div><div class="comp-name"><span class="en">ETF Net Flows (14D)</span><span class="ua">ETF Потоки (14Д)</span></div><div class="comp-sub"><span class="en">US Spot ETF Net Flows</span><span class="ua">Чисті потоки спот ETF США</span></div></div>
-      <div class="comp-value"><div class="val" id="v-etf">—</div><div class="range" id="r-etf"></div></div>
-      <div class="comp-spark"><canvas id="s8" width="130" height="36"></canvas></div>
-      <div class="comp-pct" id="p-etf">—</div>
-      <div class="comp-signal"><span class="signal-badge" id="sig-etf">—</span></div>
+    <div class="comp-header">
+      <span><span class="en">Indicator</span><span class="ua">Індикатор</span></span>
+      <span><span class="en">Score</span><span class="ua">Бал</span></span>
+      <span><span class="en">vs History (1Y)</span><span class="ua">vs Іст. (1Р)</span></span>
+      <span><span class="en">Influence</span><span class="ua">Вплив</span></span>
+      <span><span class="en">Risk</span><span class="ua">Ризик</span></span>
     </div>
-    <div class="comp-row">
-      <div><div class="comp-name"><span class="en">Fear & Greed Index</span><span class="ua">F&amp;G Index</span></div><div class="comp-sub"><span class="en">Market Sentiment (7D avg)</span><span class="ua">Ринковий настрій (сер. 7Д)</span></div></div>
-      <div class="comp-value"><div class="val" id="v-fg">—</div><div class="range" id="r-fg"></div></div>
-      <div class="comp-spark"><canvas id="s9" width="130" height="36"></canvas></div>
-      <div class="comp-pct" id="p-fg">—</div>
-      <div class="comp-signal"><span class="signal-badge" id="sig-fg">—</span></div>
+
+    <div class="comp-card-wrap">
+      <div class="comp-card-inner" onclick="this.classList.toggle('flipped')">
+        <div class="comp-row comp-card-front">
+          <div><div class="comp-name"><span class="en">ETF Net Flows (14D)</span><span class="ua">ETF Потоки (14Д)</span></div><div class="comp-sub"><span class="en">US Spot ETF Net Flows</span><span class="ua">Чисті потоки спот ETF США</span></div></div>
+          <div class="comp-value"><div class="val" id="v-etf">—</div><div class="range" id="r-etf"></div></div>
+          <div class="comp-spark"><canvas id="s8" width="130" height="36"></canvas></div>
+          <div class="comp-pct" id="p-etf">—</div>
+          <div class="comp-signal"><span class="signal-badge" id="sig-etf">—</span></div>
+        </div>
+        <div class="comp-card-back">
+          <div>
+            <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 2px;"><span class="en">ETF Net Flows</span><span class="ua">ETF Потоки</span></div>
+            <div class="comp-card-back-desc" style="font-size: 11px; color: var(--muted2); line-height: 1.4;">
+              <span class="en">Tracks the 14-day cumulative capital entering or exiting US Spot Bitcoin ETFs, reflecting institutional demand.</span>
+              <span class="ua">Відстежує 14-денний сукупний капітал, що надходить або виходить з американських спотових Bitcoin ETF, відображаючи інституційний попит.</span>
+            </div>
+          </div>
+          <div style="font-size:9px; font-weight:700; color:var(--accent); text-transform:uppercase; text-align:right; flex-shrink:0; margin-left:15px;"><span class="en">Back</span><span class="ua">Назад</span></div>
+        </div>
+      </div>
     </div>
-    <div class="comp-row">
-      <div><div class="comp-name"><span class="en">Yield Curve (10Y-2Y)</span><span class="ua">Крива дохідності (10Р-2Р)</span></div><div class="comp-sub"><span class="en">US Treasury Spread</span><span class="ua">Спред держоблігацій США</span></div></div>
-      <div class="comp-value"><div class="val" id="v-yc">—</div><div class="range" id="r-yc"></div></div>
-      <div class="comp-spark"><canvas id="s10" width="130" height="36"></canvas></div>
-      <div class="comp-pct" id="p-yc">—</div>
-      <div class="comp-signal"><span class="signal-badge" id="sig-yc">—</span></div>
+
+    <div class="comp-card-wrap">
+      <div class="comp-card-inner" onclick="this.classList.toggle('flipped')">
+        <div class="comp-row comp-card-front">
+          <div><div class="comp-name"><span class="en">Fear & Greed Index</span><span class="ua">F&amp;G Index</span></div><div class="comp-sub"><span class="en">Market Sentiment (7D avg)</span><span class="ua">Ринковий настрій (сер. 7Д)</span></div></div>
+          <div class="comp-value"><div class="val" id="v-fg">—</div><div class="range" id="r-fg"></div></div>
+          <div class="comp-spark"><canvas id="s9" width="130" height="36"></canvas></div>
+          <div class="comp-pct" id="p-fg">—</div>
+          <div class="comp-signal"><span class="signal-badge" id="sig-fg">—</span></div>
+        </div>
+        <div class="comp-card-back">
+          <div>
+            <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 2px;"><span class="en">Fear & Greed Index</span><span class="ua">Індекс страху та жадібності</span></div>
+            <div class="comp-card-back-desc" style="font-size: 11px; color: var(--muted2); line-height: 1.4;">
+              <span class="en">Gauges emotional sentiment (7-day average), where extreme fear signals value and extreme greed caution.</span>
+              <span class="ua">Вимірює емоційний настрій (середнє за 7 днів): крайній страх свідчить про цінність, крайня жадібність — про обережність.</span>
+            </div>
+          </div>
+          <div style="font-size:9px; font-weight:700; color:var(--accent); text-transform:uppercase; text-align:right; flex-shrink:0; margin-left:15px;"><span class="en">Back</span><span class="ua">Назад</span></div>
+        </div>
+      </div>
     </div>
-    <div class="comp-row">
-      <div><div class="comp-name">M2 Global Liquidity (YoY)</div><div class="comp-sub"><span class="en">Global M2 Money Supply YoY%</span><span class="ua">Глобальна грошова маса M2 р/р</span></div></div>
-      <div class="comp-value"><div class="val" id="v-m2">—</div><div class="range" id="r-m2"></div></div>
-      <div class="comp-spark"><canvas id="s11" width="130" height="36"></canvas></div>
-      <div class="comp-pct" id="p-m2">—</div>
-      <div class="comp-signal"><span class="signal-badge" id="sig-m2">—</span></div>
+
+    <div class="comp-card-wrap">
+      <div class="comp-card-inner" onclick="this.classList.toggle('flipped')">
+        <div class="comp-row comp-card-front">
+          <div><div class="comp-name"><span class="en">Yield Curve (10Y-2Y)</span><span class="ua">Крива дохідності (10Р-2Р)</span></div><div class="comp-sub"><span class="en">US Treasury Spread</span><span class="ua">Спред держоблігацій США</span></div></div>
+          <div class="comp-value"><div class="val" id="v-yc">—</div><div class="range" id="r-yc"></div></div>
+          <div class="comp-spark"><canvas id="s10" width="130" height="36"></canvas></div>
+          <div class="comp-pct" id="p-yc">—</div>
+          <div class="comp-signal"><span class="signal-badge" id="sig-yc">—</span></div>
+        </div>
+        <div class="comp-card-back">
+          <div>
+            <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 2px;"><span class="en">Yield Curve (10Y-2Y)</span><span class="ua">Крива дохідності (10Р-2Р)</span></div>
+            <div class="comp-card-back-desc" style="font-size: 11px; color: var(--muted2); line-height: 1.4;">
+              <span class="en">Spread indicating macroeconomic health; inversions historically precede recessions and broader market shifts.</span>
+              <span class="ua">Спред вказує на макроекономічне здоров'я; інверсії історично передують рецесіям і великим змінам на ринку.</span>
+            </div>
+          </div>
+          <div style="font-size:9px; font-weight:700; color:var(--accent); text-transform:uppercase; text-align:right; flex-shrink:0; margin-left:15px;"><span class="en">Back</span><span class="ua">Назад</span></div>
+        </div>
+      </div>
     </div>
+
+    <div class="comp-card-wrap">
+      <div class="comp-card-inner" onclick="this.classList.toggle('flipped')">
+        <div class="comp-row comp-card-front">
+          <div><div class="comp-name">M2 Global Liquidity (YoY)</div><div class="comp-sub"><span class="en">Global M2 Money Supply YoY%</span><span class="ua">Глобальна грошова маса M2 р/р</span></div></div>
+          <div class="comp-value"><div class="val" id="v-m2">—</div><div class="range" id="r-m2"></div></div>
+          <div class="comp-spark"><canvas id="s11" width="130" height="36"></canvas></div>
+          <div class="comp-pct" id="p-m2">—</div>
+          <div class="comp-signal"><span class="signal-badge" id="sig-m2">—</span></div>
+        </div>
+        <div class="comp-card-back">
+          <div>
+            <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 2px;"><span class="en">M2 Global Liquidity (YoY)</span><span class="ua">Глобальна ліквідність M2 (YoY)</span></div>
+            <div class="comp-card-back-desc" style="font-size: 11px; color: var(--muted2); line-height: 1.4;">
+              <span class="en">Tracks expansion/contraction of global fiat money supply, which is a major driver of risk assets liquidity.</span>
+              <span class="ua">Відстежує розширення або скорочення світової фіатної грошової маси, яка є рушійною силою ліквідності ризикових активів.</span>
+            </div>
+          </div>
+          <div style="font-size:9px; font-weight:700; color:var(--accent); text-transform:uppercase; text-align:right; flex-shrink:0; margin-left:15px;"><span class="en">Back</span><span class="ua">Назад</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
   </div>
 
   <!-- BOTTOM GRID -->
@@ -490,10 +1172,10 @@
         <canvas id="historyChart"></canvas>
       </div>
       <div class="time-toggles">
-        <button class="time-btn active" data-range="ALL">ALL</button>
+        <button class="time-btn" data-range="ALL">ALL</button>
+        <button class="time-btn active" data-range="2Y">2Y</button>
         <button class="time-btn" data-range="6M">6M</button>
         <button class="time-btn" data-range="3M">3M</button>
-        <button class="time-btn" data-range="1M">1M</button>
       </div>
       <div class="chart-legend">
         <span><span class="legend-dot" style="background:#22C55E"></span><span class="en">Very Low</span><span class="ua">Мінімальний</span></span>
@@ -594,7 +1276,7 @@ function toggleMobileMenu(open) {
 // ─── THEME ─────────────────────────────────────────────
 const SVG_SUN  = '<svg width="15" height="15" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="7.5" cy="7.5" r="2.8"/><line x1="7.5" y1="1" x2="7.5" y2="2.6"/><line x1="7.5" y1="12.4" x2="7.5" y2="14"/><line x1="1" y1="7.5" x2="2.6" y2="7.5"/><line x1="12.4" y1="7.5" x2="14" y2="7.5"/><line x1="2.75" y1="2.75" x2="3.86" y2="3.86"/><line x1="11.14" y1="11.14" x2="12.25" y2="12.25"/><line x1="12.25" y1="2.75" x2="11.14" y2="3.86"/><line x1="3.86" y1="11.14" x2="2.75" y2="12.25"/></svg>';
 const SVG_MOON = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9.5A5.5 5.5 0 0 1 4.5 2a5.5 5.5 0 1 0 7.5 7.5z"/></svg>';
-const SVG_AUTO = '<svg width="15" height="15" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="3" width="12" height="8" rx="1.5"/><path d="M5 11v1.5M10 11v1.5M3.5 12.5h8"/><path d="M5.5 7l1.5-2.5L8.5 7"/><path d="M5.8 6.5h2.4"/></svg>';
+const SVG_AUTO = '<svg width="26" height="15" viewBox="0 0 26 15" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><text x="50%" y="50%" dominant-baseline="central" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, sans-serif" font-weight="700" font-size="8px" letter-spacing="0.2px">auto</text></svg>';
 
 const _sysDark = () => window.matchMedia('(prefers-color-scheme: dark)').matches;
 const _themeIcons = { dark: SVG_SUN, light: SVG_MOON, auto: SVG_AUTO };
@@ -668,11 +1350,23 @@ function mapScore(key, v) {
   switch (key) {
     case 'nupl': {
       const c = Math.max(-50, Math.min(100, v));
-      return Math.round(((c + 50) / 150) * 100);
+      let score;
+      if (c <= 40.0) {
+        score = 8 + ((c - (-20.0)) / (40.0 - (-20.0))) * (50 - 8);
+      } else {
+        score = 50 + ((c - 40.0) / (75.0 - 40.0)) * (100 - 50);
+      }
+      return Math.round(Math.max(0, Math.min(100, score)));
     }
     case 'mvrv': {
-      const c = Math.max(-2, Math.min(5, v));
-      return Math.round(((c + 2) / 7) * 100);
+      const c = Math.max(-0.5, Math.min(5.0, v));
+      let score;
+      if (c <= 1.0) {
+        score = 8 + ((c - (-0.3)) / (1.0 - (-0.3))) * (50 - 8);
+      } else {
+        score = 50 + ((c - 1.0) / (5.0 - 1.0)) * (100 - 50);
+      }
+      return Math.round(Math.max(0, Math.min(100, score)));
     }
     case 'asopr': {
       const s = v <= 1.00
@@ -685,8 +1379,9 @@ function mapScore(key, v) {
       return Math.round(Math.log10(c) / Math.log10(5) * 100);
     }
     case 'rhodl': {
-      const c = Math.max(100, Math.min(10000, v));
-      return Math.round((Math.log10(c) - 2) / (4 - 2) * 100);
+      const c = Math.max(200, Math.min(10000, v));
+      const score = (Math.log10(c) - Math.log10(200)) / (Math.log10(10000) - Math.log10(200)) * 100;
+      return Math.round(Math.max(0, Math.min(100, score)));
     }
     case 'cipherb':
       return Math.round(Math.max(0, Math.min(100, v)));
@@ -756,8 +1451,34 @@ function updateGauge(score) {
   if (needle) { needle.setAttribute('cx', nx); needle.setAttribute('cy', ny); needle.setAttribute('stroke', z.color); }
   const gv = document.getElementById('gauge-val');
   if (gv) { gv.textContent = score; gv.style.color = z.color; }
+  
+  // Update back side of the card
+  const metaInd = document.querySelector('.meta-indicator');
+  const zoneInd = document.querySelector('.zone-indicator');
+  if (metaInd) { metaInd.textContent = score; metaInd.style.color = z.color; }
+  if (zoneInd) { 
+    const isUa = document.documentElement.lang === 'uk' || 
+                 (localStorage && localStorage.getItem('lang') === 'ua') || 
+                 (localStorage && localStorage.getItem('bbr-lang') === 'ua');
+    zoneInd.textContent = isUa ? z.labelUa : z.label;
+    zoneInd.style.color = z.color; 
+  }
 }
-const SPARK_DATA = [
+function updateMiniGauge(arcId, needleId, valId, score) {
+  if (score == null) return;
+  const z = riskZone(score);
+  const ang = Math.PI - (score / 100) * Math.PI;
+  const nx = (120 + 100 * Math.cos(ang)).toFixed(1);
+  const ny = (120 - 100 * Math.sin(ang)).toFixed(1);
+  const la = score > 50 ? 1 : 0;
+  const arc = document.getElementById(arcId);
+  const needle = document.getElementById(needleId);
+  const val = document.getElementById(valId);
+  if (arc) { arc.setAttribute('d', score > 0 ? `M 20 120 A 100 100 0 ${la} 1 ${nx} ${ny}` : ''); arc.setAttribute('stroke', z.color); }
+  if (needle) { needle.setAttribute('cx', nx); needle.setAttribute('cy', ny); needle.setAttribute('stroke', z.color); }
+  if (val) { val.textContent = score; val.style.color = z.color; }
+}
+let SPARK_DATA = [
   [3,3.5,4,3.8,4.2,3.9,4.5,4.1,4.8,4.6,4.9,5,4.7,5.2,4.8,5.5,5.2,5.8,5.5,6],
   [8,7,6,7,6.5,7.5,7,6,6.5,5.5,5,5.5,5,4.5,5,4,4.5,4,3.5,3],
   [4,4.5,5,4.8,5.2,5.5,5,5.5,6,5.8,6.2,6,6.5,6.2,6.8,6.5,7,6.8,7.2,7],
@@ -781,12 +1502,18 @@ function initHistoryEvents() {
   const getHoverIndex = (e) => {
     const rect = c.getBoundingClientRect();
     const clientX = (e.touches && e.touches[0]) ? e.touches[0].clientX : e.clientX;
+    const clientY = (e.touches && e.touches[0]) ? e.touches[0].clientY : e.clientY;
     const mx = clientX - rect.left;
-    const days = { '1M': 30, '3M': 90, '6M': 180, 'ALL': 99999 };
+    const my = clientY - rect.top;
+    
+    const pad = { t: 10, b: 28, l: 30, r: 52 };
+    if (mx < pad.l || mx > rect.width - pad.r || my < pad.t || my > rect.height - pad.b) {
+      return null;
+    }
+    const days = { '3M': 90, '6M': 180, '2Y': 730, 'ALL': 99999 };
     const pts = historyScores.slice(-(days[activeRange] || 99999));
     if (!pts.length) return null;
     
-    const pad = { t: 10, b: 28, l: 30, r: 10 };
     const cw = rect.width - pad.l - pad.r;
     const rel = (mx - pad.l) / cw;
     const idx = Math.round(rel * (pts.length - 1));
@@ -795,7 +1522,7 @@ function initHistoryEvents() {
 
   const handleMove = (e) => {
     const idx = getHoverIndex(e);
-    if (idx != null && idx !== c._hoverIdx) {
+    if (idx !== c._hoverIdx) {
       c._hoverIdx = idx;
       drawHistory(activeRange, idx);
     }
@@ -816,7 +1543,7 @@ function initHistoryEvents() {
 }
 
 function drawHistory(range, hoverIndex) {
-  activeRange = range || 'ALL';
+  activeRange = range || '2Y';
   const c = document.getElementById('historyChart');
   if (!c || !historyScores.length) return;
   const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
@@ -825,11 +1552,11 @@ function drawHistory(range, hoverIndex) {
   const ctx = c.getContext('2d'); ctx.scale(dpr, dpr);
   const W = c.offsetWidth, H = c.offsetHeight; ctx.clearRect(0, 0, W, H);
 
-  const days = { '1M': 30, '3M': 90, '6M': 180, 'ALL': 99999 };
+  const days = { '3M': 90, '6M': 180, '2Y': 730, 'ALL': 99999 };
   const pts = historyScores.slice(-(days[activeRange] || 99999));
   if (!pts.length) return;
 
-  const pad = { t: 10, b: 28, l: 30, r: 10 };
+  const pad = { t: 10, b: 28, l: 30, r: 52 };
   const cw = W - pad.l - pad.r, ch = H - pad.t - pad.b;
 
   [{ mn: 75, mx: 100, c: isDark ? '#EF444415' : '#EF444410' },
@@ -855,9 +1582,48 @@ function drawHistory(range, hoverIndex) {
     ctx.fillStyle = dateTextCol;
     ctx.font = '500 10px Inter, sans-serif';
     ctx.textAlign = i === 0 ? 'left' : (i === pts.length - 1 ? 'right' : 'center');
-    const dateStr = pts[i].date ? pts[i].date.slice(5) : '';
+    const dateStr = pts[i].date ? (['ALL', '2Y', '6M'].includes(activeRange) ? pts[i].date.slice(0, 7) : pts[i].date.slice(5)) : '';
     ctx.fillText(dateStr, x, H - 6);
   });
+
+  // BTC price line — secondary right-axis scale, drawn behind the score line
+  const pricePts = pts.map(e => e.price != null && e.price > 0 ? e.price : null);
+  const validPrices = pricePts.filter(v => v != null);
+  if (validPrices.length >= 2) {
+    const minP = Math.min(...validPrices), maxP = Math.max(...validPrices);
+    const priceRange = maxP - minP || 1;
+    const priceToY = p => pad.t + ch * 0.075 + ((maxP - p) / priceRange) * ch * 0.85;
+    const fmtP = v => v >= 1000 ? `$${(v / 1000).toFixed(0)}k` : `$${Math.round(v)}`;
+
+    ctx.beginPath();
+    let started = false;
+    pts.forEach((e, i) => {
+      if (pricePts[i] == null) { started = false; return; }
+      const x = pad.l + (i / Math.max(pts.length - 1, 1)) * cw;
+      const y = priceToY(pricePts[i]);
+      if (!started) { ctx.moveTo(x, y); started = true; } else ctx.lineTo(x, y);
+    });
+    ctx.strokeStyle = isDark ? 'rgba(150,150,150,0.22)' : 'rgba(80,80,80,0.18)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // Right-axis price labels
+    const priceAxisCol = isDark ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.28)';
+    ctx.textAlign = 'left';
+    ctx.font = '9px Inter, sans-serif';
+    ctx.fillStyle = priceAxisCol;
+    const yMax = priceToY(maxP), yMin = priceToY(minP);
+    ctx.fillText(fmtP(maxP), W - pad.r + 5, yMax + 3);
+    if (yMin - yMax > 14) ctx.fillText(fmtP(minP), W - pad.r + 5, yMin + 3);
+    // Current price label
+    const lastPrice = pricePts[pts.length - 1];
+    if (lastPrice != null) {
+      const yLast = priceToY(lastPrice);
+      if (Math.abs(yLast - yMax) > 14 && Math.abs(yLast - yMin) > 14) {
+        ctx.fillText(fmtP(lastPrice), W - pad.r + 5, yLast + 3);
+      }
+    }
+  }
 
   ctx.beginPath();
   pts.forEach((v, i) => {
@@ -865,7 +1631,15 @@ function drawHistory(range, hoverIndex) {
     const y = pad.t + ch - (v.score / 100) * ch;
     i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
   });
-  ctx.strokeStyle = isDark ? '#F0F0F5' : '#1a1a1a'; ctx.lineWidth = 1.5; ctx.stroke();
+  const isAll = activeRange === 'ALL';
+  const grad = ctx.createLinearGradient(pad.l, pad.t + ch, pad.l, pad.t);
+  grad.addColorStop(0.1, isAll ? 'rgba(34, 197, 94, 0.45)' : '#22c55e');  // Green
+  grad.addColorStop(0.35, isAll ? 'rgba(234, 179, 8, 0.45)' : '#eab308'); // Yellow
+  grad.addColorStop(0.65, isAll ? 'rgba(249, 115, 22, 0.45)' : '#f97316'); // Orange
+  grad.addColorStop(0.9, isAll ? 'rgba(239, 68, 68, 0.45)' : '#ef4444');  // Red
+  ctx.strokeStyle = grad;
+  ctx.lineWidth = isAll ? 0.75 : 2;
+  ctx.stroke();
 
   if (hoverIndex != null && hoverIndex >= 0 && hoverIndex < pts.length) {
     const e = pts[hoverIndex];
@@ -1018,8 +1792,20 @@ function attachSparkHovers() {
     canvas.style.cursor = 'crosshair';
 
     canvas.addEventListener('mousemove', (e) => {
+      const cardInner = canvas.closest('.comp-card-inner');
+      if (cardInner && cardInner.classList.contains('flipped')) {
+        tt.style.display = 'none';
+        drawSingleSparkline(i, null);
+        return;
+      }
       const rect = canvas.getBoundingClientRect();
       const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      if (x < 0 || x > rect.width || y < 0 || y > rect.height) {
+        tt.style.display = 'none';
+        drawSingleSparkline(i, null);
+        return;
+      }
       const d = SPARK_DATA[idx];
       const n = d.length;
       const ptIdx = Math.max(0, Math.min(n - 1, Math.round((x / rect.width) * (n - 1))));
@@ -1052,7 +1838,7 @@ function attachSparkHovers() {
 
 // ─── HISTORY CHART ─────────────────────────────────────
 let historyScores = [];
-let activeRange = 'ALL';
+let activeRange = '2Y';
 
 
 
@@ -1067,8 +1853,19 @@ document.querySelectorAll('.time-btn').forEach(b => {
 // ─── LOAD DATA ─────────────────────────────────────────
 async function loadData() {
   let data;
-  try { const r = await fetch('data.json', { cache: 'no-store' }); data = await r.json(); }
-  catch (e) { return; }
+  try {
+    const [r1, r2] = await Promise.allSettled([
+      fetch('data.json',     { cache: 'no-store' }).then(r => r.json()),
+      fetch('data_exp.json', { cache: 'no-store' }).then(r => r.json()),
+    ]);
+    const main = r1.status === 'fulfilled' ? r1.value : {};
+    const exp  = r2.status === 'fulfilled' ? r2.value : {};
+    data = Object.assign({}, main, exp);
+    if (main.score_history?.length) data.score_history = main.score_history;
+    if (main.sp_v2 != null)         data.sp_v2         = main.sp_v2;
+    if (main.phase)                 data.phase         = main.phase;
+    if (!Object.keys(data).length)  return;
+  } catch (e) { return; }
 
   const score = data.final_score ?? 0;
   const z = riskZone(score);
@@ -1082,7 +1879,29 @@ async function loadData() {
   const snEl = document.getElementById('score-number');
   if (snEl) snEl.innerHTML = '<span class="score-val">' + score + '</span><span class="score-denom">/100</span>';
   const szEl = document.getElementById('score-zone');
-  if (szEl) { szEl.innerHTML = `<span class="en">${z.label}</span><span class="ua">${z.labelUa}</span>`; szEl.style.color = z.color; }
+  if (szEl) {
+    let html = `<span class="en">${z.label}</span><span class="ua">${z.labelUa}</span>`;
+    const bearDiv = data.v3_signal?.bear_div || data.bear_div || (data.signal?.bear_div);
+    if (bearDiv) {
+      html += `
+        <span class="bear-div-badge">
+          <span class="en">⚠️ BEAR DIV</span>
+          <span class="ua">⚠️ ВЕДМ. ДИВЕРГЕНЦІЯ</span>
+        </span>
+      `;
+    }
+    const bullDiv = data.v3_signal?.bull_div || data.bull_div || (data.signal?.bull_div);
+    if (bullDiv) {
+      html += `
+        <span class="bull-div-badge">
+          <span class="en">🟢 BULL DIV</span>
+          <span class="ua">🟢 БИЧА ДИВЕРГЕНЦІЯ</span>
+        </span>
+      `;
+    }
+    szEl.innerHTML = html;
+    szEl.style.color = z.color;
+  }
   // Commentary (supports both old string format and new {summary, analysis} object format)
   if (data.commentary) {
     const c = data.commentary;
@@ -1114,14 +1933,52 @@ async function loadData() {
   // Gauge
   updateGauge(score);
 
-  // Market badge
-  const mb = document.getElementById('market-badge');
-  if (mb) { mb.innerHTML = `<span class="en">${z.stateEn}</span><span class="ua">${z.stateUa}</span>`; mb.style.color = z.color; mb.style.borderColor = z.color + '30'; mb.style.background = z.color + '15'; }
+  // Market State
+  const msEl = document.getElementById('market-state');
+  if (msEl) { msEl.innerHTML = `<span class="en">${z.stateEn}</span><span class="ua">${z.stateUa}</span>`; msEl.style.color = z.color; }
 
   // Market rows
   const set = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
-  if (data.btc_price) set('market-price', fmtPrice(data.btc_price));
-  if (data.btc_dominance) set('market-dom', data.btc_dominance.toFixed(1) + '%');
+  const setHTML = (id, html) => { const el = document.getElementById(id); if (el) el.innerHTML = html; };
+
+  // BTC price + 7D change
+  if (data.btc_price) {
+    set('market-price', fmtPrice(data.btc_price));
+    const hist = (data.score_history || []).filter(e => e.price != null);
+    if (hist.length >= 7) {
+      const p7 = hist[hist.length - 7]?.price;
+      if (p7) {
+        const pct = ((data.btc_price - p7) / p7 * 100);
+        const sign = pct >= 0 ? '+' : '';
+        const cls = pct >= 0 ? 'delta-up' : 'delta-down';
+        set('market-price-7d', '');
+        const el = document.getElementById('market-price-7d');
+        if (el) { el.innerHTML = `<span class="${cls}">${sign}${pct.toFixed(1)}%</span> <span class="en">vs 7d ago</span><span class="ua">vs 7 днів</span>`; }
+      }
+    }
+  }
+
+  // Risk score + deltas
+  const makeDelta = (current, prev, invertColor) => {
+    if (prev == null) return '<span class="delta-zero">—</span>';
+    const d = current - prev;
+    if (d === 0) return '<span class="delta-zero">→ 0</span>';
+    const up = d > 0;
+    // For risk score: up = more risk = bad (red); down = less risk = good (green)
+    const cls = invertColor ? (up ? 'delta-down' : 'delta-up') : (up ? 'delta-up' : 'delta-down');
+    return `<span class="${cls}">${up ? '↑' : '↓'}${Math.abs(d)}</span>`;
+  };
+  const prev1d = data.prev_day?.final_score ?? null;
+  const prev7d = data.prev_week?.final_score ?? null;
+
+  updateMiniGauge('mini-arc-1d', 'mini-needle-1d', 'mini-val-1d', prev1d);
+  const d1El = document.getElementById('yesterday-delta');
+  if (d1El) d1El.innerHTML = makeDelta(score, prev1d, true);
+
+  updateMiniGauge('mini-arc-7d', 'mini-needle-7d', 'mini-val-7d', prev7d);
+  const d7El = document.getElementById('week-delta');
+  if (d7El) d7El.innerHTML = makeDelta(score, prev7d, true);
+
   const fg7d = m.fear_greed ? (m.fear_greed.avg_7d ?? m.fear_greed.latest) : data.fear_greed;
   if (fg7d != null) set('market-fg', (+fg7d).toFixed(0));
   if (data.timestamp) {
@@ -1178,10 +2035,37 @@ async function loadData() {
   setScore('v-yc',      'r-yc',      'yield_curve', ycVal,   v => (+v).toFixed(2) + '%');
   setScore('v-m2',      'r-m2',      'm2',          m2Val,   v => (+v).toFixed(1) + '%');
 
-  const setP = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v != null ? v + '%' : '—'; };
-  setP('p-mvrv', ac.mvrv ? ac.mvrv.adaptive : null);
-  setP('p-nupl', ac.nupl ? ac.nupl.adaptive : null);
-  setP('p-mayer', ac.mayer ? ac.mayer.adaptive : null);
+  const setInfluence = (id, key, utils) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const val = utils[key];
+    if (val == null) {
+      el.innerHTML = '—';
+      return;
+    }
+    const pct = Math.round(val * 100);
+    const barColor = `rgba(139, 92, 246, ${0.3 + 0.7 * val})`; // Indigo glow based on strength
+    el.innerHTML = `
+      <div style="display:flex; flex-direction:column; align-items:center; gap:3px;">
+        <span style="font-weight:700; color:var(--text); font-variant-numeric:tabular-nums; font-size:12px;">${pct}%</span>
+        <div style="width:100%; height:4px; background:var(--surface2); border:1px solid var(--border); border-radius:2px; overflow:hidden;">
+          <div style="width:${pct}%; height:100%; background:${barColor}; border-radius:2px;"></div>
+        </div>
+      </div>
+    `;
+  };
+  const utils = data.v3_utilities || data.utilities || {};
+  setInfluence('p-nupl',    'nupl',               utils);
+  setInfluence('p-mvrv',    'mvrv_z_score',       utils);
+  setInfluence('p-rhodl',   'rhodl_ratio',        utils);
+  setInfluence('p-cvdd',    'cvdd_ratio',         utils);
+  setInfluence('p-asopr',   'asopr',              utils);
+  setInfluence('p-cipherb', 'cipherb',            utils);
+  setInfluence('p-mayer',   'mayer_multiple',     utils);
+  setInfluence('p-etf',     'etf_flows',          utils);
+  setInfluence('p-fg',      'fear_greed',         utils);
+  setInfluence('p-yc',      'yield_curve_spread', utils);
+  setInfluence('p-m2',      'm2_yoy',             utils);
 
   // Signals — order: on-chain (nupl,mvrv,rhodl,cvdd,asopr), tech (cipherb,mayer), macro (etf,fg,yc,m2)
   const vals = [nupl, mvrv, rhodl, cvdd, asopr, cbScore, mayer, etfVal, fgVal, ycVal, m2Val];
@@ -1193,6 +2077,114 @@ async function loadData() {
     return (SIG_LABELS[sig] || SIG_LABELS.mod).color;
   });
 
+  // Real sparkline data from metric_history
+  const mh = data.metric_history;
+  if (mh) {
+    const MH_KEYS = ['nupl','mvrv_z_score','rhodl_ratio','cvdd_ratio','asopr',
+      'cipherb','mayer_multiple','etf_flows','fear_greed','yield_curve_spread','m2_yoy'];
+    MH_KEYS.forEach((key, i) => {
+      const clean = (mh[key] || []).filter(v => v != null);
+      if (clean.length >= 3) SPARK_DATA[i] = clean;
+    });
+    drawSparklines();
+  }
+
+  // Composite Signal block
+  const sig = data.v3_signal || data.signal;
+  if (sig && sig.flag) {
+    const block = document.getElementById('signal-block');
+    if (block) block.style.display = '';
+    const FLAG_STYLES = {
+      'CONFIRMED_BOTTOM': { bg:'#22C55E18', color:'#22C55E', border:'#22C55E40' },
+      'PROBABLE_BOTTOM':  { bg:'#4ADE8018', color:'#16A34A', border:'#4ADE8040' },
+      'EARLY_ZONE':       { bg:'#EAB30818', color:'#CA9A0A', border:'#EAB30840' },
+      'CONFIRMED_TOP':    { bg:'#EF444418', color:'#EF4444', border:'#EF444440' },
+      'PROBABLE_TOP':     { bg:'#F9731618', color:'#F97316', border:'#F9731640' },
+      'UNCERTAIN':        { bg:'#94A3B818', color:'#94A3B8', border:'#94A3B840' },
+      'NEUTRAL':          { bg:'#64748B18', color:'#64748B', border:'#64748B40' },
+    };
+    const st = FLAG_STYLES[sig.flag] || FLAG_STYLES['NEUTRAL'];
+    const FLAG_LABELS = {
+      'CONFIRMED_BOTTOM': { en: 'Strong Accumulation', ua: 'Сильне накопичення' },
+      'PROBABLE_BOTTOM':  { en: 'Likely Bottom',       ua: 'Імовірне дно' },
+      'EARLY_ZONE':       { en: 'Early Accumulation',  ua: 'Раннє накопичення' },
+      'CONFIRMED_TOP':    { en: 'High Risk Zone',      ua: 'Зона високого ризику' },
+      'PROBABLE_TOP':     { en: 'Elevated Risk',       ua: 'Підвищений ризик' },
+      'UNCERTAIN':        { en: 'No Clear Signal',     ua: 'Немає чіткого сигналу' },
+      'NEUTRAL':          { en: 'Weak Signal',         ua: 'Слабкий сигнал' },
+    };
+    const isUaFlag = document.documentElement.lang === 'uk' ||
+                     (localStorage && localStorage.getItem('lang') === 'ua');
+    const flagEl = document.getElementById('sig-flag');
+    if (flagEl) {
+      const lbl = FLAG_LABELS[sig.flag];
+      flagEl.textContent = lbl ? (isUaFlag ? lbl.ua : lbl.en) : sig.flag.replace(/_/g, ' ');
+      flagEl.style.background = st.bg;
+      flagEl.style.color = st.color;
+      flagEl.style.borderColor = st.border;
+    }
+    set('sig-meta', sig.meta_score != null ? sig.meta_score + '%' : '—');
+    set('sig-conv', sig.conviction != null ? Math.round(sig.conviction * 100) + '%' : '—');
+    const wrScore = (data.wave_resonance && data.wave_resonance.score != null) ? data.wave_resonance.score : (data.v3_onchain_score != null ? data.v3_onchain_score : null);
+    const wrCoh = (data.wave_resonance && data.wave_resonance.coherence != null) ? data.wave_resonance.coherence : (data.v3_oc_coherence != null ? data.v3_oc_coherence : null);
+    set('sig-wr-score', wrScore != null ? wrScore + '%' : '—');
+    set('sig-wr-coh', wrCoh != null ? Math.round(wrCoh * (wrCoh <= 1.0 ? 100 : 1)) + '%' : '—');
+    
+    const tizDays = data.v3_tiz_days != null ? data.v3_tiz_days : (data.tiz_days || 0);
+    const tizMaturity = sig.tiz_maturity != null ? sig.tiz_maturity : null;
+    if (tizMaturity != null) {
+      const tizWrap = document.getElementById('sig-tiz-wrap');
+      if (tizWrap) tizWrap.style.display = '';
+      set('sig-tiz', Math.round(tizMaturity * 100) + '%');
+      if (tizDays > 0) set('sig-tiz-days', 'День ' + tizDays + ' / ' + (data.v3_tiz_calibration || data.tiz_calibration || 200));
+    }
+    if (sig.trust) {
+      const v3p = Math.round((sig.trust.v3 || sig.trust.v2 || 0) * 100);
+      const wrp = Math.round((sig.trust.wr || 0) * 100);
+      set('trust-v2-pct', v3p + '%');
+      set('trust-wr-pct', wrp + '%');
+      const bar = document.getElementById('trust-v2-bar');
+      if (bar) bar.style.width = v3p + '%';
+    }
+
+    // Dynamic plain-language explanation
+    const FLAG_EXPLAIN = {
+      'CONFIRMED_BOTTOM': {
+        en: 'On-chain indicators are in strong agreement: price is historically cheap relative to the network\'s fundamentals. Historically these readings precede a multi-month recovery.',
+        ua: 'Он-чейн індикатори одностайні: ціна історично дешева відносно фундаменталів мережі. Такі показники зазвичай передують відновленню.'
+      },
+      'PROBABLE_BOTTOM': {
+        en: 'Most indicators point to a cycle low. The picture isn\'t unanimous yet, but the risk/reward here leans toward long-term accumulation.',
+        ua: 'Більшість індикаторів вказують на циклове дно. Картина не однозначна, але співвідношення ризик/дохід схиляється до накопичення.'
+      },
+      'EARLY_ZONE': {
+        en: 'Metrics entered the accumulation zone ' + tizDays + ' days ago — historically, the signal gets more reliable after 40–60 days. It\'s early but the direction is promising.',
+        ua: 'Метрики увійшли у зону накопичення ' + tizDays + ' днів тому. Сигнал стає надійнішим після 40–60 днів у зоні. Рано, але напрямок перспективний.'
+      },
+      'NEUTRAL': {
+        en: 'The indicators lean toward a bottom, but they don\'t all agree yet (' + tizDays + ' days in zone). The signal will strengthen if the market holds these levels.',
+        ua: 'Індикатори схиляються до дна, але ще не одностайні (' + tizDays + ' днів у зоні). Сигнал посилиться якщо ринок утримає ці рівні.'
+      },
+      'PROBABLE_TOP': {
+        en: 'Multiple signals point to an overheated market. Historically these conditions precede a correction or prolonged consolidation.',
+        ua: 'Кілька сигналів вказують на перегрів ринку. Такі умови зазвичай передують корекції або тривалій консолідації.'
+      },
+      'CONFIRMED_TOP': {
+        en: 'Indicators are near extreme cycle highs with strong agreement — a reading historically associated with major cycle tops.',
+        ua: 'Індикатори біля екстремальних циклових максимумів з высокою узгодженістю — такий показник асоціюється з великими цикловими топами.'
+      },
+      'UNCERTAIN': {
+        en: 'The indicators are pointing in different directions right now. Some lean bullish, others neutral or bearish — there\'s no clear edge. Worth watching, but not acting on.',
+        ua: 'Індикатори зараз вказують у різні боки. Одні схиляються до зростання, інші до нейтралу чи падіння — чіткого переваги немає. Варто спостерігати, але не діяти.'
+      }
+    };
+    const expl = FLAG_EXPLAIN[sig.flag];
+    const explEl = document.getElementById('sig-explain');
+    if (expl && explEl) {
+      explEl.textContent = isUaFlag ? expl.ua : expl.en;
+    }
+  }
+
   // Zone price levels
   const zf = data.zone_forecast || {};
   if (zf.sell)           set('zone-sell',     '≥ ' + fmtPriceK(zf.sell.price));
@@ -1201,7 +2193,7 @@ async function loadData() {
   // Gauge tags
   const frObj = m.funding_rate && m.funding_rate.value ? m.funding_rate.value : null;
   const frAvg = frObj ? (frObj.avg_7d != null ? frObj.avg_7d : frObj.latest) : null;
-  updateGaugeTags(score, vals, keys, frAvg);
+  updateGaugeTags(score, vals, keys, frAvg, data.recovery_window);
 
   // Calculate exact contributions of each block to the overall index
   const getFinalScoreForKey = (key, val) => {
@@ -1280,28 +2272,16 @@ async function loadData() {
 
   const scoreToSig = (v) => v == null ? null : v < 25 ? 'vlow' : v < 35 ? 'low' : v < 55 ? 'mod' : v < 75 ? 'high' : 'vhigh';
 
-  // Fills the 5-column grid: [name | score | spark | pct | signal]
+  // Fills the group headers (dot and title only)
   const updateHeader = (id, baseEn, baseUa, rawSum, avg) => {
     const el = document.getElementById(id);
     if (el) {
-      const displayNum = avg != null ? Math.round(avg) : null;
       const normAvg = avg != null ? Math.round(avg) : null;
       const dotColor = normAvg != null ? riskZone(normAvg).color : '#888';
-      const sig = scoreToSig(normAvg);
-      const sigInfo = sig ? SIG_LABELS[sig] : null;
-      const badgeHtml = sigInfo
-        ? `<span class="signal-badge ${sigInfo.cls}" style="font-size:10px;padding:2px 8px;"><span class="en">${sigInfo.en}</span><span class="ua">${sigInfo.ua}</span></span>`
-        : '';
       el.innerHTML = `
-        <div style="display:flex; align-items:center; gap:8px;">
-          <div class="comp-group-dot" style="background:${dotColor}"></div>
-          <span class="en">${baseEn}</span>
-          <span class="ua">${baseUa}</span>
-        </div>
-        <div class="comp-value"><div class="val">${displayNum != null ? displayNum : '—'}</div></div>
-        <div class="comp-spark"></div>
-        <div class="comp-pct"></div>
-        <div class="comp-signal">${badgeHtml}</div>
+        <div class="comp-group-dot" style="background:${dotColor}"></div>
+        <span class="en">${baseEn}</span>
+        <span class="ua">${baseUa}</span>
       `;
     }
   };
@@ -1311,15 +2291,136 @@ async function loadData() {
   updateHeader('hdr-macro', 'Macro', 'Макро', macroRawSum, macroAvg);
 
 
+  // Score Processor v2 / Phase Signals (V3.2 continuous probabilities)
+  if (data.phase) {
+    const sp2Block = document.getElementById('sp2-block');
+    if (sp2Block) sp2Block.style.display = '';
+
+    const ph = data.phase || {};
+
+    const setBar = (barId, valId, pct, color) => {
+      const bar = document.getElementById(barId);
+      const val = document.getElementById(valId);
+      if (bar) { bar.style.width = pct + '%'; bar.style.background = color; }
+      if (val) val.textContent = pct + '%';
+    };
+
+    const wTop = ph.w_top != null ? Math.round(ph.w_top * 100) : 0;
+    const wNeutral = ph.w_neutral != null ? Math.round(ph.w_neutral * 100) : 0;
+    const wBot = ph.w_bot != null ? Math.round(ph.w_bot * 100) : 0;
+
+    setBar('sp2-top-bar', 'sp2-top-val', wTop, '#EF4444');
+    setBar('sp2-neutral-bar', 'sp2-neutral-val', wNeutral, '#3B82F6');
+    setBar('sp2-bot-bar', 'sp2-bot-val', wBot, '#22C55E');
+
+    const PHASE_STYLES = {
+      'TOP':     { bg: '#EF444418', color: '#EF4444', border: '#EF444440', labelEn: 'Top',     labelUa: 'Топ' },
+      'BOTTOM':  { bg: '#22C55E18', color: '#22C55E', border: '#22C55E40', labelEn: 'Bottom',  labelUa: 'Дно' },
+      'BULL':    { bg: '#EAB30818', color: '#CA9A0A', border: '#EAB30840', labelEn: 'Bull',    labelUa: 'Бичачий' },
+      'BEAR':    { bg: '#F9731618', color: '#F97316', border: '#F9731640', labelEn: 'Bear',    labelUa: 'Ведмежий' },
+      'NEUTRAL': { bg: '#94A3B818', color: '#94A3B8', border: '#94A3B840', labelEn: 'Neutral', labelUa: 'Нейтральний' },
+    };
+    const PHASE_DESC = {
+      'TOP':     { en: 'Metrics align with confirmed cycle tops — elevated risk territory.',    ua: 'Метрики збігаються з підтвердженими топами — підвищений ризик.' },
+      'BOTTOM':  { en: 'Metrics align with confirmed cycle bottoms — accumulation territory.',  ua: 'Метрики збігаються з підтвердженими днами — зона накопичення.' },
+      'BULL':    { en: 'Metrics transitioning from bottom toward top territory.',               ua: 'Метрики у переході від дна до топа.' },
+      'BEAR':    { en: 'Metrics transitioning from top toward bottom territory.',               ua: 'Метрики у переході від топа до дна.' },
+      'NEUTRAL': { en: 'Both signals are low — genuine uncertainty, no dominant phase.',        ua: 'Обидва сигнали низькі — щира невизначеність, немає домінантної фази.' },
+    };
+
+    const phase = ph.phase || 'NEUTRAL';
+    const pSt = PHASE_STYLES[phase] || PHASE_STYLES['NEUTRAL'];
+    const pDesc = PHASE_DESC[phase] || {};
+    const isUa = document.body.classList.contains('lang-ua');
+
+    const pBadge = document.getElementById('sp2-phase');
+    if (pBadge) {
+      pBadge.textContent = isUa ? pSt.labelUa : pSt.labelEn;
+      pBadge.style.background = pSt.bg;
+      pBadge.style.color = pSt.color;
+      pBadge.style.borderColor = pSt.border;
+    }
+    const pDescEl = document.getElementById('sp2-desc');
+    if (pDescEl && (pDesc.en || pDesc.ua)) {
+      pDescEl.innerHTML = `<span class="en">${pDesc.en || ''}</span><span class="ua">${pDesc.ua || ''}</span>`;
+    }
+  }
+
   // History
   historyScores = (data.score_history || []).filter(e => e.score != null);
   initHistoryEvents();
   drawHistory(activeRange);
   drawSparklines();
   attachSparkHovers();
+
+  // Real sparklines from sparklines.json
+  fetch('sparklines.json', { cache: 'no-store' })
+    .then(r => r.json())
+    .then(sl => {
+      const MH_MAP = [
+        'nupl', 'mvrv_z_score', 'rhodl_ratio', 'cvdd_ratio', 'asopr',
+        'cipherb', 'mayer_multiple', null, 'fear_greed', null, 'm2_yoy'
+      ];
+      MH_MAP.forEach((key, i) => {
+        if (!key) return;
+        const vals = (sl[key] || []).filter(v => v != null);
+        if (vals.length >= 5) SPARK_DATA[i] = vals;
+      });
+      drawSparklines();
+    })
+    .catch(() => {});
+  // Data Health Check
+  const checkHealth = (data) => {
+    const healthIndicator = document.getElementById('health-indicator');
+    if (!healthIndicator) return;
+    
+    let isHealthy = true;
+    let isStale = false;
+    let isDegraded = false;
+    
+    // 1. Freshness check: payload must be less than 30 hours old
+    if (data.timestamp) {
+      const payloadTime = new Date(data.timestamp).getTime();
+      const now = new Date().getTime();
+      const diffHours = (now - payloadTime) / (3600 * 1000);
+      if (diffHours > 30) {
+        isStale = true;
+      }
+    } else {
+      isStale = true;
+    }
+    
+    // 2. Metrics check: check if any of the canonical 11 metrics are null/missing
+    const checkedValues = [
+      data.nupl, data.mvrv_z_score || data.mvrv, data.rhodl_ratio, data.cvdd_ratio, data.asopr,
+      cbScore, mayer, etfVal, fgVal, ycVal, m2Val
+    ];
+    
+    const missingCount = checkedValues.filter(v => v == null).length;
+    if (missingCount > 0) {
+      isDegraded = true;
+    }
+    
+    // 3. Algorithm check: score must be present
+    if (score == null || score <= 0) {
+      isHealthy = false;
+    }
+
+    if (isStale) {
+      healthIndicator.style.background = '#EF4444';
+      healthIndicator.title = 'Stale / Застарілий';
+    } else if (isDegraded || !isHealthy) {
+      healthIndicator.style.background = '#EAB308';
+      healthIndicator.title = 'Degraded / Обмежений';
+    } else {
+      healthIndicator.style.background = '#22C55E';
+      healthIndicator.title = 'Healthy / Здоровий';
+    }
+  };
+  checkHealth(data);
 }
 
-function updateGaugeTags(score, vals, keys, fr) {
+function updateGaugeTags(score, vals, keys, fr, recoveryWindow) {
   const el = document.getElementById('gauge-tags');
   if (!el) return;
 
@@ -1328,6 +2429,15 @@ function updateGaugeTags(score, vals, keys, fr) {
   const ICON_WARN = `<svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M7.5 2L13.5 13H1.5L7.5 2Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><line x1="7.5" y1="6" x2="7.5" y2="9.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="7.5" cy="11.2" r="0.7" fill="currentColor"/></svg>`;
 
   const tags = [];
+
+  // Recovery Entry Window: score 25-45 within 120d of a confirmed bottom (score ≤22)
+  // Historical win rate: 77% positive 90d return, avg +47.8% vs +4.2% for random 25-45
+  if (recoveryWindow && recoveryWindow.active) {
+    const d = recoveryWindow.days_since_bottom;
+    tags.push({ cls: 'tag-recovery', icon: ICON_BTC,
+      en: `Recovery Entry — ${d}d from confirmed bottom`,
+      ua: `Вікно входу — ${d} днів від підтвердженого дна` });
+  }
 
   // Tactical Buy: score ≤ 30 AND funding < 0
   if (score <= 30 && fr != null && fr < 0) {
