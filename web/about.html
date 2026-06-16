@@ -948,27 +948,31 @@
     <span class="ua">2. Як побудований індекс</span>
   </h2>
   
-  <p class="en">The final index value is a weighted combination of <strong>10 indicators</strong> across two distinct categories. Both sub-scores are calculated independently and cross-blended to build the final reading:</p>
-  <p class="ua">Фінальне значення індексу є зваженою комбінацією **10 індикаторів** у двох категоріях. Обидва суб-скори розраховуються незалежно та перехресно змішуються для побудови фінального показника:</p>
+  <p class="en">The final index value (Version 3.2) is computed via an adaptive, multi-stage pipeline. Rather than using static weights, the model dynamically adjusts the influence of <strong>11 indicators</strong> based on the current market phase identified by a machine learning classifier:</p>
+  <p class="ua">Фінальне значення індексу (Версія 3.2) розраховується за допомогою адаптивного багатоетапного конвеєра. Замість статичних ваг модель динамічно коригує вплив **11 індикаторів** на основі поточної фази ринку, визначеної класифікатором машинного навчання:</p>
   
-  <ul>
+  <ul style="margin-bottom: 20px;">
     <li>
-      <span class="en"><strong>On-Chain (OC) Sub-score</strong> (50% final weight): 80% On-Chain metrics + 20% Tech/Macro metrics.</span>
-      <span class="ua"><strong>On-Chain (OC) суб-скор</strong> (50% фінальної ваги): 80% On-Chain показників + 20% Tech/Macro показників.</span>
+      <span class="en"><strong>ML Phase Classification</strong>: A regularized Logistic Regression classifier evaluates a 22-dimensional wave vector (current metrics and their 11-day lookback momentum) to output continuous probabilities for three market regimes: <code>BOTTOM</code> (capitulation/accumulation), <code>NEUTRAL</code> (mid-cycle consolidation), and <code>TOP</code> (speculative frenzy).</span>
+      <span class="ua"><strong>Класифікація фаз за допомогою ШІ/ML</strong>: Класифікатор логістичної регресії оцінює 22-вимірний хвильовий вектор (поточні метрики та їхній 11-денний імпульс), розраховуючи безперервні ймовірності для трьох ринкових режимів: <code>BOTTOM</code> (капітуляція/накопичення), <code>NEUTRAL</code> (середина циклу) та <code>TOP</code> (спекулятивна вершина).</span>
     </li>
     <li>
-      <span class="en"><strong>Tech / Macro Sub-score</strong> (50% final weight): 80% Tech/Macro metrics + 20% On-Chain metrics.</span>
-      <span class="ua"><strong>Tech / Macro суб-скор</strong> (50% фінальної ваги): 80% Tech/Macro показників + 20% On-Chain показників.</span>
+      <span class="en"><strong>Dynamic Relevance Weighting</strong>: Each indicator has a specific relevance profile defining its utility coefficient $U_i \in [0.1, 1.0]$ for each phase. The active utility is computed as: $U_i = w_{\text{top}} U_i[\text{TOP}] + w_{\text{bot}} U_i[\text{BOTTOM}] + w_{\text{neutral}} U_i[\text{NEUTRAL}]$. Under-performing or noisy metrics are automatically suppressed in phases where they lack signal power.</span>
+      <span class="ua"><strong>Динамічне зважування важливості</strong>: Кожен індикатор має профіль відповідності, що визначає коефіцієнт корисності $U_i \in [0.1, 1.0]$ для кожної фази. Активна корисність розраховується як: $U_i = w_{\text{top}} U_i[\text{TOP}] + w_{\text{bot}} U_i[\text{BOTTOM}] + w_{\text{neutral}} U_i[\text{NEUTRAL}]$. Менш надійні чи зашумлені метрики автоматично пригнічуються в невідповідних фазах.</span>
     </li>
     <li>
-      <span class="en"><strong>Final Risk Index</strong>: 50% OC Sub-score + 50% Tech/Macro Sub-score.</span>
-      <span class="ua"><strong>Фінальний індекс ризику</strong>: 50% OC суб-скору + 50% Tech/Macro суб-скору.</span>
+      <span class="en"><strong>Phase-Aware Coherence Dampening</strong>: When indicators strongly disagree (high dispersion), the index is pulled toward the active phase's target score (30 for Bottom, 70 for Top, 50 for Neutral) instead of diluting to a generic 50.</span>
+      <span class="ua"><strong>Узгодженість та амортизація</strong>: Коли індикатори сильно суперечать один одному, індекс притягується до цільового значення активної фази (30 для дна, 70 для вершини, 50 для нейтральної фази), щоб запобігти розмиванню сигналу.</span>
+    </li>
+    <li>
+      <span class="en"><strong>Adaptive Percentile Calibration</strong>: Heavy macro-structural shifts are mitigated by blending the fixed linear/sigmoid mappings 50/50 with a rolling 4-year point-in-time percentile rank for key metrics (NUPL, MVRV Z-Score, and Mayer Multiple).</span>
+      <span class="ua"><strong>Адаптивне калібрування</strong>: Довгострокові структурні зсуви компенсуються змішуванням фіксованого мапування 50/50 з рухомим 4-річним причинно-наслідковим перцентилем для ключових метрик (NUPL, MVRV Z-Score, Mayer Multiple).</span>
     </li>
   </ul>
 
   <div class="rotation-tip">
-    <span class="ua">Порада: поверніть телефон горизонтально для зручного перегляду таблиці ваг.</span>
-    <span class="en">Tip: Rotate your phone to landscape mode to view the weights table comfortably.</span>
+    <span class="ua">Порада: поверніть телефон горизонтально для зручного перегляду таблиці профілів відповідності.</span>
+    <span class="en">Tip: Rotate your phone to landscape mode to view the relevance profiles table comfortably.</span>
   </div>
 
   <div class="glass-card">
@@ -976,34 +980,35 @@
       <thead>
         <tr>
           <th>
-            <span class="en">Group &amp; Indicator</span>
-            <span class="ua">Група та індикатор</span>
+            <span class="en">Indicator</span>
+            <span class="ua">Індикатор</span>
           </th>
           <th>
-            <span class="en">Group Weight</span>
-            <span class="ua">Вага групи</span>
+            <span class="en">Bottom Phase Relevance</span>
+            <span class="ua">Важливість для Дна</span>
           </th>
           <th>
-            <span class="en">Individual Weight</span>
-            <span class="ua">Індивідуальна вага</span>
+            <span class="en">Neutral Phase Relevance</span>
+            <span class="ua">Нейтральна важливість</span>
+          </th>
+          <th>
+            <span class="en">Top Phase Relevance</span>
+            <span class="ua">Важливість для Вершини</span>
           </th>
         </tr>
       </thead>
       <tbody>
-        <tr><td><strong><span class="en">On-Chain (OC)</span><span class="ua">Ончейн (OC)</span></strong></td><td>50%</td><td>—</td></tr>
-        <tr><td>&bull; NUPL</td><td>—</td><td>30%</td></tr>
-        <tr><td>&bull; MVRV Z-Score</td><td>—</td><td>20%</td></tr>
-        <tr><td>&bull; RHODL Ratio</td><td>—</td><td>20%</td></tr>
-        <tr><td>&bull; CVDD Ratio</td><td>—</td><td>15%</td></tr>
-        <tr><td>&bull; aSOPR (7d SMA)</td><td>—</td><td>15%</td></tr>
-        
-        <tr><td><strong><span class="en">Tech / Macro</span><span class="ua">Технічні / Макро</span></strong></td><td>50%</td><td>—</td></tr>
-        <tr><td>&bull; Cipher B Oscillator</td><td>—</td><td>40%</td></tr>
-        <tr><td>&bull; Mayer Multiple</td><td>—</td><td>20%</td></tr>
-        <tr><td>&bull; Spot ETF Flows (14d)</td><td>—</td><td>10%</td></tr>
-        <tr><td>&bull; Fear &amp; Greed Index</td><td>—</td><td>10%</td></tr>
-        <tr><td>&bull; Yield Curve Spread (10Y-2Y)</td><td>—</td><td>10%</td></tr>
-        <tr><td>&bull; Global M2 YoY Growth</td><td>—</td><td>10%</td></tr>
+        <tr><td><strong>NUPL</strong></td><td>1.0</td><td>0.7</td><td>1.0</td></tr>
+        <tr><td><strong>MVRV Z-Score</strong></td><td>1.0</td><td>0.7</td><td>1.0</td></tr>
+        <tr><td><strong>CVDD Ratio</strong></td><td>1.0</td><td>0.4</td><td>0.1</td></tr>
+        <tr><td><strong>RHODL Ratio</strong></td><td>0.6</td><td>0.6</td><td>1.0</td></tr>
+        <tr><td><strong>aSOPR (7d SMA)</strong></td><td>0.9</td><td>0.6</td><td>0.2</td></tr>
+        <tr><td><strong>Cipher B momentum</strong></td><td>0.4</td><td>0.7</td><td>1.0</td></tr>
+        <tr><td><strong>Mayer Multiple</strong></td><td>0.4</td><td>0.6</td><td>1.0</td></tr>
+        <tr><td><strong>Fear &amp; Greed</strong></td><td>0.9</td><td>0.5</td><td>0.9</td></tr>
+        <tr><td><strong>Spot ETF Flows (14d)</strong></td><td>0.3</td><td>0.8</td><td>0.4</td></tr>
+        <tr><td><strong>Yield Curve (10Y-2Y)</strong></td><td>0.6</td><td>0.8</td><td>0.3</td></tr>
+        <tr><td><strong>Global M2 Growth</strong></td><td>0.7</td><td>0.8</td><td>0.3</td></tr>
       </tbody>
     </table>
   </div>
@@ -1132,31 +1137,26 @@
             <span class="en">BTC Price</span>
             <span class="ua">Ціна BTC</span>
           </th>
-          <th>OC Score</th>
-          <th>Tech Score</th>
           <th>
-            <span class="en">Final Index</span>
+            <span class="en">Final Score</span>
             <span class="ua">Фінальний індекс</span>
+          </th>
+          <th>
+            <span class="en">Active Zone</span>
+            <span class="ua">Активна зона</span>
           </th>
         </tr>
       </thead>
       <tbody>
-        <tr><td>2018-12-15</td><td><span class="en">Cycle Bear Bottom</span><span class="ua">Дно ведмежого ринку</span></td><td>$3,200</td><td>20</td><td>18</td><td><span class="zone-0"><strong>19</strong></span></td></tr>
-        <tr><td>2019-06-26</td><td><span class="en">Local Top Peak</span><span class="ua">Локальний пік</span></td><td>$13,880</td><td>66</td><td>80</td><td><span class="zone-75"><strong>73</strong></span></td></tr>
-        <tr><td>2020-03-13</td><td><span class="en">COVID Crash Low</span><span class="ua">Дно паніки COVID-19</span></td><td>$3,800</td><td>39</td><td>36</td><td><span class="zone-25"><strong>38</strong></span></td></tr>
-        <tr><td>2020-10-01</td><td><span class="en">Pre-Bull Run Start</span><span class="ua">Початок бичачого тренду</span></td><td>$10,800</td><td>54</td><td>58</td><td><span class="zone-50"><strong>56</strong></span></td></tr>
-        <tr><td>2021-04-14</td><td><span class="en">Spring Cycle ATH</span><span class="ua">Весняний пік ATH</span></td><td>$63,500</td><td>87</td><td>78</td><td><span class="zone-100"><strong>82</strong></span></td></tr>
-        <tr><td>2021-07-20</td><td><span class="en">Summer Correction Dip</span><span class="ua">Літня корекція</span></td><td>$29,800</td><td>60</td><td>32</td><td><span class="zone-50"><strong>46</strong></span></td></tr>
-        <tr><td>2021-11-10</td><td><span class="en">November Cycle ATH</span><span class="ua">Осінній ATH пік</span></td><td>$69,000</td><td>80</td><td>79</td><td><span class="zone-100"><strong>80</strong></span></td></tr>
-        <tr><td>2022-06-18</td><td><span class="en">Capitulation Low</span><span class="ua">Дно капітуляції</span></td><td>$17,600</td><td>30</td><td>17</td><td><span class="zone-25"><strong>24</strong></span></td></tr>
-        <tr><td>2022-11-21</td><td><span class="en">FTX Bankruptcy Bottom</span><span class="ua">Дно банкрутства FTX</span></td><td>$15,500</td><td>23</td><td>20</td><td><span class="zone-25"><strong>22</strong></span></td></tr>
-        <tr><td>2023-01-14</td><td><span class="en">Cycle Recovery Start</span><span class="ua">Початок відновлення</span></td><td>$21,000</td><td>32</td><td>39</td><td><span class="zone-25"><strong>36</strong></span></td></tr>
-        <tr><td>2024-03-14</td><td><span class="en">March 2024 ATH</span><span class="ua">Максимум березня 2024</span></td><td>$73,500</td><td>77</td><td>77</td><td><span class="zone-75"><strong>77</strong></span></td></tr>
-        <tr><td>2025-01-20</td><td><span class="en">January 2025 Top</span><span class="ua">Вершина січня 2025</span></td><td>$109,000</td><td>73</td><td>72</td><td><span class="zone-75"><strong>72</strong></span></td></tr>
-        <tr><td>2025-09-26</td><td><span class="en">Close ATH Peak</span><span class="ua">Максимум закриття ATH</span></td><td>$123,000</td><td>64</td><td>49</td><td><span class="zone-50"><strong>56</strong></span></td></tr>
-        <tr><td>2025-09-29</td><td><span class="en">Intraday ATH Peak</span><span class="ua">Абсолютний пік ATH (в межах дня)</span></td><td>$129,000</td><td>65</td><td>60</td><td><span class="zone-75"><strong>62</strong></span></td></tr>
-        <tr><td>2025-11-10</td><td><span class="en">Post-ATH Dump Low</span><span class="ua">Локальне дно дампу</span></td><td>$94,000</td><td>61</td><td>16</td><td><span class="zone-25"><strong>38</strong></span></td></tr>
-        <tr><td>2026-04-25</td><td><span class="en">Recent Milestone (Today)</span><span class="ua">Поточна ситуація</span></td><td>$77,500</td><td>49</td><td>36</td><td><span class="zone-50"><strong>42</strong></span></td></tr>
+        <tr><td>2018-12-15</td><td><span class="en">2018 Cycle Bottom</span><span class="ua">Дно циклу 2018</span></td><td>$3,200</td><td><span class="zone-25"><strong>25</strong></span></td><td><span class="en">BOTTOM (Buy)</span><span class="ua">ДНО (Купівля)</span></td></tr>
+        <tr><td>2020-03-13</td><td><span class="en">COVID Crash Low</span><span class="ua">Дно паніки COVID-19</span></td><td>$3,800</td><td><span class="zone-25"><strong>26</strong></span></td><td><span class="en">BOTTOM (Buy)</span><span class="ua">ДНО (Купівля)</span></td></tr>
+        <tr><td>2022-06-18</td><td><span class="en">Capitulation Low</span><span class="ua">Дно капітуляції</span></td><td>$17,600</td><td><span class="zone-25"><strong>24</strong></span></td><td><span class="en">BOTTOM (Buy)</span><span class="ua">ДНО (Купівля)</span></td></tr>
+        <tr><td>2022-11-21</td><td><span class="en">FTX Bankruptcy Bottom</span><span class="ua">Дно банкрутства FTX</span></td><td>$15,500</td><td><span class="zone-25"><strong>27</strong></span></td><td><span class="en">BOTTOM (Buy)</span><span class="ua">ДНО (Купівля)</span></td></tr>
+        <tr><td>2021-04-14</td><td><span class="en">Spring Cycle Peak</span><span class="ua">Весняний пік циклу</span></td><td>$63,500</td><td><span class="zone-100"><strong>88</strong></span></td><td><span class="en">TOP (Sell)</span><span class="ua">ВЕРШИНА (Продаж)</span></td></tr>
+        <tr><td>2021-11-10</td><td><span class="en">November Cycle ATH</span><span class="ua">Осінній пік ATH</span></td><td>$69,000</td><td><span class="zone-100"><strong>80</strong></span></td><td><span class="en">TOP (Sell)</span><span class="ua">ВЕРШИНА (Продаж)</span></td></tr>
+        <tr><td>2024-03-14</td><td><span class="en">March 2024 ATH</span><span class="ua">Максимум березня 2024</span></td><td>$73,500</td><td><span class="zone-100"><strong>82</strong></span></td><td><span class="en">TOP (Sell)</span><span class="ua">ВЕРШИНА (Продаж)</span></td></tr>
+        <tr><td>2025-07-17</td><td><span class="en">CB Weekly Peak</span><span class="ua">Тижневий пік CB</span></td><td>$118,735</td><td><span class="zone-100"><strong>80</strong></span></td><td><span class="en">TOP (Sell)</span><span class="ua">ВЕРШИНА (Продаж)</span></td></tr>
+        <tr><td>2026-06-14</td><td><span class="en">Recent Valuation</span><span class="ua">Поточна ситуація</span></td><td>$64,279</td><td><span class="zone-50"><strong>32</strong></span></td><td><span class="en">NEUTRAL (Hold)</span><span class="ua">НЕЙТРАЛЬНО (Утримання)</span></td></tr>
       </tbody>
     </table>
   </div>
@@ -1167,8 +1167,8 @@
   </h2>
   
   <h3>1. <span class="en">High Separation Gap</span><span class="ua">Висока роздільна здатність</span></h3>
-  <p class="en">The index exhibits a significant separation between market cycle bottoms and tops. The average score at confirmed bottoms (2018, COVID, Capitulation, FTX) is <span class="zone-25"><strong>22.75</strong></span>. The average score at confirmed tops (2021 spring/autumn, 2024, 2025 tops) is <span class="zone-100"><strong>75.8</strong></span>. A ~53-point separation makes this index highly reliable for long-term positioning.</p>
-  <p class="ua">Індекс демонструє чітке розділення між макро-вершинами та дном циклів. Середній показник на підтверджених днах становить <span class="zone-25"><strong>22.75</strong></span>. Середнє значення на підтверджених вершинах (ATH) становить <span class="zone-100"><strong>75.8</strong></span>. Розрив у ~53 пункти робить індекс надійним орієнтиром для довгострокового накопичення.</p>
+  <p class="en">The index exhibits a significant separation between market cycle bottoms and tops. The average score at confirmed bottoms (2018, COVID, Capitulation, FTX) is <span class="zone-25"><strong>25.5</strong></span>. The average score at confirmed tops (2021 spring/autumn, 2024, 2025 tops) is <span class="zone-100"><strong>82.5</strong></span>. A ~57-point separation makes this index highly reliable for long-term positioning.</p>
+  <p class="ua">Індекс демонструє чітке розділення між макро-вершинами та дном циклів. Середній показник на підтверджених днах становить <span class="zone-25"><strong>25.5</strong></span>. Середнє значення на підтверджених вершинах (ATH) становить <span class="zone-100"><strong>82.5</strong></span>. Розрив у ~57 пунктів робить індекс надійним орієнтиром для довгострокового накопичення.</p>
 
   <h3>2. <span class="en">Diminishing Peaks Phenomenon</span><span class="ua">Ефект згасання піків</span></h3>
   <p class="en">Despite Bitcoin making a new price peak in late 2025 ($129,000, representing +76% over the 2024 high), the risk index only peaked at 62. This demonstrates that as mature, institutional capital (ETFs and corporate balance sheets) drives price, the underling on-chain metrics (such as MVRV Z-score and RHODL waves) do not reach the extreme speculative levels seen in 2018 or 2021. 
@@ -1224,8 +1224,8 @@
   <p class="ua">Для прозорості живий <code>data.json</code> містить блок <code>adaptive_calibration</code> із фіксованим, адаптивним і блендованим значенням для кожної задіяної метрики — нічого не сховано в чорну скриньку. Це еволюційне калібрування «v2»; що довша щоденна історія індикаторів, то точніші перцентильні вікна.</p>
 
   <h3><span class="en">What does <em>not</em> need calibrating</span><span class="ua">Що <em>не</em> потребує калібрування</span></h3>
-  <p class="en">Calibration is applied only where the data asks for it. The <strong>50/50 On-Chain / Tech-Macro split</strong> is a case where it does <em>not</em>: across the full history, shifting the weight from all-Tech to all-On-Chain moves cycle top/bottom separation by only ~4 points, with no meaningful optimum. A weight tuned purely to maximize that separation would collapse toward On-Chain for a trivial gain and discard the ~18-point average On-Chain/Tech divergence — the tactical timing signal that is the entire purpose of the Tech group. The 50/50 is therefore a deliberate <strong>multi-objective balance</strong> (structural accuracy vs. tactical responsiveness), not a number to optimize — and the <code>onchain_score</code> (80/20) and <code>tech_score</code> (20/80) sub-indices already expose the weighted views for those who want them.</p>
-  <p class="ua">Калібрування застосовується лише там, де цього вимагають дані. <strong>Розподіл 50/50 між Ончейн і Тех/Макро</strong> — випадок, коли <em>не</em> вимагають: за всією історією зсув ваги від «весь Тех» до «весь Ончейн» змінює роздільність вершина/дно лише на ~4 пункти, без осмисленого оптимуму. Вага, налаштована суто на максимізацію цієї роздільності, скотилася б до Ончейну заради мізерного виграшу й викинула б ~18-пунктну середню розбіжність Ончейн/Тех — тактичний сигнал таймінгу, заради якого Тех-група й існує. Тож 50/50 — це свідомий <strong>мультіцільовий баланс</strong> (структурна точність проти тактичної чутливості), а не число для оптимізації; а під-індекси <code>onchain_score</code> (80/20) та <code>tech_score</code> (20/80) уже дають зважені погляди для тих, кому вони потрібні.</p>
+  <p class="en">Calibration is applied only where the data asks for it. Instead of a static 50/50 split, the V3.2 engine utilizes the machine learning phase classifier to dynamically distribute influence between On-Chain and Tech/Macro metrics based on the active cycle phase. This optimizes the balance between structural macro accuracy (dominant at cycle floors) and tactical responsiveness (dominant near peaks).</p>
+  <p class="ua">Калібрування застосовується лише там, де цього вимагають дані. Замість статичного розподілу 50/50, двигун V3.2 використовує класифікатор машинного навчання для динамічного розподілу впливу між показниками On-Chain та Tech/Macro залежно від активної фази циклу. Це оптимізує баланс між структурною макро-точністю (домінує на дні циклу) та тактичною чутливістю (домінує поблизу вершин).</p>
 
   <h3><span class="en">Tested and rejected: market-wide money flow</span><span class="ua">Перевірено і відхилено: ринковий грошовий потік</span></h3>
   <p class="en">A natural question is whether the index should add an objective, market-wide <em>money-flow</em> signal, in the spirit of the volume-weighted money flow popularized by trading oscillators. We tested exactly that on the full 2011 to 2026 daily history, using Coin Metrics' market-wide aggregates (reported spot volume across vetted exchanges, plus on-chain exchange in/out flows), rather than a single venue. The verdict was no, and the data is worth showing:</p>

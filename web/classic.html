@@ -281,9 +281,9 @@
   .ai-block-badge { font-size: 10px; color: var(--muted); border: 1px solid var(--border); border-radius: 4px; padding: 2px 7px; opacity: 0.6; }
   .ai-block-text { font-size: 13px; color: var(--muted2); line-height: 1.75; }
   .signals-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
-  .signals-container .flip-card-wrap { height: 100%; }
-  .signals-container .flip-card-inner { height: 100%; }
-  .signals-container .flip-card-front { height: 100%; box-sizing: border-box; }
+  .signals-container .flip-card-wrap { height: 100%; display: flex; flex-direction: column; }
+  .signals-container .flip-card-inner { height: 100%; display: flex; flex-direction: column; flex: 1; }
+  .signals-container .flip-card-front { height: 100%; box-sizing: border-box; display: flex; flex-direction: column; flex: 1; }
 
   .signal-block { padding: 18px 22px; margin-bottom: 0; display: flex; flex-direction: column; height: 100%; box-sizing: border-box; }
   .signal-block-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 8px; }
@@ -445,7 +445,7 @@
     <div class="nav-right">
       <div class="view-switch">
         <button class="view-btn active"><span class="en">Financial</span><span class="ua">Фінансовий</span></button>
-        <button class="view-btn" onclick="location.href='minimal.html'"><span class="en">Lifestyle</span><span class="ua">Лайфстайл</span></button>
+        <button class="view-btn" onclick="location.href='minimal.html'"><span class="en">Distressed</span><span class="ua">Стресовий</span></button>
       </div>
       <button class="theme-btn" id="themeToggle" title="Toggle theme">
         <svg width="15" height="15" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="7.5" cy="7.5" r="2.8"/><line x1="7.5" y1="1" x2="7.5" y2="2.6"/><line x1="7.5" y1="12.4" x2="7.5" y2="14"/><line x1="1" y1="7.5" x2="2.6" y2="7.5"/><line x1="12.4" y1="7.5" x2="14" y2="7.5"/><line x1="2.75" y1="2.75" x2="3.86" y2="3.86"/><line x1="11.14" y1="11.14" x2="12.25" y2="12.25"/><line x1="12.25" y1="2.75" x2="11.14" y2="3.86"/><line x1="3.86" y1="11.14" x2="2.75" y2="12.25"/></svg>
@@ -1240,7 +1240,7 @@
       </div>
       <div class="view-switch" style="display: flex; align-items: center; border: 1px solid var(--border2); border-radius: 8px; overflow: hidden; width: 100%;">
         <button class="view-btn active" style="flex: 1; text-align: center; padding: 8px;"><span class="en">Financial</span><span class="ua">Фінансовий</span></button>
-        <button class="view-btn" onclick="location.href='minimal.html'" style="flex: 1; text-align: center; padding: 8px;"><span class="en">Lifestyle</span><span class="ua">Лайфстайл</span></button>
+        <button class="view-btn" onclick="location.href='minimal.html'" style="flex: 1; text-align: center; padding: 8px;"><span class="en">Distressed</span><span class="ua">Стресовий</span></button>
       </div>
     </div>
   </div>
@@ -1457,10 +1457,7 @@ function updateGauge(score) {
   const zoneInd = document.querySelector('.zone-indicator');
   if (metaInd) { metaInd.textContent = score; metaInd.style.color = z.color; }
   if (zoneInd) { 
-    const isUa = document.documentElement.lang === 'uk' || 
-                 (localStorage && localStorage.getItem('lang') === 'ua') || 
-                 (localStorage && localStorage.getItem('bbr-lang') === 'ua');
-    zoneInd.textContent = isUa ? z.labelUa : z.label;
+    zoneInd.innerHTML = `<span class="en">${z.label}</span><span class="ua">${z.labelUa}</span>`;
     zoneInd.style.color = z.color; 
   }
 }
@@ -2113,12 +2110,10 @@ async function loadData() {
       'UNCERTAIN':        { en: 'No Clear Signal',     ua: 'Немає чіткого сигналу' },
       'NEUTRAL':          { en: 'Weak Signal',         ua: 'Слабкий сигнал' },
     };
-    const isUaFlag = document.documentElement.lang === 'uk' ||
-                     (localStorage && (localStorage.getItem('lang') === 'ua' || localStorage.getItem('bbr-lang') === 'ua'));
     const flagEl = document.getElementById('sig-flag');
     if (flagEl) {
       const lbl = FLAG_LABELS[sig.flag];
-      flagEl.textContent = lbl ? (isUaFlag ? lbl.ua : lbl.en) : sig.flag.replace(/_/g, ' ');
+      flagEl.innerHTML = lbl ? `<span class="en">${lbl.en}</span><span class="ua">${lbl.ua}</span>` : sig.flag.replace(/_/g, ' ');
       flagEl.style.background = st.bg;
       flagEl.style.color = st.color;
       flagEl.style.borderColor = st.border;
@@ -2181,7 +2176,7 @@ async function loadData() {
     const expl = FLAG_EXPLAIN[sig.flag];
     const explEl = document.getElementById('sig-explain');
     if (expl && explEl) {
-      explEl.textContent = isUaFlag ? expl.ua : expl.en;
+      explEl.innerHTML = `<span class="en">${expl.en || ''}</span><span class="ua">${expl.ua || ''}</span>`;
     }
   }
 
@@ -2331,11 +2326,9 @@ async function loadData() {
     const phase = ph.phase || 'NEUTRAL';
     const pSt = PHASE_STYLES[phase] || PHASE_STYLES['NEUTRAL'];
     const pDesc = PHASE_DESC[phase] || {};
-    const isUa = document.body.classList.contains('lang-ua');
-
     const pBadge = document.getElementById('sp2-phase');
     if (pBadge) {
-      pBadge.textContent = isUa ? pSt.labelUa : pSt.labelEn;
+      pBadge.innerHTML = `<span class="en">${pSt.labelEn}</span><span class="ua">${pSt.labelUa}</span>`;
       pBadge.style.background = pSt.bg;
       pBadge.style.color = pSt.color;
       pBadge.style.borderColor = pSt.border;
