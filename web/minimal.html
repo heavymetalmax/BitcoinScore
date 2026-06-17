@@ -2496,20 +2496,20 @@
       }
 
       populateBackCard('list-onchain-back', [
-        { key: 'nupl',  name: n({en:'NUPL', ua:'NUPL'}), score: getFinalScoreForKey('nupl', nupl), raw: nupl != null ? nupl.toFixed(2)+'%' : null },
-        { key: 'mvrv',  name: n({en:'MVRV Z-Score', ua:'MVRV Z-Score'}), score: getFinalScoreForKey('mvrv', mvrv), raw: mvrv != null ? mvrv.toFixed(3) : null },
-        { key: 'rhodl', name: n({en:'RHODL', ua:'RHODL'}), score: getFinalScoreForKey('rhodl', rhodl), raw: rhodl != null ? rhodl.toFixed(1) : null },
-        { key: 'cvdd',  name: n({en:'CVDD Ratio', ua:'CVDD Ratio'}), score: getFinalScoreForKey('cvdd', cvdd), raw: cvdd != null ? cvdd.toFixed(3) : null },
-        { key: 'asopr', name: n({en:'aSOPR', ua:'aSOPR'}), score: getFinalScoreForKey('asopr', asopr), raw: asopr != null ? asopr.toFixed(3) : null }
+        { key: 'nupl',  name: n({en:'NUPL', ua:'NUPL'}), score: mapScore('nupl', nupl), raw: nupl != null ? (+nupl).toFixed(1)+'%' : null },
+        { key: 'mvrv',  name: n({en:'MVRV Z-Score', ua:'MVRV Z-Score'}), score: mapScore('mvrv', mvrv), raw: mvrv != null ? (+mvrv).toFixed(2) : null },
+        { key: 'rhodl', name: n({en:'RHODL', ua:'RHODL'}), score: mapScore('rhodl', rhodl), raw: rhodl != null ? Math.round(rhodl).toLocaleString('en-US') : null },
+        { key: 'cvdd',  name: n({en:'CVDD Ratio', ua:'CVDD Ratio'}), score: mapScore('cvdd', cvdd), raw: cvdd != null ? (+cvdd).toFixed(3) : null },
+        { key: 'asopr', name: n({en:'aSOPR', ua:'aSOPR'}), score: mapScore('asopr', asopr), raw: asopr != null ? (+asopr).toFixed(4) : null }
       ]);
 
       populateBackCard('list-tech-back', [
-        { key: 'cipherb', name: n({en:'Cipher B', ua:'Cipher B'}), score: getFinalScoreForKey('cipherb', cbScore), raw: cbVal != null ? Math.round(cbVal) : null },
-        { key: 'mayer',   name: n({en:'Mayer Multiple', ua:'Mayer Multiple'}), score: getFinalScoreForKey('mayer', mmVal), raw: mmVal != null ? mmVal.toFixed(2) : null },
-        { key: 'etf',     name: n({en:'ETF Flows (14d)', ua:'ETF Flows (14d)'}), score: getFinalScoreForKey('etf', etfVal), raw: etfVal != null ? (etfVal>0?'+':'')+Math.round(etfVal)+'M' : null },
-        { key: 'fg',      name: n({en:'Fear & Greed', ua:'Індекс страху'}), score: getFinalScoreForKey('fg', fgVal), raw: fgVal != null ? Math.round(fgVal) : null },
-        { key: 'yc',      name: n({en:'Yield Curve', ua:'Крива дохідності'}), score: getFinalScoreForKey('yield_curve', yc), raw: yc != null ? yc.toFixed(2)+'%' : null },
-        { key: 'm2',      name: n({en:'Global M2', ua:'Глобальний M2'}), score: getFinalScoreForKey('m2', m2raw), raw: m2raw != null ? m2raw.toFixed(2)+'%' : null }
+        { key: 'cipherb', name: n({en:'Cipher B', ua:'Cipher B'}), score: mapScore('cipherb', cbScore), raw: cbScore != null ? (+cbScore).toFixed(1) : null },
+        { key: 'mayer',   name: n({en:'Mayer Multiple', ua:'Mayer Multiple'}), score: mapScore('mayer', mmVal), raw: mmVal != null ? (+mmVal).toFixed(3) : null },
+        { key: 'etf',     name: n({en:'ETF Flows (14d)', ua:'ETF Flows (14d)'}), score: mapScore('etf', etfVal), raw: etfVal != null ? '$'+(etfVal/1000).toFixed(2)+'B' : null },
+        { key: 'fg',      name: n({en:'Fear & Greed', ua:'Індекс страху'}), score: mapScore('fg', fgVal), raw: fgVal != null ? (+fgVal).toFixed(0) : null },
+        { key: 'yc',      name: n({en:'Yield Curve', ua:'Крива дохідності'}), score: mapScore('yield_curve', yc), raw: yc != null ? (+yc).toFixed(2)+'%' : null },
+        { key: 'm2',      name: n({en:'Global M2', ua:'Глобальний M2'}), score: mapScore('m2', m2raw), raw: m2raw != null ? (+m2raw).toFixed(1)+'%' : null }
       ]);
     }
 
