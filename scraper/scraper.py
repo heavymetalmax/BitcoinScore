@@ -551,6 +551,13 @@ def main():
     except Exception as e:
         print('Wallpaper update failed:', e)
 
+    # ── Generate screenshot preview of the Stressless dashboard ────────────────
+    try:
+        from .screenshot import generate_stressless_screenshot
+        generate_stressless_screenshot()
+    except Exception as e:
+        print('Stressless screenshot generation failed:', e)
+
 
 if __name__ == '__main__':
     main()

@@ -22,6 +22,8 @@
 </script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
+
 
   :root[data-theme="dark"] {
     --bg: #0A0A0F;
@@ -405,6 +407,77 @@
   .mobile-menu-links a { text-decoration: none; color: var(--muted2); font-size: 14px; font-weight: 500; padding: 10px 14px; border-radius: 6px; transition: color 0.15s, background 0.15s; }
   .mobile-menu-links a:hover, .mobile-menu-links a.active { color: var(--text); background: var(--surface2); }
 
+  /* Score Card Container & Flipping */
+  .score-card-container {
+    position: relative;
+    perspective: 1000px;
+    height: 100%;
+  }
+  .score-card-inner {
+    transform-style: preserve-3d;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 100%;
+    height: 100%;
+    position: relative;
+    cursor: pointer;
+  }
+  .score-card-inner.flipped {
+    transform: rotateY(180deg);
+  }
+  .score-card-front, .score-card-back {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    box-sizing: border-box;
+    margin: 0;
+  }
+  .score-card-back {
+    transform: rotateY(180deg);
+  }
+
+  /* Minimal Preview Styling */
+  .minimal-preview-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .minimal-preview-widget {
+    background: rgba(255, 255, 255, 0.015);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    position: relative;
+    box-shadow: var(--shadow);
+    transition: background 0.2s ease, border-color 0.2s ease;
+  }
+  .minimal-preview-widget:hover {
+    background: rgba(255, 255, 255, 0.035);
+    border-color: rgba(255, 255, 255, 0.15);
+  }
+  .theme-light .minimal-preview-widget {
+    background: rgba(0, 0, 0, 0.015);
+  }
+  .theme-light .minimal-preview-widget:hover {
+    background: rgba(0, 0, 0, 0.035);
+    border-color: rgba(0, 0, 0, 0.15);
+  }
+  .preview-score-text {
+    font-family: 'Outfit', sans-serif;
+    font-size: 56px;
+    font-weight: 900;
+    line-height: 0.9;
+    letter-spacing: -0.03em;
+    color: var(--text);
+  }
+
   @media (max-width: 900px) {
     body { background: var(--surface); }
     main { background: var(--bg); padding: 20px 16px 48px; }
@@ -413,6 +486,7 @@
     .nav-right .view-switch { display: none; }
     .hero { grid-template-columns: 1fr; }
     .gauge-card-container { height: 320px !important; }
+    .score-card-container { height: 280px !important; }
     .bottom-grid { grid-template-columns: 1fr; }
     .signals-container { grid-template-columns: 1fr; gap: 16px; }
     .comp-header, .comp-row { grid-template-columns: 1fr 90px 80px; }
@@ -534,30 +608,63 @@
   <div class="hero">
 
     <!-- Score card -->
-    <div class="card score-card">
-      <div class="score-label" style="display:flex;align-items:center;gap:6px;">BTCBRI <span class="en">SCORE</span><span class="ua">ІНДЕКС</span><span id="health-indicator" style="width:7px;height:7px;border-radius:50%;background:#22C55E;flex-shrink:0;margin-left:2px;"></span></div>
-      <div>
-        <div class="score-number" id="score-number"><span class="score-val">—</span><span class="score-denom">/100</span></div>
-        <div class="score-zone" id="score-zone"></div>
-        <div class="score-desc" id="score-desc" style="display:none"></div>
-        <div class="score-hint" id="score-hint">
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/><circle cx="7" cy="4.5" r="0.75" fill="currentColor"/><line x1="7" y1="6.5" x2="7" y2="10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-          <span id="hint-text"></span>
+    <div class="score-card-container">
+      <div class="score-card-inner" onclick="this.classList.toggle('flipped')">
+        
+        <!-- FRONT SIDE (Score Card) -->
+        <div class="card score-card score-card-front" style="backface-visibility: hidden; -webkit-backface-visibility: hidden; width: 100%; height: 100%; position: absolute; top:0; left:0; display:flex; flex-direction:column; justify-content:space-between; padding: 22px 24px; box-sizing: border-box; margin:0;">
+          <div class="score-label" style="display:flex;align-items:center;gap:6px;">BTCBRI <span class="en">SCORE</span><span class="ua">ІНДЕКС</span><span id="health-indicator" style="width:7px;height:7px;border-radius:50%;background:#22C55E;flex-shrink:0;margin-left:2px;"></span></div>
+          <div>
+            <div class="score-number" id="score-number"><span class="score-val">—</span><span class="score-denom">/100</span></div>
+            <div class="score-zone" id="score-zone"></div>
+            <div class="score-desc" id="score-desc" style="display:none"></div>
+            <div class="score-hint" id="score-hint">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/><circle cx="7" cy="4.5" r="0.75" fill="currentColor"/><line x1="7" y1="6.5" x2="7" y2="10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              <span id="hint-text"></span>
+            </div>
+          </div>
+          <div class="status-bar">
+            <div class="status-row">
+              <span><span class="en">Price</span><span class="ua">Ціна</span></span>
+              <span class="status-val" id="market-price">—</span>
+            </div>
+            <div class="status-row">
+              <span><span class="en">Updated</span><span class="ua">Оновлено</span></span>
+              <span class="status-val" id="market-updated">—</span>
+            </div>
+            <div class="status-row">
+              <span><span class="en">Next in</span><span class="ua">Наступне за</span></span>
+              <span class="status-val status-countdown" id="market-next">—:—</span>
+            </div>
+          </div>
+          <div style="font-size: 8px; color: var(--muted2); text-align: center; margin-top: 8px; opacity: 0.8;"><span class="en">Click to see zone price levels</span><span class="ua">Натисніть для перегляду рівнів зон</span></div>
         </div>
-      </div>
-      <div class="status-bar">
-        <div class="status-row">
-          <span><span class="en">Price</span><span class="ua">Ціна</span></span>
-          <span class="status-val" id="market-price">—</span>
+
+        <!-- BACK SIDE (Zone Price Levels) -->
+        <div class="card score-card-back" style="backface-visibility: hidden; -webkit-backface-visibility: hidden; transform: rotateY(180deg); width: 100%; height: 100%; position: absolute; top:0; left:0; display:flex; flex-direction:column; justify-content:space-between; padding: 22px 24px; box-sizing: border-box; margin:0;">
+          <div class="zone-title" style="display:flex; justify-content:space-between; align-items:center; width:100%;">
+            <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted);"><span class="en">Zone Price Levels</span><span class="ua">Цінові рівні зон</span></span>
+            <span style="font-size:8px; font-weight:700; color:var(--accent); display:flex; align-items:center; gap:4px; padding: 2px 6px; border-radius: 4px; background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.2);">
+              <span class="en">BACK</span><span class="ua">НАЗАД</span>
+            </span>
+          </div>
+          <div class="zone-desc" style="font-size: 11px; color: var(--muted); line-height: 1.4; margin-top: 6px;"><span class="en">Holding today's on-chain cost basis fixed, this solves for the price at which the score would reach each zone.</span><span class="ua">Тримаючи сьогоднішню ончейн-собівартість незмінною, формула розв'язується щодо ціни, за якої бал дійшов би до кожної зони.</span></div>
+          <div class="zone-rows" style="margin: 12px 0;">
+            <div class="zone-row" style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+              <div class="zone-row-left" style="display: flex; align-items: center; gap: 8px;"><div class="zone-dot" style="background:#EF4444; width: 8px; height: 8px; border-radius: 50%;"></div><span class="en">Sell Zone (≥80)</span><span class="ua">Продаж (≥80)</span></div>
+              <span class="zone-price" id="zone-sell" style="font-weight: 700;">—</span>
+            </div>
+            <div class="zone-row" style="display: flex; justify-content: space-between;">
+              <div class="zone-row-left" style="display: flex; align-items: center; gap: 8px;"><div class="zone-dot" style="background:#22C55E; width: 8px; height: 8px; border-radius: 50%;"></div><span class="en">Buy Zone (≤20)</span><span class="ua">Купівля (≤20)</span></div>
+              <span class="zone-price" id="zone-buy" style="font-weight: 700;">—</span>
+            </div>
+          </div>
+          <div class="zone-note" style="font-size: 10px; color: var(--muted2); border-top: 1px solid var(--border); padding-top: 6px; margin-top: auto; display: flex; flex-direction: column; gap: 4px;">
+            <div><span class="en">Levels update daily based on current market conditions.</span><span class="ua">Рівні оновлюються щодня відповідно до ринкових умов.</span></div>
+            <div style="font-size: 8px; color: var(--accent); text-align: center; margin-top: 2px; opacity: 0.8;"><span class="en">Click anywhere to flip back</span><span class="ua">Натисніть для повернення</span></div>
+          </div>
         </div>
-        <div class="status-row">
-          <span><span class="en">Updated</span><span class="ua">Оновлено</span></span>
-          <span class="status-val" id="market-updated">—</span>
-        </div>
-        <div class="status-row">
-          <span><span class="en">Next in</span><span class="ua">Наступне за</span></span>
-          <span class="status-val status-countdown" id="market-next">—:—</span>
-        </div>
+
       </div>
     </div>
 
@@ -1242,20 +1349,19 @@
       </div>
     </div>
 
-    <div class="card">
-      <div class="zone-title"><span class="en">Zone Price Levels</span><span class="ua">Цінові рівні зон</span></div>
-      <div class="zone-desc"><span class="en">Holding today's on-chain cost basis fixed, this solves for the price at which the score would reach each zone.</span><span class="ua">Тримаючи сьогоднішню ончейн-собівартість незмінною, формула розв'язується щодо ціни, за якої бал дійшов би до кожної зони.</span></div>
-      <div class="zone-rows">
-        <div class="zone-row">
-          <div class="zone-row-left"><div class="zone-dot" style="background:#EF4444"></div><span class="en">Sell Zone (≥80)</span><span class="ua">Продаж (≥80)</span></div>
-          <span class="zone-price" id="zone-sell">—</span>
+    <div style="display: flex; flex-direction: column; height: 100%; box-sizing: border-box;">
+      <a href="minimal.html" style="text-decoration: none; display: flex; flex-direction: column; flex-grow: 1; margin-bottom: 14px;">
+        <div class="card" style="padding: 0; overflow: hidden; border-radius: 12px; border: 1px solid var(--border); background: var(--surface); box-shadow: var(--shadow); position: relative; transition: transform 0.2s ease; flex-grow: 1; display: flex;">
+          <img src="stressless_preview.png" alt="Stressless Preview" style="width: 100%; height: 100%; display: block; filter: brightness(0.95); transition: filter 0.2s ease; object-fit: cover;" onmouseover="this.style.filter='brightness(1.02)'" onmouseout="this.style.filter='brightness(0.95)'">
         </div>
-        <div class="zone-row">
-          <div class="zone-row-left"><div class="zone-dot" style="background:#22C55E"></div><span class="en">Buy Zone (≤20)</span><span class="ua">Купівля (≤20)</span></div>
-          <span class="zone-price" id="zone-buy">—</span>
-        </div>
+      </a>
+      
+      <div style="margin-top: auto;">
+        <p style="font-size: 11px; line-height: 1.45; color: var(--muted2); margin: 0; text-align: center;">
+          <span class="en">Only need the risk value? Switch to <strong>Stressless</strong> mode for a clean, distraction-free widget.</span>
+          <span class="ua">Потрібно лише значення ризику? Спробуйте <strong>Безстресовий</strong> режим для чистого інтерфейсу.</span>
+        </p>
       </div>
-      <div class="zone-note"><span class="en">Levels update daily based on current market conditions.</span><span class="ua">Рівні оновлюються щодня відповідно до ринкових умов.</span></div>
     </div>
   </div>
 
