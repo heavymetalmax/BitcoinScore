@@ -1,0 +1,142 @@
+{
+  "agent_name": "Balanced",
+  "weights": {
+    "nupl": 0.20,
+    "mvrv": 0.15,
+    "rhodl": 0.10,
+    "puell": 0.05,
+    "cvdd_ratio": 0.10,
+    "cipherb_weekly": 0.18,
+    "cipherb_daily": 0.07,
+    "mayer": 0.08,
+    "pi_cycle_gap": 0.04,
+    "global_m2": 0.03
+  },
+  "map_overrides": {
+    "nupl": [
+      [-45, 0],
+      [-25, 4],
+      [-10, 12],
+      [0, 22],
+      [15, 35],
+      [30, 45],
+      [45, 57],
+      [57, 70],
+      [65, 82],
+      [72, 93],
+      [79, 100]
+    ],
+    "mvrv": [
+      [-0.5, 0],
+      [-0.15, 5],
+      [0.2, 14],
+      [0.7, 28],
+      [1.3, 42],
+      [2.2, 58],
+      [3.5, 72],
+      [5.5, 86],
+      [7.5, 95],
+      [10.0, 100]
+    ],
+    "rhodl": [
+      [181, 0],
+      [280, 2],
+      [550, 8],
+      [1100, 20],
+      [2500, 35],
+      [6000, 52],
+      [15000, 68],
+      [40000, 84],
+      [105700, 100]
+    ],
+    "puell": [
+      [0.30, 0],
+      [0.50, 6],
+      [0.70, 15],
+      [0.90, 28],
+      [1.15, 42],
+      [1.60, 55],
+      [2.20, 66],
+      [3.20, 78],
+      [4.80, 90],
+      [6.62, 100]
+    ],
+    "cvdd_ratio": [
+      [0.99, 0],
+      [1.25, 4],
+      [1.65, 13],
+      [2.20, 28],
+      [3.20, 46],
+      [4.80, 63],
+      [6.50, 78],
+      [8.50, 90],
+      [11.25, 100]
+    ],
+    "cipherb_weekly": [
+      [0, 0],
+      [5, 3],
+      [15, 10],
+      [30, 22],
+      [50, 40],
+      [70, 58],
+      [85, 72],
+      [95, 85],
+      [100, 100]
+    ],
+    "cipherb_daily": [
+      [0, 0],
+      [10, 5],
+      [25, 15],
+      [45, 35],
+      [65, 55],
+      [80, 70],
+      [90, 82],
+      [100, 100]
+    ],
+    "mayer": [
+      [0.48, 0],
+      [0.75, 5],
+      [0.90, 20],
+      [1.00, 38],
+      [1.30, 55],
+      [1.70, 72],
+      [2.20, 86],
+      [2.82, 100]
+    ],
+    "pi_cycle_gap": [
+      [-0.34, 100],
+      [0.0, 97],
+      [2.5, 88],
+      [6.0, 75],
+      [12.0, 55],
+      [25.0, 30],
+      [45.0, 12],
+      [71.3, 0]
+    ],
+    "global_m2": [
+      [62.5, 0],
+      [67.0, 8],
+      [71.0, 18],
+      [76.0, 30],
+      [82.0, 48],
+      [87.0, 65],
+      [90.5, 80],
+      [93.4, 100]
+    ]
+  },
+  "buy_threshold": 27,
+  "sell_threshold": 72,
+  "min_days_in_zone": 14,
+  "entry_style": "dca",
+  "dca_tranches": 4,
+  "dca_interval_days": 14,
+  "exit_style": "gradual",
+  "exit_tranches": 3,
+  "exit_interval_days": 10,
+  "conflict_guard": {
+    "description": "Do not deploy a tranche if on-chain composite (nupl+mvrv+rhodl+cvdd, equal weight) scores above 45 AND technical composite (cipherb_weekly+mayer, equal weight) scores below 20. This catches the LUNA scenario where technical crashed but on-chain was not yet in capitulation territory, preventing a premature value-averaging into a continuing bear.",
+    "onchain_ceiling_for_buy": 45,
+    "technical_floor_for_buy": 20
+  },
+  "rationale": "The Balanced index allocates 60% to on-chain signals and 40% to technical/macro, but the split is intentionally asymmetric in function: on-chain (nupl 20%, mvrv 15%, cvdd_ratio 10%, rhodl 10%, puell 5%) sets the REGIME, while technical (cipherb_weekly 18%, cipherb_daily 7%, mayer 8%, pi_cycle_gap 4%, global_m2 3%) provides TIMING within that regime. This architecture directly addresses the May 2022 LUNA collapse: nupl=17.5 and mvrv=0.35 were not in capitulation territory (on-chain composite would score ~38), so even though cipherb_weekly crashed to 0 (technical oversold), the conflict_guard block prevents tranche deployment when on-chain is neutral but technical is extreme-bearish — a momentum crash without holder capitulation is a mid-bear continuation, not a bottom. The COVID crash (on-chain deeply negative, technical only moderate) is handled by the DCA structure: the first tranche fires on extreme on-chain readings regardless of technical confirmation, but subsequent tranches require stabilization. The sell side uses a gradual 3-tranche exit to avoid the double-top problem (2021 had two ATHs; lump-sum exit at the first top at $64k would have missed the $68k second peak, but an aggressive single exit locks in too much of the wrong top). Buy threshold of 27 is intentionally more conservative than the Fundamentalist (28) because we include noisier technical signals that can briefly push the composite low during mid-bear momentum crashes — requiring a deeper, more sustained reading prevents LUNA-style false bottoms. Min 14 days prevents whipsawing on short technical dislocations and ensures the on-chain regime has genuinely shifted before capital is deployed."
+}

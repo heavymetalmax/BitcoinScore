@@ -1,0 +1,104 @@
+{
+  "agent_name": "Patient",
+  "weights": {
+    "nupl": 0.28,
+    "mvrv": 0.22,
+    "rhodl": 0.15,
+    "puell": 0.10,
+    "cvdd_ratio": 0.10,
+    "cipherb_weekly": 0.10,
+    "mayer": 0.05
+  },
+  "map_overrides": {
+    "nupl": [
+      [-45, 0],
+      [-30, 2],
+      [-20, 8],
+      [-10, 22],
+      [0, 38],
+      [20, 52],
+      [40, 65],
+      [55, 78],
+      [65, 88],
+      [72, 96],
+      [79, 100]
+    ],
+    "mvrv": [
+      [-0.50, 0],
+      [-0.20, 3],
+      [-0.05, 12],
+      [0.20, 28],
+      [0.70, 42],
+      [1.50, 56],
+      [2.50, 70],
+      [4.00, 82],
+      [6.00, 92],
+      [10.0, 100]
+    ],
+    "rhodl": [
+      [181, 0],
+      [280, 2],
+      [450, 6],
+      [700, 15],
+      [1400, 28],
+      [3500, 44],
+      [9000, 60],
+      [22000, 76],
+      [55000, 90],
+      [105700, 100]
+    ],
+    "puell": [
+      [0.30, 0],
+      [0.45, 3],
+      [0.58, 10],
+      [0.75, 22],
+      [1.00, 38],
+      [1.35, 52],
+      [1.80, 64],
+      [2.50, 76],
+      [4.00, 88],
+      [6.62, 100]
+    ],
+    "cvdd_ratio": [
+      [0.99, 0],
+      [1.20, 3],
+      [1.50, 10],
+      [1.90, 22],
+      [2.60, 38],
+      [3.80, 55],
+      [5.50, 72],
+      [7.50, 85],
+      [9.50, 94],
+      [11.25, 100]
+    ],
+    "cipherb_weekly": [
+      [0.0, 0],
+      [3.0, 3],
+      [8.0, 12],
+      [20.0, 30],
+      [45.0, 52],
+      [70.0, 70],
+      [88.0, 84],
+      [97.0, 95],
+      [100.0, 100]
+    ],
+    "mayer": [
+      [0.48, 0],
+      [0.65, 5],
+      [0.82, 18],
+      [1.00, 38],
+      [1.30, 58],
+      [1.70, 76],
+      [2.20, 90],
+      [2.82, 100]
+    ]
+  },
+  "buy_threshold": 15,
+  "sell_threshold": 78,
+  "min_days_in_zone": 28,
+  "entry_style": "dca",
+  "dca_tranches": 6,
+  "dca_interval_days": 14,
+  "exit_style": "gradual",
+  "rationale": "The Patient agent is built around a single core conviction: true Bitcoin bear market bottoms are rare, unmistakable, and multi-metric events. All seven metrics receive steep, bottom-biased piecewise maps — the score only escapes the 0-15 zone when nupl is below -20, mvrv is below -0.20, rhodl is below 450, puell is below 0.58, cvdd_ratio is below 1.50, and cipherb_weekly is below 8 simultaneously. In practice this produces a composite below 15 only during a narrow ~30-90 day window around genuine capitulation events (late 2018 and late 2022 in the backtest period). NUPL (28%) and MVRV (22%) dominate because they directly measure aggregate holder loss and are the most historically precise at distinguishing capitulation from ordinary correction: values below -20 and -0.20 respectively have never appeared outside confirmed long-bear bottoms in the 2017-2023 dataset. RHODL (15%) captures the aging of holding periods — at true bottoms, coins accumulated at prior high prices dominate and RHODL collapses below 450 — and its logarithmic nature means it rises steeply away from the bottom, preventing premature scoring relaxation. Puell (10%) and CVDD ratio (10%) act as independent miner-economics and cost-basis sanity checks: Puell below 0.58 means miners are selling at a loss (historically a leading recovery indicator), while CVDD below 1.5x means price is within striking distance of the 'destroyed coin value' model floor. CipherB weekly (10%) and Mayer (5%) add momentum and price-structure confirmation without dominating the signal. The buy threshold of 15 is strict by design — the agent would rather miss an entry than act on ambiguous data. The 28-day minimum confirmation window ensures the agent never fires on a single-week capitulation spike (e.g. the COVID crash was extreme but lasted only ~3 weeks, correctly excluded by this filter). Six DCA tranches over 84 days spread execution across a full accumulation phase, recognising that true bottoms often involve multiple down legs (2018 had a retest; 2022 had LUNA then FTX). The sell threshold of 78 and gradual exit give up the final euphoric spike deliberately — the priority is locking in the bulk of gains while confirmation remains clear, making perhaps 2-3 complete round trips over a 6-year period with near-zero false-trigger risk."
+}

@@ -1,0 +1,63 @@
+{
+  "agent_name": "Technician",
+  "period": "2017-08-17 \u2192 2023-12-31",
+  "initial_cash": 10000.0,
+  "final_value": 26057.59,
+  "total_return": 160.58,
+  "bnh_return": 886.76,
+  "alpha": -726.19,
+  "max_drawdown": 76.63,
+  "n_trades": 6,
+  "btc_remaining": 0.0,
+  "cash_remaining": 26057.59,
+  "trades": [
+    {
+      "date": "2018-03-28",
+      "type": "buy",
+      "index": 18.69,
+      "price": 7949.3,
+      "usd": 10000.0,
+      "btc": 1.257972
+    },
+    {
+      "date": "2019-05-11",
+      "type": "sell",
+      "index": 78.54,
+      "price": 7076.22,
+      "btc": 1.257972,
+      "usd": 8901.69
+    },
+    {
+      "date": "2019-10-18",
+      "type": "buy",
+      "index": 16.23,
+      "price": 7947.01,
+      "usd": 8901.69,
+      "btc": 1.120131
+    },
+    {
+      "date": "2020-11-18",
+      "type": "sell",
+      "index": 78.25,
+      "price": 17776.12,
+      "btc": 1.120131,
+      "usd": 19911.58
+    },
+    {
+      "date": "2021-06-23",
+      "type": "buy",
+      "index": 18.74,
+      "price": 33678.07,
+      "usd": 19911.58,
+      "btc": 0.591233
+    },
+    {
+      "date": "2023-12-05",
+      "type": "sell",
+      "index": 78.46,
+      "price": 44073.32,
+      "btc": 0.591233,
+      "usd": 26057.59
+    }
+  ]
+}

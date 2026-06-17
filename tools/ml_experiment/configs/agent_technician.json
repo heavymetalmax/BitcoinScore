@@ -1,0 +1,37 @@
+{
+  "agent_name": "Technician",
+  "weights": {
+    "cipherb_weekly": 0.40,
+    "cipherb_daily": 0.25,
+    "mayer": 0.20,
+    "pi_cycle_gap": 0.15
+  },
+  "map_overrides": {
+    "mayer": [
+      [0.48, 0],
+      [0.80, 5],
+      [1.00, 35],
+      [1.50, 60],
+      [2.00, 82],
+      [2.82, 100]
+    ],
+    "pi_cycle_gap": [
+      [-0.34, 100],
+      [0.0, 97],
+      [2.0, 90],
+      [5.0, 80],
+      [10.0, 60],
+      [20.0, 35],
+      [35.0, 15],
+      [71.3, 0]
+    ]
+  },
+  "buy_threshold": 20,
+  "sell_threshold": 78,
+  "min_days_in_zone": 2,
+  "entry_style": "lump_sum",
+  "dca_tranches": 3,
+  "dca_interval_days": 7,
+  "exit_style": "lump_sum",
+  "rationale": "Price and momentum lead on-chain; when the weekly Wave Trend (cipherb_weekly) hits extremes it has marked every major top and bottom in the dataset, so it anchors 40% of the index. The daily version (25%) catches divergences faster — when the daily collapses while the weekly is still elevated it fires a pre-emptive exit, avoiding the worst of mid-cycle corrections like early 2022. Mayer (20%) adds a price-to-200DMA reality check, with non-linear breakpoints that compress the rare extreme-undervalue zone (<0.8) into a very low risk score and accelerate into danger above 2.0. Pi-cycle gap (15%) is treated with a steep piecewise curve: once the gap closes below 5% the risk score spikes to 80+, reflecting the historically precise top signal when 111DMA approaches 350DMAx2. Thresholds are slightly asymmetric — sell at 78 rather than 80 — because tops are cleaner (all three oscillators align simultaneously) than bottoms, where the 2022 bear market repeatedly faked recoveries; the low 2-day confirmation window keeps me fast on exits and entries when a clean momentum signal fires."
+}

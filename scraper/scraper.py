@@ -46,6 +46,7 @@ def build_payload():
     price = None
     fg = None
     btc_dominance = None
+    failed_live_fetches = []
 
     # ── BTC price: CMC primary, CoinGecko fallback ────────────────────────────
     if cmc_mod.available():
@@ -62,6 +63,9 @@ def build_payload():
         except Exception as e:
             print('CoinGecko error', e)
 
+    if price is None:
+        failed_live_fetches.append('btc_price')
+
     # ── Fear & Greed: CMC primary, alternative.me fallback ───────────────────
     if cmc_mod.available():
         try:
@@ -76,6 +80,9 @@ def build_payload():
             fg = get_fear_greed()
         except Exception as e:
             print('Fear&Greed error', e)
+
+    if fg is None:
+        failed_live_fetches.append('fear_greed')
 
     # ── Global metrics (BTC dominance) ───────────────────────────────────────
     if cmc_mod.available():
@@ -183,9 +190,17 @@ def build_payload():
                 val = None
 
             # Fallback to cached value (even if stale) on live fetch failure
-            if val is None and prev_metrics and name in prev_metrics and prev_metrics[name].get('value') is not None:
-                val = prev_metrics[name].get('value')
-                print(f"Warning: live fetch failed for {name}, fell back to cached value: {val}")
+            is_fallback = False
+            if val is None:
+                if prev_metrics and name in prev_metrics and prev_metrics[name].get('value') is not None:
+                    val = prev_metrics[name].get('value')
+                    print(f"Warning: live fetch failed for {name}, fell back to cached value: {val}")
+                    is_fallback = True
+                else:
+                    print(f"Warning: live fetch failed for {name} and no cached value available")
+
+            if is_fallback or val is None:
+                failed_live_fetches.append(name)
 
             # short randomized pause between scrapers
             time.sleep(1 + random.random() * 2)
@@ -221,6 +236,7 @@ def build_payload():
         rainbow_band = rainbow_mod.get_rainbow_band()
     except Exception as e:
         print(f'rainbow band failed: {e}')
+        failed_live_fetches.append('rainbow_band')
     if 'metrics' not in locals():
         metrics = {}
     metrics['rainbow_band'] = {'value': rainbow_band, 'source': 'BMP', 'updated': now_iso()}
@@ -239,6 +255,7 @@ def build_payload():
         'etf_flows': etf_flows if 'etf_flows' in locals() else None,
         'rainbow_band': rainbow_band if 'rainbow_band' in locals() else None,
         'm2': m2,
+        'failed_live_fetches': failed_live_fetches,
         'metrics': {
             # merge our collected metrics dict with static ones
             **(metrics if 'metrics' in locals() else {}),
@@ -283,6 +300,17 @@ def _build_metric_history(n_days=365):
 
 def main():
     p = build_payload()
+    
+    # Load previous metrics for fallback
+    prev_metrics = {}
+    try:
+        if os.path.exists('data/data.json'):
+            with open('data/data.json', 'r', encoding='utf-8') as hf:
+                prev_data = json.load(hf)
+                prev_metrics = prev_data.get('metrics', {})
+    except Exception as e:
+        print('Error loading prev_metrics for fallback:', e)
+
     # Basic validation and clipping for suspicious values
     if p.get('nupl') is not None:
         if p['nupl'] < -50 or p['nupl'] > 100:
@@ -307,8 +335,16 @@ def main():
             p['metrics']['cipherb'] = {'value': cb.get('last'), 'source': 'Local', 'updated': now_iso()}
             write_json('data/data.json', p)
             print('Updated data/data.json with cipherb')
+        else:
+            raise ValueError("cipherb empty or invalid")
     except Exception as e:
         print('cipherb error', e)
+        if prev_metrics.get('cipherb') and prev_metrics['cipherb'].get('value') is not None:
+            p['metrics']['cipherb'] = prev_metrics['cipherb']
+            print(f"Warning: cipherb failed, fell back to cached value")
+        if 'cipherb' not in p['failed_live_fetches']:
+            p['failed_live_fetches'].append('cipherb')
+        write_json('data/data.json', p)
 
     # Populate SMC metric (Price vs Support) — kept for historical reference, not used in scoring
     try:
@@ -317,8 +353,16 @@ def main():
             p['metrics']['smc'] = {'value': smc.get('last'), 'source': 'Local', 'updated': now_iso()}
             write_json('data/data.json', p)
             print('Updated data/data.json with smc')
+        else:
+            raise ValueError("smc empty or invalid")
     except Exception as e:
         print('smc error', e)
+        if prev_metrics.get('smc') and prev_metrics['smc'].get('value') is not None:
+            p['metrics']['smc'] = prev_metrics['smc']
+            print(f"Warning: smc failed, fell back to cached value")
+        if 'smc' not in p['failed_live_fetches']:
+            p['failed_live_fetches'].append('smc')
+        write_json('data/data.json', p)
 
     # Populate Mayer Multiple metric (Price / 200DMA on daily)
     try:
@@ -327,8 +371,16 @@ def main():
             p['metrics']['mayer_multiple'] = {'value': mm, 'source': 'Kraken', 'updated': now_iso()}
             write_json('data/data.json', p)
             print(f"Updated data/data.json with mayer_multiple: val={mm['value']}  score={mm['score']}")
+        else:
+            raise ValueError("mayer_multiple is None")
     except Exception as e:
         print('mayer_multiple error', e)
+        if prev_metrics.get('mayer_multiple') and prev_metrics['mayer_multiple'].get('value') is not None:
+            p['metrics']['mayer_multiple'] = prev_metrics['mayer_multiple']
+            print(f"Warning: mayer_multiple failed, fell back to cached value")
+        if 'mayer_multiple' not in p['failed_live_fetches']:
+            p['failed_live_fetches'].append('mayer_multiple')
+        write_json('data/data.json', p)
 
     # Populate Funding Rate metric (Binance Futures, 7-day avg)
     try:
@@ -337,8 +389,16 @@ def main():
             p['metrics']['funding_rate'] = {'value': fr, 'source': fr.get('source', 'Bybit'), 'updated': now_iso()}
             write_json('data/data.json', p)
             print(f"Updated data/data.json with funding_rate: avg_7d={fr['avg_7d']}%  score={fr['score']}")
+        else:
+            raise ValueError("funding_rate is None")
     except Exception as e:
         print('funding_rate error', e)
+        if prev_metrics.get('funding_rate') and prev_metrics['funding_rate'].get('value') is not None:
+            p['metrics']['funding_rate'] = prev_metrics['funding_rate']
+            print(f"Warning: funding_rate failed, fell back to cached value")
+        if 'funding_rate' not in p['failed_live_fetches']:
+            p['failed_live_fetches'].append('funding_rate')
+        write_json('data/data.json', p)
 
     # ── Cycle metrics (data collection only — not scored yet) ────────────────
     # Halving Cycle Day: days since last halving (April 19, 2024)
@@ -358,8 +418,16 @@ def main():
             p['metrics']['pi_cycle'] = {'value': pc, 'source': 'Kraken', 'updated': now_iso()}
             write_json('data/data.json', p)
             print(f"Pi Cycle: gap={pc['gap_pct']}%  cross={pc['cross']}  score={pc['score']}")
+        else:
+            raise ValueError("pi_cycle is None")
     except Exception as e:
         print('pi_cycle error', e)
+        if prev_metrics.get('pi_cycle') and prev_metrics['pi_cycle'].get('value') is not None:
+            p['metrics']['pi_cycle'] = prev_metrics['pi_cycle']
+            print(f"Warning: pi_cycle failed, fell back to cached value")
+        if 'pi_cycle' not in p['failed_live_fetches']:
+            p['failed_live_fetches'].append('pi_cycle')
+        write_json('data/data.json', p)
 
     # Puell Multiple (miner revenue / 365d MA)
     try:
@@ -369,8 +437,16 @@ def main():
             p['metrics']['puell_multiple'] = {'value': puell_val, 'source': 'BMP', 'updated': now_iso()}
             write_json('data/data.json', p)
             print(f'Puell Multiple: {puell_val}')
+        else:
+            raise ValueError("puell_multiple is None")
     except Exception as e:
         print('puell_multiple error', e)
+        if prev_metrics.get('puell_multiple') and prev_metrics['puell_multiple'].get('value') is not None:
+            p['metrics']['puell_multiple'] = prev_metrics['puell_multiple']
+            print(f"Warning: puell_multiple failed, fell back to cached value")
+        if 'puell_multiple' not in p['failed_live_fetches']:
+            p['failed_live_fetches'].append('puell_multiple')
+        write_json('data/data.json', p)
 
     # LTH Supply % (long-term holder share of total supply)
     try:
@@ -380,8 +456,16 @@ def main():
             p['metrics']['lth_supply_pct'] = {'value': lth_val, 'source': 'BMP', 'updated': now_iso()}
             write_json('data/data.json', p)
             print(f'LTH Supply: {lth_val}%')
+        else:
+            raise ValueError("lth_supply_pct is None")
     except Exception as e:
         print('lth_supply_pct error', e)
+        if prev_metrics.get('lth_supply_pct') and prev_metrics['lth_supply_pct'].get('value') is not None:
+            p['metrics']['lth_supply_pct'] = prev_metrics['lth_supply_pct']
+            print(f"Warning: lth_supply_pct failed, fell back to cached value")
+        if 'lth_supply_pct' not in p['failed_live_fetches']:
+            p['failed_live_fetches'].append('lth_supply_pct')
+        write_json('data/data.json', p)
 
     from .history_writer import write_metric_histories
     write_metric_histories(p)

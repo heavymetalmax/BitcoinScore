@@ -19,18 +19,18 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#0a0a0a" />
-  <title>BTCBRI — Bitcoin Buy Risk Index</title>
-  <meta name="description" content="Daily Bitcoin buy risk score (0–100) based on 10+ on-chain and macro indicators. Know when to accumulate and when to be cautious.">
-  <link rel="canonical" href="https://btcbri.com/">
+  <title>BTCBRI Stressless — Bitcoin Buy Risk Index</title>
+  <meta name="description" content="A calm, clutter-free view of the Bitcoin Buy Risk Index. Minimalist widget-style dashboard with natural landscape backgrounds tracking daily BTC risk.">
+  <link rel="canonical" href="https://btcbri.com/minimal.html">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://btcbri.com/">
-  <meta property="og:title" content="BTCBRI — Bitcoin Buy Risk Index">
-  <meta property="og:description" content="Daily Bitcoin buy risk score (0–100) based on 10+ on-chain and macro indicators. Know when to accumulate and when to be cautious.">
-  <meta property="og:image" content="https://btcbri.com/og_preview.png">
+  <meta property="og:url" content="https://btcbri.com/minimal.html">
+  <meta property="og:title" content="BTCBRI Stressless — Bitcoin Buy Risk Index">
+  <meta property="og:description" content="A calm, clutter-free view of the Bitcoin Buy Risk Index. Minimalist widget-style dashboard with natural landscape backgrounds tracking daily BTC risk.">
+  <meta property="og:image" content="https://btcbri.com/og_preview_stressless.png">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="BTCBRI — Bitcoin Buy Risk Index">
-  <meta name="twitter:description" content="Daily Bitcoin buy risk score (0–100) based on 10+ on-chain and macro indicators.">
-  <meta name="twitter:image" content="https://btcbri.com/og_preview.png">
+  <meta name="twitter:title" content="BTCBRI Stressless — Bitcoin Buy Risk Index">
+  <meta name="twitter:description" content="A calm, clutter-free view of the Bitcoin Buy Risk Index. Minimalist widget-style dashboard with natural landscape backgrounds tracking daily BTC risk.">
+  <meta name="twitter:image" content="https://btcbri.com/og_preview_stressless.png">
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
   <!-- iOS PWA: fullscreen when launched from Home Screen -->
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -271,7 +271,14 @@
       flex-shrink: 0;
     }
     .status-dot.ok  { background: #4ade80; box-shadow: 0 0 7px #4ade80; }
+    .status-dot.warn { background: #facc15; box-shadow: 0 0 7px #facc15; animation: pulse-yellow 2s infinite; }
     .status-dot.err { background: #f87171; box-shadow: 0 0 7px #f87171; }
+
+    @keyframes pulse-yellow {
+      0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(250, 204, 21, 0.7); }
+      70% { transform: scale(1.1); box-shadow: 0 0 0 5px rgba(250, 204, 21, 0); }
+      100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(250, 204, 21, 0); }
+    }
 
     /* --- Center Display Area (Giant Clock Style) --- */
     /* --- Center Display Area (Flipping Card) --- */
@@ -1296,6 +1303,57 @@
       }
     }
   </style>
+  <script type="application/ld+json">
+  [
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Bitcoin Buy Risk Index",
+      "url": "https://btcbri.com/",
+      "description": "A composite index scoring Bitcoin's market risk on a 0–100 scale, aggregating 10+ on-chain and macro indicators updated daily."
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Dataset",
+      "name": "Bitcoin Buy Risk Index Historical Data",
+      "description": "Daily historical and live data points for the Bitcoin Buy Risk Index, tracking composite risk scores, MVRV Z-Score, Net Unrealized Profit/Loss (NUPL), RHODL ratio, aSOPR, Mayer Multiple, Spot ETF flows, and macroeconomic indicators.",
+      "url": "https://btcbri.com/minimal.html",
+      "creator": {
+        "@type": "Organization",
+        "name": "Bitcoin Buy Risk Index"
+      },
+      "distribution": [
+        {
+          "@type": "DataDownload",
+          "encodingFormat": "application/json",
+          "contentUrl": "https://btcbri.com/data.json"
+        }
+      ],
+      "variableMeasured": [
+        "Composite Risk Score",
+        "MVRV Z-Score",
+        "NUPL",
+        "RHODL Ratio",
+        "aSOPR",
+        "Mayer Multiple",
+        "Spot ETF Flows",
+        "Fear & Greed Index",
+        "Yield Curve Spread",
+        "Global M2 YoY Growth"
+      ]
+    }
+  ]
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Bitcoin Buy Risk Index", "item": "https://btcbri.com/" },
+      { "@type": "ListItem", "position": 2, "name": "Stressless Dashboard", "item": "https://btcbri.com/minimal.html" }
+    ]
+  }
+  </script>
 </head>
 <body class="lang-en">
 
@@ -1511,9 +1569,9 @@
         <span class="ua">Стиль</span>
       </span>
       <div class="settings-options">
-        <button id="drawer-btn-style-minimal" class="option-btn active" onclick="setStyle('minimal')">Stressless</button>
-        <button id="drawer-btn-style-max" class="option-btn" onclick="setStyle('max')">Open</button>
-        <button id="drawer-btn-style-classic" class="option-btn" onclick="setStyle('classic')">Classic</button>
+        <span id="drawer-btn-style-minimal" class="option-btn active">Stressless</span>
+        <a id="drawer-btn-style-max" class="option-btn" href="max.html" style="text-decoration: none;">Open</a>
+        <a id="drawer-btn-style-classic" class="option-btn" href="classic.html" style="text-decoration: none;">Classic</a>
       </div>
     </div>
 
@@ -2088,7 +2146,7 @@
       } catch(e) {
         document.getElementById('hero-card-ts').textContent = 'Error loading data';
         const hd = document.getElementById('status-health-dot');
-        if (hd) hd.classList.add('err');
+        if (hd) hd.className = 'status-dot err';
         return;
       }
 
@@ -2121,7 +2179,30 @@
       if (priceVal != null) document.getElementById('hero-card-price').textContent = `$ ${Math.round(priceVal).toLocaleString()}`;
 
       const healthDot = document.getElementById('status-health-dot');
-      if (healthDot) healthDot.classList.add(data.final_score != null ? 'ok' : 'err');
+      if (healthDot) {
+        healthDot.className = 'status-dot';
+        let isStale = false;
+        if (data.timestamp) {
+          try {
+            const dataTime = new Date(data.timestamp).getTime();
+            const nowTime = new Date().getTime();
+            const ageHours = (nowTime - dataTime) / (1000 * 3600);
+            if (ageHours > 30) isStale = true;
+          } catch(e) {
+            isStale = true;
+          }
+        } else {
+          isStale = true;
+        }
+
+        if (isStale || data.final_score == null) {
+          healthDot.classList.add('err');
+        } else if (data.failed_live_fetches && data.failed_live_fetches.length > 0) {
+          healthDot.classList.add('warn');
+        } else {
+          healthDot.classList.add('ok');
+        }
+      }
 
       // Update Center Score (Frosted Glass style)
       const displayScore = document.getElementById('s-final');

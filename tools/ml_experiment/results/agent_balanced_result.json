@@ -1,0 +1,354 @@
+{
+  "agent_name": "Balanced",
+  "period": "2017-08-17 \u2192 2023-12-31",
+  "initial_cash": 10000.0,
+  "final_value": 49995.84,
+  "total_return": 399.96,
+  "bnh_return": 886.76,
+  "alpha": -486.8,
+  "max_drawdown": 63.34,
+  "n_trades": 7,
+  "btc_remaining": 0.974444,
+  "cash_remaining": 8792.87,
+  "trades": [
+    {
+      "date": "2018-06-23",
+      "type": "dca_schedule",
+      "index": 21.32,
+      "price": 6149.98,
+      "tranches": 4,
+      "interval_days": 14,
+      "total_usd": 10000.0
+    },
+    {
+      "date": "2018-06-24",
+      "type": "dca_buy",
+      "price": 6136.97,
+      "usd": 2500.0,
+      "btc": 0.407367
+    },
+    {
+      "date": "2018-07-07",
+      "type": "dca_buy",
+      "price": 6756.98,
+      "usd": 2500.0,
+      "btc": 0.369988
+    },
+    {
+      "date": "2018-07-21",
+      "type": "dca_buy",
+      "price": 7398.78,
+      "usd": 2500.0,
+      "btc": 0.337894
+    },
+    {
+      "date": "2018-08-04",
+      "type": "dca_buy",
+      "price": 7009.84,
+      "usd": 2500.0,
+      "btc": 0.356642
+    },
+    {
+      "date": "2020-12-18",
+      "type": "partial_sell",
+      "index": 72.91,
+      "price": 23107.39,
+      "btc": 0.367972,
+      "usd": 8502.88
+    },
+    {
+      "date": "2020-12-19",
+      "type": "partial_sell",
+      "index": 74.17,
+      "price": 23821.61,
+      "btc": 0.275979,
+      "usd": 6574.27
+    },
+    {
+      "date": "2020-12-20",
+      "type": "partial_sell",
+      "index": 73.55,
+      "price": 23455.52,
+      "btc": 0.206985,
+      "usd": 4854.93
+    },
+    {
+      "date": "2020-12-21",
+      "type": "partial_sell",
+      "index": 72.19,
+      "price": 22719.71,
+      "btc": 0.155238,
+      "usd": 3526.97
+    },
+    {
+      "date": "2020-12-22",
+      "type": "partial_sell",
+      "index": 73.05,
+      "price": 23810.79,
+      "btc": 0.116429,
+      "usd": 2772.26
+    },
+    {
+      "date": "2020-12-23",
+      "type": "partial_sell",
+      "index": 72.28,
+      "price": 23232.76,
+      "btc": 0.087322,
+      "usd": 2028.72
+    },
+    {
+      "date": "2020-12-24",
+      "type": "partial_sell",
+      "index": 72.02,
+      "price": 23729.2,
+      "btc": 0.065491,
+      "usd": 1554.05
+    },
+    {
+      "date": "2020-12-25",
+      "type": "partial_sell",
+      "index": 73.01,
+      "price": 24712.47,
+      "btc": 0.049118,
+      "usd": 1213.84
+    },
+    {
+      "date": "2020-12-26",
+      "type": "partial_sell",
+      "index": 75.18,
+      "price": 26493.39,
+      "btc": 0.036839,
+      "usd": 975.98
+    },
+    {
+      "date": "2020-12-27",
+      "type": "partial_sell",
+      "index": 75.44,
+      "price": 26281.66,
+      "btc": 0.027629,
+      "usd": 726.14
+    },
+    {
+      "date": "2020-12-28",
+      "type": "partial_sell",
+      "index": 76.2,
+      "price": 27079.41,
+      "btc": 0.020722,
+      "usd": 561.13
+    },
+    {
+      "date": "2020-12-29",
+      "type": "partial_sell",
+      "index": 76.06,
+      "price": 27385.0,
+      "btc": 0.015541,
+      "usd": 425.6
+    },
+    {
+      "date": "2020-12-30",
+      "type": "partial_sell",
+      "index": 77.87,
+      "price": 28875.54,
+      "btc": 0.011656,
+      "usd": 336.57
+    },
+    {
+      "date": "2020-12-31",
+      "type": "partial_sell",
+      "index": 77.78,
+      "price": 28923.63,
+      "btc": 0.008742,
+      "usd": 252.85
+    },
+    {
+      "date": "2021-01-01",
+      "type": "partial_sell",
+      "index": 77.8,
+      "price": 29331.69,
+      "btc": 0.006557,
+      "usd": 192.31
+    },
+    {
+      "date": "2021-01-02",
+      "type": "partial_sell",
+      "index": 80.36,
+      "price": 32178.33,
+      "btc": 0.004917,
+      "usd": 158.23
+    },
+    {
+      "date": "2021-01-03",
+      "type": "partial_sell",
+      "index": 81.53,
+      "price": 33000.05,
+      "btc": 0.003688,
+      "usd": 121.71
+    },
+    {
+      "date": "2021-01-04",
+      "type": "partial_sell",
+      "index": 79.82,
+      "price": 31988.71,
+      "btc": 0.002766,
+      "usd": 88.48
+    },
+    {
+      "date": "2021-01-05",
+      "type": "partial_sell",
+      "index": 81.08,
+      "price": 33949.53,
+      "btc": 0.002075,
+      "usd": 70.43
+    },
+    {
+      "date": "2021-01-06",
+      "type": "partial_sell",
+      "index": 83.31,
+      "price": 36769.36,
+      "btc": 0.001556,
+      "usd": 57.21
+    },
+    {
+      "date": "2021-01-07",
+      "type": "partial_sell",
+      "index": 85.2,
+      "price": 39432.28,
+      "btc": 0.001167,
+      "usd": 46.01
+    },
+    {
+      "date": "2021-01-08",
+      "type": "partial_sell",
+      "index": 85.71,
+      "price": 40582.81,
+      "btc": 0.000875,
+      "usd": 35.52
+    },
+    {
+      "date": "2021-01-09",
+      "type": "partial_sell",
+      "index": 85.05,
+      "price": 40088.22,
+      "btc": 0.000656,
+      "usd": 26.31
+    },
+    {
+      "date": "2021-01-10",
+      "type": "partial_sell",
+      "index": 83.26,
+      "price": 38150.02,
+      "btc": 0.000492,
+      "usd": 18.78
+    },
+    {
+      "date": "2021-01-11",
+      "type": "partial_sell",
+      "index": 79.88,
+      "price": 35404.47,
+      "btc": 0.000369,
+      "usd": 13.07
+    },
+    {
+      "date": "2021-01-12",
+      "type": "partial_sell",
+      "index": 77.8,
+      "price": 34051.24,
+      "btc": 0.000277,
+      "usd": 9.43
+    },
+    {
+      "date": "2021-01-13",
+      "type": "partial_sell",
+      "index": 80.1,
+      "price": 37371.38,
+      "btc": 0.000208,
+      "usd": 7.76
+    },
+    {
+      "date": "2021-01-14",
+      "type": "partial_sell",
+      "index": 81.1,
+      "price": 39144.5,
+      "btc": 0.000156,
+      "usd": 6.1
+    },
+    {
+      "date": "2021-01-15",
+      "type": "partial_sell",
+      "index": 78.98,
+      "price": 36742.22,
+      "btc": 0.000117,
+      "usd": 4.29
+    },
+    {
+      "date": "2021-01-16",
+      "type": "partial_sell",
+      "index": 77.88,
+      "price": 35994.98,
+      "btc": 8.8e-05,
+      "usd": 3.15
+    },
+    {
+      "date": "2021-01-17",
+      "type": "partial_sell",
+      "index": 77.03,
+      "price": 35828.61,
+      "btc": 6.6e-05,
+      "usd": 2.35
+    },
+    {
+      "date": "2021-01-18",
+      "type": "partial_sell",
+      "index": 77.3,
+      "price": 36631.27,
+      "btc": 4.9e-05,
+      "usd": 1.81
+    },
+    {
+      "date": "2021-01-19",
+      "type": "partial_sell",
+      "index": 76.88,
+      "price": 35891.49,
+      "btc": 3.7e-05,
+      "usd": 1.33
+    },
+    {
+      "date": "2021-01-20",
+      "type": "partial_sell",
+      "index": 75.56,
+      "price": 35468.23,
+      "btc": 2.8e-05,
+      "usd": 0.98
+    },
+    {
+      "date": "2022-05-18",
+      "type": "dca_schedule",
+      "index": 17.24,
+      "price": 28715.32,
+      "tranches": 4,
+      "interval_days": 14,
+      "total_usd": 35171.49
+    },
+    {
+      "date": "2022-05-19",
+      "type": "dca_buy",
+      "price": 30319.23,
+      "usd": 8792.872703531792,
+      "btc": 0.29001
+    },
+    {
+      "date": "2022-06-01",
+      "type": "dca_buy",
+      "price": 29805.83,
+      "usd": 8792.872703531792,
+      "btc": 0.295005
+    },
+    {
+      "date": "2022-06-15",
+      "type": "dca_buy",
+      "price": 22583.72,
+      "usd": 8792.872703531792,
+      "btc": 0.389346
+    }
+  ]
+}

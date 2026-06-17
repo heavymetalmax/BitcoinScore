@@ -1,0 +1,79 @@
+{
+  "agent_name": "Macro",
+  "weights": {
+    "global_m2": 0.50,
+    "nupl": 0.18,
+    "mvrv": 0.14,
+    "mayer": 0.10,
+    "puell": 0.08
+  },
+  "map_overrides": {
+    "global_m2": [
+      [62.5, 0],
+      [65.5, 5],
+      [68.0, 12],
+      [71.0, 22],
+      [76.0, 38],
+      [82.0, 52],
+      [87.5, 65],
+      [90.5, 78],
+      [92.0, 88],
+      [93.5, 100]
+    ],
+    "nupl": [
+      [-45, 0],
+      [-20, 5],
+      [-5,  14],
+      [0,   20],
+      [15,  30],
+      [35,  44],
+      [50,  58],
+      [62,  74],
+      [70,  88],
+      [79,  100]
+    ],
+    "mvrv": [
+      [-0.49, 0],
+      [-0.10, 5],
+      [0.30,  12],
+      [0.80,  25],
+      [1.50,  40],
+      [2.50,  56],
+      [3.80,  70],
+      [5.50,  84],
+      [7.50,  94],
+      [10.0,  100]
+    ],
+    "mayer": [
+      [0.48, 0],
+      [0.65, 5],
+      [0.78, 12],
+      [0.90, 22],
+      [1.00, 32],
+      [1.20, 48],
+      [1.50, 62],
+      [1.80, 75],
+      [2.20, 88],
+      [2.82, 100]
+    ],
+    "puell": [
+      [0.30, 0],
+      [0.50, 8],
+      [0.70, 18],
+      [1.00, 35],
+      [1.50, 52],
+      [2.20, 66],
+      [3.50, 80],
+      [5.00, 92],
+      [6.62, 100]
+    ]
+  },
+  "buy_threshold": 28,
+  "sell_threshold": 70,
+  "min_days_in_zone": 30,
+  "entry_style": "dca",
+  "dca_tranches": 5,
+  "dca_interval_days": 21,
+  "exit_style": "gradual",
+  "rationale": "This index is driven by global M2 money supply (50% weight, 90-day lagged) as the primary signal, with on-chain metrics as secondary confirmation. The core thesis is that Bitcoin is a global liquidity barometer: when central banks expand money supply (QE, rate cuts), risk assets and BTC rally; when they contract (QT, rate hikes), BTC falls. The M2 map is calibrated so that contractionary regimes (global_m2 below 71, corresponding to the 2018-2019 bear and 2022 crash environments) produce scores below 25 (buy territory), while peak-expansion readings (global_m2 above 90, as seen near the 2021 ATH) produce scores above 78 (sell territory). The 90-day lag is already baked into the dataset — it means the signal reflects what M2 was doing three months ago, giving confirmation that a trend has been established rather than reacting to noise. NUPL (18%) and MVRV (14%) serve as cycle-position validators: they must corroborate the macro signal before confidence is high. Mayer multiple (10%) flags extreme price dislocations from the 200DMA that sometimes lead macro signals at tops and bottoms. Puell (8%) catches miner-distress bottoms that occasionally precede macro recovery. Buy threshold of 28 targets confirmed bear markets with M2 contraction — typically mid-to-late bear phases where the macro environment has been restrictive long enough to compress price to value. Sell threshold of 70 fires as M2 peaks and on-chain metrics confirm distribution — well before the absolute top but capturing the bulk of the bull run. min_days_in_zone of 30 enforces macro patience: a genuine M2 contraction cycle plays out over months, so 30 consecutive days in buy territory confirms a real regime rather than a transient dip. DCA over 5 tranches every 21 days (a total ~84-day accumulation window) mirrors the slow deployment of capital characteristic of macro investors who build positions over a quarter. Gradual exit (25% per signal) prevents premature full liquidation when M2 is near but not at peak — macro tops are multi-month affairs and multiple partial sells at 70+ capture more upside than a single lump-sum exit."
+}

@@ -1,0 +1,84 @@
+{
+  "agent_name": "Fundamentalist",
+  "period": "2017-08-17 \u2192 2023-12-31",
+  "initial_cash": 10000.0,
+  "final_value": 37285.83,
+  "total_return": 272.86,
+  "bnh_return": 886.76,
+  "alpha": -613.9,
+  "max_drawdown": 50.32,
+  "n_trades": 7,
+  "btc_remaining": 0.650125,
+  "cash_remaining": 9796.21,
+  "trades": [
+    {
+      "date": "2018-08-16",
+      "type": "dca_schedule",
+      "index": 27.2,
+      "price": 6311.75,
+      "tranches": 3,
+      "interval_days": 14,
+      "total_usd": 10000.0
+    },
+    {
+      "date": "2018-08-17",
+      "type": "dca_buy",
+      "price": 6584.49,
+      "usd": 3333.3333333333335,
+      "btc": 0.50624
+    },
+    {
+      "date": "2018-08-30",
+      "type": "dca_buy",
+      "price": 6984.84,
+      "usd": 3333.3333333333335,
+      "btc": 0.477224
+    },
+    {
+      "date": "2020-12-26",
+      "type": "sell",
+      "index": 71.89,
+      "price": 26493.39,
+      "btc": 0.983464,
+      "usd": 26055.3
+    },
+    {
+      "date": "2020-12-27",
+      "type": "dca_buy",
+      "price": 26281.66,
+      "usd": 3333.3333333333335,
+      "btc": 0.126831
+    },
+    {
+      "date": "2020-12-27",
+      "type": "sell",
+      "index": 71.94,
+      "price": 26281.66,
+      "btc": 0.126831,
+      "usd": 3333.33
+    },
+    {
+      "date": "2022-05-14",
+      "type": "dca_schedule",
+      "index": 22.84,
+      "price": 30086.74,
+      "tranches": 3,
+      "interval_days": 14,
+      "total_usd": 29388.63
+    },
+    {
+      "date": "2022-05-15",
+      "type": "dca_buy",
+      "price": 31328.89,
+      "usd": 9796.211104025924,
+      "btc": 0.312689
+    },
+    {
+      "date": "2022-05-28",
+      "type": "dca_buy",
+      "price": 29031.33,
+      "usd": 9796.211104025924,
+      "btc": 0.337436
+    }
+  ]
+}
