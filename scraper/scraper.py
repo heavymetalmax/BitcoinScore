@@ -467,6 +467,14 @@ def main():
             p['failed_live_fetches'].append('lth_supply_pct')
         write_json('data/data.json', p)
 
+    # Recent Telegram channel posts — context for AI commentary (not scored)
+    try:
+        from .telegram_posts import get_telegram_posts
+        p['telegram_posts'] = get_telegram_posts()
+        print(f"Telegram posts: {sum(len(v) for v in p['telegram_posts'].values())} new")
+    except Exception as e:
+        print('telegram_posts error', e)
+
     from .history_writer import write_metric_histories
     write_metric_histories(p)
 
