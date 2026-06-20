@@ -897,7 +897,7 @@
       </div>
       <!-- 7 days ago -->
       <div class="card mini-gauge-card">
-        <div class="mini-gauge-title"><span class="en">7 DAYS</span><span class="ua">7 ДНІВ</span></div>
+        <div class="mini-gauge-title"><span class="en">7 DAYS AGO</span><span class="ua">7 ДНІВ ТОМУ</span></div>
         <div class="mini-gauge-arc-wrap">
           <svg class="mini-gauge-svg" viewBox="0 0 240 128" fill="none" xmlns="http://www.w3.org/2000/svg">
             <defs>
@@ -2125,10 +2125,7 @@ async function loadData() {
     return `<span class="${cls}">${up ? '↑' : '↓'}${Math.abs(d)}</span>`;
   };
   const prev1d = data.prev_day?.final_score ?? null;
-  const _hist7 = (data.score_history || []).filter(e => e.score != null).slice(-7);
-  const prev7d = _hist7.length
-    ? Math.round(_hist7.reduce((a, e) => a + e.score, 0) / _hist7.length)
-    : (data.prev_week?.final_score ?? null);
+  const prev7d = data.prev_week?.final_score ?? null;
 
   updateMiniGauge('mini-arc-1d', 'mini-needle-1d', 'mini-val-1d', prev1d);
   const d1El = document.getElementById('yesterday-delta');

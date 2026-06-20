@@ -1416,7 +1416,7 @@
                 <div class="history-divider"></div>
                 <div class="history-item">
                   <span class="history-value" id="s-week">—</span>
-                  <span class="history-label"><span class="ua">7 днів</span><span class="en">7 days</span></span>
+                  <span class="history-label"><span class="ua">7 днів тому</span><span class="en">7 days ago</span></span>
                 </div>
               </div>
             </div>
@@ -2304,13 +2304,7 @@
         if (yCanvas) drawMiniGauge(yCanvas, yesterdayVal);
       }
 
-      let avg7d = null;
-      const validHistory = (data.score_history || []).filter(e => e.score != null);
-      if (validHistory.length > 0) {
-        const last7 = validHistory.slice(-7);
-        avg7d = Math.round(last7.reduce((acc, cur) => acc + cur.score, 0) / last7.length);
-      }
-      const weekVal = avg7d != null ? avg7d : (data.prev_week ? data.prev_week.final_score : null);
+      const weekVal = data.prev_week ? data.prev_week.final_score : null;
       if (weekVal != null) {
         const el = document.getElementById('s-week');
         if (el) el.textContent = weekVal;
