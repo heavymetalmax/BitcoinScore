@@ -204,6 +204,10 @@ def compute_scores_v3(raw_metrics, target_date=None, prev_scores=None, scores_hi
     try:
         model_path = 'data/v3_phase_model.pkl'
         if os.path.exists(model_path):
+            try:
+                from tools.train_v3_hmm_model import HMMPhaseClassifier  # required for pickle
+            except ImportError:
+                pass
             with open(model_path, 'rb') as f:
                 model_data = pickle.load(f)
             pipeline = model_data['pipeline']
@@ -296,7 +300,7 @@ def compute_scores_v3(raw_metrics, target_date=None, prev_scores=None, scores_hi
         normalized, w_top, w_bot, w_neutral, tiz_maturity
     )
 
-    # 8. Dynamic z-weighted mixing for groups
+    # 8. Dynamic utility-weighted average across a set of metrics
     def weighted_avg(group_keys):
         total_uw = 0.0
         total_us = 0.0
@@ -308,21 +312,20 @@ def compute_scores_v3(raw_metrics, target_date=None, prev_scores=None, scores_hi
                 total_uw += u
         return round(total_us / total_uw) if total_uw > 0 else None
 
-    # Compute group averages
+    # Informational sub-scores (shown on dashboard, not used for final computation)
     oc_avg = weighted_avg(OC_GROUP)
     tech_avg = weighted_avg(TECH_GROUP)
 
-    # 9. Final dynamic blend (50/50 blend of the group averages)
-    if oc_avg is not None and tech_avg is not None:
+    # 9. Flat utility-weighted average across ALL metrics — utilities decide the weight,
+    #    no hardcoded group split. This is the original V3 intent.
+    flat_avg = weighted_avg(OC_GROUP | TECH_GROUP)
+
+    if flat_avg is not None:
         if phase == 'BOTTOM' and tiz_score is not None:
-            # 40% On-Chain + 40% Tech + 20% TiZ in bottom phase
-            final = round(0.40 * oc_avg + 0.40 * tech_avg + 0.20 * tiz_score)
+            # In confirmed bottom, blend flat score with TiZ maturity signal
+            final = round(0.80 * flat_avg + 0.20 * tiz_score)
         else:
-            final = round(0.50 * oc_avg + 0.50 * tech_avg)
-    elif oc_avg is not None:
-        final = oc_avg
-    elif tech_avg is not None:
-        final = tech_avg
+            final = flat_avg
     else:
         final = None
 
@@ -357,6 +360,7 @@ def compute_scores_v3(raw_metrics, target_date=None, prev_scores=None, scores_hi
         'top_signal': top_signal,
         'bot_signal': bot_signal,
         'utilities': utilities,
+        'normalized_scores': {k: round(v) for k, v in normalized.items() if v is not None},
         'tiz_score': tiz_score,
         'tiz_days': tiz_days,
         'tiz_maturity': tiz_maturity,

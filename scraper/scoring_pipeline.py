@@ -19,7 +19,6 @@ def run_scoring_pipeline(p, build_metric_history_fn=None):
         scores = compute_scores(p.get('metrics', {}))
         p['onchain_score'] = scores['onchain_score']
         p['tech_score']    = scores['tech_score']
-        p['v1_score']      = scores['final_score']
         p['final_score']   = scores['final_score']
         if scores.get('adaptive'):
             p['adaptive_calibration'] = scores['adaptive']
@@ -212,6 +211,7 @@ def run_scoring_pipeline(p, build_metric_history_fn=None):
             p['v3_w_neutral']       = scores_v3['w_neutral']
             p['v3_w_top']           = scores_v3['w_top']
             p['v3_utilities']       = scores_v3['utilities']
+            p['v3_normalized_scores'] = scores_v3.get('normalized_scores', {})
             p['v3_signal']          = v3_sig
             p['v3_tiz_score']       = scores_v3['tiz_score']
             p['v3_tiz_days']        = scores_v3['tiz_days']

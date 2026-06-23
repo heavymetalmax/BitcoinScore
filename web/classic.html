@@ -1054,7 +1054,7 @@
       <span><span class="en">Indicator</span><span class="ua">Індикатор</span></span>
       <span><span class="en">Score</span><span class="ua">Бал</span></span>
       <span><span class="en">vs History (1Y)</span><span class="ua">vs Іст. (1Р)</span></span>
-      <span><span class="en">Influence</span><span class="ua">Вплив</span></span>
+      <span><span class="en">V3 Risk</span><span class="ua">V3 Ризик</span></span>
       <span><span class="en">Risk</span><span class="ua">Ризик</span></span>
     </div>
     <!-- On-Chain Indicators -->
@@ -1174,7 +1174,7 @@
       <span><span class="en">Indicator</span><span class="ua">Індикатор</span></span>
       <span><span class="en">Score</span><span class="ua">Бал</span></span>
       <span><span class="en">vs History (1Y)</span><span class="ua">vs Іст. (1Р)</span></span>
-      <span><span class="en">Influence</span><span class="ua">Вплив</span></span>
+      <span><span class="en">V3 Risk</span><span class="ua">V3 Ризик</span></span>
       <span><span class="en">Risk</span><span class="ua">Ризик</span></span>
     </div>
 
@@ -1228,7 +1228,7 @@
       <span><span class="en">Indicator</span><span class="ua">Індикатор</span></span>
       <span><span class="en">Score</span><span class="ua">Бал</span></span>
       <span><span class="en">vs History (1Y)</span><span class="ua">vs Іст. (1Р)</span></span>
-      <span><span class="en">Influence</span><span class="ua">Вплив</span></span>
+      <span><span class="en">V3 Risk</span><span class="ua">V3 Ризик</span></span>
       <span><span class="en">Risk</span><span class="ua">Ризик</span></span>
     </div>
 
@@ -2194,37 +2194,38 @@ async function loadData() {
   setScore('v-yc',      'r-yc',      'yield_curve', ycVal,   v => (+v).toFixed(2) + '%');
   setScore('v-m2',      'r-m2',      'm2',          m2Val,   v => (+v).toFixed(1) + '%');
 
-  const setInfluence = (id, key, utils) => {
+  const setNormScore = (id, key, normScores) => {
     const el = document.getElementById(id);
     if (!el) return;
-    const val = utils[key];
-    if (val == null) {
-      el.innerHTML = '—';
-      return;
-    }
-    const pct = Math.round(val * 100);
-    const barColor = `rgba(139, 92, 246, ${0.3 + 0.7 * val})`; // Indigo glow based on strength
+    const val = normScores[key];
+    if (val == null) { el.innerHTML = '—'; return; }
+    const score = Math.round(val);
+    const barColor = score < 25 ? '#22C55E'
+                   : score < 40 ? '#4ADE80'
+                   : score < 55 ? '#EAB308'
+                   : score < 70 ? '#F97316'
+                   : '#EF4444';
     el.innerHTML = `
       <div style="display:flex; flex-direction:column; align-items:center; gap:3px;">
-        <span style="font-weight:700; color:var(--text); font-variant-numeric:tabular-nums; font-size:12px;">${pct}%</span>
+        <span style="font-weight:700; color:${barColor}; font-variant-numeric:tabular-nums; font-size:12px;">${score}</span>
         <div style="width:100%; height:4px; background:var(--surface2); border:1px solid var(--border); border-radius:2px; overflow:hidden;">
-          <div style="width:${pct}%; height:100%; background:${barColor}; border-radius:2px;"></div>
+          <div style="width:${score}%; height:100%; background:${barColor}; border-radius:2px;"></div>
         </div>
       </div>
     `;
   };
-  const utils = data.v3_utilities || data.utilities || {};
-  setInfluence('p-nupl',    'nupl',               utils);
-  setInfluence('p-mvrv',    'mvrv_z_score',       utils);
-  setInfluence('p-rhodl',   'rhodl_ratio',        utils);
-  setInfluence('p-cvdd',    'cvdd_ratio',         utils);
-  setInfluence('p-asopr',   'asopr',              utils);
-  setInfluence('p-cipherb', 'cipherb',            utils);
-  setInfluence('p-mayer',   'mayer_multiple',     utils);
-  setInfluence('p-etf',     'etf_flows',          utils);
-  setInfluence('p-fg',      'fear_greed',         utils);
-  setInfluence('p-yc',      'yield_curve_spread', utils);
-  setInfluence('p-m2',      'm2_yoy',             utils);
+  const normScores = data.v3_normalized_scores || {};
+  setNormScore('p-nupl',    'nupl',               normScores);
+  setNormScore('p-mvrv',    'mvrv_z_score',       normScores);
+  setNormScore('p-rhodl',   'rhodl_ratio',        normScores);
+  setNormScore('p-cvdd',    'cvdd_ratio',         normScores);
+  setNormScore('p-asopr',   'asopr',              normScores);
+  setNormScore('p-cipherb', 'cipherb',            normScores);
+  setNormScore('p-mayer',   'mayer_multiple',     normScores);
+  setNormScore('p-etf',     'etf_flows',          normScores);
+  setNormScore('p-fg',      'fear_greed',         normScores);
+  setNormScore('p-yc',      'yield_curve_spread', normScores);
+  setNormScore('p-m2',      'm2_yoy',             normScores);
 
   // Signals — order: on-chain (nupl,mvrv,rhodl,cvdd,asopr), tech (cipherb,mayer), macro (etf,fg,yc,m2)
   const vals = [nupl, mvrv, rhodl, cvdd, asopr, cbScore, mayer, etfVal, fgVal, ycVal, m2Val];
