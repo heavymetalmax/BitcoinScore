@@ -2,7 +2,7 @@ name: Update BTC Data
 
 on:
   schedule:
-    - cron: '0 8 * * *'
+    - cron: '0 10 * * *'   # fallback — runs only if home server did not push
   workflow_dispatch: {}
 
 env:
@@ -24,36 +24,60 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4.2.2
 
+      - name: Check if data already fresh
+        id: freshness
+        run: |
+          TS=$(python3 -c "import json; d=json.load(open('data/data.json')); print(d.get('timestamp','')[:10])")
+          TODAY=$(date -u +%Y-%m-%d)
+          echo "Data timestamp: $TS  Today: $TODAY"
+          if [ "$TS" = "$TODAY" ]; then
+            echo "fresh=true" >> $GITHUB_OUTPUT
+            echo "Home server already pushed today — skipping scraper"
+          else
+            echo "fresh=false" >> $GITHUB_OUTPUT
+            echo "Data is stale — running scraper as fallback"
+          fi
+
       - name: Install Python dependencies
+        if: steps.freshness.outputs.fresh == 'false'
         run: pip install -r scraper/requirements.txt
 
       - name: Run scraper
+        if: steps.freshness.outputs.fresh == 'false'
         run: python -m scraper.scraper
 
       - name: Retry stale metrics
+        if: steps.freshness.outputs.fresh == 'false'
         run: python tools/retry_stale_metrics.py || true
 
       - name: Build unified history
+        if: steps.freshness.outputs.fresh == 'false'
         run: python tools/build_unified_history.py
 
       - name: Update signal ledger
+        if: steps.freshness.outputs.fresh == 'false'
         run: python tools/signal_ledger.py || true
 
       - name: Run drift monitor
+        if: steps.freshness.outputs.fresh == 'false'
         run: python tools/drift_monitor.py || true
 
       - name: Generate ICS calendar feed
+        if: steps.freshness.outputs.fresh == 'false'
         run: python tools/generate_ics.py
 
       - name: Generate sparklines for VS History charts
+        if: steps.freshness.outputs.fresh == 'false'
         run: python tools/generate_sparklines.py
 
       - name: Copy data.json next to index.html
+        if: steps.freshness.outputs.fresh == 'false'
         run: |
           cp data/data.json web/data.json
           [ -f data/data_exp.json ] && cp data/data_exp.json web/data_exp.json || true
 
       - name: Commit and push data
+        if: steps.freshness.outputs.fresh == 'false'
         run: |
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
           git config user.name "github-actions[bot]"
@@ -65,9 +89,11 @@ jobs:
           git push
 
       - name: Upload Pages artifact
+        if: steps.freshness.outputs.fresh == 'false'
         uses: actions/upload-pages-artifact@v3
         with:
           path: web
 
       - name: Deploy to GitHub Pages
+        if: steps.freshness.outputs.fresh == 'false'
         uses: actions/deploy-pages@v4
