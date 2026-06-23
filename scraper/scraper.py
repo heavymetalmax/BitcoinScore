@@ -254,7 +254,7 @@ def build_payload():
         'asopr': asopr if 'asopr' in locals() else None,
         'etf_flows': etf_flows if 'etf_flows' in locals() else None,
         'rainbow_band': rainbow_band if 'rainbow_band' in locals() else None,
-        'm2': m2,
+        'm2': m2 if 'm2' in locals() else None,
         'failed_live_fetches': failed_live_fetches,
         'metrics': {
             # merge our collected metrics dict with static ones

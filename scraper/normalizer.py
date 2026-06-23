@@ -101,8 +101,6 @@ def normalize_metric(metric, value, target_date=None):
     hist_key = metric
     if metric == 'mvrv_z_score':
         hist_key = 'mvrv'
-    elif metric == 'puell_multiple':
-        hist_key = 'puell'
         
     if hist_key in ADAPTIVE_METRICS and fixed_score is not None:
         pct = compute_causal_percentile(hist_key, metric_val, target_date)

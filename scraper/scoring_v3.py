@@ -165,6 +165,8 @@ def compute_scores_v3(raw_metrics, target_date=None, prev_scores=None, scores_hi
     
     if isinstance(cb, dict):
         val_dict = cb.get('value') if 'value' in cb else cb
+        w = None
+        d = None
         if isinstance(val_dict, dict):
             w = val_dict.get('weekly_score')
             d = val_dict.get('daily_score')
@@ -360,7 +362,8 @@ def compute_scores_v3(raw_metrics, target_date=None, prev_scores=None, scores_hi
         'top_signal': top_signal,
         'bot_signal': bot_signal,
         'utilities': utilities,
-        'normalized_scores': {k: round(v) for k, v in normalized.items() if v is not None},
+        'normalized_scores': {k: round(v) for k, v in normalized.items()
+                              if v is not None and k not in ('cipherb_weekly', 'cipherb_daily')},
         'tiz_score': tiz_score,
         'tiz_days': tiz_days,
         'tiz_maturity': tiz_maturity,

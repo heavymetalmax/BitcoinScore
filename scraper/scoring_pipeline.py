@@ -103,30 +103,6 @@ def run_scoring_pipeline(p, build_metric_history_fn=None):
         print(f'Failed to compute v2 scores: {e}')
         print('Falling back to V1 final_score')
 
-    # ── V3 scores (dynamic z-weighted mixing) ─────────────────────────────────
-    try:
-        from .scoring_v3 import compute_scores_v3
-        scores_v3 = compute_scores_v3(p.get('metrics', {}))
-        p['v3_score']         = scores_v3['final_score']
-        p['v3_onchain_score'] = scores_v3['onchain_avg']
-        p['v3_tech_score']    = scores_v3['tech_avg']
-        p['v3_phase']         = scores_v3['phase']
-        p['v3_utilities']     = scores_v3['utilities']
-        print(f"V3 scores: phase={scores_v3['phase']}  "
-              f"onchain={scores_v3['onchain_avg']}  "
-              f"tech={scores_v3['tech_avg']}  "
-              f"final={scores_v3['final_score']}")
-        try:
-            p_exp['v3_score']         = scores_v3['final_score']
-            p_exp['v3_onchain_score'] = scores_v3['onchain_avg']
-            p_exp['v3_tech_score']    = scores_v3['tech_avg']
-            p_exp['v3_phase']         = scores_v3['phase']
-            p_exp['v3_utilities']     = scores_v3['utilities']
-        except NameError:
-            pass
-    except Exception as e:
-        print(f'Failed to compute v3 scores: {e}')
-
     # ── Fisher score → Orchestrator ───────────────────────────────────────────
     try:
         from .scoring import compute_scores_v2_fisher

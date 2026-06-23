@@ -279,21 +279,12 @@
     .wallpaper-overlay {
       position: absolute;
       inset: 0;
-      background: linear-gradient(to bottom, 
-        rgba(6, 6, 8, 0.82) 0%, 
-        rgba(6, 6, 8, 0.6) 50%, 
-        rgba(6, 6, 8, 0.88) 100%
-      );
-      z-index: 2;
-    }
-
-    /* Dark overlay over wallpaper for better card readability */
-    .wallpaper-overlay {
       background: linear-gradient(to bottom,
         rgba(6, 6, 8, 0.55) 0%,
         rgba(6, 6, 8, 0.25) 50%,
         rgba(6, 6, 8, 0.45) 100%
       );
+      z-index: 2;
     }
 
     .wallpaper-fog {
@@ -562,23 +553,15 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-
-      gap: 4px;
-
       gap: 6px;
       flex-shrink: 0;
-
     }
 
     .history-item {
       display: flex;
       flex-direction: column;
       align-items: center;
-
-      line-height: 1;
-
       line-height: 1.1;
-
     }
 
     .history-label {
@@ -1354,11 +1337,6 @@
       .display-score {
         font-size: 8.5rem;
       }
-      .display-score-accent {
-        font-size: 1.8rem;
-        right: -24px;
-        top: 10px;
-      }
       .status-bar {
         font-size: 0.7rem;
         padding: 8px 16px;
@@ -1993,11 +1971,6 @@
       img.src = localFile;
     }
 
-    // Grayscale Score Color Helper (All UI elements are rendered monochrome)
-    function scoreColor(v, alpha = 1) {
-      return `rgba(255, 255, 255, ${alpha})`;
-    }
-
     // Accelerometer parallax — mobile only (desktop mousemove removed)
     const _isMobile = (navigator.maxTouchPoints > 0 && window.matchMedia('(pointer: coarse)').matches) ||
                       /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -2061,78 +2034,6 @@
       if (!inner || !inner.classList.contains('flipped')) return;
       if (!document.getElementById('center-display').contains(e.target)) flipBack();
     });
-
-    // iOS arc gauge drawing (for main 60px canvas)
-    function drawIosGauge(canvas, value) {
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const cx = canvas.width / 2;
-      const cy = canvas.height / 2;
-      const radius = cx - 4;
-      const startAngle = 0.75 * Math.PI;
-      const endAngle = 2.25 * Math.PI;
-      const norm = Math.min(Math.max(value, 0), 100) / 100;
-      const curAngle = startAngle + norm * (endAngle - startAngle);
-      
-      const trackColor = 'rgba(255, 255, 255, 0.15)';
-      const fillColor = 'rgba(255, 255, 255, 0.8)';
-      const dotColor = '#ffffff';
-
-      // Track
-      ctx.beginPath();
-      ctx.arc(cx, cy, radius, startAngle, endAngle);
-      ctx.lineWidth = 4; ctx.lineCap = 'round';
-      ctx.strokeStyle = trackColor; ctx.stroke();
-      // Fill
-      ctx.beginPath();
-      ctx.arc(cx, cy, radius, startAngle, curAngle);
-      ctx.lineWidth = 4; ctx.lineCap = 'round';
-      ctx.strokeStyle = fillColor; ctx.stroke();
-      // Dot
-      const dotX = cx + radius * Math.cos(curAngle);
-      const dotY = cy + radius * Math.sin(curAngle);
-      ctx.beginPath(); ctx.arc(dotX, dotY, 4.5, 0, 2 * Math.PI);
-      ctx.fillStyle = dotColor; ctx.shadowColor = 'rgba(0,0,0,0.4)'; ctx.shadowBlur = 4; ctx.fill(); ctx.shadowBlur = 0;
-      ctx.beginPath(); ctx.arc(dotX, dotY, 4.5, 0, 2 * Math.PI);
-      ctx.lineWidth = 1; ctx.strokeStyle = 'rgba(255,255,255,0.6)'; ctx.stroke();
-    }
-
-    // Mini arc gauge drawing (for 44px yesterday/week canvases)
-    function drawMiniGauge(canvas, value) {
-      if (!canvas || value == null) return;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const cx = canvas.width / 2;
-      const cy = canvas.height / 2;
-      const radius = cx - 3;
-      const startAngle = 0.75 * Math.PI;
-      const endAngle = 2.25 * Math.PI;
-      const norm = Math.min(Math.max(value, 0), 100) / 100;
-      const curAngle = startAngle + norm * (endAngle - startAngle);
-
-      const trackColor = 'rgba(255, 255, 255, 0.1)';
-      const fillColor = 'rgba(255, 255, 255, 0.65)';
-      const dotColor = '#ffffff';
-
-      // Track
-      ctx.beginPath();
-      ctx.arc(cx, cy, radius, startAngle, endAngle);
-      ctx.lineWidth = 3; ctx.lineCap = 'round';
-      ctx.strokeStyle = trackColor; ctx.stroke();
-      // Fill
-      ctx.beginPath();
-      ctx.arc(cx, cy, radius, startAngle, curAngle);
-      ctx.lineWidth = 3; ctx.lineCap = 'round';
-      ctx.strokeStyle = fillColor; ctx.stroke();
-      // Dot
-      const dotX = cx + radius * Math.cos(curAngle);
-      const dotY = cy + radius * Math.sin(curAngle);
-      ctx.beginPath(); ctx.arc(dotX, dotY, 3, 0, 2 * Math.PI);
-      ctx.fillStyle = dotColor; ctx.shadowColor = 'rgba(0,0,0,0.3)'; ctx.shadowBlur = 3; ctx.fill(); ctx.shadowBlur = 0;
-    }
 
     const METRIC_HELP = {
       nupl:    { title: { en: 'NUPL — Net Unrealized Profit/Loss', ua: 'NUPL — Нереалізований Прибуток/Збиток' },
@@ -2337,18 +2238,6 @@
         mainStatus.style.textShadow = 'none';
       }
 
-      // Populate about panel score/status
-      const scoreVal = data.final_score != null ? Math.round(data.final_score) : '—';
-      const aboutStatus = riskLabel(data.final_score);
-      const asen = document.getElementById('about-score-en');
-      const asua = document.getElementById('about-score-ua');
-      const astsen = document.getElementById('about-status-en');
-      const astsua = document.getElementById('about-status-ua');
-      if (asen) asen.textContent = scoreVal;
-      if (asua) asua.textContent = scoreVal;
-      if (astsen) astsen.textContent = aboutStatus.en;
-      if (astsua) astsua.textContent = aboutStatus.ua;
-
       // Update bento sub-score cards
       const setSubCard = (scoreId, barId, val) => {
         const scoreEl = document.getElementById(scoreId);
@@ -2356,8 +2245,7 @@
         if (scoreEl) scoreEl.textContent = val != null ? val : '—';
         if (barEl && val != null) barEl.style.width = val + '%';
       };
-      setSubCard('s-oc', 'b-oc', data.onchain_score != null ? Math.round(data.onchain_score) : null);
-      setSubCard('s-tech', 'b-tech', data.tech_score != null ? Math.round(data.tech_score) : null);
+      // setSubCard for s-oc / s-tech called after metrics are built below
 
       // Populate price forecast inversion values
       const zf = data.zone_forecast;
@@ -2370,12 +2258,6 @@
       }
 
 
-      // Draw main iOS gauge (safe fallback if canvas exists)
-      const mainCanvas = document.getElementById('ios-gauge-canvas');
-      if (mainCanvas && data.final_score != null) {
-        drawIosGauge(mainCanvas, data.final_score);
-      }
-
       // Yesterday and 7d averages
       const yesterdayVal = data.prev_day ? data.prev_day.final_score : null;
       if (yesterdayVal != null) {
@@ -2383,8 +2265,6 @@
         if (el) el.textContent = yesterdayVal;
         const yBar = document.getElementById('b-yesterday');
         if (yBar) yBar.style.width = yesterdayVal + '%';
-        const yCanvas = document.getElementById('gauge-yesterday-canvas');
-        if (yCanvas) drawMiniGauge(yCanvas, yesterdayVal);
       }
 
       let avg7d = null;
@@ -2399,8 +2279,6 @@
         if (el) el.textContent = weekVal;
         const wBar = document.getElementById('b-week');
         if (wBar) wBar.style.width = weekVal + '%';
-        const wCanvas = document.getElementById('gauge-week-canvas');
-        if (wCanvas) drawMiniGauge(wCanvas, weekVal);
       }
 
       // Populate back cards with indicator details
@@ -2473,11 +2351,20 @@
           default: return null;
         }
       }
-      function getFinalScoreForKey(key, val) {
-        if (key === 'nupl' && ac.nupl && ac.nupl.blended != null) return ac.nupl.blended;
-        if (key === 'mvrv' && ac.mvrv && ac.mvrv.blended != null) return ac.mvrv.blended;
+      const V3_KEY = {
+        nupl:'nupl', mvrv:'mvrv_z_score', rhodl:'rhodl_ratio', cvdd:'cvdd_ratio',
+        asopr:'asopr', cipherb:'cipherb', mayer:'mayer_multiple', etf:'etf_flows',
+        fg:'fear_greed', yield_curve:'yield_curve_spread', yc:'yield_curve_spread', m2:'m2_yoy'
+      };
+      const normScores = data.v3_normalized_scores || {};
+      const utilities  = data.v3_utilities || {};
+      function getV3Score(key, raw) {
+        const bk = V3_KEY[key];
+        if (bk && normScores[bk] != null) return normScores[bk];
+        if (key === 'nupl'  && ac.nupl  && ac.nupl.blended  != null) return ac.nupl.blended;
+        if (key === 'mvrv'  && ac.mvrv  && ac.mvrv.blended  != null) return ac.mvrv.blended;
         if (key === 'mayer' && ac.mayer && ac.mayer.blended != null) return ac.mayer.blended;
-        return mapScore(key, val);
+        return mapScore(key, raw);
       }
 
       const nupl  = mv('nupl');  const mvrv  = mv('mvrv');
@@ -2539,17 +2426,17 @@
         // 2) Fallback to Contradiction Warning
         if (!icon) {
           const allIndScores = [
-            getFinalScoreForKey('nupl', nupl),
-            getFinalScoreForKey('mvrv', mvrv),
-            getFinalScoreForKey('rhodl', rhodl),
-            getFinalScoreForKey('cvdd', cvdd),
-            getFinalScoreForKey('asopr', asopr),
-            getFinalScoreForKey('cipherb', cbScore),
-            getFinalScoreForKey('mayer', mmVal),
-            getFinalScoreForKey('etf', etfVal),
-            getFinalScoreForKey('fg', fgVal),
-            getFinalScoreForKey('yield_curve', yc),
-            getFinalScoreForKey('m2', m2raw)
+            getV3Score('nupl', nupl),
+            getV3Score('mvrv', mvrv),
+            getV3Score('rhodl', rhodl),
+            getV3Score('cvdd', cvdd),
+            getV3Score('asopr', asopr),
+            getV3Score('cipherb', cbScore),
+            getV3Score('mayer', mmVal),
+            getV3Score('etf', etfVal),
+            getV3Score('fg', fgVal),
+            getV3Score('yield_curve', yc),
+            getV3Score('m2', m2raw)
           ].filter(s => s != null);
           const hasContra = allIndScores.some(s =>
             (data.final_score <= 40 && s >= 65) || (data.final_score >= 60 && s <= 35)
@@ -2577,24 +2464,40 @@
       }
 
       const _ocMetrics = [
-        { key: 'nupl',  name: n({en:'NUPL', ua:'NUPL'}), score: getFinalScoreForKey('nupl', nupl), raw: nupl != null ? nupl.toFixed(2)+'%' : null },
-        { key: 'mvrv',  name: n({en:'MVRV Z-Score', ua:'MVRV Z-Score'}), score: getFinalScoreForKey('mvrv', mvrv), raw: mvrv != null ? mvrv.toFixed(3) : null },
-        { key: 'rhodl', name: n({en:'RHODL', ua:'RHODL'}), score: getFinalScoreForKey('rhodl', rhodl), raw: rhodl != null ? rhodl.toFixed(1) : null },
-        { key: 'cvdd',  name: n({en:'CVDD Ratio', ua:'CVDD Ratio'}), score: getFinalScoreForKey('cvdd', cvdd), raw: cvdd != null ? cvdd.toFixed(3) : null },
-        { key: 'asopr', name: n({en:'aSOPR', ua:'aSOPR'}), score: getFinalScoreForKey('asopr', asopr), raw: asopr != null ? asopr.toFixed(3) : null }
+        { key: 'nupl',  name: n({en:'NUPL', ua:'NUPL'}), score: getV3Score('nupl', nupl), raw: nupl != null ? nupl.toFixed(2)+'%' : null },
+        { key: 'mvrv',  name: n({en:'MVRV Z-Score', ua:'MVRV Z-Score'}), score: getV3Score('mvrv', mvrv), raw: mvrv != null ? mvrv.toFixed(3) : null },
+        { key: 'rhodl', name: n({en:'RHODL', ua:'RHODL'}), score: getV3Score('rhodl', rhodl), raw: rhodl != null ? rhodl.toFixed(1) : null },
+        { key: 'cvdd',  name: n({en:'CVDD Ratio', ua:'CVDD Ratio'}), score: getV3Score('cvdd', cvdd), raw: cvdd != null ? cvdd.toFixed(3) : null },
+        { key: 'asopr', name: n({en:'aSOPR', ua:'aSOPR'}), score: getV3Score('asopr', asopr), raw: asopr != null ? asopr.toFixed(3) : null }
       ];
       const _techMetrics = [
-        { key: 'cipherb', name: n({en:'Cipher B', ua:'Cipher B'}), score: getFinalScoreForKey('cipherb', cbScore), raw: cbVal != null ? Math.round(cbVal) : null },
-        { key: 'mayer',   name: n({en:'Mayer Multiple', ua:'Mayer Multiple'}), score: getFinalScoreForKey('mayer', mmVal), raw: mmVal != null ? mmVal.toFixed(2) : null },
-        { key: 'etf',     name: n({en:'ETF Flows (14d)', ua:'ETF Flows (14d)'}), score: getFinalScoreForKey('etf', etfVal), raw: etfVal != null ? (etfVal>0?'+':'')+Math.round(etfVal)+'M' : null },
-        { key: 'fg',      name: n({en:'Fear & Greed', ua:'Індекс страху'}), score: getFinalScoreForKey('fg', fgVal), raw: fgVal != null ? Math.round(fgVal) : null },
-        { key: 'yc',      name: n({en:'Yield Curve', ua:'Крива дохідності'}), score: getFinalScoreForKey('yield_curve', yc), raw: yc != null ? yc.toFixed(2)+'%' : null },
-        { key: 'm2',      name: n({en:'Global M2', ua:'Глобальний M2'}), score: getFinalScoreForKey('m2', m2raw), raw: m2raw != null ? m2raw.toFixed(2)+'%' : null }
+        { key: 'cipherb', name: n({en:'Cipher B', ua:'Cipher B'}), score: getV3Score('cipherb', cbScore), raw: cbVal != null ? Math.round(cbVal) : null },
+        { key: 'mayer',   name: n({en:'Mayer Multiple', ua:'Mayer Multiple'}), score: getV3Score('mayer', mmVal), raw: mmVal != null ? mmVal.toFixed(2) : null },
+        { key: 'etf',     name: n({en:'ETF Flows (14d)', ua:'ETF Flows (14d)'}), score: getV3Score('etf', etfVal), raw: etfVal != null ? (etfVal>0?'+':'')+Math.round(etfVal)+'M' : null },
+        { key: 'fg',      name: n({en:'Fear & Greed', ua:'Індекс страху'}), score: getV3Score('fg', fgVal), raw: fgVal != null ? Math.round(fgVal) : null },
+        { key: 'yc',      name: n({en:'Yield Curve', ua:'Крива дохідності'}), score: getV3Score('yield_curve', yc), raw: yc != null ? yc.toFixed(2)+'%' : null },
+        { key: 'm2',      name: n({en:'Global M2', ua:'Глобальний M2'}), score: getV3Score('m2', m2raw), raw: m2raw != null ? m2raw.toFixed(2)+'%' : null }
       ];
       populateBackCard('list-onchain-back',  _ocMetrics);
       populateBackCard('list-tech-back',     _techMetrics);
       populateBackCard('list-onchain-main',  _ocMetrics);
       populateBackCard('list-tech-main',     _techMetrics);
+
+      // Compute subgroup aggregates from the same scores shown in indicator blocks
+      function subgroupAvg(metrics) {
+        let ws = 0, wc = 0;
+        for (const m of metrics) {
+          if (m.score == null) continue;
+          const bk = V3_KEY[m.key] || m.key;
+          const u = utilities[bk] ?? 0.5;
+          ws += m.score * u; wc += u;
+        }
+        return wc > 0 ? Math.round(ws / wc) : null;
+      }
+      const _ocAgg   = subgroupAvg(_ocMetrics)   ?? (data.onchain_score != null ? Math.round(data.onchain_score)  : null);
+      const _techAgg = subgroupAvg(_techMetrics)  ?? (data.tech_score   != null ? Math.round(data.tech_score)     : null);
+      setSubCard('s-oc',   'b-oc',   _ocAgg);
+      setSubCard('s-tech', 'b-tech', _techAgg);
     }
 
     window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', updateThemeClass);
