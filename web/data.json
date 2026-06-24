@@ -1,7 +1,7 @@
 {
-  "timestamp": "2026-06-24T08:40:37Z",
-  "btc_price": 62539.758269167556,
-  "btc_dominance": 58.45,
+  "timestamp": "2026-06-24T09:03:32Z",
+  "btc_price": 62470.86118091014,
+  "btc_dominance": 58.49,
   "fear_greed": 20.9,
   "fear_greed_label": "CMC",
   "nupl": 15.5675,
@@ -15,47 +15,50 @@
     "total_cumulative": 53376.999999999935,
     "date": "2026-06-22"
   },
-  "rainbow_band": null,
+  "rainbow_band": {
+    "band": "Below model",
+    "color": "rgba(68, 114, 196, 0.8)",
+    "price": 62671,
+    "band_upper": 74523.61,
+    "date": "2026-06-23"
+  },
   "m2": 9.47,
-  "failed_live_fetches": [
-    "puell_multiple",
-    "lth_supply_pct"
-  ],
+  "failed_live_fetches": [],
   "metrics": {
     "nupl": {
       "value": 15.5675,
       "source": "BMP",
-      "updated": "2026-06-24T08:40:37Z"
+      "updated": "2026-06-24T09:03:23Z"
     },
     "mvrv": {
       "value": 0.3253,
       "source": "BMP",
-      "updated": "2026-06-24T08:40:37Z"
+      "updated": "2026-06-24T09:03:23Z"
     },
     "m2": {
       "value": 9.47,
       "source": "MacroMicro",
-      "updated": "2026-06-24T08:40:37Z"
+      "updated": "2026-06-24T09:03:23Z"
     },
     "yield_curve": {
       "value": 0.27,
       "source": "BMP",
-      "updated": "2026-06-24T08:40:37Z"
+      "updated": "2026-06-24T09:03:23Z"
     },
     "cvdd_ratio": {
       "value": 1.3125,
       "source": "BMP",
-      "updated": "2026-06-24T08:40:37Z"
+      "updated": "2026-06-24T09:03:23Z"
     },
     "rhodl_ratio": {
       "value": 680.7113,
       "source": "BMP",
-      "updated": "2026-06-24T08:40:37Z"
+      "updated": "2026-06-24T09:03:23Z"
     },
     "asopr": {
       "value": 1.0206,
       "source": "BMP",
-      "updated": "2026-06-24T08:40:37Z"
+      "updated": "2026-06-24T09:03:23Z"
     },
     "etf_flows": {
       "value": {
@@ -65,19 +68,25 @@
         "date": "2026-06-22"
       },
       "source": "Farside",
-      "updated": "2026-06-24T08:40:37Z"
+      "updated": "2026-06-24T09:03:23Z"
     },
     "rainbow_band": {
-      "value": null,
+      "value": {
+        "band": "Below model",
+        "color": "rgba(68, 114, 196, 0.8)",
+        "price": 62671,
+        "band_upper": 74523.61,
+        "date": "2026-06-23"
+      },
       "source": "BMP",
-      "updated": "2026-06-24T08:40:37Z"
+      "updated": "2026-06-24T09:03:32Z"
     },
     "fear_greed": {
       "latest": 20.0,
       "avg_7d": 20.9,
       "label": "CMC",
       "source": "CMC",
-      "updated": "2026-06-24T08:40:37Z"
+      "updated": "2026-06-24T09:03:32Z"
     },
     "cipherb": {
       "value": {
@@ -94,7 +103,7 @@
         "daily_fast_bullish_div": false
       },
       "source": "Local",
-      "updated": "2026-06-24T08:40:38Z"
+      "updated": "2026-06-24T09:03:33Z"
     },
     "smc": {
       "value": {
@@ -108,7 +117,7 @@
         "size": 10
       },
       "source": "Local",
-      "updated": "2026-06-24T08:40:38Z"
+      "updated": "2026-06-24T09:03:33Z"
     },
     "mayer_multiple": {
       "value": {
@@ -118,7 +127,7 @@
         "score": 20
       },
       "source": "Kraken",
-      "updated": "2026-06-24T08:40:38Z"
+      "updated": "2026-06-24T09:03:33Z"
     },
     "funding_rate": {
       "value": {
@@ -129,12 +138,7 @@
         "source": "Kraken Futures"
       },
       "source": "Kraken Futures",
-      "updated": "2026-06-24T08:40:39Z"
-    },
-    "halving_cycle_day": {
-      "value": 796,
-      "source": "Local",
-      "updated": "2026-06-24T08:40:39Z"
+      "updated": "2026-06-24T09:03:34Z"
     },
     "pi_cycle": {
       "value": {
@@ -145,26 +149,26 @@
         "cross": false
       },
       "source": "Kraken",
-      "updated": "2026-06-24T08:40:39Z"
+      "updated": "2026-06-24T09:03:34Z"
     },
     "puell_multiple": {
-      "value": 0.7544,
+      "value": 0.7016,
       "source": "BMP",
-      "updated": "2026-06-23T09:19:32Z"
+      "updated": "2026-06-24T09:03:43Z"
     },
     "lth_supply_pct": {
-      "value": 16630980.9656,
+      "value": 16632395.4968,
       "source": "BMP",
-      "updated": "2026-06-23T09:19:39Z"
+      "updated": "2026-06-24T09:03:52Z"
     },
     "m2_mom": {
       "value": 9.47,
       "source": "MacroMicro",
-      "updated": "2026-06-24T08:40:40Z"
+      "updated": "2026-06-24T09:03:52Z"
     }
   },
   "m2_mom": 9.47,
-  "onchain_score": 30,
+  "onchain_score": 29,
   "tech_score": 16,
   "final_score": 24,
   "adaptive_calibration": {
@@ -200,18 +204,18 @@
   "zone_forecast": {
     "buy": {
       "price": 54323,
-      "pct": -13.1
+      "pct": -13.0
     },
     "sell": {
-      "price": 148829,
+      "price": 148665,
       "pct": 138.0
     },
     "buy_threshold": 20,
     "sell_threshold": 80,
-    "realized_price": 52804,
-    "ref_price": 62540
+    "realized_price": 52746,
+    "ref_price": 62471
   },
-  "v2_score": 33,
+  "v2_score": 32,
   "scoring_regime": "bottom",
   "tiz_score": 23,
   "tiz_days": 121,
@@ -246,8 +250,8 @@
     "bull_div": false
   },
   "fisher_score": 22,
-  "v3_score": 26,
-  "v3_onchain_score": 30,
+  "v3_score": 25,
+  "v3_onchain_score": 29,
   "v3_tech_score": 16,
   "v3_phase": "BOTTOM",
   "v3_w_bot": 0.732,
@@ -277,7 +281,7 @@
     "rhodl_ratio": 31,
     "cvdd_ratio": 14,
     "asopr": 59,
-    "puell": 27,
+    "puell": 23,
     "mayer_multiple": 20,
     "fear_greed": 21,
     "etf_flows": 27,
@@ -308,7 +312,7 @@
   "v3_tiz_maturity": 0.448,
   "v3_tiz_calibration": 270,
   "v3_oc_coherence": 0.448,
-  "sp_v2": 26,
+  "sp_v2": 25,
   "phase": {
     "phase": "BOTTOM",
     "top_signal": 30,
@@ -316,5 +320,375 @@
     "w_bot": 0.732,
     "w_neutral": 0.0,
     "w_top": 0.268
-  }
+  },
+  "prev_day": {
+    "date": "2026-06-23",
+    "final_score": 22
+  },
+  "prev_week": {
+    "date": "2026-06-17",
+    "final_score": 23
+  },
+  "score_history": [
+    {
+      "date": "2026-03-26",
+      "score": 29
+    },
+    {
+      "date": "2026-03-27",
+      "score": 28
+    },
+    {
+      "date": "2026-03-28",
+      "score": 28
+    },
+    {
+      "date": "2026-03-29",
+      "score": 26
+    },
+    {
+      "date": "2026-03-30",
+      "score": 26
+    },
+    {
+      "date": "2026-03-31",
+      "score": 27
+    },
+    {
+      "date": "2026-04-01",
+      "score": 27
+    },
+    {
+      "date": "2026-04-02",
+      "score": 26
+    },
+    {
+      "date": "2026-04-03",
+      "score": 24
+    },
+    {
+      "date": "2026-04-04",
+      "score": 26
+    },
+    {
+      "date": "2026-04-05",
+      "score": 29
+    },
+    {
+      "date": "2026-04-06",
+      "score": 29
+    },
+    {
+      "date": "2026-04-07",
+      "score": 30
+    },
+    {
+      "date": "2026-04-08",
+      "score": 33
+    },
+    {
+      "date": "2026-04-09",
+      "score": 32
+    },
+    {
+      "date": "2026-04-10",
+      "score": 34
+    },
+    {
+      "date": "2026-04-11",
+      "score": 35
+    },
+    {
+      "date": "2026-04-12",
+      "score": 34
+    },
+    {
+      "date": "2026-04-13",
+      "score": 34
+    },
+    {
+      "date": "2026-04-14",
+      "score": 38
+    },
+    {
+      "date": "2026-04-15",
+      "score": 40
+    },
+    {
+      "date": "2026-04-16",
+      "score": 38
+    },
+    {
+      "date": "2026-04-17",
+      "score": 49
+    },
+    {
+      "date": "2026-04-18",
+      "score": 49
+    },
+    {
+      "date": "2026-04-19",
+      "score": 36
+    },
+    {
+      "date": "2026-04-20",
+      "score": 50
+    },
+    {
+      "date": "2026-04-21",
+      "score": 52
+    },
+    {
+      "date": "2026-04-22",
+      "score": 53
+    },
+    {
+      "date": "2026-04-23",
+      "score": 53
+    },
+    {
+      "date": "2026-04-24",
+      "score": 54
+    },
+    {
+      "date": "2026-04-25",
+      "score": 54
+    },
+    {
+      "date": "2026-04-26",
+      "score": 54
+    },
+    {
+      "date": "2026-04-27",
+      "score": 54
+    },
+    {
+      "date": "2026-04-28",
+      "score": 54
+    },
+    {
+      "date": "2026-04-29",
+      "score": 53
+    },
+    {
+      "date": "2026-04-30",
+      "score": 54
+    },
+    {
+      "date": "2026-05-01",
+      "score": 52
+    },
+    {
+      "date": "2026-05-02",
+      "score": 49
+    },
+    {
+      "date": "2026-05-03",
+      "score": 50
+    },
+    {
+      "date": "2026-05-04",
+      "score": 52
+    },
+    {
+      "date": "2026-05-05",
+      "score": 53
+    },
+    {
+      "date": "2026-05-06",
+      "score": 53
+    },
+    {
+      "date": "2026-05-07",
+      "score": 54
+    },
+    {
+      "date": "2026-05-08",
+      "score": 54
+    },
+    {
+      "date": "2026-05-09",
+      "score": 53
+    },
+    {
+      "date": "2026-05-10",
+      "score": 55
+    },
+    {
+      "date": "2026-05-11",
+      "score": 55
+    },
+    {
+      "date": "2026-05-12",
+      "score": 51
+    },
+    {
+      "date": "2026-05-13",
+      "score": 49
+    },
+    {
+      "date": "2026-05-14",
+      "score": 50
+    },
+    {
+      "date": "2026-05-15",
+      "score": 39
+    },
+    {
+      "date": "2026-05-16",
+      "score": 40
+    },
+    {
+      "date": "2026-05-17",
+      "score": 39
+    },
+    {
+      "date": "2026-05-18",
+      "score": 35
+    },
+    {
+      "date": "2026-05-19",
+      "score": 32
+    },
+    {
+      "date": "2026-05-20",
+      "score": 33
+    },
+    {
+      "date": "2026-05-21",
+      "score": 33
+    },
+    {
+      "date": "2026-05-22",
+      "score": 31
+    },
+    {
+      "date": "2026-05-23",
+      "score": 32
+    },
+    {
+      "date": "2026-05-24",
+      "score": 30
+    },
+    {
+      "date": "2026-05-25",
+      "score": 30
+    },
+    {
+      "date": "2026-05-26",
+      "score": 29
+    },
+    {
+      "date": "2026-05-27",
+      "score": 27
+    },
+    {
+      "date": "2026-05-28",
+      "score": 32
+    },
+    {
+      "date": "2026-05-29",
+      "score": 32
+    },
+    {
+      "date": "2026-05-30",
+      "score": 33
+    },
+    {
+      "date": "2026-05-31",
+      "score": 34
+    },
+    {
+      "date": "2026-06-01",
+      "score": 31
+    },
+    {
+      "date": "2026-06-02",
+      "score": 25
+    },
+    {
+      "date": "2026-06-03",
+      "score": 25
+    },
+    {
+      "date": "2026-06-04",
+      "score": 25
+    },
+    {
+      "date": "2026-06-05",
+      "score": 25
+    },
+    {
+      "date": "2026-06-06",
+      "score": 24
+    },
+    {
+      "date": "2026-06-07",
+      "score": 24
+    },
+    {
+      "date": "2026-06-08",
+      "score": 24
+    },
+    {
+      "date": "2026-06-09",
+      "score": 24
+    },
+    {
+      "date": "2026-06-10",
+      "score": 24
+    },
+    {
+      "date": "2026-06-11",
+      "score": 23
+    },
+    {
+      "date": "2026-06-12",
+      "score": 23
+    },
+    {
+      "date": "2026-06-13",
+      "score": 24
+    },
+    {
+      "date": "2026-06-14",
+      "score": 23
+    },
+    {
+      "date": "2026-06-15",
+      "score": 22
+    },
+    {
+      "date": "2026-06-16",
+      "score": 22
+    },
+    {
+      "date": "2026-06-17",
+      "score": 23
+    },
+    {
+      "date": "2026-06-18",
+      "score": 22
+    },
+    {
+      "date": "2026-06-19",
+      "score": 22
+    },
+    {
+      "date": "2026-06-20",
+      "score": 21
+    },
+    {
+      "date": "2026-06-21",
+      "score": 22
+    },
+    {
+      "date": "2026-06-22",
+      "score": 22
+    },
+    {
+      "date": "2026-06-23",
+      "score": 22
+    }
+  ]
 }

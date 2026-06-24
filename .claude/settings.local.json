@@ -1,0 +1,37 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__Claude_Preview__preview_start",
+      "Bash(awk '{print $2}')",
+      "Bash(xargs kill -9)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(python3 -c \"import json; d=json.load\\(open\\('/Users/max/BitcoinScore/web/data.json'\\)\\); print\\('yield_curve:', d.get\\('yield_curve'\\)\\); print\\('etf_flows:', d.get\\('etf_flows'\\)\\); print\\('m2_mom:', d.get\\('m2_mom'\\)\\); print\\('fear_greed:', d.get\\('fear_greed'\\)\\)\")",
+      "Bash(git commit -m 'classic.html: signal column uses same 0-100 risk scale as gauge *)",
+      "Bash(git commit *)",
+      "mcp__visualize__show_widget",
+      "Bash(gh run *)",
+      "Bash(awk '/Run scraper/,/##\\\\[endgroup\\\\]/')",
+      "Bash(grep -v \"^\\\\s*$\")",
+      "Bash(git pull *)",
+      "Bash(python3 -c ' *)",
+      "Bash(gh workflow *)",
+      "Bash(git stash *)",
+      "Bash(grep -v \"^\\\\s*$\\\\|##\\\\[\")",
+      "Bash(gh auth *)",
+      "Bash(python3 -c \"import json,sys; runs=json.load\\(sys.stdin\\); [print\\(r['databaseId'], r['status'], r['conclusion'], r['name']\\) for r in runs]\")",
+      "Bash(curl -s \"https://heavymetalmax.github.io/BitcoinScore/data.json\")",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); c=d.get\\('commentary'\\); print\\('commentary:', 'YES' if c else 'MISSING'\\); print\\('en:', \\(c or {}\\).get\\('en',''\\)[:120] if c else 'n/a'\\)\")",
+      "Bash(curl -sI \"https://heavymetalmax.github.io/BitcoinScore/data.json\")",
+      "Bash(curl -sL \"http://btcbri.com/data.json\")",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); c=d.get\\('commentary'\\); print\\('commentary:', 'YES' if c else 'MISSING'\\); print\\('en:', \\(c or {}\\).get\\('en',''\\)[:150] if c else 'n/a'\\)\")",
+      "Bash(curl -sL \"http://btcbri.com/classic.html\")",
+      "Bash(curl -sL \"http://btcbri.com/\")",
+      "Bash(curl -sL \"http://btcbri.com/max.html\")",
+      "Bash(curl -sI \"http://btcbri.com/data.json\")",
+      "Bash(curl -sI \"http://btcbri.com/classic.html\")",
+      "Bash(curl -sL \"http://btcbri.com/index.html\")"
+    ]
+  }
+}

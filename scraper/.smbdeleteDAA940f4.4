@@ -254,7 +254,7 @@ def build_payload():
         'asopr': asopr if 'asopr' in locals() else None,
         'etf_flows': etf_flows if 'etf_flows' in locals() else None,
         'rainbow_band': rainbow_band if 'rainbow_band' in locals() else None,
-        'm2': m2 if 'm2' in locals() else None,
+        'm2': m2,
         'failed_live_fetches': failed_live_fetches,
         'metrics': {
             # merge our collected metrics dict with static ones
@@ -472,43 +472,6 @@ def main():
 
     from .scoring_pipeline import run_scoring_pipeline
     p = run_scoring_pipeline(p, _build_metric_history)
-
-    # ── Add prev_day, prev_week, and score_history fields ─────────────────────
-    try:
-        from datetime import datetime, timedelta
-        with open('data/history/scores.json') as f:
-            history = json.load(f)
-        
-        today = datetime.now().date()
-        
-        # Find yesterday's entry
-        yesterday = today - timedelta(days=1)
-        for entry in history:
-            if datetime.fromisoformat(entry['date']).date() == yesterday:
-                p['prev_day'] = {'date': entry['date'], 'final_score': entry.get('final_score')}
-                break
-        
-        # Find 7 days ago
-        seven_days_ago = today - timedelta(days=7)
-        for entry in history:
-            if datetime.fromisoformat(entry['date']).date() == seven_days_ago:
-                p['prev_week'] = {'date': entry['date'], 'final_score': entry.get('final_score')}
-                break
-        
-        # Build score_history (last 90 days)
-        score_history = []
-        cutoff = today - timedelta(days=90)
-        for entry in history:
-            if datetime.fromisoformat(entry['date']).date() >= cutoff:
-                score_history.append({'date': entry['date'], 'score': entry.get('final_score')})
-        if score_history:
-            p['score_history'] = score_history
-    except Exception as e:
-        print(f"Warning: Failed to populate prev_day/prev_week/score_history: {e}")
-
-    # Write the updated data with history fields
-    write_json('data/data.json', p)
-
 
     # ── Append the FULL daily indicator vector to history ──────────────────────
     # Builds the per-day training matrix (raw inputs + mapped 0-100 scores +
