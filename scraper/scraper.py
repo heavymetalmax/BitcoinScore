@@ -476,22 +476,33 @@ def main():
     # ── Add prev_day, prev_week, and score_history fields ─────────────────────
     try:
         from datetime import datetime, timedelta
+        
+        # Load current history
         with open('data/history/scores.json') as f:
             history = json.load(f)
         
         today = datetime.now().date()
+        today_str = today.isoformat()
+        
+        # Append today's score if not already there
+        if not any(entry.get('date') == today_str for entry in history):
+            history.append({
+                'date': today_str,
+                'final_score': p.get('final_score'),
+                'phase': p.get('phase', 'UNKNOWN')
+            })
         
         # Find yesterday's entry
         yesterday = today - timedelta(days=1)
         for entry in history:
-            if datetime.fromisoformat(entry['date']).date() == yesterday:
+            if entry.get('date') and datetime.fromisoformat(entry['date']).date() == yesterday:
                 p['prev_day'] = {'date': entry['date'], 'final_score': entry.get('final_score')}
                 break
         
         # Find 7 days ago
         seven_days_ago = today - timedelta(days=7)
         for entry in history:
-            if datetime.fromisoformat(entry['date']).date() == seven_days_ago:
+            if entry.get('date') and datetime.fromisoformat(entry['date']).date() == seven_days_ago:
                 p['prev_week'] = {'date': entry['date'], 'final_score': entry.get('final_score')}
                 break
         
@@ -499,10 +510,13 @@ def main():
         score_history = []
         cutoff = today - timedelta(days=90)
         for entry in history:
-            if datetime.fromisoformat(entry['date']).date() >= cutoff:
+            if entry.get('date') and datetime.fromisoformat(entry['date']).date() >= cutoff:
                 score_history.append({'date': entry['date'], 'score': entry.get('final_score')})
         if score_history:
             p['score_history'] = score_history
+        
+        # Write updated history back
+        write_json('data/history/scores.json', history)
     except Exception as e:
         print(f"Warning: Failed to populate prev_day/prev_week/score_history: {e}")
 
