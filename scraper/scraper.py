@@ -489,7 +489,7 @@ def main():
             history.append({
                 'date': today_str,
                 'final_score': p.get('final_score'),
-                'phase': p.get('phase', 'UNKNOWN')
+                'phase': p.get('v3_phase') or (p.get('phase', {}).get('phase', 'UNKNOWN') if isinstance(p.get('phase'), dict) else p.get('phase', 'UNKNOWN'))
             })
         
         # Find yesterday's entry
