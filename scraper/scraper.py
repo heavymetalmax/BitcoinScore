@@ -115,7 +115,7 @@ def build_payload():
                 cached_nupl = None
                 if prev_metrics and 'nupl' in prev_metrics and prev_metrics['nupl'].get('value') is not None:
                     cached_nupl = prev_metrics['nupl'].get('value')
-                if cached_nupl is not None and age is not None and age <= 86400:
+                if cached_nupl is not None and age is not None and age <= 43200:
                     # reuse cached MacroMicro metrics
                     try:
                         nupl = float(cached_nupl)
@@ -154,7 +154,7 @@ def build_payload():
     for name, fn, visit_url, extractor in metric_specs:
         # prefer cached value when available and recent
         cached_val = None
-        if prev_metrics and name in prev_metrics and prev_metrics[name].get('value') is not None and 'age' in locals() and age is not None and age <= 86400 and os.environ.get('FORCE_LIVE') != '1':
+        if prev_metrics and name in prev_metrics and prev_metrics[name].get('value') is not None and 'age' in locals() and age is not None and age <= 43200 and os.environ.get('FORCE_LIVE') != '1':
             if not (name == 'm2' and prev_metrics[name].get('source') == 'BMP'):
                 _cv = prev_metrics[name].get('value')
                 if name == 'etf_flows' and isinstance(_cv, dict) and _cv.get('date'):
