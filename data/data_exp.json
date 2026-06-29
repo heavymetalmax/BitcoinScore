@@ -1,14 +1,14 @@
 {
-  "timestamp": "2026-06-28T09:06:10Z",
-  "btc_price": 60278.91042815918,
-  "btc_dominance": 58.2,
-  "fear_greed": 18.3,
+  "timestamp": "2026-06-29T09:38:49Z",
+  "btc_price": 59878.905156057255,
+  "btc_dominance": 58.08,
+  "fear_greed": 17.6,
   "fear_greed_label": "CMC",
-  "nupl": 11.2579,
-  "mvrv_z_score": 0.2229,
-  "cvdd_ratio": 1.2431,
-  "rhodl_ratio": 902.5003,
-  "asopr": 1.0206,
+  "nupl": 10.7774,
+  "mvrv_z_score": 0.2122,
+  "cvdd_ratio": 1.2363,
+  "rhodl_ratio": 876.1509,
+  "asopr": 0.9902857142857143,
   "etf_flows": {
     "value": -2014.7999999999997,
     "daily_flow": -444.5,
@@ -18,47 +18,49 @@
   "rainbow_band": {
     "band": "Below model",
     "color": "rgba(68, 114, 196, 0.8)",
-    "price": 59943,
-    "band_upper": 74810.65,
-    "date": "2026-06-27"
+    "price": 59612,
+    "band_upper": 74882.56,
+    "date": "2026-06-28"
   },
   "m2": 9.47,
-  "failed_live_fetches": [],
+  "failed_live_fetches": [
+    "etf_flows"
+  ],
   "metrics": {
     "nupl": {
-      "value": 11.2579,
+      "value": 10.7774,
       "source": "BMP",
-      "updated": "2026-06-28T09:05:12Z"
+      "updated": "2026-06-29T09:37:42Z"
     },
     "mvrv": {
-      "value": 0.2229,
+      "value": 0.2122,
       "source": "BMP",
-      "updated": "2026-06-28T09:05:21Z"
+      "updated": "2026-06-29T09:37:52Z"
     },
     "m2": {
       "value": 9.47,
       "source": "MacroMicro",
-      "updated": "2026-06-28T09:05:26Z"
+      "updated": "2026-06-29T09:37:55Z"
     },
     "yield_curve": {
       "value": 0.31,
       "source": "BMP",
-      "updated": "2026-06-28T09:05:29Z"
+      "updated": "2026-06-29T09:37:58Z"
     },
     "cvdd_ratio": {
-      "value": 1.2431,
+      "value": 1.2363,
       "source": "BMP",
-      "updated": "2026-06-28T09:05:38Z"
+      "updated": "2026-06-29T09:38:07Z"
     },
     "rhodl_ratio": {
-      "value": 902.5003,
+      "value": 876.1509,
       "source": "BMP",
-      "updated": "2026-06-28T09:05:46Z"
+      "updated": "2026-06-29T09:38:16Z"
     },
     "asopr": {
-      "value": 1.0206,
+      "value": 0.9902857142857143,
       "source": "BMP",
-      "updated": "2026-06-28T09:06:00Z"
+      "updated": "2026-06-29T09:38:32Z"
     },
     "etf_flows": {
       "value": {
@@ -68,25 +70,25 @@
         "date": "2026-06-26"
       },
       "source": "Farside",
-      "updated": "2026-06-28T09:06:03Z"
+      "updated": "2026-06-29T09:38:34Z"
     },
     "rainbow_band": {
       "value": {
         "band": "Below model",
         "color": "rgba(68, 114, 196, 0.8)",
-        "price": 59943,
-        "band_upper": 74810.65,
-        "date": "2026-06-27"
+        "price": 59612,
+        "band_upper": 74882.56,
+        "date": "2026-06-28"
       },
       "source": "BMP",
-      "updated": "2026-06-28T09:06:10Z"
+      "updated": "2026-06-29T09:38:49Z"
     },
     "fear_greed": {
       "latest": 16.0,
-      "avg_7d": 18.3,
+      "avg_7d": 17.6,
       "label": "CMC",
       "source": "CMC",
-      "updated": "2026-06-28T09:06:10Z"
+      "updated": "2026-06-29T09:38:49Z"
     },
     "cipherb": {
       "value": {
@@ -98,12 +100,12 @@
         "weekly_score": 13.379237728122884,
         "fast_bearish_div": false,
         "fast_bullish_div": true,
-        "daily_score": 1.6687329095222434,
+        "daily_score": 1.0377863019007576,
         "daily_fast_bearish_div": false,
         "daily_fast_bullish_div": true
       },
       "source": "Local",
-      "updated": "2026-06-28T09:06:10Z"
+      "updated": "2026-06-29T09:38:50Z"
     },
     "smc": {
       "value": {
@@ -117,60 +119,60 @@
         "size": 10
       },
       "source": "Local",
-      "updated": "2026-06-28T09:06:10Z"
+      "updated": "2026-06-29T09:38:50Z"
     },
     "mayer_multiple": {
       "value": {
-        "value": 0.79,
-        "dma_200": 75840.1,
-        "current_price": 59941.5,
+        "value": 0.786,
+        "dma_200": 75677.5,
+        "current_price": 59489.5,
         "score": 18
       },
       "source": "Kraken",
-      "updated": "2026-06-28T09:06:10Z"
+      "updated": "2026-06-29T09:38:50Z"
     },
     "funding_rate": {
       "value": {
-        "latest": 0.01084,
-        "avg_7d": 0.01084,
-        "score": 41,
+        "latest": -0.01501,
+        "avg_7d": -0.01501,
+        "score": 23,
         "periods": 1,
         "source": "Kraken Futures"
       },
       "source": "Kraken Futures",
-      "updated": "2026-06-28T09:06:11Z"
+      "updated": "2026-06-29T09:38:50Z"
     },
     "pi_cycle": {
       "value": {
-        "ma111": 71603.0,
-        "ma350x2": 180625.0,
-        "gap_pct": 60.36,
+        "ma111": 71522.0,
+        "ma350x2": 180284.0,
+        "gap_pct": 60.33,
         "score": 40,
         "cross": false
       },
       "source": "Kraken",
-      "updated": "2026-06-28T09:06:11Z"
+      "updated": "2026-06-29T09:38:50Z"
     },
     "puell_multiple": {
-      "value": 0.7641,
+      "value": 0.5841,
       "source": "BMP",
-      "updated": "2026-06-28T09:06:18Z"
+      "updated": "2026-06-29T09:38:57Z"
     },
     "lth_supply_pct": {
-      "value": 16654069.9848,
+      "value": 16653046.4163,
       "source": "BMP",
-      "updated": "2026-06-28T09:06:24Z"
+      "updated": "2026-06-29T09:39:04Z"
     },
     "m2_mom": {
       "value": 9.47,
       "source": "MacroMicro",
-      "updated": "2026-06-28T09:06:24Z"
+      "updated": "2026-06-29T09:39:04Z"
     }
   },
   "m2_mom": 9.47,
-  "onchain_score": 29,
+  "onchain_score": 25,
   "tech_score": 11,
-  "final_score": 23,
+  "final_score": 22,
   "adaptive_calibration": {
     "nupl": {
       "fixed": 30,
@@ -181,62 +183,62 @@
     },
     "mvrv": {
       "fixed": 25,
-      "adaptive": 16,
+      "adaptive": 15,
       "blended": 20,
       "win_years": 4,
       "blend_w": 0.5
     },
     "cvdd_ratio": {
-      "fixed": 14,
-      "adaptive": 7,
+      "fixed": 13,
+      "adaptive": 6,
       "blended": 10,
       "win_years": 4,
       "blend_w": 0.5
     },
     "mayer": {
       "fixed": 18,
-      "adaptive": 15,
+      "adaptive": 14,
       "blended": 16,
       "win_years": 4,
       "blend_w": 0.5
     },
     "puell": {
-      "fixed": 28,
-      "adaptive": 27,
-      "blended": 28,
+      "fixed": 19,
+      "adaptive": 12,
+      "blended": 16,
       "win_years": 4,
       "blend_w": 0.5
     }
   },
   "zone_forecast": {
     "buy": {
-      "price": 56533,
-      "pct": -6.2
+      "price": 57640,
+      "pct": -3.7
     },
     "sell": {
-      "price": 160657,
-      "pct": 166.5
+      "price": 161651,
+      "pct": 170.0
     },
     "buy_threshold": 20,
     "sell_threshold": 80,
-    "realized_price": 53493,
-    "ref_price": 60279
+    "realized_price": 53426,
+    "ref_price": 59879
   },
   "commentary": {
     "en": {
-      "summary": "A technically bullish recovery is undermined by significant institutional outflows, leaving the market in a tension-filled accumulation phase.",
-      "analysis": "The current environment reveals a recovery in momentum amidst patient holder accumulation, suggesting underlying confidence despite some macro normalization. The primary concern is heavy ETF outflows, which could keep near-term pressure in place until either institutional sentiment changes or macro signals solidify the upside."
+      "summary": "The market is in a calm yet cautionary accumulation phase, as institutional players shuffle out even though retail holders quietly build positions.",
+      "analysis": "The Bitcoin price remains stable with technical momentum and patient holders, suggesting a controlled environment amid ongoing accumulation. However, heavy ETF outflows—clear institutional divestment—pose immediate downward pressure and could shift the narrative quickly if they accelerate."
     },
     "ua": {
-      "summary": "Технічно бичачий відновлення підривається значними інституційними відтоками, залишаючи ринок у фазі накопичення, наповненій напругою.",
-      "analysis": "Поточне середовище вказує на відновлення імпульсу на фоні накопичення терплячих тримачів, що свідчить про приховану впевненість, незважаючи на певну макро-нормалізацію. Основна проблема полягає у великих відтоках з ETF, які можуть зберігати тиск у найближчій перспективі, поки або інституційні настрої не зміняться, або макро-сигнали не зміцнять позитивний тренд."
+      "summary": "Ринок перебуває в спокійній, але обережній фазі накопичення, оскільки інституційні гравці виходять, хоча роздрібні інвестори тихо нарощують позиції.",
+      "analysis": "Ціна Біткоїна залишається стабільною з технічним імпульсом та терплячими тримачами, що свідчить про контрольоване середовище на фоні триваючого накопичення. Проте великі відтоки з ETF — явне інституційне виведення капіталу — створюють негайний тиск вниз і можуть швидко змінити наратив, якщо вони прискоряться."
     }
   },
   "scoring_regime": "bottom",
   "tiz_score": 23,
-  "tiz_days": 121,
-  "oc_coherence": 0.139,
-  "coh_factor": 0.656,
+  "tiz_days": 122,
+  "oc_coherence": 0.251,
+  "coh_factor": 0.7,
   "pi_cross": false,
   "wave_resonance": {
     "score": null,
@@ -244,30 +246,29 @@
     "mean_osc": null,
     "std_osc": null,
     "oscillators": {},
-    "date_used": "2026-06-28",
+    "date_used": "2026-06-29",
     "window_pts": 0
   },
   "signal": {
-    "meta_score": 23,
+    "meta_score": 22,
     "zone": "bottom",
-    "conviction": 0.788,
+    "conviction": 0.763,
     "flag": "CONFIRMED_BOTTOM",
     "trust": {
-      "v3": 0.139,
+      "v3": 0.251,
       "wr": 0
     },
     "agreement": "wr_unavailable",
-    "tiz_maturity": 0.448,
+    "tiz_maturity": 0.452,
     "geo_signal": {
-      "top": 30,
-      "bot": 100
+      "top": 26,
+      "bot": 94
     },
     "bear_div": false,
     "bull_div": false
   },
   "metric_history": {
     "dates": [
-      "2025-06-28",
       "2025-06-29",
       "2025-06-30",
       "2025-07-01",
@@ -631,10 +632,10 @@
       "2026-06-24",
       "2026-06-25",
       "2026-06-26",
-      "2026-06-27"
+      "2026-06-27",
+      "2026-06-28"
     ],
     "nupl": [
-      70,
       70,
       70,
       70,
@@ -998,10 +999,10 @@
       25,
       25,
       25,
+      22,
       22
     ],
     "mvrv_z_score": [
-      63,
       63,
       62,
       62,
@@ -1365,10 +1366,10 @@
       24,
       24,
       24,
+      20,
       20
     ],
     "rhodl_ratio": [
-      75,
       75,
       76,
       74,
@@ -1732,10 +1733,10 @@
       31,
       31,
       31,
-      38
+      38,
+      39
     ],
     "cvdd_ratio": [
-      null,
       null,
       null,
       null,
@@ -2099,10 +2100,10 @@
       14,
       14,
       14,
+      10,
       10
     ],
     "asopr": [
-      0,
       0,
       0,
       0,
@@ -2466,10 +2467,10 @@
       59,
       59,
       59,
+      59,
       59
     ],
     "cipherb": [
-      86,
       86,
       86,
       86,
@@ -2833,10 +2834,10 @@
       10,
       4,
       2,
+      1,
       1
     ],
     "mayer_multiple": [
-      null,
       null,
       null,
       null,
@@ -3200,10 +3201,10 @@
       20,
       18,
       16,
+      16,
       16
     ],
     "etf_flows": [
-      null,
       null,
       null,
       null,
@@ -3567,10 +3568,10 @@
       27,
       27,
       9,
+      0,
       0
     ],
     "fear_greed": [
-      null,
       null,
       null,
       null,
@@ -3934,7 +3935,8 @@
       21,
       20,
       20,
-      19
+      19,
+      18
     ],
     "yield_curve_spread": [
       null,
@@ -4273,7 +4275,6 @@
       null,
       null,
       null,
-      null,
       51,
       51,
       51,
@@ -4301,6 +4302,7 @@
       58,
       58,
       58,
+      56,
       56
     ],
     "m2_yoy": [
@@ -4640,7 +4642,6 @@
       null,
       null,
       null,
-      null,
       32,
       32,
       32,
@@ -4654,6 +4655,7 @@
       4,
       4,
       null,
+      33,
       33,
       33,
       33,
@@ -4671,61 +4673,61 @@
       33
     ]
   },
-  "v3_score": 25,
-  "v3_onchain_score": 29,
+  "v3_score": 23,
+  "v3_onchain_score": 25,
   "v3_tech_score": 11,
   "v3_phase": "BOTTOM",
-  "v3_w_bot": 0.769,
+  "v3_w_bot": 0.783,
   "v3_w_neutral": 0.0,
-  "v3_w_top": 0.231,
+  "v3_w_top": 0.217,
   "v3_utilities": {
-    "nupl": 0.8769230769230769,
-    "mvrv_z_score": 0.8769230769230769,
-    "rhodl_ratio": 0.5384615384615384,
-    "cvdd_ratio": 0.7153846153846154,
-    "asopr": 0.7807692307692307,
-    "puell": 0.8153846153846154,
-    "mayer_multiple": 0.3,
-    "fear_greed": 0.3,
+    "nupl": 0.8783333333333333,
+    "mvrv_z_score": 0.8783333333333333,
+    "rhodl_ratio": 0.53,
+    "cvdd_ratio": 0.7266666666666666,
+    "asopr": 0.7941666666666667,
+    "puell": 0.8266666666666667,
+    "mayer_multiple": 0.29083333333333333,
+    "fear_greed": 0.29083333333333333,
     "m2_yoy": 0.1,
     "yield_curve_spread": 0.1,
     "etf_flows": 0.1,
     "funding_rate": 0.5,
-    "pi_gap": 0.3076923076923077,
-    "cipherb": 0.26153846153846155,
+    "pi_gap": 0.29500000000000004,
+    "cipherb": 0.2516666666666667,
     "cipherb_weekly": 0.5,
     "cipherb_daily": 0.5
   },
   "v3_signal": {
-    "meta_score": 23,
+    "meta_score": 22,
     "zone": "bottom",
-    "conviction": 0.788,
+    "conviction": 0.763,
     "flag": "CONFIRMED_BOTTOM",
     "trust": {
-      "v3": 0.139,
+      "v3": 0.251,
       "wr": 0
     },
     "agreement": "wr_unavailable",
-    "tiz_maturity": 0.448,
+    "tiz_maturity": 0.452,
     "geo_signal": {
-      "top": 30,
-      "bot": 100
+      "top": 26,
+      "bot": 94
     },
     "bear_div": false,
     "bull_div": false
   },
   "v3_tiz_score": 23,
-  "v3_tiz_days": 121,
-  "v3_tiz_maturity": 0.448,
+  "v3_tiz_days": 122,
+  "v3_tiz_maturity": 0.452,
   "v3_tiz_calibration": 270,
-  "v3_oc_coherence": 0.139,
-  "sp_v2": 25,
+  "v3_oc_coherence": 0.251,
+  "sp_v2": 23,
   "phase": {
     "phase": "BOTTOM",
-    "top_signal": 30,
-    "bot_signal": 100,
-    "w_bot": 0.769,
+    "top_signal": 26,
+    "bot_signal": 94,
+    "w_bot": 0.783,
     "w_neutral": 0.0,
-    "w_top": 0.231
+    "w_top": 0.217
   }
 }
