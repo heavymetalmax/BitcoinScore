@@ -2036,9 +2036,9 @@
       mayer:   { title: { en: 'Mayer Multiple', ua: 'Mayer Multiple' },
                  text:  { en: 'Bitcoin price ÷ 200-day moving average. Mean-reverting signal: ≤0.5 = extreme undervaluation; ≥2.1 = major overvaluation. Uses adaptive 4-year percentile blending. Weight: 20% of Tech/Macro.',
                            ua: 'Ціна Bitcoin ÷ 200-денна ковзна середня. ≤0.5 = екстремальна недооціненість; ≥2.1 = перегрітість. Адаптивне блендування. Вага: 20% від Tech/Macro.' } },
-      etf:     { title: { en: 'Spot ETF Flows (14d)', ua: 'Spot ETF Flows (14d)' },
-                 text:  { en: '14-day rolling net inflows into US Spot Bitcoin ETFs — institutional liquidity momentum. ≤ −$2.0B = capitulation (0 risk); ≥ +$4.0B = euphoria/overheating (100 risk). Weight: 10% of Tech/Macro.',
-                           ua: '14-денна ковзна сума чистих потоків у спотові ETF США. ≤ −$2.0B = капітуляція (0); ≥ +$4.0B = ейфорія (100). Вага: 10% від Tech/Macro.' } },
+      etf:     { title: { en: 'Spot ETF Flows (7d)', ua: 'Spot ETF Flows (7d)' },
+                 text:  { en: '7-day rolling net inflows into US Spot Bitcoin ETFs — institutional liquidity momentum. ≤ −$2.0B = capitulation (0 risk); ≥ +$4.0B = euphoria/overheating (100 risk). Weight: 10% of Tech/Macro.',
+                           ua: '7-денна ковзна сума чистих потоків у спотові ETF США. ≤ −$2.0B = капітуляція (0); ≥ +$4.0B = ейфорія (100). Вага: 10% від Tech/Macro.' } },
       fg:      { title: { en: 'Fear & Greed Index', ua: 'Індекс страху та жадібності' },
                  text:  { en: 'Contrarian sentiment proxy (social media, search trends, volatility, volume), using a 7-day moving average. Low score (Fear) = accumulation opportunity; High score (Greed) = caution. Weight: 10% of Tech/Macro.',
                            ua: 'Контрарний індикатор настроїв (соцмережі, пошук, волатильність, обсяг), 7-денне MA. Низький (страх) = накопичення; Високий (жадібність) = обережність. Вага: 10% від Tech/Macro.' } },
@@ -2466,7 +2466,7 @@
       const _techMetrics = [
         { key: 'cipherb', name: n({en:'Cipher B', ua:'Cipher B'}), score: getV3Score('cipherb', cbScore), raw: cbScore != null ? (+cbScore).toFixed(1) : null },
         { key: 'mayer',   name: n({en:'Mayer Multiple', ua:'Mayer Multiple'}), score: getV3Score('mayer', mmVal), raw: mmVal != null ? (+mmVal).toFixed(3) : null },
-        { key: 'etf',     name: n({en:'ETF Flows (14d)', ua:'ETF Flows (14d)'}), score: getV3Score('etf', etfVal), raw: etfVal != null ? '$'+(etfVal/1000).toFixed(2)+'B' : null },
+        { key: 'etf',     name: n({en:'ETF Flows (7d)', ua:'ETF Flows (7d)'}), score: getV3Score('etf', etfVal), raw: etfVal != null ? '$'+(etfVal/1000).toFixed(2)+'B' : null },
         { key: 'fg',      name: n({en:'Fear & Greed', ua:'Індекс страху'}), score: getV3Score('fg', fgVal), raw: fgVal != null ? (+fgVal).toFixed(0) : null },
         { key: 'yc',      name: n({en:'Yield Curve', ua:'Крива дохідності'}), score: getV3Score('yield_curve', yc), raw: yc != null ? (+yc).toFixed(2)+'%' : null },
         { key: 'm2',      name: n({en:'Global M2', ua:'Глобальний M2'}), score: getV3Score('m2', m2raw), raw: m2raw != null ? (+m2raw).toFixed(1)+'%' : null }

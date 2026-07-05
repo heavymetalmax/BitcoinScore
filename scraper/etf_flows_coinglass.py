@@ -3,7 +3,7 @@
 Scrapes coinglass.com homepage ETF table via Playwright (USD mode).
 Returns the same dict format as etf_flows.get_etf_flows():
   {value, daily_flow, total_cumulative, date}
-where value = 14-day rolling sum in $M, total_cumulative in $M.
+where value = 7-day rolling sum in $M, total_cumulative in $M.
 
 CoinGlass typically lags 1-2 days behind real time vs Farside's 9+ day lag.
 """
@@ -173,7 +173,7 @@ def get_etf_flows_coinglass():
         logger.error('CoinGlass: no date rows parsed from ETF section')
         return None
 
-    # Build calendar-day series and compute 14-day rolling sum
+    # Build calendar-day series and compute 7-day rolling sum
     df = pd.DataFrame(rows)
     df['dt'] = pd.to_datetime(df['date'])
     df = df.sort_values('dt').drop_duplicates('date').reset_index(drop=True)
@@ -184,22 +184,22 @@ def get_etf_flows_coinglass():
     latest_date = str(latest['date'])
     daily_flow = float(latest['total'])
 
-    rolling = df_cal.rolling(window=14).sum()
-    value_14d = float(rolling.iloc[-1]) if not rolling.empty else 0.0
+    rolling = df_cal.rolling(window=7).sum()
+    value_7d = float(rolling.iloc[-1]) if not rolling.empty else 0.0
 
     if total_cum is None:
         total_cum = float(df_cal.cumsum().iloc[-1])
 
     result = {
-        'value': round(value_14d, 2),
+        'value': round(value_7d, 2),
         'daily_flow': round(daily_flow, 2),
         'total_cumulative': round(total_cum, 2),
         'date': latest_date,
     }
 
     logger.info(
-        'CoinGlass ETF: date=%s  14d=%.1fM  daily=%.1fM  cum=%.1fM',
-        latest_date, value_14d, daily_flow, total_cum,
+        'CoinGlass ETF: date=%s  7d=%.1fM  daily=%.1fM  cum=%.1fM',
+        latest_date, value_7d, daily_flow, total_cum,
     )
     return result
 

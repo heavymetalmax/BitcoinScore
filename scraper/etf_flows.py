@@ -38,7 +38,7 @@ def get_etf_flows():
 
     Returns:
         dict: {
-            'value': float (14d rolling sum of net flows in $M),
+            'value': float (7d rolling sum of net flows in $M),
             'daily_flow': float (latest daily total flow in $M),
             'total_cumulative': float (total cumulative flows in $M),
             'date': str (latest data date YYYY-MM-DD)
@@ -100,33 +100,23 @@ def get_etf_flows():
             logger.error("No valid rows after cleaning ETF flows.")
             return None
             
-        # Compute 14-day rolling sum (based on actual trading calendar rows, or calendar days?)
-        # For risk mapping, we calibrated on trading-day rows.
-        # But wait, 14-day rolling sum on calendar days or trading days?
-        # In analyze_etf_correlations.py, we merged with calendar days (filling non-trading days with 0).
-        # To align with that calibration, we should merge with calendar daily price dates or just
-        # reconstruct the calendar index and roll sum over 14 calendar days.
-        # Let's do calendar daily reconstruction to match:
         df_cal = df.set_index('Datetime').resample('D').asfreq()
-        # Fill non-trading days with 0
         df_cal['Total'] = df_cal['Total'].fillna(0.0)
         df_cal['Total_Cumulative'] = df_cal['Total'].cumsum()
-        
-        # Calculate 14-day rolling sum
-        df_cal['Flow_14d_Sum'] = df_cal['Total'].rolling(window=14).sum()
+        df_cal['Flow_7d_Sum'] = df_cal['Total'].rolling(window=7).sum()
         
         # Prefer last row with actual reported flows; fall back to last Farside row if all zero
         _reported = df_cal[(df_cal['Date'].notna()) & (df_cal['Total'] != 0.0)]
         latest_row = _reported.iloc[-1] if not _reported.empty else df_cal[df_cal['Date'].notna()].iloc[-1]
         
         result = {
-            'value': float(latest_row['Flow_14d_Sum']),
+            'value': float(latest_row['Flow_7d_Sum']),
             'daily_flow': float(latest_row['Total']),
             'total_cumulative': float(latest_row['Total_Cumulative']),
             'date': latest_row.name.strftime('%Y-%m-%d')
         }
         
-        logger.info(f"Latest ETF flow data for {result['date']}: 14d={result['value']:.1f}M  daily={result['daily_flow']:.1f}M")
+        logger.info(f"Latest ETF flow data for {result['date']}: 7d={result['value']:.1f}M  daily={result['daily_flow']:.1f}M")
         return result
         
     except Exception as e:
