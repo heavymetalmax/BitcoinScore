@@ -143,8 +143,8 @@ def compute_scores_v3(raw_metrics, target_date=None, prev_scores=None, scores_hi
         'puell_multiple': 'puell',
         'mayer_multiple': 'mayer_multiple',
         'fear_greed': 'fear_greed',
-        'm2_yoy': 'm2_yoy',
-        'yield_curve_spread': 'yield_curve_spread',
+        'm2_mom': 'm2_yoy',              # data.json key is m2_mom
+        'yield_curve': 'yield_curve_spread',  # data.json key is yield_curve
         'etf_flows': 'etf_flows',
         'funding_rate': 'funding_rate'
     }
