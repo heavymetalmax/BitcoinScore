@@ -17,6 +17,7 @@ The scraper runs daily on a **home Mac Mini server (DietPi, x86_64)** at `dietpi
 ```bash
 # Install dependencies
 pip install -r scraper/requirements.txt
+python -m playwright install chromium
 
 # Run the scraper (primary entry point)
 python -m scraper.scraper

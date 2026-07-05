@@ -119,7 +119,16 @@ def get_etf_flows_coinglass():
     body_text = None
     try:
         with sync_playwright() as p:
-            browser = p.chromium.launch(headless=True)
+            try:
+                browser = p.chromium.launch(headless=True)
+            except Exception as launch_err:
+                if 'Executable doesn' in str(launch_err):
+                    logger.warning('CoinGlass: Chromium not installed — running playwright install chromium')
+                    import subprocess
+                    subprocess.run(['python', '-m', 'playwright', 'install', 'chromium'], check=True, capture_output=True)
+                    browser = p.chromium.launch(headless=True)
+                else:
+                    raise
             page = browser.new_page()
             page.set_extra_http_headers({'accept-language': 'en-US,en;q=0.9'})
 
