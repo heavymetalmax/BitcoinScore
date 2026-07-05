@@ -28,7 +28,7 @@ import datetime
 # fixed maps — applying a percentile to a stable-envelope oscillator would
 # inject noise. Evidence: tools/adaptive_norm_probe.py (NUPL peaks 0.87→0.64,
 # MVRV Z 11→3.4; fixed under-reads modern tops and over-reads modern bottoms).
-ADAPTIVE_METRICS   = {'nupl', 'mvrv', 'mayer', 'cvdd_ratio', 'puell'}
+ADAPTIVE_METRICS   = {'nupl', 'mvrv', 'mayer', 'cvdd_ratio', 'puell', 'etf_flows'}
 # daily_vector raw key differs from the adaptive metric name for some metrics
 _DV_KEY            = {'mayer': 'mayer_multiple', 'cvdd_ratio': 'cvdd_ratio'}
 # field name in unified_history.json when it differs from the metric key
@@ -37,7 +37,9 @@ _UNIFIED_FIELD     = {'mayer': 'mayer_multiple', 'cvdd_ratio': 'cvdd_ratio'}
 _SEED_VAL          = {'cvdd_ratio': 'ratio'}
 # unified_history/seed files store NUPL as fraction (0–1); data.json uses % (0–100).
 # Divide incoming value by this factor before percentile comparison so units match.
-_PCTILE_DIVISOR    = {'nupl': 100}
+# etf_flows: live value is 7d sum; history stores 14d sums → divisor=0.5 doubles the
+# live value to 14d-equivalent units before comparing against the 14d history distribution.
+_PCTILE_DIVISOR    = {'nupl': 100, 'etf_flows': 0.5}
 ADAPTIVE_BLEND     = 0.5                 # weight on the adaptive (percentile) part
 ADAPTIVE_WIN_YEARS = 4                   # trailing window for the percentile
 ADAPTIVE_DEBUG     = {}                  # per-run breakdown for transparency
@@ -77,6 +79,23 @@ def _load_metric_history(metric):
         d = row.get('date', '')[:10]
         if d and v is not None:
             pts.append((d, float(v)))
+
+    # ── Special: etf_flows uses a flat-list history file (not series dict) ─────
+    if not pts and metric == 'etf_flows':
+        etf_path = 'data/history/etf_flows.json'
+        try:
+            if os.path.exists(etf_path):
+                raw_etf = json.load(open(etf_path, encoding='utf-8'))
+                if isinstance(raw_etf, list):
+                    for r in raw_etf:
+                        d = (r.get('timestamp') or r.get('date', ''))[:10]
+                        v = r.get('etf_flow_7d')
+                        if v is None:
+                            v = r.get('etf_flow_14d')
+                        if d and v is not None:
+                            pts.append((d, float(v)))
+        except Exception:
+            pass
 
     # ── Fallback: individual seed file (when unified is missing/empty) ───────
     if not pts:
@@ -368,7 +387,7 @@ def score_from_raw(raw, adaptive_pcts=None):
         'cipherb':            cipherb_score,       # combined + penalty (v1 weights)
         'cipherb_weekly':     cb_weekly_raw,        # raw weekly, no penalty (v2 wave vector)
         'cipherb_daily':      cb_daily_raw,         # raw daily, no penalty (v2 wave vector)
-        'etf_flows':          map_etf_flow(raw.get('etf_flows')),
+        'etf_flows':          _blend('etf_flows', map_etf_flow(raw.get('etf_flows'))),
         'funding_rate':       map_funding(raw.get('funding_rate')),
     }
 
@@ -390,10 +409,12 @@ def build_slider_map(metrics: dict) -> dict:
     # Compute trailing-window adaptive percentiles and record debug breakdown
     adaptive_pcts = {}
     _fixed_fn = {'nupl': map_nupl, 'mvrv': map_mvrv,
-                 'cvdd_ratio': map_cvdd, 'mayer': map_mayer_multiple}
+                 'cvdd_ratio': map_cvdd, 'mayer': map_mayer_multiple,
+                 'etf_flows': map_etf_flow}
     _raw_key  = {'nupl': 'nupl', 'mvrv': 'mvrv',
-                 'cvdd_ratio': 'cvdd_ratio', 'mayer': 'mayer_multiple'}
-    for metric in ('nupl', 'mvrv', 'cvdd_ratio', 'mayer'):
+                 'cvdd_ratio': 'cvdd_ratio', 'mayer': 'mayer_multiple',
+                 'etf_flows': 'etf_flows'}
+    for metric in ('nupl', 'mvrv', 'cvdd_ratio', 'mayer', 'etf_flows'):
         val   = mv(_raw_key[metric])
         pct   = _percentile_score(metric, val)
         fixed = _fixed_fn[metric](val)

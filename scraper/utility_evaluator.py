@@ -14,20 +14,24 @@ RELEVANCE_PROFILES = {
     # On-Chain Bottom-focused
     'cvdd_ratio':          {'BOTTOM': 1.0, 'NEUTRAL': 0.4, 'TOP': 0.1},
     'puell':               {'BOTTOM': 1.0, 'NEUTRAL': 0.5, 'TOP': 0.2},
-    'asopr':               {'BOTTOM': 0.9, 'NEUTRAL': 0.6, 'TOP': 0.2},
+    # aSOPR: backtest showed ~50-78 scores at genuine bottoms AND tops (range-bound oscillator,
+    # not regime-discriminating) — downgraded from BOTTOM=0.9 to symmetric low weight.
+    'asopr':               {'BOTTOM': 0.4, 'NEUTRAL': 0.5, 'TOP': 0.5},
     # General On-Chain (high relevance at both extremes)
     'nupl':                {'BOTTOM': 1.0, 'NEUTRAL': 0.7, 'TOP': 1.0},
     'mvrv_z_score':        {'BOTTOM': 1.0, 'NEUTRAL': 0.7, 'TOP': 1.0},
-    'rhodl_ratio':         {'BOTTOM': 0.6, 'NEUTRAL': 0.6, 'TOP': 1.0},
+    # rhodl: missed 2019 peak (scored 38 when expected ~80+); raised TOP weight.
+    'rhodl_ratio':         {'BOTTOM': 0.6, 'NEUTRAL': 0.6, 'TOP': 0.7},
     # Tech/Macro Top-focused
     'cipherb':             {'BOTTOM': 0.4, 'NEUTRAL': 0.7, 'TOP': 1.0},
     'mayer_multiple':      {'BOTTOM': 0.4, 'NEUTRAL': 0.6, 'TOP': 1.0},
     'fear_greed':          {'BOTTOM': 0.9, 'NEUTRAL': 0.5, 'TOP': 0.9},
     # Tactical / Flows
     'etf_flows':           {'BOTTOM': 0.3, 'NEUTRAL': 0.8, 'TOP': 0.4},
-    # Macro
-    'yield_curve_spread':  {'BOTTOM': 0.6, 'NEUTRAL': 0.8, 'TOP': 0.3},
-    'm2_yoy':              {'BOTTOM': 0.7, 'NEUTRAL': 0.8, 'TOP': 0.3},
+    # Macro (contrarian, intentionally noisy) — downweighted at cycle extremes.
+    # Both metrics behave counterintuitively at tops/bottoms (inverted logic + lag).
+    'yield_curve_spread':  {'BOTTOM': 0.3, 'NEUTRAL': 0.6, 'TOP': 0.2},
+    'm2_yoy':              {'BOTTOM': 0.3, 'NEUTRAL': 0.6, 'TOP': 0.2},
     # Pi Cycle Gap
     'pi_gap':              {'BOTTOM': 0.1, 'NEUTRAL': 0.5, 'TOP': 1.0}
 }

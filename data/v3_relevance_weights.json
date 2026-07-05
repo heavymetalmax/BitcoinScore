@@ -10,9 +10,9 @@
     "TOP": 0.2
   },
   "asopr": {
-    "BOTTOM": 1.0,
-    "NEUTRAL": 0.7,
-    "TOP": 0.05
+    "BOTTOM": 0.4,
+    "NEUTRAL": 0.5,
+    "TOP": 0.5
   },
   "nupl": {
     "BOTTOM": 0.9,
@@ -26,8 +26,8 @@
   },
   "rhodl_ratio": {
     "BOTTOM": 0.4,
-    "NEUTRAL": 1.0,
-    "TOP": 1.0
+    "NEUTRAL": 0.6,
+    "TOP": 0.7
   },
   "cipherb": {
     "BOTTOM": 0.1,
@@ -50,14 +50,14 @@
     "TOP": 0.15
   },
   "yield_curve_spread": {
-    "BOTTOM": 0.15,
-    "NEUTRAL": 0.8,
-    "TOP": 0.3
+    "BOTTOM": 0.3,
+    "NEUTRAL": 0.6,
+    "TOP": 0.2
   },
   "m2_yoy": {
-    "BOTTOM": 0.05,
-    "NEUTRAL": 0.25,
-    "TOP": 0.95
+    "BOTTOM": 0.3,
+    "NEUTRAL": 0.6,
+    "TOP": 0.2
   },
   "pi_gap": {
     "BOTTOM": 0.1,
