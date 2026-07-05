@@ -1,6 +1,7 @@
 """Scraper for US Spot Bitcoin ETF net flows.
 
-Fetches data from Farside Investors (https://farside.co.uk/bitcoin-etf-flow-all-data/).
+Primary: CoinGlass (Playwright, 1-2 day lag).
+Fallback: Farside Investors (HTML table, 9+ day lag).
 """
 import logging
 import io
@@ -9,7 +10,9 @@ from curl_cffi import requests
 
 logger = logging.getLogger(__name__)
 
-_URL = "https://farside.co.uk/bitcoin-etf-flow-all-data/"
+_FARSIDE_URL = "https://farside.co.uk/bitcoin-etf-flow-all-data/"
+# Legacy alias kept for scraper.py staleness check
+_URL = _FARSIDE_URL
 
 def parse_financial_value(val):
     if pd.isna(val):
@@ -31,8 +34,8 @@ def parse_financial_value(val):
         return 0.0
 
 def get_etf_flows():
-    """Fetch daily ETF flows and return the latest metrics.
-    
+    """Fetch daily ETF flows — CoinGlass primary, Farside fallback.
+
     Returns:
         dict: {
             'value': float (14d rolling sum of net flows in $M),
@@ -41,9 +44,20 @@ def get_etf_flows():
             'date': str (latest data date YYYY-MM-DD)
         } or None
     """
+    # Primary: CoinGlass (1-2 day lag, Playwright)
+    try:
+        from .etf_flows_coinglass import get_etf_flows_coinglass
+        result = get_etf_flows_coinglass()
+        if result:
+            return result
+        logger.warning('CoinGlass ETF returned None — falling back to Farside')
+    except Exception as e:
+        logger.warning('CoinGlass ETF failed (%s) — falling back to Farside', e)
+
+    # Fallback: Farside (9+ day lag, HTML scrape)
     logger.info("Fetching ETF flows from Farside...")
     try:
-        response = requests.get(_URL, impersonate="chrome", timeout=20)
+        response = requests.get(_FARSIDE_URL, impersonate="chrome", timeout=20)
         if response.status_code != 200:
             logger.error(f"Failed to fetch Farside ETF data. Status: {response.status_code}")
             return None
