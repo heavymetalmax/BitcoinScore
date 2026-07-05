@@ -188,6 +188,23 @@ def run_scoring_pipeline(p, build_metric_history_fn=None):
             p['v3_w_top']           = scores_v3['w_top']
             p['v3_utilities']       = scores_v3['utilities']
             p['v3_normalized_scores'] = scores_v3.get('normalized_scores', {})
+
+            # Data quality: which of the 14 expected scoring metrics have a live value
+            _EXPECTED_SCORING_METRICS = {
+                'nupl', 'mvrv_z_score', 'rhodl_ratio', 'cvdd_ratio', 'asopr', 'puell',
+                'mayer_multiple', 'fear_greed', 'm2_yoy', 'yield_curve_spread',
+                'etf_flows', 'funding_rate', 'pi_gap', 'cipherb'
+            }
+            _norm = p['v3_normalized_scores']
+            _active = [k for k in _EXPECTED_SCORING_METRICS if _norm.get(k) is not None]
+            _missing = sorted(k for k in _EXPECTED_SCORING_METRICS if _norm.get(k) is None)
+            p['data_quality'] = {
+                'active_metrics': len(_active),
+                'total_metrics': len(_EXPECTED_SCORING_METRICS),
+                'quality_pct': round(len(_active) / len(_EXPECTED_SCORING_METRICS) * 100),
+                'missing_metrics': _missing
+            }
+
             p['v3_signal']          = v3_sig
             p['v3_tiz_score']       = scores_v3['tiz_score']
             p['v3_tiz_days']        = scores_v3['tiz_days']

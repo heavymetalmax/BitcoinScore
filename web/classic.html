@@ -614,6 +614,7 @@
           <div>
             <div class="score-number" id="score-number"><span class="score-val">—</span><span class="score-denom">/100</span></div>
             <div class="score-zone" id="score-zone"></div>
+            <div id="data-quality-bar" style="display:none;font-size:10px;color:var(--muted);margin-top:3px;opacity:0.85;"></div>
             <div class="score-desc" id="score-desc" style="display:none"></div>
             <div class="score-hint" id="score-hint">
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/><circle cx="7" cy="4.5" r="0.75" fill="currentColor"/><line x1="7" y1="6.5" x2="7" y2="10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
@@ -2508,17 +2509,38 @@ async function loadData() {
       isStale = true;
     }
     
-    // 2. Metrics check: check if any of the canonical 11 metrics are null/missing
-    const checkedValues = [
-      data.nupl, data.mvrv_z_score || data.mvrv, data.rhodl_ratio, data.cvdd_ratio, data.asopr,
-      cbScore, mayer, etfVal, fgVal, ycVal, m2Val
-    ];
-    
-    const missingCount = checkedValues.filter(v => v == null).length;
-    if (missingCount > 0) {
-      isDegraded = true;
+    // 2. Metrics check: prefer data_quality field from scoring pipeline
+    const dq = data.data_quality;
+    let missingCount = 0;
+    if (dq) {
+      missingCount = (dq.total_metrics || 0) - (dq.active_metrics || 0);
+      if (missingCount > 0) isDegraded = true;
+
+      // Show quality bar when any metric is missing
+      const dqBar = document.getElementById('data-quality-bar');
+      if (dqBar) {
+        if (missingCount > 0) {
+          const lang = document.body.classList.contains('lang-ua') ? 'ua' : 'en';
+          const pct = dq.quality_pct ?? Math.round(dq.active_metrics / dq.total_metrics * 100);
+          const missing = (dq.missing_metrics || []).join(', ');
+          dqBar.textContent = lang === 'ua'
+            ? `Дані: ${dq.active_metrics}/${dq.total_metrics} метрик (${pct}%) • без: ${missing}`
+            : `Data: ${dq.active_metrics}/${dq.total_metrics} metrics (${pct}%) • missing: ${missing}`;
+          dqBar.style.display = 'block';
+        } else {
+          dqBar.style.display = 'none';
+        }
+      }
+    } else {
+      // Fallback: check raw values
+      const checkedValues = [
+        data.nupl, data.mvrv_z_score || data.mvrv, data.rhodl_ratio, data.cvdd_ratio, data.asopr,
+        cbScore, mayer, etfVal, fgVal, ycVal, m2Val
+      ];
+      missingCount = checkedValues.filter(v => v == null).length;
+      if (missingCount > 0) isDegraded = true;
     }
-    
+
     // 3. Algorithm check: score must be present
     if (score == null || score <= 0) {
       isHealthy = false;
@@ -2529,7 +2551,7 @@ async function loadData() {
       healthIndicator.title = 'Stale / Застарілий';
     } else if (isDegraded || !isHealthy) {
       healthIndicator.style.background = '#EAB308';
-      healthIndicator.title = 'Degraded / Обмежений';
+      healthIndicator.title = `Degraded: ${missingCount} metric(s) missing / Обмежений`;
     } else {
       healthIndicator.style.background = '#22C55E';
       healthIndicator.title = 'Healthy / Здоровий';

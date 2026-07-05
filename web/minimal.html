@@ -2194,12 +2194,17 @@
           isStale = true;
         }
 
+        const dq = data.data_quality;
+        const missingMetrics = dq ? (dq.total_metrics - dq.active_metrics) : 0;
         if (isStale || data.final_score == null) {
           healthDot.classList.add('err');
-        } else if (data.failed_live_fetches && data.failed_live_fetches.length > 0) {
+          healthDot.title = 'Stale data';
+        } else if (missingMetrics > 0 || (data.failed_live_fetches && data.failed_live_fetches.length > 0)) {
           healthDot.classList.add('warn');
+          healthDot.title = dq ? `${dq.active_metrics}/${dq.total_metrics} metrics (${dq.quality_pct}%)` : 'Some metrics missing';
         } else {
           healthDot.classList.add('ok');
+          healthDot.title = 'All metrics healthy';
         }
       }
 
