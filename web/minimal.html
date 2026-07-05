@@ -675,9 +675,10 @@
       border-bottom: 1px solid rgba(255,255,255,0.06);
     }
     .history-table td:first-child { text-align: left; }
-    .history-table tbody tr.bucket-active td { font-weight: 600; border-left: 2px solid var(--text); }
-    .history-table tbody tr.bucket-active td:first-child { padding-left: 6px; }
-    .history-table tbody tr.bucket-active td:first-child::before { content: '▶ '; font-size: 0.6em; }
+    .history-table tbody tr.bucket-active td,
+    .history-table tbody tr.bucket-active th { font-weight: 600; }
+    .history-table tbody tr.bucket-active th[scope="row"] { border-left: 2px solid var(--text); padding-left: 6px; }
+    .history-table tbody tr.bucket-active th[scope="row"]::before { content: '▶ '; font-size: 0.6em; }
     .history-table tfoot td {
       font-size: 0.62rem;
       color: var(--text);
