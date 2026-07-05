@@ -58,6 +58,10 @@ jobs:
         if: steps.freshness.outputs.fresh == 'false'
         run: python tools/signal_ledger.py || true
 
+      - name: Compute historical bucket returns
+        if: steps.freshness.outputs.fresh == 'false'
+        run: python3 tools/bucket_returns.py
+
       - name: Run drift monitor
         if: steps.freshness.outputs.fresh == 'false'
         run: python tools/drift_monitor.py || true
@@ -70,11 +74,12 @@ jobs:
         if: steps.freshness.outputs.fresh == 'false'
         run: python tools/generate_sparklines.py
 
-      - name: Copy data.json next to index.html
+      - name: Copy data files to web/
         if: steps.freshness.outputs.fresh == 'false'
         run: |
           cp data/data.json web/data.json
           [ -f data/data_exp.json ] && cp data/data_exp.json web/data_exp.json || true
+          [ -f data/bucket_returns.json ] && cp data/bucket_returns.json web/bucket_returns.json || true
 
       - name: Commit and push data
         if: steps.freshness.outputs.fresh == 'false'
