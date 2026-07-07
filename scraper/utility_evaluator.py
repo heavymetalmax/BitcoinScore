@@ -15,9 +15,9 @@ RELEVANCE_PROFILES = {
     # On-Chain Bottom-focused
     'cvdd_ratio':          {'BOTTOM': 1.0, 'NEUTRAL': 0.4, 'TOP': 0.1},
     'puell':               {'BOTTOM': 1.0, 'NEUTRAL': 0.5, 'TOP': 0.2},
-    # aSOPR: backtest showed ~50-78 scores at genuine bottoms AND tops (range-bound oscillator,
-    # not regime-discriminating) — downgraded from BOTTOM=0.9 to symmetric low weight.
-    'asopr':               {'BOTTOM': 0.4, 'NEUTRAL': 0.5, 'TOP': 0.5},
+    # aSOPR: Fisher separation=0.143 (bottom_mean=58.67 vs top_mean=57.81, Δ=0.86).
+    # Near-zero discrimination — keep in model for data completeness but minimal weight.
+    'asopr':               {'BOTTOM': 0.15, 'NEUTRAL': 0.15, 'TOP': 0.15},
     # General On-Chain (high relevance at both extremes)
     'nupl':                {'BOTTOM': 1.0, 'NEUTRAL': 0.7, 'TOP': 1.0},
     'mvrv_z_score':        {'BOTTOM': 1.0, 'NEUTRAL': 0.7, 'TOP': 1.0},
