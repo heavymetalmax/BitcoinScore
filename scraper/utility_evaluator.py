@@ -2,14 +2,15 @@
 
 Computes dynamic utility coefficients U_i in [0.1, 1.0] for each metric using
 a continuous mixture of three state-space weights (w_top, w_bottom, w_neutral)
-derived from cycle proximity metrics. Supports dynamic JSON weight loading.
+derived from cycle proximity metrics. Relevance weights are loaded from the
+model pickle (single source of truth); Python defaults are the cold-start fallback.
 """
 
 import os
-import json
 import math
 
-# Default baseline relevance profiles
+# Default baseline relevance profiles — cold-start fallback only.
+# The authoritative values come from the trained model pickle (metric_relevance key).
 RELEVANCE_PROFILES = {
     # On-Chain Bottom-focused
     'cvdd_ratio':          {'BOTTOM': 1.0, 'NEUTRAL': 0.4, 'TOP': 0.1},
@@ -42,23 +43,35 @@ RELEVANCE_PROFILES = {
     'lth_supply':          {'BOTTOM': 0.5, 'NEUTRAL': 0.6, 'TOP': 0.9},
 }
 
-_WEIGHTS_PATH = 'data/v3_relevance_weights.json'
+_MODEL_PATH = 'data/v3_phase_model.pkl'
 
 
 def load_relevance_weights():
-    """Load optimized relevance weights from JSON if available, overriding defaults."""
+    """Load optimized relevance weights from the model pickle (single source of truth).
+
+    The pickle stores metric_relevance as a plain dict — same shape as RELEVANCE_PROFILES.
+    Falls back to Python defaults silently if the pickle is absent or unreadable.
+    Lazy import of HMMPhaseClassifier avoids circular imports when called from
+    train_v3_hmm_model.py.
+    """
     global RELEVANCE_PROFILES
-    if os.path.exists(_WEIGHTS_PATH):
+    if not os.path.exists(_MODEL_PATH):
+        return
+    try:
+        import pickle
         try:
-            with open(_WEIGHTS_PATH, 'r', encoding='utf-8') as f:
-                data = json.load(f)
-                if isinstance(data, dict):
-                    for k, v in data.items():
-                        if k in RELEVANCE_PROFILES and isinstance(v, dict):
-                            RELEVANCE_PROFILES[k].update(v)
-            # We don't print on every import to avoid polluting output, but weights are updated.
+            from tools.train_v3_hmm_model import HMMPhaseClassifier  # noqa: F401
         except Exception:
             pass
+        with open(_MODEL_PATH, 'rb') as f:
+            model_data = pickle.load(f)
+        learned = model_data.get('metric_relevance')
+        if isinstance(learned, dict):
+            for k, v in learned.items():
+                if k in RELEVANCE_PROFILES and isinstance(v, dict):
+                    RELEVANCE_PROFILES[k].update(v)
+    except Exception:
+        pass
 
 
 # Load weights on module initialization

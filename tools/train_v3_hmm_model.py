@@ -280,19 +280,62 @@ def main():
     # imputer/scaler are already fit from above; this just records pipeline state.
     pipeline.fit(X, y)
 
-    # 6. Save model pickle
+    # 6. Optimize relevance weights and embed in pickle
+    print("\n=== OPTIMIZING RELEVANCE WEIGHTS ===")
+    metric_relevance = None
+    try:
+        from tools.optimize_v3_relevance import (
+            build_precomputed_dataset, optimize_relevance_weights, get_btc_price_dict
+        )
+        from scraper.utility_evaluator import RELEVANCE_PROFILES
+
+        btc_price = get_btc_price_dict()
+        scores_history = None
+        scores_path = 'data/history/scores.json'
+        if os.path.exists(scores_path):
+            try:
+                with open(scores_path, encoding='utf-8') as f:
+                    history_data = json.load(f)
+                    scores_history = [
+                        (r['date'], r.get('final_score'), r.get('phase'), r.get('w_bot'))
+                        for r in history_data if r.get('date')
+                    ]
+            except Exception as e:
+                print(f"Warning: could not load scores history: {e}")
+
+        skip_optimize = os.environ.get('SKIP_RELEVANCE_OPTIMIZE') == '1'
+        if skip_optimize:
+            print("Skipping relevance optimization (SKIP_RELEVANCE_OPTIMIZE=1).")
+            metric_relevance = {k: dict(v) for k, v in RELEVANCE_PROFILES.items()}
+        else:
+            dataset = build_precomputed_dataset(series, btc_price, scores_history)
+            if dataset:
+                optimized, final_loss = optimize_relevance_weights(dataset, RELEVANCE_PROFILES)
+                metric_relevance = optimized
+                print(f"Relevance optimization complete. Loss: {final_loss:.2f}")
+            else:
+                print("Warning: empty dataset — keeping default relevance weights.")
+                metric_relevance = {k: dict(v) for k, v in RELEVANCE_PROFILES.items()}
+    except Exception as e:
+        print(f"Warning: relevance optimization failed ({e}) — keeping defaults.")
+        from scraper.utility_evaluator import RELEVANCE_PROFILES
+        metric_relevance = {k: dict(v) for k, v in RELEVANCE_PROFILES.items()}
+
+    # 7. Save model pickle (pipeline + learned relevance weights = single source of truth)
     output_path = 'data/v3_phase_model.pkl'
     model_data = {
         'pipeline': pipeline,
+        'metric_relevance': metric_relevance,
         'metadata': {
             'trained_at': datetime.datetime.now().isoformat(),
-            'model_type': 'Supervised Gaussian HMM (3-states)'
+            'model_type': 'Supervised Gaussian HMM (3-states)',
+            'relevance_method': 'coordinate_descent_l2_fisher_prior',
         }
     }
-    
+
     with open(output_path, 'wb') as f:
         pickle.dump(model_data, f)
-        
+
     print(f"\nSuccessfully saved HMM phase model to {output_path}!")
 
     # Reset cache file to force recalculation from scratch

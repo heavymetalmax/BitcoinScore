@@ -3,6 +3,14 @@
 Calibrates the 39 dynamic utility weights (13 metrics x 3 phase states) to
 minimize Mean Squared Error (MSE) against the ideal risk target derived from
 6-month forward BTC returns. Uses a pure-Python coordinate descent optimizer.
+
+Primary usage: called automatically from train_v3_hmm_model.py — results are
+embedded in data/v3_phase_model.pkl as 'metric_relevance' (single source of truth).
+
+Standalone usage (debug/inspection only):
+    python tools/optimize_v3_relevance.py
+    → writes data/v3_relevance_weights.json for manual inspection.
+    This JSON is NOT read by the scoring engine anymore.
 """
 
 import sys
