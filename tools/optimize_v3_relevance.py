@@ -256,30 +256,41 @@ def fast_evaluate_score(row, profiles):
 
 
 def get_param_bounds(key, state):
-    # Enforce logical financial constraints as hard bounds
+    # Enforce logical financial constraints as hard bounds.
+    # Bounds must NOT clip validated Python defaults in utility_evaluator.py.
     if state == 'BOTTOM':
+        # Core on-chain: dominant at bottoms (nupl<0, mvrv<0, cvdd<1, puell<0.5)
         if key in {'nupl', 'mvrv_z_score', 'cvdd_ratio', 'puell'}:
-            return 0.90, 1.0
-        if key == 'asopr':
             return 0.70, 1.0
-        if key in {'m2_yoy', 'yield_curve_spread', 'etf_flows'}:
-            return 0.05, 0.15
-        if key in {'cipherb', 'fear_greed', 'mayer_multiple'}:
-            return 0.05, 0.20
+        # rhodl: valid bottom indicator but not primary
         if key == 'rhodl_ratio':
-            return 0.10, 0.40
+            return 0.30, 0.80
+        # fear_greed: extreme fear (score ~5-10) IS a strong bottom signal — must allow high weight
+        if key == 'fear_greed':
+            return 0.50, 1.0
+        # asopr: confirmed noisy (similar mean at BOTTOM and TOP) — keep low-to-medium
+        if key == 'asopr':
+            return 0.10, 0.60
+        # Tech/price oscillators: secondary at bottoms but not negligible
+        if key in {'cipherb', 'mayer_multiple'}:
+            return 0.20, 0.70
+        # Macro: low relevance at bottoms (lagging, inverted logic)
+        if key in {'m2_yoy', 'yield_curve_spread', 'etf_flows'}:
+            return 0.05, 0.40
+        # pi_gap: top-focused indicator, very low weight at bottoms
         if key == 'pi_gap':
-            return 0.05, 0.15
-            
+            return 0.05, 0.20
+
     elif state == 'TOP':
+        # Strong top signals
         if key in {'cipherb', 'mayer_multiple', 'fear_greed', 'pi_gap', 'nupl', 'mvrv_z_score', 'rhodl_ratio'}:
-            return 0.80, 1.0
+            return 0.70, 1.0
+        # Bottom-focused indicators: low weight at tops
         if key in {'cvdd_ratio', 'puell', 'asopr'}:
-            return 0.05, 0.20
-        # m2_yoy is inverted (high M2 growth = low score = not a top signal) — cap its TOP weight
-        # to avoid it dragging down scores in high-liquidity ATH environments (2021)
+            return 0.05, 0.30
+        # m2_yoy: inverted (high M2 = low score = not a top signal) — cap weight at tops
         if key == 'm2_yoy':
-            return 0.05, 0.20
+            return 0.05, 0.30
 
     return 0.1, 1.0
 
