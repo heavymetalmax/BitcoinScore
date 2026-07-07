@@ -9,12 +9,14 @@ Output: reports/btc_report_YYYY-MM-DD.md
 """
 import json
 import os
+import shutil
 import sys
 import datetime
 
 DATA_PATH    = 'data/data.json'
 HISTORY_PATH = 'data/history/scores.json'
 OUT_DIR      = 'reports'
+STORAGE_PATH = '/mnt/storage/btc_report.md'
 
 MILESTONES = [
     ('2018-12-15', 'Дно 2018',        3_212),
@@ -344,6 +346,12 @@ def main():
 
     print(f'Report saved: {out_path}')
     print(f'Size: {len(report)} chars, {report.count(chr(10))} lines')
+
+    try:
+        shutil.copy2(out_path, STORAGE_PATH)
+        print(f'Copied to storage: {STORAGE_PATH}')
+    except Exception as e:
+        print(f'Storage copy skipped: {e}')
 
 
 if __name__ == '__main__':
