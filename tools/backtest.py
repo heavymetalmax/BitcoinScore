@@ -197,12 +197,20 @@ def compute_at(target_date, series):
     # Weekly CipherB — separate lookup, then assemble dict for score_from_raw()
     wk_score, _ = nearest_strict(series['cipherb_weekly'], td)
     wk_fb, _    = nearest_strict(series['cipherb_weekly_fb'], td)
+    cb_daily = raw_vals.get('cipherb')
     cb_dict = None
     if wk_score is not None:
         cb_dict = {
             'weekly_score':     wk_score,
-            'daily_score':      raw_vals.get('cipherb'),
+            'daily_score':      cb_daily,
             'fast_bearish_div': bool(wk_fb),
+        }
+    elif cb_daily is not None:
+        # Weekly file absent — use daily score as fallback for both slots
+        cb_dict = {
+            'weekly_score':     cb_daily,
+            'daily_score':      cb_daily,
+            'fast_bearish_div': False,
         }
 
     raw = {

@@ -95,7 +95,7 @@ def compute_wave_resonance(date=None, raw_overrides=None):
     if date is None:
         return _empty(date)
 
-    # find nearest available date (±7 days)
+    # find nearest available date (±7 days), then fall back to most recent past entry
     target = datetime.date.fromisoformat(date)
     actual_date = None
     for offset in range(8):
@@ -106,6 +106,16 @@ def compute_wave_resonance(date=None, raw_overrides=None):
                 break
         if actual_date:
             break
+    if not actual_date:
+        # unified_history may be stale — use most recent date with ≥3 core metrics present
+        core_fields = [cfg['field'] for cfg in _METRICS.values()]
+        for d in reversed(sorted_dates):
+            if d > date:
+                continue
+            row_d = unified[d]
+            if sum(1 for f in core_fields if row_d.get(f) is not None) >= 3:
+                actual_date = d
+                break
     if not actual_date:
         return _empty(date)
 
