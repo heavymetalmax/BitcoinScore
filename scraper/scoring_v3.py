@@ -48,13 +48,14 @@ def map_pi_cycle_gap(v):
     """Map Pi Cycle Gap percentage to a 0-100 risk score.
 
     0% or cross -> 100 risk (immediate top)
-    30% or more -> 0 risk (extremely safe)
+    70% or more -> 0 risk (extremely safe)
+    Historical range: -0.3% to 71.3%; 30% cap compressed 80% of history to 0.
     """
     gap = extract_pi_gap(v)
     if gap is None:
         return None
-    gap = max(0.0, min(30.0, float(gap)))
-    return round(((30.0 - gap) / 30.0) * 100)
+    gap = max(0.0, min(70.0, float(gap)))
+    return round(((70.0 - gap) / 70.0) * 100)
 
 
 def compute_tiz_causal_v3(scores_history, target_date, threshold=40, window=180):

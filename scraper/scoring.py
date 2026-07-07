@@ -292,20 +292,21 @@ def map_rhodl(v):
 def map_etf_flow(v):
     """
     v is etf_flows dict or pre-computed float/int.
-    14d flow sum:
-    <= -2000 -> 0 risk
-    = 750 -> 50 risk
-    >= 4000 -> 100 risk
+    Calibrated for 7d rolling sum (live scraper produces 7d).
+    <= -1000 -> 0 risk
+    = 375 -> 50 risk
+    >= 2000 -> 100 risk
+    Note: percentile path uses _PCTILE_DIVISOR=0.5 to compare 7d live vs 14d history.
     """
     if v is None: return None
     if isinstance(v, dict):
         v = v.get('value')
     if v is None: return None
     v = float(v)
-    
-    MIN_VAL = -2000.0
-    MID_VAL = 750.0
-    MAX_VAL = 4000.0
+
+    MIN_VAL = -1000.0
+    MID_VAL = 375.0
+    MAX_VAL = 2000.0
     
     if v <= MIN_VAL:
         score = 0.0

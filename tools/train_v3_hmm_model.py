@@ -9,6 +9,7 @@ import numpy as np
 
 sys.path.insert(0, '.')
 
+from sklearn.base import BaseEstimator
 from sklearn.pipeline import Pipeline
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import StandardScaler
@@ -29,7 +30,7 @@ FEATURE_INDICES = [METRIC_ORDER.index(m) for m in CORE_METRICS]
 
 CACHE_PATH = 'data/v3_hmm_state_cache.json'
 
-class HMMPhaseClassifier:
+class HMMPhaseClassifier(BaseEstimator):
     def __init__(self, means, vars, trans, pi, feature_indices):
         self.means = np.array(means)          # shape (3, 6)
         self.vars = np.array(vars)            # shape (3, 6)
@@ -154,6 +155,7 @@ class HMMPhaseClassifier:
             return np.array([alpha_curr])
 
     def fit(self, X, y=None):
+        self.is_fitted_ = True
         return self
 
 def dates_around(date_str, window=14):
@@ -274,6 +276,9 @@ def main():
         ('scaler', scaler),
         ('hmm', hmm_clf)
     ])
+    # Call fit() so the Pipeline is marked as fitted by sklearn's check_is_fitted.
+    # imputer/scaler are already fit from above; this just records pipeline state.
+    pipeline.fit(X, y)
 
     # 6. Save model pickle
     output_path = 'data/v3_phase_model.pkl'

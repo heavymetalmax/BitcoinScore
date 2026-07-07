@@ -190,10 +190,12 @@ def run_scoring_pipeline(p, build_metric_history_fn=None):
             p['v3_normalized_scores'] = scores_v3.get('normalized_scores', {})
 
             # Data quality: which of the 14 expected scoring metrics have a live value
+            # funding_rate is normalized but NOT included in OC_GROUP/TECH_GROUP scoring —
+            # it is a supplementary display indicator only.
             _EXPECTED_SCORING_METRICS = {
                 'nupl', 'mvrv_z_score', 'rhodl_ratio', 'cvdd_ratio', 'asopr', 'puell',
                 'mayer_multiple', 'fear_greed', 'm2_yoy', 'yield_curve_spread',
-                'etf_flows', 'funding_rate', 'pi_gap', 'cipherb'
+                'etf_flows', 'pi_gap', 'cipherb'
             }
             _norm = p['v3_normalized_scores']
             _active = [k for k in _EXPECTED_SCORING_METRICS if _norm.get(k) is not None]
