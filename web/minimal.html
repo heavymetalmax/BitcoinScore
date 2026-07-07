@@ -2329,18 +2329,49 @@
             return Math.round(((2.0 - c) / 3.0) * 100);
           }
           case 'etf': {
-            if (v <= -2000) return 0;
-            if (v >= 4000)  return 100;
-            const s = v < 750
-              ? ((v - (-2000)) / (750 - (-2000))) * 50
-              : 50 + ((v - 750) / (4000 - 750)) * 50;
+            if (v <= -1000) return 0;
+            if (v >= 2000)  return 100;
+            const s = v < 375
+              ? ((v - (-1000)) / (375 - (-1000))) * 50
+              : 50 + ((v - 375) / (2000 - 375)) * 50;
             return Math.round(Math.max(0, Math.min(100, s)));
           }
           case 'fg':
             return Math.round(Math.max(0, Math.min(100, v)));
           case 'm2': {
-            const c = Math.max(-5, Math.min(10, v));
-            return Math.round(((10 - c) / 15) * 100);
+            const c = Math.max(-2, Math.min(15, v));
+            return Math.round(((15 - c) / 17) * 100);
+          }
+          case 'puell': {
+            if (v <= 0.5) return Math.round(Math.max(0, v / 0.5 * 15));
+            if (v <= 1.0) return Math.round(15 + (v - 0.5) / 0.5 * 25);
+            if (v <= 2.0) return Math.round(40 + (v - 1.0) / 1.0 * 25);
+            if (v <= 4.0) return Math.round(65 + (v - 2.0) / 2.0 * 25);
+            return 100;
+          }
+          case 'lth_supply': {
+            let lv = v > 100 ? v / 21_000_000 * 100 : v;
+            lv = Math.max(55, Math.min(82, lv));
+            return Math.round(((82 - lv) / (82 - 55)) * 100);
+          }
+          case 'pi_cycle': {
+            const gap = typeof v === 'object' ? (v?.value?.gap_pct ?? v?.gap_pct ?? null) : v;
+            if (gap == null) return null;
+            const g = Math.max(0, Math.min(70, gap));
+            return Math.round(((70 - g) / 70) * 100);
+          }
+          case 'funding_rate': {
+            const avg = typeof v === 'object' ? (v?.value?.avg_7d ?? v?.avg_7d ?? null) : v;
+            if (avg == null) return null;
+            return Math.round(Math.max(0, Math.min(100, (avg + 0.05) / 0.15 * 100)));
+          }
+          case 'dxy': {
+            const dv = typeof v === 'object' ? (v?.value ?? v) : v;
+            if (dv == null) return null;
+            if (dv <= 108) return 0;
+            if (dv >= 128) return 100;
+            if (dv <= 116) return Math.round((dv - 108) / (116 - 108) * 50);
+            return Math.round(50 + (dv - 116) / (128 - 116) * 50);
           }
           default: return null;
         }
@@ -2348,7 +2379,9 @@
       const V3_KEY = {
         nupl:'nupl', mvrv:'mvrv_z_score', rhodl:'rhodl_ratio', cvdd:'cvdd_ratio',
         asopr:'asopr', cipherb:'cipherb', mayer:'mayer_multiple', etf:'etf_flows',
-        fg:'fear_greed', yield_curve:'yield_curve_spread', yc:'yield_curve_spread', m2:'m2_yoy'
+        fg:'fear_greed', yield_curve:'yield_curve_spread', yc:'yield_curve_spread', m2:'m2_yoy',
+        puell:'puell', lth_supply:'lth_supply', pi_cycle:'pi_gap',
+        funding_rate:'funding_rate', dxy:'dxy'
       };
       const normScores = data.v3_normalized_scores || {};
       const utilities  = data.v3_utilities || {};
@@ -2368,8 +2401,13 @@
       const etf   = mv('etf_flows');  const fg = mv('fear_greed');
       const yc    = mv('yield_curve_spread') || mv('yield_curve');
       const m2raw = mv('m2_mom') || mv('m2') || mv('m2_growth');
+      const puellRaw = mv('puell_multiple');
+      const lthRaw   = mv('lth_supply_pct');
+      const piRaw    = mv('pi_cycle') || mv('pi_cycle_gap_pct');
+      const frRaw    = mv('funding_rate');
+      const dxyRaw   = mv('dxy');
       const mmVal  = mm != null ? (typeof mm === 'object' ? mm.value : mm) : null;
-      const cbVal  = cb != null ? (typeof cb === 'object' ? (cb.weekly_score || cb.value) : cb) : null;
+      const cbVal  = cb != null ? (typeof cb === 'object' ? (cb.weekly_score != null ? cb.weekly_score : cb.value) : cb) : null;
       const etfVal = etf != null ? (typeof etf === 'object' ? etf.value : etf) : null;
       const fgVal  = fg != null ? (typeof fg === 'object' ? (fg.avg_7d != null ? fg.avg_7d : fg.latest) : fg) : null;
 
@@ -2388,6 +2426,14 @@
         }
         return Math.round(w);
       })();
+
+      // Derived display values for new metrics
+      const puellVal  = puellRaw != null ? (typeof puellRaw === 'object' ? puellRaw.value : puellRaw) : null;
+      const lthVal    = lthRaw   != null ? (typeof lthRaw   === 'object' ? lthRaw.value   : lthRaw)   : null;
+      const lthPct    = lthVal   != null ? (lthVal > 100 ? +(lthVal / 21_000_000 * 100).toFixed(1) : +lthVal) : null;
+      const piGapPct  = piRaw    != null ? (typeof piRaw    === 'object' ? (piRaw.value?.gap_pct ?? piRaw.gap_pct ?? null) : piRaw) : null;
+      const frVal     = frRaw    != null ? (typeof frRaw    === 'object' ? (frRaw.value?.avg_7d  ?? frRaw.avg_7d  ?? null) : frRaw) : null;
+      const dxyVal    = dxyRaw   != null ? (typeof dxyRaw   === 'object' ? dxyRaw.value   : dxyRaw)   : null;
 
       const n = (obj) => lang === 'ua' ? obj.ua : obj.en;
 
@@ -2428,12 +2474,17 @@
             getV3Score('rhodl', rhodl),
             getV3Score('cvdd', cvdd),
             getV3Score('asopr', asopr),
+            getV3Score('puell', puellRaw),
+            getV3Score('lth_supply', lthRaw),
             getV3Score('cipherb', cbScore),
             getV3Score('mayer', mmVal),
             getV3Score('etf', etfVal),
             getV3Score('fg', fgVal),
             getV3Score('yield_curve', yc),
-            getV3Score('m2', m2raw)
+            getV3Score('m2', m2raw),
+            getV3Score('pi_cycle', piRaw),
+            getV3Score('funding_rate', frRaw),
+            getV3Score('dxy', dxyRaw),
           ].filter(s => s != null);
           const hasContra = allIndScores.some(s =>
             (data.final_score <= 40 && s >= 65) || (data.final_score >= 60 && s <= 35)
@@ -2462,19 +2513,24 @@
       }
 
       const _ocMetrics = [
-        { key: 'nupl',  name: n({en:'NUPL', ua:'NUPL'}), score: getV3Score('nupl', nupl), raw: nupl != null ? (+nupl).toFixed(1)+'%' : null },
-        { key: 'mvrv',  name: n({en:'MVRV Z-Score', ua:'MVRV Z-Score'}), score: getV3Score('mvrv', mvrv), raw: mvrv != null ? (+mvrv).toFixed(2) : null },
-        { key: 'rhodl', name: n({en:'RHODL', ua:'RHODL'}), score: getV3Score('rhodl', rhodl), raw: rhodl != null ? Math.round(rhodl).toLocaleString('en-US') : null },
-        { key: 'cvdd',  name: n({en:'CVDD Ratio', ua:'CVDD Ratio'}), score: getV3Score('cvdd', cvdd), raw: cvdd != null ? (+cvdd).toFixed(3) : null },
-        { key: 'asopr', name: n({en:'aSOPR', ua:'aSOPR'}), score: getV3Score('asopr', asopr), raw: asopr != null ? (+asopr).toFixed(4) : null }
+        { key: 'nupl',       name: n({en:'NUPL', ua:'NUPL'}),                    score: getV3Score('nupl', nupl),          raw: nupl      != null ? (+nupl).toFixed(1)+'%'             : null },
+        { key: 'mvrv',       name: n({en:'MVRV Z-Score', ua:'MVRV Z-Score'}),    score: getV3Score('mvrv', mvrv),          raw: mvrv      != null ? (+mvrv).toFixed(2)                : null },
+        { key: 'rhodl',      name: n({en:'RHODL', ua:'RHODL'}),                  score: getV3Score('rhodl', rhodl),        raw: rhodl     != null ? Math.round(rhodl).toLocaleString('en-US') : null },
+        { key: 'cvdd',       name: n({en:'CVDD Ratio', ua:'CVDD Ratio'}),        score: getV3Score('cvdd', cvdd),          raw: cvdd      != null ? (+cvdd).toFixed(3)                : null },
+        { key: 'asopr',      name: n({en:'aSOPR', ua:'aSOPR'}),                  score: getV3Score('asopr', asopr),        raw: asopr     != null ? (+asopr).toFixed(4)               : null },
+        { key: 'puell',      name: n({en:'Puell Multiple', ua:'Puell Multiple'}), score: getV3Score('puell', puellRaw),     raw: puellVal  != null ? (+puellVal).toFixed(2)            : null },
+        { key: 'lth_supply', name: n({en:'LTH Supply', ua:'LTH Supply'}),        score: getV3Score('lth_supply', lthRaw),  raw: lthPct    != null ? lthPct+'%'                        : null },
       ];
       const _techMetrics = [
-        { key: 'cipherb', name: n({en:'Cipher B', ua:'Cipher B'}), score: getV3Score('cipherb', cbScore), raw: cbScore != null ? (+cbScore).toFixed(1) : null },
-        { key: 'mayer',   name: n({en:'Mayer Multiple', ua:'Mayer Multiple'}), score: getV3Score('mayer', mmVal), raw: mmVal != null ? (+mmVal).toFixed(3) : null },
-        { key: 'etf',     name: n({en:'ETF Flows (7d)', ua:'ETF Flows (7d)'}), score: getV3Score('etf', etfVal), raw: etfVal != null ? '$'+(etfVal/1000).toFixed(2)+'B' : null },
-        { key: 'fg',      name: n({en:'Fear & Greed', ua:'Індекс страху'}), score: getV3Score('fg', fgVal), raw: fgVal != null ? (+fgVal).toFixed(0) : null },
-        { key: 'yc',      name: n({en:'Yield Curve', ua:'Крива дохідності'}), score: getV3Score('yield_curve', yc), raw: yc != null ? (+yc).toFixed(2)+'%' : null },
-        { key: 'm2',      name: n({en:'Global M2', ua:'Глобальний M2'}), score: getV3Score('m2', m2raw), raw: m2raw != null ? (+m2raw).toFixed(1)+'%' : null }
+        { key: 'cipherb',      name: n({en:'Cipher B', ua:'Cipher B'}),           score: getV3Score('cipherb', cbScore),       raw: cbScore  != null ? (+cbScore).toFixed(1)                                : null },
+        { key: 'mayer',        name: n({en:'Mayer Multiple', ua:'Mayer Multiple'}), score: getV3Score('mayer', mmVal),           raw: mmVal    != null ? (+mmVal).toFixed(3)                                  : null },
+        { key: 'etf',          name: n({en:'ETF Flows (7d)', ua:'ETF Flows (7d)'}), score: getV3Score('etf', etfVal),            raw: etfVal   != null ? '$'+(etfVal/1000).toFixed(2)+'B'                     : null },
+        { key: 'fg',           name: n({en:'Fear & Greed', ua:'Індекс страху'}),   score: getV3Score('fg', fgVal),              raw: fgVal    != null ? (+fgVal).toFixed(0)                                  : null },
+        { key: 'yc',           name: n({en:'Yield Curve', ua:'Крива дохідності'}), score: getV3Score('yield_curve', yc),        raw: yc       != null ? (+yc).toFixed(2)+'%'                                 : null },
+        { key: 'm2',           name: n({en:'Global M2', ua:'Глобальний M2'}),      score: getV3Score('m2', m2raw),              raw: m2raw    != null ? (+m2raw).toFixed(1)+'%'                              : null },
+        { key: 'pi_cycle',     name: n({en:'Pi Cycle Gap', ua:'Pi Cycle Gap'}),    score: getV3Score('pi_cycle', piRaw),        raw: piGapPct != null ? (+piGapPct).toFixed(1)+'%'                          : null },
+        { key: 'funding_rate', name: n({en:'Funding Rate', ua:'Funding Rate'}),    score: getV3Score('funding_rate', frRaw),    raw: frVal    != null ? (frVal*100).toFixed(4)+'%'                          : null },
+        { key: 'dxy',          name: n({en:'DXY', ua:'DXY'}),                      score: getV3Score('dxy', dxyRaw),            raw: dxyVal   != null ? (+dxyVal).toFixed(2)                                 : null },
       ];
       populateBackCard('list-onchain-back', _ocMetrics);
       populateBackCard('list-tech-back',    _techMetrics);

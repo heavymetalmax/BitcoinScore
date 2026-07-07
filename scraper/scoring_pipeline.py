@@ -196,9 +196,9 @@ def run_scoring_pipeline(p, build_metric_history_fn=None):
             p['v3_utilities']       = scores_v3['utilities']
             p['v3_normalized_scores'] = scores_v3.get('normalized_scores', {})
 
-            # Data quality: which of the 14 expected scoring metrics have a live value
-            # funding_rate is normalized but NOT included in OC_GROUP/TECH_GROUP scoring —
-            # it is a supplementary display indicator only.
+            # Data quality: which of the 13 core scoring metrics have a live value.
+            # funding_rate IS in TECH_GROUP and scored, but excluded here to keep the
+            # quality indicator stable (it has a higher scrape-failure rate).
             _EXPECTED_SCORING_METRICS = {
                 'nupl', 'mvrv_z_score', 'rhodl_ratio', 'cvdd_ratio', 'asopr', 'puell',
                 'mayer_multiple', 'fear_greed', 'm2_yoy', 'yield_curve_spread',
