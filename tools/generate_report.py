@@ -338,8 +338,7 @@ def main():
 
     report  = build_report(d, history)
 
-    today    = datetime.date.today().isoformat()
-    out_path = os.path.join(out_dir, f'btc_report_{today}.md')
+    out_path = os.path.join(out_dir, 'btc_report.md')
     with open(out_path, 'w', encoding='utf-8') as f:
         f.write(report)
 
