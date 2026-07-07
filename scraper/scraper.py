@@ -138,6 +138,7 @@ def build_payload():
     from . import rainbow as rainbow_mod
     from . import asopr as asopr_mod
     from . import etf_flows as etf_flows_mod
+    from . import dxy_metric as dxy_mod
     from .utils import is_valid_metric
 
     metric_specs = [
@@ -149,6 +150,7 @@ def build_payload():
         ('rhodl_ratio', rhodl_mod.get_rhodl_ratio, None, lambda r: r),
         ('asopr', asopr_mod.get_asopr, None, lambda r: r),
         ('etf_flows', etf_flows_mod.get_etf_flows, None, lambda r: r),
+        ('dxy', dxy_mod.get_dxy, None, lambda r: r),
     ]
 
     for name, fn, visit_url, extractor in metric_specs:
@@ -227,7 +229,7 @@ def build_payload():
         # save into metrics dict placeholder (later merged into payload)
         if 'metrics' not in locals():
             metrics = {}
-        src = 'MacroMicro' if name == 'm2' else 'Farside' if name == 'etf_flows' else 'BMP'
+        src = 'MacroMicro' if name == 'm2' else 'Farside' if name == 'etf_flows' else 'FRED' if name == 'dxy' else 'BMP'
         metrics[name] = {'value': val, 'source': src if val is not None else None, 'updated': now_iso()}
 
     # Rainbow band — separate call (returns dict, not scalar)

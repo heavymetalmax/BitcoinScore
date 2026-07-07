@@ -249,6 +249,35 @@ def map_yield_curve(v):
     v = max(-1.0, min(2.0, v))
     return round(((2.0 - v) / 3.0) * 100)
 
+def map_dxy(v):
+    """FRED DTWEXBGS (Nominal Broad Dollar Index, Jan 2006 = 100).
+    High = strong USD = risk-off = bearish for BTC = high score.
+    <= 108 → 0, = 116 → 50, >= 128 → 100.
+    """
+    if v is None: return None
+    v = float(v)
+    if v <= 108.0: return 0
+    if v >= 128.0: return 100
+    if v <= 116.0:
+        return round((v - 108.0) / (116.0 - 108.0) * 50)
+    return round(50 + (v - 116.0) / (128.0 - 116.0) * 50)
+
+def map_lth_supply(v):
+    """LTH Supply % of total BTC supply.
+    High % = long-term holders accumulating = bottom territory = low score.
+    Low % = distribution = top territory = high score.
+    >= 82% → 0, = 68.5% → 50, <= 55% → 100.
+
+    Accepts both percentage (e.g. 76.3) and raw BTC count (e.g. 16_646_824).
+    Raw BTC is divided by 21_000_000 (hard cap) to get percentage.
+    """
+    if v is None: return None
+    v = float(v)
+    if v > 100:  # raw BTC count — convert to % of hard cap
+        v = v / 21_000_000 * 100
+    v = max(55.0, min(82.0, v))
+    return round(((82.0 - v) / (82.0 - 55.0)) * 100)
+
 def map_mayer_multiple(v):
     """v is mayer_multiple dict or pre-computed score int.
     MM <= 0.5 -> score = 0, MM >= 2.1 -> score = 100.

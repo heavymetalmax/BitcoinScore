@@ -9,7 +9,7 @@ import math
 from scraper.scoring import (
     map_nupl, map_mvrv, map_rhodl, map_cvdd, map_asopr,
     map_fear_greed, map_m2, map_yield_curve, map_mayer_multiple,
-    map_etf_flow, map_funding, _load_metric_history,
+    map_etf_flow, map_funding, map_dxy, map_lth_supply, _load_metric_history,
     ADAPTIVE_METRICS, ADAPTIVE_BLEND, ADAPTIVE_WIN_YEARS, _PCTILE_DIVISOR
 )
 from scraper.scoring_v2 import map_puell
@@ -95,7 +95,11 @@ def normalize_metric(metric, value, target_date=None):
         fixed_score = map_etf_flow(metric_val)
     elif metric == 'funding_rate':
         fixed_score = map_funding(metric_val)
-        
+    elif metric == 'dxy':
+        fixed_score = map_dxy(metric_val)
+    elif metric == 'lth_supply':
+        fixed_score = map_lth_supply(metric_val)
+
     # If the metric is adaptive, blend with rolling percentile
     # Translate metric names to history key if needed
     hist_key = metric

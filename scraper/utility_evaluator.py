@@ -33,7 +33,13 @@ RELEVANCE_PROFILES = {
     'yield_curve_spread':  {'BOTTOM': 0.3, 'NEUTRAL': 0.6, 'TOP': 0.2},
     'm2_yoy':              {'BOTTOM': 0.3, 'NEUTRAL': 0.6, 'TOP': 0.2},
     # Pi Cycle Gap
-    'pi_gap':              {'BOTTOM': 0.1, 'NEUTRAL': 0.5, 'TOP': 1.0}
+    'pi_gap':              {'BOTTOM': 0.1, 'NEUTRAL': 0.5, 'TOP': 1.0},
+    # Funding Rate: longs overheated = high risk; more relevant at TOP than BOTTOM
+    'funding_rate':        {'BOTTOM': 0.3, 'NEUTRAL': 0.5, 'TOP': 0.8},
+    # Dollar Index: macro headwind/tailwind; slow-moving, moderate weight at extremes
+    'dxy':                 {'BOTTOM': 0.2, 'NEUTRAL': 0.5, 'TOP': 0.2},
+    # LTH Supply: distribution is an early TOP warning; accumulation validates BOTTOM
+    'lth_supply':          {'BOTTOM': 0.5, 'NEUTRAL': 0.6, 'TOP': 0.9},
 }
 
 _WEIGHTS_PATH = 'data/v3_relevance_weights.json'

@@ -91,25 +91,43 @@ def _from_kraken_futures(symbol='PF_XBTUSD'):
 
 
 def get_funding_rate(symbol='BTCUSDT', periods=21):
-    """Return funding rate dict or None on failure.
+    """Return funding rate dict aggregated from available exchanges.
 
-    Source priority:
-      1. Kraken Futures — no geo-blocking, works in GitHub Actions CI
-      2. Bybit           — better 7-day avg, but blocked by some CI runners
-      3. Binance Futures — same issue as Bybit on GitHub Actions
+    Tries Bybit and Binance first (7-day history = accurate avg_7d).
+    Falls back to Kraken Futures (current rate only, periods=1) when main
+    sources are geo-blocked (GitHub Actions CI).
+
+    When multiple sources succeed, averages their avg_7d for a market-wide rate.
     """
+    results = []
+    for fetch_fn, args, label in [
+        (_from_bybit,   (symbol, periods), 'Bybit'),
+        (_from_binance, (symbol, periods), 'Binance'),
+    ]:
+        try:
+            r = fetch_fn(*args)
+            if r and r.get('avg_7d') is not None:
+                results.append(r)
+        except Exception as e:
+            logger.warning('get_funding_rate %s failed: %s', label, e)
+
+    if results:
+        avg_rate = sum(r['avg_7d'] for r in results) / len(results)
+        latest = results[0]['latest']
+        score = round(max(0, min(100, (avg_rate + 0.05) / 0.15 * 100)))
+        return {
+            'latest':  round(latest, 5),
+            'avg_7d':  round(avg_rate, 5),
+            'score':   score,
+            'periods': results[0]['periods'],
+            'source':  '+'.join(r['source'] for r in results),
+        }
+
+    # Kraken fallback: works in CI, but only has current rate (periods=1)
     try:
         return _from_kraken_futures()
     except Exception as e:
-        logger.warning('get_funding_rate Kraken Futures failed: %s — trying Bybit', e)
-    try:
-        return _from_bybit(symbol, periods)
-    except Exception as e:
-        logger.warning('get_funding_rate Bybit failed: %s — trying Binance', e)
-    try:
-        return _from_binance(symbol, periods)
-    except Exception as e:
-        logger.warning('get_funding_rate Binance fallback failed: %s', e)
+        logger.warning('get_funding_rate Kraken fallback failed: %s', e)
     return None
 
 

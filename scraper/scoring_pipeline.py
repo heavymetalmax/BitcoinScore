@@ -179,6 +179,13 @@ def run_scoring_pipeline(p, build_metric_history_fn=None):
                 btc_price       = p.get('btc_price'),
                 target_date     = today
             )
+            # Guard: high funding_rate (longs overheated) contradicts CONFIRMED_BOTTOM.
+            # Funding score > 80 means derivatives are pricing recovery, not capitulation.
+            _fr_score = scores_v3.get('normalized_scores', {}).get('funding_rate')
+            if _fr_score is not None and _fr_score > 80 and v3_sig.get('flag') == 'CONFIRMED_BOTTOM':
+                v3_sig = dict(v3_sig)
+                v3_sig['flag'] = 'PROBABLE_BOTTOM'
+
             p['v3_score']           = scores_v3['final_score']
             p['v3_onchain_score']   = scores_v3['onchain_avg']
             p['v3_tech_score']      = scores_v3['tech_avg']

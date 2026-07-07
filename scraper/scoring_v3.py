@@ -23,8 +23,8 @@ from scraper.scoring import _oc_coherence
 from scraper.tiz import adaptive_calibration as _tiz_adaptive_cal
 
 # Metric groups for z-weighting
-OC_GROUP = {'nupl', 'mvrv_z_score', 'rhodl_ratio', 'cvdd_ratio', 'asopr', 'puell'}
-TECH_GROUP = {'cipherb', 'mayer_multiple', 'fear_greed', 'etf_flows', 'yield_curve_spread', 'm2_yoy', 'pi_gap'}
+OC_GROUP = {'nupl', 'mvrv_z_score', 'rhodl_ratio', 'cvdd_ratio', 'asopr', 'puell', 'lth_supply'}
+TECH_GROUP = {'cipherb', 'mayer_multiple', 'fear_greed', 'etf_flows', 'yield_curve_spread', 'm2_yoy', 'pi_gap', 'funding_rate', 'dxy'}
 
 # Bottom and top thresholds for regime mapping (aligned with V2)
 BOTTOM_THRESHOLD = 40
@@ -147,7 +147,9 @@ def compute_scores_v3(raw_metrics, target_date=None, prev_scores=None, scores_hi
         'm2_mom': 'm2_yoy',              # data.json key is m2_mom
         'yield_curve': 'yield_curve_spread',  # data.json key is yield_curve
         'etf_flows': 'etf_flows',
-        'funding_rate': 'funding_rate'
+        'funding_rate': 'funding_rate',
+        'dxy': 'dxy',
+        'lth_supply_pct': 'lth_supply',
     }
     
     for raw_k, norm_k in key_mapping.items():
@@ -338,7 +340,7 @@ def compute_scores_v3(raw_metrics, target_date=None, prev_scores=None, scores_hi
     if final is not None:
         # Determine coherence floor and neutral target based on phase/regime
         if phase == 'BOTTOM':
-            coh_floor = 0.60
+            coh_floor = 0.70
             neutral_target = 26
         elif phase == 'TOP':
             coh_floor = 0.55

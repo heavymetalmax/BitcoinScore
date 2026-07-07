@@ -45,9 +45,9 @@
     "TOP": 0.8
   },
   "etf_flows": {
-    "BOTTOM": 0.05,
-    "NEUTRAL": 0.1,
-    "TOP": 0.15
+    "BOTTOM": 0.20,
+    "NEUTRAL": 0.20,
+    "TOP": 0.20
   },
   "yield_curve_spread": {
     "BOTTOM": 0.3,
@@ -63,5 +63,20 @@
     "BOTTOM": 0.1,
     "NEUTRAL": 0.5,
     "TOP": 1.0
+  },
+  "funding_rate": {
+    "BOTTOM": 0.3,
+    "NEUTRAL": 0.5,
+    "TOP": 0.8
+  },
+  "dxy": {
+    "BOTTOM": 0.2,
+    "NEUTRAL": 0.5,
+    "TOP": 0.2
+  },
+  "lth_supply": {
+    "BOTTOM": 0.5,
+    "NEUTRAL": 0.6,
+    "TOP": 0.9
   }
 }
