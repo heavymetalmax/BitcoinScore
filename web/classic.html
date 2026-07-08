@@ -577,7 +577,7 @@
     </div>
     <div class="nav-right">
       <div class="view-switch">
-        <span class="view-btn active"><span class="en">Financial</span><span class="ua">Фінансовий</span></span>
+        <a class="view-btn active" href="classic.html" style="text-decoration: none;"><span class="en">Financial</span><span class="ua">Фінансовий</span></a>
         <a class="view-btn" href="minimal.html" style="text-decoration: none;"><span class="en">Stressless</span><span class="ua">Безстресовий</span></a>
       </div>
       <button class="theme-btn" id="themeToggle" title="Toggle theme">
@@ -1317,6 +1317,28 @@
         </div>
       </div>
     </div>
+
+    <div class="comp-card-wrap">
+      <div class="comp-card-inner" onclick="this.classList.toggle('flipped')">
+        <div class="comp-row comp-card-front">
+          <div><div class="comp-name">US Dollar Index (DXY)</div><div class="comp-sub"><span class="en">USD Broad Trade Weighted Index</span><span class="ua">Зважений індекс долара США</span></div></div>
+          <div class="comp-value"><div class="val" id="v-dxy">—</div><div class="range" id="r-dxy"></div></div>
+          <div class="comp-spark"><canvas id="s12" width="130" height="36"></canvas></div>
+          <div class="comp-pct" id="p-dxy">—</div>
+          <div class="comp-signal"><span class="signal-badge" id="sig-dxy">—</span></div>
+        </div>
+        <div class="comp-card-back">
+          <div>
+            <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 2px;">US Dollar Index (DXY)</div>
+            <div class="comp-card-back-desc" style="font-size: 11px; color: var(--muted2); line-height: 1.4;">
+              <span class="en">Nominal broad USD index (FRED DTWEXBGS). Strong dollar = risk-off = bearish for BTC.</span>
+              <span class="ua">Номінальний індекс долара (FRED DTWEXBGS). Сильний долар = ризик-офф = ведмеже для BTC.</span>
+            </div>
+          </div>
+          <div class="comp-back-btn"><span class="en">Back</span><span class="ua">Назад</span></div>
+        </div>
+      </div>
+    </div>
   </div>
   </div>
 
@@ -1563,6 +1585,12 @@ function mapScore(key, v) {
     case 'm2': {
       const c = Math.max(-5, Math.min(10, v));
       return Math.round(((10 - c) / 15) * 100);
+    }
+    case 'dxy': {
+      if (v <= 108) return 0;
+      if (v >= 128) return 100;
+      if (v <= 116) return Math.round((v - 108) / 8 * 50);
+      return Math.round(50 + (v - 116) / 12 * 50);
     }
     default: return null;
   }
@@ -2110,6 +2138,7 @@ async function loadData() {
   const ycVal   = m.yield_curve && m.yield_curve.value != null ? m.yield_curve.value : null;
   const fgVal   = fg7d;
   const m2Val   = data.m2_mom;
+  const dxyVal  = m.dxy && m.dxy.value != null ? m.dxy.value : null;
   const cbInner = m.cipherb && m.cipherb.value ? m.cipherb.value : null;
   const cbVal   = cbInner ? cbInner.weekly_score : null;
   const cbScore = (function() {
@@ -2146,7 +2175,12 @@ async function loadData() {
   setScore('v-etf',     'r-etf',     'etf',         etfVal,  v => '$' + (v / 1000).toFixed(2) + 'B');
   setScore('v-fg',      'r-fg',      'fg',          fgVal,   v => (+v).toFixed(0));
   setScore('v-yc',      'r-yc',      'yield_curve', ycVal,   v => (+v).toFixed(2) + '%');
-  setScore('v-m2',      'r-m2',      'm2',          m2Val,   v => (+v).toFixed(1) + '%');
+  // M2: show raw YoY% value in main slot (not legacy JS score which differs from V3 normalized)
+  { const el = document.getElementById('v-m2'); if (el) el.textContent = m2Val != null ? (+m2Val).toFixed(1) + '%' : '—'; }
+  { const el = document.getElementById('r-m2'); if (el) el.textContent = ''; }
+  // DXY: show raw index value
+  { const el = document.getElementById('v-dxy'); if (el) el.textContent = dxyVal != null ? (+dxyVal).toFixed(1) : '—'; }
+  { const el = document.getElementById('r-dxy'); if (el) el.textContent = ''; }
 
   const setNormScore = (id, key, normScores) => {
     const el = document.getElementById(id);
@@ -2180,11 +2214,12 @@ async function loadData() {
   setNormScore('p-fg',      'fear_greed',         normScores);
   setNormScore('p-yc',      'yield_curve_spread', normScores);
   setNormScore('p-m2',      'm2_yoy',             normScores);
+  setNormScore('p-dxy',     'dxy',                normScores);
 
-  // Signals — order: on-chain (nupl,mvrv,rhodl,cvdd,asopr), tech (cipherb,mayer), macro (etf,fg,yc,m2)
-  const vals = [nupl, mvrv, rhodl, cvdd, asopr, cbScore, mayer, etfVal, fgVal, ycVal, m2Val];
-  const keys = ['nupl','mvrv','rhodl','cvdd','asopr','cipherb','mayer','etf','fg','yield_curve','m2'];
-  const ids  = ['sig-nupl','sig-mvrv','sig-rhodl','sig-cvdd','sig-asopr','sig-cipherb','sig-mayer','sig-etf','sig-fg','sig-yc','sig-m2'];
+  // Signals — order: on-chain (nupl,mvrv,rhodl,cvdd,asopr), tech (cipherb,mayer), macro (etf,fg,yc,m2,dxy)
+  const vals = [nupl, mvrv, rhodl, cvdd, asopr, cbScore, mayer, etfVal, fgVal, ycVal, m2Val, dxyVal];
+  const keys = ['nupl','mvrv','rhodl','cvdd','asopr','cipherb','mayer','etf','fg','yield_curve','m2','dxy'];
+  const ids  = ['sig-nupl','sig-mvrv','sig-rhodl','sig-cvdd','sig-asopr','sig-cipherb','sig-mayer','sig-etf','sig-fg','sig-yc','sig-m2','sig-dxy'];
   ids.forEach((id, i) => applySignal(id, keys[i], vals[i]));
   sparkColors = vals.map((v, i) => {
     const sig = getSignal(keys[i], v);
