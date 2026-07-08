@@ -1523,89 +1523,6 @@ function riskZone(s) {
 const fmtPrice  = p => '$' + Math.round(p).toLocaleString('en-US');
 const fmtPriceK = p => '$' + (p / 1000).toFixed(1) + 'K';
 
-// Map raw metric value → 0-100 risk score (mirrors scoring.py map_* functions)
-function mapScore(key, v) {
-  if (v == null) return null;
-  switch (key) {
-    case 'nupl': {
-      const c = Math.max(-50, Math.min(100, v));
-      let score;
-      if (c <= 40.0) {
-        score = 8 + ((c - (-20.0)) / (40.0 - (-20.0))) * (50 - 8);
-      } else {
-        score = 50 + ((c - 40.0) / (75.0 - 40.0)) * (100 - 50);
-      }
-      return Math.round(Math.max(0, Math.min(100, score)));
-    }
-    case 'mvrv': {
-      const c = Math.max(-0.5, Math.min(5.0, v));
-      let score;
-      if (c <= 1.0) {
-        score = 8 + ((c - (-0.3)) / (1.0 - (-0.3))) * (50 - 8);
-      } else {
-        score = 50 + ((c - 1.0) / (5.0 - 1.0)) * (100 - 50);
-      }
-      return Math.round(Math.max(0, Math.min(100, score)));
-    }
-    case 'asopr': {
-      const s = v <= 1.00
-        ? ((v - 0.88) / (1.00 - 0.88)) * 50
-        : 50 + ((v - 1.00) / (1.12 - 1.00)) * 50;
-      return Math.round(Math.max(0, Math.min(100, s)));
-    }
-    case 'cvdd': {
-      const c = Math.max(1, Math.min(5, v));
-      return Math.round(Math.log10(c) / Math.log10(5) * 100);
-    }
-    case 'rhodl': {
-      const c = Math.max(200, Math.min(10000, v));
-      const score = (Math.log10(c) - Math.log10(200)) / (Math.log10(10000) - Math.log10(200)) * 100;
-      return Math.round(Math.max(0, Math.min(100, score)));
-    }
-    case 'cipherb':
-      return Math.round(Math.max(0, Math.min(100, v)));
-    case 'mayer': {
-      const c = Math.max(0.5, Math.min(2.1, v));
-      return Math.round((c - 0.5) / 1.6 * 100);
-    }
-    case 'yield_curve': {
-      const c = Math.max(-1.0, Math.min(2.0, v));
-      return Math.round(((2.0 - c) / 3.0) * 100);
-    }
-    case 'etf': {
-      if (v <= -2000) return 0;
-      if (v >= 4000)  return 100;
-      const s = v < 750
-        ? ((v - (-2000)) / (750 - (-2000))) * 50
-        : 50 + ((v - 750) / (4000 - 750)) * 50;
-      return Math.round(Math.max(0, Math.min(100, s)));
-    }
-    case 'fg':
-      return Math.round(Math.max(0, Math.min(100, v)));
-    case 'm2': {
-      const c = Math.max(-5, Math.min(10, v));
-      return Math.round(((10 - c) / 15) * 100);
-    }
-    case 'dxy': {
-      if (v <= 108) return 0;
-      if (v >= 128) return 100;
-      if (v <= 116) return Math.round((v - 108) / 8 * 50);
-      return Math.round(50 + (v - 116) / 12 * 50);
-    }
-    default: return null;
-  }
-}
-
-function getSignal(key, v) {
-  const score = mapScore(key, v);
-  if (score == null) return 'mod';
-  if (score < 25) return 'vlow';
-  if (score < 35) return 'low';
-  if (score < 55) return 'mod';
-  if (score < 75) return 'high';
-  return 'vhigh';
-}
-
 const SIG_LABELS = {
   vlow:  { en: 'Very Low',  ua: 'Мінімальний', cls: 'signal-vlow',  color: '#22C55E' },
   low:   { en: 'Low',       ua: 'Незначний',   cls: 'signal-low',   color: '#4ADE80' },
@@ -1613,15 +1530,6 @@ const SIG_LABELS = {
   high:  { en: 'High',      ua: 'Значний',     cls: 'signal-high',  color: '#F97316' },
   vhigh: { en: 'Very High', ua: 'Надмірний',   cls: 'signal-vhigh', color: '#EF4444' },
 };
-
-function applySignal(elId, key, val) {
-  const el = document.getElementById(elId);
-  if (!el || val == null) return;
-  const sig = getSignal(key, val);
-  const info = SIG_LABELS[sig];
-  el.className = 'signal-badge ' + info.cls;
-  el.innerHTML = `<span class="en">${info.en}</span><span class="ua">${info.ua}</span>`;
-}
 
 // ─── GAUGE ─────────────────────────────────────────────
 function updateGauge(score) {
@@ -2161,9 +2069,8 @@ async function loadData() {
   const setScore = (vid, rid, key, val, rawFmt) => {
     const ve = document.getElementById(vid);
     const re = document.getElementById(rid);
-    const sc = mapScore(key, val);
-    if (ve) ve.textContent = sc != null ? sc : '—';
-    if (re) re.textContent = val != null ? rawFmt(val) : '';
+    if (ve) ve.textContent = val != null ? rawFmt(val) : '—';
+    if (re) re.textContent = '';
   };
   setScore('v-nupl',    'r-nupl',    'nupl',        nupl,    v => (+v).toFixed(1) + '%');
   setScore('v-mvrv',    'r-mvrv',    'mvrv',        mvrv,    v => (+v).toFixed(2));
@@ -2203,6 +2110,11 @@ async function loadData() {
     `;
   };
   const normScores = data.v3_normalized_scores || {};
+  const V3_KEY = {
+    nupl:'nupl', mvrv:'mvrv_z_score', rhodl:'rhodl_ratio', cvdd:'cvdd_ratio',
+    asopr:'asopr', cipherb:'cipherb', mayer:'mayer_multiple', etf:'etf_flows',
+    fg:'fear_greed', yield_curve:'yield_curve_spread', m2:'m2_yoy', dxy:'dxy'
+  };
   setNormScore('p-nupl',    'nupl',               normScores);
   setNormScore('p-mvrv',    'mvrv_z_score',       normScores);
   setNormScore('p-rhodl',   'rhodl_ratio',        normScores);
@@ -2220,9 +2132,20 @@ async function loadData() {
   const vals = [nupl, mvrv, rhodl, cvdd, asopr, cbScore, mayer, etfVal, fgVal, ycVal, m2Val, dxyVal];
   const keys = ['nupl','mvrv','rhodl','cvdd','asopr','cipherb','mayer','etf','fg','yield_curve','m2','dxy'];
   const ids  = ['sig-nupl','sig-mvrv','sig-rhodl','sig-cvdd','sig-asopr','sig-cipherb','sig-mayer','sig-etf','sig-fg','sig-yc','sig-m2','sig-dxy'];
-  ids.forEach((id, i) => applySignal(id, keys[i], vals[i]));
-  sparkColors = vals.map((v, i) => {
-    const sig = getSignal(keys[i], v);
+  const normKeyList = ['nupl','mvrv_z_score','rhodl_ratio','cvdd_ratio','asopr','cipherb','mayer_multiple','etf_flows','fear_greed','yield_curve_spread','m2_yoy','dxy'];
+  ids.forEach((id, i) => {
+    const s = normScores[normKeyList[i]];
+    const el = document.getElementById(id);
+    if (!el || s == null) return;
+    const sig = s < 25 ? 'vlow' : s < 35 ? 'low' : s < 55 ? 'mod' : s < 75 ? 'high' : 'vhigh';
+    const info = SIG_LABELS[sig];
+    el.className = 'signal-badge ' + info.cls;
+    el.innerHTML = `<span class="en">${info.en}</span><span class="ua">${info.ua}</span>`;
+  });
+  sparkColors = normKeyList.map(k => {
+    const s = normScores[k];
+    if (s == null) return SIG_LABELS.mod.color;
+    const sig = s < 25 ? 'vlow' : s < 35 ? 'low' : s < 55 ? 'mod' : s < 75 ? 'high' : 'vhigh';
     return (SIG_LABELS[sig] || SIG_LABELS.mod).color;
   });
 
@@ -2347,11 +2270,10 @@ async function loadData() {
   updateGaugeTags(score, vals, keys, frAvg, data.recovery_window);
 
   // Calculate exact contributions of each block to the overall index
-  const getFinalScoreForKey = (key, val) => {
-    if (key === 'nupl' && ac.nupl && ac.nupl.blended != null) return ac.nupl.blended;
-    if (key === 'mvrv' && ac.mvrv && ac.mvrv.blended != null) return ac.mvrv.blended;
-    if (key === 'mayer' && ac.mayer && ac.mayer.blended != null) return ac.mayer.blended;
-    return mapScore(key, val);
+  const getFinalScoreForKey = (key, _val) => {
+    const nk = V3_KEY[key];
+    if (nk && normScores[nk] != null) return normScores[nk];
+    return null;
   };
 
   const ocList = [
@@ -2624,10 +2546,10 @@ function updateGaugeTags(score, vals, keys, fr, recoveryWindow) {
   }
 
   // Divergence: overall low (≤40) but some indicator high (≥65), or vice versa (≥60 / ≤35)
-  const scores = vals.map((v, i) => mapScore(keys[i], v)).filter(s => s != null);
+  const indivScores = normKeyList.map(k => normScores[k]).filter(s => s != null);
   const hasDivergence =
-    (score <= 40 && scores.some(s => s >= 65)) ||
-    (score >= 60 && scores.some(s => s <= 35));
+    (score <= 40 && indivScores.some(s => s >= 65)) ||
+    (score >= 60 && indivScores.some(s => s <= 35));
   if (hasDivergence) {
     tags.push({ cls: 'tag-diverge', icon: ICON_WARN,
       en: 'Divergence — indicators conflict',
