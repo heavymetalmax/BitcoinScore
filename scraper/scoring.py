@@ -40,7 +40,7 @@ _SEED_VAL          = {'cvdd_ratio': 'ratio'}
 # etf_flows: live value is 7d sum; history stores 14d sums → divisor=0.5 doubles the
 # live value to 14d-equivalent units before comparing against the 14d history distribution.
 _PCTILE_DIVISOR    = {'nupl': 100, 'etf_flows': 0.5}
-ADAPTIVE_BLEND     = 0.5                 # weight on the adaptive (percentile) part
+ADAPTIVE_BLEND     = 0.7                 # weight on the adaptive (percentile) part; sweep-validated 2026-07-08
 ADAPTIVE_WIN_YEARS = 4                   # trailing window for the percentile
 ADAPTIVE_DEBUG     = {}                  # per-run breakdown for transparency
 _HIST_CACHE        = {}
