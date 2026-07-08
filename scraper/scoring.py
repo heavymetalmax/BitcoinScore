@@ -37,9 +37,9 @@ _UNIFIED_FIELD     = {'mayer': 'mayer_multiple', 'cvdd_ratio': 'cvdd_ratio'}
 _SEED_VAL          = {'cvdd_ratio': 'ratio'}
 # unified_history/seed files store NUPL as fraction (0–1); data.json uses % (0–100).
 # Divide incoming value by this factor before percentile comparison so units match.
-# etf_flows: live value is 7d sum; history stores 14d sums → divisor=0.5 doubles the
-# live value to 14d-equivalent units before comparing against the 14d history distribution.
-_PCTILE_DIVISOR    = {'nupl': 100, 'etf_flows': 0.5}
+# etf_flows history migrated 2026-07-08: etf_flow_7d field added (pre-switch entries
+# use 14d/2 approximation). Live value is 7d sum; history now stores etf_flow_7d → no divisor needed.
+_PCTILE_DIVISOR    = {'nupl': 100}
 ADAPTIVE_BLEND     = 0.7                 # weight on the adaptive (percentile) part; sweep-validated 2026-07-08
 ADAPTIVE_WIN_YEARS = 4                   # trailing window for the percentile
 ADAPTIVE_DEBUG     = {}                  # per-run breakdown for transparency

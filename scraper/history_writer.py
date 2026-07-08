@@ -93,11 +93,13 @@ def write_metric_histories(p):
 
     try:
         etf_val = m.get('etf_flows', {}).get('value')
+        _flow_7d = etf_val.get('value')      if isinstance(etf_val, dict) else etf_val
+        _daily   = etf_val.get('daily_flow') if isinstance(etf_val, dict) else None
         _append('data/history/etf_flows.json', {
-            'timestamp':    ts,
-            'btc_price':    price,
-            'etf_flow_14d': etf_val.get('value')      if isinstance(etf_val, dict) else etf_val,
-            'etf_flow_daily': etf_val.get('daily_flow') if isinstance(etf_val, dict) else None,
+            'timestamp':      ts,
+            'btc_price':      price,
+            'etf_flow_7d':    _flow_7d,
+            'etf_flow_daily': _daily,
         })
         print('Wrote data/history/etf_flows.json')
     except Exception as e:
