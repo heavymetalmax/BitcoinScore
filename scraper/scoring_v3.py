@@ -177,14 +177,14 @@ def compute_scores_v3(raw_metrics, target_date=None, prev_scores=None, scores_hi
         cb_daily_raw = round(d) if d is not None else None
         
         if w is not None:
-            if cb.get('fast_bearish_div'):
+            if val_dict.get('fast_bearish_div'):
                 w = min(100.0, w + 12)
-            elif cb.get('fast_bullish_div'):
+            elif val_dict.get('fast_bullish_div'):
                 w = max(0.0, w - 12)
             if d is not None:
-                if cb.get('daily_fast_bearish_div'):
+                if val_dict.get('daily_fast_bearish_div'):
                     d = min(100.0, d + 12)
-                elif cb.get('daily_fast_bullish_div'):
+                elif val_dict.get('daily_fast_bullish_div'):
                     d = max(0.0, d - 12)
                 cipherb_score = round(0.8 * w + 0.2 * d)
             else:

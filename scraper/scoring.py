@@ -121,10 +121,11 @@ def _load_metric_history(metric):
         dv = 'data/history/daily_vector.json'
         if os.path.exists(dv):
             dv_key = _DV_KEY.get(metric, metric)
+            dv_divisor = _PCTILE_DIVISOR.get(metric, 1)
             for row in json.load(open(dv, encoding='utf-8')):
                 v = (row.get('raw') or {}).get(dv_key)
                 if v is not None:
-                    pts.append((row['date'], float(v)))
+                    pts.append((row['date'], float(v) / dv_divisor))
     except Exception:
         pass
 
@@ -325,7 +326,7 @@ def map_etf_flow(v):
     <= -1000 -> 0 risk
     = 375 -> 50 risk
     >= 2000 -> 100 risk
-    Note: percentile path uses _PCTILE_DIVISOR=0.5 to compare 7d live vs 14d history.
+    History migrated 2026-07-08: all entries use etf_flow_7d (pre-switch: 14d/2 approximation).
     """
     if v is None: return None
     if isinstance(v, dict):
