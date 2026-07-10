@@ -1934,7 +1934,7 @@ async function loadData() {
   let data;
   try {
     const [r1, r2] = await Promise.allSettled([
-      fetch('data.json',     { cache: 'no-store' }).then(r => r.json()),
+      fetch('data.json?t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()),
       fetch('data_exp.json', { cache: 'no-store' }).then(r => r.json()),
     ]);
     const main = r1.status === 'fulfilled' ? r1.value : {};

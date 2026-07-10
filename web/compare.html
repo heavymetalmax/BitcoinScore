@@ -957,7 +957,7 @@
 
     async function loadIndexColor() {
       try {
-        const res = await fetch('data.json');
+        const res = await fetch('data.json?t=' + Date.now(), { cache: 'no-store' });
         if (!res.ok) return;
         const data = await res.json();
         if (data && data.final_score != null) {
