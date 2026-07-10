@@ -1933,9 +1933,10 @@ document.querySelectorAll('.time-btn').forEach(b => {
 async function loadData() {
   let data;
   try {
-    const [r1, r2] = await Promise.allSettled([
+    const [r1, r2, r3] = await Promise.allSettled([
       fetch('data.json?t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()),
       fetch('data_exp.json', { cache: 'no-store' }).then(r => r.json()),
+      fetch('score_history.json', { cache: 'no-store' }).then(r => r.json()),
     ]);
     const main = r1.status === 'fulfilled' ? r1.value : {};
     const exp  = r2.status === 'fulfilled' ? r2.value : {};
@@ -2424,8 +2425,19 @@ async function loadData() {
     }
   }
 
-  // History
-  historyScores = (data.score_history || []).filter(e => e.score != null);
+  // History — prefer full history file (2018-present) over 90-day score_history
+  const fullHistory = r3.status === 'fulfilled' && Array.isArray(r3.value) ? r3.value : null;
+  if (fullHistory && fullHistory.length > 0) {
+    historyScores = fullHistory.filter(e => e.score != null);
+    // Append today's data point if not already covered
+    const lastDate = historyScores[historyScores.length - 1]?.date || '';
+    const todayDate = (data.timestamp || '').slice(0, 10);
+    if (todayDate > lastDate && data.final_score != null) {
+      historyScores.push({ date: todayDate, score: data.final_score, price: data.btc_price || null });
+    }
+  } else {
+    historyScores = (data.score_history || []).filter(e => e.score != null);
+  }
   initHistoryEvents();
   drawHistory(activeRange);
   drawSparklines();

@@ -527,7 +527,7 @@ def main():
         cutoff = today - timedelta(days=90)
         for entry in history:
             if entry.get('date') and datetime.fromisoformat(entry['date']).date() >= cutoff:
-                score_history.append({'date': entry['date'], 'score': entry.get('final_score')})
+                score_history.append({'date': entry['date'], 'score': entry.get('final_score'), 'price': entry.get('btc_price')})
         if score_history:
             p['score_history'] = score_history
         

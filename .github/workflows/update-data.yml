@@ -80,6 +80,13 @@ jobs:
           cp data/data.json web/data.json
           [ -f data/data_exp.json ] && cp data/data_exp.json web/data_exp.json || true
           [ -f data/bucket_returns.json ] && cp data/bucket_returns.json web/bucket_returns.json || true
+          python3 -c "
+import json
+d = json.load(open('data/history/scores.json'))
+out = [{'date': e['date'], 'score': e.get('final_score'), 'price': e.get('btc_price')} for e in d if e.get('date') and e.get('final_score') is not None]
+json.dump(out, open('web/score_history.json', 'w'))
+print(f'Score history: {len(out)} entries -> web/score_history.json')
+          "
 
       - name: Commit and push data
         if: steps.freshness.outputs.fresh == 'false'
