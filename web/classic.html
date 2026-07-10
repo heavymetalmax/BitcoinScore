@@ -2267,7 +2267,7 @@ async function loadData() {
   // Gauge tags
   const frObj = m.funding_rate && m.funding_rate.value ? m.funding_rate.value : null;
   const frAvg = frObj ? (frObj.avg_7d != null ? frObj.avg_7d : frObj.latest) : null;
-  updateGaugeTags(score, vals, keys, frAvg, data.recovery_window);
+  updateGaugeTags(score, vals, keys, frAvg, data.recovery_window, normScores);
 
   // Calculate exact contributions of each block to the overall index
   const getFinalScoreForKey = (key, _val) => {
@@ -2512,7 +2512,9 @@ async function loadData() {
   checkHealth(data);
 }
 
-function updateGaugeTags(score, vals, keys, fr, recoveryWindow) {
+function updateGaugeTags(score, vals, keys, fr, recoveryWindow, normScores) {
+  normScores = normScores || {};
+  const normKeyList = ['nupl','mvrv_z_score','rhodl_ratio','cvdd_ratio','asopr','cipherb','mayer_multiple','etf_flows','fear_greed','yield_curve_spread','m2_yoy','dxy'];
   const el = document.getElementById('gauge-tags');
   if (!el) return;
 
