@@ -1932,12 +1932,14 @@ document.querySelectorAll('.time-btn').forEach(b => {
 // ─── LOAD DATA ─────────────────────────────────────────
 async function loadData() {
   let data;
+  let fullHistory = null;
   try {
     const [r1, r2, r3] = await Promise.allSettled([
       fetch('data.json?t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()),
       fetch('data_exp.json', { cache: 'no-store' }).then(r => r.json()),
       fetch('score_history.json', { cache: 'no-store' }).then(r => r.json()),
     ]);
+    if (r3.status === 'fulfilled' && Array.isArray(r3.value)) fullHistory = r3.value;
     const main = r1.status === 'fulfilled' ? r1.value : {};
     const exp  = r2.status === 'fulfilled' ? r2.value : {};
     data = Object.assign({}, main, exp);
@@ -2426,7 +2428,6 @@ async function loadData() {
   }
 
   // History — prefer full history file (2018-present) over 90-day score_history
-  const fullHistory = r3.status === 'fulfilled' && Array.isArray(r3.value) ? r3.value : null;
   if (fullHistory && fullHistory.length > 0) {
     historyScores = fullHistory.filter(e => e.score != null);
     // Append today's data point if not already covered
