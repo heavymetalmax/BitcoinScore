@@ -1943,6 +1943,13 @@ async function loadData() {
     if (main.score_history?.length) data.score_history = main.score_history;
     if (main.sp_v2 != null)         data.sp_v2         = main.sp_v2;
     if (main.phase)                 data.phase         = main.phase;
+    if (main.timestamp)             data.timestamp     = main.timestamp;
+    // Merge metrics: exp wins where non-null, fall back to main for missing/null fields
+    if (main.metrics) {
+      const m = Object.assign({}, main.metrics, exp.metrics || {});
+      Object.keys(main.metrics).forEach(k => { if (m[k] == null) m[k] = main.metrics[k]; });
+      data.metrics = m;
+    }
     if (!Object.keys(data).length)  return;
   } catch (e) { return; }
 
