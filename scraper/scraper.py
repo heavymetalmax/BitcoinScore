@@ -303,13 +303,15 @@ def _build_metric_history(n_days=365):
 def main():
     p = build_payload()
     
-    # Load previous metrics for fallback
+    # Load previous metrics for fallback and preserve score_history across commits
     prev_metrics = {}
+    prev_score_history = []
     try:
         if os.path.exists('data/data.json'):
             with open('data/data.json', 'r', encoding='utf-8') as hf:
                 prev_data = json.load(hf)
                 prev_metrics = prev_data.get('metrics', {})
+                prev_score_history = prev_data.get('score_history', [])
     except Exception as e:
         print('Error loading prev_metrics for fallback:', e)
 
@@ -478,14 +480,26 @@ def main():
     # ── Add prev_day, prev_week, and score_history fields ─────────────────────
     try:
         from datetime import datetime, timedelta
-        
+
         # Load current history
         with open('data/history/scores.json') as f:
             history = json.load(f)
-        
+
+        # Recover gaps: merge any dates from the previous data.json score_history
+        # that are missing from scores.json (happens when home server doesn't commit
+        # scores.json — each new run would otherwise lose days between commits)
+        _prev_sh = prev_score_history
+        _history_dates = {e.get('date') for e in history}
+        for _e in _prev_sh:
+            _d = _e.get('date')
+            if _d and _d not in _history_dates:
+                history.append({'date': _d, 'final_score': _e.get('score')})
+                _history_dates.add(_d)
+        history.sort(key=lambda e: e.get('date', ''))
+
         today = datetime.now().date()
         today_str = today.isoformat()
-        
+
         # Append today's score if not already there
         if not any(entry.get('date') == today_str for entry in history):
             history.append({
