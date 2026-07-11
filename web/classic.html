@@ -1569,8 +1569,8 @@ function updateMiniGauge(arcId, needleId, valId, score) {
   if (val) { val.textContent = score; val.style.color = z.color; }
 }
 const _sparkPlaceholder = [3,3.5,4,3.5,4,3.5,4,3.5,4,3.5,4,3.5,4,3.5,4,3.5,4,3.5,4,3.5];
-let SPARK_DATA = Array(11).fill(_sparkPlaceholder);
-let sparkColors = Array(11).fill('#22C55E');
+let SPARK_DATA = Array(12).fill(_sparkPlaceholder);
+let sparkColors = Array(12).fill('#22C55E');
 
 let historyEventsBound = false;
 function initHistoryEvents() {
@@ -2450,7 +2450,7 @@ async function loadData() {
     .then(sl => {
       const MH_MAP = [
         'nupl', 'mvrv_z_score', 'rhodl_ratio', 'cvdd_ratio', 'asopr',
-        'cipherb', 'mayer_multiple', 'etf_flows', 'fear_greed', 'yield_curve_spread', 'm2_yoy'
+        'cipherb', 'mayer_multiple', 'etf_flows', 'fear_greed', 'yield_curve_spread', 'm2_yoy', 'dxy'
       ];
       MH_MAP.forEach((key, i) => {
         if (!key) return;

@@ -92,6 +92,33 @@ def map_yc(v):
     return round(((2.0 - v) / 3.0) * 100)
 
 
+def map_dxy(v):
+    # FRED Broad Dollar Index: <=108→0, 116→50, >=128→100
+    if v is None: return None
+    v = float(v)
+    if v <= 108.0: return 0
+    if v >= 128.0: return 100
+    if v <= 116.0:
+        return round((v - 108.0) / (116.0 - 108.0) * 50)
+    return round(50 + (v - 116.0) / (128.0 - 116.0) * 50)
+
+
+def load_dxy_sparkline(cutoff):
+    path = 'data/history/dxy_history.json'
+    if not os.path.exists(path):
+        return {}
+    with open(path) as f:
+        raw = json.load(f)
+    series = raw.get('series', raw) if isinstance(raw, dict) else raw
+    result = {}
+    for pt in series:
+        date = pt.get('date', '')
+        if not date or date < cutoff:
+            continue
+        result[date] = map_dxy(pt.get('value'))
+    return result
+
+
 def load_etf_sparkline(cutoff):
     """Load ETF 7d flows history → list of (date_str, score)."""
     path = 'data/history/etf_flows.json'
@@ -156,20 +183,22 @@ def main():
 
     etf_by_date = load_etf_sparkline(cutoff)
     yc_by_date  = load_yc_sparkline(cutoff)
+    dxy_by_date = load_dxy_sparkline(cutoff)
 
     result = {
-        'dates':          [r['date'] for r in recent],
-        'nupl':           [map_nupl(r.get('nupl'))           for r in recent],
-        'mvrv_z_score':   [map_mvrv(r.get('mvrv'))           for r in recent],
-        'rhodl_ratio':    [map_rhodl(r.get('rhodl_ratio'))   for r in recent],
-        'cvdd_ratio':     [map_cvdd(r.get('cvdd_ratio'))     for r in recent],
-        'asopr':          [map_asopr(r.get('asopr'))         for r in recent],
-        'cipherb':        [map_cipherb(r.get('cipherb_daily')) for r in recent],
-        'mayer_multiple': [map_mayer(r.get('mayer_multiple')) for r in recent],
-        'etf_flows':      [etf_by_date.get(r['date'])        for r in recent],
-        'fear_greed':     [map_fg(r.get('fear_greed'))       for r in recent],
-        'yield_curve_spread': [yc_by_date.get(r['date'])     for r in recent],
-        'm2_yoy':         [map_m2(r.get('m2_yoy'))           for r in recent],
+        'dates':              [r['date'] for r in recent],
+        'nupl':               [map_nupl(r.get('nupl'))             for r in recent],
+        'mvrv_z_score':       [map_mvrv(r.get('mvrv'))             for r in recent],
+        'rhodl_ratio':        [map_rhodl(r.get('rhodl_ratio'))     for r in recent],
+        'cvdd_ratio':         [map_cvdd(r.get('cvdd_ratio'))       for r in recent],
+        'asopr':              [map_asopr(r.get('asopr'))           for r in recent],
+        'cipherb':            [map_cipherb(r.get('cipherb_daily')) for r in recent],
+        'mayer_multiple':     [map_mayer(r.get('mayer_multiple'))  for r in recent],
+        'etf_flows':          [etf_by_date.get(r['date'])          for r in recent],
+        'fear_greed':         [map_fg(r.get('fear_greed'))         for r in recent],
+        'yield_curve_spread': [yc_by_date.get(r['date'])           for r in recent],
+        'm2_yoy':             [map_m2(r.get('m2_yoy'))             for r in recent],
+        'dxy':                [dxy_by_date.get(r['date'])          for r in recent],
     }
 
     out_path = 'web/sparklines.json'
