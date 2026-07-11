@@ -625,12 +625,28 @@ def main():
     if os.path.exists('data/data_exp.json'):
         _shutil.copy2('data/data_exp.json', 'web/data_exp.json')
 
+    # ── Regenerate sparklines so web/sparklines.json stays fresh ─────────────
+    try:
+        from tools.generate_sparklines import main as _gen_sparklines
+        _gen_sparklines()
+    except Exception as e:
+        print(f'WARNING: Sparklines generation failed: {e}')
+
     # ── Generate screenshot preview of the Stressless dashboard ────────────────
     try:
         from .screenshot import generate_stressless_screenshot
         generate_stressless_screenshot()
     except Exception as e:
-        print('Stressless screenshot generation failed:', e)
+        print('WARNING: Stressless screenshot generation failed:', e)
+
+    # ── Validate pipeline output — fail loudly if data is inconsistent ────────
+    try:
+        from tools.validate_output import validate
+        validate()
+    except SystemExit:
+        raise  # propagate validation failures
+    except Exception as e:
+        print(f'WARNING: output validation error: {e}')
 
 
 if __name__ == '__main__':

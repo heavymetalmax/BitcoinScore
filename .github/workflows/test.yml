@@ -1,0 +1,31 @@
+name: Smoke Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          if [ -f scraper/requirements.txt ]; then
+            pip install -r scraper/requirements.txt || true
+          fi
+          pip install pytest requests numpy scikit-learn
+
+      - name: Run smoke tests
+        run: |
+          python -m pytest tools/test_pipeline_smoke.py tools/test_dxy_scoring.py -v
