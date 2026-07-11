@@ -618,6 +618,13 @@ def main():
     except Exception as e:
         print('Wallpaper update failed:', e)
 
+    # ── Sync data.json to web/ unconditionally (screenshot may fail) ────────────
+    import shutil as _shutil
+    if os.path.exists('data/data.json'):
+        _shutil.copy2('data/data.json', 'web/data.json')
+    if os.path.exists('data/data_exp.json'):
+        _shutil.copy2('data/data_exp.json', 'web/data_exp.json')
+
     # ── Generate screenshot preview of the Stressless dashboard ────────────────
     try:
         from .screenshot import generate_stressless_screenshot
