@@ -717,6 +717,230 @@
       border-radius: 20px;
       background: var(--bg-card);
     }
+
+    /* ── Mono utility — system fonts only, no download ─────────────────── */
+    code, .mono {
+      font-family: ui-monospace, 'SF Mono', 'Cascadia Code', 'Fira Code', monospace;
+      font-size: 0.82em;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      padding: 1px 5px;
+      border-radius: 4px;
+      color: var(--index-color);
+    }
+    .theme-light code, .theme-light .mono {
+      background: rgba(0,0,0,0.04);
+      color: color-mix(in srgb, var(--index-color) 70%, #000 30%);
+    }
+    .zone-0, .zone-25, .zone-50, .zone-75, .zone-100 {
+      font-variant-numeric: tabular-nums;
+      font-weight: 700;
+      font-size: 0.78rem;
+      padding: 3px 10px;
+    }
+
+    /* ── Section eyebrow ───────────────────────────────────────────────── */
+    .section-eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      color: var(--index-color);
+      opacity: 0.7;
+      margin-bottom: 8px;
+      margin-top: 52px;
+    }
+    .section-eyebrow::before {
+      content: '';
+      display: block;
+      width: 20px;
+      height: 2px;
+      background: var(--index-color);
+      border-radius: 1px;
+      flex-shrink: 0;
+    }
+    h2 { margin-top: 4px; }
+
+    /* ── Hero score card ───────────────────────────────────────────────── */
+    .hero-score-card {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+      margin: 24px 0 8px;
+      backdrop-filter: var(--glass-blur);
+      box-shadow: var(--shadow-glow);
+    }
+    .hero-score-left {
+      padding: 24px 28px;
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      flex-shrink: 0;
+    }
+    .hero-score-number {
+      font-size: 4rem;
+      font-weight: 800;
+      color: #10b981;
+      line-height: 1;
+      letter-spacing: -0.04em;
+    }
+    .hero-score-denom {
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--text-mute);
+      margin-top: 2px;
+      letter-spacing: 0.05em;
+      font-variant-numeric: tabular-nums;
+    }
+    .hero-score-right {
+      padding: 20px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1;
+    }
+    .hero-phase-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .hero-phase-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #10b981;
+      flex-shrink: 0;
+      box-shadow: 0 0 0 0 rgba(16,185,129,0.4);
+      animation: hero-pulse 2.4s ease-in-out infinite;
+    }
+    @keyframes hero-pulse {
+      0%   { box-shadow: 0 0 0 0 rgba(16,185,129,0.5); }
+      60%  { box-shadow: 0 0 0 7px rgba(16,185,129,0); }
+      100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); }
+    }
+    .hero-phase-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: #10b981;
+    }
+    .hero-meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .hero-meta-item {
+      font-size: 0.75rem;
+      color: var(--text-mute);
+    }
+    .hero-meta-item strong {
+      color: var(--text-sub);
+      font-weight: 600;
+    }
+
+    /* ── Risk spectrum (full-width, with zones) ───────────────────────── */
+    .risk-spectrum {
+      margin: 20px 0 36px;
+    }
+    .risk-spectrum-track {
+      position: relative;
+      height: 8px;
+      border-radius: 4px;
+      background: linear-gradient(to right,
+        #10b981 0%,
+        #84cc16 25%,
+        #eab308 50%,
+        #f97316 75%,
+        #ef4444 100%
+      );
+      box-shadow: 0 1px 8px rgba(0,0,0,0.2);
+    }
+    .risk-spectrum-tick {
+      position: absolute;
+      top: -4px;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .risk-spectrum-tick::before {
+      content: '';
+      display: block;
+      width: 3px;
+      height: 16px;
+      background: #fff;
+      border-radius: 1.5px;
+      box-shadow: 0 0 10px rgba(255,255,255,0.8), 0 0 20px rgba(255,255,255,0.3);
+    }
+    .theme-light .risk-spectrum-tick::before {
+      background: #0f172a;
+      box-shadow: 0 0 8px rgba(0,0,0,0.4);
+    }
+    .risk-spectrum-value {
+      font-size: 0.62rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-top: 6px;
+      white-space: nowrap;
+      opacity: 0.7;
+      font-variant-numeric: tabular-nums;
+    }
+    .risk-spectrum-zones {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 7px;
+      padding: 0 2px;
+    }
+    .risk-spectrum-zones span {
+      font-size: 0.58rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-mute);
+      opacity: 0.6;
+    }
+
+    /* ── Milestone table row coloring ─────────────────────────────────── */
+    .milestone-buy td:first-child {
+      border-left: 3px solid #10b981;
+      padding-left: 10px;
+    }
+    .milestone-sell td:first-child {
+      border-left: 3px solid #ef4444;
+      padding-left: 10px;
+    }
+    .milestone-live td:first-child {
+      border-left: 3px solid var(--index-color);
+      padding-left: 10px;
+    }
+    .milestone-buy {
+      background: rgba(16,185,129,0.04);
+    }
+    .milestone-sell {
+      background: rgba(239,68,68,0.04);
+    }
+    .milestone-live {
+      background: rgba(247,147,26,0.05);
+    }
+    .theme-light .milestone-buy { background: rgba(16,185,129,0.05); }
+    .theme-light .milestone-sell { background: rgba(239,68,68,0.05); }
+    .theme-light .milestone-live { background: rgba(247,147,26,0.06); }
+
+    /* ── Pipeline stage ────────────────────────────────────────────────── */
+    .pipeline-stage-num {
+      font-size: 9px !important;
+      font-weight: 700 !important;
+      letter-spacing: 0.15em !important;
+    }
   </style>
   <script type="application/ld+json">
   {
@@ -806,6 +1030,44 @@
     <span class="ua">Індекс ризику купівлі Bitcoin &middot; Класифікатор фаз на базі ML &middot; Трейлінг-стоп двигун</span>
   </div>
 
+  <!-- Hero: live score card -->
+  <div class="hero-score-card">
+    <div class="hero-score-left">
+      <div class="hero-score-number">25</div>
+      <div class="hero-score-denom">out of 100</div>
+    </div>
+    <div class="hero-score-right">
+      <div class="hero-phase-row">
+        <span class="hero-phase-dot"></span>
+        <span class="hero-phase-label">
+          <span class="en">Confirmed Bottom</span>
+          <span class="ua">Підтверджене дно</span>
+        </span>
+      </div>
+      <div class="hero-meta-row">
+        <div class="hero-meta-item"><span class="en">BTC Price</span><span class="ua">Ціна BTC</span> <strong>$63,806</strong></div>
+        <div class="hero-meta-item"><span class="en">Phase</span><span class="ua">Фаза</span> <strong>w_bot = 99.9%</strong></div>
+        <div class="hero-meta-item"><span class="en">Signal</span><span class="ua">Сигнал</span> <strong><span class="en">DCA Accumulation</span><span class="ua">DCA Накопичення</span></strong></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Risk spectrum: 0–100 gradient with live marker + zone labels -->
+  <div class="risk-spectrum" aria-hidden="true">
+    <div class="risk-spectrum-track">
+      <div class="risk-spectrum-tick" style="left: 25%">
+        <span class="risk-spectrum-value">25</span>
+      </div>
+    </div>
+    <div class="risk-spectrum-zones">
+      <span><span class="en">V.Low</span><span class="ua">Дуже низький</span></span>
+      <span><span class="en">Low</span><span class="ua">Низький</span></span>
+      <span><span class="en">Moderate</span><span class="ua">Помірний</span></span>
+      <span><span class="en">High</span><span class="ua">Високий</span></span>
+      <span><span class="en">V.High</span><span class="ua">Дуже високий</span></span>
+    </div>
+  </div>
+
   <p style="margin-top:-8px;">
     <span class="en">See also: <a href="compare.html">Bitcoin Buy Risk Index vs. the Fear &amp; Greed Index and CBBI</a>.</span>
     <span class="ua">Дивіться також: <a href="compare.html">Індекс ризику купівлі Bitcoin проти Fear &amp; Greed та CBBI</a>.</span>
@@ -881,6 +1143,7 @@
   </div>
 
   <!-- Section 1 -->
+  <span class="section-eyebrow"><span class="en">Foundation / 01</span><span class="ua">Основа / 01</span></span>
   <h2 id="what-is-it">
     <span class="en">1. What This Is — and What It Is Not</span>
     <span class="ua">1. Що це таке — і чим воно не є</span>
@@ -895,6 +1158,7 @@
   <p class="ua">Не існує єдиного правильного способу оцінити ризик купівлі Bitcoin. Кожен, хто стверджує зворотне, намагається продати вам ілюзію. Цей індекс є структурованим, заснованим на даних інструментом, створеним для зменшення впливу емоцій, новинного шуму та короткострокової ринкової психології при оцінці того, чи є поточний момент історично дешевим чи дорогим порівняно з минулими циклами. Невідомо, чи працюватиме він у майбутніх циклах.</p>
 
   <!-- Section 2 -->
+  <span class="section-eyebrow"><span class="en">Philosophy / 02</span><span class="ua">Філософія / 02</span></span>
   <h2 id="philosophy">
     <span class="en">2. Philosophy &amp; Methodology</span>
     <span class="ua">2. Філософія та методологія</span>
@@ -943,6 +1207,7 @@
   </ul>
 
   <!-- Section 3 -->
+  <span class="section-eyebrow"><span class="en">Architecture / 03</span><span class="ua">Архітектура / 03</span></span>
   <h2 id="architecture">
     <span class="en">3. Core Mathematical &amp; Technical Architecture</span>
     <span class="ua">3. Математична та технічна архітектура</span>
@@ -954,7 +1219,7 @@
     <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; min-width: 600px;">
       <!-- Step 1 -->
       <div style="flex: 1; text-align: center; background: rgba(255,255,255,0.03); border: 1px solid var(--border); padding: 12px 8px; border-radius: 12px;">
-        <div style="font-size: 10px; font-weight: 700; color: var(--index-color); margin-bottom: 4px;">STAGE 1</div>
+        <div class="pipeline-stage-num" style="color: var(--index-color); margin-bottom: 4px;">STAGE 1</div>
         <div style="font-size: 11px; font-weight: 600; line-height: 1.25;">
           <span class="en">Normalization</span><span class="ua">Нормалізація</span>
         </div>
@@ -963,7 +1228,7 @@
       <div style="color: var(--text-sub); opacity: 0.5;">➔</div>
       <!-- Step 2 -->
       <div style="flex: 1; text-align: center; background: rgba(255,255,255,0.03); border: 1px solid var(--border); padding: 12px 8px; border-radius: 12px;">
-        <div style="font-size: 10px; font-weight: 700; color: var(--index-color); margin-bottom: 4px;">STAGE 2</div>
+        <div class="pipeline-stage-num" style="color: var(--index-color); margin-bottom: 4px;">STAGE 2</div>
         <div style="font-size: 11px; font-weight: 600; line-height: 1.25;">
           <span class="en">ML Classifier</span><span class="ua">ML класифікація</span>
         </div>
@@ -972,7 +1237,7 @@
       <div style="color: var(--text-sub); opacity: 0.5;">➔</div>
       <!-- Step 3 -->
       <div style="flex: 1; text-align: center; background: rgba(255,255,255,0.03); border: 1px solid var(--border); padding: 12px 8px; border-radius: 12px;">
-        <div style="font-size: 10px; font-weight: 700; color: var(--index-color); margin-bottom: 4px;">STAGE 3</div>
+        <div class="pipeline-stage-num" style="color: var(--index-color); margin-bottom: 4px;">STAGE 3</div>
         <div style="font-size: 11px; font-weight: 600; line-height: 1.25;">
           <span class="en">Utility Weights</span><span class="ua">Ваги корисності</span>
         </div>
@@ -981,7 +1246,7 @@
       <div style="color: var(--text-sub); opacity: 0.5;">➔</div>
       <!-- Step 4 -->
       <div style="flex: 1; text-align: center; background: rgba(255,255,255,0.03); border: 1px solid var(--border); padding: 12px 8px; border-radius: 12px;">
-        <div style="font-size: 10px; font-weight: 700; color: var(--index-color); margin-bottom: 4px;">STAGE 4</div>
+        <div class="pipeline-stage-num" style="color: var(--index-color); margin-bottom: 4px;">STAGE 4</div>
         <div style="font-size: 11px; font-weight: 600; line-height: 1.25;">
           <span class="en">Coherence</span><span class="ua">Когерентність</span>
         </div>
@@ -990,7 +1255,7 @@
       <div style="color: var(--text-sub); opacity: 0.5;">➔</div>
       <!-- Step 5 -->
       <div style="flex: 1; text-align: center; background: rgba(255,255,255,0.03); border: 1px solid var(--border); padding: 12px 8px; border-radius: 12px;">
-        <div style="font-size: 10px; font-weight: 700; color: var(--index-color); margin-bottom: 4px;">STAGE 5</div>
+        <div class="pipeline-stage-num" style="color: var(--index-color); margin-bottom: 4px;">STAGE 5</div>
         <div style="font-size: 11px; font-weight: 600; line-height: 1.25;">
           <span class="en">Orchestration</span><span class="ua">Оркестрація</span>
         </div>
@@ -1004,24 +1269,25 @@
       <span class="ua"><strong>Причинно-наслідкова нормалізація</strong>: Щоб запобігти витоку майбутніх даних в минуле, такі показники як <code>nupl</code>, <code>mvrv</code> та <code>mayer</code> динамічно масштабуються за причинно-наслідковим перцентильним рангом у ковзному 4-річному (1460 днів) вікні. Фінальне значення змішується 50/50 з фіксованими сигмоїдними картами.</span>
     </li>
     <li>
-      <span class="en"><strong>ML-Driven Phase Regimes</strong>: A regularized Logistic Regression classifier evaluates a 22-dimensional wave vector (11 indicators and their 11-day lookback deltas) to output continuous probabilities for three market regimes: <code>BOTTOM</code>, <code>NEUTRAL</code>, and <code>TOP</code>.</span>
-      <span class="ua"><strong>Визначення фазових режимів на базі ML</strong>: Регуляризований класифікатор логістичної регресії оцінює 22-вимірний вектор хвиль (11 індикаторів та їхні 11-денні дельти) для виведення безперервних ймовірностей трьох ринкових режимів: <code>BOTTOM</code> (дно), <code>NEUTRAL</code> (нейтральний) та <code>TOP</code> (топ).</span>
+      <span class="en"><strong>ML-Driven Phase Regimes</strong>: A Gaussian Hidden Markov Model (HMM) evaluates a multi-dimensional feature vector across on-chain and technical indicators to output continuous mixture weights for three market regimes: <code>BOTTOM</code>, <code>NEUTRAL</code>, and <code>TOP</code>. These weights drive dynamic utility allocation in Stage 3.</span>
+      <span class="ua"><strong>Визначення фазових режимів на базі ML</strong>: Гаусівська прихована марківська модель (HMM) оцінює багатовимірний вектор ознак по ончейн та технічних індикаторах для виведення безперервних змішаних ваг трьох ринкових режимів: <code>BOTTOM</code> (дно), <code>NEUTRAL</code> (нейтральний) та <code>TOP</code> (топ). Ці ваги визначають динамічний розподіл корисності на Етапі 3.</span>
     </li>
     <li>
-      <span class="en"><strong>Dynamic Utility Weighting</strong>: Metrics do not have static weights. Their utility coefficients scale dynamically ($U_i \in [0.1, 1.0]$) based on active phase probabilities. On-chain metrics dominate bottoms, while technical oscillators, sentiment, and Mayer Multiple dominate tops.</span>
-      <span class="ua"><strong>Динамічне зважування корисності</strong>: Метрики не мають фіксованих ваг. Їхні коефіцієнти корисності масштабуються динамічно ($U_i \in [0.1, 1.0]$) на основі ймовірностей фаз. Ончейн-показники домінують на дні ринку, тоді як технічні осцилятори, сентимент та Mayer Multiple домінують на вершинах.</span>
+      <span class="en"><strong>IC-Calibrated Utility Weighting</strong>: Metrics do not have static weights. Their utility coefficients ($U_i \in [0.1, 1.0]$) are calibrated from a historical Information Coefficient (IC) backtest — the Pearson correlation between each metric's normalized score and 365-day forward BTC returns. Weights are stored in the trained model and update automatically on each retrain. On-chain metrics dominate bottoms; technical oscillators, sentiment, and Mayer Multiple dominate tops.</span>
+      <span class="ua"><strong>Зважування корисності з IC-калібруванням</strong>: Метрики не мають фіксованих ваг. Їхні коефіцієнти корисності ($U_i \in [0.1, 1.0]$) калібруються з бектесту Information Coefficient (IC) — кореляції Пірсона між нормалізованою оцінкою кожної метрики та 365-денною форвардною дохідністю BTC. Ваги зберігаються в навченій моделі та автоматично оновлюються при перенавчанні. Ончейн-показники домінують на дні; технічні осцилятори, сентимент та Mayer Multiple домінують на вершинах.</span>
     </li>
     <li>
       <span class="en"><strong>Phase-Aware Coherence Dampening</strong>: When metrics diverge, the score is pulled toward phase targets (30 for Bottom, 70 for Top, 50 for Neutral) using a standard deviation coherence factor, preventing signal dilution at cycle extremes.</span>
       <span class="ua"><strong>Згасання узгодженості з урахуванням фази</strong>: Коли метрики розходяться, оцінка притягується до цілей фази (30 для дна, 70 для вершини, 50 для нейтральної фази) з використанням коефіцієнта когерентності на основі стандартного відхилення, що запобігає розмиттю сигналу.</span>
     </li>
     <li>
-      <span class="en"><strong>Hybrid Signal Orchestrator</strong>: Combines the score with the Wave Resonance vector, checks direction alignment, and applies the Time-in-Zone (TiZ) Maturity Gate (minimum 25% of cycle calibration, ~50 days) to prevent buying too early during a capitulation crash.</span>
-      <span class="ua"><strong>Гібридний оркестратор сигналів</strong>: Поєднує оцінку з вектором резонансу хвиль, перевіряє напрямок тренду та застосовує часовий фільтр TiZ (мінімум 25% від калібрувального вікна, ~50 днів), щоб запобігти покупкам занадто рано під час обвалу.</span>
+      <span class="en"><strong>Hybrid Signal Orchestrator</strong>: Combines the score with the Wave Resonance vector, checks direction alignment, and applies the Time-in-Zone (TiZ) Maturity Gate (minimum 25% of cycle calibration, ~50 days) to prevent buying too early during a capitulation crash. A <strong>DXY Macro Modifier</strong> (±0–3 pts) is applied before orchestration: because high USD strength historically coincides with BTC undervaluation (IC = +0.28 over 1856 backtest dates), high DXY <em>reduces</em> the risk score and low DXY increases it — a contrarian signal calibrated from historical data.</span>
+      <span class="ua"><strong>Гібридний оркестратор сигналів</strong>: Поєднує оцінку з вектором резонансу хвиль, перевіряє напрямок тренду та застосовує часовий фільтр TiZ (мінімум 25% від калібрувального вікна, ~50 днів), щоб запобігти покупкам занадто рано під час обвалу. Перед оркестрацією застосовується <strong>макромодифікатор DXY</strong> (±0–3 п.): оскільки висока сила долара США історично збігається з недооцінкою BTC (IC = +0.28 на 1856 датах бектесту), високий DXY <em>знижує</em> оцінку ризику, а низький — підвищує. Контраріанський сигнал, калібрований на основі реальних даних.</span>
     </li>
   </ol>
 
   <!-- Section 4 -->
+  <span class="section-eyebrow"><span class="en">Signal Override / 04</span><span class="ua">Перекриття сигналів / 04</span></span>
   <h2 id="divergence">
     <span class="en">4. Advanced Divergence Overrides</span>
     <span class="ua">4. Розширені коригування дивергенцій</span>
@@ -1044,6 +1310,7 @@
   </ul>
 
   <!-- Section 5 -->
+  <span class="section-eyebrow"><span class="en">Exit Strategy / 05</span><span class="ua">Стратегія виходу / 05</span></span>
   <h2 id="observer">
     <span class="en">5. The Trading Observer: Trailing Stop Engine</span>
     <span class="ua">5. Трейлінг-стоп двигун за оцінкою</span>
@@ -1137,6 +1404,7 @@
   </div>
 
   <!-- Section 6 -->
+  <span class="section-eyebrow"><span class="en">Track Record / 06</span><span class="ua">Результати / 06</span></span>
   <h2 id="milestones">
     <span class="en">6. Historical Backtest Milestones</span>
     <span class="ua">6. Історичні віхи бектесту</span>
@@ -1156,74 +1424,74 @@
         </tr>
       </thead>
       <tbody>
-        <tr>
+        <tr class="milestone-buy">
           <td><strong>2018-12-15</strong></td>
           <td><span class="en">Bear Market Bottom</span><span class="ua">Дно ведмежого ринку</span></td>
           <td>$3,200</td>
           <td><span class="zone-0">25</span></td>
           <td><strong><span class="en">BUY</span><span class="ua">КУПІВЛЯ</span></strong></td>
         </tr>
-        <tr>
+        <tr class="milestone-sell">
           <td><strong>2019-06-26</strong></td>
           <td><span class="en">Mid-Cycle Top</span><span class="ua">Вершина середини циклу</span></td>
           <td>$13,880</td>
           <td><span class="zone-75">80</span></td>
           <td><strong><span class="en">SELL</span><span class="ua">ПРОДАЖ</span></strong></td>
         </tr>
-        <tr>
+        <tr class="milestone-buy">
           <td><strong>2020-03-13</strong></td>
           <td><span class="en">COVID Liquidity Crash</span><span class="ua">COVID-криза ліквідності</span></td>
           <td>$3,800</td>
           <td><span class="zone-0">26</span></td>
           <td><strong><span class="en">BUY</span><span class="ua">КУПІВЛЯ</span></strong></td>
         </tr>
-        <tr>
+        <tr class="milestone-sell">
           <td><strong>2021-04-14</strong></td>
           <td><span class="en">Spring ATH</span><span class="ua">Весняний максимум</span></td>
           <td>$63,500</td>
           <td><span class="zone-100">88</span></td>
           <td><span class="en">DISTRIBUTION</span><span class="ua">ДИСТРИБУЦІЯ</span></td>
         </tr>
-        <tr>
+        <tr class="milestone-sell">
           <td><strong>2021-11-10</strong></td>
           <td><span class="en">Double Top ATH</span><span class="ua">Подвійна вершина ATH</span></td>
           <td>$69,000</td>
           <td><span class="zone-75">80</span></td>
           <td><strong><span class="en">SELL</span><span class="ua">ПРОДАЖ</span></strong></td>
         </tr>
-        <tr>
+        <tr class="milestone-buy">
           <td><strong>2022-06-18</strong></td>
           <td><span class="en">Three Arrows Capitulation</span><span class="ua">Капітуляція Three Arrows</span></td>
           <td>$17,600</td>
           <td><span class="zone-0">24</span></td>
           <td><strong><span class="en">BUY</span><span class="ua">КУПІВЛЯ</span></strong></td>
         </tr>
-        <tr>
+        <tr class="milestone-buy">
           <td><strong>2022-11-21</strong></td>
           <td><span class="en">FTX Exchange Collapse</span><span class="ua">Крах біржі FTX</span></td>
           <td>$15,500</td>
           <td><span class="zone-0">16</span></td>
           <td><strong><span class="en">BUY</span><span class="ua">КУПІВЛЯ</span></strong></td>
         </tr>
-        <tr>
+        <tr class="milestone-sell">
           <td><strong>2024-03-14</strong></td>
           <td><span class="en">Halving Anticipation ATH</span><span class="ua">Максимум очікування халвінгу</span></td>
           <td>$73,500</td>
           <td><span class="zone-75">82</span></td>
           <td><strong><span class="en">SELL</span><span class="ua">ПРОДАЖ</span></strong></td>
         </tr>
-        <tr>
+        <tr class="milestone-sell">
           <td><strong>2025-09-29</strong></td>
           <td><span class="en">Cycle Peak</span><span class="ua">Пік циклу</span></td>
           <td>$129,000</td>
           <td><span class="zone-50">68</span></td>
           <td><strong><span class="en">SELL</span><span class="ua">ПРОДАЖ</span></strong></td>
         </tr>
-        <tr>
-          <td><strong>2026-06-15</strong></td>
+        <tr class="milestone-live">
+          <td><strong>2026-07-11</strong></td>
           <td><span class="en">Today's Live Valuation</span><span class="ua">Поточна live-оцінка</span></td>
-          <td>$65,703</td>
-          <td><span class="zone-0">23</span></td>
+          <td>$63,806</td>
+          <td><span class="zone-0">25</span></td>
           <td><strong><span class="en">BUY / DCA ACCUMULATION</span><span class="ua">КУПІВЛЯ / DCA НАКОПИЧЕННЯ</span></strong></td>
         </tr>
       </tbody>
@@ -1231,6 +1499,7 @@
   </div>
 
   <!-- Section 7 -->
+  <span class="section-eyebrow"><span class="en">Implementation / 07</span><span class="ua">Реалізація / 07</span></span>
   <h2 id="implementation">
     <span class="en">7. Practical Implementation</span>
     <span class="ua">7. Практична імплементація</span>
@@ -1239,6 +1508,7 @@
   <p class="ua">Активні обчислення виконуються щодня на бекенді та зберігаються в JSON-файл (<code>data.json</code>) для відображення на дашбордах. Сюди входять фінальна оцінка, активна фаза, а також детальний стан кінцевого автомата (наприклад, <code>state: 'HOLD_BTC'</code>, <code>trailing_trigger_score</code> тощо).</p>
 
   <!-- Section 8 -->
+  <span class="section-eyebrow"><span class="en">Perspective / 08</span><span class="ua">Перспектива / 08</span></span>
   <h2 id="rower">
     <span class="en">8. The Rower's Metaphor</span>
     <span class="ua">8. Метафора весляра</span>
@@ -1261,6 +1531,7 @@
   <p class="ua">Цей індикатор — лоція для весляра, який сидить спиною вперед. Він намагається з усіх сил нанести на карту течію та береги, але ніколи не замінить ваші власні очі, ваш розум, ваш темп та ваше особисте відчуття безпеки чи небезпеки.</p>
 
   <!-- Section 9 -->
+  <span class="section-eyebrow"><span class="en">Versioning / 09</span><span class="ua">Версіонування / 09</span></span>
   <h2 id="version-comparison">
     <span class="en">9. Model Evolution</span>
     <span class="ua">9. Еволюція моделі</span>
@@ -1308,8 +1579,8 @@
             <span class="ua"><strong>Статичні межі</strong>: Постійні межі, які не адаптуються до структурного дорослішання Bitcoin.</span>
           </td>
           <td>
-            <span class="en"><strong>Adaptive Calibration</strong>: Blends fixed mappings with a rolling 4-year percentile rank (50/50 blend).</span>
-            <span class="ua"><strong>Адаптивне калібрування</strong>: Змішує фіксовані карти з ковзним 4-річним історичним перцентильним рангом (50/50).</span>
+            <span class="en"><strong>Adaptive Calibration + IC Backtest</strong>: Blends fixed mappings with a rolling 4-year percentile rank (50/50 blend). Utility weights additionally calibrated via Information Coefficient (IC) backtest on 1856 historical dates.</span>
+            <span class="ua"><strong>Адаптивне калібрування + IC-бектест</strong>: Змішує фіксовані карти з ковзним 4-річним перцентильним рангом (50/50). Ваги корисності додатково калібруються через IC-бектест на 1856 історичних датах.</span>
           </td>
         </tr>
         <tr>
@@ -1342,6 +1613,7 @@
   <p class="ua">Індекс усуває розмиття від індикаторів, що відстають, автоматично компенсує згасання волатильності протягом багаторічних циклів та інтегрує інституційні потоки капіталу для точнішої оцінки сучасних циклів ринку.</p>
 
   <!-- Section 10 -->
+  <span class="section-eyebrow"><span class="en">Limitations / 10</span><span class="ua">Обмеження / 10</span></span>
   <h2 id="limitations">
     <span class="en">10. Limitations &amp; Disclaimer</span>
     <span class="ua">10. Обмеження та дисклеймер</span>
@@ -1359,7 +1631,7 @@
       <span class="en">&larr; Back to Dashboard</span>
       <span class="ua">&larr; На головну</span>
     </a>
-    &nbsp;&middot;&nbsp; Bitcoin Buy Risk Index &middot; June 2026
+    &nbsp;&middot;&nbsp; Bitcoin Buy Risk Index &middot; July 2026
     &nbsp;&middot;&nbsp;
     <a href="https://github.com/heavymetalmax/BitcoinScore/discussions" target="_blank" rel="noopener" style="color:var(--index-color);text-decoration:none;font-weight:600;">
       <span class="en">Feedback on GitHub</span>

@@ -28,7 +28,7 @@ import datetime
 # fixed maps — applying a percentile to a stable-envelope oscillator would
 # inject noise. Evidence: tools/adaptive_norm_probe.py (NUPL peaks 0.87→0.64,
 # MVRV Z 11→3.4; fixed under-reads modern tops and over-reads modern bottoms).
-ADAPTIVE_METRICS   = {'nupl', 'mvrv', 'mayer', 'cvdd_ratio', 'puell', 'etf_flows'}
+ADAPTIVE_METRICS   = {'nupl', 'mvrv', 'mayer', 'cvdd_ratio', 'puell', 'etf_flows', 'dxy'}
 # daily_vector raw key differs from the adaptive metric name for some metrics
 _DV_KEY            = {'mayer': 'mayer_multiple', 'cvdd_ratio': 'cvdd_ratio'}
 # field name in unified_history.json when it differs from the metric key

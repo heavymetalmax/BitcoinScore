@@ -37,8 +37,6 @@ RELEVANCE_PROFILES = {
     'pi_gap':              {'BOTTOM': 0.1, 'NEUTRAL': 0.5, 'TOP': 1.0},
     # Funding Rate: longs overheated = high risk; more relevant at TOP than BOTTOM
     'funding_rate':        {'BOTTOM': 0.3, 'NEUTRAL': 0.5, 'TOP': 0.8},
-    # Dollar Index: macro headwind/tailwind; slow-moving, moderate weight at extremes
-    'dxy':                 {'BOTTOM': 0.2, 'NEUTRAL': 0.5, 'TOP': 0.2},
     # LTH Supply: distribution is an early TOP warning; accumulation validates BOTTOM
     'lth_supply':          {'BOTTOM': 0.5, 'NEUTRAL': 0.6, 'TOP': 0.9},
 }
@@ -59,12 +57,27 @@ def load_relevance_weights():
         return
     try:
         import pickle
+        import sys as _sys
+
+        # The pickle was created when train_v3_hmm_model.py ran as __main__,
+        # so HMMPhaseClassifier is stored as __main__.HMMPhaseClassifier.
+        # Use a custom Unpickler to remap it to the actual module path.
         try:
-            from tools.train_v3_hmm_model import HMMPhaseClassifier  # noqa: F401
+            from tools.train_v3_hmm_model import HMMPhaseClassifier as _HMM  # noqa
+            _train_mod = _sys.modules.get('tools.train_v3_hmm_model')
         except Exception:
-            pass
+            _HMM = None
+            _train_mod = None
+
+        class _Unpickler(pickle.Unpickler):
+            def find_class(self, module, name):
+                if name == 'HMMPhaseClassifier' and _HMM is not None:
+                    return _HMM
+                return super().find_class(module, name)
+
         with open(_MODEL_PATH, 'rb') as f:
-            model_data = pickle.load(f)
+            model_data = _Unpickler(f).load()
+
         learned = model_data.get('metric_relevance')
         if isinstance(learned, dict):
             for k, v in learned.items():

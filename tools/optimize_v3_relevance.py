@@ -21,21 +21,21 @@ import datetime
 
 sys.path.insert(0, '.')
 
-from tools.backtest import load_data, compute_at, _prev_scores
-from scraper.scoring_v2 import phase_signals, _METRIC_LOOKBACK
-from scraper.scoring import _oc_coherence
+from tools.backtest import load_data, compute_at, _prev_scores, nearest_strict
+from scraper.scoring_v2 import phase_signals, _METRIC_LOOKBACK, map_puell
+from scraper.scoring import _oc_coherence, map_lth_supply
 from scraper.utility_evaluator import RELEVANCE_PROFILES
 from scraper.scoring_v3 import OC_GROUP, TECH_GROUP, map_pi_cycle_gap, compute_tiz_causal_v3
 
-# 6-month forward returns window
-FORWARD_DAYS = 180
 _OUTPUT_PATH = 'data/v3_relevance_weights.json'
+
+# Horizons per phase — matches the score's definition ("safe to buy long-term")
+PHASE_HORIZONS = {'BOTTOM': 365, 'NEUTRAL': 270, 'TOP': 180}
+_MAX_HORIZON = max(PHASE_HORIZONS.values())
 
 
 def forward_return_to_target(fwd_ret_pct):
-    """Map 6m forward return % to an ideal risk target in [0, 100]."""
-    # Large positive return -> risk target close to 0 (should buy)
-    # Large negative return -> risk target close to 100 (should sell/avoid)
+    """Map forward return % to an ideal risk target in [0, 100]."""
     return max(0.0, min(100.0, 50.0 - fwd_ret_pct * 0.25))
 
 
@@ -58,13 +58,19 @@ def get_btc_price_dict():
 
 
 def build_precomputed_dataset(series, btc_price, scores_history):
-    """Precompute normalized metrics and phase weights for all historical dates."""
+    """Precompute normalized metrics and phase weights for all historical dates.
+
+    Each row stores forward returns at all three horizons (180/270/365d) so
+    that IC computation in compute_ic_profiles() can use the phase-appropriate
+    horizon without rebuilding the dataset.
+    """
     print("Building precomputed dataset...")
     dataset = []
-    
-    # We run from 2018-02-01 (Fear & Greed start) up to FORWARD_DAYS ago
+
+    # Start: Fear & Greed available from 2018-02-01
+    # End: _MAX_HORIZON days ago so the longest horizon has a target price
     start_date = datetime.date(2018, 2, 1)
-    end_date = datetime.date.today() - datetime.timedelta(days=FORWARD_DAYS)
+    end_date = datetime.date.today() - datetime.timedelta(days=_MAX_HORIZON)
     
     # Find all available dates
     dates = []
@@ -84,26 +90,31 @@ def build_precomputed_dataset(series, btc_price, scores_history):
         if p0 is None or p0 == 0:
             continue
             
-        # Target prices in the next FORWARD_DAYS days
-        future_prices = []
-        for days_offset in range(1, FORWARD_DAYS + 1):
-            future_dt = td + datetime.timedelta(days=days_offset)
-            pf = btc_price.get(future_dt.isoformat())
-            if pf is not None:
-                future_prices.append(pf)
-                
-        if not future_prices:
+        # Collect future prices for all relevant horizons
+        def _fwd_ret(days):
+            prices_window = []
+            for off in range(1, days + 1):
+                pf = btc_price.get((td + datetime.timedelta(days=off)).isoformat())
+                if pf is not None:
+                    prices_window.append(pf)
+            if not prices_window:
+                return None, None
+            p_end = prices_window[-1]
+            p_min = min(prices_window)
+            ret = (p_end - p0) / p0 * 100
+            dd  = (p_min - p0) / p0 * 100
+            return ret, dd
+
+        fwd_ret_180, dd_180 = _fwd_ret(180)
+        fwd_ret_270, dd_270 = _fwd_ret(270)
+        fwd_ret_365, dd_365 = _fwd_ret(365)
+
+        if fwd_ret_180 is None:
             continue
-            
-        p_min = min(future_prices)
-        drawdown_pct = (p_min - p0) / p0 * 100
-        
-        # Endpoint price exactly FORWARD_DAYS later (or nearest available)
-        pf_end = future_prices[-1]
-        fwd_ret = (pf_end - p0) / p0 * 100
-        
-        # Dynamic risk target: use the worst return/drawdown in the 6-month window
-        worst_ret = min(fwd_ret, drawdown_pct)
+
+        # Risk target uses phase-appropriate horizon worst-case return
+        # (phase not known yet, use 180d as default for the trading simulation)
+        worst_ret = min(fwd_ret_180, dd_180 if dd_180 is not None else fwd_ret_180)
         target_risk = max(0.0, min(100.0, 50.0 - worst_ret * 0.9))
         
         # 2. Get normalized metrics
@@ -113,15 +124,23 @@ def build_precomputed_dataset(series, btc_price, scores_history):
                 continue
         except Exception:
             continue
-            
+
         prev = _prev_scores(td, series)
-        
+
         # Reconstruct normalized metrics
         normalized = dict(r['scores'])
-        
+
         # Add Pi Cycle Gap
         pi_raw = r['raw'].get('pi_cycle') or r['raw'].get('pi_cycle_gap_pct') or r['raw'].get('pi_gap')
         normalized['pi_gap'] = map_pi_cycle_gap(pi_raw)
+
+        # Add puell (mapped from puell_multiple in raw)
+        puell_val = r['raw'].get('puell_multiple')
+        normalized['puell'] = map_puell(puell_val)
+
+        # Add lth_supply (from separately-loaded lth_supply series)
+        lth_raw, _ = nearest_strict(series.get('lth_supply', []), td)
+        normalized['lth_supply'] = map_lth_supply(lth_raw)
         
         # 3. Detect phase weights
         phases = phase_signals(normalized, prev)
@@ -161,7 +180,10 @@ def build_precomputed_dataset(series, btc_price, scores_history):
             'oc_coherence': oc_coherence,
             'pi_cross': pi_cross,
             'target': target_risk,
-            'fwd_ret': fwd_ret,
+            'fwd_ret': fwd_ret_180,       # kept for backward compat
+            'fwd_ret_180': fwd_ret_180,
+            'fwd_ret_270': fwd_ret_270,
+            'fwd_ret_365': fwd_ret_365,
         })
         
     print(f"Dataset built successfully. Aligned dates: {len(dataset)}")
@@ -255,52 +277,25 @@ def fast_evaluate_score(row, profiles):
     return final
 
 
-def get_param_bounds(key, state):
-    # Enforce logical financial constraints as hard bounds.
-    # Bounds must NOT clip validated Python defaults in utility_evaluator.py.
-    if state == 'BOTTOM':
-        # Core on-chain: dominant at bottoms (nupl<0, mvrv<0, cvdd<1, puell<0.5)
-        if key in {'nupl', 'mvrv_z_score', 'cvdd_ratio', 'puell'}:
-            return 0.70, 1.0
-        # rhodl: valid bottom indicator but not primary
-        if key == 'rhodl_ratio':
-            return 0.30, 0.80
-        # fear_greed: extreme fear (score ~5-10) IS a strong bottom signal — must allow high weight
-        if key == 'fear_greed':
-            return 0.50, 1.0
-        # asopr: Fisher sep=0.143 (bottom/top means differ by <1pt) — treat as noise
-        if key == 'asopr':
-            return 0.05, 0.20
-        # Tech/price oscillators: secondary at bottoms but not negligible
-        if key in {'cipherb', 'mayer_multiple'}:
-            return 0.20, 0.70
-        # Macro: low relevance at bottoms (lagging, inverted logic)
-        if key in {'m2_yoy', 'yield_curve_spread', 'etf_flows'}:
-            return 0.05, 0.40
-        # pi_gap: top-focused indicator, very low weight at bottoms
-        if key == 'pi_gap':
-            return 0.05, 0.20
+def get_param_bounds(key, state, ic_bounds=None):
+    """Return (low, high) optimisation bounds for one metric×phase weight.
 
-    elif state == 'NEUTRAL':
-        # asopr: noise in all phases — cap across the board
-        if key == 'asopr':
-            return 0.05, 0.20
+    Priority order:
+    1. IC-derived bounds (data-driven, passed in from compute_ic_profiles)
+    2. Hard safety floor for known noise metrics (asopr max 0.20 everywhere)
+    3. Fallback: [0.05, 1.0]
+    """
+    if ic_bounds is not None:
+        low, high = ic_bounds.get(key, {}).get(state, (0.05, 1.0))
+    else:
+        low, high = 0.05, 1.0
 
-    elif state == 'TOP':
-        # Strong top signals
-        if key in {'cipherb', 'mayer_multiple', 'fear_greed', 'pi_gap', 'nupl', 'mvrv_z_score', 'rhodl_ratio'}:
-            return 0.70, 1.0
-        # Bottom-focused indicators: low weight at tops
-        if key in {'cvdd_ratio', 'puell'}:
-            return 0.05, 0.30
-        # asopr: noise metric — cap at 0.20 in all phases
-        if key == 'asopr':
-            return 0.05, 0.20
-        # m2_yoy: inverted (high M2 = low score = not a top signal) — cap weight at tops
-        if key == 'm2_yoy':
-            return 0.05, 0.30
+    # Hard safety floor: asopr has near-zero Fisher separation in all phases —
+    # keep it capped regardless of what IC says (IC is noisy at n<50).
+    if key == 'asopr':
+        high = min(high, 0.20)
 
-    return 0.1, 1.0
+    return max(0.05, low), min(1.0, high)
 
 
 def compute_trader_loss(dataset, profiles, prior_profiles=None, l2_lambda=50.0):
@@ -388,11 +383,16 @@ def compute_trader_loss(dataset, profiles, prior_profiles=None, l2_lambda=50.0):
     return loss, total_return_pct, max_dd, mse, hinge_loss
 
 
-def optimize_relevance_weights(dataset, initial_profiles, l2_lambda=50.0):
-    """Run pure-Python coordinate descent to optimize weights for trader loss.
+def optimize_relevance_weights(dataset, initial_profiles, l2_lambda=50.0, ic_bounds=None):
+    """Run pure-Python coordinate descent to optimise weights for trader loss.
 
-    l2_lambda controls regularization strength toward initial_profiles.
-    Higher values keep weights closer to their prior (reduces overfitting).
+    Parameters
+    ----------
+    dataset         : precomputed rows from build_precomputed_dataset()
+    initial_profiles: starting weights — ideally IC-derived (from compute_ic_profiles)
+    l2_lambda       : regularisation strength toward initial_profiles
+    ic_bounds       : {metric: {phase: (low, high)}} from ic_profiles_to_bounds().
+                      When provided, replaces the old hardcoded get_param_bounds logic.
     """
     profiles = {k: dict(v) for k, v in initial_profiles.items()}
     prior    = {k: dict(v) for k, v in initial_profiles.items()}
@@ -405,7 +405,7 @@ def optimize_relevance_weights(dataset, initial_profiles, l2_lambda=50.0):
 
     best_loss, ret_pct, max_dd, mse, hinge_loss = compute_trader_loss(
         dataset, profiles, prior_profiles=prior, l2_lambda=l2_lambda)
-    print(f"Initial Baseline Trader Loss: {best_loss:.2f} (Return: {ret_pct:.1f}%, Max DD: {max_dd*100:.1f}%, MSE: {mse:.2f}, Hinge: {hinge_loss:.2f})")
+    print(f"Initial Loss: {best_loss:.2f}  (Return={ret_pct:.1f}%  MaxDD={max_dd*100:.1f}%  MSE={mse:.2f}  Hinge={hinge_loss:.2f})")
 
     for epoch in range(1, epochs + 1):
         improved = False
@@ -414,12 +414,11 @@ def optimize_relevance_weights(dataset, initial_profiles, l2_lambda=50.0):
         for key in keys:
             for state in states:
                 curr_val = profiles[key][state]
-                min_b, max_b = get_param_bounds(key, state)
+                min_b, max_b = get_param_bounds(key, state, ic_bounds)
 
                 curr_val = max(min_b, min(max_b, curr_val))
                 profiles[key][state] = curr_val
 
-                # Try adding delta
                 new_val_up = min(max_b, curr_val + delta)
                 if new_val_up != curr_val:
                     profiles[key][state] = new_val_up
@@ -431,7 +430,6 @@ def optimize_relevance_weights(dataset, initial_profiles, l2_lambda=50.0):
                         curr_val = new_val_up
                         continue
 
-                # Try subtracting delta
                 new_val_down = max(min_b, curr_val - delta)
                 if new_val_down != curr_val:
                     profiles[key][state] = new_val_down
@@ -447,7 +445,7 @@ def optimize_relevance_weights(dataset, initial_profiles, l2_lambda=50.0):
 
         _, ret_pct, max_dd, mse, hinge_loss = compute_trader_loss(
             dataset, profiles, prior_profiles=prior, l2_lambda=l2_lambda)
-        print(f"  Current Best Trader Loss: {best_loss:.2f} (Return: {ret_pct:.1f}%, Max DD: {max_dd*100:.1f}%, MSE: {mse:.2f}, Hinge: {hinge_loss:.2f})")
+        print(f"  Best={best_loss:.2f}  Return={ret_pct:.1f}%  MaxDD={max_dd*100:.1f}%  MSE={mse:.2f}")
         if not improved:
             print("  Optimizer converged.")
             break

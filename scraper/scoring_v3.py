@@ -24,7 +24,8 @@ from scraper.tiz import adaptive_calibration as _tiz_adaptive_cal
 
 # Metric groups for z-weighting
 OC_GROUP = {'nupl', 'mvrv_z_score', 'rhodl_ratio', 'cvdd_ratio', 'asopr', 'puell', 'lth_supply'}
-TECH_GROUP = {'cipherb', 'mayer_multiple', 'fear_greed', 'etf_flows', 'yield_curve_spread', 'm2_yoy', 'pi_gap', 'funding_rate', 'dxy'}
+TECH_GROUP = {'cipherb', 'mayer_multiple', 'fear_greed', 'etf_flows', 'yield_curve_spread', 'm2_yoy', 'pi_gap', 'funding_rate'}
+# dxy removed from TECH_GROUP — it acts as a Macro Modifier in scoring_pipeline.py instead
 
 # Bottom and top thresholds for regime mapping (aligned with V2)
 BOTTOM_THRESHOLD = 40
@@ -209,12 +210,20 @@ def compute_scores_v3(raw_metrics, target_date=None, prev_scores=None, scores_hi
     try:
         model_path = 'data/v3_phase_model.pkl'
         if os.path.exists(model_path):
+            _hmm_cls = None
             try:
-                from tools.train_v3_hmm_model import HMMPhaseClassifier  # required for pickle
+                from tools.train_v3_hmm_model import HMMPhaseClassifier as _hmm_cls  # noqa
             except ImportError:
                 pass
+
+            class _Unpickler(pickle.Unpickler):
+                def find_class(self, module, name):
+                    if name == 'HMMPhaseClassifier' and _hmm_cls is not None:
+                        return _hmm_cls
+                    return super().find_class(module, name)
+
             with open(model_path, 'rb') as f:
-                model_data = pickle.load(f)
+                model_data = _Unpickler(f).load()
             pipeline = model_data['pipeline']
             
             # Build 22-dimensional wave vector

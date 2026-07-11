@@ -141,6 +141,23 @@ def load_data():
             print(f"  yield_curve_spread: FRED unavailable ({e.__class__.__name__}) — skipped")
     series['yield_curve_spread'] = yc
 
+    # LTH Supply — raw BTC count; map_lth_supply handles conversion to risk score
+    lth_path = os.path.join('data', 'history', 'lth_supply_history.json')
+    lth = []
+    if os.path.exists(lth_path):
+        raw_lth = json.load(open(lth_path, encoding='utf-8'))
+        lth_series = raw_lth.get('series', raw_lth.get('data', []))
+        for item in lth_series:
+            if isinstance(item, list) and len(item) >= 2:
+                lth.append((str(item[0])[:10], float(item[1])))
+            elif isinstance(item, dict):
+                d = item.get('date', '')[:10]
+                v = item.get('value')
+                if d and v is not None:
+                    lth.append((d, float(v)))
+        lth.sort()
+    series['lth_supply'] = lth
+
     for k, s in series.items():
         if s:
             print(f"  {k:<20s}: {len(s):5d} pts  ({s[0][0]} → {s[-1][0]})")

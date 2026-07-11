@@ -167,8 +167,27 @@ def run_scoring_pipeline(p, build_metric_history_fn=None):
             scores_v3   = compute_scores_v3(p.get('metrics', {}))
             _wr         = p.get('wave_resonance', {})
             _tiz_mat_v3 = scores_v3.get('tiz_maturity')
+
+            # DXY Macro Modifier — CONTRARIAN interpretation (calibrated 2026-07-11).
+            # Backtest (tools/backtest_dxy.py, n=1856 dates) shows IC(dxy_norm, fwd_ret_365)=+0.28:
+            # high DXY historically coincides with BTC bottoms → higher long-term returns.
+            # Direction: high DXY → REDUCE risk score; low DXY → INCREASE risk score.
+            # IC(adj, fwd_ret_365) ≈ -0.08 with these constants (weak but correct direction).
+            _DXY_HIGH, _DXY_LOW, _DXY_SCALE, _DXY_MAX = 80, 20, 0.10, 3.0
+            _dxy_score = scores_v3.get('normalized_scores', {}).get('dxy')
+            _dxy_adj = 0.0
+            if _dxy_score is not None:
+                if _dxy_score > _DXY_HIGH:
+                    _dxy_adj = -min(_DXY_MAX, (_dxy_score - _DXY_HIGH) * _DXY_SCALE)
+                elif _dxy_score < _DXY_LOW:
+                    _dxy_adj = min(_DXY_MAX, (_DXY_LOW - _dxy_score) * _DXY_SCALE)
+            _v3_adjusted = max(0, min(100, round(scores_v3['final_score'] + _dxy_adj)))
+            if _dxy_adj != 0.0:
+                print(f"DXY modifier: score={_dxy_score} adj={_dxy_adj:+.1f} "
+                      f"v3={scores_v3['final_score']}→{_v3_adjusted}")
+
             v3_sig = orchestrate(
-                v2_score        = scores_v3['final_score'],
+                v2_score        = _v3_adjusted,
                 v2_oc_coherence = scores_v3.get('oc_coherence', 1.0),
                 wr_score        = _wr.get('score'),
                 wr_coherence    = _wr.get('coherence'),
@@ -186,6 +205,7 @@ def run_scoring_pipeline(p, build_metric_history_fn=None):
                 v3_sig = dict(v3_sig)
                 v3_sig['flag'] = 'PROBABLE_BOTTOM'
 
+            p['v3_dxy_adj']         = {'score': _dxy_score, 'adjustment': round(_dxy_adj, 2)}
             p['v3_score']           = scores_v3['final_score']
             p['v3_onchain_score']   = scores_v3['onchain_avg']
             p['v3_tech_score']      = scores_v3['tech_avg']

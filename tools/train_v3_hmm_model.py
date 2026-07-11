@@ -281,11 +281,14 @@ def main():
     pipeline.fit(X, y)
 
     # 6. Optimize relevance weights and embed in pickle
-    print("\n=== OPTIMIZING RELEVANCE WEIGHTS ===")
+    print("\n=== OPTIMIZING RELEVANCE WEIGHTS (IC-initialized) ===")
     metric_relevance = None
     try:
         from tools.optimize_v3_relevance import (
             build_precomputed_dataset, optimize_relevance_weights, get_btc_price_dict
+        )
+        from tools.compute_ic_profiles import (
+            compute_ic_profiles, ic_profiles_to_bounds, print_ic_comparison
         )
         from scraper.utility_evaluator import RELEVANCE_PROFILES
 
@@ -310,12 +313,27 @@ def main():
         else:
             dataset = build_precomputed_dataset(series, btc_price, scores_history)
             if dataset:
-                optimized, final_loss = optimize_relevance_weights(dataset, RELEVANCE_PROFILES)
+                # Step 1: IC-based initialization — replaces hardcoded RELEVANCE_PROFILES
+                print("\n--- Step 1: Computing IC-based initial weights ---")
+                ic_profiles = compute_ic_profiles(dataset, verbose=True)
+                ic_bounds   = ic_profiles_to_bounds(ic_profiles, slack=0.30)
+                print_ic_comparison(ic_profiles, RELEVANCE_PROFILES)
+
+                # Step 2: Coordinate descent starting from IC weights, bounded by IC bounds
+                # L2 regularisation pulls toward IC prior (not hardcoded defaults)
+                print("\n--- Step 2: Coordinate descent refinement ---")
+                optimized, final_loss = optimize_relevance_weights(
+                    dataset,
+                    initial_profiles=ic_profiles,
+                    l2_lambda=50.0,
+                    ic_bounds=ic_bounds,
+                )
                 metric_relevance = optimized
                 print(f"Relevance optimization complete. Loss: {final_loss:.2f}")
             else:
-                print("Warning: empty dataset — keeping default relevance weights.")
-                metric_relevance = {k: dict(v) for k, v in RELEVANCE_PROFILES.items()}
+                print("Warning: empty dataset — keeping IC-only weights (no coord descent).")
+                ic_profiles = compute_ic_profiles([], verbose=False)
+                metric_relevance = ic_profiles if ic_profiles else {k: dict(v) for k, v in RELEVANCE_PROFILES.items()}
     except Exception as e:
         print(f"Warning: relevance optimization failed ({e}) — keeping defaults.")
         from scraper.utility_evaluator import RELEVANCE_PROFILES
@@ -329,7 +347,9 @@ def main():
         'metadata': {
             'trained_at': datetime.datetime.now().isoformat(),
             'model_type': 'Supervised Gaussian HMM (3-states)',
-            'relevance_method': 'coordinate_descent_l2_fisher_prior',
+            'relevance_method': 'ic_initialized_coordinate_descent',
+            'ic_alpha': 6.0,
+            'phase_horizons': {'BOTTOM': 365, 'NEUTRAL': 270, 'TOP': 180},
         }
     }
 
