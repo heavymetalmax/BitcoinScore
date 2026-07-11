@@ -52,8 +52,16 @@ def validate():
     # ── 1. Load data/data.json ─────────────────────────────────────────────────
     data = _load(DATA_JSON)
 
-    # ── 2. v3_score ────────────────────────────────────────────────────────────
-    v3_score = data.get('v3_score')
+    # ── 2. final_score (displayed on site) + v3_score (raw V3 pre-orchestration)
+    final_score = data.get('final_score')
+    v3_score    = data.get('v3_score')
+    display_score = final_score  # what the website shows via data.final_score
+
+    if final_score is None:
+        errors.append('final_score is missing')
+    elif not isinstance(final_score, (int, float)) or not (0 <= final_score <= 100):
+        errors.append(f'final_score out of range 0–100: {final_score}')
+
     if v3_score is None:
         errors.append('v3_score is missing')
     elif not isinstance(v3_score, (int, float)) or not (0 <= v3_score <= 100):
@@ -81,14 +89,15 @@ def validate():
 
     # ── 6. web/data.json sync ─────────────────────────────────────────────────
     web = _load(WEB_JSON)
-    web_score = web.get('v3_score')
-    web_ts    = web.get('timestamp')
-    data_ts   = data.get('timestamp')
+    web_score       = web.get('final_score')
+    web_score_v3    = web.get('v3_score')
+    web_ts          = web.get('timestamp')
+    data_ts         = data.get('timestamp')
 
-    if web_score != v3_score:
+    if web_score != final_score:
         errors.append(
-            f'web/data.json v3_score ({web_score}) does not match '
-            f'data/data.json v3_score ({v3_score}) — stale web file'
+            f'web/data.json final_score ({web_score}) does not match '
+            f'data/data.json final_score ({final_score}) — stale web file'
         )
     if web_ts != data_ts:
         errors.append(
@@ -127,7 +136,7 @@ def validate():
         sys.exit(1)
 
     price_fmt = f'${btc_price:,.0f}' if isinstance(btc_price, (int, float)) else str(btc_price)
-    print(f'Pipeline OK: v3_score={v3_score}, phase={v3_phase}, btc_price={price_fmt}')
+    print(f'Pipeline OK: final_score={final_score} (v3_raw={v3_score}), phase={v3_phase}, btc_price={price_fmt}')
 
 
 if __name__ == '__main__':
