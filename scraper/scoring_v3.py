@@ -31,6 +31,74 @@ TECH_GROUP = {'cipherb', 'mayer_multiple', 'fear_greed', 'etf_flows', 'yield_cur
 BOTTOM_THRESHOLD = 40
 TOP_THRESHOLD = 65
 
+# Canonical labeled bottom/top dates — imported by tools/train_v3_hmm_model.py for training.
+# Add dates only after confirmation (6+ months elapsed OR 30%+ price recovery from the low).
+# Speculative dates are fine to include early, but the confidence decay below handles them.
+TOP_DATES = [
+    datetime.date(2021,  4, 14),
+    datetime.date(2021, 11, 10),
+    datetime.date(2024,  3, 14),
+    datetime.date(2025,  7, 17),
+    datetime.date(2025,  9, 29),
+]
+
+BOTTOM_DATES = [
+    datetime.date(2018, 12, 15),
+    datetime.date(2020,  3, 13),
+    datetime.date(2022,  6, 18),
+    datetime.date(2022, 11, 21),
+    datetime.date(2026,  6,  4),
+]
+
+# BTC closing price at each labeled bottom. Used by bottom_confirmation_factor()
+# to compute price recovery. Safe-fail to 1.0 if a date is missing.
+BOTTOM_DATES_PRICES = {
+    datetime.date(2018, 12, 15):  3200.0,
+    datetime.date(2020,  3, 13):  4000.0,
+    datetime.date(2022,  6, 18): 17600.0,
+    datetime.date(2022, 11, 21): 16000.0,
+    datetime.date(2026,  6,  4): 62951.0,
+}
+
+CONFIRMATION_DAYS      = 180
+RECOVERY_THRESHOLD     = 0.30
+
+
+def bottom_confirmation_factor(target_date: datetime.date, btc_price_now) -> float:
+    """Return 0.5–1.0 multiplier applied to w_bot.
+
+    1.0 = bottom confirmed (by time or price recovery).
+    0.5 = brand-new label, price hasn't moved.
+    Safe-fails to 1.0 if data is missing so historical confirmed bottoms are unaffected.
+    """
+    if btc_price_now is None or btc_price_now <= 0:
+        return 0.5
+
+    most_recent = None
+    for d in sorted(BOTTOM_DATES, reverse=True):
+        if d <= target_date:
+            most_recent = d
+            break
+    if most_recent is None:
+        return 1.0
+
+    days_since = (target_date - most_recent).days
+    if days_since > CONFIRMATION_DAYS:
+        return 1.0
+
+    price_at_bottom = BOTTOM_DATES_PRICES.get(most_recent)
+    if price_at_bottom is None:
+        return 1.0
+
+    recovery = (btc_price_now - price_at_bottom) / price_at_bottom
+    if recovery >= RECOVERY_THRESHOLD:
+        return 1.0
+
+    time_factor  = days_since / CONFIRMATION_DAYS
+    price_factor = max(0.0, recovery / RECOVERY_THRESHOLD)
+    confirmation = max(time_factor, price_factor)
+    return 0.5 + 0.5 * confirmation
+
 
 def extract_pi_gap(v):
     """Robustly extract the Pi Cycle gap percentage from raw formats."""
