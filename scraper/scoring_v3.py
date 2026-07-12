@@ -47,7 +47,8 @@ BOTTOM_DATES = [
     datetime.date(2020,  3, 13),
     datetime.date(2022,  6, 18),
     datetime.date(2022, 11, 21),
-    datetime.date(2026,  7,  1),
+    # 2026 cycle: not added yet — no date qualifies until 30%+ recovery or 180+ days elapsed.
+    # When confirmed, add date + price to BOTTOM_DATES_PRICES below.
 ]
 
 # BTC closing price at each labeled bottom. Used by bottom_confirmation_factor()
@@ -57,7 +58,6 @@ BOTTOM_DATES_PRICES = {
     datetime.date(2020,  3, 13):  4000.0,
     datetime.date(2022,  6, 18): 17600.0,
     datetime.date(2022, 11, 21): 16000.0,
-    datetime.date(2026,  7,  1): 58930.0,
 }
 
 CONFIRMATION_DAYS      = 180
