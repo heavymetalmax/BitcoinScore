@@ -15,7 +15,9 @@ from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import StandardScaler
 
 from tools.backtest import load_data, compute_at
-from scraper.scoring_v3 import BOTTOM_DATES, TOP_DATES
+
+TOP_DATES = ['2021-04-14', '2021-11-10', '2024-03-14', '2025-07-17', '2025-09-29']
+BOTTOM_DATES = ['2018-12-15', '2020-03-13', '2022-06-18', '2022-11-21', '2026-06-04']
 
 METRIC_ORDER = [
     'nupl', 'mvrv_z_score', 'rhodl_ratio', 'cvdd_ratio', 'mayer_multiple',
@@ -170,12 +172,12 @@ def main():
     # 1. Setup chronological state labels
     top_dates_set = set()
     for center in TOP_DATES:
-        for d in dates_around(center.isoformat(), window=60): # 60 days around tops
+        for d in dates_around(center, window=60): # 60 days around tops
             top_dates_set.add(d)
-
+            
     bot_dates_set = set()
     for center in BOTTOM_DATES:
-        for d in dates_around(center.isoformat(), window=90): # 90 days around bottoms
+        for d in dates_around(center, window=90): # 90 days around bottoms
             bot_dates_set.add(d)
 
     labels = []

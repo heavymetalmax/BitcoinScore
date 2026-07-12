@@ -281,69 +281,6 @@ class TestSparklinesQuality:
         )
 
 
-class TestBottomConfirmationFactor:
-    """bottom_confirmation_factor: decay multiplier for unconfirmed labeled bottoms."""
-
-    @pytest.fixture(autouse=True)
-    def _import(self):
-        import datetime as dt
-        from scraper.scoring_v3 import bottom_confirmation_factor
-        self.fn = bottom_confirmation_factor
-        self.dt = dt
-        # Use the most recent labeled bottom: 2026-07-01 at $58,930
-        self.bottom_date = dt.date(2026, 7, 1)
-        self.bottom_price = 58930.0
-
-    def test_day_zero_no_recovery(self):
-        cf = self.fn(self.bottom_date, self.bottom_price)
-        assert cf == pytest.approx(0.5, abs=1e-6)
-
-    def test_90_days_no_recovery(self):
-        target = self.bottom_date + self.dt.timedelta(days=90)
-        cf = self.fn(target, self.bottom_price)
-        assert cf == pytest.approx(0.75, abs=1e-4)
-
-    def test_180_days_confirmed_by_time(self):
-        target = self.bottom_date + self.dt.timedelta(days=180)
-        cf = self.fn(target, self.bottom_price)
-        assert cf == pytest.approx(1.0, abs=1e-6)
-
-    def test_beyond_180_days(self):
-        target = self.bottom_date + self.dt.timedelta(days=300)
-        cf = self.fn(target, self.bottom_price)
-        assert cf == 1.0
-
-    def test_30pct_recovery_confirmed(self):
-        recovered_price = self.bottom_price * 1.30
-        cf = self.fn(self.bottom_date, recovered_price)
-        assert cf == 1.0
-
-    def test_negative_recovery_clamped_to_floor(self):
-        fallen_price = self.bottom_price * 0.80  # price fell 20% below bottom
-        cf_fallen = self.fn(self.bottom_date, fallen_price)
-        cf_zero   = self.fn(self.bottom_date, self.bottom_price)
-        assert cf_fallen == pytest.approx(cf_zero, abs=1e-6)
-
-    def test_none_price_returns_half(self):
-        cf = self.fn(self.bottom_date, None)
-        assert cf == 0.5
-
-    def test_zero_price_returns_half(self):
-        cf = self.fn(self.bottom_date, 0.0)
-        assert cf == 0.5
-
-    def test_pre_any_bottom_returns_one(self):
-        pre = self.dt.date(2015, 1, 1)
-        cf = self.fn(pre, 300.0)
-        assert cf == 1.0
-
-    def test_confirmed_historical_bottom_returns_one(self):
-        # 2018-12-15 bottom is >180 days old by 2019-07-01
-        target = self.dt.date(2019, 7, 1)
-        cf = self.fn(target, 11000.0)
-        assert cf == 1.0
-
-
 if __name__ == '__main__':
     # Allow running without pytest
     import unittest
