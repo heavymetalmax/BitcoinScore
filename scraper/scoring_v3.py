@@ -352,6 +352,32 @@ def compute_scores_v3(raw_metrics, target_date=None, prev_scores=None, scores_hi
         else:
             w_neutral = 1.0 - total_w
 
+    # 5b. Apply bottom confidence decay for unconfirmed labeled bottoms.
+    # Scales w_bot toward 0.5× when the most recent BOTTOM_DATE is recent and
+    # BTC price hasn't yet confirmed the bottom with 30%+ recovery.
+    btc_price_now = raw_metrics.get('btc_price')
+    cf = bottom_confirmation_factor(target_date, btc_price_now)
+    if cf < 1.0:
+        trimmed   = w_bot * (1.0 - cf)
+        w_bot     = w_bot - trimmed
+        w_neutral = w_neutral + trimmed
+        # w_top is unchanged; renormalize defensively in case of float drift
+        total_eff = w_bot + w_neutral + w_top
+        if total_eff > 0 and abs(total_eff - 1.0) > 1e-6:
+            w_bot     /= total_eff
+            w_neutral /= total_eff
+            w_top     /= total_eff
+        # Re-derive phase from effective weights
+        if w_top > 0.40 and w_top > w_bot:
+            phase = 'TOP'
+        elif w_bot > 0.40 and w_bot > w_top:
+            phase = 'BOTTOM'
+        else:
+            phase = 'NEUTRAL'
+        # Update signals to reflect effective weights
+        bot_signal = round(w_bot * 100)
+        top_signal = round(w_top * 100)
+
     # 6. Determine Time-in-Zone (TiZ)
     tiz_score = None
     tiz_days = 0
