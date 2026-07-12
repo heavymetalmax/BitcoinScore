@@ -290,9 +290,9 @@ class TestBottomConfirmationFactor:
         from scraper.scoring_v3 import bottom_confirmation_factor
         self.fn = bottom_confirmation_factor
         self.dt = dt
-        # Use the most recent labeled bottom: 2026-06-04 at $62,951
-        self.bottom_date = dt.date(2026, 6, 4)
-        self.bottom_price = 62951.0
+        # Use the most recent labeled bottom: 2026-07-01 at $58,930
+        self.bottom_date = dt.date(2026, 7, 1)
+        self.bottom_price = 58930.0
 
     def test_day_zero_no_recovery(self):
         cf = self.fn(self.bottom_date, self.bottom_price)
