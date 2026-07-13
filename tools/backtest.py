@@ -79,6 +79,9 @@ def load_data():
         'm2_yoy':         _series(rows, 'm2_yoy'),
         'cipherb':        _series(rows, 'cipherb_daily'),
         'puell_multiple': _series(rows, 'puell'),
+        'dxy':            _series(rows, 'dxy'),
+        'funding_rate':   _series(rows, 'funding_rate'),
+        'pi_gap_pct':     _series(rows, 'pi_gap_pct'),
     }
 
     # Weekly CipherB — matches live scoring formula (0.8×weekly + 0.2×daily)
@@ -310,8 +313,16 @@ def v3_at(td, series):
     from scraper.orchestrator import orchestrate
     r = compute_at(td, series)
     prev = _prev_scores(td, series)
-    
-    # Reconstruct raw dict with correct keys for v3
+
+    # Additional series lookups for metrics not in compute_at()'s raw_vals
+    dxy_val, _      = nearest_strict(series.get('dxy', []), td)
+    fr_val, _       = nearest_strict(series.get('funding_rate', []), td)
+    pi_val, _       = nearest_strict(series.get('pi_gap_pct', []), td)
+
+    # Reconstruct raw dict with correct keys for scoring_v3's key_mapping.
+    # cipherb is explicitly None: r['raw']['cipherb'] is a raw WaveTrend oscillator value,
+    # not the weekly_score dict that scoring_v3 expects. Using it as weekly_score triggers
+    # incorrect BOTTOM phase detection. Historical cipherb coverage is too sparse for backtest.
     raw = {
         'nupl':               r['raw'].get('nupl'),
         'mvrv':               r['raw'].get('mvrv'),
@@ -321,9 +332,13 @@ def v3_at(td, series):
         'puell_multiple':     r['raw'].get('puell_multiple'),
         'mayer_multiple':     r['raw'].get('mayer_multiple'),
         'fear_greed':         r['raw'].get('fear_greed'),
-        'm2_yoy':             r['raw'].get('m2_yoy'),
-        'yield_curve_spread': r['raw'].get('yield_curve_spread'),
-        'cipherb':            r['raw'].get('cipherb'),
+        'm2_mom':             r['raw'].get('m2_yoy'),           # scoring_v3 key_mapping expects m2_mom
+        'yield_curve':        r['raw'].get('yield_curve_spread'),  # scoring_v3 expects yield_curve
+        'lth_supply_pct':     r['raw'].get('lth_supply'),
+        'dxy':                dxy_val,
+        'funding_rate':       fr_val,
+        'pi_cycle':           pi_val,
+        'cipherb':            None,
         'etf_flows':          r['raw'].get('etf_flows'),
     }
     

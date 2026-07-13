@@ -266,7 +266,35 @@ def compute_scores_v3(raw_metrics, target_date=None, prev_scores=None, scores_hi
             ml_loaded = True
     except Exception:
         pass
-        
+
+    # Override w_bot with metric-driven confluence score.
+    # Replaces the HMM bottom signal which was prone to self-fulfilling prophecy
+    # when speculative future dates were added to BOTTOM_DATES training labels.
+    try:
+        from scraper.bottom_confluence import (
+            compute_bottom_confluence,
+            load_calibration as _load_bc,
+            BOTTOM_PHASE_THRESHOLD,
+        )
+        _confluence = compute_bottom_confluence(normalized, _load_bc())
+        if _confluence is not None:
+            w_bot = _confluence / 100.0
+            bot_signal = _confluence
+            total = w_bot + w_top
+            if total > 1.0:
+                w_bot, w_top = w_bot / total, w_top / total
+                w_neutral = 0.0
+            else:
+                w_neutral = max(0.0, 1.0 - w_bot - w_top)
+            if w_top > 0.40 and w_top > w_bot:
+                phase = 'TOP'
+            elif w_bot >= BOTTOM_PHASE_THRESHOLD and w_bot > w_top:
+                phase = 'BOTTOM'
+            else:
+                phase = 'NEUTRAL'
+    except Exception:
+        pass
+
     if not ml_loaded:
         phases = phase_signals(normalized, prev_scores)
         phase = phases.get('phase', 'NEUTRAL')

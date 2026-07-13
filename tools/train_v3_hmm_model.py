@@ -17,7 +17,7 @@ from sklearn.preprocessing import StandardScaler
 from tools.backtest import load_data, compute_at
 
 TOP_DATES = ['2021-04-14', '2021-11-10', '2024-03-14', '2025-07-17', '2025-09-29']
-BOTTOM_DATES = ['2018-12-15', '2020-03-13', '2022-06-18', '2022-11-21', '2026-06-04']
+BOTTOM_DATES = ['2018-12-15', '2020-03-13', '2022-06-18', '2022-11-21']
 
 METRIC_ORDER = [
     'nupl', 'mvrv_z_score', 'rhodl_ratio', 'cvdd_ratio', 'mayer_multiple',

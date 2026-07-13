@@ -104,3 +104,30 @@ def write_metric_histories(p):
         print('Wrote data/history/etf_flows.json')
     except Exception as e:
         print('Failed to write ETF flows history:', e)
+
+    try:
+        fr_raw = m.get('funding_rate', {})
+        # metrics.funding_rate.value is a nested dict: {latest, avg_7d, score, ...}
+        fr_inner = fr_raw.get('value') if isinstance(fr_raw, dict) else fr_raw
+        fr_avg7d = fr_inner.get('avg_7d') if isinstance(fr_inner, dict) else fr_inner
+        if fr_avg7d is not None:
+            date_str = ts[:10] if ts else datetime.datetime.utcnow().strftime('%Y-%m-%d')
+            _append('data/history/funding_rate_history.json', {
+                'date': date_str, 'btc_price': price, 'value': float(fr_avg7d)
+            })
+            print(f'Wrote data/history/funding_rate_history.json  (avg_7d={fr_avg7d})')
+    except Exception as e:
+        print('Failed to write funding_rate history:', e)
+
+    try:
+        dxy_raw = m.get('dxy', {})
+        dxy_val = dxy_raw.get('value') if isinstance(dxy_raw, dict) else dxy_raw
+        if dxy_val is not None:
+            date_str = ts[:10] if ts else datetime.datetime.utcnow().strftime('%Y-%m-%d')
+            # dxy_history.json uses {series: [...]} format maintained by dxy_metric.py.
+            # Append to flat-list dxy_scraper_history.json to avoid format conflict.
+            _append('data/history/dxy_scraper_history.json',
+                    {'date': date_str, 'btc_price': price, 'value': float(dxy_val)})
+            print(f'Wrote data/history/dxy_scraper_history.json  ({dxy_val})')
+    except Exception as e:
+        print('Failed to write DXY scraper history:', e)

@@ -15,6 +15,8 @@ Sources (by metric):
                 global_m2_history.json     2014+  fallback: computed YoY % from absolute values
   cipherb_daily cipherb_btcusdt_1d.json    2017+  {date, daily_score}
   pi_gap_pct    pi_cycle_daily.json        2018+  {date, gap_pct, cross}
+  dxy           dxy_history.json           2020+  {date, value}
+  funding_rate  funding_rate_history.json  2024+  {date, value}  (written by history_writer)
   btc_price     btc_price_history.json     2017+  [date, value] or {date, value/close}
 
 Run: python tools/build_unified_history.py
@@ -141,6 +143,10 @@ def main():
         m2_yoy = compute_m2_yoy('global_m2_history.json')
     cb_d     = load_dict_series('cipherb_btcusdt_1d.json', 'daily_score')
     pi       = load_dict_series('pi_cycle_daily.json', 'gap_pct')
+    dxy      = load_dict_series('dxy_history.json', 'value')
+    # dxy_scraper_history.json written daily by history_writer — merge over FRED data
+    dxy.update(load_dict_series('dxy_scraper_history.json', 'value'))
+    fr       = load_dict_series('funding_rate_history.json', 'value')
     btc      = load_btc_price('btc_price_history.json')
 
     # mayer: prefer mayer_daily (more precise), fill pre-2018 from mayer_history
@@ -149,7 +155,7 @@ def main():
     all_dates = sorted(set(
         list(nupl) + list(mvrv) + list(puell) + list(rhodl) +
         list(asopr) + list(cvdd) + list(mayer) + list(fg) +
-        list(m2_yoy) + list(cb_d) + list(pi) + list(btc)
+        list(m2_yoy) + list(cb_d) + list(pi) + list(dxy) + list(fr) + list(btc)
     ))
 
     print(f"  nupl:          {len(nupl):5d} pts  ({min(nupl) if nupl else '?'} → {max(nupl) if nupl else '?'})")
@@ -163,6 +169,8 @@ def main():
     print(f"  m2_yoy:        {len(m2_yoy):5d} pts  ({min(m2_yoy) if m2_yoy else '?'} → {max(m2_yoy) if m2_yoy else '?'})")
     print(f"  cipherb_daily: {len(cb_d):5d} pts")
     print(f"  pi_gap_pct:    {len(pi):5d} pts")
+    print(f"  dxy:           {len(dxy):5d} pts  ({min(dxy) if dxy else '?'} → {max(dxy) if dxy else '?'})")
+    print(f"  funding_rate:  {len(fr):5d} pts  ({min(fr) if fr else 'no history yet'})")
     print(f"  btc_price:     {len(btc):5d} pts")
     print(f"\nTotal unique dates: {len(all_dates)}  ({all_dates[0]} → {all_dates[-1]})")
 
@@ -180,13 +188,16 @@ def main():
         row['m2_yoy']         = m2_yoy.get(d)
         row['cipherb_daily']  = cb_d.get(d)
         row['pi_gap_pct']     = pi.get(d)
+        row['dxy']            = dxy.get(d)
+        row['funding_rate']   = fr.get(d)
         row['btc_price']      = btc.get(d)
         series.append(row)
 
     # Coverage stats
     print("\nCoverage per metric (% of dates with non-null value):")
     for col in ['nupl','mvrv','puell','rhodl_ratio','asopr','cvdd_ratio',
-                'mayer_multiple','fear_greed','m2_yoy','cipherb_daily','pi_gap_pct','btc_price']:
+                'mayer_multiple','fear_greed','m2_yoy','cipherb_daily','pi_gap_pct',
+                'dxy','funding_rate','btc_price']:
         n = sum(1 for r in series if r.get(col) is not None)
         pct = n / len(series) * 100
         first = next((r['date'] for r in series if r.get(col) is not None), '?')
@@ -204,7 +215,7 @@ def main():
                 'on_chain_full': '2010+  (nupl, mvrv, puell, rhodl_ratio)',
                 'on_chain_partial': '2016+  (asopr),  2017+  (cvdd_ratio)',
                 'tech': '2017-2018+  (mayer, cipherb, pi_gap_pct)',
-                'macro': '2010+  (m2_yoy),  2018+  (fear_greed)',
+                'macro': '2010+  (m2_yoy),  2018+  (fear_greed),  2020+  (dxy),  2024+  (funding_rate)',
             },
         },
         'series': series,
