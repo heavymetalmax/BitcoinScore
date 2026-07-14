@@ -48,8 +48,17 @@ def build_payload():
     btc_dominance = None
     failed_live_fetches = []
 
-    # ── BTC price: CMC primary, CoinGecko fallback ────────────────────────────
-    if cmc_mod.available():
+    # ── BTC price: Binance primary, CMC secondary, CoinGecko fallback ──────────
+    try:
+        import urllib.request as _ur
+        _resp = _ur.urlopen('https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT', timeout=5)
+        _bn = __import__('json').loads(_resp.read())
+        _bn_price = float(_bn['price'])
+        price = {'price': _bn_price, 'change_24h': None}
+        print(f"Binance price: ${_bn_price:,.0f}")
+    except Exception as e:
+        print('Binance price error', e)
+    if price is None and cmc_mod.available():
         try:
             cmc_price = cmc_mod.get_btc_price()
             if cmc_price and cmc_price.get('price'):
