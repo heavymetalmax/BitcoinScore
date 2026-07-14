@@ -669,7 +669,10 @@
         <div class="card gauge-card gauge-card-front" style="backface-visibility: hidden; -webkit-backface-visibility: hidden; width: 100%; height: 100%; position: absolute; top:0; left:0; display:flex; flex-direction:column; padding: 22px 24px; box-sizing: border-box; margin:0;">
           <div style="display:flex; justify-content:space-between; align-items:center; width:100%; margin-bottom:2px;">
             <div style="font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted2);"><span class="en">TODAY</span><span class="ua">СЬОГОДНІ</span></div>
-            <span id="live-price" style="font-size:12px;font-weight:600;color:var(--text);letter-spacing:0.01em;font-variant-numeric:tabular-nums;opacity:0.85;">—</span>
+            <span style="display:flex;align-items:center;gap:5px;">
+              <span style="font-size:8px;font-weight:700;letter-spacing:0.06em;color:#22C55E;text-transform:uppercase;opacity:0.9;">LIVE</span>
+              <span id="live-price" style="font-size:12px;font-weight:600;color:var(--text);letter-spacing:0.01em;font-variant-numeric:tabular-nums;opacity:0.85;">—</span>
+            </span>
           </div>
           <div class="gauge-arc-wrap">
             <svg class="gauge-svg" viewBox="0 0 240 130" fill="none" xmlns="http://www.w3.org/2000/svg">
