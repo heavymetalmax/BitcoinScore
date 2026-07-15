@@ -131,3 +131,63 @@ def write_metric_histories(p):
             print(f'Wrote data/history/dxy_scraper_history.json  ({dxy_val})')
     except Exception as e:
         print('Failed to write DXY scraper history:', e)
+
+    # ── Fear & Greed — append daily to fear_greed.json ───────────────────────
+    try:
+        fg_raw   = m.get('fear_greed', {})
+        fg_avg7d = fg_raw.get('avg_7d') if isinstance(fg_raw, dict) else p.get('fear_greed')
+        fg_label = fg_raw.get('label', '') if isinstance(fg_raw, dict) else ''
+        if fg_avg7d is not None:
+            date_str = ts[:10] if ts else datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%d')
+            path = 'data/history/fear_greed.json'
+            hist = json.load(open(path, encoding='utf-8')) if os.path.exists(path) else []
+            if not hist or hist[-1].get('date') != date_str:
+                hist.append({'date': date_str, 'score': round(float(fg_avg7d), 2), 'label': fg_label})
+                write_json(path, hist)
+                print(f'Wrote data/history/fear_greed.json  (avg_7d={fg_avg7d})')
+            else:
+                print(f'fear_greed.json already has entry for {date_str}, skipping')
+    except Exception as e:
+        print('Failed to write Fear & Greed history:', e)
+
+    # ── aSOPR — append daily to asopr_history.json ───────────────────────────
+    try:
+        asopr_raw = m.get('asopr', {})
+        asopr_val = asopr_raw.get('value') if isinstance(asopr_raw, dict) else asopr_raw
+        if asopr_val is not None:
+            date_str = ts[:10] if ts else datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%d')
+            path = 'data/history/asopr_history.json'
+            hist = json.load(open(path, encoding='utf-8')) if os.path.exists(path) else []
+            # asopr_history.json uses [[date, value], ...] format
+            last_date = hist[-1][0] if hist and isinstance(hist[-1], list) else None
+            if last_date != date_str:
+                hist.append([date_str, float(asopr_val)])
+                write_json(path, hist)
+                print(f'Wrote data/history/asopr_history.json  ({asopr_val})')
+            else:
+                print(f'asopr_history.json already has entry for {date_str}, skipping')
+    except Exception as e:
+        print('Failed to write aSOPR history:', e)
+
+    # ── M2 YoY — append monthly to m2_yoy_history.json ──────────────────────
+    try:
+        m2_raw = m.get('m2', {})
+        m2_val = m2_raw.get('value') if isinstance(m2_raw, dict) else m2_raw
+        if m2_val is not None:
+            date_str = ts[:10] if ts else datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%d')
+            month_str = date_str[:7]   # YYYY-MM
+            path = 'data/history/m2_yoy_history.json'
+            raw_h = json.load(open(path, encoding='utf-8')) if os.path.exists(path) else []
+            hist  = raw_h if isinstance(raw_h, list) else raw_h.get('series', [])
+            last_month = hist[-1].get('date', '')[:7] if hist and isinstance(hist[-1], dict) else None
+            if last_month != month_str:
+                hist.append({'date': date_str, 'value': round(float(m2_val), 4)})
+                out = raw_h if isinstance(raw_h, list) else {'series': hist}
+                if isinstance(out, dict):
+                    out['series'] = hist
+                write_json(path, out)
+                print(f'Wrote data/history/m2_yoy_history.json  ({m2_val})')
+            else:
+                print(f'm2_yoy_history.json already has entry for {month_str}, skipping')
+    except Exception as e:
+        print('Failed to write M2 YoY history:', e)
