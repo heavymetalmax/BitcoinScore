@@ -360,97 +360,95 @@ def v2_at(td, series):
 
 
 def v3_at(td, series):
-    """Return V3 dynamic score results dict for a given date."""
-    from scraper.scoring_v3 import compute_scores_v3
+    """Return clean V3 score results dict for a given date.
+
+    Uses scraper.score.compute_score — identical code path to live scraper.
+    Wave resonance is computed from unified_history.json (causal, point-in-time).
+    """
+    from scraper.score import compute_score
     from scraper.orchestrator import orchestrate
-    r = compute_at(td, series)
+
+    r    = compute_at(td, series)
     prev = _prev_scores(td, series)
 
-    # Additional series lookups for metrics not in compute_at()'s raw_vals
-    dxy_val, _      = nearest_strict(series.get('dxy', []), td)
-    fr_val, _       = nearest_strict(series.get('funding_rate', []), td)
-    pi_val, _       = nearest_strict(series.get('pi_gap_pct', []), td)
+    dxy_val, _ = nearest_strict(series.get('dxy', []), td)
+    fr_val, _  = nearest_strict(series.get('funding_rate', []), td)
+    pi_val, _  = nearest_strict(series.get('pi_gap_pct', []), td)
 
-    # Reconstruct raw dict with correct keys for scoring_v3's key_mapping.
-    # Build cipherb dict from weekly+daily historical files (same structure as live scraper).
-    wk_score, _ = nearest_strict(series.get('cipherb_weekly', []), td)
-    wk_fb, _    = nearest_strict(series.get('cipherb_weekly_fb', []), td)
+    wk_score, _    = nearest_strict(series.get('cipherb_weekly', []), td)
+    wk_fb, _       = nearest_strict(series.get('cipherb_weekly_fb', []), td)
     cb_daily_val, _ = nearest_strict(series.get('cipherb', []), td)
     if wk_score is not None:
-        cb_dict = {
-            'weekly_score':     wk_score,
-            'daily_score':      cb_daily_val,
-            'fast_bearish_div': bool(wk_fb),
-        }
+        cb_dict = {'weekly_score': wk_score, 'daily_score': cb_daily_val, 'fast_bearish_div': bool(wk_fb)}
     elif cb_daily_val is not None:
         cb_dict = {'weekly_score': cb_daily_val, 'daily_score': cb_daily_val, 'fast_bearish_div': False}
     else:
         cb_dict = None
 
     raw = {
-        'nupl':               r['raw'].get('nupl'),
-        'mvrv':               r['raw'].get('mvrv'),
-        'rhodl_ratio':        r['raw'].get('rhodl_ratio'),
-        'cvdd_ratio':         r['raw'].get('cvdd_ratio'),
-        'asopr':              r['raw'].get('asopr'),
-        'puell_multiple':     r['raw'].get('puell_multiple'),
-        'mayer_multiple':     r['raw'].get('mayer_multiple'),
-        'fear_greed':         r['raw'].get('fear_greed'),
-        'm2_mom':             r['raw'].get('m2_yoy'),
-        'yield_curve':        r['raw'].get('yield_curve_spread'),
-        'lth_supply_pct':     r['raw'].get('lth_supply'),
-        'dxy':                dxy_val,
-        'funding_rate':       fr_val,
-        'pi_cycle':           pi_val,
-        'cipherb':            cb_dict,
-        'etf_flows':          r['raw'].get('etf_flows'),
+        'nupl':           r['raw'].get('nupl'),
+        'mvrv':           r['raw'].get('mvrv'),
+        'rhodl_ratio':    r['raw'].get('rhodl_ratio'),
+        'cvdd_ratio':     r['raw'].get('cvdd_ratio'),
+        'asopr':          r['raw'].get('asopr'),
+        'puell_multiple': r['raw'].get('puell_multiple'),
+        'mayer_multiple': r['raw'].get('mayer_multiple'),
+        'fear_greed':     r['raw'].get('fear_greed'),
+        'm2_mom':         r['raw'].get('m2_yoy'),
+        'yield_curve':    r['raw'].get('yield_curve_spread'),
+        'lth_supply_pct': r['raw'].get('lth_supply'),
+        'dxy':            dxy_val,
+        'funding_rate':   fr_val,
+        'pi_cycle':       pi_val,
+        'cipherb':        cb_dict,
+        'etf_flows':      r['raw'].get('etf_flows'),
     }
-    
-    # Load scores_history causally from scores.json if available
-    scores_history_dicts = None
-    scores_history_tuples = None
-    btc_price = None
-    try:
-        scores_path = 'data/history/scores.json'
-        if os.path.exists(scores_path):
+
+    scores_history = None
+    btc_price      = None
+    scores_path    = 'data/history/scores.json'
+    if os.path.exists(scores_path):
+        try:
             with open(scores_path, encoding='utf-8') as f:
                 history_data = json.load(f)
-                scores_history_dicts = history_data
-                scores_history_tuples = [
-                    (x['date'], x.get('final_score'), x.get('phase'), x.get('w_bot'))
-                    for x in history_data if x.get('date')
-                ]
-                # Find current price causally
-                td_str = td.isoformat()
-                for x in reversed(history_data):
-                    if x.get('date') == td_str and x.get('btc_price') is not None:
-                        btc_price = float(x['btc_price'])
-                        break
-    except Exception:
-        pass
-        
-    v3_out = compute_scores_v3(raw, target_date=td, prev_scores=prev, scores_history=scores_history_tuples)
-    
-    # Run Orchestrator V3
-    v3_sig = orchestrate(
-        v2_score         = v3_out['final_score'],
-        v2_oc_coherence  = v3_out.get('oc_coherence', 1.0),
-        wr_score         = None, # No WR in milestone backtest
-        wr_coherence     = 0,
-        tiz_maturity     = v3_out.get('tiz_maturity'),
-        top_signal       = v3_out.get('top_signal'),
-        bot_signal       = v3_out.get('bot_signal'),
-        is_v3            = True,
-        btc_price        = btc_price,
-        target_date      = td,
-        scores_history   = scores_history_dicts
+            scores_history = [
+                (x['date'], x.get('final_score'), x.get('phase'), x.get('w_bot'))
+                for x in history_data if x.get('date')
+            ]
+            td_str = td.isoformat()
+            for x in reversed(history_data):
+                if x.get('date') == td_str and x.get('btc_price') is not None:
+                    btc_price = float(x['btc_price'])
+                    break
+        except Exception:
+            pass
+
+    out = compute_score(
+        raw_metrics    = raw,
+        target_date    = td,
+        prev_scores    = prev,
+        scores_history = scores_history,
+        btc_price      = btc_price,
     )
-    
-    # Blend orchestrated score into the return output
-    v3_out['final_score'] = v3_sig['meta_score']
-    v3_out['bear_div'] = v3_sig.get('bear_div', False)
-    v3_out['bull_div'] = v3_sig.get('bull_div', False)
-    return v3_out
+
+    wr = out.get('wave_resonance') or {}
+    sig = orchestrate(
+        v2_score        = out['final_score'],
+        v2_oc_coherence = out.get('oc_coherence', 1.0),
+        wr_score        = wr.get('score'),
+        wr_coherence    = wr.get('coherence'),
+        tiz_maturity    = out.get('tiz_maturity'),
+        top_signal      = out.get('top_signal'),
+        bot_signal      = out.get('bot_signal'),
+        is_v3           = True,
+        btc_price       = btc_price,
+        target_date     = td,
+    )
+
+    out['final_score'] = sig['meta_score']
+    out['bear_div']    = sig.get('bear_div', False)
+    out['bull_div']    = sig.get('bull_div', False)
+    return out
 
 
 # ── Output ────────────────────────────────────────────────────────────────────

@@ -1,0 +1,28 @@
+{
+  "_comment": "Scoring V3 calibration constants. Derived from confirmed cycle dates — regenerate with tools/calibrate_v3.py if dates change.",
+  "calibrated_from": {
+    "bottom_dates": ["2018-12-15", "2020-03-13", "2022-06-18", "2022-11-21"],
+    "top_dates":    ["2021-04-14", "2021-11-10", "2024-03-14"],
+    "neutral_dates":["2019-06-01", "2021-04-14", "2023-06-01", "2025-06-01"]
+  },
+  "coherence_dampening": {
+    "_comment": "neutral_target = expected score when OC metrics fully agree at this phase. coh_floor = minimum coh_factor applied even when OC metrics disagree.",
+    "bottom_neutral_target": 26,
+    "neutral_neutral_target": 50,
+    "top_neutral_target": 68,
+    "bottom_coh_floor": 0.70,
+    "neutral_coh_floor": 0.45,
+    "top_coh_floor": 0.55
+  },
+  "tiz": {
+    "_comment": "Weight of TiZ in the final blend, scaled by w_bot. Full weight only at w_bot=1.0.",
+    "weight": 0.20
+  },
+  "dxy_modifier": {
+    "_comment": "DXY macro modifier. IC(dxy_norm, fwd_ret_365)=+0.28 from backtest_dxy.py. High DXY = BTC bottom = REDUCE risk score.",
+    "high": 80,
+    "low": 20,
+    "scale": 0.10,
+    "max_adj": 3.0
+  }
+}

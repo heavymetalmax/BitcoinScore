@@ -363,28 +363,22 @@ def compute_scores_v3(raw_metrics, target_date=None, prev_scores=None, scores_hi
     flat_avg = weighted_avg(OC_GROUP | TECH_GROUP)
 
     if flat_avg is not None:
-        if phase == 'BOTTOM' and tiz_score is not None:
-            # In confirmed bottom, blend flat score with TiZ maturity signal
-            final = round(0.80 * flat_avg + 0.20 * tiz_score)
+        if tiz_score is not None:
+            # TiZ contribution scales continuously with bottom probability
+            final = round((1.0 - 0.20 * w_bot) * flat_avg + 0.20 * w_bot * tiz_score)
         else:
             final = flat_avg
     else:
         final = None
 
-    # 10. Coherence dampening (pulls score toward phase-appropriate target if OC metrics diverge)
+    # 10. Coherence dampening — continuous blend by phase probabilities.
+    # Eliminates score discontinuity when bottom_confluence crosses 0.65 threshold:
+    # parameters interpolate smoothly across the full w_bot / w_neutral / w_top range.
     oc_coherence = _oc_coherence(normalized)
     coh_factor = 1.0
     if final is not None:
-        # Determine coherence floor and neutral target based on phase/regime
-        if phase == 'BOTTOM':
-            coh_floor = 0.70
-            neutral_target = 26
-        elif phase == 'TOP':
-            coh_floor = 0.55
-            neutral_target = 68
-        else:
-            coh_floor = 0.45
-            neutral_target = 50
+        coh_floor     = 0.70 * w_bot + 0.45 * w_neutral + 0.55 * w_top
+        neutral_target = 26  * w_bot + 50  * w_neutral + 68  * w_top
         coh_factor = round(coh_floor + (1.0 - coh_floor) * oc_coherence, 3)
         final = round(neutral_target + (final - neutral_target) * coh_factor)
 

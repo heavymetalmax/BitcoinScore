@@ -103,193 +103,96 @@ def run_scoring_pipeline(p, build_metric_history_fn=None):
         print(f'Failed to compute v2 scores: {e}')
         print('Falling back to V1 final_score')
 
-    # ── Fisher score → Orchestrator ───────────────────────────────────────────
+    # ── Clean V3 Master Score ─────────────────────────────────────────────────
     try:
-        from .scoring import compute_scores_v2_fisher
-        from .orchestrator import orchestrate
-        import datetime as _dt_fs
-        fisher_out = compute_scores_v2_fisher(p.get('metrics', {}))
-        if fisher_out and fisher_out.get('final_score') is not None:
-            p['fisher_score'] = fisher_out['final_score']
-            _wr      = p.get('wave_resonance', {})
-            _tiz     = p.get('tiz_days', 0)
-            _tiz_cal = p.get('tiz_calibration', 200)
-            _tiz_mat = round(_tiz / _tiz_cal, 3) if _tiz > 0 else None
-            _top_sig, _bot_sig = None, None
-            try:
-                from .scoring_v2 import phase_signals as _ps_early, _METRIC_LOOKBACK as _ML_LB
-                from .scoring import build_slider_map as _bsm
-                from .wave_history import build_prev_scores_for_wave as _bpw
-                _cs      = _bsm(p.get('metrics', {}))
-                _ps_prev = _bpw(_dt_fs.date.today(), _ML_LB)
-                _ps_out  = _ps_early(_cs, _ps_prev)
-                _top_sig = _ps_out.get('top_signal')
-                _bot_sig = _ps_out.get('bot_signal')
-            except Exception:
-                pass
-            _fisher_sig = orchestrate(
-                v2_score        = fisher_out['final_score'],
-                v2_oc_coherence = fisher_out.get('oc_coherence', 1.0),
-                wr_score        = _wr.get('score'),
-                wr_coherence    = _wr.get('coherence'),
-                tiz_maturity    = _tiz_mat,
-                top_signal      = _top_sig,
-                bot_signal      = _bot_sig,
-                btc_price       = p.get('btc_price'),
-                target_date     = _dt_fs.date.today()
-            )
-            p['signal']      = _fisher_sig
-            p['final_score'] = _fisher_sig['meta_score']
-            print(f"Fisher+Orch: fisher={fisher_out['final_score']}  "
-                  f"meta={_fisher_sig['meta_score']}  "
-                  f"flag={_fisher_sig.get('flag')}  "
-                  f"conv={_fisher_sig.get('conviction', 0):.2f}  "
-                  f"geo={_top_sig}/{_bot_sig}")
-    except Exception as _fe:
-        print(f'Fisher scorer skipped: {_fe}')
-
-    # ── SP-v2 + Phase Signals + V3.2 Override (master index) ─────────────────
-    try:
-        from .scoring_v2 import score_processor_v2, phase_signals, _METRIC_LOOKBACK
-        from .scoring import score_from_raw, build_slider_map
-        from .wave_history import build_prev_scores_for_wave
-        from .scoring_v3 import compute_scores_v3
+        from .score import compute_score
         from .orchestrator import orchestrate
         import datetime as _dt
 
-        today       = _dt.date.today()
-        curr_scores = build_slider_map(p.get('metrics', {}))
-        prev_scores = build_prev_scores_for_wave(today, _METRIC_LOOKBACK)
-        sp_v2       = score_processor_v2(curr_scores, prev_scores)
-        phases      = phase_signals(curr_scores, prev_scores)
+        today   = _dt.date.today()
+        scores  = compute_score(
+            raw_metrics   = p.get('metrics', {}),
+            target_date   = today,
+            btc_price     = p.get('btc_price'),
+        )
+        _wr = scores.get('wave_resonance', {}) or {}
+        v3_sig = orchestrate(
+            v2_score        = scores['final_score'],
+            v2_oc_coherence = scores.get('oc_coherence', 1.0),
+            wr_score        = _wr.get('score'),
+            wr_coherence    = _wr.get('coherence'),
+            tiz_maturity    = scores.get('tiz_maturity'),
+            top_signal      = scores.get('top_signal'),
+            bot_signal      = scores.get('bot_signal'),
+            is_v3           = True,
+            btc_price       = p.get('btc_price'),
+            target_date     = today,
+        )
 
-        try:
-            scores_v3   = compute_scores_v3(p.get('metrics', {}))
-            _wr         = p.get('wave_resonance', {})
-            _tiz_mat_v3 = scores_v3.get('tiz_maturity')
+        # Guard: overheated funding contradicts CONFIRMED_BOTTOM
+        _fr_score = scores.get('normalized_scores', {}).get('funding_rate')
+        if _fr_score is not None and _fr_score > 80 and v3_sig.get('flag') == 'CONFIRMED_BOTTOM':
+            v3_sig = dict(v3_sig)
+            v3_sig['flag'] = 'PROBABLE_BOTTOM'
 
-            # DXY Macro Modifier — CONTRARIAN interpretation (calibrated 2026-07-11).
-            # Backtest (tools/backtest_dxy.py, n=1856 dates) shows IC(dxy_norm, fwd_ret_365)=+0.28:
-            # high DXY historically coincides with BTC bottoms → higher long-term returns.
-            # Direction: high DXY → REDUCE risk score; low DXY → INCREASE risk score.
-            # IC(adj, fwd_ret_365) ≈ -0.08 with these constants (weak but correct direction).
-            _DXY_HIGH, _DXY_LOW, _DXY_SCALE, _DXY_MAX = 80, 20, 0.10, 3.0
-            _dxy_score = scores_v3.get('normalized_scores', {}).get('dxy')
-            _dxy_adj = 0.0
-            if _dxy_score is not None:
-                if _dxy_score > _DXY_HIGH:
-                    _dxy_adj = -min(_DXY_MAX, (_dxy_score - _DXY_HIGH) * _DXY_SCALE)
-                elif _dxy_score < _DXY_LOW:
-                    _dxy_adj = min(_DXY_MAX, (_DXY_LOW - _dxy_score) * _DXY_SCALE)
-            _v3_adjusted = max(0, min(100, round(scores_v3['final_score'] + _dxy_adj)))
-            if _dxy_adj != 0.0:
-                print(f"DXY modifier: score={_dxy_score} adj={_dxy_adj:+.1f} "
-                      f"v3={scores_v3['final_score']}→{_v3_adjusted}")
+        _EXPECTED_SCORING_METRICS = {
+            'nupl', 'mvrv_z_score', 'rhodl_ratio', 'cvdd_ratio', 'asopr', 'puell',
+            'mayer_multiple', 'fear_greed', 'm2_yoy', 'yield_curve_spread',
+            'etf_flows', 'pi_gap', 'cipherb'
+        }
+        _norm    = scores.get('normalized_scores', {})
+        _active  = [k for k in _EXPECTED_SCORING_METRICS if _norm.get(k) is not None]
+        _missing = sorted(k for k in _EXPECTED_SCORING_METRICS if _norm.get(k) is None)
 
-            v3_sig = orchestrate(
-                v2_score        = _v3_adjusted,
-                v2_oc_coherence = scores_v3.get('oc_coherence', 1.0),
-                wr_score        = _wr.get('score'),
-                wr_coherence    = _wr.get('coherence'),
-                tiz_maturity    = _tiz_mat_v3,
-                top_signal      = scores_v3.get('top_signal'),
-                bot_signal      = scores_v3.get('bot_signal'),
-                is_v3           = True,
-                btc_price       = p.get('btc_price'),
-                target_date     = today
-            )
-            # Guard: high funding_rate (longs overheated) contradicts CONFIRMED_BOTTOM.
-            # Funding score > 80 means derivatives are pricing recovery, not capitulation.
-            _fr_score = scores_v3.get('normalized_scores', {}).get('funding_rate')
-            if _fr_score is not None and _fr_score > 80 and v3_sig.get('flag') == 'CONFIRMED_BOTTOM':
-                v3_sig = dict(v3_sig)
-                v3_sig['flag'] = 'PROBABLE_BOTTOM'
-
-            p['v3_dxy_adj']         = {'score': _dxy_score, 'adjustment': round(_dxy_adj, 2)}
-            p['v3_score']           = scores_v3['final_score']
-            p['v3_onchain_score']   = scores_v3['onchain_avg']
-            p['v3_tech_score']      = scores_v3['tech_avg']
-            p['v3_phase']           = scores_v3['phase']
-            p['v3_w_bot']           = scores_v3['w_bot']
-            p['v3_w_neutral']       = scores_v3['w_neutral']
-            p['v3_w_top']           = scores_v3['w_top']
-            p['v3_utilities']       = scores_v3['utilities']
-            p['v3_normalized_scores'] = scores_v3.get('normalized_scores', {})
-
-            # Data quality: which of the 13 core scoring metrics have a live value.
-            # funding_rate IS in TECH_GROUP and scored, but excluded here to keep the
-            # quality indicator stable (it has a higher scrape-failure rate).
-            _EXPECTED_SCORING_METRICS = {
-                'nupl', 'mvrv_z_score', 'rhodl_ratio', 'cvdd_ratio', 'asopr', 'puell',
-                'mayer_multiple', 'fear_greed', 'm2_yoy', 'yield_curve_spread',
-                'etf_flows', 'pi_gap', 'cipherb'
-            }
-            _norm = p['v3_normalized_scores']
-            _active = [k for k in _EXPECTED_SCORING_METRICS if _norm.get(k) is not None]
-            _missing = sorted(k for k in _EXPECTED_SCORING_METRICS if _norm.get(k) is None)
-            p['data_quality'] = {
-                'active_metrics': len(_active),
-                'total_metrics': len(_EXPECTED_SCORING_METRICS),
-                'quality_pct': round(len(_active) / len(_EXPECTED_SCORING_METRICS) * 100),
-                'missing_metrics': _missing
-            }
-
-            p['v3_signal']          = v3_sig
-            p['v3_tiz_score']       = scores_v3['tiz_score']
-            p['v3_tiz_days']        = scores_v3['tiz_days']
-            p['v3_tiz_maturity']    = scores_v3['tiz_maturity']
-            p['v3_tiz_calibration'] = scores_v3['tiz_calibration']
-            p['v3_oc_coherence']    = scores_v3['oc_coherence']
-            p['final_score']        = v3_sig['meta_score']
-            p['signal']             = v3_sig
-            p['onchain_score']      = scores_v3['onchain_avg']
-            p['tech_score']         = scores_v3['tech_avg']
-            p['sp_v2']              = scores_v3['final_score']
-            p['phase'] = {
-                'phase':      scores_v3['phase'],
-                'top_signal': scores_v3['top_signal'],
-                'bot_signal': scores_v3['bot_signal'],
-                'w_bot':      scores_v3['w_bot'],
-                'w_neutral':  scores_v3['w_neutral'],
-                'w_top':      scores_v3['w_top'],
-            }
-            try:
-                p_exp['v3_score']           = scores_v3['final_score']
-                p_exp['v3_onchain_score']   = scores_v3['onchain_avg']
-                p_exp['v3_tech_score']      = scores_v3['tech_avg']
-                p_exp['v3_phase']           = scores_v3['phase']
-                p_exp['v3_w_bot']           = scores_v3['w_bot']
-                p_exp['v3_w_neutral']       = scores_v3['w_neutral']
-                p_exp['v3_w_top']           = scores_v3['w_top']
-                p_exp['v3_utilities']       = scores_v3['utilities']
-                p_exp['v3_signal']          = v3_sig
-                p_exp['v3_tiz_score']       = scores_v3['tiz_score']
-                p_exp['v3_tiz_days']        = scores_v3['tiz_days']
-                p_exp['v3_tiz_maturity']    = scores_v3['tiz_maturity']
-                p_exp['v3_tiz_calibration'] = scores_v3['tiz_calibration']
-                p_exp['v3_oc_coherence']    = scores_v3['oc_coherence']
-                p_exp['final_score']        = v3_sig['meta_score']
-                p_exp['signal']             = v3_sig
-                p_exp['onchain_score']      = scores_v3['onchain_avg']
-                p_exp['tech_score']         = scores_v3['tech_avg']
-                p_exp['sp_v2']              = scores_v3['final_score']
-                p_exp['phase']              = p['phase']
-            except NameError:
-                pass
-            print(f"V3.2 Overwrite Success: final={p['final_score']} phase={scores_v3['phase']}")
-        except Exception as ve:
-            print(f"Failed to override V3.2 scores: {ve}")
-
+        p['v3_score']             = scores['final_score']
+        p['v3_onchain_score']     = scores['onchain_avg']
+        p['v3_tech_score']        = scores['tech_avg']
+        p['v3_phase']             = scores['phase']
+        p['v3_w_bot']             = scores['w_bot']
+        p['v3_w_neutral']         = scores['w_neutral']
+        p['v3_w_top']             = scores['w_top']
+        p['v3_utilities']         = scores['utilities']
+        p['v3_normalized_scores'] = _norm
+        p['v3_dxy_adj']           = {'score': _norm.get('dxy'), 'adjustment': scores.get('dxy_adj', 0)}
+        p['v3_signal']            = v3_sig
+        p['v3_tiz_score']         = scores['tiz_score']
+        p['v3_tiz_days']          = scores['tiz_days']
+        p['v3_tiz_maturity']      = scores['tiz_maturity']
+        p['v3_tiz_calibration']   = scores['tiz_calibration']
+        p['v3_oc_coherence']      = scores['oc_coherence']
+        p['wave_resonance']        = _wr
+        p['data_quality'] = {
+            'active_metrics': len(_active),
+            'total_metrics':  len(_EXPECTED_SCORING_METRICS),
+            'quality_pct':    round(len(_active) / len(_EXPECTED_SCORING_METRICS) * 100),
+            'missing_metrics': _missing,
+        }
+        p['final_score']   = v3_sig['meta_score']
+        p['signal']        = v3_sig
+        p['onchain_score'] = scores['onchain_avg']
+        p['tech_score']    = scores['tech_avg']
+        p['sp_v2']         = scores['final_score']
+        p['phase'] = {
+            'phase':      scores['phase'],
+            'top_signal': scores['top_signal'],
+            'bot_signal': scores['bot_signal'],
+            'w_bot':      scores['w_bot'],
+            'w_neutral':  scores['w_neutral'],
+            'w_top':      scores['w_top'],
+        }
         write_json('data/data.json', p)
         try:
-            write_json('data/data_exp.json', p_exp)
-        except NameError:
+            write_json('data/data_exp.json', p)
+        except Exception:
             pass
-        print(f"SP-v2: score={sp_v2}  "
-              f"top={phases.get('top_signal')}%  "
-              f"bot={phases.get('bot_signal')}%  "
-              f"phase={phases.get('phase')}")
+        print(
+            f"V3 Clean: final={p['final_score']}  pre_orch={scores['final_score']}"
+            f"  phase={scores['phase']}  w_bot={scores['w_bot']}"
+            f"  tiz={scores['tiz_score']}({scores['tiz_days']}d)"
+            f"  wr={_wr.get('score')}  dxy_adj={scores.get('dxy_adj', 0):+.1f}"
+        )
     except Exception as e:
-        print(f'Failed to compute SP-v2: {e}')
+        print(f'V3 Clean scorer failed: {e}')
+        import traceback; traceback.print_exc()
 
     return p
