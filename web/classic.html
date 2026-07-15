@@ -1950,6 +1950,10 @@ async function loadData() {
     if (main.sp_v2 != null)         data.sp_v2         = main.sp_v2;
     if (main.phase)                 data.phase         = main.phase;
     if (main.timestamp)             data.timestamp     = main.timestamp;
+    if (main.btc_price != null)     data.btc_price     = main.btc_price;
+    if (main.final_score != null)   data.final_score   = main.final_score;
+    if (main.onchain_score != null) data.onchain_score = main.onchain_score;
+    if (main.tech_score != null)    data.tech_score    = main.tech_score;
     // Merge metrics: exp wins where non-null, fall back to main for missing/null fields
     if (main.metrics) {
       const m = Object.assign({}, main.metrics, exp.metrics || {});
