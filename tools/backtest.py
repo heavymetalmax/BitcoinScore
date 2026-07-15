@@ -116,10 +116,15 @@ def load_data():
         raw = json.load(open(etf_path, encoding='utf-8'))
         for p in raw:
             d = p.get('timestamp', '')[:10]
-            v = p.get('etf_flow_14d')
+            v = p.get('etf_flow_14d') or p.get('etf_flow_7d')
             if d and v is not None:
                 etf.append((d, v))
         etf.sort()
+        # Deduplicate by date: keep last value
+        seen: dict = {}
+        for date, val in etf:
+            seen[date] = val
+        etf = sorted(seen.items())
     series['etf_flows'] = etf
 
     # Yield curve — prefer local file, fall back to FRED
@@ -164,6 +169,49 @@ def load_data():
                     lth.append((d, float(v)))
         lth.sort()
     series['lth_supply'] = lth
+
+    # ── Inject daily_vector values for recent dates ──────────────────────────
+    # daily_vector.json has ACTUAL scraped values — use these to override stale
+    # Glassnode files for on-chain metrics (nupl, mvrv, etc. lag up to 45 days).
+    # Values in daily_vector.raw are already in the same units as the series:
+    #   nupl=%  asopr=actual  mvrv=z-score  weekly_score=0-100 etc.
+    dv_path = os.path.join('data', 'history', 'daily_vector.json')
+    if os.path.exists(dv_path):
+        # Map daily_vector raw keys → series keys
+        dv_map = {
+            'nupl':          'nupl',
+            'mvrv':          'mvrv',
+            'rhodl_ratio':   'rhodl_ratio',
+            'cvdd_ratio':    'cvdd_ratio',
+            'asopr':         'asopr',
+            'mayer_multiple':'mayer_multiple',
+            'fear_greed':    'fear_greed',
+            'm2_yoy':        'm2_yoy',
+            'funding_rate':  'funding_rate',
+            'etf_flows':     'etf_flows',
+            'puell_multiple':'puell_multiple',
+        }
+        dv_entries = json.load(open(dv_path, encoding='utf-8'))
+        for entry in dv_entries:
+            d = entry.get('date', '')[:10]
+            if not d:
+                continue
+            raw_e = entry.get('raw', {})
+            for dv_key, series_key in dv_map.items():
+                val = raw_e.get(dv_key)
+                if val is not None and series_key in series:
+                    series[series_key].append((d, float(val)))
+        # Deduplicate by date: for same date, keep last appended value (daily_vector wins)
+        for series_key in set(dv_map.values()):
+            if series_key not in series:
+                continue
+            seen: dict = {}
+            for date, val in series[series_key]:
+                seen[date] = val
+            series[series_key] = sorted(seen.items())
+        dates_dv = sorted(e.get('date', '')[:10] for e in dv_entries if e.get('date'))
+        if dates_dv:
+            print(f"  {'daily_vector inject':<20s}: {len(dates_dv):5d} pts  ({dates_dv[0]} → {dates_dv[-1]})")
 
     for k, s in series.items():
         if s:
