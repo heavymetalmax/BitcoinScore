@@ -6,15 +6,16 @@ BitcoinScore V3.2ML is a lookahead-free, machine-learning-enhanced Buy Risk Inde
 
 ## 1. Core Architecture
 
-The system evaluates risk through a 5-stage pipeline:
+The system evaluates risk through a 6-stage pipeline:
 
 ```mermaid
 graph TD
     A[Raw Metrics Scraper] --> B[Causal Normalization]
-    B --> C[ML Phase Probabilities]
-    C --> D[Dynamic Utility Weighting]
+    B --> C[ML Phase Weights]
+    C --> D[Dynamic Utility Weighting + TiZ]
     D --> E[Phase-Aware Coherence Dampening]
-    E --> F[Orchestrator V3 Meta-Score]
+    E --> F[DXY Macro Modifier]
+    F --> G[Orchestrator V3 Meta-Score]
 ```
 
 ### Stage 1: Causal Point-in-Time Normalization
@@ -24,14 +25,13 @@ To prevent lookahead bias during backtesting and live runs, all metrics are norm
 - The final score is a blend (50/50 default) of this rolling percentile rank and a fixed mathematical mapping.
 
 ### Stage 2: ML-Driven Phase Detection
-The market's regime is classified continuously using a regularized Logistic Regression model trained on historical data.
-- **Features**: A 22-dimensional wave vector consisting of the current normalized values of 11 indicators and their 11-day lookback deltas (capturing momentum).
-- **Outputs**: Continuous probability weights for the three regimes:
-  - $w_{\text{bot}}$ (probability of `BOTTOM` phase)
-  - $w_{\text{top}}$ (probability of `TOP` phase)
-  - $w_{\text{neutral}}$ (probability of `NEUTRAL` phase)
-  
-*Implementation: [train_v3_phase_model.py](file:///Users/max/BitcoinScore/tools/train_v3_phase_model.py)*
+The market's regime is captured by **two independent systems** that together output continuous probability weights:
+
+- **w_bot** (bottom probability): Computed by `bottom_confluence.py` — a data-driven gradient model anchored to confirmed historical bottom dates (`2018-12-15`, `2020-03-13`, `2022-06-18`, `2022-11-21`). Returns a continuous 0–1 probability based on how much the current indicator state resembles confirmed capitulation events.
+- **w_top** (top probability): Computed by a **Gaussian Hidden Markov Model (HMM)** (`v3_phase_model.pkl`) trained on on-chain and technical features. Only `probs[2]` (TOP state probability) is used.
+- **w_neutral** = 1 − w_bot − w_top (clipped to [0, 1]).
+
+*Implementation: [bottom_confluence.py](file:///Users/max/BitcoinScore/scraper/bottom_confluence.py) · [train_v3_hmm_model.py](file:///Users/max/BitcoinScore/tools/train_v3_hmm_model.py)*
 
 ### Stage 3: Dynamic Utility Weights
 Metrics do not have static weights. Instead, each metric has a relevance profile determining its utility coefficient $U_i \in [0.1, 1.0]$ based on the active phase:
@@ -43,15 +43,16 @@ $$U_i = w_{\text{top}} \times \text{Profile}_i[\text{TOP}] + w_{\text{bot}} \tim
 *Implementation: [utility_evaluator.py](file:///Users/max/BitcoinScore/scraper/utility_evaluator.py)*
 
 ### Stage 4: Phase-Aware Coherence Dampening
-When on-chain metrics diverge (high standard deviation among indicators), the score is pulled towards a phase-appropriate target instead of a fixed 50:
-- **`BOTTOM` Phase Target**: **30** (ensures score remains in buy range even with minor metric deviations).
-- **`TOP` Phase Target**: **70** (ensures score remains in warning/sell range).
+When on-chain metrics diverge (high standard deviation among indicators), the score is pulled towards a phase-appropriate target instead of a fixed 50. All constants are read from `data/v3_calibration.json`:
+- **`BOTTOM` Phase Target**: **26** (ensures score remains in buy range even with minor metric deviations).
+- **`TOP` Phase Target**: **68** (ensures score remains in warning/sell range).
 - **`NEUTRAL` Phase Target**: **50**.
 
-Coherence factor $C \in [0, 1]$ is calculated based on on-chain dispersion:
-$$\text{final\_score} = \text{target} + (\text{raw\_avg} - \text{target}) \times C$$
+The neutral target and coherence floor both interpolate continuously across phase weights rather than using discrete phase labels:
+$$\text{neutral\_target} = 26 \cdot w_{\text{bot}} + 50 \cdot w_{\text{neutral}} + 68 \cdot w_{\text{top}}$$
+$$\text{final\_score} = \text{neutral\_target} + (\text{raw\_avg} - \text{neutral\_target}) \times C$$
 
-*Implementation: [scoring_v3.py](file:///Users/max/BitcoinScore/scraper/scoring_v3.py)*
+*Implementation: [score.py](file:///Users/max/BitcoinScore/scraper/score.py)*
 
 ### Stage 5: Orchestrator V3 Integration
 The Orchestrator blends the dynamic V3.1ML score with the Wave Resonance (WR) vector:
@@ -110,12 +111,13 @@ A comparison of historical cycle pivot points demonstrates the precision of the 
 ## 4. Codebase Directory Map
 
 - **Core Scoring Logic**:
-  - [scoring_v3.py](file:///Users/max/BitcoinScore/scraper/scoring_v3.py): Composite index construction, normalization wrapper, and phase-aware coherence dampening.
+  - [score.py](file:///Users/max/BitcoinScore/scraper/score.py): Authoritative V3 engine — normalization, phase weights, TiZ, coherence dampening, DXY modifier, and orchestration wiring.
+  - [bottom_confluence.py](file:///Users/max/BitcoinScore/scraper/bottom_confluence.py): Data-driven w_bot gradient probability model.
   - [utility_evaluator.py](file:///Users/max/BitcoinScore/scraper/utility_evaluator.py): Evaluates continuous utility coefficients based on weights.
-  - [orchestrator.py](file:///Users/max/BitcoinScore/scraper/orchestrator.py): Blends V3.1ML score and Wave Resonance into a Meta-Score.
+  - [orchestrator.py](file:///Users/max/BitcoinScore/scraper/orchestrator.py): Blends V3 score and Wave Resonance into a Meta-Score.
 - **Optimization & ML training**:
   - [optimize_v3_relevance.py](file:///Users/max/BitcoinScore/tools/optimize_v3_relevance.py): Trader strategy simulation, Hinge Loss, and parameter coordinate descent.
-  - [train_v3_phase_model.py](file:///Users/max/BitcoinScore/tools/train_v3_phase_model.py): Scikit-learn Logistic Regression trainer for phase classification.
+  - [train_v3_hmm_model.py](file:///Users/max/BitcoinScore/tools/train_v3_hmm_model.py): Gaussian HMM trainer for TOP phase probability (w_top).
 - **Analysis & Verification**:
   - [backtest.py](file:///Users/max/BitcoinScore/tools/backtest.py): Core historical backtest harness.
   - [evaluate_today.py](file:///Users/max/BitcoinScore/scratch/evaluate_today.py): Evaluates and logs details for the current day's live scraper data.

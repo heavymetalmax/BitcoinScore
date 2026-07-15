@@ -3,7 +3,7 @@
 ## Abstract
 The Bitcoin Buy Risk Indicator (V3.2) is a lookahead-free, machine-learning-enhanced macro risk index calibrated on a 0–100 scale. It serves as a quantitative compass for long-term capital allocation, identifying cyclical bottoms and tops by synthesizing on-chain indicators, global macro liquidity, market sentiment, and spot ETF flows. 
 
-Through the combination of regularized phase classification, dynamic utility weighting, and the new **Score-based Trailing Stop Decision Engine**, the indicator establishes an actionable framework that outpaces traditional Buy & Hold strategies by capturing macro trend expansions while mitigating severe drawdown periods.
+Through the combination of dual ML phase classification (HMM + bottom-confluence gradient model), dynamic utility weighting, and the new **Score-based Trailing Stop Decision Engine**, the indicator establishes an actionable framework that outpaces traditional Buy & Hold strategies by capturing macro trend expansions while mitigating severe drawdown periods.
 
 ---
 
@@ -50,16 +50,17 @@ Our indicator tries to assess the state of play by monitoring all of these varia
 
 ## 3. Core Mathematical & Technical Architecture
 
-The indicator processes daily incoming market feeds through a causal, lookahead-free 5-stage pipeline:
+The indicator processes daily incoming market feeds through a causal, lookahead-free 6-stage pipeline:
 
 ```mermaid
 graph TD
     A[Raw Metrics Scraper] --> B[Causal Point-in-Time Normalization]
-    B --> C[ML-Driven Phase Classifier]
-    C --> D[Dynamic Utility Weights]
+    B --> C[Dual ML Phase Weights]
+    C --> D[Dynamic Utility Weights + TiZ]
     D --> E[Phase-Aware Coherence Dampening]
-    E --> F[Hybrid Signal Orchestrator]
-    F --> G[Trading Observer State Machine]
+    E --> F[DXY Macro Modifier]
+    F --> G[Hybrid Signal Orchestrator]
+    G --> H[Trading Observer State Machine]
 ```
 
 ### Stage 1: Causal Point-in-Time Normalization
@@ -70,13 +71,14 @@ To prevent lookahead bias (historically leaking future highs/lows into the past)
     where $I(\cdot)$ is the indicator function.
 *   **Blending**: The final normalized value is a 50/50 blend of this causal percentile rank and a fixed mathematical sigmoid mapping to ensure structural stability during extreme expansions.
 
-### Stage 2: ML-Driven Phase Regimes
-A regularized Logistic Regression classifier categorizes the market regime on a daily basis.
-*   **Input Features**: A 22-dimensional wave vector containing the current normalized values of 11 indicators and their 11-day lookback momentum deltas ($\Delta x_t = x_t - x_{t-11}$).
-*   **Regime Weights**: Outputs three continuous probability weights representing phase regimes:
-    *   $w_{\text{bottom}}$: Probability of being in a cyclical accumulation bottom.
-    *   $w_{\text{top}}$: Probability of being in a blow-off top distribution phase.
-    *   $w_{\text{neutral}}$: Probability of mid-cycle consolidation.
+### Stage 2: Dual ML Phase Weights
+Two independent systems output continuous probability weights — no single model and no discrete phase gate:
+
+*   **w_bot** (bottom probability): Computed by `bottom_confluence.py`, a data-driven gradient model trained on confirmed historical capitulation dates (`2018-12-15`, `2020-03-13`, `2022-06-18`, `2022-11-21`). Returns a continuous 0–1 value reflecting how much the current indicator constellation resembles those events.
+*   **w_top** (top probability): Computed by a **Gaussian Hidden Markov Model (HMM)** stored in `data/v3_phase_model.pkl`. Only the TOP-state probability (`probs[2]`) is extracted.
+*   **w_neutral** = 1 − w_bot − w_top (clipped to [0, 1]).
+
+The phase label (BOTTOM / NEUTRAL / TOP) is determined from these weights for informational display only and does not gate any scoring logic.
 
 ### Stage 3: Dynamic Utility Weights
 Indicators do not have static weights. Instead, each metric has a relevance profile determining its utility coefficient $U_i \in [0.1, 1.0]$ based on the active phase:
@@ -86,18 +88,24 @@ $$U_i = w_{\text{top}} \times \text{Profile}_i[\text{TOP}] + w_{\text{bottom}} \
 *   **Top Regime**: Technical oscillators (`cipherb`), funding rates, sentiment (`fear_greed`), and price extensions (`mayer_multiple`) gain maximum utility ($1.0$).
 
 ### Stage 4: Phase-Aware Coherence Dampening
-When on-chain indicators diverge (high standard deviation among indicators), the raw average is dynamically pulled towards a phase-appropriate target rather than a fixed neutral midpoint (50):
-*   **`BOTTOM` Phase Target**: **30** (keeps the score in the accumulation/buy zone despite minor indicator deviations).
-*   **`TOP` Phase Target**: **70** (keeps the score in the warning/caution zone).
-*   **`NEUTRAL` Phase Target**: **50**.
+When on-chain indicators diverge (high standard deviation among indicators), the raw average is dynamically pulled towards a continuously interpolated phase target rather than a fixed neutral midpoint (50). All constants are stored in `data/v3_calibration.json`:
+*   **`BOTTOM` anchor**: **26** (keeps the score in the accumulation/buy zone despite minor indicator deviations).
+*   **`TOP` anchor**: **68** (keeps the score in the warning/caution zone).
+*   **`NEUTRAL` anchor**: **50**.
 
-The dispersion adjustor is calculated using a Coherence Factor $C \in [0, 1]$ based on the standard deviation of mapped metrics:
-$$\text{final\_score} = \text{target} + (\text{raw\_avg} - \text{target}) \times C$$
+The neutral target interpolates continuously across phase weights:
+$$\text{neutral\_target} = 26 \cdot w_{\text{bot}} + 50 \cdot w_{\text{neutral}} + 68 \cdot w_{\text{top}}$$
 
-### Stage 5: Hybrid Signal Orchestrator
-The Orchestrator combines the composite indicator score with the Wave Resonance (WR) vector:
-*   **Agreement Factor**: Computes the directional dot-product alignment between V3.2 score trends and Wave Resonance. High agreement boosts conviction.
-*   **Time-in-Zone (TiZ) Maturity Gate**: Caps bottom signals during the early days of a crash. If the bottom phase is active but duration is $< 25\%$ of calibration ($\sim 50$ days), the flag is overridden to `EARLY_ZONE` to prevent catching a falling knife.
+The Coherence Factor $C \in [0, 1]$ is based on the standard deviation of mapped metrics:
+$$\text{final\_score} = \text{neutral\_target} + (\text{raw\_avg} - \text{neutral\_target}) \times C$$
+
+### Stage 5: DXY Macro Modifier
+A ±0–3 point adjustment is applied before orchestration. Because high USD strength historically coincides with BTC undervaluation (IC = +0.28 over 1856 backtest dates), high DXY *reduces* the risk score and low DXY increases it. The modifier is capped at ±3 pts as configured in `data/v3_calibration.json`.
+
+### Stage 6: Hybrid Signal Orchestrator
+The Orchestrator combines the composite indicator score with the Wave Resonance (WR) vector (computed independently from price history, not re-using the scoring pipeline):
+*   **Agreement Factor**: Computes the directional dot-product alignment between V3 score trends and Wave Resonance. High agreement boosts conviction.
+*   **Time-in-Zone (TiZ)**: Activates continuously whenever the composite score ≤ 40 — no phase label gate required. Contribution to the final score scales with w_bot, so TiZ carries more weight when the bottom-confluence model is confident. Days are counted on a rolling 180-day window.
 
 ---
 

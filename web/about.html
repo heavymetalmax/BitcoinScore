@@ -960,7 +960,7 @@
         "name": "How is the Bitcoin Buy Risk Index calculated?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "The final index score is calculated as a 50/50 weighted combination of two sub-scores: the On-Chain (OC) sub-score and the Technical/Macro sub-score. Each sub-score aggregates several indicators with specific cycle-based weights."
+          "text": "The final index score is calculated as a utility-weighted average of 15 on-chain, technical, and macro indicators. Each metric's weight is dynamically adjusted based on the active market regime (BOTTOM, NEUTRAL, or TOP), calibrated via an Information Coefficient backtest on historical BTC returns."
         }
       },
       {
@@ -1212,8 +1212,8 @@
     <span class="en">3. Core Mathematical &amp; Technical Architecture</span>
     <span class="ua">3. Математична та технічна архітектура</span>
   </h2>
-  <p class="en">The indicator processes daily incoming market feeds through a causal, lookahead-free 5-stage pipeline:</p>
-  <p class="ua">Індікатор обробляє щоденні вхідні дані ринку через послідовний 5-етапний конвеєр без забігання наперед:</p>
+  <p class="en">The indicator processes daily incoming market feeds through a causal, lookahead-free 6-stage pipeline:</p>
+  <p class="ua">Індікатор обробляє щоденні вхідні дані ринку через послідовний 6-етапний конвеєр без забігання наперед:</p>
 
   <div class="glass-card" style="padding: 20px; margin: 20px 0; overflow-x: auto;">
     <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; min-width: 600px;">
@@ -1269,20 +1269,20 @@
       <span class="ua"><strong>Причинно-наслідкова нормалізація</strong>: Щоб запобігти витоку майбутніх даних в минуле, такі показники як <code>nupl</code>, <code>mvrv</code> та <code>mayer</code> динамічно масштабуються за причинно-наслідковим перцентильним рангом у ковзному 4-річному (1460 днів) вікні. Фінальне значення змішується 50/50 з фіксованими сигмоїдними картами.</span>
     </li>
     <li>
-      <span class="en"><strong>ML-Driven Phase Regimes</strong>: A Gaussian Hidden Markov Model (HMM) evaluates a multi-dimensional feature vector across on-chain and technical indicators to output continuous mixture weights for three market regimes: <code>BOTTOM</code>, <code>NEUTRAL</code>, and <code>TOP</code>. These weights drive dynamic utility allocation in Stage 3.</span>
-      <span class="ua"><strong>Визначення фазових режимів на базі ML</strong>: Гаусівська прихована марківська модель (HMM) оцінює багатовимірний вектор ознак по ончейн та технічних індикаторах для виведення безперервних змішаних ваг трьох ринкових режимів: <code>BOTTOM</code> (дно), <code>NEUTRAL</code> (нейтральний) та <code>TOP</code> (топ). Ці ваги визначають динамічний розподіл корисності на Етапі 3.</span>
+      <span class="en"><strong>ML-Driven Phase Regimes</strong>: Two independent systems output continuous mixture weights for three market regimes. <strong>w_bot</strong> (bottom probability) is computed by a data-driven gradient model trained on confirmed historical bottom dates. <strong>w_top</strong> (top probability) comes from a Gaussian Hidden Markov Model (HMM) trained on on-chain and technical features. <strong>w_neutral</strong> = 1 − w_bot − w_top. These weights drive dynamic utility allocation in Stage 3.</span>
+      <span class="ua"><strong>Визначення фазових режимів на базі ML</strong>: Дві незалежні системи обчислюють безперервні вагові коефіцієнти для трьох ринкових режимів. <strong>w_bot</strong> (ймовірність дна) розраховується градієнтною моделлю, навченою на підтверджених датах циклічних мінімумів. <strong>w_top</strong> (ймовірність вершини) — від Гаусівської прихованої марківської моделі (HMM). <strong>w_neutral</strong> = 1 − w_bot − w_top. Ці ваги визначають динамічний розподіл корисності на Етапі 3.</span>
     </li>
     <li>
       <span class="en"><strong>IC-Calibrated Utility Weighting</strong>: Metrics do not have static weights. Their utility coefficients ($U_i \in [0.1, 1.0]$) are calibrated from a historical Information Coefficient (IC) backtest — the Pearson correlation between each metric's normalized score and 365-day forward BTC returns. Weights are stored in the trained model and update automatically on each retrain. On-chain metrics dominate bottoms; technical oscillators, sentiment, and Mayer Multiple dominate tops.</span>
       <span class="ua"><strong>Зважування корисності з IC-калібруванням</strong>: Метрики не мають фіксованих ваг. Їхні коефіцієнти корисності ($U_i \in [0.1, 1.0]$) калібруються з бектесту Information Coefficient (IC) — кореляції Пірсона між нормалізованою оцінкою кожної метрики та 365-денною форвардною дохідністю BTC. Ваги зберігаються в навченій моделі та автоматично оновлюються при перенавчанні. Ончейн-показники домінують на дні; технічні осцилятори, сентимент та Mayer Multiple домінують на вершинах.</span>
     </li>
     <li>
-      <span class="en"><strong>Phase-Aware Coherence Dampening</strong>: When metrics diverge, the score is pulled toward phase targets (30 for Bottom, 70 for Top, 50 for Neutral) using a standard deviation coherence factor, preventing signal dilution at cycle extremes.</span>
-      <span class="ua"><strong>Згасання узгодженості з урахуванням фази</strong>: Коли метрики розходяться, оцінка притягується до цілей фази (30 для дна, 70 для вершини, 50 для нейтральної фази) з використанням коефіцієнта когерентності на основі стандартного відхилення, що запобігає розмиттю сигналу.</span>
+      <span class="en"><strong>Phase-Aware Coherence Dampening</strong>: When metrics diverge, the score is pulled toward phase targets (26 for Bottom, 68 for Top, 50 for Neutral) using a standard deviation coherence factor, preventing signal dilution at cycle extremes. All targets are stored in <code>data/v3_calibration.json</code>.</span>
+      <span class="ua"><strong>Згасання узгодженості з урахуванням фази</strong>: Коли метрики розходяться, оцінка притягується до цілей фази (26 для дна, 68 для вершини, 50 для нейтральної фази) з використанням коефіцієнта когерентності на основі стандартного відхилення, що запобігає розмиттю сигналу. Усі цілі зберігаються у <code>data/v3_calibration.json</code>.</span>
     </li>
     <li>
-      <span class="en"><strong>Hybrid Signal Orchestrator</strong>: Combines the score with the Wave Resonance vector, checks direction alignment, and applies the Time-in-Zone (TiZ) Maturity Gate (minimum 25% of cycle calibration, ~50 days) to prevent buying too early during a capitulation crash. A <strong>DXY Macro Modifier</strong> (±0–3 pts) is applied before orchestration: because high USD strength historically coincides with BTC undervaluation (IC = +0.28 over 1856 backtest dates), high DXY <em>reduces</em> the risk score and low DXY increases it — a contrarian signal calibrated from historical data.</span>
-      <span class="ua"><strong>Гібридний оркестратор сигналів</strong>: Поєднує оцінку з вектором резонансу хвиль, перевіряє напрямок тренду та застосовує часовий фільтр TiZ (мінімум 25% від калібрувального вікна, ~50 днів), щоб запобігти покупкам занадто рано під час обвалу. Перед оркестрацією застосовується <strong>макромодифікатор DXY</strong> (±0–3 п.): оскільки висока сила долара США історично збігається з недооцінкою BTC (IC = +0.28 на 1856 датах бектесту), високий DXY <em>знижує</em> оцінку ризику, а низький — підвищує. Контраріанський сигнал, калібрований на основі реальних даних.</span>
+      <span class="en"><strong>Hybrid Signal Orchestrator</strong>: Combines the score with the Wave Resonance vector (computed independently from price history) and checks direction alignment. The <strong>Time-in-Zone (TiZ)</strong> metric activates continuously whenever the composite score is ≤ 40 — no phase label gate — and its contribution scales with w_bot to reflect bottom confidence. A <strong>DXY Macro Modifier</strong> (±0–3 pts) is applied before orchestration: because high USD strength historically coincides with BTC undervaluation (IC = +0.28 over 1856 backtest dates), high DXY <em>reduces</em> the risk score and low DXY increases it — a contrarian signal calibrated from historical data.</span>
+      <span class="ua"><strong>Гібридний оркестратор сигналів</strong>: Поєднує оцінку з вектором резонансу хвиль (розраховується незалежно з цінової історії) та перевіряє узгодженість напрямків. Метрика <strong>Time-in-Zone (TiZ)</strong> активується безперервно, коли складова оцінка ≤ 40 — без прив'язки до фазового лейблу — і її внесок масштабується на w_bot для відображення впевненості у фазі дна. Перед оркестрацією застосовується <strong>макромодифікатор DXY</strong> (±0–3 п.): оскільки висока сила долара США історично збігається з недооцінкою BTC (IC = +0.28 на 1856 датах бектесту), високий DXY <em>знижує</em> оцінку ризику, а низький — підвищує. Контраріанський сигнал, калібрований на основі реальних даних.</span>
     </li>
   </ol>
 
@@ -1568,8 +1568,8 @@
             <span class="ua"><strong>Відсутнє</strong>: Концепція фази циклу відсутня; індикатори трактуються однаково як на вершинах, так і на дні.</span>
           </td>
           <td>
-            <span class="en"><strong>ML Phase Classifier</strong>: Regularized Logistic Regression model classifies the market into <code>BOTTOM</code>, <code>NEUTRAL</code>, or <code>TOP</code>.</span>
-            <span class="ua"><strong>ML-класифікатор фаз</strong>: Модель регулярної логістичної регресії класифікує ринок на <code>BOTTOM</code>, <code>NEUTRAL</code> або <code>TOP</code>.</span>
+            <span class="en"><strong>Dual ML Phase Systems</strong>: w_bot from a data-driven gradient model (confirmed bottom dates); w_top from a Gaussian Hidden Markov Model (HMM). Together they classify the market into <code>BOTTOM</code>, <code>NEUTRAL</code>, or <code>TOP</code>.</span>
+            <span class="ua"><strong>Дві ML-системи фазової класифікації</strong>: w_bot від градієнтної моделі на підтверджених датах дна; w_top від Гаусівської прихованої марківської моделі (HMM). Разом класифікують ринок на <code>BOTTOM</code>, <code>NEUTRAL</code> або <code>TOP</code>.</span>
           </td>
         </tr>
         <tr>
@@ -1590,8 +1590,8 @@
             <span class="ua"><strong>Некерована</strong>: Розбіжність метрик розмиває загальний бал, наближаючи його до нейтральних 50.</span>
           </td>
           <td>
-            <span class="en"><strong>Coherence Dampening</strong>: Pulls the score towards phase targets (30 for Bottom, 70 for Top) when metrics diverge.</span>
-            <span class="ua"><strong>Згасання узгодженості</strong>: Притягує оцінку до цілей фази (30 для дна, 70 для вершини) при розбіжності метрик.</span>
+            <span class="en"><strong>Coherence Dampening</strong>: Pulls the score towards phase targets (26 for Bottom, 68 for Top) when metrics diverge.</span>
+            <span class="ua"><strong>Згасання узгодженості</strong>: Притягує оцінку до цілей фази (26 для дна, 68 для вершини) при розбіжності метрик.</span>
           </td>
         </tr>
         <tr>
