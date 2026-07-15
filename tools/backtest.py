@@ -20,7 +20,7 @@ from scraper.scoring import (
 )
 from scraper.scoring_v2 import score_processor_v2, _METRIC_LOOKBACK
 
-MAX_STALENESS = 45           # days — beyond this treat metric as absent
+MAX_STALENESS = 90           # days — beyond this treat metric as absent
 ADAPTIVE_WIN  = 4 * 365      # days for rolling-percentile window (same as scoring.py)
 ADAPTIVE_BLEND = 0.50        # weight on percentile vs fixed map
 
