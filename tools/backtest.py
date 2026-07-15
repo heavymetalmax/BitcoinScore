@@ -92,11 +92,15 @@ def load_data():
         raw_wk = json.load(open(wk_path, encoding='utf-8'))
         wk_rows = raw_wk if isinstance(raw_wk, list) else raw_wk.get('series', raw_wk)
         for r in wk_rows:
-            ts = r.get('timestamp')
+            # support both {date: 'YYYY-MM-DD'} and {timestamp: unix} formats
+            d = r.get('date')
+            if d is None:
+                ts = r.get('timestamp')
+                if ts is not None:
+                    d = datetime.datetime.utcfromtimestamp(ts).strftime('%Y-%m-%d')
             ws = r.get('weekly_score')
             fb = r.get('fast_bearish_div', False)
-            if ts is not None and ws is not None:
-                d = datetime.datetime.utcfromtimestamp(ts).strftime('%Y-%m-%d')
+            if d is not None and ws is not None:
                 cipherb_weekly.append((d, float(ws)))
                 cipherb_weekly_fb.append((d, 1.0 if fb else 0.0))
         cipherb_weekly.sort()
@@ -320,9 +324,21 @@ def v3_at(td, series):
     pi_val, _       = nearest_strict(series.get('pi_gap_pct', []), td)
 
     # Reconstruct raw dict with correct keys for scoring_v3's key_mapping.
-    # cipherb is explicitly None: r['raw']['cipherb'] is a raw WaveTrend oscillator value,
-    # not the weekly_score dict that scoring_v3 expects. Using it as weekly_score triggers
-    # incorrect BOTTOM phase detection. Historical cipherb coverage is too sparse for backtest.
+    # Build cipherb dict from weekly+daily historical files (same structure as live scraper).
+    wk_score, _ = nearest_strict(series.get('cipherb_weekly', []), td)
+    wk_fb, _    = nearest_strict(series.get('cipherb_weekly_fb', []), td)
+    cb_daily_val, _ = nearest_strict(series.get('cipherb', []), td)
+    if wk_score is not None:
+        cb_dict = {
+            'weekly_score':     wk_score,
+            'daily_score':      cb_daily_val,
+            'fast_bearish_div': bool(wk_fb),
+        }
+    elif cb_daily_val is not None:
+        cb_dict = {'weekly_score': cb_daily_val, 'daily_score': cb_daily_val, 'fast_bearish_div': False}
+    else:
+        cb_dict = None
+
     raw = {
         'nupl':               r['raw'].get('nupl'),
         'mvrv':               r['raw'].get('mvrv'),
@@ -332,13 +348,13 @@ def v3_at(td, series):
         'puell_multiple':     r['raw'].get('puell_multiple'),
         'mayer_multiple':     r['raw'].get('mayer_multiple'),
         'fear_greed':         r['raw'].get('fear_greed'),
-        'm2_mom':             r['raw'].get('m2_yoy'),           # scoring_v3 key_mapping expects m2_mom
-        'yield_curve':        r['raw'].get('yield_curve_spread'),  # scoring_v3 expects yield_curve
+        'm2_mom':             r['raw'].get('m2_yoy'),
+        'yield_curve':        r['raw'].get('yield_curve_spread'),
         'lth_supply_pct':     r['raw'].get('lth_supply'),
         'dxy':                dxy_val,
         'funding_rate':       fr_val,
         'pi_cycle':           pi_val,
-        'cipherb':            None,
+        'cipherb':            cb_dict,
         'etf_flows':          r['raw'].get('etf_flows'),
     }
     
