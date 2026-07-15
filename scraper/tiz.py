@@ -125,29 +125,20 @@ def compute_tiz_causal(scores_history, target_date, threshold=_THRESHOLD, window
     latest      = history[-1]
     latest_date = latest[0]
     latest_score = latest[1]
-    latest_phase = latest[2] if len(latest) > 2 else None
     latest_dt   = datetime.date.fromisoformat(latest_date)
 
-    # Most recent record must be within 7 days and in zone
+    # Most recent record must be within 7 days and score in zone (pure score-based)
     if (target_date - latest_dt).days > 7:
+        return None, 0, _CALIBRATION
+    if latest_score is None or latest_score > threshold:
         return None, 0, _CALIBRATION
 
     def _in_zone(rec):
         d = rec[0]
         if not (cutoff_str <= d <= target_str):
             return False
-        ph = rec[2] if len(rec) > 2 else None
-        if ph is not None:
-            return ph == 'BOTTOM'
         s = rec[1]
         return s is not None and s <= threshold
-
-    # Latest entry must be in zone
-    if latest_phase is not None:
-        if latest_phase != 'BOTTOM':
-            return None, 0, _CALIBRATION
-    elif latest_score is None or latest_score > threshold:
-        return None, 0, _CALIBRATION
 
     in_zone = [r for r in history if _in_zone(r)]
     if not in_zone:
