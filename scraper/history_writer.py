@@ -150,6 +150,24 @@ def write_metric_histories(p):
     except Exception as e:
         print('Failed to write Fear & Greed history:', e)
 
+    # ── NUPL — append daily to nupl_history.json ─────────────────────────────
+    try:
+        nupl_raw = m.get('nupl', {})
+        nupl_val = nupl_raw.get('value') if isinstance(nupl_raw, dict) else nupl_raw
+        if nupl_val is not None:
+            date_str = ts[:10] if ts else datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%d')
+            path = 'data/history/nupl_history.json'
+            hist = json.load(open(path, encoding='utf-8')) if os.path.exists(path) else []
+            last_date = hist[-1][0] if hist and isinstance(hist[-1], list) else None
+            if last_date != date_str:
+                hist.append([date_str, float(nupl_val) / 100.0])  # BMP returns %, history stores fraction
+                write_json(path, hist)
+                print(f'Wrote data/history/nupl_history.json  ({nupl_val})')
+            else:
+                print(f'nupl_history.json already has entry for {date_str}, skipping')
+    except Exception as e:
+        print('Failed to write NUPL history:', e)
+
     # ── aSOPR — append daily to asopr_history.json ───────────────────────────
     try:
         asopr_raw = m.get('asopr', {})
