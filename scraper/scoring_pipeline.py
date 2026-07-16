@@ -185,6 +185,35 @@ def run_scoring_pipeline(p, build_metric_history_fn=None):
             write_json('data/data_exp.json', p)
         except Exception:
             pass
+
+        # ── Append today's entry to scores.json so TiZ advances each day ────
+        try:
+            import json as _json
+            _scores_path = 'data/history/scores.json'
+            _today_str   = today.isoformat()
+            _new_entry   = {
+                'date':        _today_str,
+                'final_score': v3_sig['meta_score'],
+                'phase':       scores['phase'],
+                'w_bot':       scores['w_bot'],
+                'btc_price':   p.get('btc_price'),
+            }
+            _hist: list = []
+            if os.path.exists(_scores_path):
+                try:
+                    with open(_scores_path, encoding='utf-8') as _f:
+                        _hist = _json.load(_f)
+                except Exception:
+                    pass
+            # Replace or append today's entry (deduplicate by date)
+            _hist = [e for e in _hist if e.get('date') != _today_str]
+            _hist.append(_new_entry)
+            _hist.sort(key=lambda e: e.get('date', ''))
+            write_json(_scores_path, _hist)
+            print(f"scores.json: appended {_today_str} ({len(_hist)} total entries)")
+        except Exception as _e:
+            print(f'scores.json update failed: {_e}')
+
         print(
             f"V3 Clean: final={p['final_score']}  pre_orch={scores['final_score']}"
             f"  phase={scores['phase']}  w_bot={scores['w_bot']}"
