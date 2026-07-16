@@ -106,6 +106,12 @@ def export_sparklines():
 
 def main():
     os.chdir(ROOT)
+    # Backfill BTC price into scores.json before exporting
+    try:
+        from tools.backfill_prices import main as backfill_prices
+        backfill_prices()
+    except Exception as e:
+        print(f'export_web: price backfill failed — {e}')
     export_main_data()
     export_score_history()
     export_history_files()
