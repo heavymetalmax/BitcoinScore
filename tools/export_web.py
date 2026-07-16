@@ -108,8 +108,8 @@ def main():
     os.chdir(ROOT)
     # Backfill BTC price into scores.json before exporting
     try:
-        from tools.backfill_prices import main as backfill_prices
-        backfill_prices()
+        import subprocess
+        subprocess.run(['python3', 'tools/backfill_prices.py'], check=True)
     except Exception as e:
         print(f'export_web: price backfill failed — {e}')
     export_main_data()
