@@ -1424,60 +1424,60 @@
         </tr>
       </thead>
       <tbody>
-        <tr class="milestone-buy">
+        <tr class="milestone-buy" data-milestone-date="2018-12-15">
           <td><strong>2018-12-15</strong></td>
           <td><span class="en">Bear Market Bottom</span><span class="ua">Дно ведмежого ринку</span></td>
           <td>$3,200</td>
-          <td><span class="zone-0">25</span></td>
+          <td><span class="milestone-score zone-0">9</span></td>
           <td><strong><span class="en">BUY</span><span class="ua">КУПІВЛЯ</span></strong></td>
         </tr>
-        <tr class="milestone-sell">
+        <tr class="milestone-sell" data-milestone-date="2019-06-26">
           <td><strong>2019-06-26</strong></td>
           <td><span class="en">Mid-Cycle Top</span><span class="ua">Вершина середини циклу</span></td>
           <td>$13,880</td>
-          <td><span class="zone-75">80</span></td>
+          <td><span class="milestone-score zone-50">62</span></td>
           <td><strong><span class="en">SELL</span><span class="ua">ПРОДАЖ</span></strong></td>
         </tr>
-        <tr class="milestone-buy">
+        <tr class="milestone-buy" data-milestone-date="2020-03-13">
           <td><strong>2020-03-13</strong></td>
           <td><span class="en">COVID Liquidity Crash</span><span class="ua">COVID-криза ліквідності</span></td>
           <td>$3,800</td>
-          <td><span class="zone-0">26</span></td>
+          <td><span class="milestone-score zone-0">21</span></td>
           <td><strong><span class="en">BUY</span><span class="ua">КУПІВЛЯ</span></strong></td>
         </tr>
-        <tr class="milestone-sell">
+        <tr class="milestone-sell" data-milestone-date="2021-04-14">
           <td><strong>2021-04-14</strong></td>
           <td><span class="en">Spring ATH</span><span class="ua">Весняний максимум</span></td>
           <td>$63,500</td>
-          <td><span class="zone-100">88</span></td>
+          <td><span class="milestone-score zone-100">88</span></td>
           <td><span class="en">DISTRIBUTION</span><span class="ua">ДИСТРИБУЦІЯ</span></td>
         </tr>
-        <tr class="milestone-sell">
+        <tr class="milestone-sell" data-milestone-date="2021-11-10">
           <td><strong>2021-11-10</strong></td>
           <td><span class="en">Double Top ATH</span><span class="ua">Подвійна вершина ATH</span></td>
           <td>$69,000</td>
-          <td><span class="zone-75">80</span></td>
+          <td><span class="milestone-score zone-75">76</span></td>
           <td><strong><span class="en">SELL</span><span class="ua">ПРОДАЖ</span></strong></td>
         </tr>
-        <tr class="milestone-buy">
+        <tr class="milestone-buy" data-milestone-date="2022-06-18">
           <td><strong>2022-06-18</strong></td>
           <td><span class="en">Three Arrows Capitulation</span><span class="ua">Капітуляція Three Arrows</span></td>
           <td>$17,600</td>
-          <td><span class="zone-0">24</span></td>
+          <td><span class="milestone-score zone-0">17</span></td>
           <td><strong><span class="en">BUY</span><span class="ua">КУПІВЛЯ</span></strong></td>
         </tr>
-        <tr class="milestone-buy">
+        <tr class="milestone-buy" data-milestone-date="2022-11-21">
           <td><strong>2022-11-21</strong></td>
           <td><span class="en">FTX Exchange Collapse</span><span class="ua">Крах біржі FTX</span></td>
           <td>$15,500</td>
-          <td><span class="zone-0">16</span></td>
+          <td><span class="milestone-score zone-0">11</span></td>
           <td><strong><span class="en">BUY</span><span class="ua">КУПІВЛЯ</span></strong></td>
         </tr>
-        <tr class="milestone-sell">
+        <tr class="milestone-sell" data-milestone-date="2024-03-14">
           <td><strong>2024-03-14</strong></td>
           <td><span class="en">Halving Anticipation ATH</span><span class="ua">Максимум очікування халвінгу</span></td>
           <td>$73,500</td>
-          <td><span class="zone-75">82</span></td>
+          <td><span class="milestone-score zone-75">79</span></td>
           <td><strong><span class="en">SELL</span><span class="ua">ПРОДАЖ</span></strong></td>
         </tr>
         <tr class="milestone-sell">
@@ -1687,6 +1687,34 @@
       return `rgba(${r}, ${g}, ${b}, ${alpha})`;
     }
 
+    async function loadMilestoneScores() {
+      try {
+        const res = await fetch('score_history.json');
+        if (!res.ok) return;
+        const history = await res.json();
+        const byDate = {};
+        for (const e of history) {
+          if (e.date && e.score != null) byDate[e.date] = e.score;
+        }
+        document.querySelectorAll('[data-milestone-date]').forEach(row => {
+          const date = row.getAttribute('data-milestone-date');
+          const score = byDate[date];
+          if (score == null) return;
+          const span = row.querySelector('.milestone-score');
+          if (!span) return;
+          span.textContent = score;
+          const zoneClass = score < 25 ? 'zone-0'
+            : score < 50 ? 'zone-25'
+            : score < 75 ? 'zone-50'
+            : score < 90 ? 'zone-75'
+            : 'zone-100';
+          span.className = 'milestone-score ' + zoneClass;
+        });
+      } catch (e) {
+        console.error('Failed to load milestone scores:', e);
+      }
+    }
+
     async function loadIndexColor() {
       try {
         const res = await fetch('data.json');
@@ -1755,6 +1783,7 @@
     updateThemeClass();
 
     loadIndexColor();
+    loadMilestoneScores();
 
     // Dynamic back-to-dashboard routing based on active style
     const savedStyle = localStorage.getItem('bbr-style');
