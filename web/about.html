@@ -1427,56 +1427,56 @@
         <tr class="milestone-buy" data-milestone-date="2018-12-15">
           <td><strong>2018-12-15</strong></td>
           <td><span class="en">Bear Market Bottom</span><span class="ua">Дно ведмежого ринку</span></td>
-          <td>$3,200</td>
+          <td class="milestone-price">$3,200</td>
           <td><span class="milestone-score zone-0">9</span></td>
           <td><strong><span class="en">BUY</span><span class="ua">КУПІВЛЯ</span></strong></td>
         </tr>
         <tr class="milestone-sell" data-milestone-date="2019-06-26">
           <td><strong>2019-06-26</strong></td>
           <td><span class="en">Mid-Cycle Top</span><span class="ua">Вершина середини циклу</span></td>
-          <td>$13,880</td>
+          <td class="milestone-price">$13,880</td>
           <td><span class="milestone-score zone-50">62</span></td>
           <td><strong><span class="en">SELL</span><span class="ua">ПРОДАЖ</span></strong></td>
         </tr>
         <tr class="milestone-buy" data-milestone-date="2020-03-13">
           <td><strong>2020-03-13</strong></td>
           <td><span class="en">COVID Liquidity Crash</span><span class="ua">COVID-криза ліквідності</span></td>
-          <td>$3,800</td>
+          <td class="milestone-price">$3,800</td>
           <td><span class="milestone-score zone-0">21</span></td>
           <td><strong><span class="en">BUY</span><span class="ua">КУПІВЛЯ</span></strong></td>
         </tr>
         <tr class="milestone-sell" data-milestone-date="2021-04-14">
           <td><strong>2021-04-14</strong></td>
           <td><span class="en">Spring ATH</span><span class="ua">Весняний максимум</span></td>
-          <td>$63,500</td>
+          <td class="milestone-price">$63,500</td>
           <td><span class="milestone-score zone-100">88</span></td>
           <td><span class="en">DISTRIBUTION</span><span class="ua">ДИСТРИБУЦІЯ</span></td>
         </tr>
         <tr class="milestone-sell" data-milestone-date="2021-11-10">
           <td><strong>2021-11-10</strong></td>
           <td><span class="en">Double Top ATH</span><span class="ua">Подвійна вершина ATH</span></td>
-          <td>$69,000</td>
+          <td class="milestone-price">$69,000</td>
           <td><span class="milestone-score zone-75">76</span></td>
           <td><strong><span class="en">SELL</span><span class="ua">ПРОДАЖ</span></strong></td>
         </tr>
         <tr class="milestone-buy" data-milestone-date="2022-06-18">
           <td><strong>2022-06-18</strong></td>
           <td><span class="en">Three Arrows Capitulation</span><span class="ua">Капітуляція Three Arrows</span></td>
-          <td>$17,600</td>
+          <td class="milestone-price">$17,600</td>
           <td><span class="milestone-score zone-0">17</span></td>
           <td><strong><span class="en">BUY</span><span class="ua">КУПІВЛЯ</span></strong></td>
         </tr>
         <tr class="milestone-buy" data-milestone-date="2022-11-21">
           <td><strong>2022-11-21</strong></td>
           <td><span class="en">FTX Exchange Collapse</span><span class="ua">Крах біржі FTX</span></td>
-          <td>$15,500</td>
+          <td class="milestone-price">$15,500</td>
           <td><span class="milestone-score zone-0">11</span></td>
           <td><strong><span class="en">BUY</span><span class="ua">КУПІВЛЯ</span></strong></td>
         </tr>
         <tr class="milestone-sell" data-milestone-date="2024-03-14">
           <td><strong>2024-03-14</strong></td>
           <td><span class="en">Halving Anticipation ATH</span><span class="ua">Максимум очікування халвінгу</span></td>
-          <td>$73,500</td>
+          <td class="milestone-price">$73,500</td>
           <td><span class="milestone-score zone-75">79</span></td>
           <td><strong><span class="en">SELL</span><span class="ua">ПРОДАЖ</span></strong></td>
         </tr>
@@ -1487,12 +1487,12 @@
           <td><span class="zone-50">68</span></td>
           <td><strong><span class="en">SELL</span><span class="ua">ПРОДАЖ</span></strong></td>
         </tr>
-        <tr class="milestone-live">
-          <td><strong>2026-07-11</strong></td>
+        <tr class="milestone-live" id="milestone-live-row">
+          <td><strong id="milestone-live-date">—</strong></td>
           <td><span class="en">Today's Live Valuation</span><span class="ua">Поточна live-оцінка</span></td>
-          <td>$63,806</td>
-          <td><span class="zone-0">25</span></td>
-          <td><strong><span class="en">BUY / DCA ACCUMULATION</span><span class="ua">КУПІВЛЯ / DCA НАКОПИЧЕННЯ</span></strong></td>
+          <td id="milestone-live-price">—</td>
+          <td><span id="milestone-live-score" class="zone-0">—</span></td>
+          <td><strong id="milestone-live-action"><span class="en">—</span></strong></td>
         </tr>
       </tbody>
     </table>
@@ -1694,21 +1694,34 @@
         const history = await res.json();
         const byDate = {};
         for (const e of history) {
-          if (e.date && e.score != null) byDate[e.date] = e.score;
+          if (e.date) byDate[e.date] = e;
         }
         document.querySelectorAll('[data-milestone-date]').forEach(row => {
           const date = row.getAttribute('data-milestone-date');
-          const score = byDate[date];
-          if (score == null) return;
-          const span = row.querySelector('.milestone-score');
-          if (!span) return;
-          span.textContent = score;
-          const zoneClass = score < 25 ? 'zone-0'
-            : score < 50 ? 'zone-25'
-            : score < 75 ? 'zone-50'
-            : score < 90 ? 'zone-75'
-            : 'zone-100';
-          span.className = 'milestone-score ' + zoneClass;
+          const entry = byDate[date];
+          if (!entry) return;
+
+          const score = entry.score;
+          if (score != null) {
+            const span = row.querySelector('.milestone-score');
+            if (span) {
+              span.textContent = score;
+              const zoneClass = score < 25 ? 'zone-0'
+                : score < 50 ? 'zone-25'
+                : score < 75 ? 'zone-50'
+                : score < 90 ? 'zone-75'
+                : 'zone-100';
+              span.className = 'milestone-score ' + zoneClass;
+            }
+          }
+
+          const price = entry.price;
+          if (price != null) {
+            const priceCell = row.querySelector('.milestone-price');
+            if (priceCell) {
+              priceCell.textContent = '$' + Math.round(price).toLocaleString('en-US');
+            }
+          }
         });
       } catch (e) {
         console.error('Failed to load milestone scores:', e);
@@ -1732,6 +1745,24 @@
             document.documentElement.style.setProperty('--index-color', scoreColor(finalVal));
             document.documentElement.style.setProperty('--index-color-bg', scoreColor(finalVal, 0.12));
             document.documentElement.style.setProperty('--index-color-glow', scoreColor(finalVal, 0.08));
+          }
+
+          // Fill live milestone row from data.json
+          const liveDate = (data.timestamp || '').slice(0, 10);
+          const livePrice = data.btc_price;
+          const livePhase = data.phase || data.regime || '';
+          const el = id => document.getElementById(id);
+          if (el('milestone-live-date') && liveDate) el('milestone-live-date').textContent = liveDate;
+          if (el('milestone-live-price') && livePrice) el('milestone-live-price').textContent = '$' + Math.round(livePrice).toLocaleString('en-US');
+          if (el('milestone-live-score')) {
+            el('milestone-live-score').textContent = finalVal;
+            const zc = finalVal < 25 ? 'zone-0' : finalVal < 50 ? 'zone-25' : finalVal < 75 ? 'zone-50' : finalVal < 90 ? 'zone-75' : 'zone-100';
+            el('milestone-live-score').className = zc;
+          }
+          if (el('milestone-live-action')) {
+            const actionEn = finalVal < 30 ? 'BUY / DCA' : finalVal < 50 ? 'HOLD / WATCH' : finalVal < 75 ? 'CAUTION' : 'SELL / REDUCE';
+            const actionUa = finalVal < 30 ? 'КУПІВЛЯ / DCA' : finalVal < 50 ? 'ТРИМАТИ' : finalVal < 75 ? 'ОБЕРЕЖНО' : 'ПРОДАЖ';
+            el('milestone-live-action').innerHTML = '<span class="en">' + actionEn + '</span><span class="ua">' + actionUa + '</span>';
           }
         }
       } catch (e) {
