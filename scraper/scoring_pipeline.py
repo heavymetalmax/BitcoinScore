@@ -181,8 +181,14 @@ def run_scoring_pipeline(p, build_metric_history_fn=None):
             'w_top':      scores['w_top'],
         }
         write_json('data/data.json', p)
+        # Mirror to web/ so the site always reflects the latest scraper run
+        try:
+            write_json('web/data.json', p)
+        except Exception:
+            pass
         try:
             write_json('data/data_exp.json', p)
+            write_json('web/data_exp.json', p)
         except Exception:
             pass
 
@@ -211,6 +217,12 @@ def run_scoring_pipeline(p, build_metric_history_fn=None):
             _hist.sort(key=lambda e: e.get('date', ''))
             write_json(_scores_path, _hist)
             print(f"scores.json: appended {_today_str} ({len(_hist)} total entries)")
+            # Mirror to web/ immediately
+            try:
+                import subprocess as _sp
+                _sp.run(['python3', 'tools/sync_web_scores.py'], check=False)
+            except Exception:
+                pass
         except Exception as _e:
             print(f'scores.json update failed: {_e}')
 

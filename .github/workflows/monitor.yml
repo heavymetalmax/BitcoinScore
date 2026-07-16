@@ -1,0 +1,60 @@
+name: Data Freshness Monitor
+
+on:
+  schedule:
+    - cron: '30 9 * * *'   # 09:30 UTC — after scraper should have run
+  workflow_dispatch: {}
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check data freshness
+        id: freshness
+        run: |
+          TS=$(python3 -c "import json; d=json.load(open('data/data.json')); print(d.get('timestamp','')[:10])")
+          TODAY=$(date -u +%Y-%m-%d)
+          SCORE=$(python3 -c "import json; print(json.load(open('data/data.json')).get('final_score','?'))")
+          echo "ts=$TS" >> $GITHUB_OUTPUT
+          echo "today=$TODAY" >> $GITHUB_OUTPUT
+          echo "score=$SCORE" >> $GITHUB_OUTPUT
+          if [ "$TS" != "$TODAY" ]; then
+            echo "stale=true" >> $GITHUB_OUTPUT
+            echo "DATA IS STALE: last=$TS today=$TODAY"
+          else
+            echo "stale=false" >> $GITHUB_OUTPUT
+            echo "Data is fresh: $TS score=$SCORE"
+          fi
+
+      - name: Open issue if stale
+        if: steps.freshness.outputs.stale == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          EXISTING=$(gh issue list --label "data-stale" --state open --json number --jq length)
+          if [ "$EXISTING" = "0" ]; then
+            gh issue create \
+              --title "🚨 Data stale: last update was ${{ steps.freshness.outputs.ts }}" \
+              --body "Scraper did not run today (${{ steps.freshness.outputs.today }}).
+          Last successful data timestamp: \`${{ steps.freshness.outputs.ts }}\`
+          Last score: ${{ steps.freshness.outputs.score }}
+
+          Check the [Update BTC Data workflow](https://github.com/${{ github.repository }}/actions/workflows/update-data.yml) for errors." \
+              --label "data-stale"
+          else
+            echo "Stale issue already open — skipping"
+          fi
+
+      - name: Close stale issue if data is fresh
+        if: steps.freshness.outputs.stale == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh issue list --label "data-stale" --state open --json number --jq '.[].number' | \
+            xargs -I{} gh issue close {} --comment "Data is now fresh (${{ steps.freshness.outputs.ts }}, score=${{ steps.freshness.outputs.score }})" || true
