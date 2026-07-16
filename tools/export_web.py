@@ -106,12 +106,12 @@ def export_sparklines():
 
 def main():
     os.chdir(ROOT)
-    # Backfill BTC price into scores.json before exporting
+    # Unify scores.json: V3 live scores + gap-fill from backfill + BTC price
     try:
         import subprocess
-        subprocess.run(['python3', 'tools/backfill_prices.py'], check=True)
+        subprocess.run(['python3', 'tools/unify_scores.py'], check=True)
     except Exception as e:
-        print(f'export_web: price backfill failed — {e}')
+        print(f'export_web: unify_scores failed — {e}')
     export_main_data()
     export_score_history()
     export_history_files()
