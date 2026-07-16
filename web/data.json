@@ -1,7 +1,7 @@
 {
-  "timestamp": "2026-07-16T09:20:58Z",
-  "btc_price": 64129.99,
-  "btc_dominance": 58.3,
+  "timestamp": "2026-07-16T09:39:01Z",
+  "btc_price": 64094.13,
+  "btc_dominance": 58.29,
   "fear_greed": 31.1,
   "fear_greed_label": "CMC",
   "nupl": 18.3121,
@@ -28,37 +28,37 @@
     "nupl": {
       "value": 18.3121,
       "source": "BMP",
-      "updated": "2026-07-16T09:20:49Z"
+      "updated": "2026-07-16T09:38:52Z"
     },
     "mvrv": {
       "value": 0.3911,
       "source": "BMP",
-      "updated": "2026-07-16T09:20:49Z"
+      "updated": "2026-07-16T09:38:52Z"
     },
     "m2": {
       "value": 5.59,
       "source": "MacroMicro",
-      "updated": "2026-07-16T09:20:49Z"
+      "updated": "2026-07-16T09:38:52Z"
     },
     "yield_curve": {
       "value": 0.42,
       "source": "BMP",
-      "updated": "2026-07-16T09:20:49Z"
+      "updated": "2026-07-16T09:38:52Z"
     },
     "cvdd_ratio": {
       "value": 1.3375,
       "source": "BMP",
-      "updated": "2026-07-16T09:20:49Z"
+      "updated": "2026-07-16T09:38:52Z"
     },
     "rhodl_ratio": {
       "value": 1037.9719,
       "source": "BMP",
-      "updated": "2026-07-16T09:20:49Z"
+      "updated": "2026-07-16T09:38:52Z"
     },
     "asopr": {
       "value": 1.0016,
       "source": "BMP",
-      "updated": "2026-07-16T09:20:49Z"
+      "updated": "2026-07-16T09:38:52Z"
     },
     "etf_flows": {
       "value": {
@@ -68,12 +68,12 @@
         "date": "2026-07-16"
       },
       "source": "Farside",
-      "updated": "2026-07-16T09:20:49Z"
+      "updated": "2026-07-16T09:38:52Z"
     },
     "dxy": {
       "value": 120.5046,
       "source": "FRED",
-      "updated": "2026-07-16T09:20:49Z"
+      "updated": "2026-07-16T09:38:52Z"
     },
     "rainbow_band": {
       "value": {
@@ -84,14 +84,14 @@
         "date": "2026-07-15"
       },
       "source": "BMP",
-      "updated": "2026-07-16T09:20:58Z"
+      "updated": "2026-07-16T09:39:01Z"
     },
     "fear_greed": {
       "latest": 35.0,
       "avg_7d": 31.1,
       "label": "CMC",
       "source": "CMC",
-      "updated": "2026-07-16T09:20:58Z"
+      "updated": "2026-07-16T09:39:01Z"
     },
     "cipherb": {
       "value": {
@@ -108,7 +108,7 @@
         "daily_fast_bullish_div": false
       },
       "source": "Local",
-      "updated": "2026-07-16T09:20:59Z"
+      "updated": "2026-07-16T09:39:02Z"
     },
     "smc": {
       "value": {
@@ -122,7 +122,7 @@
         "size": 10
       },
       "source": "Local",
-      "updated": "2026-07-16T09:20:59Z"
+      "updated": "2026-07-16T09:39:02Z"
     },
     "mayer_multiple": {
       "value": {
@@ -132,7 +132,7 @@
         "score": 24
       },
       "source": "Kraken",
-      "updated": "2026-07-16T09:20:59Z"
+      "updated": "2026-07-16T09:39:02Z"
     },
     "funding_rate": {
       "value": {
@@ -143,7 +143,7 @@
         "source": "Bybit+Binance"
       },
       "source": "Bybit+Binance",
-      "updated": "2026-07-16T09:21:00Z"
+      "updated": "2026-07-16T09:39:03Z"
     },
     "pi_cycle": {
       "value": {
@@ -154,22 +154,22 @@
         "cross": false
       },
       "source": "Kraken",
-      "updated": "2026-07-16T09:21:00Z"
+      "updated": "2026-07-16T09:39:03Z"
     },
     "puell_multiple": {
       "value": 0.7091,
       "source": "BMP",
-      "updated": "2026-07-16T09:21:09Z"
+      "updated": "2026-07-16T09:39:12Z"
     },
     "lth_supply_pct": {
       "value": 16751524.011,
       "source": "BMP",
-      "updated": "2026-07-16T09:21:18Z"
+      "updated": "2026-07-16T09:39:21Z"
     },
     "m2_mom": {
       "value": 5.59,
       "source": "MacroMicro",
-      "updated": "2026-07-16T09:21:18Z"
+      "updated": "2026-07-16T09:39:21Z"
     }
   },
   "m2_mom": 5.59,
@@ -215,17 +215,17 @@
   },
   "zone_forecast": {
     "buy": {
-      "price": 48639,
+      "price": 48611,
       "pct": -24.2
     },
     "sell": {
-      "price": 117330,
+      "price": 117264,
       "pct": 83.0
     },
     "buy_threshold": 20,
     "sell_threshold": 80,
-    "realized_price": 52386,
-    "ref_price": 64130
+    "realized_price": 52357,
+    "ref_price": 64094
   },
   "v2_score": 42,
   "scoring_regime": "bottom",
@@ -816,7 +816,7 @@
     {
       "date": "2026-07-16",
       "score": 30,
-      "price": 64129.99
+      "price": 64094.13
     }
   ]
 }
