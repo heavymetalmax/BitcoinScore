@@ -95,11 +95,9 @@ jobs:
           git push
 
       - name: Upload Pages artifact
-        if: steps.freshness.outputs.fresh == 'false'
         uses: actions/upload-pages-artifact@v3
         with:
           path: web
 
       - name: Deploy to GitHub Pages
-        if: steps.freshness.outputs.fresh == 'false'
         uses: actions/deploy-pages@v4
