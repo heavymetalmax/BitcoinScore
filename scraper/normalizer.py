@@ -10,7 +10,7 @@ from scraper.scoring import (
     map_nupl, map_mvrv, map_rhodl, map_cvdd, map_asopr,
     map_fear_greed, map_m2, map_yield_curve, map_mayer_multiple,
     map_etf_flow, map_funding, map_dxy, map_lth_supply, _load_metric_history,
-    ADAPTIVE_METRICS, ADAPTIVE_BLEND, ADAPTIVE_WIN_YEARS, _PCTILE_DIVISOR
+    ADAPTIVE_METRICS, ADAPTIVE_BLEND, ADAPTIVE_WIN_YEARS,
 )
 from scraper.scoring_v2 import map_puell
 
@@ -29,34 +29,42 @@ def get_causal_history(metric, target_date=None):
 
 
 def compute_causal_percentile(metric, value, target_date=None):
-    """Compute 0-100 percentile rank of value using only data up to target_date."""
+    """Compute 0-100 percentile rank of value using only data up to target_date.
+
+    Uses a ratchet: max(rolling-4yr, all-time-causal) so the baseline never
+    snaps down purely due to a mid-cycle correction expanding the window.
+    """
     if value is None:
         return None
-        
+
     while isinstance(value, dict):
         value = value.get('value')
     if not isinstance(value, (int, float)):
         return None
-        
+
     pts = get_causal_history(metric, target_date)
     if len(pts) < 24:
         return None
-        
-    # Calculate start of window (4 years back from target date or last point in causal history)
+
+    # 4-year rolling window
     last_date_str = pts[-1][0][:10]
     last_date = datetime.date.fromisoformat(last_date_str)
-    
     lo = (last_date - datetime.timedelta(days=ADAPTIVE_WIN_DAYS)).isoformat()
-    win = [v for (d, v) in pts if d[:10] >= lo]
-    
-    if len(win) < 12:
+    win_rolling = [v for (d, v) in pts if d[:10] >= lo]
+
+    if len(win_rolling) < 12:
         return None
-        
-    divisor = _PCTILE_DIVISOR.get(metric, 1)
-    cmp_val = value / divisor
-    
-    le = sum(1 for v in win if v <= cmp_val)
-    return round(le / len(win) * 100)
+
+    cmp_val = float(value)
+
+    pct_rolling = round(sum(1 for v in win_rolling if v <= cmp_val) / len(win_rolling) * 100)
+
+    # All-time causal window (never fewer data points than rolling window)
+    win_alltime = [v for (_, v) in pts]
+    pct_alltime = round(sum(1 for v in win_alltime if v <= cmp_val) / len(win_alltime) * 100)
+
+    # Ratchet: take the higher of the two so a correction cannot drop the baseline
+    return max(pct_rolling, pct_alltime)
 
 
 def normalize_metric(metric, value, target_date=None):

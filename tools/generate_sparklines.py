@@ -10,7 +10,6 @@ from datetime import datetime, timedelta
 
 def map_nupl(v):
     if v is None: return None
-    v = v * 100  # fraction → percentage
     v = max(-50.0, min(100.0, v))
     if v <= 40.0:
         score = 8 + ((v - (-20.0)) / (40.0 - (-20.0))) * (50 - 8)
@@ -31,7 +30,6 @@ def map_mvrv(v):
 
 def map_asopr(v):
     if v is None: return None
-    v = v + 1.0  # unified_history stores (aSOPR - 1)
     if v <= 1.00:
         s = ((v - 0.88) / 0.12) * 50
     else:
@@ -176,10 +174,10 @@ def load_yc_sparkline(cutoff):
 def main():
     cutoff = (datetime.today() - timedelta(days=365)).strftime('%Y-%m-%d')
 
-    with open('data/history/unified_history.json') as f:
-        series = json.load(f)['series']
+    with open('data/history/scores.json') as f:
+        series = json.load(f)
 
-    recent = [r for r in series if r['date'] >= cutoff]
+    recent = [r for r in series if r.get('date', '') >= cutoff]
 
     etf_by_date = load_etf_sparkline(cutoff)
     yc_by_date  = load_yc_sparkline(cutoff)

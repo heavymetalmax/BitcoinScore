@@ -29,58 +29,50 @@ import datetime
 # inject noise. Evidence: tools/adaptive_norm_probe.py (NUPL peaks 0.87→0.64,
 # MVRV Z 11→3.4; fixed under-reads modern tops and over-reads modern bottoms).
 ADAPTIVE_METRICS   = {'nupl', 'mvrv', 'mayer', 'cvdd_ratio', 'puell', 'etf_flows', 'dxy'}
-# daily_vector raw key differs from the adaptive metric name for some metrics
-_DV_KEY            = {'mayer': 'mayer_multiple', 'cvdd_ratio': 'cvdd_ratio'}
-# field name in unified_history.json when it differs from the metric key
+# scores.json field name when it differs from the metric key
 _UNIFIED_FIELD     = {'mayer': 'mayer_multiple', 'cvdd_ratio': 'cvdd_ratio'}
-# seed history files that use dict rows: maps metric → value key inside the dict
-_SEED_VAL          = {'cvdd_ratio': 'ratio'}
-# unified_history/seed files store NUPL as fraction (0–1); data.json uses % (0–100).
-# Divide incoming value by this factor before percentile comparison so units match.
-# etf_flows history migrated 2026-07-08: etf_flow_7d field added (pre-switch entries
-# use 14d/2 approximation). Live value is 7d sum; history now stores etf_flow_7d → no divisor needed.
-_PCTILE_DIVISOR    = {'nupl': 100}
+# daily_vector raw key differs from the metric name for some metrics
+_DV_KEY            = {'mayer': 'mayer_multiple', 'cvdd_ratio': 'cvdd_ratio'}
 ADAPTIVE_BLEND     = 0.7                 # weight on the adaptive (percentile) part; sweep-validated 2026-07-08
 ADAPTIVE_WIN_YEARS = 4                   # trailing window for the percentile
 ADAPTIVE_DEBUG     = {}                  # per-run breakdown for transparency
 _HIST_CACHE        = {}
-_UNIFIED_CACHE     = None               # lazy-loaded unified_history series
+_SCORES_CACHE      = None               # lazy-loaded scores.json (the ONE database)
 
-def _load_unified_cache():
-    """Load unified_history.json into a list of dicts, once per process."""
-    global _UNIFIED_CACHE
-    if _UNIFIED_CACHE is not None:
-        return _UNIFIED_CACHE
-    path = 'data/history/unified_history.json'
+def _load_scores_cache():
+    """Load scores.json (the ONE database) into a list of dicts, once per process."""
+    global _SCORES_CACHE
+    if _SCORES_CACHE is not None:
+        return _SCORES_CACHE
+    path = 'data/history/scores.json'
     if os.path.exists(path):
-        data = json.load(open(path, encoding='utf-8'))
-        _UNIFIED_CACHE = data.get('series', [])
+        _SCORES_CACHE = json.load(open(path, encoding='utf-8'))
     else:
-        _UNIFIED_CACHE = []
-    return _UNIFIED_CACHE
+        _SCORES_CACHE = []
+    return _SCORES_CACHE
 
 def _load_metric_history(metric):
-    """Return [(date, value)] from unified_history + recent daily vectors.
+    """Return [(date, value)] from scores.json (the ONE database).
 
-    Primary source: data/history/unified_history.json (built by
-    tools/build_unified_history.py).  Falls back to individual seed files
-    when unified_history.json is absent or missing the metric.
-    Daily vector is always appended to capture the most recent runs.
+    scores.json stores all raw metrics alongside computed scores.
+    All units are normalised:  nupl in %, asopr as actual value (not delta).
+    etf_flows still lives in data/history/etf_flows.json (separate time series).
+    daily_vector appended as a tail for dates not yet flushed to scores.json.
     """
     if metric in _HIST_CACHE:
         return _HIST_CACHE[metric]
 
+    field = _UNIFIED_FIELD.get(metric, metric)
     pts = []
-    unified_field = _UNIFIED_FIELD.get(metric, metric)
 
-    # ── Primary: unified_history.json ───────────────────────────────────────
-    for row in _load_unified_cache():
-        v = row.get(unified_field)
+    # ── Primary: scores.json ────────────────────────────────────────────────
+    for row in _load_scores_cache():
+        v = row.get(field)
         d = row.get('date', '')[:10]
         if d and v is not None:
             pts.append((d, float(v)))
 
-    # ── Special: etf_flows uses a flat-list history file (not series dict) ─────
+    # ── Special: etf_flows (separate flat-list file) ─────────────────────────
     if not pts and metric == 'etf_flows':
         etf_path = 'data/history/etf_flows.json'
         try:
@@ -89,43 +81,21 @@ def _load_metric_history(metric):
                 if isinstance(raw_etf, list):
                     for r in raw_etf:
                         d = (r.get('timestamp') or r.get('date', ''))[:10]
-                        v = r.get('etf_flow_7d')
-                        if v is None:
-                            v = r.get('etf_flow_14d')
+                        v = r.get('etf_flow_7d') or r.get('etf_flow_14d')
                         if d and v is not None:
                             pts.append((d, float(v)))
         except Exception:
             pass
 
-    # ── Fallback: individual seed file (when unified is missing/empty) ───────
-    if not pts:
-        seed = f'data/history/{metric}_history.json'
-        val_key = _SEED_VAL.get(metric)
-        try:
-            if os.path.exists(seed):
-                for r in json.load(open(seed, encoding='utf-8')).get('series', []):
-                    if isinstance(r, list):
-                        date, val = str(r[0])[:10], r[1]
-                    elif isinstance(r, dict):
-                        date = r.get('date', '')[:10]
-                        val = r.get(val_key) if val_key else r.get('value')
-                    else:
-                        continue
-                    if date and val is not None:
-                        pts.append((date, float(val)))
-        except Exception:
-            pass
-
-    # ── Tail: daily vector (most recent runs, not yet in unified) ────────────
+    # ── Tail: daily_vector for very recent dates not yet in scores.json ───────
     try:
         dv = 'data/history/daily_vector.json'
         if os.path.exists(dv):
             dv_key = _DV_KEY.get(metric, metric)
-            dv_divisor = _PCTILE_DIVISOR.get(metric, 1)
             for row in json.load(open(dv, encoding='utf-8')):
                 v = (row.get('raw') or {}).get(dv_key)
                 if v is not None:
-                    pts.append((row['date'], float(v) / dv_divisor))
+                    pts.append((row['date'], float(v)))
     except Exception:
         pass
 
@@ -150,8 +120,7 @@ def _percentile_score(metric, value):
     win = [v for (d, v) in pts if d[:10] >= lo]
     if len(win) < 12:
         return None
-    # Normalize value to match the units stored in history (e.g. NUPL: % → fraction)
-    cmp = value / _PCTILE_DIVISOR.get(metric, 1)
+    cmp = float(value)
     le = sum(1 for v in win if v <= cmp)   # higher value = higher risk
     return round(le / len(win) * 100)
 
