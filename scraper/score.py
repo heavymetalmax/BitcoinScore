@@ -88,8 +88,13 @@ def _map_pi_gap(v) -> int | None:
     gap = _extract_pi_gap(v)
     if gap is None:
         return None
-    gap = max(0.0, min(70.0, float(gap)))
-    return round(((70.0 - gap) / 70.0) * 100)
+    gap = float(gap)
+    if gap <= 0.0:
+        return 100  # pi cross confirmed
+    if gap > 20.0:
+        return None  # indicator not firing — exclude from flat_avg entirely
+    # gap 0..20%: linear 100..50
+    return round(50 + (1.0 - gap / 20.0) * 50)
 
 
 def _extract_cipherb(cb) -> tuple[int | None, int | None, int | None]:
