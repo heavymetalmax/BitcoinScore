@@ -13,8 +13,10 @@ import math
 # The authoritative values come from the trained model pickle (metric_relevance key).
 RELEVANCE_PROFILES = {
     # On-Chain Bottom-focused
-    'cvdd_ratio':          {'BOTTOM': 1.0, 'NEUTRAL': 0.4, 'TOP': 0.1},
-    'puell':               {'BOTTOM': 1.0, 'NEUTRAL': 0.5, 'TOP': 0.2},
+    # cvdd_ratio: disc=+41.1 normalized — good top discriminator, was severely underweighted.
+    # disc(top-bottom) on confirmed extremes: cvdd +41.1 vs rhodl +16.2.
+    'cvdd_ratio':          {'BOTTOM': 0.9, 'NEUTRAL': 0.5, 'TOP': 0.45},
+    'puell':               {'BOTTOM': 0.9, 'NEUTRAL': 0.5, 'TOP': 0.30},
     # aSOPR: Fisher=0.46, IC(365d)=-0.059. Daily oscillator around 1.0 — near-zero
     # cycle discrimination (bottom_avg=1.009 vs top_avg=1.014, Δ=0.005 raw units).
     # Excluded from bottom_confluence.py for the same reason. Weight=0 removes it
@@ -22,14 +24,19 @@ RELEVANCE_PROFILES = {
     # (asopr < 1.0 = selling at a loss = short-term buy confirmation signal).
     'asopr':               {'BOTTOM': 0.0, 'NEUTRAL': 0.0, 'TOP': 0.0},
     # General On-Chain (high relevance at both extremes)
-    'nupl':                {'BOTTOM': 1.0, 'NEUTRAL': 0.7, 'TOP': 1.0},
-    'mvrv_z_score':        {'BOTTOM': 1.0, 'NEUTRAL': 0.7, 'TOP': 1.0},
-    # rhodl: missed 2019 peak (scored 38 when expected ~80+); raised TOP weight.
-    'rhodl_ratio':         {'BOTTOM': 0.6, 'NEUTRAL': 0.6, 'TOP': 0.7},
+    'nupl':                {'BOTTOM': 0.9, 'NEUTRAL': 0.7, 'TOP': 1.0},
+    'mvrv_z_score':        {'BOTTOM': 0.9, 'NEUTRAL': 0.7, 'TOP': 1.0},
+    # rhodl: disc=+16.2 — weakest top discriminator. Avg_top=45, avg_bot=29.
+    # Works well only for macro top (Dec 2017); flat at sub-tops and 2025 ATH.
+    # Reducing TOP weight prevents it from pulling score down at confirmed tops.
+    'rhodl_ratio':         {'BOTTOM': 0.7, 'NEUTRAL': 0.4, 'TOP': 0.20},
     # Tech/Macro Top-focused
-    'cipherb':             {'BOTTOM': 0.4, 'NEUTRAL': 0.7, 'TOP': 1.0},
-    'mayer_multiple':      {'BOTTOM': 0.4, 'NEUTRAL': 0.6, 'TOP': 1.0},
-    'fear_greed':          {'BOTTOM': 0.9, 'NEUTRAL': 0.5, 'TOP': 0.9},
+    # cipherb: disc=+80.9, avg_bottom=2.5 — best discriminator at both extremes.
+    # High BOT weight ensures low cipherb reading strongly signals safety at bottoms.
+    'cipherb':             {'BOTTOM': 0.9, 'NEUTRAL': 0.7, 'TOP': 1.0},
+    # mayer: disc=+62.8, avg_bottom=7.6 — excellent bottom signal when low.
+    'mayer_multiple':      {'BOTTOM': 0.85, 'NEUTRAL': 0.6, 'TOP': 1.0},
+    'fear_greed':          {'BOTTOM': 0.85, 'NEUTRAL': 0.5, 'TOP': 0.9},
     # Tactical / Flows
     'etf_flows':           {'BOTTOM': 0.3, 'NEUTRAL': 0.8, 'TOP': 0.4},
     # Macro (contrarian, intentionally noisy) — downweighted at cycle extremes.
@@ -38,8 +45,9 @@ RELEVANCE_PROFILES = {
     'm2_yoy':              {'BOTTOM': 0.3, 'NEUTRAL': 0.6, 'TOP': 0.2},
     # Pi Cycle Gap
     'pi_gap':              {'BOTTOM': 0.1, 'NEUTRAL': 0.5, 'TOP': 1.0},
-    # Funding Rate: longs overheated = high risk; more relevant at TOP than BOTTOM
-    'funding_rate':        {'BOTTOM': 0.3, 'NEUTRAL': 0.5, 'TOP': 0.8},
+    # Funding Rate: disc=+32.8 — moderate. Was overweighted at TOP (0.80→0.35).
+    # Reads 35-60 at confirmed tops, pulling score down when we need it high.
+    'funding_rate':        {'BOTTOM': 0.5, 'NEUTRAL': 0.5, 'TOP': 0.35},
     # LTH Supply: distribution is an early TOP warning; accumulation validates BOTTOM
     'lth_supply':          {'BOTTOM': 0.5, 'NEUTRAL': 0.6, 'TOP': 0.9},
 }

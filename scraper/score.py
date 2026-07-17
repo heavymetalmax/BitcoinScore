@@ -207,6 +207,21 @@ def _phase_weights(normalized: dict, prev_scores: dict | None) -> tuple[float, f
     except Exception:
         pass
 
+    # ── Consensus fallback when HMM unavailable (w_top still 0.0) ────────────
+    # Uses the three best top/bottom discriminating metrics (disc power from
+    # confirmed cycle extremes: cipherb +80.9, nupl +45.8, mvrv +44.6).
+    # Phase score ≥62 → TOP; continuous w_top scaled 0.65→1.0 above threshold.
+    if w_top == 0.0:
+        _cb = normalized.get('cipherb')
+        _nu = normalized.get('nupl')
+        _mv = normalized.get('mvrv_z_score')
+        _vals = [v for v in [_cb, _nu, _mv] if v is not None]
+        if _vals:
+            _ps = sum(_vals) / len(_vals)
+            if _ps >= 62:
+                w_top      = min(1.0, 0.65 + (_ps - 62) / 38.0 * 0.35)
+                top_signal = round(w_top * 100)
+
     # ── Normalise so w_bot + w_top + w_neutral = 1 ───────────────────────────
     total = w_bot + w_top
     if total > 1.0:
