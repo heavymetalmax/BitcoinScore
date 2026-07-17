@@ -222,6 +222,7 @@ def main():
             entry['final_score'] = r['final_score']
             entry['phase']       = r['phase']
             entry['w_bot']       = round(r.get('w_bot', 0), 4)
+            entry['w_top']       = round(r.get('w_top', 0), 4)
             entry['source']      = 'recompute_v3'
             if prices.get(d) and not entry.get('btc_price'):
                 entry['btc_price'] = prices[d]
