@@ -1,0 +1,116 @@
+{
+  "description": "Canonical BTC cycle tops and bottoms from perfect-trader zigzag (MIN_MOVE_PCT=40%)",
+  "source": "data/history/scores.json \u2014 btc_price",
+  "generated": "2026-07-17",
+  "min_move_pct": 40.0,
+  "extremes": [
+    {
+      "date": "2017-08-17",
+      "price": 4285.08,
+      "type": "BOTTOM",
+      "score": 76
+    },
+    {
+      "date": "2017-12-16",
+      "price": 19102.66,
+      "type": "TOP",
+      "score": 91
+    },
+    {
+      "date": "2018-02-05",
+      "price": 6939.99,
+      "type": "BOTTOM",
+      "score": 48
+    },
+    {
+      "date": "2018-03-04",
+      "price": 11515.0,
+      "type": "TOP",
+      "score": 67
+    },
+    {
+      "date": "2018-04-06",
+      "price": 6601.39,
+      "type": "BOTTOM",
+      "score": 38
+    },
+    {
+      "date": "2018-05-05",
+      "price": 9864.0,
+      "type": "TOP",
+      "score": 62
+    },
+    {
+      "date": "2018-06-28",
+      "price": 5853.98,
+      "type": "BOTTOM",
+      "score": 33
+    },
+    {
+      "date": "2018-07-24",
+      "price": 8397.24,
+      "type": "TOP",
+      "score": 55
+    },
+    {
+      "date": "2018-12-15",
+      "price": 3211.72,
+      "type": "BOTTOM",
+      "score": 8
+    },
+    {
+      "date": "2019-06-26",
+      "price": 13093.8,
+      "type": "TOP",
+      "score": 65
+    },
+    {
+      "date": "2019-12-17",
+      "price": 6623.82,
+      "type": "BOTTOM",
+      "score": 26
+    },
+    {
+      "date": "2020-02-14",
+      "price": 10344.36,
+      "type": "TOP",
+      "score": 57
+    },
+    {
+      "date": "2020-03-12",
+      "price": 4800.0,
+      "type": "BOTTOM",
+      "score": 22
+    },
+    {
+      "date": "2021-04-13",
+      "price": 63575.0,
+      "type": "TOP",
+      "score": 84
+    },
+    {
+      "date": "2021-07-20",
+      "price": 29790.35,
+      "type": "BOTTOM",
+      "score": 39
+    },
+    {
+      "date": "2021-11-08",
+      "price": 67525.83,
+      "type": "TOP",
+      "score": 69
+    },
+    {
+      "date": "2022-11-21",
+      "price": 15781.29,
+      "type": "BOTTOM",
+      "score": 11
+    },
+    {
+      "date": "2025-10-06",
+      "price": 124658.54,
+      "type": "TOP",
+      "score": 83
+    }
+  ]
+}
