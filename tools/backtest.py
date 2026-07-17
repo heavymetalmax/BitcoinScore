@@ -2,7 +2,7 @@
 Bitcoin Buy Risk — historical backtest.
 
 Data sources:
-  unified_history.json   on-chain + macro, 2010+  (no Playwright needed)
+  data/history/scores.json  one database: on-chain + macro + scores, 2010+
   etf_flows.json         spot ETF flows, 2024-01+
   FRED T10Y2Y            yield curve spread, 2000+
 
@@ -17,12 +17,12 @@ sys.path.insert(0, '.')
 from scraper.scoring import (
     score_from_raw,
     OC_WEIGHTS, TECH_WEIGHTS, weighted_score,
+    ADAPTIVE_BLEND, ADAPTIVE_WIN_YEARS,
 )
 from scraper.scoring_v2 import score_processor_v2, _METRIC_LOOKBACK
 
 MAX_STALENESS = 90           # days — beyond this treat metric as absent
-ADAPTIVE_WIN  = 4 * 365      # days for rolling-percentile window (same as scoring.py)
-ADAPTIVE_BLEND = 0.50        # weight on percentile vs fixed map
+ADAPTIVE_WIN  = int(ADAPTIVE_WIN_YEARS * 365)  # rolling-percentile window (synced with scoring.py)
 
 # Metrics that must all be present for a composite score to be meaningful.
 # ETF flows excluded: pre-2024 they don't exist (not the same as "missing").
@@ -53,7 +53,7 @@ MILESTONES = [
 # ── Data loading ─────────────────────────────────────────────────────────────
 
 def _series(uh_rows, key, tx=None):
-    """Build sorted [(date_str, value)] from unified_history rows."""
+    """Build sorted [(date_str, value)] from scores.json rows."""
     out = []
     for r in uh_rows:
         v = r.get(key)
@@ -65,15 +65,14 @@ def _series(uh_rows, key, tx=None):
 
 def load_data():
     print("Loading data files...")
-    uh = json.load(open('data/history/unified_history.json', encoding='utf-8'))
-    rows = uh['series']
+    rows = json.load(open('data/history/scores.json', encoding='utf-8'))
 
     series = {
-        'nupl':           _series(rows, 'nupl',         tx=lambda v: v * 100),
+        'nupl':           _series(rows, 'nupl'),
         'mvrv':           _series(rows, 'mvrv'),
         'rhodl_ratio':    _series(rows, 'rhodl_ratio'),
         'cvdd_ratio':     _series(rows, 'cvdd_ratio'),
-        'asopr':          _series(rows, 'asopr',        tx=lambda v: v + 1.0),
+        'asopr':          _series(rows, 'asopr'),
         'mayer_multiple': _series(rows, 'mayer_multiple'),
         'fear_greed':     _series(rows, 'fear_greed'),
         'm2_yoy':         _series(rows, 'm2_yoy'),
@@ -363,7 +362,7 @@ def v3_at(td, series):
     """Return clean V3 score results dict for a given date.
 
     Uses scraper.score.compute_score — identical code path to live scraper.
-    Wave resonance is computed from unified_history.json (causal, point-in-time).
+    Wave resonance is computed from scores.json (causal, point-in-time).
     """
     from scraper.score import compute_score
     from scraper.orchestrator import orchestrate
