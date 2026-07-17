@@ -15,9 +15,12 @@ RELEVANCE_PROFILES = {
     # On-Chain Bottom-focused
     'cvdd_ratio':          {'BOTTOM': 1.0, 'NEUTRAL': 0.4, 'TOP': 0.1},
     'puell':               {'BOTTOM': 1.0, 'NEUTRAL': 0.5, 'TOP': 0.2},
-    # aSOPR: Fisher separation=0.143 (bottom_mean=58.67 vs top_mean=57.81, Δ=0.86).
-    # Near-zero discrimination — keep in model for data completeness but minimal weight.
-    'asopr':               {'BOTTOM': 0.15, 'NEUTRAL': 0.15, 'TOP': 0.15},
+    # aSOPR: Fisher=0.46, IC(365d)=-0.059. Daily oscillator around 1.0 — near-zero
+    # cycle discrimination (bottom_avg=1.009 vs top_avg=1.014, Δ=0.005 raw units).
+    # Excluded from bottom_confluence.py for the same reason. Weight=0 removes it
+    # from final_score; raw value still stored in scores.json for capitulation alerts
+    # (asopr < 1.0 = selling at a loss = short-term buy confirmation signal).
+    'asopr':               {'BOTTOM': 0.0, 'NEUTRAL': 0.0, 'TOP': 0.0},
     # General On-Chain (high relevance at both extremes)
     'nupl':                {'BOTTOM': 1.0, 'NEUTRAL': 0.7, 'TOP': 1.0},
     'mvrv_z_score':        {'BOTTOM': 1.0, 'NEUTRAL': 0.7, 'TOP': 1.0},
