@@ -394,7 +394,13 @@ def compute_score(
         final = round(neutral_target + (final - neutral_target) * coh_factor)
 
     # ── 6e. Pi Cycle top override ─────────────────────────────────────────────
-    pi_cross = bool(isinstance(pi_raw, dict) and pi_raw.get('cross'))
+    # pi_raw is a dict with 'cross' key during live scoring, but a plain float
+    # (pi_gap_pct) during recompute from scores.json — detect both forms.
+    _pi_gap_val = _extract_pi_gap(pi_raw)
+    pi_cross = (
+        (isinstance(pi_raw, dict) and bool(pi_raw.get('cross')))
+        or (_pi_gap_val is not None and _pi_gap_val <= 0)
+    )
     if pi_cross and final is not None:
         final = max(final, 85)
 
