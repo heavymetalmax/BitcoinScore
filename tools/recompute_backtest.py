@@ -121,7 +121,7 @@ def main():
             raw['nupl'] = float(v)
         v = row.get('mvrv')
         if v is not None:
-            raw['mvrv_z_score'] = float(v)
+            raw['mvrv'] = float(v)
         v = row.get('puell')
         if v is not None:
             raw['puell_multiple'] = float(v)
@@ -149,9 +149,18 @@ def main():
         v = row.get('dxy')
         if v is not None:
             raw['dxy'] = float(v)
+        v = row.get('m2_yoy') or row.get('m2_mom')
+        if v is not None:
+            raw['m2_mom'] = float(v)
+        v = row.get('yield_curve_spread') or row.get('yield_curve')
+        if v is not None:
+            raw['yield_curve'] = float(v)
+        v = row.get('etf_flows')
+        if v is not None:
+            raw['etf_flows'] = float(v)
 
         # Skip if no on-chain metrics at all (too early / no data)
-        onchain_keys = {'nupl', 'mvrv_z_score', 'puell_multiple', 'rhodl_ratio', 'asopr'}
+        onchain_keys = {'nupl', 'mvrv', 'puell_multiple', 'rhodl_ratio', 'asopr'}
         if not any(k in raw for k in onchain_keys):
             skipped += 1
             if args.verbose:
