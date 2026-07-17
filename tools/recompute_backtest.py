@@ -62,6 +62,36 @@ def build_price_index():
     return prices
 
 
+def build_cipherb_weekly_index():
+    """Load cipherb weekly data sorted by date for bisect lookup."""
+    import bisect
+    path = os.path.join(ROOT, 'data', 'history', 'cipherb_btcusdt_1w.json')
+    if not os.path.exists(path):
+        return [], []
+    raw = load(path)
+    series = raw if isinstance(raw, list) else raw.get('series', [])
+    pairs = sorted(
+        (r['date'], r)
+        for r in series
+        if r.get('date') and r.get('weekly_score') is not None
+    )
+    return [p[0] for p in pairs], [p[1] for p in pairs]
+
+
+def nearest_weekly_cipherb(wk_dates, wk_rows, target_date_str, max_stale=14):
+    """Return the nearest weekly cipherb row for a given date, or None."""
+    import bisect
+    if not wk_dates:
+        return None
+    idx = bisect.bisect_right(wk_dates, target_date_str) - 1
+    if idx < 0:
+        return None
+    row = wk_rows[idx]
+    stale = (datetime.date.fromisoformat(target_date_str)
+             - datetime.date.fromisoformat(row['date'])).days
+    return row if stale <= max_stale else None
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--dry-run', action='store_true',
@@ -74,6 +104,10 @@ def main():
     from scraper.score import compute_score
 
     sc_path = os.path.join(ROOT, 'data', 'history', 'scores.json')
+
+    # Weekly CipherB index (bisect lookup per date)
+    wk_dates, wk_rows = build_cipherb_weekly_index()
+    print(f'recompute: weekly cipherb index — {len(wk_dates)} entries')
 
     # scores.json is the ONE database: raw metrics + scores per date
     existing = load(sc_path) if os.path.exists(sc_path) else []
@@ -140,9 +174,15 @@ def main():
         v = row.get('fear_greed')
         if v is not None:
             raw['fear_greed'] = float(v)
-        v = row.get('cipherb_daily')
-        if v is not None:
-            raw['cipherb'] = float(v)
+        wk_entry = nearest_weekly_cipherb(wk_dates, wk_rows, d)
+        daily_v = row.get('cipherb_daily')
+        if wk_entry is not None or daily_v is not None:
+            raw['cipherb'] = {
+                'weekly_score':    wk_entry.get('weekly_score') if wk_entry else None,
+                'daily_score':     float(daily_v) if daily_v is not None else None,
+                'fast_bearish_div': wk_entry.get('fast_bearish_div', False) if wk_entry else False,
+                'fast_bullish_div': wk_entry.get('fast_bullish_div', False) if wk_entry else False,
+            }
         v = row.get('pi_gap_pct')
         if v is not None:
             raw['pi_gap'] = float(v)
@@ -158,6 +198,9 @@ def main():
         v = row.get('etf_flows')
         if v is not None:
             raw['etf_flows'] = float(v)
+        v = row.get('funding_rate')
+        if v is not None:
+            raw['funding_rate'] = float(v)
 
         # Skip if no on-chain metrics at all (too early / no data)
         onchain_keys = {'nupl', 'mvrv', 'puell_multiple', 'rhodl_ratio', 'asopr'}
