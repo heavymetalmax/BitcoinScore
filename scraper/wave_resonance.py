@@ -29,7 +29,7 @@ WINDOW_DAYS = 1095           # 3-year rolling window
 MIN_PTS     = 30             # minimum points in window before computing
 NORM        = 0.289          # 1/(2√3) — theoretical max std for U[0,1]
 
-# Metric config: weight, field name in unified_history.json, inversion flag
+# Metric config: weight, field name in scores.json (ONE database), inversion flag
 # Inverted = True means high raw value = low risk (e.g. large pi gap = safe)
 _METRICS = {
     'nupl':       {'w': 0.32, 'field': 'nupl',           'inv': False},
@@ -47,12 +47,11 @@ def _load_unified():
     global _UNIFIED_CACHE
     if _UNIFIED_CACHE is not None:
         return _UNIFIED_CACHE
-    path = 'data/history/unified_history.json'
+    path = 'data/history/scores.json'
     if not os.path.exists(path):
         _UNIFIED_CACHE = {}
         return _UNIFIED_CACHE
-    data = json.load(open(path, encoding='utf-8'))
-    _UNIFIED_CACHE = {r['date']: r for r in data.get('series', [])}
+    _UNIFIED_CACHE = {r['date']: r for r in json.load(open(path, encoding='utf-8'))}
     return _UNIFIED_CACHE
 
 
@@ -68,10 +67,10 @@ def _oscillator(values, current_value, inverted=False):
 def compute_wave_resonance(date=None, raw_overrides=None):
     """Compute the wave resonance score for a given date (ISO string).
 
-    If date is None, uses the latest date in unified_history.json.
+    If date is None, uses the latest date in scores.json (the ONE database).
 
     raw_overrides — optional dict of fresh metric values that supplement or
-    override what's in unified_history (e.g. today's live scraper data).
+    override what's in scores.json (e.g. today's live scraper data).
     Keys match _METRICS fields: 'nupl', 'mvrv', 'puell', 'cvdd_ratio',
     'mayer_multiple', 'pi_gap_pct'.
 
@@ -80,7 +79,7 @@ def compute_wave_resonance(date=None, raw_overrides=None):
       coherence   — float [0, 1]
       mean_osc    — float [0, 1]  weighted average of oscillators
       oscillators — {metric: osc_value}  per-metric [0,1] oscillators
-      date_used   — the actual date from unified_history that was used
+      date_used   — the actual date from scores.json that was used
       window_pts  — number of days in the rolling window
     """
     unified = _load_unified()
@@ -107,7 +106,7 @@ def compute_wave_resonance(date=None, raw_overrides=None):
         if actual_date:
             break
     if not actual_date:
-        # unified_history may be stale — use most recent date with ≥3 core metrics present
+        # scores.json may be stale — use most recent date with ≥3 core metrics present
         core_fields = [cfg['field'] for cfg in _METRICS.values()]
         for d in reversed(sorted_dates):
             if d > date:
@@ -131,8 +130,7 @@ def compute_wave_resonance(date=None, raw_overrides=None):
         current = overrides.get(cfg['field'], row.get(cfg['field']))
         if current is None:
             continue
-        if key == 'nupl' and cfg['field'] in overrides:
-            current = current / 100.0
+        # nupl in scores.json is in % (e.g. 70.4) — overrides use same units
         window = [
             unified[d][cfg['field']]
             for d in sorted_dates

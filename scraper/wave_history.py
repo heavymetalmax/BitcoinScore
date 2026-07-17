@@ -2,18 +2,18 @@
 Historical score lookup for wave vector delta computation.
 
 Used by score_processor_v2() and phase_signals() to obtain prev_scores:
-  - OC metrics (nupl, mvrv, rhodl, cvdd, mayer, asopr): unified_history.json
+  - OC metrics (nupl, mvrv, rhodl, cvdd, mayer, asopr): scores.json (ONE database)
   - cipherb_weekly: cipherb_btcusdt_1w.json
-  - cipherb_daily:  unified_history.json (cipherb_daily field)
+  - cipherb_daily:  scores.json (cipherb_daily field)
   - fear_greed, etf_flows: daily_vector.json (recent only)
-  - m2_yoy: unified_history.json
+  - m2_yoy: scores.json
 """
 import os
 import json
 import bisect
 import datetime
 
-_HIST_PATH   = os.path.join('data', 'history', 'unified_history.json')
+_HIST_PATH   = os.path.join('data', 'history', 'scores.json')
 _WEEKLY_PATH = os.path.join('data', 'history', 'cipherb_btcusdt_1w.json')
 _DV_PATH     = os.path.join('data', 'history', 'daily_vector.json')
 
@@ -28,8 +28,7 @@ def _load_uh():
     global _uh_cache
     if _uh_cache is None:
         try:
-            d = json.load(open(_HIST_PATH, encoding='utf-8'))
-            rows = d.get('series', [])
+            rows = json.load(open(_HIST_PATH, encoding='utf-8'))
             _uh_cache = (
                 [r['date'] for r in rows],
                 rows,
@@ -68,7 +67,7 @@ def _load_dv():
 
 
 def _nearest_uh(target_date):
-    """Return unified_history row nearest to target_date, or None if too stale."""
+    """Return scores.json row nearest to target_date, or None if too stale."""
     dates, rows = _load_uh()
     if not dates:
         return None
@@ -122,15 +121,13 @@ def get_prev_scores(target_date: datetime.date) -> dict:
     wk  = _nearest_wk(target_date)
 
     if row:
-        nupl_raw = row.get('nupl')
-        asopr_raw = row.get('asopr')
         raw = {
-            'nupl':           nupl_raw * 100 if nupl_raw is not None else None,
+            'nupl':           row.get('nupl'),
             'mvrv':           row.get('mvrv'),
             'rhodl_ratio':    row.get('rhodl_ratio'),
             'cvdd_ratio':     row.get('cvdd_ratio'),
             'mayer_multiple': row.get('mayer_multiple'),
-            'asopr':          asopr_raw + 1.0 if asopr_raw is not None else None,
+            'asopr':          row.get('asopr'),
             'm2_yoy':         row.get('m2_yoy'),
             'yield_curve_spread': row.get('yield_curve_spread') or row.get('yield_curve'),
             'cipherb': {

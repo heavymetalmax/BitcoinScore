@@ -24,9 +24,8 @@ sys.path.insert(0, '.')
 BASE = 'data/history'
 
 # ── 1. Load data ─────────────────────────────────────────────────────────────
-print("Loading unified history...")
-uh = json.load(open(f'{BASE}/unified_history.json', encoding='utf-8'))
-unified = {r['date']: r for r in uh['series']}
+print("Loading scores history (ONE database)...")
+unified = {r['date']: r for r in json.load(open(f'{BASE}/scores.json', encoding='utf-8'))}
 sorted_dates = sorted(unified.keys())
 
 print("Loading BTC price history...")

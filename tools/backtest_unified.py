@@ -1,7 +1,7 @@
 """
-Backtest using unified_history.json — no live fetches, fully offline.
+Backtest using scores.json (ONE database) — no live fetches, fully offline.
 
-For each milestone date, reads raw metric values from unified_history.json,
+For each milestone date, reads raw metric values from scores.json,
 applies current scoring functions, and shows v1 (equal weights) and v2
 (regime-aware) scores side by side.
 
@@ -41,8 +41,8 @@ MILESTONES = [
 
 
 def load_unified():
-    data = json.load(open('data/history/unified_history.json', encoding='utf-8'))
-    return {r['date']: r for r in data['series']}
+    rows = json.load(open('data/history/scores.json', encoding='utf-8'))
+    return {r['date']: r for r in rows}
 
 
 def closest_row(idx, target_date):
@@ -56,7 +56,7 @@ def closest_row(idx, target_date):
 
 
 def score_row(row):
-    """Map unified_history row → slider map dict."""
+    """Map scores.json row → slider map dict."""
     nupl_raw  = row.get('nupl')
     mvrv_raw  = row.get('mvrv')
     cvdd_raw  = row.get('cvdd_ratio')

@@ -2,7 +2,7 @@
 One-time BMP backfill: fetch full daily history for all on-chain metrics via Playwright.
 
 Updates data/history/{metric}_history.json files with daily data from BMP.
-Then rebuilds unified_history.json and backfill_scores.json.
+Then merges fetched metrics into scores.json (ONE database) and rebuilds backfill_scores.json.
 
 Run: python tools/backfill_bmp.py
 """
@@ -143,12 +143,21 @@ def main():
         print('  FAILED')
 
     print('\n' + '=' * 50)
-    print('Rebuilding unified_history.json...')
     import subprocess
-    result = subprocess.run(['python3', 'tools/build_unified_history.py'], capture_output=True, text=True)
-    print(result.stdout[-500:] if result.stdout else '')
-    if result.returncode != 0:
-        print('ERROR:', result.stderr[-300:])
+
+    # Step 1: rebuild unified_history.json from *_history.json files
+    print('Step 1: rebuilding unified_history.json from metric files...')
+    r1 = subprocess.run(['python3', 'tools/build_unified_history.py'], capture_output=True, text=True)
+    print(r1.stdout[-500:] if r1.stdout else '')
+    if r1.returncode != 0:
+        print('ERROR:', r1.stderr[-300:])
+
+    # Step 2: merge unified_history.json into scores.json (ONE database)
+    print('Step 2: merging into scores.json (ONE database)...')
+    r2 = subprocess.run(['python3', 'tools/migrate_one_db.py'], capture_output=True, text=True)
+    print(r2.stdout[-500:] if r2.stdout else '')
+    if r2.returncode != 0:
+        print('ERROR:', r2.stderr[-300:])
 
     print('\nDone. Commit the updated data/history/ files and re-run CI.')
 

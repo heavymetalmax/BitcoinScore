@@ -50,9 +50,9 @@ def _days_since_bottom(date_str, bottom_dates):
 
 
 def _load_prices():
-    path = os.path.join(ROOT, 'data', 'history', 'unified_history.json')
+    path = os.path.join(ROOT, 'data', 'history', 'scores.json')
     with open(path) as f:
-        rows = json.load(f).get('series', [])
+        rows = json.load(f)
     return {r['date']: r['btc_price'] for r in rows if (r.get('btc_price') or 0) > 0}
 
 

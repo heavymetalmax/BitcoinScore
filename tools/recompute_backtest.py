@@ -67,7 +67,7 @@ def main():
     parser.add_argument('--dry-run', action='store_true',
                         help='compute but do not write scores.json')
     parser.add_argument('--from', dest='from_date', default=None,
-                        help='start date YYYY-MM-DD (default: earliest in unified_history)')
+                        help='start date YYYY-MM-DD (default: earliest in scores.json)')
     parser.add_argument('--verbose', action='store_true')
     args = parser.parse_args()
 

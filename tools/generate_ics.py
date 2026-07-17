@@ -63,6 +63,20 @@ def update_history(entries: list, data: dict) -> list:
         'btc_price':     data.get('btc_price'),
         'phase':         phase_str,
         'w_bot':         w_bot,
+        # Raw metrics — same units as scores.json (nupl in %, asopr actual value)
+        'nupl':          data.get('nupl'),
+        'mvrv':          data.get('mvrv_z_score') or data.get('mvrv'),
+        'asopr':         data.get('asopr'),
+        'mayer_multiple':data.get('mayer_multiple'),
+        'cvdd_ratio':    data.get('cvdd_ratio'),
+        'rhodl_ratio':   data.get('rhodl_ratio'),
+        'puell':         data.get('puell'),
+        'fear_greed':    data.get('fear_greed'),
+        'm2_yoy':        data.get('m2_mom') or data.get('m2_yoy') or data.get('m2'),
+        'dxy':           data.get('dxy'),
+        'cipherb_daily': data.get('cipherb'),
+        'pi_gap_pct':    data.get('pi_gap_pct'),
+        'funding_rate':  data.get('funding_rate'),
     }
 
     # Replace existing entry for same date, otherwise append
@@ -185,12 +199,12 @@ def patch_data_json(data: dict, entries: list) -> None:
     score_map = {}
 
     backfill_path = os.path.join(ROOT, 'data', 'history', 'backfill_scores.json')
-    unified_path  = os.path.join(ROOT, 'data', 'history', 'unified_history.json')
-    if os.path.exists(backfill_path) and os.path.exists(unified_path):
+    scores_path   = os.path.join(ROOT, 'data', 'history', 'scores.json')
+    if os.path.exists(backfill_path) and os.path.exists(scores_path):
         with open(backfill_path, encoding='utf-8') as f:
             backfill = json.load(f).get('series', [])
-        with open(unified_path, encoding='utf-8') as f:
-            price_by_date = {r['date']: r.get('btc_price') for r in json.load(f).get('series', [])}
+        with open(scores_path, encoding='utf-8') as f:
+            price_by_date = {r['date']: r.get('btc_price') for r in json.load(f)}
         for row in backfill:
             d = row.get('date', '')
             if d < '2018-01-01':

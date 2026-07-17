@@ -302,7 +302,7 @@ def compute_score(
 
     nupl_raw = _scalar(raw_metrics.get('nupl'))
     wr_overrides = {
-        'nupl':           (nupl_raw / 100.0) if nupl_raw is not None else None,
+        'nupl':           nupl_raw,  # scores.json stores nupl in % — same units as window
         'mvrv':           _scalar(raw_metrics.get('mvrv')),
         'puell':          _scalar(raw_metrics.get('puell_multiple')),
         'cvdd_ratio':     _scalar(raw_metrics.get('cvdd_ratio')),

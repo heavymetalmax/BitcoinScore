@@ -1,6 +1,6 @@
 """
 Generate web/sparklines.json — last 365 days of mapped 0-100 scores per metric
-from data/history/unified_history.json.
+from data/history/scores.json (ONE database).
 
 Run: python3 tools/generate_sparklines.py
 """
