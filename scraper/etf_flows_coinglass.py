@@ -132,6 +132,15 @@ def _parse_lines(lines: list) -> dict | None:
     # 7-day rolling sum from table rows
     value_7d = _parse_7d_total(lines)
 
+    # Sanity: reject obviously wrong parses (historical max ~3000M)
+    _MAX_PLAUSIBLE = 4000.0
+    if value_7d is not None and abs(value_7d) > _MAX_PLAUSIBLE:
+        logger.warning('CoinGlass: 7d total %.1fM exceeds plausible max — discarding', value_7d)
+        value_7d = None
+    if daily_flow is not None and abs(daily_flow) > _MAX_PLAUSIBLE:
+        logger.warning('CoinGlass: daily_flow %.1fM exceeds plausible max — discarding', daily_flow)
+        daily_flow = None
+
     if last_update_date is None:
         last_update_date = datetime.date.today().isoformat()
 
