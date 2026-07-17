@@ -10,8 +10,9 @@ from scraper.scoring import (
     map_nupl, map_mvrv, map_rhodl, map_cvdd, map_asopr,
     map_fear_greed, map_m2, map_yield_curve, map_mayer_multiple,
     map_etf_flow, map_funding, map_dxy, map_lth_supply, _load_metric_history,
-    ADAPTIVE_METRICS, ADAPTIVE_BLEND, ADAPTIVE_WIN_YEARS,
+    ADAPTIVE_METRICS, ADAPTIVE_BLEND, ADAPTIVE_BLEND_OVERRIDE, ADAPTIVE_WIN_YEARS,
 )
+from scraper.cycle_normalizer import cycle_normalize, SUPPORTED_METRICS as CYCLE_METRICS
 from scraper.scoring_v2 import map_puell
 
 # Trailing window for rolling percentile rank
@@ -68,9 +69,28 @@ def compute_causal_percentile(metric, value, target_date=None):
 
 
 def normalize_metric(metric, value, target_date=None):
-    """Normalize a raw metric value to a 0-100 score."""
+    """Normalize a raw metric value to a 0-100 score.
+
+    Priority for on-chain metrics (nupl, mvrv, cvdd_ratio, rhodl_ratio, puell):
+      1. cycle_normalize() — anchored to confirmed cycle extremes (zero hardcode)
+      2. causal percentile — fallback when < 2 confirmed bottoms/tops available
+      3. fixed map — last resort for early history only
+    """
     if value is None:
         return None
+
+    # Normalise key (score.py uses 'mvrv' internally, normalizer receives both forms)
+    cycle_key = metric
+    if metric == 'mvrv_z_score':
+        cycle_key = 'mvrv'
+    elif metric == 'puell_multiple':
+        cycle_key = 'puell'
+
+    if cycle_key in CYCLE_METRICS:
+        result = cycle_normalize(cycle_key, value, target_date)
+        if result is not None:
+            return result
+        # Fall through to causal percentile / fixed map below
         
     # Unwrap dictionaries if necessary
     metric_val = value
@@ -116,9 +136,12 @@ def normalize_metric(metric, value, target_date=None):
     elif metric == 'mayer_multiple':
         hist_key = 'mayer'
         
-    if hist_key in ADAPTIVE_METRICS and fixed_score is not None:
+    if hist_key in ADAPTIVE_METRICS:
+        blend = ADAPTIVE_BLEND_OVERRIDE.get(hist_key, ADAPTIVE_BLEND)
         pct = compute_causal_percentile(hist_key, metric_val, target_date)
         if pct is not None:
-            return round(ADAPTIVE_BLEND * pct + (1 - ADAPTIVE_BLEND) * fixed_score)
-            
+            if blend >= 1.0 or fixed_score is None:
+                return pct
+            return round(blend * pct + (1 - blend) * fixed_score)
+
     return fixed_score

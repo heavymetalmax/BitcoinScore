@@ -28,13 +28,25 @@ import datetime
 # fixed maps — applying a percentile to a stable-envelope oscillator would
 # inject noise. Evidence: tools/adaptive_norm_probe.py (NUPL peaks 0.87→0.64,
 # MVRV Z 11→3.4; fixed under-reads modern tops and over-reads modern bottoms).
-ADAPTIVE_METRICS   = {'nupl', 'mvrv', 'mayer', 'cvdd_ratio', 'puell', 'etf_flows', 'dxy'}
+ADAPTIVE_METRICS   = {'nupl', 'mvrv', 'mayer', 'cvdd_ratio', 'puell', 'rhodl_ratio', 'etf_flows', 'dxy'}
 # scores.json field name when it differs from the metric key
 _UNIFIED_FIELD     = {'mayer': 'mayer_multiple', 'cvdd_ratio': 'cvdd_ratio'}
 # daily_vector raw key differs from the metric name for some metrics
 _DV_KEY            = {'mayer': 'mayer_multiple', 'cvdd_ratio': 'cvdd_ratio'}
-ADAPTIVE_BLEND     = 0.7                 # weight on the adaptive (percentile) part; sweep-validated 2026-07-08
+ADAPTIVE_BLEND     = 0.7                 # default blend: 70% percentile + 30% fixed map
 ADAPTIVE_WIN_YEARS = 4                   # trailing window for the percentile
+# Per-metric blend overrides. 1.0 = pure causal percentile rank, no fixed map.
+# On-chain metrics (nupl, mvrv, cvdd_ratio, rhodl_ratio, puell) change their
+# absolute ranges each cycle — pure percentile avoids hardcoded range decay.
+# Macro metrics (m2, yield_curve, dxy, funding) keep ADAPTIVE_BLEND=0.7 since
+# their economic ranges are stable and the fixed map adds domain knowledge.
+ADAPTIVE_BLEND_OVERRIDE = {
+    'nupl':        1.0,
+    'mvrv':        1.0,
+    'cvdd_ratio':  1.0,
+    'rhodl_ratio': 1.0,
+    'puell':       1.0,
+}
 ADAPTIVE_DEBUG     = {}                  # per-run breakdown for transparency
 _HIST_CACHE        = {}
 _SCORES_CACHE      = None               # lazy-loaded scores.json (the ONE database)
