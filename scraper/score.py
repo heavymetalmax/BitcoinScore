@@ -207,11 +207,13 @@ def _phase_weights(normalized: dict, prev_scores: dict | None) -> tuple[float, f
     except Exception:
         pass
 
-    # ── Consensus fallback when HMM unavailable (w_top still 0.0) ────────────
-    # Uses the three best top/bottom discriminating metrics (disc power from
-    # confirmed cycle extremes: cipherb +80.9, nupl +45.8, mvrv +44.6).
-    # Phase score ≥62 → TOP; continuous w_top scaled 0.65→1.0 above threshold.
-    if w_top == 0.0:
+    # ── Consensus fallback when HMM gives low confidence (w_top < 0.10) ────────
+    # Triggers when HMM unavailable (w_top==0.0) OR gives near-zero probability
+    # (<0.10), e.g. for out-of-sample tops where on-chain metrics are lower than
+    # the 2017-2021 super-cycle (Oct 2025 ATH pattern). Consensus uses the three
+    # best top/bottom discriminating metrics (disc power: cipherb +80.9, nupl
+    # +45.8, mvrv +44.6). Phase score ≥62 → TOP; w_top scaled 0.65→1.0.
+    if w_top < 0.10:
         _cb = normalized.get('cipherb')
         _nu = normalized.get('nupl')
         _mv = normalized.get('mvrv_z_score')
