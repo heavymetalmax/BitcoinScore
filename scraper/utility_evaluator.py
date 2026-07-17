@@ -52,50 +52,14 @@ _MODEL_PATH = 'data/v3_phase_model.pkl'
 
 
 def load_relevance_weights():
-    """Load optimized relevance weights from the model pickle (single source of truth).
+    """No-op: relevance weights are domain-specified in RELEVANCE_PROFILES above.
 
-    The pickle stores metric_relevance as a plain dict — same shape as RELEVANCE_PROFILES.
-    Falls back to Python defaults silently if the pickle is absent or unreadable.
-    Lazy import of HMMPhaseClassifier avoids circular imports when called from
-    train_v3_hmm_model.py.
+    The HMM model pickle is used only for phase detection (w_top/w_bot) in score.py.
+    Learned metric_relevance values from the pickle are intentionally ignored because
+    the HMM optimizer does not have domain constraints and produces weights that
+    contradict known metric behavior (e.g. cvdd_ratio TOP=0.92 instead of 0.1).
     """
-    global RELEVANCE_PROFILES
-    if not os.path.exists(_MODEL_PATH):
-        return
-    try:
-        import pickle
-        import sys as _sys
-
-        # The pickle was created when train_v3_hmm_model.py ran as __main__,
-        # so HMMPhaseClassifier is stored as __main__.HMMPhaseClassifier.
-        # Use a custom Unpickler to remap it to the actual module path.
-        try:
-            from tools.train_v3_hmm_model import HMMPhaseClassifier as _HMM  # noqa
-            _train_mod = _sys.modules.get('tools.train_v3_hmm_model')
-        except Exception:
-            _HMM = None
-            _train_mod = None
-
-        class _Unpickler(pickle.Unpickler):
-            def find_class(self, module, name):
-                if name == 'HMMPhaseClassifier' and _HMM is not None:
-                    return _HMM
-                return super().find_class(module, name)
-
-        with open(_MODEL_PATH, 'rb') as f:
-            model_data = _Unpickler(f).load()
-
-        learned = model_data.get('metric_relevance')
-        if isinstance(learned, dict):
-            for k, v in learned.items():
-                if k in RELEVANCE_PROFILES and isinstance(v, dict):
-                    RELEVANCE_PROFILES[k].update(v)
-    except Exception:
-        pass
-
-
-# Load weights on module initialization
-load_relevance_weights()
+    pass
 
 
 def compute_std(values):
