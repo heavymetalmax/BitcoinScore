@@ -138,7 +138,8 @@ def run_scoring_pipeline(p, build_metric_history_fn=None):
         _EXPECTED_SCORING_METRICS = {
             'nupl', 'mvrv_z_score', 'rhodl_ratio', 'cvdd_ratio', 'asopr', 'puell',
             'mayer_multiple', 'fear_greed', 'm2_yoy', 'yield_curve_spread',
-            'etf_flows', 'pi_gap', 'cipherb'
+            'etf_flows', 'cipherb'
+            # pi_gap intentionally excluded: returns None when gap > 20% (not firing)
         }
         _norm    = scores.get('normalized_scores', {})
         _active  = [k for k in _EXPECTED_SCORING_METRICS if _norm.get(k) is not None]
