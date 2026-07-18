@@ -338,10 +338,8 @@ def compute_scores_v3(raw_metrics, target_date=None, prev_scores=None, scores_hi
                 tiz_maturity = round(tiz_days / tiz_calibration, 3)
 
     # 7. Evaluate dynamic continuous utility coefficients
-    from scraper.utility_evaluator import halving_cycle_day_for
-    _cycle_day = halving_cycle_day_for(target_date)
     utilities = evaluate_all_utilities_continuous(
-        normalized, w_top, w_bot, w_neutral, tiz_maturity, cycle_day=_cycle_day
+        normalized, w_top, w_bot, w_neutral, tiz_maturity
     )
 
     # 8. Dynamic utility-weighted average across a set of metrics
