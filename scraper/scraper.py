@@ -488,7 +488,7 @@ def main():
 
     # ── Add prev_day, prev_week, and score_history fields ─────────────────────
     try:
-        from datetime import datetime, timedelta
+        from datetime import datetime as _dt, timedelta
 
         # Load current history
         with open('data/history/scores.json') as f:
@@ -506,7 +506,7 @@ def main():
                 _history_dates.add(_d)
         history.sort(key=lambda e: e.get('date', ''))
 
-        today = datetime.now().date()
+        today = _dt.now().date()
         today_str = today.isoformat()
 
         # Append today's score if not already there
@@ -526,26 +526,26 @@ def main():
                 'funding_rate': p.get('funding_rate'),
                 'cipherb_daily': p.get('cipherb_daily'),
             })
-        
+
         # Find yesterday's entry
         yesterday = today - timedelta(days=1)
         for entry in history:
-            if entry.get('date') and datetime.fromisoformat(entry['date']).date() == yesterday:
+            if entry.get('date') and _dt.fromisoformat(entry['date']).date() == yesterday:
                 p['prev_day'] = {'date': entry['date'], 'final_score': entry.get('final_score')}
                 break
-        
+
         # Find 7 days ago
         seven_days_ago = today - timedelta(days=7)
         for entry in history:
-            if entry.get('date') and datetime.fromisoformat(entry['date']).date() == seven_days_ago:
+            if entry.get('date') and _dt.fromisoformat(entry['date']).date() == seven_days_ago:
                 p['prev_week'] = {'date': entry['date'], 'final_score': entry.get('final_score')}
                 break
-        
+
         # Build score_history (last 90 days)
         score_history = []
         cutoff = today - timedelta(days=90)
         for entry in history:
-            if entry.get('date') and datetime.fromisoformat(entry['date']).date() >= cutoff:
+            if entry.get('date') and _dt.fromisoformat(entry['date']).date() >= cutoff:
                 score_history.append({'date': entry['date'], 'score': entry.get('final_score'), 'price': entry.get('btc_price')})
         if score_history:
             p['score_history'] = score_history

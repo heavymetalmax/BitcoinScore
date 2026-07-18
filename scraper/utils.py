@@ -23,6 +23,23 @@ def validate_data(data):
     missing = [k for k in req if k not in data]
     return missing
 
+# (field, display_name, severity)
+# critical → score is meaningless without it; important → score is degraded
+_SCORE_PREREQUISITES = [
+    ('btc_price',    'BTC price',    'critical'),
+    ('nupl',         'NUPL',         'important'),
+    ('mvrv_z_score', 'MVRV Z-Score', 'important'),
+    ('fear_greed',   'Fear & Greed', 'important'),
+]
+
+def check_score_prerequisites(p):
+    """Return {'ok': bool, 'critical': [...], 'degraded': [...]} for all required score inputs."""
+    critical, degraded = [], []
+    for field, name, severity in _SCORE_PREREQUISITES:
+        if p.get(field) is None:
+            (critical if severity == 'critical' else degraded).append(name)
+    return {'ok': not critical, 'critical': critical, 'degraded': degraded}
+
 def retry(times=3, delay=5):
     def deco(fn):
         @wraps(fn)
