@@ -16,28 +16,23 @@ BOT_METRICS = {'cvdd_ratio', 'puell', 'nupl', 'mvrv_z_score', 'rhodl_ratio'}
 
 
 def _cycle_top_bias(cycle_day):
-    """Smooth piecewise proxy [0.0, 1.0] for how close we are to the cycle top.
+    """Asymmetric Gaussian proxy for cycle-top proximity [0.05, 1.0].
 
-    Calibrated to 4-year halving cycle: ATH typically around day 520-550.
-      Day 0-200:   0.10 → 0.30   (post-halving accumulation)
-      Day 200-530: 0.30 → 1.00   (approach to cycle peak)
-      Day 530-700: 1.00 → 0.30   (post-ATH distribution)
-      Day 700+:    0.30 → 0.10   (deep bear / pre-next-halving)
+    Peaks at ATH (day ~528), decays naturally on both sides:
+      sigma_left  = 230  — wide left tail: slow accumulation from halving to ATH
+      sigma_right = 120  — tight right tail: faster post-ATH bear collapse
+
+    At the bear market bottom (~day 920) bias ≈ 0.05 (floor),
+    giving TOP-metrics their minimum utility and BOT-metrics their maximum.
     """
     if cycle_day is None:
         return 0.5
     d = float(cycle_day)
-    if d < 0:
-        return 0.10
-    elif d < 200:
-        return 0.10 + 0.20 * (d / 200.0)
-    elif d < 530:
-        return 0.30 + 0.70 * ((d - 200.0) / 330.0)
-    elif d < 700:
-        return 1.00 - 0.70 * ((d - 530.0) / 170.0)
-    else:
-        t = min(1.0, (d - 700.0) / 300.0)
-        return 0.30 - 0.20 * t
+    peak = 528.0
+    # sigma_left=250: bias≈0.10 at halving day (slow bull build-up)
+    # sigma_right=160: bias reaches floor ~0.05 at day 920 (bear market bottom)
+    sigma = 250.0 if d <= peak else 160.0
+    return max(0.05, math.exp(-0.5 * ((d - peak) / sigma) ** 2))
 
 
 def halving_cycle_multiplier(canonical_key, cycle_day):
