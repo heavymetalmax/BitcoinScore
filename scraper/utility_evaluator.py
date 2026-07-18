@@ -15,37 +15,40 @@ TOP_METRICS = {'cipherb', 'mayer_multiple', 'pi_gap', 'funding_rate', 'lth_suppl
 BOT_METRICS = {'cvdd_ratio', 'puell', 'nupl', 'mvrv_z_score', 'rhodl_ratio'}
 
 
-def _cycle_top_bias(cycle_day):
-    """Asymmetric Gaussian proxy for cycle-top proximity [0.05, 1.0].
+def _cycle_net_signal(cycle_day):
+    """Signed cycle position in [-1.0, +1.0].
 
-    Peaks at ATH (day ~528), decays naturally on both sides:
-      sigma_left  = 230  — wide left tail: slow accumulation from halving to ATH
-      sigma_right = 120  — tight right tail: faster post-ATH bear collapse
+    Two opposing Gaussians with sigma=200:
+      G_top  centered at day ~500  (approximate ATH zone)
+      G_bot  centered at day ~900  (approximate bear-bottom zone)
 
-    At the bear market bottom (~day 920) bias ≈ 0.05 (floor),
-    giving TOP-metrics their minimum utility and BOT-metrics their maximum.
+    net = G_top − G_bot, normalized to [-1, 1]:
+      +1  →  ATH zone         (TOP metrics maximally relevant)
+       0  →  crossover ~day 700  (neutral, all metrics equal weight)
+      -1  →  bear-bottom zone  (BOT metrics maximally relevant)
     """
     if cycle_day is None:
-        return 0.5
+        return 0.0
     d = float(cycle_day)
-    peak = 528.0
-    # sigma_left=250: bias≈0.10 at halving day (slow bull build-up)
-    # sigma_right=160: bias reaches floor ~0.05 at day 920 (bear market bottom)
-    sigma = 250.0 if d <= peak else 160.0
-    return max(0.05, math.exp(-0.5 * ((d - peak) / sigma) ** 2))
+    g_top = math.exp(-0.5 * ((d - 500.0) / 200.0) ** 2)
+    g_bot = math.exp(-0.5 * ((d - 900.0) / 200.0) ** 2)
+    raw = g_top - g_bot
+    return max(-1.0, min(1.0, raw / 0.87))  # 0.87 ≈ theoretical max of |raw|
 
 
 def halving_cycle_multiplier(canonical_key, cycle_day):
     """Utility multiplier [0.85, 1.15] based on cycle position.
 
-    TOP_METRICS boosted as we near the peak; BOT_METRICS boosted post-peak.
-    Macro/tactical metrics (yield_curve, m2, etf_flows, etc.) are unaffected.
+    Near ATH  (+signal): TOP metrics ×1.15, BOT metrics ×0.85
+    Near bottom (−signal): BOT metrics ×1.15, TOP metrics ×0.85
+    Day ~700 (zero crossing): all metrics ×1.0 (neutral)
+    Macro/tactical (yield_curve, m2, etf_flows, etc.): always ×1.0
     """
-    bias = _cycle_top_bias(cycle_day)
+    net = _cycle_net_signal(cycle_day)
     if canonical_key in TOP_METRICS:
-        return 0.85 + bias * 0.30
+        return 1.0 + net * 0.15
     elif canonical_key in BOT_METRICS:
-        return 1.15 - bias * 0.30
+        return 1.0 - net * 0.15
     return 1.0
 
 
