@@ -55,6 +55,9 @@ def run():
     with open(SCORES_PATH, encoding='utf-8') as f:
         entries = json.load(f)
 
+    # scores.json may contain raw-metric rows (no final_score); only keep scored entries
+    entries = [e for e in entries if e.get('final_score') is not None]
+
     _validate(entries)
     print(f"[bucket_returns] Loaded {len(entries)} entries "
           f"({entries[0]['date']} to {entries[-1]['date']})")
