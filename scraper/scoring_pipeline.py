@@ -30,18 +30,35 @@ def run_scoring_pipeline(p, build_metric_history_fn=None):
         except Exception as e:
             print('Failed to compute zone forecast:', e)
         if os.environ.get('GITHUB_ACTIONS') == 'true':
-            print('Commentary: starting…', flush=True)
+            # Reuse today's commentary if home server already generated it
+            _today_str = today.isoformat()
+            _cached_commentary = None
             try:
-                from .gemini_commentary import generate_commentary
-                sm = build_slider_map(p.get('metrics', {}))
-                commentary = generate_commentary(p, sm)
-                if commentary:
-                    p['commentary'] = commentary
-                    print('Commentary: OK', flush=True)
-                else:
-                    print('Commentary: generate_commentary returned None', flush=True)
-            except Exception as e:
-                print(f'Commentary: exception — {e}', flush=True)
+                import json as _json
+                with open('data/data.json', encoding='utf-8') as _f:
+                    _prev = _json.load(_f)
+                if (_prev.get('commentary') and
+                        (_prev.get('date') == _today_str or
+                         (_prev.get('timestamp', '') or '')[:10] == _today_str)):
+                    _cached_commentary = _prev['commentary']
+            except Exception:
+                pass
+            if _cached_commentary:
+                p['commentary'] = _cached_commentary
+                print('Commentary: reused from today\'s cached run', flush=True)
+            else:
+                print('Commentary: starting…', flush=True)
+                try:
+                    from .gemini_commentary import generate_commentary
+                    sm = build_slider_map(p.get('metrics', {}))
+                    commentary = generate_commentary(p, sm)
+                    if commentary:
+                        p['commentary'] = commentary
+                        print('Commentary: OK', flush=True)
+                    else:
+                        print('Commentary: generate_commentary returned None', flush=True)
+                except Exception as e:
+                    print(f'Commentary: exception — {e}', flush=True)
         else:
             print('Commentary: skipped (local run)', flush=True)
         write_json('data/data.json', p)

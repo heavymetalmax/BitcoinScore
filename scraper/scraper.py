@@ -244,6 +244,7 @@ def build_payload():
 
     payload = {
         'timestamp': now_iso(),
+        'date': datetime.date.today().isoformat(),
         'btc_price': price['price'] if price else None,
         'btc_dominance': btc_dominance,
         'fear_greed': fg.get('avg_7d', fg.get('latest')) if fg else None,
@@ -259,7 +260,7 @@ def build_payload():
         'metrics': {
             # merge our collected metrics dict with static ones
             **(metrics if 'metrics' in locals() else {}),
-            'fear_greed': {'latest': fg.get('latest') if fg else None, 'avg_7d': fg.get('avg_7d') if fg else None, 'label': fg.get('label') if fg else None, 'source': fg.get('label', 'Alternative.me') if fg else None, 'updated': now_iso()},
+            'fear_greed': {'value': fg.get('avg_7d', fg.get('latest')) if fg else None, 'latest': fg.get('latest') if fg else None, 'avg_7d': fg.get('avg_7d') if fg else None, 'label': fg.get('label') if fg else None, 'source': fg.get('label', 'Alternative.me') if fg else None, 'updated': now_iso()},
             'cipherb': {'value': None, 'source': 'Local', 'updated': now_iso()},
             'mayer_multiple': {'value': None, 'source': 'Local', 'updated': now_iso()},
             'funding_rate': {'value': None, 'source': 'Binance', 'updated': now_iso()}
@@ -438,7 +439,8 @@ def main():
         if lth_val is not None:
             p['metrics']['lth_supply_pct'] = {'value': lth_val, 'source': 'BMP', 'updated': now_iso()}
             write_json('data/data.json', p)
-            print(f'LTH Supply: {lth_val}%')
+            pct = lth_val / 21_000_000 * 100 if lth_val > 100 else lth_val
+            print(f'LTH Supply: {pct:.2f}% (raw={lth_val:.0f} BTC)' if lth_val > 100 else f'LTH Supply: {lth_val:.2f}%')
         else:
             raise ValueError("lth_supply_pct is None")
     except Exception as e:

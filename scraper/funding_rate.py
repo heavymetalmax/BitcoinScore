@@ -93,12 +93,25 @@ def _from_kraken_futures(symbol='PF_XBTUSD'):
 def get_funding_rate(symbol='BTCUSDT', periods=21):
     """Return funding rate dict aggregated from available exchanges.
 
-    Tries Bybit and Binance first (7-day history = accurate avg_7d).
-    Falls back to Kraken Futures (current rate only, periods=1) when main
-    sources are geo-blocked (GitHub Actions CI).
+    On CI (GitHub Actions), tries Kraken first — Bybit/Binance are geo-blocked.
+    Locally, tries Bybit and Binance first (7-day history = accurate avg_7d),
+    then falls back to Kraken (current rate only, periods=1).
 
     When multiple sources succeed, averages their avg_7d for a market-wide rate.
     """
+    import os as _os
+    on_ci = _os.environ.get('GITHUB_ACTIONS') == 'true'
+
+    if on_ci:
+        # Kraken works on CI; skip Bybit/Binance which are geo-blocked
+        try:
+            r = _from_kraken_futures()
+            if r:
+                return r
+        except Exception as e:
+            logger.warning('get_funding_rate Kraken failed: %s', e)
+        return None
+
     results = []
     for fetch_fn, args, label in [
         (_from_bybit,   (symbol, periods), 'Bybit'),
@@ -123,7 +136,7 @@ def get_funding_rate(symbol='BTCUSDT', periods=21):
             'source':  '+'.join(r['source'] for r in results),
         }
 
-    # Kraken fallback: works in CI, but only has current rate (periods=1)
+    # Kraken fallback for local runs when Bybit/Binance fail
     try:
         return _from_kraken_futures()
     except Exception as e:
