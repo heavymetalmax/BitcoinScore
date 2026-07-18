@@ -16,7 +16,7 @@ import datetime
 
 _SCORES_PATH     = 'data/history/scores.json'
 _THRESHOLD       = 40    # zone boundary (composite score ≤ this)
-_WINDOW_DAYS     = 180   # cumulative window for counting zone days
+_WINDOW_DAYS     = 365   # cumulative window for counting zone days
 _CALIBRATION     = 200   # kept for backward-compat imports; prefer adaptive_calibration()
 _SCORE_FRESH     = 38    # risk at day 0 in zone
 _SCORE_MATURE    = 5     # risk at calibration_days

@@ -59,7 +59,7 @@ def map_pi_cycle_gap(v):
     return round(((70.0 - gap) / 70.0) * 100)
 
 
-def compute_tiz_causal_v3(scores_history, target_date, threshold=40, window=180):
+def compute_tiz_causal_v3(scores_history, target_date, threshold=40, window=365):
     """Causal Time-in-Zone calculation for backtesting or live runs.
 
     Zone detection uses phase signal when available (preferred), falls back to
