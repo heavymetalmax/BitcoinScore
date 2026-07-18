@@ -32,7 +32,6 @@ from .m2_metric import get_m2
 from .yield_curve_metric import get_yield_curve
 from .utils import human_visit
 from .cipherb import get_cipherb
-from .smc import get_smc
 from . import mayer_multiple as mayer_multiple_mod
 from . import funding_rate as funding_rate_mod
 from .utils import write_json, validate_data
@@ -144,7 +143,6 @@ def build_payload():
     from . import yield_curve_metric as yc_mod
     from . import cvdd as cvdd_mod
     from . import rhodl as rhodl_mod
-    from . import rainbow as rainbow_mod
     from . import asopr as asopr_mod
     from . import etf_flows as etf_flows_mod
     from . import dxy_metric as dxy_mod
@@ -241,17 +239,9 @@ def build_payload():
         src = 'MacroMicro' if name == 'm2' else 'Farside' if name == 'etf_flows' else 'FRED' if name == 'dxy' else 'BMP'
         metrics[name] = {'value': val, 'source': src if val is not None else None, 'updated': now_iso()}
 
-    # Rainbow band — separate call (returns dict, not scalar)
-    rainbow_band = None
-    try:
-        rainbow_band = rainbow_mod.get_rainbow_band()
-    except Exception as e:
-        print(f'rainbow band failed: {e}')
-        failed_live_fetches.append('rainbow_band')
     if 'metrics' not in locals():
         metrics = {}
-    metrics['rainbow_band'] = {'value': rainbow_band, 'source': 'BMP', 'updated': now_iso()}
-    
+
     payload = {
         'timestamp': now_iso(),
         'btc_price': price['price'] if price else None,
@@ -264,7 +254,6 @@ def build_payload():
         'rhodl_ratio': rhodl_ratio if 'rhodl_ratio' in locals() else None,
         'asopr': asopr if 'asopr' in locals() else None,
         'etf_flows': etf_flows if 'etf_flows' in locals() else None,
-        'rainbow_band': rainbow_band if 'rainbow_band' in locals() else None,
         'm2': m2 if 'm2' in locals() else None,
         'failed_live_fetches': failed_live_fetches,
         'metrics': {
@@ -272,7 +261,6 @@ def build_payload():
             **(metrics if 'metrics' in locals() else {}),
             'fear_greed': {'latest': fg.get('latest') if fg else None, 'avg_7d': fg.get('avg_7d') if fg else None, 'label': fg.get('label') if fg else None, 'source': fg.get('label', 'Alternative.me') if fg else None, 'updated': now_iso()},
             'cipherb': {'value': None, 'source': 'Local', 'updated': now_iso()},
-            'smc': {'value': None, 'source': 'Local', 'updated': now_iso()},
             'mayer_multiple': {'value': None, 'source': 'Local', 'updated': now_iso()},
             'funding_rate': {'value': None, 'source': 'Binance', 'updated': now_iso()}
         }
@@ -357,24 +345,6 @@ def main():
             print(f"Warning: cipherb failed, fell back to cached value")
         if 'cipherb' not in p['failed_live_fetches']:
             p['failed_live_fetches'].append('cipherb')
-        write_json('data/data.json', p)
-
-    # Populate SMC metric (Price vs Support) — kept for historical reference, not used in scoring
-    try:
-        smc = get_smc('BTCUSDT', timeframe='1w', size=10)
-        if smc and smc.get('last'):
-            p['metrics']['smc'] = {'value': smc.get('last'), 'source': 'Local', 'updated': now_iso()}
-            write_json('data/data.json', p)
-            print('Updated data/data.json with smc')
-        else:
-            raise ValueError("smc empty or invalid")
-    except Exception as e:
-        print('smc error', e)
-        if prev_metrics.get('smc') and prev_metrics['smc'].get('value') is not None:
-            p['metrics']['smc'] = prev_metrics['smc']
-            print(f"Warning: smc failed, fell back to cached value")
-        if 'smc' not in p['failed_live_fetches']:
-            p['failed_live_fetches'].append('smc')
         write_json('data/data.json', p)
 
     # Populate Mayer Multiple metric (Price / 200DMA on daily)
@@ -603,7 +573,6 @@ def main():
                 'yield_curve':    sclr(raw('yield_curve')),
                 'm2_yoy':         p.get('m2_mom', raw('m2_mom')),
                 'funding_rate':   sclr(raw('funding_rate'), 'avg_7d', 'latest'),
-                'smc':            sclr(raw('smc'), 'position'),
                 # cycle metrics (collected for future use)
                 'halving_cycle_day': sclr(raw('halving_cycle_day')),
                 'pi_cycle_gap_pct':  sclr(raw('pi_cycle'), 'gap_pct'),

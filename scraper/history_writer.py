@@ -80,18 +80,6 @@ def write_metric_histories(p):
         print('Failed to write CipherB history:', e)
 
     try:
-        smc_val = None
-        try:
-            smc_val = m.get('smc', {}).get('value')
-        except Exception:
-            pass
-        _append('data/history/smc.json',
-                {'timestamp': ts, 'btc_price': price, 'smc': smc_val})
-        print('Wrote data/history/smc.json')
-    except Exception as e:
-        print('Failed to write SMC history:', e)
-
-    try:
         etf_val = m.get('etf_flows', {}).get('value')
         _flow_7d = etf_val.get('value')      if isinstance(etf_val, dict) else etf_val
         _daily   = etf_val.get('daily_flow') if isinstance(etf_val, dict) else None
