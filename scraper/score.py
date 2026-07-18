@@ -18,7 +18,7 @@ import json
 import os
 
 from scraper.normalizer import normalize_metric
-from scraper.utility_evaluator import evaluate_all_utilities_continuous
+from scraper.utility_evaluator import evaluate_all_utilities_continuous, blend_phase_with_cycle_prior
 from scraper.bottom_confluence import (
     compute_bottom_confluence,
     load_calibration as _load_bc_cal,
@@ -307,6 +307,9 @@ def compute_score(
             pass
 
     w_bot, w_neutral, w_top, phase, top_signal, bot_signal = _phase_weights(normalized, prev_scores)
+
+    # Blend HMM phase weights with halving-cycle position prior (alpha=0.20)
+    w_bot, w_neutral, w_top = blend_phase_with_cycle_prior(w_bot, w_neutral, w_top, target_date)
 
     # ── 3. Wave Resonance (independent — no V2 required) ─────────────────────
     pi_raw = (raw_metrics.get('pi_cycle')

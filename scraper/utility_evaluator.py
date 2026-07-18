@@ -74,6 +74,34 @@ def halving_cycle_multiplier(canonical_key, cycle_day):
     return 1.0
 
 
+def blend_phase_with_cycle_prior(w_bot, w_neutral, w_top, target_date, alpha=0.20):
+    """Bayesian blend of HMM phase weights with halving-cycle position prior.
+
+    alpha=0.20: cycle prior contributes 20% of final weight; HMM drives 80%.
+    Cycle prior:
+      net > 0  (day ~500 ATH zone)  → prior_top = net,  prior_bot = 0
+      net < 0  (day ~900 bear zone) → prior_bot = |net|, prior_top = 0
+      prior_neutral = 1 - |net|     (always ≥ 0)
+    """
+    cd = halving_cycle_day_for(target_date)
+    net = _cycle_net_signal(cd)
+    prior_top = max(0.0, net)
+    prior_bot = max(0.0, -net)
+    prior_neutral = 1.0 - abs(net)
+
+    w_bot_new     = (1.0 - alpha) * w_bot     + alpha * prior_bot
+    w_top_new     = (1.0 - alpha) * w_top     + alpha * prior_top
+    w_neutral_new = (1.0 - alpha) * w_neutral + alpha * prior_neutral
+
+    total = w_bot_new + w_top_new + w_neutral_new
+    if total > 0:
+        w_bot_new     /= total
+        w_top_new     /= total
+        w_neutral_new /= total
+
+    return round(w_bot_new, 4), round(w_neutral_new, 4), round(w_top_new, 4)
+
+
 # Default baseline relevance profiles — cold-start fallback only.
 # The authoritative values come from the trained model pickle (metric_relevance key).
 RELEVANCE_PROFILES = {
