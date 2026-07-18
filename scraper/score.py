@@ -18,7 +18,7 @@ import json
 import os
 
 from scraper.normalizer import normalize_metric
-from scraper.utility_evaluator import evaluate_all_utilities_continuous
+from scraper.utility_evaluator import evaluate_all_utilities_continuous, halving_cycle_day_for
 from scraper.bottom_confluence import (
     compute_bottom_confluence,
     load_calibration as _load_bc_cal,
@@ -355,8 +355,7 @@ def compute_score(
     tiz_maturity = round(tiz_days / tiz_calibration, 3) if tiz_days > 0 else None
 
     # ── 5. Utility weights ────────────────────────────────────────────────────
-    _hcd = raw_metrics.get('halving_cycle_day')
-    _cycle_day = (_hcd.get('value') if isinstance(_hcd, dict) else _hcd) if _hcd is not None else None
+    _cycle_day = halving_cycle_day_for(target_date)
     utilities = evaluate_all_utilities_continuous(
         normalized, w_top, w_bot, w_neutral, tiz_maturity, cycle_day=_cycle_day
     )

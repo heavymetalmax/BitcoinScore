@@ -8,6 +8,28 @@ model pickle (single source of truth); Python defaults are the cold-start fallba
 
 import os
 import math
+import datetime
+
+# Historical halving dates — deterministic source of truth for cycle day computation.
+_HALVING_DATES = [
+    datetime.date(2012, 11, 28),
+    datetime.date(2016, 7,   9),
+    datetime.date(2020, 5,  11),
+    datetime.date(2024, 4,  19),
+]
+
+
+def halving_cycle_day_for(target_date):
+    """Return days elapsed since the most recent halving before target_date."""
+    if isinstance(target_date, str):
+        target_date = datetime.date.fromisoformat(target_date[:10])
+    if not isinstance(target_date, datetime.date):
+        return None
+    past = [h for h in _HALVING_DATES if h <= target_date]
+    if not past:
+        return None
+    return (target_date - past[-1]).days
+
 
 # Metrics whose utility should rise near cycle top (top-focused indicators)
 TOP_METRICS = {'cipherb', 'mayer_multiple', 'pi_gap', 'funding_rate', 'lth_supply'}
