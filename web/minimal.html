@@ -367,6 +367,18 @@
       color: var(--text);
       margin-bottom: 14px;
     }
+    .alpha-badge {
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: lowercase;
+      color: #64748B;
+      border: 1px solid #64748B50;
+      padding: 1px 5px;
+      border-radius: 4px;
+      vertical-align: super;
+      margin-left: 6px;
+    }
 
     .display-status {
       font-size: 1.15rem;
@@ -1441,8 +1453,8 @@
           <!-- Zone 1: Main Index -->
           <div class="click-zone zone-main" onclick="flipTo('forecast')">
             <span class="display-title">
-              <span class="en">Bitcoin Buy Risk Index</span>
-              <span class="ua">Індекс ризику купівлі Bitcoin</span>
+              <span class="en">Bitcoin Buy Risk Index<span class="alpha-badge">alpha</span></span>
+              <span class="ua">Індекс ризику купівлі Bitcoin<span class="alpha-badge">alpha</span></span>
             </span>
             <span class="display-status" id="main-status">—</span>
 
