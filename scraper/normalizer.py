@@ -79,6 +79,11 @@ def normalize_metric(metric, value, target_date=None):
     if value is None:
         return None
 
+    # Unwrap dictionaries before any normalization path
+    metric_val = value
+    if isinstance(metric_val, dict) and 'value' in metric_val:
+        metric_val = metric_val['value']
+
     # Normalise key (score.py uses 'mvrv' internally, normalizer receives both forms)
     cycle_key = metric
     if metric == 'mvrv_z_score':
@@ -87,15 +92,10 @@ def normalize_metric(metric, value, target_date=None):
         cycle_key = 'puell'
 
     if cycle_key in CYCLE_METRICS:
-        result = cycle_normalize(cycle_key, value, target_date)
+        result = cycle_normalize(cycle_key, metric_val, target_date)
         if result is not None:
             return result
         # Fall through to causal percentile / fixed map below
-        
-    # Unwrap dictionaries if necessary
-    metric_val = value
-    if isinstance(metric_val, dict) and 'value' in metric_val:
-        metric_val = metric_val['value']
         
     # Select appropriate fixed mapping function
     fixed_score = None
