@@ -338,8 +338,10 @@ def compute_scores_v3(raw_metrics, target_date=None, prev_scores=None, scores_hi
                 tiz_maturity = round(tiz_days / tiz_calibration, 3)
 
     # 7. Evaluate dynamic continuous utility coefficients
+    _hcd = raw_metrics.get('halving_cycle_day')
+    _cycle_day = (_hcd.get('value') if isinstance(_hcd, dict) else _hcd) if _hcd is not None else None
     utilities = evaluate_all_utilities_continuous(
-        normalized, w_top, w_bot, w_neutral, tiz_maturity
+        normalized, w_top, w_bot, w_neutral, tiz_maturity, cycle_day=_cycle_day
     )
 
     # 8. Dynamic utility-weighted average across a set of metrics

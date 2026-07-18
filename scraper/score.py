@@ -355,8 +355,10 @@ def compute_score(
     tiz_maturity = round(tiz_days / tiz_calibration, 3) if tiz_days > 0 else None
 
     # ── 5. Utility weights ────────────────────────────────────────────────────
+    _hcd = raw_metrics.get('halving_cycle_day')
+    _cycle_day = (_hcd.get('value') if isinstance(_hcd, dict) else _hcd) if _hcd is not None else None
     utilities = evaluate_all_utilities_continuous(
-        normalized, w_top, w_bot, w_neutral, tiz_maturity
+        normalized, w_top, w_bot, w_neutral, tiz_maturity, cycle_day=_cycle_day
     )
 
     # ── 6a. Flat utility-weighted average (all metrics) ───────────────────────

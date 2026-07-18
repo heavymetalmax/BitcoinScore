@@ -9,6 +9,51 @@ model pickle (single source of truth); Python defaults are the cold-start fallba
 import os
 import math
 
+# Metrics whose utility should rise near cycle top (top-focused indicators)
+TOP_METRICS = {'cipherb', 'mayer_multiple', 'pi_gap', 'funding_rate', 'lth_supply'}
+# Metrics whose utility should rise in post-peak/accumulation (bottom-focused indicators)
+BOT_METRICS = {'cvdd_ratio', 'puell', 'nupl', 'mvrv_z_score', 'rhodl_ratio'}
+
+
+def _cycle_top_bias(cycle_day):
+    """Smooth piecewise proxy [0.0, 1.0] for how close we are to the cycle top.
+
+    Calibrated to 4-year halving cycle: ATH typically around day 520-550.
+      Day 0-200:   0.10 → 0.30   (post-halving accumulation)
+      Day 200-530: 0.30 → 1.00   (approach to cycle peak)
+      Day 530-700: 1.00 → 0.30   (post-ATH distribution)
+      Day 700+:    0.30 → 0.10   (deep bear / pre-next-halving)
+    """
+    if cycle_day is None:
+        return 0.5
+    d = float(cycle_day)
+    if d < 0:
+        return 0.10
+    elif d < 200:
+        return 0.10 + 0.20 * (d / 200.0)
+    elif d < 530:
+        return 0.30 + 0.70 * ((d - 200.0) / 330.0)
+    elif d < 700:
+        return 1.00 - 0.70 * ((d - 530.0) / 170.0)
+    else:
+        t = min(1.0, (d - 700.0) / 300.0)
+        return 0.30 - 0.20 * t
+
+
+def halving_cycle_multiplier(canonical_key, cycle_day):
+    """Utility multiplier [0.85, 1.15] based on cycle position.
+
+    TOP_METRICS boosted as we near the peak; BOT_METRICS boosted post-peak.
+    Macro/tactical metrics (yield_curve, m2, etf_flows, etc.) are unaffected.
+    """
+    bias = _cycle_top_bias(cycle_day)
+    if canonical_key in TOP_METRICS:
+        return 0.85 + bias * 0.30
+    elif canonical_key in BOT_METRICS:
+        return 1.15 - bias * 0.30
+    return 1.0
+
+
 # Default baseline relevance profiles — cold-start fallback only.
 # The authoritative values come from the trained model pickle (metric_relevance key).
 RELEVANCE_PROFILES = {
@@ -71,7 +116,7 @@ def compute_std(values):
     return math.sqrt(variance)
 
 
-def evaluate_utility(metric, normalized_score, w_top, w_bot, w_neutral, tiz_maturity=None, recent_scores=None):
+def evaluate_utility(metric, normalized_score, w_top, w_bot, w_neutral, tiz_maturity=None, recent_scores=None, cycle_day=None):
     """Compute the utility coefficient U_i in [0.1, 1.0] for a given metric.
 
     Uses continuous state-space mixture weights.
@@ -108,8 +153,11 @@ def evaluate_utility(metric, normalized_score, w_top, w_bot, w_neutral, tiz_matu
         noise_dampening = 1.0 - noise_factor
         
     utility = base_utility * noise_dampening
-    
-    # 3. Time-in-Zone Temporal Scaling
+
+    # 3. Halving-cycle position modifier (±15%)
+    utility *= halving_cycle_multiplier(canonical_key, cycle_day)
+
+    # 4. Time-in-Zone Temporal Scaling
     # For bottom-focused indicators, suppress utility if we are in bottom territory and early (tiz_maturity < 0.25)
     if w_bot > 0.5 and tiz_maturity is not None and tiz_maturity < 0.25:
         bottom_metrics = {'cvdd_ratio', 'puell', 'asopr', 'nupl', 'mvrv_z_score'}
@@ -120,11 +168,11 @@ def evaluate_utility(metric, normalized_score, w_top, w_bot, w_neutral, tiz_matu
     return max(0.1, min(1.0, utility))
 
 
-def evaluate_all_utilities_continuous(normalized_scores, w_top, w_bot, w_neutral, tiz_maturity=None, metrics_history=None):
+def evaluate_all_utilities_continuous(normalized_scores, w_top, w_bot, w_neutral, tiz_maturity=None, metrics_history=None, cycle_day=None):
     """Evaluate utility coefficients for all metrics using continuous weights."""
     utilities = {}
     history = metrics_history or {}
     for k, v in normalized_scores.items():
         recent = history.get(k)
-        utilities[k] = evaluate_utility(k, v, w_top, w_bot, w_neutral, tiz_maturity, recent)
+        utilities[k] = evaluate_utility(k, v, w_top, w_bot, w_neutral, tiz_maturity, recent, cycle_day=cycle_day)
     return utilities
