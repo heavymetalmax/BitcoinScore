@@ -514,7 +514,17 @@ def main():
             history.append({
                 'date': today_str,
                 'final_score': p.get('final_score'),
-                'phase': p.get('v3_phase') or (p.get('phase', {}).get('phase', 'UNKNOWN') if isinstance(p.get('phase'), dict) else p.get('phase', 'UNKNOWN'))
+                'phase': p.get('v3_phase') or (p.get('phase', {}).get('phase', 'UNKNOWN') if isinstance(p.get('phase'), dict) else p.get('phase', 'UNKNOWN')),
+                'btc_price':    p.get('btc_price'),
+                'nupl':         p.get('nupl'),
+                'mvrv':         p.get('mvrv_z_score'),
+                'mayer_multiple': (p.get('metrics', {}).get('mayer_multiple') or {}).get('value', {}).get('score') if isinstance((p.get('metrics', {}).get('mayer_multiple') or {}).get('value'), dict) else None,
+                'cvdd_ratio':   p.get('cvdd_ratio'),
+                'rhodl_ratio':  p.get('rhodl_ratio'),
+                'puell':        (p.get('metrics', {}).get('puell_multiple') or {}).get('value') if isinstance(p.get('metrics', {}).get('puell_multiple'), dict) else p.get('puell_multiple'),
+                'fear_greed':   p.get('fear_greed'),
+                'funding_rate': p.get('funding_rate'),
+                'cipherb_daily': p.get('cipherb_daily'),
             })
         
         # Find yesterday's entry
