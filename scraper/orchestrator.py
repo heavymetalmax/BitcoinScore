@@ -236,40 +236,61 @@ def orchestrate(v2_score, v2_oc_coherence, wr_score, wr_coherence, tiz_maturity=
         trailing = [x for x in valid_hist if x['date'] >= t_cutoff]
         
         if len(trailing) >= 5 and btc_price is not None:
-            prices_t = [x.get('btc_price') for x in trailing if x.get('btc_price') is not None]
-            scores_t = [x.get('final_score') for x in trailing if x.get('final_score') is not None]
-            
-            if prices_t and scores_t:
-                max_price_t = max(prices_t)
-                min_price_t = min(prices_t)
-                max_score_t = max(scores_t)
-                min_score_t = min(scores_t)
-                
-                # Bearish Divergence conditions:
-                # 1. Price is near or above dynamic high (within 3%)
-                price_near_high = (btc_price >= 0.97 * max_price_t)
-                # 2. Risk score has decayed significantly from its peak in that period (dropped by >= 8 points)
-                score_decayed = (meta <= max_score_t - 8)
-                # 3. Current score is in the distribution/neutral-high zone (prevents false alerts at bottoms)
-                is_elevated = (meta >= 58)
-                
-                if price_near_high and score_decayed and is_elevated:
-                    bear_div = True
-                    # Override meta score to stay elevated (prevent fake cooldown)
-                    meta = max(meta, 82)
+            # Build paired (price, score) series for slope calculation
+            paired = [
+                (x.get('btc_price'), x.get('final_score'))
+                for x in trailing
+                if x.get('btc_price') is not None and x.get('final_score') is not None
+            ]
+            # Append current point
+            paired.append((btc_price, meta))
 
-                # Bullish Divergence conditions:
-                # 1. Price is near or below dynamic low (within 3%)
-                price_near_low = (btc_price <= 1.03 * min_price_t)
-                # 2. Risk score has risen significantly from its minimum in that period (risen by >= 8 points)
-                score_risen = (meta >= min_score_t + 8)
-                # 3. Current score is in the accumulation/neutral-low zone (prevents false alerts at tops)
-                is_depressed = (meta <= 45)
-                
-                if price_near_low and score_risen and is_depressed:
-                    bull_div = True
-                    # Override meta score to stay low (prevent fake early risk run-up)
-                    meta = min(meta, 25)
+            if len(paired) >= 5:
+                import math
+                n = len(paired)
+                xs = list(range(n))
+
+                def _slope(ys):
+                    mx = sum(xs) / n
+                    my = sum(ys) / n
+                    num = sum((xs[i] - mx) * (ys[i] - my) for i in range(n))
+                    den = sum((xs[i] - mx) ** 2 for i in range(n))
+                    return num / den if den else 0.0
+
+                prices_ser = [p for p, _ in paired]
+                scores_ser = [s for _, s in paired]
+
+                slope_p = _slope([math.log(p) for p in prices_ser])
+                slope_s = _slope(scores_ser)
+
+                # Normalise slopes to [-1, +1] by their own magnitude
+                # so neither dominates purely by unit scale
+                abs_p = abs(slope_p) or 1e-9
+                abs_s = abs(slope_s) or 1e-9
+
+                # Divergence strength: how opposite the two slopes are
+                # +1 = perfectly aligned, -1 = perfectly diverging
+                sign_p = 1 if slope_p >= 0 else -1
+                sign_s = 1 if slope_s >= 0 else -1
+                diverging = (sign_p != sign_s)
+
+                # Require minimum slope magnitude to avoid noise in flat markets
+                min_p_move = abs_p > 0.002   # >0.2% log-move per day on avg
+                min_s_move = abs_s > 0.3     # >0.3 score pts per day on avg
+
+                if diverging and min_p_move and min_s_move:
+                    if slope_p > 0 and slope_s < 0:
+                        # Bearish: price rising, score falling
+                        bear_div = True
+                        # Anchor meta at its recent peak to prevent fake cooldown
+                        peak_s = max(scores_ser[:-1]) if len(scores_ser) > 1 else meta
+                        meta = max(meta, round(peak_s))
+                    elif slope_p < 0 and slope_s > 0:
+                        # Bullish: price falling, score rising
+                        bull_div = True
+                        # Anchor meta at its recent trough to prevent fake early run-up
+                        trough_s = min(scores_ser[:-1]) if len(scores_ser) > 1 else meta
+                        meta = min(meta, round(trough_s))
 
     # For zone/flag outputs, we can compute them based on adaptive thresholds
     # to maintain full UI compatibility
