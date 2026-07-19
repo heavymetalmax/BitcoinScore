@@ -2886,14 +2886,18 @@
       try {
         const [r, rh] = await Promise.all([
           fetch('data.json?t=' + Date.now(), { cache: 'no-store' }),
-          fetch('score_history.json?t=' + Date.now(), { cache: 'no-store' }),
+          fetch('history/scores.json?t=' + Date.now(), { cache: 'no-store' }),
         ]);
         if(!r.ok) throw new Error('HTTP ' + r.status);
         data = await r.json();
         if (rh.ok) {
           const fullHistory = await rh.json();
           if (Array.isArray(fullHistory) && fullHistory.length > 0)
-            data.score_history = fullHistory;
+            data.score_history = fullHistory.map(e => ({
+              ...e,
+              score: e.score ?? e.final_score,
+              price: e.price ?? e.btc_price,
+            }));
         }
       } catch(e) {
         document.getElementById('footer').textContent = 'Failed to load data.json: ' + e;
