@@ -1,10 +1,10 @@
 {
-  "timestamp": "2026-07-19T07:01:37Z",
+  "timestamp": "2026-07-19T15:42:01Z",
   "date": "2026-07-19",
-  "btc_price": 64711.68,
-  "btc_dominance": 58.7,
-  "fear_greed": 32.9,
-  "fear_greed_label": "CMC",
+  "btc_price": 64574.01,
+  "btc_dominance": null,
+  "fear_greed": 25.7,
+  "fear_greed_label": "Fear",
   "nupl": 18.4234,
   "mvrv_z_score": 0.3939,
   "cvdd_ratio": 1.3375,
@@ -22,37 +22,37 @@
     "nupl": {
       "value": 18.4234,
       "source": "BMP",
-      "updated": "2026-07-19T07:00:18Z"
+      "updated": "2026-07-19T15:42:01Z"
     },
     "mvrv": {
       "value": 0.3939,
       "source": "BMP",
-      "updated": "2026-07-19T07:00:29Z"
+      "updated": "2026-07-19T15:42:01Z"
     },
     "m2": {
       "value": 9.71,
       "source": "MacroMicro",
-      "updated": "2026-07-19T07:00:33Z"
+      "updated": "2026-07-19T15:42:01Z"
     },
     "yield_curve": {
       "value": 0.37,
       "source": "BMP",
-      "updated": "2026-07-19T07:00:35Z"
+      "updated": "2026-07-19T15:42:01Z"
     },
     "cvdd_ratio": {
       "value": 1.3375,
       "source": "BMP",
-      "updated": "2026-07-19T07:00:46Z"
+      "updated": "2026-07-19T15:42:01Z"
     },
     "rhodl_ratio": {
       "value": 1047.4412,
       "source": "BMP",
-      "updated": "2026-07-19T07:00:58Z"
+      "updated": "2026-07-19T15:42:01Z"
     },
     "asopr": {
       "value": 1.0015,
       "source": "BMP",
-      "updated": "2026-07-19T07:01:18Z"
+      "updated": "2026-07-19T15:42:01Z"
     },
     "etf_flows": {
       "value": {
@@ -62,20 +62,20 @@
         "date": "2026-07-19"
       },
       "source": "Farside",
-      "updated": "2026-07-19T07:01:33Z"
+      "updated": "2026-07-19T15:42:01Z"
     },
     "dxy": {
       "value": 120.5046,
       "source": "FRED",
-      "updated": "2026-07-19T07:01:37Z"
+      "updated": "2026-07-19T15:42:01Z"
     },
     "fear_greed": {
-      "value": 32.9,
-      "latest": 36.0,
-      "avg_7d": 32.9,
-      "label": "CMC",
-      "source": "CMC",
-      "updated": "2026-07-19T07:01:37Z"
+      "value": 25.7,
+      "latest": 28,
+      "avg_7d": 25.7,
+      "label": "Fear",
+      "source": "Fear",
+      "updated": "2026-07-19T15:42:01Z"
     },
     "cipherb": {
       "value": {
@@ -92,7 +92,7 @@
         "daily_fast_bullish_div": false
       },
       "source": "Local",
-      "updated": "2026-07-19T07:01:37Z"
+      "updated": "2026-07-19T15:42:01Z"
     },
     "mayer_multiple": {
       "value": {
@@ -102,23 +102,23 @@
         "score": 24
       },
       "source": "Kraken",
-      "updated": "2026-07-19T07:01:38Z"
+      "updated": "2026-07-19T15:42:01Z"
     },
     "funding_rate": {
       "value": {
-        "latest": 0.00291,
-        "avg_7d": 0.00458,
-        "score": 36,
+        "latest": 0.01,
+        "avg_7d": 0.00481,
+        "score": 37,
         "periods": 21,
         "source": "Bybit+Binance"
       },
       "source": "Bybit+Binance",
-      "updated": "2026-07-19T07:01:38Z"
+      "updated": "2026-07-19T15:42:02Z"
     },
     "halving_cycle_day": {
       "value": 821,
       "source": "Local",
-      "updated": "2026-07-19T07:01:38Z"
+      "updated": "2026-07-19T15:42:02Z"
     },
     "pi_cycle": {
       "value": {
@@ -129,54 +129,54 @@
         "cross": false
       },
       "source": "Kraken",
-      "updated": "2026-07-19T07:01:39Z"
+      "updated": "2026-07-19T15:42:02Z"
     },
     "puell_multiple": {
       "value": 0.8457,
       "source": "BMP",
-      "updated": "2026-07-19T07:01:48Z"
+      "updated": "2026-07-19T15:42:12Z"
     },
     "lth_supply_pct": {
       "value": 16782077.7543,
       "source": "BMP",
-      "updated": "2026-07-19T07:01:57Z"
+      "updated": "2026-07-19T15:42:22Z"
     },
     "m2_mom": {
       "value": 9.71,
       "source": "MacroMicro",
-      "updated": "2026-07-19T07:01:57Z"
+      "updated": "2026-07-19T15:42:22Z"
     }
   },
   "m2_mom": 9.71,
-  "onchain_score": 23,
+  "onchain_score": 24,
   "tech_score": 34,
-  "final_score": 26,
+  "final_score": 34,
   "adaptive_calibration": {
     "nupl": {
       "fixed": 35,
-      "adaptive": 20,
-      "blended": 24,
+      "adaptive": 22,
+      "blended": 26,
       "win_years": 4,
       "blend_w": 0.7
     },
     "mvrv": {
       "fixed": 30,
-      "adaptive": 21,
-      "blended": 24,
+      "adaptive": 23,
+      "blended": 25,
       "win_years": 4,
       "blend_w": 0.7
     },
     "cvdd_ratio": {
       "fixed": 18,
-      "adaptive": 13,
-      "blended": 14,
+      "adaptive": 15,
+      "blended": 16,
       "win_years": 4,
       "blend_w": 0.7
     },
     "mayer": {
       "fixed": 24,
-      "adaptive": 26,
-      "blended": 25,
+      "adaptive": 28,
+      "blended": 27,
       "win_years": 4,
       "blend_w": 0.7
     },
@@ -190,366 +190,369 @@
   },
   "zone_forecast": {
     "buy": {
-      "price": 53554,
-      "pct": -17.2
+      "price": 54179,
+      "pct": -16.1
     },
     "sell": {
-      "price": 130819,
-      "pct": 102.2
+      "price": 130257,
+      "pct": 101.7
     },
     "buy_threshold": 20,
     "sell_threshold": 80,
-    "realized_price": 52790,
-    "ref_price": 64712
+    "realized_price": 52677,
+    "ref_price": 64574
   },
   "v2_score": 38,
   "scoring_regime": "bottom",
   "tiz_score": null,
   "tiz_days": 0,
-  "oc_coherence": 0.318,
-  "coh_factor": 0.727,
+  "oc_coherence": 0.37,
+  "coh_factor": 0.748,
   "pi_cross": false,
   "wave_resonance": {
-    "score": 21,
-    "coherence": 0.67,
-    "mean_osc": 0.064,
-    "std_osc": 0.095,
+    "score": 23,
+    "coherence": 0.685,
+    "mean_osc": 0.103,
+    "std_osc": 0.091,
     "oscillators": {
-      "nupl": 0.0208,
-      "mvrv": 0.0246,
-      "puell": 0.2845,
-      "cvdd_ratio": 0.0095,
-      "pi_gap": 0.0717
+      "nupl": 0.0539,
+      "mvrv": 0.0575,
+      "puell": 0.3058,
+      "cvdd_ratio": 0.0376,
+      "mayer": 0.1844,
+      "pi_gap": 0.0964
     },
-    "date_used": "2026-07-18",
+    "date_used": "2026-07-19",
     "window_pts": 1096
   },
   "signal": {
-    "meta_score": 26,
+    "meta_score": 32,
     "zone": "bottom",
-    "conviction": 0.557,
+    "conviction": 0.505,
     "flag": "PROBABLE_BOTTOM",
     "trust": {
-      "v3": 0.682,
-      "wr": 0.67
+      "v3": 0.596,
+      "wr": 0.685
     },
     "agreement": "confirmed",
-    "tiz_maturity": 0.841,
+    "tiz_maturity": 0.437,
     "geo_signal": {
       "top": 0,
-      "bot": 47
+      "bot": 50
     },
     "bear_div": false,
     "bull_div": false
   },
-  "v3_score": 28,
-  "v3_onchain_score": 23,
+  "v3_score": 33,
+  "v3_onchain_score": 24,
   "v3_tech_score": 34,
   "v3_phase": "NEUTRAL",
-  "v3_w_bot": 0.525,
-  "v3_w_neutral": 0.475,
+  "v3_w_bot": 0.533,
+  "v3_w_neutral": 0.467,
   "v3_w_top": 0.0,
   "v3_utilities": {
-    "nupl": 0.85756,
-    "mvrv_z_score": 0.85756,
-    "rhodl_ratio": 0.55252,
-    "cvdd_ratio": 0.71512,
+    "nupl": 0.85999,
+    "mvrv_z_score": 0.85999,
+    "rhodl_ratio": 0.55333,
+    "cvdd_ratio": 0.7199800000000001,
     "asopr": 0.1,
-    "puell": 0.7626,
-    "mayer_multiple": 0.49495999999999996,
-    "fear_greed": 0.71008,
-    "m2_yoy": 0.44243999999999994,
-    "yield_curve_spread": 0.44243999999999994,
-    "etf_flows": 0.5374,
-    "funding_rate": 0.39496,
+    "puell": 0.76665,
+    "mayer_multiple": 0.49334,
+    "fear_greed": 0.71332,
+    "m2_yoy": 0.44001,
+    "yield_curve_spread": 0.44001,
+    "etf_flows": 0.53335,
+    "funding_rate": 0.39334,
     "dxy": 0.5,
-    "lth_supply": 0.54748,
+    "lth_supply": 0.54667,
     "pi_gap": 0.1,
-    "cipherb": 0.54244,
+    "cipherb": 0.54001,
     "cipherb_weekly": 0.5,
-    "cipherb_daily": 0.5
+    "cipherb_daily": 0.5,
+    "btc_price_cycle": 0.14001
   },
   "v3_normalized_scores": {
     "nupl": 28,
     "mvrv_z_score": 28,
-    "rhodl_ratio": 22,
+    "rhodl_ratio": 30,
     "cvdd_ratio": 17,
     "asopr": 51,
     "puell": 28,
     "mayer_multiple": 30,
-    "fear_greed": 33,
+    "fear_greed": 26,
     "m2_yoy": 31,
     "yield_curve_spread": 54,
     "etf_flows": 47,
-    "funding_rate": 36,
+    "funding_rate": 37,
     "dxy": 81,
     "lth_supply": 8,
-    "cipherb": 14
+    "cipherb": 14,
+    "btc_price_cycle": 48
   },
   "v3_dxy_adj": {
     "score": 81,
     "adjustment": -0.1
   },
   "v3_signal": {
-    "meta_score": 26,
+    "meta_score": 32,
     "zone": "bottom",
-    "conviction": 0.557,
+    "conviction": 0.505,
     "flag": "PROBABLE_BOTTOM",
     "trust": {
-      "v3": 0.682,
-      "wr": 0.67
+      "v3": 0.596,
+      "wr": 0.685
     },
     "agreement": "confirmed",
-    "tiz_maturity": 0.841,
+    "tiz_maturity": 0.437,
     "geo_signal": {
       "top": 0,
-      "bot": 47
+      "bot": 50
     },
     "bear_div": false,
     "bull_div": false
   },
-  "v3_tiz_score": 10,
-  "v3_tiz_days": 227,
-  "v3_tiz_maturity": 0.841,
+  "v3_tiz_score": 24,
+  "v3_tiz_days": 118,
+  "v3_tiz_maturity": 0.437,
   "v3_tiz_calibration": 270,
-  "v3_oc_coherence": 0.682,
+  "v3_oc_coherence": 0.596,
   "data_quality": {
-    "active_metrics": 12,
-    "total_metrics": 12,
+    "active_metrics": 15,
+    "total_metrics": 15,
     "quality_pct": 100,
     "missing_metrics": []
   },
-  "sp_v2": 28,
+  "sp_v2": 33,
   "phase": {
     "phase": "NEUTRAL",
     "top_signal": 0,
-    "bot_signal": 47,
-    "w_bot": 0.525,
-    "w_neutral": 0.475,
+    "bot_signal": 50,
+    "w_bot": 0.533,
+    "w_neutral": 0.467,
     "w_top": 0.0
-  },
-  "prev_day": {
-    "date": "2026-07-18",
-    "final_score": 23
   },
   "prev_week": {
     "date": "2026-07-12",
-    "final_score": 26
+    "final_score": 31
+  },
+  "prev_day": {
+    "date": "2026-07-18",
+    "final_score": 30
   },
   "score_history": [
     {
       "date": "2026-04-20",
-      "score": 39,
+      "score": 47,
       "price": 75840.97
     },
     {
       "date": "2026-04-21",
-      "score": 40,
+      "score": 48,
       "price": 76336.15
     },
     {
       "date": "2026-04-22",
-      "score": 40,
+      "score": 49,
       "price": 78178.23
     },
     {
       "date": "2026-04-23",
-      "score": 40,
+      "score": 51,
       "price": 78257.48
     },
     {
       "date": "2026-04-24",
-      "score": 41,
+      "score": 51,
       "price": 77437.13
     },
     {
       "date": "2026-04-25",
-      "score": 41,
+      "score": 50,
       "price": 77625.0
     },
     {
       "date": "2026-04-26",
-      "score": 41,
+      "score": 49,
       "price": 78657.55
     },
     {
       "date": "2026-04-27",
-      "score": 42,
+      "score": 52,
       "price": 77371.32
     },
     {
       "date": "2026-04-28",
-      "score": 41,
+      "score": 48,
       "price": 76342.77
     },
     {
       "date": "2026-04-29",
-      "score": 39,
+      "score": 46,
       "price": 75780.0
     },
     {
       "date": "2026-04-30",
-      "score": 39,
+      "score": 47,
       "price": 76346.57
     },
     {
       "date": "2026-05-01",
-      "score": 38,
+      "score": 46,
       "price": 78231.13
     },
     {
       "date": "2026-05-02",
-      "score": 38,
+      "score": 49,
       "price": 78686.85
     },
     {
       "date": "2026-05-03",
-      "score": 40,
+      "score": 50,
       "price": 78568.57
     },
     {
       "date": "2026-05-04",
-      "score": 40,
+      "score": 50,
       "price": 79861.01
     },
     {
       "date": "2026-05-05",
-      "score": 42,
+      "score": 53,
       "price": 80905.52
     },
     {
       "date": "2026-05-06",
-      "score": 40,
+      "score": 52,
       "price": 81447.01
     },
     {
       "date": "2026-05-07",
-      "score": 39,
+      "score": 50,
       "price": 80006.0
     },
     {
       "date": "2026-05-08",
-      "score": 39,
+      "score": 49,
       "price": 80193.17
     },
     {
       "date": "2026-05-09",
-      "score": 40,
+      "score": 50,
       "price": 80678.4
     },
     {
       "date": "2026-05-10",
-      "score": 40,
+      "score": 51,
       "price": 82210.07
     },
     {
       "date": "2026-05-11",
-      "score": 41,
+      "score": 52,
       "price": 81745.65
     },
     {
       "date": "2026-05-12",
-      "score": 39,
+      "score": 51,
       "price": 80504.47
     },
     {
       "date": "2026-05-13",
-      "score": 39,
+      "score": 48,
       "price": 79313.61
     },
     {
       "date": "2026-05-14",
-      "score": 37,
+      "score": 48,
       "price": 81089.99
     },
     {
       "date": "2026-05-15",
-      "score": 37,
+      "score": 46,
       "price": 79113.21
     },
     {
       "date": "2026-05-16",
-      "score": 35,
+      "score": 44,
       "price": 78148.05
     },
     {
       "date": "2026-05-17",
-      "score": 37,
+      "score": 43,
       "price": 77457.67
     },
     {
       "date": "2026-05-18",
-      "score": 36,
+      "score": 41,
       "price": 77001.87
     },
     {
       "date": "2026-05-19",
-      "score": 36,
+      "score": 41,
       "price": 76834.36
     },
     {
       "date": "2026-05-20",
-      "score": 37,
+      "score": 41,
       "price": 77552.23
     },
     {
       "date": "2026-05-21",
-      "score": 35,
+      "score": 41,
       "price": 77615.52
     },
     {
       "date": "2026-05-22",
-      "score": 36,
+      "score": 42,
       "price": 75539.5
     },
     {
       "date": "2026-05-23",
-      "score": 37,
+      "score": 42,
       "price": 76752.01
     },
     {
       "date": "2026-05-24",
-      "score": 36,
+      "score": 40,
       "price": 77064.96
     },
     {
       "date": "2026-05-25",
-      "score": 36,
+      "score": 41,
       "price": 77322.01
     },
     {
       "date": "2026-05-26",
-      "score": 35,
+      "score": 41,
       "price": 75930.01
     },
     {
       "date": "2026-05-27",
-      "score": 34,
+      "score": 40,
       "price": 74449.3
     },
     {
       "date": "2026-05-28",
-      "score": 35,
+      "score": 40,
       "price": 73617.51
     },
     {
       "date": "2026-05-29",
-      "score": 34,
+      "score": 40,
       "price": 73460.78
     },
     {
       "date": "2026-05-30",
-      "score": 34,
+      "score": 40,
       "price": 73884.38
     },
     {
       "date": "2026-05-31",
-      "score": 34,
+      "score": 41,
       "price": 73674.39
     },
     {
       "date": "2026-06-01",
-      "score": 34,
+      "score": 37,
       "price": 71408.9
     },
     {
@@ -559,57 +562,57 @@
     },
     {
       "date": "2026-06-03",
-      "score": 27,
+      "score": 30,
       "price": 64142.75
     },
     {
       "date": "2026-06-04",
-      "score": 25,
+      "score": 30,
       "price": 63885.99
     },
     {
       "date": "2026-06-05",
-      "score": 25,
+      "score": 24,
       "price": 61056.47
     },
     {
       "date": "2026-06-06",
-      "score": 26,
+      "score": 23,
       "price": 60884.62
     },
     {
       "date": "2026-06-07",
-      "score": 23,
+      "score": 31,
       "price": 63332.01
     },
     {
       "date": "2026-06-08",
-      "score": 25,
+      "score": 30,
       "price": 63085.99
     },
     {
       "date": "2026-06-09",
-      "score": 25,
+      "score": 24,
       "price": 61730.0
     },
     {
       "date": "2026-06-10",
-      "score": 23,
+      "score": 24,
       "price": 61510.99
     },
     {
       "date": "2026-06-11",
-      "score": 24,
+      "score": 28,
       "price": 63625.99
     },
     {
       "date": "2026-06-12",
-      "score": 24,
+      "score": 25,
       "price": 63467.4
     },
     {
       "date": "2026-06-13",
-      "score": 23,
+      "score": 24,
       "price": 64122.86
     },
     {
@@ -619,17 +622,17 @@
     },
     {
       "date": "2026-06-15",
-      "score": 24,
+      "score": 25,
       "price": 65698.06
     },
     {
       "date": "2026-06-16",
-      "score": 24,
+      "score": 25,
       "price": 66528.18
     },
     {
       "date": "2026-06-17",
-      "score": 24,
+      "score": 25,
       "price": 64906.7
     },
     {
@@ -639,52 +642,52 @@
     },
     {
       "date": "2026-06-19",
-      "score": 23,
+      "score": 30,
       "price": 62407.5
     },
     {
       "date": "2026-06-20",
-      "score": 22,
+      "score": 31,
       "price": 63590.74
     },
     {
       "date": "2026-06-21",
-      "score": 25,
+      "score": 31,
       "price": 63900.68
     },
     {
       "date": "2026-06-22",
-      "score": 22,
+      "score": 28,
       "price": 64146.01
     },
     {
       "date": "2026-06-23",
-      "score": 22,
+      "score": 28,
       "price": 62393.03
     },
     {
       "date": "2026-06-24",
-      "score": 25,
+      "score": 28,
       "price": 62470.86
     },
     {
       "date": "2026-06-25",
-      "score": 23,
+      "score": 27,
       "price": 61212.44
     },
     {
       "date": "2026-06-26",
-      "score": 22,
+      "score": 26,
       "price": 60004.99
     },
     {
       "date": "2026-06-27",
-      "score": 24,
+      "score": 23,
       "price": 60408.37
     },
     {
       "date": "2026-06-28",
-      "score": 24,
+      "score": 23,
       "price": 60278.91
     },
     {
@@ -694,7 +697,7 @@
     },
     {
       "date": "2026-06-30",
-      "score": 23,
+      "score": 21,
       "price": 59293.68
     },
     {
@@ -704,7 +707,7 @@
     },
     {
       "date": "2026-07-02",
-      "score": 24,
+      "score": 22,
       "price": 60431.95
     },
     {
@@ -714,83 +717,83 @@
     },
     {
       "date": "2026-07-04",
-      "score": 24,
+      "score": 30,
       "price": 62582.63
     },
     {
       "date": "2026-07-05",
-      "score": 27,
+      "score": 29,
       "price": 62655.0
     },
     {
       "date": "2026-07-06",
-      "score": 26,
+      "score": 29,
       "price": 62764.72
     },
     {
       "date": "2026-07-07",
-      "score": 24,
+      "score": 31,
       "price": 63078.3
     },
     {
       "date": "2026-07-08",
-      "score": 25,
+      "score": 32,
       "price": null
     },
     {
       "date": "2026-07-09",
-      "score": 25,
+      "score": 32,
       "price": null
     },
     {
       "date": "2026-07-10",
-      "score": 26,
+      "score": 33,
       "price": null
     },
     {
       "date": "2026-07-11",
-      "score": 26,
+      "score": 33,
       "price": null
     },
     {
       "date": "2026-07-12",
-      "score": 26,
+      "score": 31,
       "price": 64183.0
     },
     {
       "date": "2026-07-13",
-      "score": 27,
+      "score": 33,
       "price": null
     },
     {
       "date": "2026-07-14",
-      "score": 28,
+      "score": 32,
       "price": null
     },
     {
       "date": "2026-07-15",
-      "score": 28,
+      "score": 32,
       "price": 64814.01
     },
     {
       "date": "2026-07-16",
-      "score": 30,
+      "score": 37,
       "price": 64136.92
     },
     {
       "date": "2026-07-17",
-      "score": 29,
+      "score": 33,
       "price": 62910.01
     },
     {
       "date": "2026-07-18",
-      "score": 23,
+      "score": 30,
       "price": 64169.16
     },
     {
       "date": "2026-07-19",
-      "score": 26,
-      "price": 64711.68
+      "score": 34,
+      "price": 64574.01
     }
   ]
 }
