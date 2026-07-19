@@ -148,6 +148,14 @@ def compute_tiz_causal(scores_history, target_date, threshold=_THRESHOLD, window
     calibration  = adaptive_calibration(min_score)
     days_in_zone = len(in_zone)
 
+    # Include the gap between the last recorded in-zone date and target_date.
+    # Today's entry isn't in scores.json yet when compute_score() runs, so
+    # without this correction the count freezes at yesterday's value.
+    last_in_zone_date = datetime.date.fromisoformat(in_zone[-1][0])
+    gap = (target_date - last_in_zone_date).days
+    if gap > 0:
+        days_in_zone += gap
+
     progress  = min(1.0, days_in_zone / calibration)
     tiz_score = round(_SCORE_FRESH + (_SCORE_MATURE - _SCORE_FRESH) * progress)
     return tiz_score, days_in_zone, calibration
