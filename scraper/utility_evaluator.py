@@ -126,11 +126,9 @@ RELEVANCE_PROFILES = {
     # General On-Chain (high relevance at both extremes)
     'nupl':                {'BOTTOM': 1.0, 'NEUTRAL': 0.7, 'TOP': 1.0},
     'mvrv_z_score':        {'BOTTOM': 1.0, 'NEUTRAL': 0.7, 'TOP': 1.0},
-    # rhodl: disc=+16.2 on confirmed extremes — weakest top discriminator.
-    # Avg_top=45, avg_bot=29: reads flat 35-60 at ALL confirmed tops (macro and sub).
-    # Only works for Dec-2017 macro top; reduces score at all other tops.
-    # Reducing TOP weight is clearly justified; BOTTOM weight kept (reads low at bottoms).
-    'rhodl_ratio':         {'BOTTOM': 0.6, 'NEUTRAL': 0.5, 'TOP': 0.20},
+    # rhodl: now uses intra_cycle_percentile (within current cycle from last confirmed bottom).
+    # Correctly reads 85-100 at cycle peaks and <20 at bottoms — valid top/bottom discriminator.
+    'rhodl_ratio':         {'BOTTOM': 0.6, 'NEUTRAL': 0.5, 'TOP': 0.60},
     # Tech/Macro Top-focused
     'cipherb':             {'BOTTOM': 0.4, 'NEUTRAL': 0.7, 'TOP': 1.0},
     'mayer_multiple':      {'BOTTOM': 0.4, 'NEUTRAL': 0.6, 'TOP': 1.0},

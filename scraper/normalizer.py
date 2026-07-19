@@ -12,7 +12,11 @@ from scraper.scoring import (
     map_etf_flow, map_funding, map_dxy, map_lth_supply, _load_metric_history,
     ADAPTIVE_METRICS, ADAPTIVE_BLEND, ADAPTIVE_BLEND_OVERRIDE, ADAPTIVE_WIN_YEARS,
 )
-from scraper.cycle_normalizer import cycle_normalize, SUPPORTED_METRICS as CYCLE_METRICS
+from scraper.cycle_normalizer import (
+    cycle_normalize, intra_cycle_percentile,
+    SUPPORTED_METRICS as CYCLE_METRICS,
+    INTRA_CYCLE_METRICS,
+)
 from scraper.scoring_v2 import map_puell
 
 # Trailing window for rolling percentile rank
@@ -90,6 +94,12 @@ def normalize_metric(metric, value, target_date=None):
         cycle_key = 'mvrv'
     elif metric == 'puell_multiple':
         cycle_key = 'puell'
+
+    if metric in INTRA_CYCLE_METRICS:
+        result = intra_cycle_percentile(metric, metric_val, target_date)
+        if result is not None:
+            return result
+        # Fall through to causal percentile / fixed map below
 
     if cycle_key in CYCLE_METRICS:
         result = cycle_normalize(cycle_key, metric_val, target_date)
