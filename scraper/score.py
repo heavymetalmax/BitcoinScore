@@ -29,11 +29,15 @@ from scraper.tiz import compute_tiz_causal, adaptive_calibration as _tiz_cal
 from scraper.wave_resonance import compute_wave_resonance
 from scraper.scoring import _oc_coherence
 
-# ── Metric groups (for informational sub-scores only) ─────────────────────────
-OC_GROUP   = {'nupl', 'mvrv_z_score', 'rhodl_ratio', 'cvdd_ratio', 'asopr', 'puell', 'lth_supply'}
-TECH_GROUP = {'cipherb', 'mayer_multiple', 'fear_greed', 'etf_flows',
-              'yield_curve_spread', 'm2_yoy', 'pi_gap', 'funding_rate',
-              'btc_price_cycle'}
+# ── Basket definitions (V4 two-layer structural/vectorial architecture) ───────
+BASKET_OC = {'nupl', 'mvrv_z_score', 'rhodl_ratio', 'cvdd_ratio', 'puell', 'lth_supply'}
+BASKET_MS = {'cipherb', 'mayer_multiple', 'funding_rate', 'fear_greed', 'etf_flows'}
+BASKET_MC = {'m2_yoy', 'yield_curve_spread'}
+BASKET_CP = {'btc_price_cycle', 'pi_gap'}
+
+# Legacy aliases (backward-compat for any external callers)
+OC_GROUP   = BASKET_OC
+TECH_GROUP = BASKET_MS | BASKET_MC | BASKET_CP
 
 _CAL_PATH  = 'data/v3_calibration.json'
 _cal_cache: dict | None = None
@@ -381,46 +385,88 @@ def compute_score(
         normalized, w_top, w_bot, w_neutral, tiz_maturity
     )
 
-    # ── 6a. Flat utility-weighted average (all metrics) ───────────────────────
-    flat_avg = _wavg(OC_GROUP | TECH_GROUP, normalized, utilities)
-    oc_avg   = _wavg(OC_GROUP,   normalized, utilities)
-    tech_avg = _wavg(TECH_GROUP, normalized, utilities)
+    # ── 6a. Basket averages (V4) ──────────────────────────────────────────────
+    OC = _wavg(BASKET_OC, normalized, utilities)
+    MS = _wavg(BASKET_MS, normalized, utilities)
+    MC = _wavg(BASKET_MC, normalized, utilities)
+    CP = _wavg(BASKET_CP, normalized, utilities)
 
-    # ── 6b. TiZ blend — continuous, scales with w_bot ─────────────────────────
-    final = flat_avg
-    if final is not None and tiz_score is not None:
-        tw    = tiz_cfg['weight']
-        final = round((1.0 - tw * w_bot) * flat_avg + tw * w_bot * tiz_score)
+    # Informational sub-scores (backward-compat keys for pipeline/dashboard)
+    oc_avg   = OC
+    tech_avg = _wavg(BASKET_MS | BASKET_MC | BASKET_CP, normalized, utilities)
 
-    # ── 6c. DXY macro modifier ────────────────────────────────────────────────
+    # ── 6b. Step 1: CP contextualises OC (regime multiplier) ─────────────────
+    CP_safe = CP if CP is not None else 50
+    OC_read = OC * (0.60 + 0.40 * CP_safe / 100) if OC is not None else None
+
+    # ── 6c. Step 2: F_structural ("where we are") ────────────────────────────
+    w_mc = w_bot * 0.05 + w_neutral * 0.25 + w_top * 0.05
+    if OC_read is not None:
+        if MC is not None:
+            F_structural = (1.0 - w_mc) * OC_read + w_mc * MC
+        else:
+            F_structural = OC_read
+    elif MC is not None:
+        F_structural = float(MC)
+    else:
+        F_structural = 50.0
+
+    # TiZ blend: scales with w_bot (BOTTOM phase emphasis)
+    if tiz_score is not None:
+        tw = tiz_cfg['weight']  # 0.20
+        F_structural = (1.0 - tw * w_bot) * F_structural + tw * w_bot * tiz_score
+
+    # OC floor: prevent CP from over-discounting on-chain signal early in cycle
+    if OC is not None:
+        F_structural = max(F_structural, 0.70 * OC)
+
+    # ── 6d. Coherence dampening — applied to F_structural only ───────────────
+    oc_coherence = _oc_coherence(normalized)
+    coh_factor   = 1.0
+    coh_floor = (
+        cd['bottom_coh_floor'] * w_bot
+        + cd['neutral_coh_floor'] * w_neutral
+        + cd['top_coh_floor']    * w_top
+    )
+    neutral_s = (
+        cd['bottom_neutral_target'] * w_bot
+        + cd['neutral_neutral_target'] * w_neutral
+        + cd['top_neutral_target']    * w_top
+    )
+    coh_factor   = round(coh_floor + (1.0 - coh_floor) * oc_coherence, 3)
+    F_structural = neutral_s + (F_structural - neutral_s) * coh_factor
+
+    # ── 6e. Step 3: F_vectorial ("where we're going") ────────────────────────
+    # div uses raw OC (not OC_read) to avoid phantom divergence when OC == CP
+    div   = max(0, CP_safe - OC) if OC is not None else 0
+    w_ms  = w_bot * 0.30 + w_neutral * 0.60 + w_top * 0.80
+    w_div = w_top * 0.40
+    denom = w_ms + w_div
+    if MS is not None and denom > 0:
+        F_vectorial = (w_ms * MS + w_div * div) / denom
+    elif MS is not None:
+        F_vectorial = float(MS)
+    else:
+        F_vectorial = float(div) if div > 0 else 50.0
+
+    # ── 6f. Step 4: Headroom synthesis ───────────────────────────────────────
+    phase_blend = w_bot * 0.20 + w_neutral * 0.50 + w_top * 1.00
+    headroom    = 100.0 - F_structural
+    final_float = F_structural + headroom * (F_vectorial / 100.0) * phase_blend
+
+    # ── 6g. DXY macro modifier ────────────────────────────────────────────────
     dxy_score = normalized.get('dxy')
     dxy_adj   = 0.0
-    if final is not None and dxy_score is not None:
+    if dxy_score is not None:
         if dxy_score > dxy_cfg['high']:
             dxy_adj = -min(dxy_cfg['max_adj'], (dxy_score - dxy_cfg['high']) * dxy_cfg['scale'])
         elif dxy_score < dxy_cfg['low']:
             dxy_adj = min(dxy_cfg['max_adj'], (dxy_cfg['low'] - dxy_score) * dxy_cfg['scale'])
-        if dxy_adj != 0.0:
-            final = max(0, min(100, round(final + dxy_adj)))
+        final_float += dxy_adj
 
-    # ── 6d. Coherence dampening — fully continuous ────────────────────────────
-    oc_coherence = _oc_coherence(normalized)
-    coh_factor   = 1.0
-    if final is not None:
-        coh_floor = (
-            cd['bottom_coh_floor'] * w_bot
-            + cd['neutral_coh_floor'] * w_neutral
-            + cd['top_coh_floor']    * w_top
-        )
-        neutral_target = (
-            cd['bottom_neutral_target'] * w_bot
-            + cd['neutral_neutral_target'] * w_neutral
-            + cd['top_neutral_target']    * w_top
-        )
-        coh_factor = round(coh_floor + (1.0 - coh_floor) * oc_coherence, 3)
-        final = round(neutral_target + (final - neutral_target) * coh_factor)
+    final = max(0, min(100, round(final_float)))
 
-    # ── 6e. Pi Cycle top override ─────────────────────────────────────────────
+    # ── 6h. Pi Cycle top override ─────────────────────────────────────────────
     # pi_raw is a dict with 'cross' key during live scoring, but a plain float
     # (pi_gap_pct) during recompute from scores.json — detect both forms.
     _pi_gap_val = _extract_pi_gap(pi_raw)
@@ -441,6 +487,11 @@ def compute_score(
         'bot_signal':         bot_signal,
         'onchain_avg':        oc_avg,
         'tech_avg':           tech_avg,
+        'oc_basket':          round(OC) if OC is not None else None,
+        'ms_basket':          round(MS) if MS is not None else None,
+        'mc_basket':          round(MC) if MC is not None else None,
+        'cp_basket':          round(CP) if CP is not None else None,
+        'oc_read':            round(OC_read) if OC_read is not None else None,
         'tiz_score':          tiz_score,
         'tiz_days':           tiz_days,
         'tiz_maturity':       tiz_maturity,
