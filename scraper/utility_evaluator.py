@@ -74,10 +74,14 @@ def halving_cycle_multiplier(canonical_key, cycle_day):
     return 1.0
 
 
-def blend_phase_with_cycle_prior(w_bot, w_neutral, w_top, target_date, alpha=0.20):
+def blend_phase_with_cycle_prior(w_bot, w_neutral, w_top, target_date, max_alpha=0.55):
     """Bayesian blend of HMM phase weights with halving-cycle position prior.
 
-    alpha=0.20: cycle prior contributes 20% of final weight; HMM drives 80%.
+    Alpha is computed dynamically from the L1 distance between HMM and cycle prior.
+    When they agree (same phase direction), alpha is near 0 — HMM drives the result.
+    When they disagree (e.g. HMM=NEUTRAL, cycle=strongly TOP), alpha rises toward
+    max_alpha, letting the cycle prior correct a miscalibrated HMM.
+
     Cycle prior:
       net > 0  (day ~500 ATH zone)  → prior_top = net,  prior_bot = 0
       net < 0  (day ~900 bear zone) → prior_bot = |net|, prior_top = 0
@@ -88,6 +92,10 @@ def blend_phase_with_cycle_prior(w_bot, w_neutral, w_top, target_date, alpha=0.2
     prior_top = max(0.0, net)
     prior_bot = max(0.0, -net)
     prior_neutral = 1.0 - abs(net)
+
+    # L1 distance ∈ [0, 1]: 0 = full agreement, 1 = maximally opposite
+    l1 = (abs(w_bot - prior_bot) + abs(w_neutral - prior_neutral) + abs(w_top - prior_top)) / 2.0
+    alpha = l1 * max_alpha
 
     w_bot_new     = (1.0 - alpha) * w_bot     + alpha * prior_bot
     w_top_new     = (1.0 - alpha) * w_top     + alpha * prior_top

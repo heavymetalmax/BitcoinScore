@@ -308,8 +308,16 @@ def compute_score(
 
     w_bot, w_neutral, w_top, phase, top_signal, bot_signal = _phase_weights(normalized, prev_scores)
 
-    # Blend HMM phase weights with halving-cycle position prior (alpha=0.20)
+    # Blend HMM phase weights with halving-cycle position prior (dynamic alpha)
     w_bot, w_neutral, w_top = blend_phase_with_cycle_prior(w_bot, w_neutral, w_top, target_date)
+
+    # Update phase label to reflect blended weights
+    if w_top >= 0.40 and w_top > w_bot:
+        phase = 'TOP'
+    elif w_bot >= BOTTOM_PHASE_THRESHOLD and w_bot > w_top:
+        phase = 'BOTTOM'
+    else:
+        phase = 'NEUTRAL'
 
     # ── 3. Wave Resonance (independent — no V2 required) ─────────────────────
     pi_raw = (raw_metrics.get('pi_cycle')
