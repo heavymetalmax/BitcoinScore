@@ -41,6 +41,7 @@ TECH_GROUP = BASKET_MS | BASKET_MC | BASKET_CP
 
 _CAL_PATH  = 'data/v3_calibration.json'
 _cal_cache: dict | None = None
+_hmm_cache: dict = {}   # keyed by model path; avoids re-loading pkl on every call
 
 
 def load_calibration() -> dict:
@@ -189,20 +190,22 @@ def _phase_weights(normalized: dict, prev_scores: dict | None) -> tuple[float, f
         import os, pickle
         model_path = 'data/v3_phase_model.pkl'
         if os.path.exists(model_path):
-            try:
-                from tools.train_v3_hmm_model import HMMPhaseClassifier as _hmm_cls
-            except ImportError:
-                _hmm_cls = None
+            if model_path not in _hmm_cache:
+                try:
+                    from tools.train_v3_hmm_model import HMMPhaseClassifier as _hmm_cls
+                except ImportError:
+                    _hmm_cls = None
 
-            class _Unpickler(pickle.Unpickler):
-                def find_class(self, module, name):
-                    if name == 'HMMPhaseClassifier' and _hmm_cls is not None:
-                        return _hmm_cls
-                    return super().find_class(module, name)
+                class _Unpickler(pickle.Unpickler):
+                    def find_class(self, module, name):
+                        if name == 'HMMPhaseClassifier' and _hmm_cls is not None:
+                            return _hmm_cls
+                        return super().find_class(module, name)
 
-            with open(model_path, 'rb') as f:
-                model_data = _Unpickler(f).load()
-            pipeline = model_data['pipeline']
+                with open(model_path, 'rb') as f:
+                    _hmm_cache[model_path] = _Unpickler(f).load()['pipeline']
+
+            pipeline = _hmm_cache[model_path]
 
             METRIC_ORDER = [
                 'nupl', 'mvrv_z_score', 'rhodl_ratio', 'cvdd_ratio', 'mayer_multiple',
