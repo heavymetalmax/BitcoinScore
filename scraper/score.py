@@ -18,6 +18,7 @@ import json
 import os
 
 from scraper.normalizer import normalize_metric
+from scraper.cycle_normalizer import price_cycle_percentile
 from scraper.utility_evaluator import evaluate_all_utilities_continuous, blend_phase_with_cycle_prior
 from scraper.bottom_confluence import (
     compute_bottom_confluence,
@@ -31,7 +32,8 @@ from scraper.scoring import _oc_coherence
 # ── Metric groups (for informational sub-scores only) ─────────────────────────
 OC_GROUP   = {'nupl', 'mvrv_z_score', 'rhodl_ratio', 'cvdd_ratio', 'asopr', 'puell', 'lth_supply'}
 TECH_GROUP = {'cipherb', 'mayer_multiple', 'fear_greed', 'etf_flows',
-              'yield_curve_spread', 'm2_yoy', 'pi_gap', 'funding_rate'}
+              'yield_curve_spread', 'm2_yoy', 'pi_gap', 'funding_rate',
+              'btc_price_cycle'}
 
 _CAL_PATH  = 'data/v3_calibration.json'
 _cal_cache: dict | None = None
@@ -144,6 +146,11 @@ def _normalize(raw_metrics: dict, target_date: datetime.date) -> dict:
     normalized['cipherb']         = blended
     normalized['cipherb_weekly']  = weekly_raw
     normalized['cipherb_daily']   = daily_raw
+
+    # BTC price within current cycle (0=cycle bottom, 100=new cycle ATH)
+    # Price comes from raw_metrics if available, otherwise caller must inject it separately.
+    _price = raw_metrics.get('btc_price') or raw_metrics.get('price')
+    normalized['btc_price_cycle'] = price_cycle_percentile(target_date, _price)
 
     return normalized
 
@@ -295,7 +302,11 @@ def compute_score(
     dxy_cfg = cal['dxy_modifier']
 
     # ── 1. Normalize ──────────────────────────────────────────────────────────
-    normalized = _normalize(raw_metrics, target_date)
+    # Inject btc_price so _normalize can compute btc_price_cycle
+    _raw_with_price = dict(raw_metrics)
+    if btc_price is not None and 'btc_price' not in _raw_with_price:
+        _raw_with_price['btc_price'] = btc_price
+    normalized = _normalize(_raw_with_price, target_date)
 
     # ── 2. Phase weights ──────────────────────────────────────────────────────
     if prev_scores is None:

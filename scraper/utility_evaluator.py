@@ -145,6 +145,10 @@ RELEVANCE_PROFILES = {
     'funding_rate':        {'BOTTOM': 0.3, 'NEUTRAL': 0.5, 'TOP': 0.8},
     # LTH Supply: distribution is an early TOP warning; accumulation validates BOTTOM
     'lth_supply':          {'BOTTOM': 0.5, 'NEUTRAL': 0.6, 'TOP': 0.9},
+    # BTC price within current cycle: 0=cycle bottom, 100=new cycle ATH.
+    # Direct price-based risk: at ATH in TOP phase = maximum buy risk.
+    # Zero weight at BOTTOM (price near lows is expected/desired there).
+    'btc_price_cycle':     {'BOTTOM': 0.0, 'NEUTRAL': 0.3, 'TOP': 0.8},
 }
 
 _MODEL_PATH = 'data/v3_phase_model.pkl'

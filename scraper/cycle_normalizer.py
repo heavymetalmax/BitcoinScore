@@ -145,6 +145,49 @@ def intra_cycle_percentile(metric: str, value, target_date) -> int | None:
     return round(sum(1 for cv in cycle_vals if cv <= v) / len(cycle_vals) * 100)
 
 
+def price_cycle_percentile(target_date, current_price) -> int | None:
+    """Percentile rank of current BTC price within the current bull cycle.
+
+    When price is at new cycle ATH → 100. At cycle bottom → 0.
+    Uses btc_price field from scores.json (_scores_map).
+
+    This metric captures the direct price-based risk dimension: being at a
+    higher price within the cycle is unambiguously riskier to buy regardless
+    of what on-chain metrics show. High utility in TOP phase only.
+
+    Returns None if fewer than 90 days of price history in current cycle.
+    """
+    if current_price is None or not _extremes or not _scores_map:
+        return None
+
+    if isinstance(target_date, datetime.date):
+        target_str = target_date.isoformat()
+    else:
+        target_str = str(target_date)
+
+    bottoms = sorted(
+        [e for e in _extremes if e['type'] == 'BOTTOM' and e['date'] < target_str],
+        key=lambda e: e['date'],
+    )
+    if not bottoms:
+        return None
+
+    cycle_start = bottoms[-1]['date']
+
+    prices = []
+    for date, row in _scores_map.items():
+        if cycle_start <= date < target_str:
+            p = row.get('btc_price')
+            if p is not None:
+                prices.append(float(p))
+
+    if len(prices) < 90:
+        return None
+
+    p = float(current_price)
+    return round(sum(1 for pv in prices if pv <= p) / len(prices) * 100)
+
+
 def reload():
     """Re-load source files (call after scores.json or cycle_extremes.json update)."""
     _load()
