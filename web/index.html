@@ -380,6 +380,16 @@
       letter-spacing: -0.03em;
       color: var(--text-mute);
       background: none;
+      line-height: 1.2;
+    }
+    .nav-logo-line { display: block; }
+    .nav-subtitle {
+      display: block;
+      font-size: 0.7rem;
+      font-weight: 400;
+      letter-spacing: 0.01em;
+      color: #94A3B8;
+      margin-top: 1px;
     }
     .logo-accent {
       color: var(--index-color, #f7931a);
@@ -388,12 +398,11 @@
     }
     .alpha-badge {
       font-size: 9px;
-      font-weight: 600;
-      letter-spacing: 0.06em;
-      color: #64748B;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      color: #94A3B8;
       vertical-align: super;
-      margin-left: 4px;
-      text-transform: lowercase;
+      margin-left: 5px;
     }
     .nav-actions {
       display: flex;
@@ -1623,8 +1632,11 @@
     <div class="nav-title-group">
       <h1 class="nav-title" id="logo-title">
         <a id="logo-link" href="index.html" style="color: inherit; text-decoration: none;">
-          <span class="en"><span class="logo-accent">BTC</span> Buy Risk Index<span class="alpha-badge">v0.4</span></span>
-          <span class="ua">Індекс ризику <span class="logo-accent">BTC</span><span class="alpha-badge">v0.4</span></span>
+          <span class="nav-logo-line"><span class="logo-accent">BTC</span>BRI<span class="alpha-badge">alfa 0.4</span></span>
+          <span class="nav-subtitle">
+            <span class="en">Bitcoin Buy Risk Index</span>
+            <span class="ua">Індекс ризику купівлі Bitcoin</span>
+          </span>
         </a>
       </h1>
     </div>
