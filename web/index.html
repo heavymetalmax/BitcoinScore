@@ -923,6 +923,21 @@
       font-weight: 700;
     }
 
+    .chart-range-btn {
+      background: transparent;
+      border: 1px solid var(--divider);
+      color: var(--text-muted, rgba(255,255,255,0.4));
+      border-radius: 4px;
+      padding: 2px 7px;
+      cursor: pointer;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .chart-range-btn:hover { border-color: #f7931a; color: #f7931a; }
+    .chart-range-btn.chart-range-active { border-color: #f7931a; color: #f7931a; }
+
     /* Collapsible "About" section — no card, click title to expand */
     .about-index {
       margin-top: 28px;
@@ -1945,17 +1960,25 @@
           <span class="en">History Chart</span>
           <span class="ua">Історичний графік</span>
         </h2>
-        <div class="chart-legend" style="display:flex; gap:16px; font-size:0.75rem; font-weight:600;">
-          <span id="btc-price-legend" style="display:flex; align-items:center; gap:6px; color:#10b981;">
-            <span id="btc-price-legend-dot" style="display:inline-block; width:12px; height:3px; background:#10b981; border-radius:2px; box-shadow:0 0 6px #10b981;"></span>
-            <span class="en">BTC Price</span>
-            <span class="ua">Ціна BTC</span>
-          </span>
-          <span style="display:flex; align-items:center; gap:6px; color:#f7931a;">
-            <span style="display:inline-block; width:12px; height:3px; background:#f7931a; border-radius:2px; box-shadow:0 0 6px #f7931a;"></span>
-            <span class="en">Risk Score</span>
-            <span class="ua">Оцінка ризику</span>
-          </span>
+        <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+          <div id="chart-range-btns" style="display:flex; gap:4px; font-size:0.72rem; font-weight:700;">
+            <button onclick="setChartRange(365)"  class="chart-range-btn" data-range="365">1Y</button>
+            <button onclick="setChartRange(730)"  class="chart-range-btn chart-range-active" data-range="730">2Y</button>
+            <button onclick="setChartRange(1461)" class="chart-range-btn" data-range="1461">4Y</button>
+            <button onclick="setChartRange(0)"    class="chart-range-btn" data-range="0">All</button>
+          </div>
+          <div class="chart-legend" style="display:flex; gap:16px; font-size:0.75rem; font-weight:600;">
+            <span id="btc-price-legend" style="display:flex; align-items:center; gap:6px; color:#10b981;">
+              <span id="btc-price-legend-dot" style="display:inline-block; width:12px; height:3px; background:#10b981; border-radius:2px; box-shadow:0 0 6px #10b981;"></span>
+              <span class="en">BTC Price</span>
+              <span class="ua">Ціна BTC</span>
+            </span>
+            <span style="display:flex; align-items:center; gap:6px; color:#f7931a;">
+              <span style="display:inline-block; width:12px; height:3px; background:#f7931a; border-radius:2px; box-shadow:0 0 6px #f7931a;"></span>
+              <span class="en">Risk Score</span>
+              <span class="ua">Оцінка ризику</span>
+            </span>
+          </div>
         </div>
       </div>
       <canvas id="history-chart"></canvas>
@@ -2573,7 +2596,13 @@
       const canvas = document.getElementById('phone-history-chart');
       if (!canvas) return;
 
-      const pts = (data.score_history || []).filter(e => e.score != null);
+      let pts = (data.score_history || []).filter(e => e.score != null);
+      if (_chartRange > 0) {
+        const cutoff = new Date();
+        cutoff.setDate(cutoff.getDate() - _chartRange);
+        const cutoffStr = cutoff.toISOString().slice(0, 10);
+        pts = pts.filter(e => e.date >= cutoffStr);
+      }
       if(pts.length < 2) return;
 
       const isDark = !document.documentElement.classList.contains('theme-light');
@@ -2858,9 +2887,17 @@
     async function init() {
       let data;
       try {
-        const r = await fetch('data.json?t=' + Date.now(), { cache: 'no-store' });
+        const [r, rh] = await Promise.all([
+          fetch('data.json?t=' + Date.now(), { cache: 'no-store' }),
+          fetch('score_history.json?t=' + Date.now(), { cache: 'no-store' }),
+        ]);
         if(!r.ok) throw new Error('HTTP ' + r.status);
         data = await r.json();
+        if (rh.ok) {
+          const fullHistory = await rh.json();
+          if (Array.isArray(fullHistory) && fullHistory.length > 0)
+            data.score_history = fullHistory;
+        }
       } catch(e) {
         document.getElementById('footer').textContent = 'Failed to load data.json: ' + e;
         return;
@@ -3248,9 +3285,14 @@
           const clientX = (e.touches && e.touches[0] ? e.touches[0].clientX : e.clientX);
           const x = clientX - rect.left;
           
-          const pts = (_chartData.score_history || []).filter(item => item.score != null);
+          let pts = (_chartData.score_history || []).filter(item => item.score != null);
+          if (_chartRange > 0) {
+            const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - _chartRange);
+            const cutoffStr = cutoff.toISOString().slice(0, 10);
+            pts = pts.filter(e => e.date >= cutoffStr);
+          }
           if (pts.length < 2) return;
-          
+
           const PAD_LEFT = 30;
           const PAD_RIGHT = 10;
           const cw = rect.width - PAD_LEFT - PAD_RIGHT;
@@ -3315,6 +3357,15 @@
     }
 
     let _chartData = null;
+    let _chartRange = 730; // default: 2 years
+
+    function setChartRange(days) {
+      _chartRange = days;
+      document.querySelectorAll('.chart-range-btn').forEach(b => {
+        b.classList.toggle('chart-range-active', +b.dataset.range === days);
+      });
+      if (_chartData) drawCharts(_chartData);
+    }
 
     window.addEventListener('resize', () => {
       if (_chartData) drawCharts(_chartData);
@@ -3325,7 +3376,13 @@
       const canvas = document.getElementById('history-chart');
       if (!canvas) return;
 
-      const pts = (data.score_history || []).filter(e => e.score != null);
+      let pts = (data.score_history || []).filter(e => e.score != null);
+      if (_chartRange > 0) {
+        const cutoff = new Date();
+        cutoff.setDate(cutoff.getDate() - _chartRange);
+        const cutoffStr = cutoff.toISOString().slice(0, 10);
+        pts = pts.filter(e => e.date >= cutoffStr);
+      }
       if(pts.length < 2) return;
 
       const isDark = !document.documentElement.classList.contains('theme-light');
@@ -3558,7 +3615,12 @@
           const rect = canvas.getBoundingClientRect();
           const clientX = (ev.touches && ev.touches[0]) ? ev.touches[0].clientX : ev.clientX;
           const mx = clientX - rect.left;
-          const p = (_chartData && _chartData.score_history || []).filter(d => d.score != null);
+          let p = (_chartData && _chartData.score_history || []).filter(d => d.score != null);
+          if (_chartRange > 0) {
+            const co = new Date(); co.setDate(co.getDate() - _chartRange);
+            const coStr = co.toISOString().slice(0, 10);
+            p = p.filter(d => d.date >= coStr);
+          }
           if (p.length < 2) return null;
           const cwid = rect.width - PAD.left - PAD.right;
           const rel = (mx - PAD.left) / cwid;
