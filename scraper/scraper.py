@@ -455,23 +455,74 @@ def main():
     from .history_writer import write_metric_histories
     write_metric_histories(p)
 
+    # ── V3 pipeline (zone_forecast, onchain/tech sub-scores only) ────────────
     from .scoring_pipeline import run_scoring_pipeline
     p = run_scoring_pipeline(p, _build_metric_history)
 
-    # ── Add prev_day, prev_week, and score_history fields ─────────────────────
+    # ── V4 final score ─────────────────────────────────────────────────────────
+    try:
+        import datetime as _datetime
+        from .score import compute_score as _v4_score
+
+        _m = p.get('metrics', {})
+        _lth_raw = (_m.get('lth_supply_pct') or {}).get('value')
+        _lth = (_lth_raw / 21_000_000 * 100) if (_lth_raw and _lth_raw > 100) else _lth_raw
+
+        _raw_v4 = {
+            'nupl':           p.get('nupl'),
+            'mvrv':           p.get('mvrv_z_score'),
+            'rhodl_ratio':    p.get('rhodl_ratio'),
+            'cvdd_ratio':     p.get('cvdd_ratio'),
+            'asopr':          p.get('asopr'),
+            'puell_multiple': (_m.get('puell_multiple') or {}).get('value'),
+            'mayer_multiple': ((_m.get('mayer_multiple') or {}).get('value') or {}).get('value'),
+            'fear_greed':     p.get('fear_greed'),
+            'm2_mom':         p.get('m2_yoy'),
+            'yield_curve':    (_m.get('yield_curve') or {}).get('value'),
+            'lth_supply_pct': _lth,
+            'dxy':            (_m.get('dxy') or {}).get('value'),
+            'funding_rate':   (_m.get('funding_rate') or {}).get('value'),
+            'pi_cycle':       p.get('pi_gap_pct'),
+            'cipherb':        (_m.get('cipherb') or {}).get('value'),
+            'etf_flows':      (_m.get('etf_flows') or {}).get('value'),
+        }
+
+        _today_d = _datetime.date.today()
+        _hist_raw = json.load(open('data/history/scores.json', encoding='utf-8'))
+        _sh = [
+            (e['date'], e['final_score'], e.get('phase'), e.get('w_bot'))
+            for e in _hist_raw
+            if e.get('date') < _today_d.isoformat() and e.get('final_score') is not None
+        ]
+
+        _v4 = _v4_score(
+            raw_metrics=_raw_v4,
+            target_date=_today_d,
+            prev_scores=None,
+            scores_history=_sh,
+            btc_price=p.get('btc_price'),
+        )
+
+        p['final_score'] = _v4['final_score']
+        p['v3_w_bot']    = _v4['w_bot']
+        p['v3_w_top']    = _v4['w_top']
+        p['v3_phase']    = _v4['phase']
+        print(f'V4: score={_v4["final_score"]}  phase={_v4["phase"]}'
+              f'  w_bot={_v4["w_bot"]:.2f}  w_top={_v4["w_top"]:.2f}')
+    except Exception as e:
+        import traceback; traceback.print_exc()
+        print(f'Warning: V4 compute_score failed, keeping V3 score — {e}')
+
+    # ── Upsert today into scores.json with full raw metrics ───────────────────
     try:
         from datetime import datetime as _dt, timedelta
 
-        # Load current history
         with open('data/history/scores.json') as f:
             history = json.load(f)
 
-        # Recover gaps: merge any dates from the previous data.json score_history
-        # that are missing from scores.json (happens when home server doesn't commit
-        # scores.json — each new run would otherwise lose days between commits)
-        _prev_sh = prev_score_history
+        # Recover gaps from previous data.json score_history
         _history_dates = {e.get('date') for e in history}
-        for _e in _prev_sh:
+        for _e in prev_score_history:
             _d = _e.get('date')
             if _d and _d not in _history_dates:
                 history.append({'date': _d, 'final_score': _e.get('score')})
@@ -481,51 +532,65 @@ def main():
         today = _dt.now().date()
         today_str = today.isoformat()
 
-        # Append today's score if not already there
-        if not any(entry.get('date') == today_str for entry in history):
-            history.append({
-                'date': today_str,
-                'final_score': p.get('final_score'),
-                'phase': p.get('v3_phase') or (p.get('phase', {}).get('phase', 'UNKNOWN') if isinstance(p.get('phase'), dict) else p.get('phase', 'UNKNOWN')),
-                'btc_price':    p.get('btc_price'),
-                'nupl':         p.get('nupl'),
-                'mvrv':         p.get('mvrv_z_score'),
-                'mayer_multiple': (p.get('metrics', {}).get('mayer_multiple') or {}).get('value', {}).get('score') if isinstance((p.get('metrics', {}).get('mayer_multiple') or {}).get('value'), dict) else None,
-                'cvdd_ratio':   p.get('cvdd_ratio'),
-                'rhodl_ratio':  p.get('rhodl_ratio'),
-                'puell':        (p.get('metrics', {}).get('puell_multiple') or {}).get('value') if isinstance(p.get('metrics', {}).get('puell_multiple'), dict) else p.get('puell_multiple'),
-                'fear_greed':   p.get('fear_greed'),
-                'funding_rate': p.get('funding_rate'),
-                'cipherb_daily': p.get('cipherb_daily'),
-            })
+        _m = p.get('metrics', {})
+        _lth_raw2 = (_m.get('lth_supply_pct') or {}).get('value')
+        _lth2 = (_lth_raw2 / 21_000_000 * 100) if (_lth_raw2 and _lth_raw2 > 100) else _lth_raw2
+        _mayer_v = (_m.get('mayer_multiple') or {}).get('value') or {}
+        _mayer = _mayer_v.get('value') if isinstance(_mayer_v, dict) else _mayer_v
 
-        # Find yesterday's entry
+        today_rec = {
+            'date':           today_str,
+            'final_score':    p.get('final_score'),
+            'phase':          p.get('v3_phase'),
+            'w_bot':          p.get('v3_w_bot'),
+            'w_top':          p.get('v3_w_top'),
+            'btc_price':      p.get('btc_price'),
+            'nupl':           p.get('nupl'),
+            'mvrv':           p.get('mvrv_z_score'),
+            'rhodl_ratio':    p.get('rhodl_ratio'),
+            'cvdd_ratio':     p.get('cvdd_ratio'),
+            'asopr':          p.get('asopr'),
+            'puell':          (_m.get('puell_multiple') or {}).get('value'),
+            'mayer_multiple': _mayer,
+            'fear_greed':     p.get('fear_greed'),
+            'funding_rate':   ((_m.get('funding_rate') or {}).get('value') or {}).get('avg_7d'),
+            'cipherb_daily':  ((_m.get('cipherb') or {}).get('value') or {}).get('daily_score'),
+            'pi_gap_pct':     p.get('pi_gap_pct'),
+            'm2_yoy':         p.get('m2_yoy'),
+            'lth_supply_pct': _lth2,
+            'yield_curve':    (_m.get('yield_curve') or {}).get('value'),
+            'dxy':            (_m.get('dxy') or {}).get('value'),
+            'source':         'live_v4',
+        }
+
+        idx = next((i for i, e in enumerate(history) if e.get('date') == today_str), None)
+        if idx is not None:
+            history[idx].update(today_rec)
+        else:
+            history.append(today_rec)
+
         yesterday = today - timedelta(days=1)
-        for entry in history:
-            if entry.get('date') and _dt.fromisoformat(entry['date']).date() == yesterday:
-                p['prev_day'] = {'date': entry['date'], 'final_score': entry.get('final_score')}
-                break
-
-        # Find 7 days ago
         seven_days_ago = today - timedelta(days=7)
         for entry in history:
-            if entry.get('date') and _dt.fromisoformat(entry['date']).date() == seven_days_ago:
-                p['prev_week'] = {'date': entry['date'], 'final_score': entry.get('final_score')}
-                break
+            d = entry.get('date')
+            if not d:
+                continue
+            _ed = _dt.fromisoformat(d).date()
+            if _ed == yesterday:
+                p['prev_day'] = {'date': d, 'final_score': entry.get('final_score')}
+            elif _ed == seven_days_ago:
+                p['prev_week'] = {'date': d, 'final_score': entry.get('final_score')}
 
-        # Build score_history (last 90 days)
-        score_history = []
         cutoff = today - timedelta(days=90)
-        for entry in history:
-            if entry.get('date') and _dt.fromisoformat(entry['date']).date() >= cutoff:
-                score_history.append({'date': entry['date'], 'score': entry.get('final_score'), 'price': entry.get('btc_price')})
-        if score_history:
-            p['score_history'] = score_history
-        
-        # Write updated history back
+        p['score_history'] = [
+            {'date': e['date'], 'score': e.get('final_score'), 'price': e.get('btc_price')}
+            for e in history
+            if e.get('date') and _dt.fromisoformat(e['date']).date() >= cutoff
+        ]
+
         write_json('data/history/scores.json', history)
     except Exception as e:
-        print(f"Warning: Failed to populate prev_day/prev_week/score_history: {e}")
+        print(f"Warning: Failed to update scores.json: {e}")
 
     # Write the updated data with history fields
     write_json('data/data.json', p)
