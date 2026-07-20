@@ -35,6 +35,44 @@ from .cipherb import get_cipherb
 from . import mayer_multiple as mayer_multiple_mod
 from . import funding_rate as funding_rate_mod
 from .utils import write_json, validate_data
+import urllib.request as _urllib_request
+
+
+def _fill_missing_prices(history: list) -> int:
+    """Fetch Kraken daily closes for any entries missing btc_price. Returns filled count."""
+    null_dates = [e['date'] for e in history if e.get('btc_price') is None and e.get('date')]
+    if not null_dates:
+        return 0
+    try:
+        since_dt = datetime.date.fromisoformat(null_dates[0]) - datetime.timedelta(days=1)
+        since_ts = int(datetime.datetime(since_dt.year, since_dt.month, since_dt.day,
+                                         tzinfo=datetime.timezone.utc).timestamp())
+        url = (f'https://api.kraken.com/0/public/OHLC'
+               f'?pair=XBTUSD&interval=1440&since={since_ts}')
+        req = _urllib_request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+        resp = _urllib_request.urlopen(req, timeout=15)
+        data = json.loads(resp.read())
+        if data.get('error'):
+            print('Kraken price fill error:', data['error'])
+            return 0
+        candles = data['result'].get('XXBTZUSD', [])
+        price_map = {}
+        for c in candles:
+            dt_str = datetime.datetime.fromtimestamp(
+                int(c[0]), tz=datetime.timezone.utc).strftime('%Y-%m-%d')
+            price_map[dt_str] = round(float(c[4]), 2)  # close price
+        filled = 0
+        by_date = {e['date']: e for e in history}
+        for d in null_dates:
+            if d in price_map:
+                by_date[d]['btc_price'] = price_map[d]
+                filled += 1
+        if filled:
+            print(f'Backfilled {filled} missing btc_price entries from Kraken')
+        return filled
+    except Exception as e:
+        print(f'Warning: could not backfill missing prices from Kraken: {e}')
+        return 0
 
 
 def now_iso():
@@ -525,7 +563,8 @@ def main():
         for _e in prev_score_history:
             _d = _e.get('date')
             if _d and _d not in _history_dates:
-                history.append({'date': _d, 'final_score': _e.get('score')})
+                history.append({'date': _d, 'final_score': _e.get('score'),
+                                'btc_price': _e.get('price')})
                 _history_dates.add(_d)
         history.sort(key=lambda e: e.get('date', ''))
 
@@ -580,6 +619,8 @@ def main():
                 p['prev_day'] = {'date': d, 'final_score': entry.get('final_score')}
             elif _ed == seven_days_ago:
                 p['prev_week'] = {'date': d, 'final_score': entry.get('final_score')}
+
+        _fill_missing_prices(history)
 
         cutoff = today - timedelta(days=90)
         p['score_history'] = [
