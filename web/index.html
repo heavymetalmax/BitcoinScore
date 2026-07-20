@@ -3518,10 +3518,12 @@
         legendDot.style.boxShadow  = 'none';
       }
       ctx.beginPath();
+      let priceStarted = false;
       pts.forEach((e, i) => {
+        if (e.price == null) return;
         const x = PAD.left + (i / (pts.length - 1)) * cw;
-        const y = toYPrice(e.price != null ? e.price : yMinPrice);
-        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+        const y = toYPrice(e.price);
+        if (!priceStarted) { ctx.moveTo(x, y); priceStarted = true; } else ctx.lineTo(x, y);
       });
       ctx.strokeStyle = priceLineCol;
       ctx.lineWidth = 2;

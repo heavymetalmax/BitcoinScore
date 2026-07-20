@@ -1704,7 +1704,7 @@ function drawHistory(range, hoverIndex) {
     ctx.beginPath();
     let started = false;
     pts.forEach((e, i) => {
-      if (pricePts[i] == null) { started = false; return; }
+      if (pricePts[i] == null) return;
       const x = pad.l + (i / Math.max(pts.length - 1, 1)) * cw;
       const y = priceToY(pricePts[i]);
       if (!started) { ctx.moveTo(x, y); started = true; } else ctx.lineTo(x, y);
