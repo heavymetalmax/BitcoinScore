@@ -1516,13 +1516,36 @@ document.getElementById('langToggle').addEventListener('click', () => {
 });
 
 // ─── ZONE HELPERS ──────────────────────────────────────
+function scoreToColor(s) {
+  if (s == null) return 'var(--muted)';
+  if (s <= 15) return '#22C55E';
+  if (s >= 85) return '#EF4444';
+  const green  = [34, 197, 94];
+  const yellow = [234, 179, 8];
+  const red    = [239, 68, 68];
+  let r, g, b;
+  if (s <= 50) {
+    const t = (s - 15) / 35;
+    r = Math.round(green[0]  + t * (yellow[0] - green[0]));
+    g = Math.round(green[1]  + t * (yellow[1] - green[1]));
+    b = Math.round(green[2]  + t * (yellow[2] - green[2]));
+  } else {
+    const t = (s - 50) / 35;
+    r = Math.round(yellow[0] + t * (red[0] - yellow[0]));
+    g = Math.round(yellow[1] + t * (red[1] - yellow[1]));
+    b = Math.round(yellow[2] + t * (red[2] - yellow[2]));
+  }
+  return `rgb(${r},${g},${b})`;
+}
+
 function riskZone(s) {
   if (s == null) return { label: '—', labelUa: '—', color: 'var(--muted)', hint: '', hintUa: '', stateEn: '—', stateUa: '—' };
-  if (s < 25) return { label: 'VERY LOW RISK',  labelUa: 'МІНІМАЛЬНИЙ РИЗИК',  color: '#22C55E', hint: 'Very low risk — historically strong accumulation zone.', hintUa: 'Мінімальний ризик — зона для активного накопичення.', stateEn: 'Accumulation', stateUa: 'Накопичення' };
-  if (s < 35) return { label: 'LOW RISK',        labelUa: 'НЕЗНАЧНИЙ РИЗИК',    color: '#4ADE80', hint: 'Low risk — favorable for gradual accumulation.', hintUa: 'Незначний ризик — сприятливо для поступового накопичення.', stateEn: 'Undervalued', stateUa: 'Недооцінено' };
-  if (s < 55) return { label: 'MODERATE RISK',   labelUa: 'ПОМІРНИЙ РИЗИК',     color: '#EAB308', hint: 'Moderate risk — proceed with caution.', hintUa: 'Помірний ризик — дійте обережно.', stateEn: 'Hold', stateUa: 'Утримання' };
-  if (s < 75) return { label: 'HIGH RISK',        labelUa: 'ЗНАЧНИЙ РИЗИК',      color: '#F97316', hint: 'High risk — consider reducing exposure.', hintUa: 'Значний ризик — розгляньте зниження позицій.', stateEn: 'Distribution', stateUa: 'Розподіл' };
-  return             { label: 'VERY HIGH RISK',   labelUa: 'НАДМІРНИЙ РИЗИК',    color: '#EF4444', hint: 'Very high risk — historically poor entry point.', hintUa: 'Надмірний ризик — несприятливий момент для входу.', stateEn: 'Sell Zone', stateUa: 'Зона продажу' };
+  const color = scoreToColor(s);
+  if (s < 25) return { label: 'VERY LOW RISK',  labelUa: 'МІНІМАЛЬНИЙ РИЗИК',  color, hint: 'Very low risk — historically strong accumulation zone.', hintUa: 'Мінімальний ризик — зона для активного накопичення.', stateEn: 'Accumulation', stateUa: 'Накопичення' };
+  if (s < 35) return { label: 'LOW RISK',        labelUa: 'НЕЗНАЧНИЙ РИЗИК',    color, hint: 'Low risk — favorable for gradual accumulation.', hintUa: 'Незначний ризик — сприятливо для поступового накопичення.', stateEn: 'Undervalued', stateUa: 'Недооцінено' };
+  if (s < 55) return { label: 'MODERATE RISK',   labelUa: 'ПОМІРНИЙ РИЗИК',     color, hint: 'Moderate risk — proceed with caution.', hintUa: 'Помірний ризик — дійте обережно.', stateEn: 'Hold', stateUa: 'Утримання' };
+  if (s < 75) return { label: 'HIGH RISK',        labelUa: 'ЗНАЧНИЙ РИЗИК',      color, hint: 'High risk — consider reducing exposure.', hintUa: 'Значний ризик — розгляньте зниження позицій.', stateEn: 'Distribution', stateUa: 'Розподіл' };
+  return             { label: 'VERY HIGH RISK',   labelUa: 'НАДМІРНИЙ РИЗИК',    color, hint: 'Very high risk — historically poor entry point.', hintUa: 'Надмірний ризик — несприятливий момент для входу.', stateEn: 'Sell Zone', stateUa: 'Зона продажу' };
 }
 
 const fmtPrice  = p => '$' + Math.round(p).toLocaleString('en-US');
