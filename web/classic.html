@@ -1363,10 +1363,9 @@
         <button class="time-btn" data-range="3M">3M</button>
       </div>
       <div class="chart-legend">
-        <span><span class="legend-dot" style="background:#22C55E"></span><span class="en">Very Low</span><span class="ua">Мінімальний</span></span>
-        <span><span class="legend-dot" style="background:#EAB308"></span><span class="en">Moderate</span><span class="ua">Помірний</span></span>
-        <span><span class="legend-dot" style="background:#F97316"></span><span class="en">High</span><span class="ua">Значний</span></span>
-        <span><span class="legend-dot" style="background:#EF4444"></span><span class="en">Very High</span><span class="ua">Надмірний</span></span>
+        <span><span class="legend-dot" style="background:#22C55E"></span><span class="en">Buy zone (≤15)</span><span class="ua">Зона купівлі (≤15)</span></span>
+        <span><span class="legend-dot" style="background:#EAB308"></span><span class="en">Neutral (50)</span><span class="ua">Нейтрально (50)</span></span>
+        <span><span class="legend-dot" style="background:#EF4444"></span><span class="en">Sell zone (≥85)</span><span class="ua">Зона продажу (≥85)</span></span>
       </div>
     </div>
 
@@ -1740,10 +1739,12 @@ function drawHistory(range, hoverIndex) {
   });
   const isAll = activeRange === 'ALL';
   const grad = ctx.createLinearGradient(pad.l, pad.t + ch, pad.l, pad.t);
-  grad.addColorStop(0.1, isAll ? 'rgba(34, 197, 94, 0.45)' : '#22c55e');  // Green
-  grad.addColorStop(0.35, isAll ? 'rgba(234, 179, 8, 0.45)' : '#eab308'); // Yellow
-  grad.addColorStop(0.65, isAll ? 'rgba(249, 115, 22, 0.45)' : '#f97316'); // Orange
-  grad.addColorStop(0.9, isAll ? 'rgba(239, 68, 68, 0.45)' : '#ef4444');  // Red
+  const ga = isAll ? '99' : 'ff';  // alpha: dimmer for ALL view
+  grad.addColorStop(0.00, `#22C55E${ga}`);  // score 0   = green
+  grad.addColorStop(0.15, `#22C55E${ga}`);  // score 15  = green (buy anchor)
+  grad.addColorStop(0.50, `#EAB308${ga}`);  // score 50  = yellow (midpoint)
+  grad.addColorStop(0.85, `#EF4444${ga}`);  // score 85  = red (sell anchor)
+  grad.addColorStop(1.00, `#EF4444${ga}`);  // score 100 = red
   ctx.strokeStyle = grad;
   ctx.lineWidth = isAll ? 0.75 : 2;
   ctx.stroke();
