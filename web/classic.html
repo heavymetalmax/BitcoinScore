@@ -1676,6 +1676,7 @@ function drawHistory(range, hoverIndex) {
 
   const pad = { t: 10, b: 28, l: 30, r: 52 };
   const cw = W - pad.l - pad.r, ch = H - pad.t - pad.b;
+  const isAll = activeRange === 'ALL';
 
   [{ mn: 75, mx: 100, c: isDark ? '#EF444415' : '#EF444410' },
    { mn: 50, mx: 75,  c: isDark ? '#F9731610' : '#F9731608' },
@@ -1778,7 +1779,6 @@ function drawHistory(range, hoverIndex) {
     const y = pad.t + ch - (v.score / 100) * ch;
     i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
   });
-  const isAll = activeRange === 'ALL';
   const grad = ctx.createLinearGradient(pad.l, pad.t + ch, pad.l, pad.t);
   const ga = isAll ? '99' : 'ff';  // alpha: dimmer for ALL view
   grad.addColorStop(0.00, `#22C55E${ga}`);  // score 0   = green
