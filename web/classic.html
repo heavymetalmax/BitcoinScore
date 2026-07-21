@@ -1377,6 +1377,7 @@
         <span><span class="legend-dot" style="background:#22C55E"></span><span class="en">Buy zone (≤15)</span><span class="ua">Зона купівлі (≤15)</span></span>
         <span><span class="legend-dot" style="background:#EAB308"></span><span class="en">Neutral (50)</span><span class="ua">Нейтрально (50)</span></span>
         <span><span class="legend-dot" style="background:#EF4444"></span><span class="en">Sell zone (≥85)</span><span class="ua">Зона продажу (≥85)</span></span>
+        <span><span class="legend-dot" style="background:#38BDF8; border-radius:2px;"></span><span class="en">Outlook / expected drawdown %</span><span class="ua">Прогноз drawdown %</span></span>
       </div>
     </div>
 
@@ -1742,6 +1743,35 @@ function drawHistory(range, hoverIndex) {
     }
   }
 
+  // V5B Outlook line — dashed cyan, same 0-100 scale (v5b_score is % drawdown mapped to 0-100)
+  const v5bPts = pts.map(e => e.v5b_score != null ? e.v5b_score : null);
+  const hasV5B = v5bPts.some(v => v != null);
+  if (hasV5B) {
+    // Threshold bands: ≤20 = entry, ≥45 = exit
+    const yEntry = pad.t + ch - (20 / 100) * ch;
+    const yExit  = pad.t + ch - (45 / 100) * ch;
+    ctx.strokeStyle = isDark ? 'rgba(56,189,248,0.18)' : 'rgba(56,189,248,0.22)';
+    ctx.lineWidth = 0.8;
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath(); ctx.moveTo(pad.l, yEntry); ctx.lineTo(pad.l + cw, yEntry); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(pad.l, yExit);  ctx.lineTo(pad.l + cw, yExit);  ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.beginPath();
+    let v5bStarted = false;
+    pts.forEach((e, i) => {
+      if (v5bPts[i] == null) { v5bStarted = false; return; }
+      const x = pad.l + (i / Math.max(pts.length - 1, 1)) * cw;
+      const y = pad.t + ch - (v5bPts[i] / 100) * ch;
+      if (!v5bStarted) { ctx.moveTo(x, y); v5bStarted = true; } else ctx.lineTo(x, y);
+    });
+    ctx.strokeStyle = isDark ? 'rgba(56,189,248,0.65)' : 'rgba(14,165,233,0.7)';
+    ctx.lineWidth = isAll ? 0.8 : 1.4;
+    ctx.setLineDash([3, 2]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
   ctx.beginPath();
   pts.forEach((v, i) => {
     const x = pad.l + (i / Math.max(pts.length - 1, 1)) * cw;
@@ -1783,24 +1813,24 @@ function drawHistory(range, hoverIndex) {
     ctx.stroke();
 
     const dateFormatted = e.date ? new Date(e.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : '';
-    const scoreText = `Risk: ${Math.round(e.score)}/100`;
-    const priceText = e.price != null ? `Price: $${Math.round(e.price).toLocaleString()}` : '';
+    const scoreText  = `Cycle: ${Math.round(e.score)}/100`;
+    const outlookText = e.v5b_score != null ? `Outlook: ${e.v5b_score.toFixed(1)}%` : '';
+    const regimeText  = e.market_regime ? `Regime: ${e.market_regime}` : '';
+    const priceText  = e.price != null ? `Price: $${Math.round(e.price).toLocaleString()}` : '';
 
-    ctx.font = 'bold 11px Inter, sans-serif';
+    const lines = [scoreText, outlookText, regimeText, priceText].filter(Boolean);
+
+    ctx.font = 'bold 10px Inter, sans-serif';
     const w1 = ctx.measureText(dateFormatted).width;
-    ctx.font = '500 11px Inter, sans-serif';
-    const w2 = ctx.measureText(scoreText).width;
-    const w3 = priceText ? ctx.measureText(priceText).width : 0;
-    const maxW = Math.max(w1, w2, w3);
+    ctx.font = '500 10px Inter, sans-serif';
+    const maxW = Math.max(w1, ...lines.map(l => ctx.measureText(l).width));
 
-    const padX = 10;
-    const padY = 8;
+    const padX = 10, padY = 8, lineH = 14;
     const boxW = maxW + padX * 2;
-    const boxH = (priceText ? 42 : 28) + padY * 2;
-    
+    const boxH = padY * 2 + lineH + lines.length * lineH;
+
     let boxX = x - boxW / 2;
     let boxY = y - boxH - 8;
-
     if (boxX < pad.l) boxX = pad.l;
     if (boxX + boxW > W - pad.r) boxX = W - pad.r - boxW;
     if (boxY < pad.t) boxY = y + 8;
@@ -1809,29 +1839,25 @@ function drawHistory(range, hoverIndex) {
     ctx.strokeStyle = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(26,26,26,0.1)';
     ctx.lineWidth = 1;
     ctx.beginPath();
-    if (ctx.roundRect) {
-      ctx.roundRect(boxX, boxY, boxW, boxH, 6);
-    } else {
-      ctx.rect(boxX, boxY, boxW, boxH);
-    }
-    ctx.fill();
-    ctx.stroke();
+    if (ctx.roundRect) { ctx.roundRect(boxX, boxY, boxW, boxH, 6); } else { ctx.rect(boxX, boxY, boxW, boxH); }
+    ctx.fill(); ctx.stroke();
 
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'top';
+    ctx.textAlign = 'left'; ctx.textBaseline = 'top';
     ctx.fillStyle = isDark ? '#F0F0F5' : '#1a1a1a';
     ctx.font = 'bold 10px Inter, sans-serif';
     ctx.fillText(dateFormatted, boxX + padX, boxY + padY);
 
-    ctx.fillStyle = '#F7931A';
-    ctx.font = '600 10px Inter, sans-serif';
-    ctx.fillText(scoreText, boxX + padX, boxY + padY + 14);
-
-    if (priceText) {
-      ctx.fillStyle = isDark ? '#9494A8' : '#555566';
-      ctx.font = '500 10px Inter, sans-serif';
-      ctx.fillText(priceText, boxX + padX, boxY + padY + 28);
-    }
+    const REGIME_COLORS = { Buy: '#10B981', Sell: '#EF4444', Hold: '#F59E0B', Wait: '#6366F1' };
+    let ly = boxY + padY + lineH;
+    lines.forEach(txt => {
+      if (txt.startsWith('Cycle:'))   ctx.fillStyle = '#F7931A';
+      else if (txt.startsWith('Outlook:')) ctx.fillStyle = isDark ? '#38BDF8' : '#0EA5E9';
+      else if (txt.startsWith('Regime:')) ctx.fillStyle = REGIME_COLORS[e.market_regime] || '#9CA3AF';
+      else ctx.fillStyle = isDark ? '#9494A8' : '#555566';
+      ctx.font = '600 10px Inter, sans-serif';
+      ctx.fillText(txt, boxX + padX, ly);
+      ly += lineH;
+    });
   }
 }
 
