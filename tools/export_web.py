@@ -59,7 +59,13 @@ def export_score_history():
     records = _read(src)
 
     mini = [
-        {'date': r['date'], 'score': r.get('final_score'), 'price': r.get('btc_price')}
+        {
+            'date':          r['date'],
+            'score':         r.get('final_score'),
+            'price':         r.get('btc_price'),
+            'v5b_score':     r.get('v5b_score'),
+            'market_regime': r.get('market_regime'),
+        }
         for r in records
         if r.get('date') and r.get('final_score') is not None
     ]

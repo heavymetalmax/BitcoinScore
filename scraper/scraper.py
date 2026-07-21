@@ -601,6 +601,8 @@ def main():
             'yield_curve':    (_m.get('yield_curve') or {}).get('value'),
             'dxy':            (_m.get('dxy') or {}).get('value'),
             'v5_score':       p.get('v5_score'),
+            'v5b_score':      p.get('v5b_score'),
+            'market_regime':  p.get('market_regime'),
             'source':         'live_v4',
         }
 

@@ -77,6 +77,8 @@ def update_history(entries: list, data: dict) -> list:
         'cipherb_daily': data.get('cipherb'),
         'pi_gap_pct':    data.get('pi_gap_pct'),
         'funding_rate':  data.get('funding_rate'),
+        'v5b_score':     data.get('v5b_score'),
+        'market_regime': data.get('market_regime'),
     }
 
     # Replace existing entry for same date, otherwise append
