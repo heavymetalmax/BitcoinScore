@@ -206,7 +206,7 @@ def run_scoring_pipeline(p, build_metric_history_fn=None):
             'quality_pct':    round(len(_active) / len(_EXPECTED_SCORING_METRICS) * 100),
             'missing_metrics': _missing,
         }
-        p['final_score']   = v3_sig['meta_score']
+        p['final_score']   = scores['final_score']
         p['signal']        = v3_sig
         p['onchain_score'] = scores['onchain_avg']
         p['tech_score']    = scores['tech_avg']
@@ -273,7 +273,7 @@ def run_scoring_pipeline(p, build_metric_history_fn=None):
 
         # Layer 3 — scoring: final formula outputs + V5
         _scoring = {
-            'final_score':   v3_sig['meta_score'],
+            'final_score':   scores['final_score'],
             'v5_score':      scores.get('v5_score'),
             'v5b_score':     scores.get('v5b_score'),
             'meta_score':       scores.get('meta_score'),
@@ -316,7 +316,7 @@ def run_scoring_pipeline(p, build_metric_history_fn=None):
             _today_str   = today.isoformat()
             _new_entry   = {
                 'date':        _today_str,
-                'final_score': v3_sig['meta_score'],
+                'final_score': scores['final_score'],
                 'v5_score':    scores.get('v5_score'),
                 'v1_score':    _v1_archive.get('final_score') if _v1_archive else None,
                 'v2_score':    _v2_archive.get('final_score') if _v2_archive else None,
