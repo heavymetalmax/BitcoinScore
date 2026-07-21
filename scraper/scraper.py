@@ -295,6 +295,7 @@ def build_payload():
         'etf_flows': etf_flows if 'etf_flows' in locals() else None,
         'm2': m2 if 'm2' in locals() else None,
         'failed_live_fetches': failed_live_fetches,
+        'stale_metrics_count': len(failed_live_fetches),
         'metrics': {
             # merge our collected metrics dict with static ones
             **(metrics if 'metrics' in locals() else {}),
@@ -599,6 +600,7 @@ def main():
             'lth_supply_pct': _lth2,
             'yield_curve':    (_m.get('yield_curve') or {}).get('value'),
             'dxy':            (_m.get('dxy') or {}).get('value'),
+            'v5_score':       p.get('v5_score'),
             'source':         'live_v4',
         }
 

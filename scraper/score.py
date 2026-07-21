@@ -27,7 +27,7 @@ from scraper.bottom_confluence import (
 )
 from scraper.tiz import compute_tiz_causal, adaptive_calibration as _tiz_cal
 from scraper.wave_resonance import compute_wave_resonance
-from scraper.scoring import _oc_coherence
+from scraper.maps import _oc_coherence
 
 # ── Basket definitions (V4 two-layer structural/vectorial architecture) ───────
 BASKET_OC = {'nupl', 'mvrv_z_score', 'rhodl_ratio', 'cvdd_ratio', 'puell', 'lth_supply'}
@@ -480,6 +480,62 @@ def compute_score(
     if pi_cross and final is not None:
         final = max(final, 85)
 
+    # ── V5 "machine-eye" score (stacked ensemble, Layer 3) ──────────────────
+    # V5 receives raw metrics + V3 phase context. Stacked ensemble: labels are
+    # 90-day BTC returns, so V5 learns when to amplify or discount V3's phase call.
+    v5_score: float | None = None
+    v5_confidence: float | None = None
+    v5_shap_top5: list | None = None
+    try:
+        from scraper import mixing_model as _v5
+
+        def _s(v):
+            if isinstance(v, dict): v = v.get('value')
+            if isinstance(v, dict): v = v.get('value')
+            return float(v) if isinstance(v, (int, float)) else None
+
+        _cb = raw_metrics.get('cipherb')
+        _cb_daily = None
+        if isinstance(_cb, dict):
+            _cb_inner = _cb.get('value', _cb)
+            if isinstance(_cb_inner, dict):
+                _cb_daily = _cb_inner.get('daily_score')
+
+        _fr = raw_metrics.get('funding_rate')
+        _fr_val = (_fr.get('value') or {}).get('avg_7d') if isinstance(_fr, dict) else None
+
+        _lth_v = _s(raw_metrics.get('lth_supply_pct'))
+        _lth_pct = (_lth_v / 21_000_000 * 100) if _lth_v is not None and _lth_v > 100 else _lth_v
+
+        _v5_raw = {
+            'btc_price':      _s(raw_metrics.get('btc_price')),
+            'nupl':           _s(raw_metrics.get('nupl')),
+            'mvrv':           _s(raw_metrics.get('mvrv')),
+            'rhodl_ratio':    _s(raw_metrics.get('rhodl_ratio')),
+            'cvdd_ratio':     _s(raw_metrics.get('cvdd_ratio')),
+            'puell':          _s(raw_metrics.get('puell_multiple')),
+            'cipherb_daily':  _cb_daily,
+            'mayer_multiple': _s(raw_metrics.get('mayer_multiple')),
+            'fear_greed':     _s(raw_metrics.get('fear_greed')),
+            'funding_rate':   _fr_val,
+            'm2_yoy':         _s(raw_metrics.get('m2_mom')),
+            'lth_supply_pct': _lth_pct,
+            'yield_curve':    _s(raw_metrics.get('yield_curve')),
+            'dxy':            _s(raw_metrics.get('dxy')),
+        }
+        _v5_result = _v5.predict(
+            _v5_raw,
+            w_top=round(w_top, 3),
+            w_bot=round(w_bot, 3),
+            v3_score=float(final),
+        )
+        if isinstance(_v5_result, dict):
+            v5_score      = round(_v5_result['score'], 1)
+            v5_confidence = _v5_result.get('confidence')
+            v5_shap_top5  = _v5_result.get('shap_top5')
+    except Exception:
+        pass
+
     return {
         'final_score':        final,
         'phase':              phase,
@@ -505,6 +561,9 @@ def compute_score(
         'dxy_adj':            round(dxy_adj, 2),
         'wave_resonance':     wr,
         'utilities':          utilities,
+        'v5_score':           v5_score,
+        'v5_confidence':      v5_confidence,
+        'v5_shap_top5':       v5_shap_top5,
         'normalized_scores':  {
             k: round(v) for k, v in normalized.items()
             if v is not None and k not in ('cipherb_weekly', 'cipherb_daily')

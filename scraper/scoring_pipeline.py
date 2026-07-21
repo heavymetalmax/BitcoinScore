@@ -12,6 +12,9 @@ from .utils import write_json
 def run_scoring_pipeline(p, build_metric_history_fn=None):
     """Run all scoring passes on payload p. Returns updated p."""
 
+    _v1_archive: dict | None = None   # captured for archive section
+    _v2_archive: dict | None = None   # captured for archive section
+
     # ── V1 scores ─────────────────────────────────────────────────────────────
     try:
         from .scoring import compute_scores, build_slider_map
@@ -20,6 +23,11 @@ def run_scoring_pipeline(p, build_metric_history_fn=None):
         p['onchain_score'] = scores['onchain_score']
         p['tech_score']    = scores['tech_score']
         p['final_score']   = scores['final_score']
+        _v1_archive = {
+            'onchain_score': scores.get('onchain_score'),
+            'tech_score':    scores.get('tech_score'),
+            'final_score':   scores.get('final_score'),
+        }
         if scores.get('adaptive'):
             p['adaptive_calibration'] = scores['adaptive']
         try:
@@ -91,6 +99,13 @@ def run_scoring_pipeline(p, build_metric_history_fn=None):
         if build_metric_history_fn:
             p_exp['metric_history'] = build_metric_history_fn()
         write_json('data/data_exp.json', p_exp)
+        _v2_archive = {
+            'onchain_score': scores_v2.get('onchain_score'),
+            'tech_score':    scores_v2.get('tech_score'),
+            'final_score':   scores_v2.get('final_score'),
+            'regime':        scores_v2.get('regime'),
+            'tiz_score':     scores_v2.get('tiz_score'),
+        }
         p['v2_score']       = scores_v2['final_score']
         p['scoring_regime'] = scores_v2['regime']
         p['tiz_score']      = scores_v2['tiz_score']
@@ -177,6 +192,12 @@ def run_scoring_pipeline(p, build_metric_history_fn=None):
         p['v3_tiz_days']          = scores['tiz_days']
         p['v3_tiz_maturity']      = scores['tiz_maturity']
         p['v3_tiz_calibration']   = scores['tiz_calibration']
+        p['v5_score']             = scores.get('v5_score')
+        p['v5b_score']            = scores.get('v5b_score')
+        p['meta_score']           = scores.get('meta_score')
+        p['signal_agreement']     = scores.get('signal_agreement')
+        p['market_regime']        = scores.get('market_regime')
+        p['composite_risk']       = scores.get('composite_risk')
         p['v3_oc_coherence']      = scores['oc_coherence']
         p['wave_resonance']        = _wr
         p['data_quality'] = {
@@ -198,6 +219,84 @@ def run_scoring_pipeline(p, build_metric_history_fn=None):
             'w_neutral':  scores['w_neutral'],
             'w_top':      scores['w_top'],
         }
+
+        # ── Build 3-layer structured sections ─────────────────────────────────
+        # Layer 1 — base: raw values + normalized scores (immutable after scraping)
+        _norm = scores.get('normalized_scores', {})
+        _metrics_raw = p.get('metrics', {})
+        _raw_to_norm = {
+            'nupl': 'nupl', 'mvrv': 'mvrv_z_score', 'rhodl_ratio': 'rhodl_ratio',
+            'cvdd_ratio': 'cvdd_ratio', 'asopr': 'asopr', 'puell_multiple': 'puell',
+            'mayer_multiple': 'mayer_multiple', 'fear_greed': 'fear_greed',
+            'm2_mom': 'm2_yoy', 'yield_curve': 'yield_curve_spread',
+            'etf_flows': 'etf_flows', 'funding_rate': 'funding_rate',
+            'dxy': 'dxy', 'lth_supply_pct': 'lth_supply',
+        }
+
+        def _raw_val(key):
+            obj = _metrics_raw.get(key)
+            if isinstance(obj, dict):
+                return obj.get('value')
+            return obj
+
+        _base = {'btc_price': p.get('btc_price')}
+        for raw_k, norm_k in _raw_to_norm.items():
+            _base[raw_k] = {'raw': _raw_val(raw_k), 'score': _norm.get(norm_k)}
+
+        # Layer 2 — computed: baskets, phase, coherence, tiz, utilities
+        _computed = {
+            'baskets': {
+                'OC': scores.get('oc_basket'),
+                'MS': scores.get('ms_basket'),
+                'MC': scores.get('mc_basket'),
+                'CP': scores.get('cp_basket'),
+            },
+            'phase': {
+                'label':  scores['phase'],
+                'w_bot':  scores['w_bot'],
+                'w_neu':  scores['w_neutral'],
+                'w_top':  scores['w_top'],
+            },
+            'OC_read':  scores.get('oc_read'),
+            'coherence': {
+                'oc_score': scores.get('oc_coherence'),
+                'factor':   scores.get('coh_factor'),
+            },
+            'tiz': {
+                'score':       scores.get('tiz_score'),
+                'days':        scores.get('tiz_days'),
+                'maturity':    scores.get('tiz_maturity'),
+                'calibration': scores.get('tiz_calibration'),
+            },
+            'utilities': scores.get('utilities', {}),
+        }
+
+        # Layer 3 — scoring: final formula outputs + V5
+        _scoring = {
+            'final_score':   v3_sig['meta_score'],
+            'v5_score':      scores.get('v5_score'),
+            'v5b_score':     scores.get('v5b_score'),
+            'meta_score':       scores.get('meta_score'),
+            'signal_agreement': scores.get('signal_agreement'),
+            'market_regime':    scores.get('market_regime'),
+            'composite_risk':   scores.get('composite_risk'),
+            'dxy_adj':       scores.get('dxy_adj'),
+            'pi_cross':      scores.get('pi_cross'),
+            'flag':          v3_sig.get('flag'),
+            'conviction':    v3_sig.get('conviction'),
+        }
+
+        # Archive: V1/V2 for efficiency comparison
+        _archive = {
+            'v1': _v1_archive,
+            'v2': _v2_archive,
+        }
+
+        p['base']     = _base
+        p['computed'] = _computed
+        p['scoring']  = _scoring
+        p['archive']  = _archive
+
         write_json('data/data.json', p)
         # Mirror to web/ so the site always reflects the latest scraper run
         try:
@@ -218,8 +317,12 @@ def run_scoring_pipeline(p, build_metric_history_fn=None):
             _new_entry   = {
                 'date':        _today_str,
                 'final_score': v3_sig['meta_score'],
+                'v5_score':    scores.get('v5_score'),
+                'v1_score':    _v1_archive.get('final_score') if _v1_archive else None,
+                'v2_score':    _v2_archive.get('final_score') if _v2_archive else None,
                 'phase':       scores['phase'],
                 'w_bot':       scores['w_bot'],
+                'w_top':       scores['w_top'],
                 'btc_price':   p.get('btc_price'),
             }
             _hist: list = []
@@ -249,6 +352,7 @@ def run_scoring_pipeline(p, build_metric_history_fn=None):
             f"  phase={scores['phase']}  w_bot={scores['w_bot']}"
             f"  tiz={scores['tiz_score']}({scores['tiz_days']}d)"
             f"  wr={_wr.get('score')}  dxy_adj={scores.get('dxy_adj', 0):+.1f}"
+            f"  v5={scores.get('v5_score')}  v5b={scores.get('v5b_score')}  meta={scores.get('meta_score')}(agree={scores.get('signal_agreement')})  regime={scores.get('market_regime')}"
         )
     except Exception as e:
         print(f'V3 Clean scorer failed: {e}')

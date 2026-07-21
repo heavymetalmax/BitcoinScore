@@ -21,6 +21,8 @@ from scraper.utility_evaluator import evaluate_all_utilities_continuous
 from scraper.scoring_v2 import phase_signals, _METRIC_LOOKBACK
 from scraper.scoring import _oc_coherence
 from scraper.tiz import adaptive_calibration as _tiz_adaptive_cal
+from scraper import mixing_model as _v5
+from scraper import mixing_model_b as _v5b
 
 # Metric groups for z-weighting
 OC_GROUP = {'nupl', 'mvrv_z_score', 'rhodl_ratio', 'cvdd_ratio', 'asopr', 'puell', 'lth_supply'}
@@ -30,6 +32,27 @@ TECH_GROUP = {'cipherb', 'mayer_multiple', 'fear_greed', 'etf_flows', 'yield_cur
 # Bottom and top thresholds for regime mapping (aligned with V2)
 BOTTOM_THRESHOLD = 40
 TOP_THRESHOLD = 65
+
+
+def _market_regime(v3: float, v5b: float) -> str:
+    """Map (Position, Outlook) to an action-oriented regime for all-in / all-out strategy.
+
+    Thresholds derived from 2018-2026 backtest (163x return vs 4.8x B&H):
+      Position < 35 AND Outlook < 20%  → Buy   (both confirm entry)
+      Position ≥ 65 AND Outlook ≥ 45%  → Sell  (both confirm exit)
+      Position ≥ 65 AND Outlook < 45%  → Hold  (in market, rally may continue — don't exit early)
+      Position < 65 AND Outlook ≥ 20%  → Wait  (not yet safe to enter by Outlook)
+
+    Single-threshold alternative (183x): Outlook ≤ 20% → Buy, ≥ 45% → Sell.
+    Dual-threshold is preferred as a conservative filter (fewer false signals).
+    """
+    buy  = v3  <  35 and v5b <  20
+    sell = v3  >= 65 and v5b >= 45
+    hold = v3  >= 65 and v5b <  45
+    if buy:  return 'Buy'
+    if sell: return 'Sell'
+    if hold: return 'Hold'
+    return 'Wait'
 
 
 def extract_pi_gap(v):
@@ -177,16 +200,13 @@ def compute_scores_v3(raw_metrics, target_date=None, prev_scores=None, scores_hi
         cb_weekly_raw = round(w) if w is not None else None
         cb_daily_raw = round(d) if d is not None else None
         
+        # Divergence level: 0=none, 1=single fast, 2=double (3 pivots, 2 consecutive)
+        # Score stays honest (no artificial bump) — divergence boosts utility weight instead
+        cb_bear_div = 2 if val_dict.get('double_bearish_div') else (1 if val_dict.get('fast_bearish_div') else 0)
+        cb_bull_div = 2 if val_dict.get('double_bullish_div') else (1 if val_dict.get('fast_bullish_div') else 0)
+
         if w is not None:
-            if val_dict.get('fast_bearish_div'):
-                w = min(100.0, w + 12)
-            elif val_dict.get('fast_bullish_div'):
-                w = max(0.0, w - 12)
             if d is not None:
-                if val_dict.get('daily_fast_bearish_div'):
-                    d = min(100.0, d + 12)
-                elif val_dict.get('daily_fast_bullish_div'):
-                    d = max(0.0, d - 12)
                 cipherb_score = round(0.8 * w + 0.2 * d)
             else:
                 cipherb_score = round(w)
@@ -388,6 +408,81 @@ def compute_scores_v3(raw_metrics, target_date=None, prev_scores=None, scores_hi
     if pi_cross and final is not None:
         final = max(final, 85)
 
+    # 12. V5 multi-scale mixing model (runs alongside V3, stored for comparison).
+    # raw_metrics = p['metrics']: each entry is {'value': <scalar|dict>, 'source': ...}.
+    # _s() unwraps up to two levels of dict nesting to reach the scalar.
+    def _s(v):
+        if isinstance(v, dict):
+            v = v.get('value')
+        if isinstance(v, dict):
+            v = v.get('value')
+        return float(v) if isinstance(v, (int, float)) else None
+
+    _cb = raw_metrics.get('cipherb')
+    _cb_daily = None
+    if isinstance(_cb, dict):
+        _cb_inner = _cb.get('value', _cb)
+        if isinstance(_cb_inner, dict):
+            _cb_daily = _cb_inner.get('daily_score')
+
+    _fr = raw_metrics.get('funding_rate')
+    _fr_val = (_fr.get('value') or {}).get('avg_7d') if isinstance(_fr, dict) else None
+
+    _lth_v = _s(raw_metrics.get('lth_supply_pct'))
+    _lth_pct = (_lth_v / 21_000_000 * 100) if _lth_v is not None and _lth_v > 100 else _lth_v
+
+    _v5_raw = {
+        'nupl':           _s(raw_metrics.get('nupl')),
+        'mvrv':           _s(raw_metrics.get('mvrv')),
+        'rhodl_ratio':    _s(raw_metrics.get('rhodl_ratio')),
+        'cvdd_ratio':     _s(raw_metrics.get('cvdd_ratio')),
+        'puell':          _s(raw_metrics.get('puell_multiple')),
+        'cipherb_daily':  _cb_daily,
+        'mayer_multiple': _s(raw_metrics.get('mayer_multiple')),
+        'fear_greed':     _s(raw_metrics.get('fear_greed')),
+        'funding_rate':   _fr_val,
+        'm2_yoy':         _s(raw_metrics.get('m2_mom')),
+        'lth_supply_pct': _lth_pct,
+        'yield_curve':    _s(raw_metrics.get('yield_curve')),
+        'dxy':            _s(raw_metrics.get('dxy')),
+    }
+    _v5_result   = _v5.predict(_v5_raw)
+    v5_score     = round(_v5_result['score'], 1)     if isinstance(_v5_result, dict) else None
+    v5_confidence = _v5_result.get('confidence')     if isinstance(_v5_result, dict) else None
+    v5_shap_top5  = _v5_result.get('shap_top5')      if isinstance(_v5_result, dict) else None
+
+    # V5B: Forward Risk Model — expected max drawdown over next 365 days
+    _v5b_raw = {**_v5_raw,
+                'btc_price':  raw_metrics.get('btc_price'),
+                'v3_phase':   phase,
+                'v3_w_top':   w_top,
+                'v3_w_bot':   w_bot,
+                'v3_score':   final,
+                'final_score': final}
+    _v5b_result = _v5b.predict_b(_v5b_raw, target_date)
+    v5b_score   = _v5b_result['score'] if isinstance(_v5b_result, dict) else None
+
+    # signal_agreement: how much V3 and V5B agree (1.0 = identical, 0.0 = opposite ends)
+    # This measures *agreement between models*, not model certainty.
+    # When they disagree → V5B gets more weight (it's predictive; V3 may be phase-confused)
+    #   w_v5b = 1 - agreement/2  → ranges 0.5 (full agreement) to 1.0 (total disagreement)
+    #   w_v3  = agreement/2      → ranges 0.5 to 0.0
+    import math as _math
+    if final is not None and v5b_score is not None:
+        signal_agreement = round(1.0 - abs(final - v5b_score) / 100.0, 2)
+        w_v3  = signal_agreement / 2
+        w_v5b = 1.0 - w_v3
+        meta_score     = round(w_v3 * final + w_v5b * v5b_score, 1)
+        market_regime  = _market_regime(final, v5b_score)
+        # Composite risk = √(Position × Outlook) — amplifies agreement, dampens disagreement.
+        # Scale matches both inputs (0-100). Use for display (gauge/dial), not trading decisions.
+        composite_risk = round(_math.sqrt(max(0.0, final) * max(0.0, v5b_score)), 1)
+    else:
+        signal_agreement = None
+        meta_score       = None
+        market_regime    = None
+        composite_risk   = None
+
     return {
         'onchain_avg': oc_avg,
         'tech_avg': tech_avg,
@@ -408,4 +503,12 @@ def compute_scores_v3(raw_metrics, target_date=None, prev_scores=None, scores_hi
         'w_top': round(w_top, 3),
         'w_bot': round(w_bot, 3),
         'w_neutral': round(w_neutral, 3),
+        'v5_score': v5_score,
+        'v5_confidence': v5_confidence,
+        'v5_shap_top5': v5_shap_top5,
+        'v5b_score': v5b_score,
+        'meta_score': meta_score,
+        'signal_agreement': signal_agreement,
+        'market_regime': market_regime,
+        'composite_risk': composite_risk,
     }

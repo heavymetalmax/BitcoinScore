@@ -28,117 +28,43 @@ import datetime
 # fixed maps — applying a percentile to a stable-envelope oscillator would
 # inject noise. Evidence: tools/adaptive_norm_probe.py (NUPL peaks 0.87→0.64,
 # MVRV Z 11→3.4; fixed under-reads modern tops and over-reads modern bottoms).
-ADAPTIVE_METRICS   = {'nupl', 'mvrv', 'mayer', 'cvdd_ratio', 'puell', 'rhodl_ratio', 'etf_flows', 'dxy'}
-# scores.json field name when it differs from the metric key
-_UNIFIED_FIELD     = {'mayer': 'mayer_multiple', 'cvdd_ratio': 'cvdd_ratio'}
-# daily_vector raw key differs from the metric name for some metrics
-_DV_KEY            = {'mayer': 'mayer_multiple', 'cvdd_ratio': 'cvdd_ratio'}
-ADAPTIVE_BLEND     = 0.7                 # default blend: 70% percentile + 30% fixed map
-ADAPTIVE_WIN_YEARS = 4                   # trailing window for the percentile
-# Per-metric blend overrides. 1.0 = pure causal percentile rank, no fixed map.
-# On-chain metrics (nupl, mvrv, cvdd_ratio, rhodl_ratio, puell) change their
-# absolute ranges each cycle — pure percentile avoids hardcoded range decay.
-# Macro metrics (m2, yield_curve, dxy, funding) keep ADAPTIVE_BLEND=0.7 since
-# their economic ranges are stable and the fixed map adds domain knowledge.
-ADAPTIVE_BLEND_OVERRIDE = {
-    'nupl':        1.0,
-    'mvrv':        1.0,
-    'cvdd_ratio':  1.0,
-    'rhodl_ratio': 1.0,
-    'puell':       1.0,
-}
-ADAPTIVE_DEBUG     = {}                  # per-run breakdown for transparency
-_HIST_CACHE        = {}
-_SCORES_CACHE      = None               # lazy-loaded scores.json (the ONE database)
+# Re-export from maps.py so all code that imports these from scoring.py
+# continues to work, but shares the SINGLE cache in maps.py.
+from scraper.maps import (
+    ADAPTIVE_METRICS, ADAPTIVE_BLEND, ADAPTIVE_WIN_YEARS, ADAPTIVE_BLEND_OVERRIDE,
+    ADAPTIVE_DEBUG, _load_scores_cache, _load_metric_history,
+    map_nupl, map_mvrv, map_asopr, map_fear_greed, map_m2, map_yield_curve,
+    map_dxy, map_lth_supply, map_mayer_multiple, map_funding, map_cvdd, map_rhodl,
+    map_etf_flow, _oc_coherence, OC_WEIGHTS,
+)
+# _HIST_CACHE and _SCORES_CACHE are now owned by maps.py (single source)
+_UNIFIED_FIELD = {'mayer': 'mayer_multiple', 'cvdd_ratio': 'cvdd_ratio'}
+_DV_KEY        = {'mayer': 'mayer_multiple', 'cvdd_ratio': 'cvdd_ratio'}
 
-def _load_scores_cache():
-    """Load scores.json (the ONE database) into a list of dicts, once per process."""
-    global _SCORES_CACHE
-    if _SCORES_CACHE is not None:
-        return _SCORES_CACHE
-    path = 'data/history/scores.json'
-    if os.path.exists(path):
-        _SCORES_CACHE = json.load(open(path, encoding='utf-8'))
-    else:
-        _SCORES_CACHE = []
-    return _SCORES_CACHE
-
-def _load_metric_history(metric):
-    """Return [(date, value)] from scores.json (the ONE database).
-
-    scores.json stores all raw metrics alongside computed scores.
-    All units are normalised:  nupl in %, asopr as actual value (not delta).
-    etf_flows still lives in data/history/etf_flows.json (separate time series).
-    daily_vector appended as a tail for dates not yet flushed to scores.json.
-    """
-    if metric in _HIST_CACHE:
-        return _HIST_CACHE[metric]
-
-    field = _UNIFIED_FIELD.get(metric, metric)
-    pts = []
-
-    # ── Primary: scores.json ────────────────────────────────────────────────
-    for row in _load_scores_cache():
-        v = row.get(field)
-        d = row.get('date', '')[:10]
-        if d and v is not None:
-            pts.append((d, float(v)))
-
-    # ── Special: etf_flows (separate flat-list file) ─────────────────────────
-    if not pts and metric == 'etf_flows':
-        etf_path = 'data/history/etf_flows.json'
-        try:
-            if os.path.exists(etf_path):
-                raw_etf = json.load(open(etf_path, encoding='utf-8'))
-                if isinstance(raw_etf, list):
-                    for r in raw_etf:
-                        d = (r.get('timestamp') or r.get('date', ''))[:10]
-                        v = r.get('etf_flow_7d') or r.get('etf_flow_14d')
-                        if d and v is not None:
-                            pts.append((d, float(v)))
-        except Exception:
-            pass
-
-    # ── Tail: daily_vector for very recent dates not yet in scores.json ───────
-    try:
-        dv = 'data/history/daily_vector.json'
-        if os.path.exists(dv):
-            dv_key = _DV_KEY.get(metric, metric)
-            for row in json.load(open(dv, encoding='utf-8')):
-                v = (row.get('raw') or {}).get(dv_key)
-                if v is not None:
-                    pts.append((row['date'], float(v)))
-    except Exception:
-        pass
-
-    pts.sort(key=lambda r: r[0])
-    _HIST_CACHE[metric] = pts
-    return pts
+# _load_metric_history, _percentile_score, _adaptive, OC_WEIGHTS — all
+# delegated to maps.py (single cache). Local re-exports keep V1's score_from_raw
+# and build_slider_map working without changes.
 
 def _percentile_score(metric, value):
-    """0-100 rolling percentile of `value` within the trailing window, or None."""
+    """0-100 rolling percentile — delegates to maps._load_metric_history cache."""
+    from scraper.maps import _HIST_CACHE as _mc
     if value is None:
         return None
-    # Unwrap doubly-nested dicts (e.g. mayer_multiple: {value:{value:0.815,...}})
     while isinstance(value, dict):
         value = value.get('value')
     if not isinstance(value, (int, float)):
         return None
     pts = _load_metric_history(metric)
-    if len(pts) < 24:                       # need a couple of years of context
+    if len(pts) < 24:
         return None
     lo = (datetime.date.fromisoformat(pts[-1][0][:10])
           - datetime.timedelta(days=int(ADAPTIVE_WIN_YEARS * 365))).isoformat()
     win = [v for (d, v) in pts if d[:10] >= lo]
     if len(win) < 12:
         return None
-    cmp = float(value)
-    le = sum(1 for v in win if v <= cmp)   # higher value = higher risk
-    return round(le / len(win) * 100)
+    return round(sum(1 for v in win if v <= float(value)) / len(win) * 100)
 
 def _adaptive(metric, value, fixed_score):
-    """Blend the fixed score with the rolling percentile; record the breakdown.
-    Falls back to the pure fixed score when history is insufficient."""
     if fixed_score is None or metric not in ADAPTIVE_METRICS:
         return fixed_score
     pct = _percentile_score(metric, value)
@@ -149,14 +75,6 @@ def _adaptive(metric, value, fixed_score):
     ADAPTIVE_DEBUG[metric] = {'fixed': fixed_score, 'adaptive': pct, 'blended': blended,
                               'win_years': ADAPTIVE_WIN_YEARS, 'blend_w': ADAPTIVE_BLEND}
     return blended
-
-OC_WEIGHTS = {
-    'rhodl_ratio':         0.20,
-    'mvrv_z_score':        0.20,
-    'cvdd_ratio':          0.15,
-    'nupl':                0.30,
-    'asopr':               0.15,
-}
 
 TECH_WEIGHTS = {
     'cipherb':             0.40,   # +bearish_div penalty; основний price/momentum сигнал (зменшено з 50% -> 40%)

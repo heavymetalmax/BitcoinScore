@@ -721,136 +721,147 @@
             </div>
           </div>
           
-          <!-- Detailed Flow schematic (Neon pipeline diagram mapping technical_map.md) -->
-          <div style="display: flex; flex: 1; align-items: center; justify-content: center; position: relative; width: 100%; height: 146px; margin-top: 2px; margin-bottom: 2px;">
-            <svg style="width:100%; height:100%; z-index:1;" viewBox="0 0 360 146">
-              <!-- Glow Filters -->
+          <!-- Pipeline diagram v2 — Position + Outlook + Composite + Regime -->
+          <div style="display: flex; flex: 1; align-items: center; justify-content: center; position: relative; width: 100%; height: 152px; margin-top: 2px; margin-bottom: 2px;">
+            <svg style="width:100%; height:100%; z-index:1;" viewBox="0 0 360 152">
               <defs>
-                <filter id="glow-purple" x="-20%" y="-20%" width="140%" height="140%">
-                  <feGaussianBlur stdDeviation="2" result="blur" />
-                  <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                </filter>
-                <filter id="glow-blue" x="-20%" y="-20%" width="140%" height="140%">
-                  <feGaussianBlur stdDeviation="2" result="blur" />
-                  <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                </filter>
-                <filter id="glow-green" x="-20%" y="-20%" width="140%" height="140%">
-                  <feGaussianBlur stdDeviation="2" result="blur" />
-                  <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                </filter>
+                <filter id="gp2" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="2" result="b"/><feComposite in="SourceGraphic" in2="b" operator="over"/></filter>
+                <filter id="gb2" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="2" result="b"/><feComposite in="SourceGraphic" in2="b" operator="over"/></filter>
+                <filter id="gg2" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="2" result="b"/><feComposite in="SourceGraphic" in2="b" operator="over"/></filter>
+                <filter id="ga2" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="2" result="b"/><feComposite in="SourceGraphic" in2="b" operator="over"/></filter>
               </defs>
-              
-              <!-- Neon Paths (Threads) -->
-              <!-- Inputs -> Normalizer -->
-              <path id="p-oc-norm" d="M 63 22 C 80 22, 85 32, 95 32" fill="none" stroke="#8B5CF6" stroke-width="1" stroke-linecap="round" opacity="0.3" filter="url(#glow-purple)"/>
-              <path id="p-tc-norm" d="M 63 70 C 80 70, 85 32, 95 32" fill="none" stroke="#6366F1" stroke-width="1" stroke-linecap="round" opacity="0.25" filter="url(#glow-purple)"/>
-              <path id="p-mc-norm" d="M 63 118 C 80 118, 85 32, 95 32" fill="none" stroke="#3B82F6" stroke-width="1" stroke-linecap="round" opacity="0.25" filter="url(#glow-blue)"/>
-              
-              <!-- Inputs -> ML Classifier -->
-              <path id="p-oc-ml" d="M 63 22 C 80 22, 85 112, 95 112" fill="none" stroke="#8B5CF6" stroke-width="1" stroke-linecap="round" opacity="0.2" filter="url(#glow-purple)"/>
-              <path id="p-tc-ml" d="M 63 70 C 80 70, 85 112, 95 112" fill="none" stroke="#6366F1" stroke-width="1" stroke-linecap="round" opacity="0.3" filter="url(#glow-purple)"/>
-              <path id="p-mc-ml" d="M 63 118 C 80 118, 85 112, 95 112" fill="none" stroke="#3B82F6" stroke-width="1" stroke-linecap="round" opacity="0.2" filter="url(#glow-blue)"/>
-              
-              <!-- Scoring Engine Output -> Weights / Coherence -->
-              <path id="p-norm-wt" d="M 143 32 C 158 32, 160 42, 165 42" fill="none" stroke="#A78BFA" stroke-width="1" stroke-linecap="round" opacity="0.3" filter="url(#glow-purple)"/>
-              <path id="p-ml-wt" d="M 143 112 C 158 112, 160 42, 165 42" fill="none" stroke="#818CF8" stroke-width="1" stroke-linecap="round" opacity="0.25" filter="url(#glow-purple)"/>
-              <path id="p-ml-coh" d="M 143 112 C 158 112, 160 102, 165 102" fill="none" stroke="#818CF8" stroke-width="1" stroke-linecap="round" opacity="0.25" filter="url(#glow-purple)"/>
-              
-              <!-- Weights/Coherence -> Divergence Logic -->
-              <path id="p-wt-div" d="M 213 42 C 224 42, 226 112, 230 112" fill="none" stroke="#60A5FA" stroke-width="1" stroke-linecap="round" opacity="0.3" filter="url(#glow-blue)"/>
-              <path id="p-coh-div" d="M 213 102 C 224 102, 226 112, 230 112" fill="none" stroke="#60A5FA" stroke-width="1" stroke-linecap="round" opacity="0.3" filter="url(#glow-blue)"/>
-              
-              <!-- Volatility -> Lookback -> Divergence -->
-              <path id="p-lb-div" d="M 278 32 C 283 32, 283 112, 260 112" fill="none" stroke="#F59E0B" stroke-width="1" stroke-linecap="round" opacity="0.3" filter="url(#glow-purple)"/>
-              
-              <!-- Divergence Logic -> Final Score Circle -->
-              <path id="p-div-score" d="M 278 112 C 294 112, 296 72, 305 72" fill="none" stroke="#10B981" stroke-width="1.8" stroke-linecap="round" opacity="0.45" filter="url(#glow-green)"/>
 
-              <!-- Animated Data Packets (Комочки даних) -->
-              <circle r="1.5" fill="#E9D5FF" filter="url(#glow-purple)"><animateMotion dur="1.3s" repeatCount="indefinite"><mpath href="#p-oc-norm"/></animateMotion></circle>
-              <circle r="1.5" fill="#DBEAFE" filter="url(#glow-blue)"><animateMotion dur="2.2s" repeatCount="indefinite"><mpath href="#p-mc-norm"/></animateMotion></circle>
-              <circle r="1.5" fill="#E9D5FF" filter="url(#glow-purple)"><animateMotion dur="1.8s" repeatCount="indefinite"><mpath href="#p-tc-ml"/></animateMotion></circle>
-              <circle r="1.5" fill="#E9D5FF" filter="url(#glow-purple)"><animateMotion dur="1.5s" repeatCount="indefinite"><mpath href="#p-norm-wt"/></animateMotion></circle>
-              <circle r="1.5" fill="#DBEAFE" filter="url(#glow-blue)"><animateMotion dur="1.7s" repeatCount="indefinite"><mpath href="#p-ml-coh"/></animateMotion></circle>
-              <circle r="1.5" fill="#DBEAFE" filter="url(#glow-blue)"><animateMotion dur="2.0s" repeatCount="indefinite"><mpath href="#p-coh-div"/></animateMotion></circle>
-              <circle r="1.5" fill="#FEF3C7" filter="url(#glow-purple)"><animateMotion dur="2.3s" repeatCount="indefinite"><mpath href="#p-lb-div"/></animateMotion></circle>
-              <circle r="2.2" fill="#D1FAE5" filter="url(#glow-green)"><animateMotion dur="0.9s" repeatCount="indefinite"><mpath href="#p-div-score"/></animateMotion></circle>
+              <!-- ── PATHS: Sources → Processing ── -->
+              <path id="pa01" d="M 63 21 C 70 21,70 23,73 23" fill="none" stroke="#8B5CF6" stroke-width="1" stroke-linecap="round" opacity="0.35" filter="url(#gp2)"/>
+              <path id="pa02" d="M 63 63 C 70 63,70 23,73 23" fill="none" stroke="#6366F1" stroke-width="1" stroke-linecap="round" opacity="0.2"  filter="url(#gp2)"/>
+              <path id="pa03" d="M 63 105 C 70 105,70 23,73 23" fill="none" stroke="#3B82F6" stroke-width="1" stroke-linecap="round" opacity="0.15" filter="url(#gb2)"/>
+              <path id="pa04" d="M 63 21 C 70 21,70 105,73 105" fill="none" stroke="#8B5CF6" stroke-width="1" stroke-linecap="round" opacity="0.15" filter="url(#gp2)"/>
+              <path id="pa05" d="M 63 63 C 70 63,70 105,73 105" fill="none" stroke="#6366F1" stroke-width="1" stroke-linecap="round" opacity="0.2"  filter="url(#gp2)"/>
+              <path id="pa06" d="M 63 105 C 70 105,70 105,73 105" fill="none" stroke="#3B82F6" stroke-width="1" stroke-linecap="round" opacity="0.35" filter="url(#gb2)"/>
+              <!-- ── PATHS: Processing → Models ── -->
+              <path id="pa07" d="M 123 23 C 128 23,128 23,133 23" fill="none" stroke="#A78BFA" stroke-width="1.2" stroke-linecap="round" opacity="0.45" filter="url(#gp2)"/>
+              <path id="pa08" d="M 123 105 C 128 105,128 23,133 23" fill="none" stroke="#60A5FA" stroke-width="1"   stroke-linecap="round" opacity="0.25" filter="url(#gb2)"/>
+              <path id="pa09" d="M 123 105 C 128 105,128 105,133 105" fill="none" stroke="#60A5FA" stroke-width="1.2" stroke-linecap="round" opacity="0.45" filter="url(#gb2)"/>
+              <path id="pa10" d="M 123 23 C 128 23,128 105,133 105" fill="none" stroke="#A78BFA" stroke-width="1"   stroke-linecap="round" opacity="0.2"  filter="url(#gp2)"/>
+              <!-- ── PATHS: Models → Outputs ── -->
+              <path id="pa11" d="M 183 23 C 188 23,188 27,193 27" fill="none" stroke="#C084FC" stroke-width="1.3" stroke-linecap="round" opacity="0.55" filter="url(#gp2)"/>
+              <path id="pa12" d="M 183 105 C 188 105,188 105,193 105" fill="none" stroke="#38BDF8" stroke-width="1.3" stroke-linecap="round" opacity="0.55" filter="url(#gb2)"/>
+              <!-- ── PATHS: Outputs → Composite ── -->
+              <path id="pa13" d="M 241 27 C 247 27,247 34,253 34" fill="none" stroke="#F59E0B" stroke-width="1.2" stroke-linecap="round" opacity="0.45" filter="url(#ga2)"/>
+              <path id="pa14" d="M 241 105 C 247 105,247 34,253 34" fill="none" stroke="#F59E0B" stroke-width="1.2" stroke-linecap="round" opacity="0.45" filter="url(#ga2)"/>
+              <!-- ── PATH: Composite → Regime ── -->
+              <path id="pa15" d="M 299 34 C 302 34,303 50,303 69" fill="none" stroke="#10B981" stroke-width="1.8" stroke-linecap="round" opacity="0.5"  filter="url(#gg2)"/>
 
-              <!-- Node: On-Chain -->
-              <g transform="translate(5, 10)">
-                <rect width="58" height="26" rx="5" fill="#0C0A15" stroke="#8B5CF6" stroke-width="1.2" filter="drop-shadow(0 0 2px rgba(139, 92, 246, 0.3))"/>
-                <text x="29" y="11" fill="#C084FC" font-size="5.5" font-family="monospace" font-weight="bold" text-anchor="middle">ON-CHAIN</text>
-                <text x="29" y="20.5" fill="#9CA3AF" font-size="4.2" font-family="sans-serif" text-anchor="middle">NUPL, MVRV, RHODL</text>
+              <!-- Animated data packets -->
+              <circle r="1.5" fill="#E9D5FF" filter="url(#gp2)"><animateMotion dur="1.4s" repeatCount="indefinite"><mpath href="#pa01"/></animateMotion></circle>
+              <circle r="1.5" fill="#BFDBFE" filter="url(#gb2)"><animateMotion dur="2.0s" repeatCount="indefinite"><mpath href="#pa06"/></animateMotion></circle>
+              <circle r="1.5" fill="#DDD6FE" filter="url(#gp2)"><animateMotion dur="1.6s" repeatCount="indefinite"><mpath href="#pa07"/></animateMotion></circle>
+              <circle r="1.5" fill="#BAE6FD" filter="url(#gb2)"><animateMotion dur="1.8s" repeatCount="indefinite"><mpath href="#pa09"/></animateMotion></circle>
+              <circle r="1.5" fill="#D8B4FE" filter="url(#gp2)"><animateMotion dur="1.2s" repeatCount="indefinite"><mpath href="#pa11"/></animateMotion></circle>
+              <circle r="1.5" fill="#67E8F9" filter="url(#gb2)"><animateMotion dur="1.5s" repeatCount="indefinite"><mpath href="#pa12"/></animateMotion></circle>
+              <circle r="1.5" fill="#FDE68A" filter="url(#ga2)"><animateMotion dur="1.3s" repeatCount="indefinite"><mpath href="#pa13"/></animateMotion></circle>
+              <circle r="1.5" fill="#FDE68A" filter="url(#ga2)"><animateMotion dur="2.1s" repeatCount="indefinite"><mpath href="#pa14"/></animateMotion></circle>
+              <circle r="2.0" fill="#A7F3D0" filter="url(#gg2)"><animateMotion dur="0.9s" repeatCount="indefinite"><mpath href="#pa15"/></animateMotion></circle>
+
+              <!-- ══ LAYER 1 — DATA SOURCES ══ -->
+              <g transform="translate(5,8)">
+                <rect width="58" height="27" rx="5" fill="#0C0A15" stroke="#8B5CF6" stroke-width="1.2" filter="drop-shadow(0 0 2px rgba(139,92,246,.3))"/>
+                <text x="29" y="10.5" fill="#C084FC" font-size="5.5" font-family="monospace" font-weight="bold" text-anchor="middle">ON-CHAIN</text>
+                <text x="29" y="18.5" fill="#9CA3AF" font-size="3.9" font-family="sans-serif" text-anchor="middle">NUPL · MVRV · RHODL</text>
+                <text x="29" y="25.5" fill="#6B7280" font-size="3.7" font-family="sans-serif" text-anchor="middle">CVDD · aSOPR · Puell · LTH</text>
+                <circle id="hd-oc" cx="54" cy="3.5" r="3.5" fill="#10B981"/>
               </g>
-              
-              <!-- Node: Technical -->
-              <g transform="translate(5, 58)">
-                <rect width="58" height="26" rx="5" fill="#0C0A15" stroke="#6366F1" stroke-width="1.2" filter="drop-shadow(0 0 2px rgba(99, 102, 241, 0.3))"/>
-                <text x="29" y="11" fill="#818CF8" font-size="5.5" font-family="monospace" font-weight="bold" text-anchor="middle">TECHNICAL</text>
-                <text x="29" y="20.5" fill="#9CA3AF" font-size="4.2" font-family="sans-serif" text-anchor="middle">CipherB, SMC</text>
+              <g transform="translate(5,50)">
+                <rect width="58" height="27" rx="5" fill="#0C0A15" stroke="#6366F1" stroke-width="1.2" filter="drop-shadow(0 0 2px rgba(99,102,241,.3))"/>
+                <text x="29" y="10.5" fill="#818CF8" font-size="5.5" font-family="monospace" font-weight="bold" text-anchor="middle">TECHNICAL</text>
+                <text x="29" y="18.5" fill="#9CA3AF" font-size="3.9" font-family="sans-serif" text-anchor="middle">CipherB · Mayer · F&amp;G</text>
+                <text x="29" y="25.5" fill="#6B7280" font-size="3.7" font-family="sans-serif" text-anchor="middle">Funding Rate · ETF Flows</text>
+                <circle id="hd-tc" cx="54" cy="3.5" r="3.5" fill="#10B981"/>
               </g>
-              
-              <!-- Node: Macro -->
-              <g transform="translate(5, 106)">
-                <rect width="58" height="26" rx="5" fill="#0C0A15" stroke="#3B82F6" stroke-width="1.2" filter="drop-shadow(0 0 2px rgba(59, 130, 246, 0.3))"/>
-                <text x="29" y="11" fill="#60A5FA" font-size="5.5" font-family="monospace" font-weight="bold" text-anchor="middle">MACRO/FLOW</text>
-                <text x="29" y="20.5" fill="#9CA3AF" font-size="4.2" font-family="sans-serif" text-anchor="middle">M2 YoY, Yield, ETF</text>
+              <g transform="translate(5,92)">
+                <rect width="58" height="27" rx="5" fill="#0C0A15" stroke="#3B82F6" stroke-width="1.2" filter="drop-shadow(0 0 2px rgba(59,130,246,.3))"/>
+                <text x="29" y="10.5" fill="#60A5FA" font-size="5.5" font-family="monospace" font-weight="bold" text-anchor="middle">MACRO/FLOW</text>
+                <text x="29" y="18.5" fill="#9CA3AF" font-size="3.9" font-family="sans-serif" text-anchor="middle">M2 YoY · Yield · DXY</text>
+                <text x="29" y="25.5" fill="#6B7280" font-size="3.7" font-family="sans-serif" text-anchor="middle">BTC Price (Kraken OHLCV)</text>
+                <circle id="hd-mc" cx="54" cy="3.5" r="3.5" fill="#10B981"/>
               </g>
-              
-              <!-- Node: Causal Normalizer -->
-              <g transform="translate(95, 15)">
-                <rect class="pulsing-node" style="color: rgba(167, 139, 250, 0.3);" width="48" height="34" rx="5" fill="#0C0A15" stroke="#A78BFA" stroke-width="1.2"/>
-                <text x="24" y="12" fill="#C084FC" font-size="5.5" font-family="monospace" font-weight="bold" text-anchor="middle">NORMALIZER</text>
-                <text x="24" y="21" fill="#9CA3AF" font-size="4.2" font-family="sans-serif" text-anchor="middle">Fixed maps +</text>
-                <text x="24" y="28" fill="#9CA3AF" font-size="4.2" font-family="sans-serif" text-anchor="middle">4Y Percentiles</text>
+
+              <!-- ══ LAYER 2 — PROCESSING ══ -->
+              <g transform="translate(73,6)">
+                <rect width="50" height="34" rx="5" fill="#0C0A15" stroke="#A78BFA" stroke-width="1.2"/>
+                <text x="25" y="11" fill="#C084FC" font-size="5.5" font-family="monospace" font-weight="bold" text-anchor="middle">NORMALIZER</text>
+                <text x="25" y="20"  fill="#9CA3AF" font-size="4" font-family="sans-serif" text-anchor="middle">Causal Pctile</text>
+                <text x="25" y="27"  fill="#9CA3AF" font-size="4" font-family="sans-serif" text-anchor="middle">0–100 Risk</text>
               </g>
-              
-              <!-- Node: ML Phase Classifier -->
-              <g transform="translate(95, 95)">
-                <rect class="pulsing-node" style="color: rgba(96, 165, 250, 0.3);" width="48" height="34" rx="5" fill="#0C0A15" stroke="#60A5FA" stroke-width="1.2"/>
-                <text x="24" y="12" fill="#60A5FA" font-size="5.5" font-family="monospace" font-weight="bold" text-anchor="middle">ML CLASSIF</text>
-                <text x="24" y="21" fill="#9CA3AF" font-size="4.2" font-family="sans-serif" text-anchor="middle">w_top/bot/neut</text>
-                <text x="24" y="28" fill="#9CA3AF" font-size="4.2" font-family="sans-serif" text-anchor="middle">Centroid Proxim</text>
+              <g transform="translate(73,88)">
+                <rect width="50" height="34" rx="5" fill="#0C0A15" stroke="#60A5FA" stroke-width="1.2"/>
+                <text x="25" y="11" fill="#60A5FA" font-size="5.5" font-family="monospace" font-weight="bold" text-anchor="middle">HMM PHASE</text>
+                <text x="25" y="20"  fill="#9CA3AF" font-size="4" font-family="sans-serif" text-anchor="middle">w_top/bot</text>
+                <text x="25" y="27"  fill="#9CA3AF" font-size="4" font-family="sans-serif" text-anchor="middle">State Chain</text>
+                <circle id="hd-hmm" cx="45" cy="3" r="3.5" fill="#10B981"/>
               </g>
-              
-              <!-- Node: Dynamic Weighting -->
-              <g transform="translate(165, 25)">
-                <rect class="pulsing-node" style="color: rgba(52, 211, 153, 0.3);" width="48" height="34" rx="5" fill="#0C0A15" stroke="#34D399" stroke-width="1.2"/>
-                <text x="24" y="12" fill="#34D399" font-size="5.5" font-family="monospace" font-weight="bold" text-anchor="middle">DY WEIGHTS</text>
-                <text x="24" y="21" fill="#9CA3AF" font-size="4.2" font-family="sans-serif" text-anchor="middle">State-Space</text>
-                <text x="24" y="28" fill="#9CA3AF" font-size="4.2" font-family="sans-serif" text-anchor="middle">Utility Shifts</text>
+
+              <!-- ══ LAYER 3 — MODELS ══ -->
+              <g transform="translate(133,6)">
+                <rect width="50" height="34" rx="5" fill="#0C0A15" stroke="#C084FC" stroke-width="1.2"/>
+                <text x="25" y="11" fill="#E879F9" font-size="5.5" font-family="monospace" font-weight="bold" text-anchor="middle">V3 ENGINE</text>
+                <text x="25" y="20"  fill="#9CA3AF" font-size="4" font-family="sans-serif" text-anchor="middle">Utility Wts</text>
+                <text x="25" y="27"  fill="#9CA3AF" font-size="4" font-family="sans-serif" text-anchor="middle">Coherence</text>
               </g>
-              
-              <!-- Node: Coherence Dampener -->
-              <g transform="translate(165, 85)">
-                <rect class="pulsing-node" style="color: rgba(52, 211, 153, 0.3);" width="48" height="34" rx="5" fill="#0C0A15" stroke="#34D399" stroke-width="1.2"/>
-                <text x="24" y="12" fill="#34D399" font-size="5.5" font-family="monospace" font-weight="bold" text-anchor="middle">COHERENCE</text>
-                <text x="24" y="21" fill="#9CA3AF" font-size="4.2" font-family="sans-serif" text-anchor="middle">Dampening</text>
-                <text x="24" y="28" fill="#9CA3AF" font-size="4.2" font-family="sans-serif" text-anchor="middle">OC Coherence</text>
+              <g transform="translate(133,88)">
+                <rect width="50" height="34" rx="5" fill="#0C0A15" stroke="#38BDF8" stroke-width="1.2"/>
+                <text x="25" y="11" fill="#38BDF8" font-size="5.5" font-family="monospace" font-weight="bold" text-anchor="middle">V5B MODEL</text>
+                <text x="25" y="20"  fill="#9CA3AF" font-size="4" font-family="sans-serif" text-anchor="middle">XGBoost</text>
+                <text x="25" y="27"  fill="#9CA3AF" font-size="4" font-family="sans-serif" text-anchor="middle">49 features</text>
+                <circle id="hd-v5b" cx="45" cy="3" r="3.5" fill="#10B981"/>
               </g>
-              
-              <!-- Node: Volatility & Lookback -->
-              <g transform="translate(230, 15)">
-                <rect class="pulsing-node" style="color: rgba(245, 158, 11, 0.3);" width="48" height="34" rx="5" fill="#0C0A15" stroke="#F59E0B" stroke-width="1.2"/>
-                <text x="24" y="12" fill="#F59E0B" font-size="5.5" font-family="monospace" font-weight="bold" text-anchor="middle">VOLATILITY</text>
-                <text x="24" y="21" fill="#9CA3AF" font-size="4.2" font-family="sans-serif" text-anchor="middle">365d returns σ</text>
-                <text x="24" y="28" fill="#E5E7EB" font-size="4.2" font-family="sans-serif" font-weight="bold" text-anchor="middle">Lookback L</text>
+
+              <!-- ══ LAYER 4 — OUTPUTS ══ -->
+              <!-- CYCLE CONTEXT badge -->
+              <g transform="translate(193,14)">
+                <rect width="48" height="26" rx="4" fill="#0C0A15" stroke="#C084FC" stroke-width="1.3" filter="drop-shadow(0 0 3px rgba(192,132,252,.3))"/>
+                <text x="24" y="7.5" fill="#9CA3AF" font-size="3.8" font-family="monospace" font-weight="bold" text-anchor="middle">CYCLE</text>
+                <text x="24" y="13" fill="#9CA3AF" font-size="3.8" font-family="monospace" font-weight="bold" text-anchor="middle">CONTEXT</text>
+                <text class="meta-indicator" id="pipe-pos-val" x="24" y="23" fill="#E879F9" font-size="9.5" font-family="sans-serif" font-weight="900" text-anchor="middle">—</text>
               </g>
-              
-              <!-- Node: Divergence Logic -->
-              <g transform="translate(230, 95)">
-                <rect class="pulsing-node" style="color: rgba(245, 158, 11, 0.3);" width="48" height="34" rx="5" fill="#0C0A15" stroke="#F59E0B" stroke-width="1.2"/>
-                <text x="24" y="12" fill="#F59E0B" font-size="5.5" font-family="monospace" font-weight="bold" text-anchor="middle">DIVERGENCE</text>
-                <text x="24" y="21" fill="#9CA3AF" font-size="4.2" font-family="sans-serif" text-anchor="middle">Price-Score</text>
-                <text x="24" y="28" fill="#9CA3AF" font-size="4.2" font-family="sans-serif" text-anchor="middle">Bear/Bull Div</text>
+              <!-- OUTLOOK badge -->
+              <g transform="translate(193,92)">
+                <rect width="48" height="26" rx="4" fill="#0C0A15" stroke="#38BDF8" stroke-width="1.3" filter="drop-shadow(0 0 3px rgba(56,189,248,.3))"/>
+                <text x="24" y="9.5" fill="#9CA3AF" font-size="4.5" font-family="monospace" font-weight="bold" text-anchor="middle">OUTLOOK</text>
+                <text id="pipe-out-val" x="24" y="21" fill="#38BDF8" font-size="9.5" font-family="sans-serif" font-weight="900" text-anchor="middle">—%</text>
               </g>
-              
-              <!-- Node: Final Output Score -->
-              <g transform="translate(305, 47)">
-                <circle cx="25" cy="25" r="23" fill="#0C0A15" stroke="#10B981" stroke-width="1.6" filter="drop-shadow(0 0 5px rgba(16, 185, 129, 0.6))"/>
-                <text x="25" y="13" fill="#34D399" font-size="5.5" font-family="monospace" font-weight="bold" text-anchor="middle">INDEX</text>
-                <text x="25" y="27" fill="#34D399" font-size="13" font-family="sans-serif" font-weight="900" text-anchor="middle" class="meta-indicator">—</text>
-                <text x="25" y="37" fill="#E5E7EB" font-size="4.8" font-family="sans-serif" font-weight="bold" text-anchor="middle" class="zone-indicator">—</text>
+
+              <!-- ══ LAYER 5 — SYNTHESIS ══ -->
+              <!-- COMPOSITE RISK -->
+              <g transform="translate(253,20)">
+                <rect width="46" height="28" rx="4" fill="#0C0A15" stroke="#F59E0B" stroke-width="1.2" filter="drop-shadow(0 0 3px rgba(245,158,11,.25))"/>
+                <text x="23" y="10.5" fill="#F59E0B" font-size="4.5" font-family="monospace" font-weight="bold" text-anchor="middle">COMPOSITE</text>
+                <text x="23" y="14"   fill="#6B7280" font-size="3.5" font-family="sans-serif" text-anchor="middle">√(Pos × Out)</text>
+                <text id="pipe-comp-val" x="23" y="23" fill="#FDE68A" font-size="8.5" font-family="sans-serif" font-weight="900" text-anchor="middle">—</text>
+              </g>
+              <!-- REGIME output circle -->
+              <g transform="translate(303,47)">
+                <circle id="pipe-regime-circle" cx="22" cy="22" r="22" fill="#0C0A15" stroke="#10B981" stroke-width="1.8" filter="drop-shadow(0 0 6px rgba(16,185,129,.5))"/>
+                <text x="22" y="12" fill="#9CA3AF" font-size="4.5" font-family="monospace" font-weight="bold" text-anchor="middle">REGIME</text>
+                <text id="pipe-regime-val" x="22" y="24" fill="#34D399" font-size="8" font-family="sans-serif" font-weight="900" text-anchor="middle">—</text>
+                <!-- backward compat hidden elements -->
+                <text class="zone-indicator" x="22" y="35" fill="transparent" font-size="0" text-anchor="middle"></text>
+              </g>
+
+              <!-- ══ HEALTH STRIP ══ -->
+              <line x1="2" y1="128" x2="358" y2="128" stroke="#1F2937" stroke-width="0.5"/>
+              <g transform="translate(4,132)">
+                <circle id="hs-scraper" cx="5" cy="5" r="4" fill="#10B981"/>
+                <text x="13" y="8.5" fill="#4B5563" font-size="4.3" font-family="sans-serif">SCRAPER</text>
+                <circle id="hs-metrics" cx="65" cy="5" r="4" fill="#10B981"/>
+                <text id="hs-metrics-txt" x="73" y="8.5" fill="#4B5563" font-size="4.3" font-family="sans-serif">14/14</text>
+                <circle id="hs-v3" cx="120" cy="5" r="4" fill="#10B981"/>
+                <text x="128" y="8.5" fill="#4B5563" font-size="4.3" font-family="sans-serif">POSITION</text>
+                <circle id="hs-v5b2" cx="180" cy="5" r="4" fill="#10B981"/>
+                <text x="188" y="8.5" fill="#4B5563" font-size="4.3" font-family="sans-serif">OUTLOOK</text>
+                <circle id="hs-hmm2" cx="238" cy="5" r="4" fill="#10B981"/>
+                <text x="246" y="8.5" fill="#4B5563" font-size="4.3" font-family="sans-serif">HMM STATE</text>
+                <text id="hs-timestamp" x="352" y="8.5" fill="#374151" font-size="3.8" font-family="sans-serif" text-anchor="end">—</text>
               </g>
             </svg>
           </div>
@@ -950,17 +961,17 @@
         <!-- Front -->
         <div class="card signal-block flip-card-front" style="display: flex; flex-direction: column;">
           <div class="signal-block-header">
-            <span class="signal-block-label"><span class="en">Market Signal</span><span class="ua">Ринковий сигнал</span></span>
+            <span class="signal-block-label"><span class="en">Market Regime</span><span class="ua">Режим ринку</span></span>
             <span class="signal-main-badge" id="sig-flag">—</span>
           </div>
           <div class="signal-stats">
-            <div class="signal-stat" title="Наскільки модель впевнена у своєму сигналі. Низька впевненість = сигнали суперечать одне одному.&#10;How confident the model is. Low = indicators disagree with each other.">
+            <div class="signal-stat" title="Очікуваний максимальний drawdown за наступні 365 днів якщо купити BTC зараз (V5B XGBoost). &lt;20% = зона входу, ≥45% = зона виходу.&#10;Expected max drawdown over next 365 days if holding BTC from now (V5B XGBoost). &lt;20% = entry zone, ≥45% = exit zone.">
               <div class="signal-stat-val" id="sig-conv">—</div>
-              <div class="signal-stat-label"><span class="en">Confidence</span><span class="ua">Впевненість</span></div>
+              <div class="signal-stat-label"><span class="en">Outlook</span><span class="ua">Прогноз</span></div>
             </div>
-            <div class="signal-stat" title="Середня позиція on-chain осциляторів: 0 = всі на дні, 100 = всі на піку. Поточне значення показує де ми у циклі.&#10;Average position of on-chain oscillators: 0 = all at bottom, 100 = all at peak.">
+            <div class="signal-stat" title="Де ми у Bitcoin-циклі за on-chain метриками (V3). 0 = дно циклу, 100 = пік. Контекст інтерпретації, не торговий сигнал.&#10;Where we are in the Bitcoin cycle per on-chain metrics (V3). 0 = cycle bottom, 100 = cycle peak. Context layer, not a trading signal.">
               <div class="signal-stat-val" id="sig-wr-score">—</div>
-              <div class="signal-stat-label"><span class="en">Cycle Position</span><span class="ua">Позиція у циклі</span></div>
+              <div class="signal-stat-label"><span class="en">Cycle Context</span><span class="ua">Контекст циклу</span></div>
             </div>
             <div class="signal-stat" title="Наскільки погоджуються між собою всі on-chain індикатори. 0% = суперечать, 100% = всі вказують в один бік.&#10;How much the on-chain indicators agree. 0% = conflicting, 100% = all pointing the same way.">
               <div class="signal-stat-val" id="sig-wr-coh">—</div>
@@ -986,10 +997,10 @@
         <!-- Back -->
         <div class="card flip-card-back" style="display:flex; flex-direction:column; justify-content:space-between; padding: 20px 22px;">
           <div>
-            <div style="font-size: 11px; font-weight: 600; letter-spacing: 0.08em; color: var(--muted); text-transform: uppercase; margin-bottom: 12px;"><span class="en">Market Signal Info</span><span class="ua">Про ринковий сигнал</span></div>
+            <div style="font-size: 11px; font-weight: 600; letter-spacing: 0.08em; color: var(--muted); text-transform: uppercase; margin-bottom: 12px;"><span class="en">How to read this</span><span class="ua">Як читати</span></div>
             <div style="font-size: 13px; color: var(--muted2); line-height: 1.6;">
-              <span class="en">Market Signal represents the combined engine output, analyzing on-chain oscillator coherence, trend models, and time in the bottom zone (Time in Zone - TiZ) to determine current cycle risk and conviction.</span>
-              <span class="ua">Ринковий сигнал представляє комбінований вихід математичної моделі, аналізуючи узгодженість ончейн-осциляторів, трендові моделі та час перебування в зоні дна (Time in Zone - TiZ) для визначення ризику та впевненості сигналу.</span>
+              <span class="en"><strong>Regime</strong> is the actionable signal: Buy / Sell / Hold / Wait. It combines Outlook (primary) and Cycle Context (filter). <strong>Outlook</strong> is the expected max drawdown over 365 days — below 20% is the entry zone, 45%+ is the exit zone. <strong>Cycle Context</strong> is a V3 interpretability layer showing where we are in the Bitcoin cycle (0 = bottom, 100 = peak); it prevents false exits during mid-bull rallies but is not a standalone trading signal.</span>
+              <span class="ua"><strong>Режим</strong> — це actionable сигнал: Buy / Sell / Hold / Wait. Поєднує Прогноз (головний) і Контекст циклу (фільтр). <strong>Прогноз</strong> — очікуваний максимальний drawdown за 365 днів: нижче 20% — зона входу, 45%+ — зона виходу. <strong>Контекст циклу</strong> (V3) показує де ми у Bitcoin-циклі (0 = дно, 100 = пік); запобігає передчасним продажам у середині бичачого ринку, але не є самостійним торговим сигналом.</span>
             </div>
           </div>
           <div style="font-size:9px; font-weight:700; color:var(--accent); text-transform:uppercase; text-align:right;"><span class="en">Click to flip</span><span class="ua">Назад</span></div>
@@ -2205,48 +2216,58 @@ async function loadData() {
   }
 
   // Composite Signal block
+  // Market Regime card — primary actionable signal
+  const regime = data.market_regime;
   const sig = data.v3_signal || data.signal;
-  if (sig && sig.flag) {
+  if (regime || (sig && sig.flag)) {
     const block = document.getElementById('signal-block');
     if (block) block.style.display = '';
-    const FLAG_STYLES = {
-      'CONFIRMED_BOTTOM': { bg:'#22C55E18', color:'#22C55E', border:'#22C55E40' },
-      'PROBABLE_BOTTOM':  { bg:'#4ADE8018', color:'#16A34A', border:'#4ADE8040' },
-      'EARLY_ZONE':       { bg:'#EAB30818', color:'#CA9A0A', border:'#EAB30840' },
-      'CONFIRMED_TOP':    { bg:'#EF444418', color:'#EF4444', border:'#EF444440' },
-      'PROBABLE_TOP':     { bg:'#F9731618', color:'#F97316', border:'#F9731640' },
-      'UNCERTAIN':        { bg:'#94A3B818', color:'#94A3B8', border:'#94A3B840' },
-      'NEUTRAL':          { bg:'#64748B18', color:'#64748B', border:'#64748B40' },
+
+    // Regime badge — Buy/Sell/Hold/Wait
+    const REGIME_STYLES = {
+      'Buy':  { bg:'#10B98118', color:'#10B981', border:'#10B98140' },
+      'Sell': { bg:'#EF444418', color:'#EF4444', border:'#EF444440' },
+      'Hold': { bg:'#F59E0B18', color:'#F59E0B', border:'#F59E0B40' },
+      'Wait': { bg:'#6366F118', color:'#6366F1', border:'#6366F140' },
     };
-    const st = FLAG_STYLES[sig.flag] || FLAG_STYLES['NEUTRAL'];
-    const FLAG_LABELS = {
-      'CONFIRMED_BOTTOM': { en: 'Strong Accumulation', ua: 'Сильне накопичення' },
-      'PROBABLE_BOTTOM':  { en: 'Likely Bottom',       ua: 'Імовірне дно' },
-      'EARLY_ZONE':       { en: 'Early Accumulation',  ua: 'Раннє накопичення' },
-      'CONFIRMED_TOP':    { en: 'High Risk Zone',      ua: 'Зона високого ризику' },
-      'PROBABLE_TOP':     { en: 'Elevated Risk',       ua: 'Підвищений ризик' },
-      'UNCERTAIN':        { en: 'No Clear Signal',     ua: 'Немає чіткого сигналу' },
-      'NEUTRAL':          { en: 'Weak Signal',         ua: 'Слабкий сигнал' },
+    const REGIME_LABELS = {
+      'Buy':  { en: 'Buy',  ua: 'Купувати' },
+      'Sell': { en: 'Sell', ua: 'Продавати' },
+      'Hold': { en: 'Hold', ua: 'Тримати' },
+      'Wait': { en: 'Wait', ua: 'Чекати' },
     };
     const flagEl = document.getElementById('sig-flag');
-    if (flagEl) {
-      const lbl = FLAG_LABELS[sig.flag];
-      flagEl.innerHTML = lbl ? `<span class="en">${lbl.en}</span><span class="ua">${lbl.ua}</span>` : sig.flag.replace(/_/g, ' ');
-      flagEl.style.background = st.bg;
-      flagEl.style.color = st.color;
-      flagEl.style.borderColor = st.border;
+    if (flagEl && regime && REGIME_STYLES[regime]) {
+      const st  = REGIME_STYLES[regime];
+      const lbl = REGIME_LABELS[regime];
+      flagEl.innerHTML = `<span class="en">${lbl.en}</span><span class="ua">${lbl.ua}</span>`;
+      flagEl.style.background   = st.bg;
+      flagEl.style.color        = st.color;
+      flagEl.style.borderColor  = st.border;
+    } else if (flagEl && sig && sig.flag) {
+      // fallback: no regime available — dim badge with V3 flag text
+      flagEl.textContent = sig.flag.replace(/_/g, ' ');
+      flagEl.style.background  = '#64748B18';
+      flagEl.style.color       = '#64748B';
+      flagEl.style.borderColor = '#64748B40';
     }
-    set('sig-conv', sig.conviction != null ? Math.round(sig.conviction * 100) + '%' : '—');
+
+    // Outlook stat — V5B expected max drawdown (primary numeric signal)
+    const outlookVal = data.v5b_score != null ? data.v5b_score.toFixed(1) + '%' : '—';
+    set('sig-conv', outlookVal);
+
+    // Cycle Context stat — V3 on-chain score (interpretability layer)
     const wrScore = (data.wave_resonance && data.wave_resonance.score != null) ? data.wave_resonance.score : (data.v3_onchain_score != null ? data.v3_onchain_score : null);
-    const wrCoh = (data.wave_resonance && data.wave_resonance.coherence != null) ? data.wave_resonance.coherence : (data.v3_oc_coherence != null ? data.v3_oc_coherence : null);
-    set('sig-wr-score', wrScore != null ? wrScore + '%' : '—');
+    const wrCoh   = (data.wave_resonance && data.wave_resonance.coherence != null) ? data.wave_resonance.coherence : (data.v3_oc_coherence != null ? data.v3_oc_coherence : null);
+    set('sig-wr-score', wrScore != null ? Math.round(wrScore) : '—');
     set('sig-wr-coh', wrCoh != null ? Math.round(wrCoh * (wrCoh <= 1.0 ? 100 : 1)) + '%' : '—');
-    
-    const tizDays = data.v3_tiz_days != null ? data.v3_tiz_days : (data.tiz_days || 0);
-    const tizMaturity = sig.tiz_maturity != null ? sig.tiz_maturity : null;
-    const tizWrap = document.getElementById('sig-tiz-wrap');
-    const statsEl = document.querySelector('.signal-stats');
-    if (tizMaturity != null) {
+
+    // TiZ (only relevant in bottom phase)
+    const tizDays     = data.v3_tiz_days != null ? data.v3_tiz_days : (data.tiz_days || 0);
+    const tizMaturity = sig ? sig.tiz_maturity : null;
+    const tizWrap     = document.getElementById('sig-tiz-wrap');
+    const statsEl     = document.querySelector('.signal-stats');
+    if (tizMaturity != null && regime === 'Buy') {
       if (tizWrap) tizWrap.style.display = '';
       if (statsEl) statsEl.classList.add('has-tiz');
       set('sig-tiz', Math.round(tizMaturity * 100) + '%');
@@ -2255,7 +2276,9 @@ async function loadData() {
       if (tizWrap) tizWrap.style.display = 'none';
       if (statsEl) statsEl.classList.remove('has-tiz');
     }
-    if (sig.trust) {
+
+    // Trust bar (V3 internal weights — keep for technical audience)
+    if (sig && sig.trust) {
       const v3p = Math.round((sig.trust.v3 || sig.trust.v2 || 0) * 100);
       const wrp = Math.round((sig.trust.wr || 0) * 100);
       set('trust-v2-pct', v3p + '%');
@@ -2264,41 +2287,31 @@ async function loadData() {
       if (bar) bar.style.width = v3p + '%';
     }
 
-    // Dynamic plain-language explanation
-    const FLAG_EXPLAIN = {
-      'CONFIRMED_BOTTOM': {
-        en: 'On-chain indicators are in strong agreement: price is historically cheap relative to the network\'s fundamentals. Historically these readings precede a multi-month recovery.',
-        ua: 'Он-чейн індикатори одностайні: ціна історично дешева відносно фундаменталів мережі. Такі показники зазвичай передують відновленню.'
+    // Plain-language explanation keyed on market_regime
+    const v5b = data.v5b_score;
+    const pos  = data.final_score != null ? Math.round(data.final_score) : null;
+    const REGIME_EXPLAIN = {
+      'Buy': {
+        en: `Outlook is ${v5b != null ? v5b.toFixed(1) + '%' : 'low'} expected drawdown — below the 20% entry threshold. Cycle context (${pos ?? '—'}/100) confirms we are near a cycle low. Both signals align: all-in entry zone.`,
+        ua: `Прогноз: ${v5b != null ? v5b.toFixed(1) + '%' : 'низький'} очікуваний drawdown — нижче порогу входу 20%. Контекст циклу (${pos ?? '—'}/100) підтверджує близькість до дна. Обидва сигнали збігаються: зона повного входу.`
       },
-      'PROBABLE_BOTTOM': {
-        en: 'Most indicators point to a cycle low. The picture isn\'t unanimous yet, but the risk/reward here leans toward long-term accumulation.',
-        ua: 'Більшість індикаторів вказують на циклове дно. Картина не однозначна, але співвідношення ризик/дохід схиляється до накопичення.'
+      'Sell': {
+        en: `Outlook is ${v5b != null ? v5b.toFixed(1) + '%' : 'high'} expected drawdown — above the 45% exit threshold. Cycle context (${pos ?? '—'}/100) is in the upper range. Both signals confirm: exit zone.`,
+        ua: `Прогноз: ${v5b != null ? v5b.toFixed(1) + '%' : 'високий'} очікуваний drawdown — вище порогу виходу 45%. Контекст циклу (${pos ?? '—'}/100) у верхньому діапазоні. Обидва сигнали підтверджують: зона виходу.`
       },
-      'EARLY_ZONE': {
-        en: 'Metrics entered the accumulation zone ' + tizDays + ' days ago — historically, the signal gets more reliable after 40–60 days. It\'s early but the direction is promising.',
-        ua: 'Метрики увійшли у зону накопичення ' + tizDays + ' днів тому. Сигнал стає надійнішим після 40–60 днів у зоні. Рано, але напрямок перспективний.'
+      'Hold': {
+        en: `Outlook is ${v5b != null ? v5b.toFixed(1) + '%' : 'moderate'} expected drawdown — elevated but below the 45% exit level. Cycle context (${pos ?? '—'}/100) is high, suggesting a late bull run may still continue. Stay in if already holding; do not add.`,
+        ua: `Прогноз: ${v5b != null ? v5b.toFixed(1) + '%' : 'помірний'} drawdown — підвищений, але нижче порогу виходу 45%. Контекст циклу (${pos ?? '—'}/100) високий — пізній бичачий ринок може продовжуватись. Тримати якщо вже в позиції; не докуповувати.`
       },
-      'NEUTRAL': {
-        en: 'The indicators lean toward a bottom, but they don\'t all agree yet (' + tizDays + ' days in zone). The signal will strengthen if the market holds these levels.',
-        ua: 'Індикатори схиляються до дна, але ще не одностайні (' + tizDays + ' днів у зоні). Сигнал посилиться якщо ринок утримає ці рівні.'
-      },
-      'PROBABLE_TOP': {
-        en: 'Multiple signals point to an overheated market. Historically these conditions precede a correction or prolonged consolidation.',
-        ua: 'Кілька сигналів вказують на перегрів ринку. Такі умови зазвичай передують корекції або тривалій консолідації.'
-      },
-      'CONFIRMED_TOP': {
-        en: 'Indicators are near extreme cycle highs with strong agreement — a reading historically associated with major cycle tops.',
-        ua: 'Індикатори біля екстремальних циклових максимумів з высокою узгодженістю — такий показник асоціюється з великими цикловими топами.'
-      },
-      'UNCERTAIN': {
-        en: 'The indicators are pointing in different directions right now. Some lean bullish, others neutral or bearish — there\'s no clear edge. Worth watching, but not acting on.',
-        ua: 'Індикатори зараз вказують у різні боки. Одні схиляються до зростання, інші до нейтралу чи падіння — чіткого переваги немає. Варто спостерігати, але не діяти.'
+      'Wait': {
+        en: `Outlook is ${v5b != null ? v5b.toFixed(1) + '%' : '—'} expected drawdown — above the 20% entry threshold. Entry is not yet confirmed. Stay in cash until Outlook drops below 20%.`,
+        ua: `Прогноз: ${v5b != null ? v5b.toFixed(1) + '%' : '—'} очікуваний drawdown — вище порогу входу 20%. Вхід ще не підтверджений. Залишатись у кеші поки Прогноз не впаде нижче 20%.`
       }
     };
-    const expl = FLAG_EXPLAIN[sig.flag];
+    const expl   = REGIME_EXPLAIN[regime] || (sig && sig.flag ? { en: '', ua: '' } : null);
     const explEl = document.getElementById('sig-explain');
     if (expl && explEl) {
-      explEl.innerHTML = `<span class="en">${expl.en || ''}</span><span class="ua">${expl.ua || ''}</span>`;
+      explEl.innerHTML = `<span class="en">${expl.en}</span><span class="ua">${expl.ua}</span>`;
     }
   }
 
@@ -2311,6 +2324,7 @@ async function loadData() {
   const frObj = m.funding_rate && m.funding_rate.value ? m.funding_rate.value : null;
   const frAvg = frObj ? (frObj.avg_7d != null ? frObj.avg_7d : frObj.latest) : null;
   updateGaugeTags(score, vals, keys, frAvg, data.recovery_window, normScores);
+  updatePipelineDiagram(data);
 
   // Calculate exact contributions of each block to the overall index
   const getFinalScoreForKey = (key, _val) => {
@@ -2563,6 +2577,84 @@ async function loadData() {
     }
   };
   checkHealth(data);
+}
+
+function updatePipelineDiagram(data) {
+  const _set = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
+  const _dot = (id, ok) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.setAttribute('fill', ok ? '#10B981' : '#EF4444');
+  };
+
+  // Position (V3)
+  const pos = data.final_score != null ? Math.round(data.final_score) : null;
+  _set('pipe-pos-val', pos != null ? String(pos) : '—');
+  // Outlook (V5B) — raw % drawdown
+  const out = data.v5b_score != null ? data.v5b_score : null;
+  _set('pipe-out-val', out != null ? out.toFixed(1) + '%' : '—%');
+  // Composite risk
+  const comp = data.composite_risk != null ? data.composite_risk : null;
+  _set('pipe-comp-val', comp != null ? Math.round(comp) : '—');
+  // Market Regime
+  const regime = data.market_regime || '—';
+  _set('pipe-regime-val', regime);
+  const regimeColor = { Buy: '#10B981', Sell: '#EF4444', Hold: '#F59E0B', Wait: '#6366F1' };
+  const rc = document.getElementById('pipe-regime-circle');
+  if (rc) {
+    const c = regimeColor[regime] || '#6B7280';
+    rc.setAttribute('stroke', c);
+    rc.setAttribute('filter', `drop-shadow(0 0 6px ${c}80)`);
+    const rv = document.getElementById('pipe-regime-val');
+    if (rv) rv.setAttribute('fill', c);
+  }
+
+  // Health indicators
+  const m = data.metrics || {};
+  const ts = data.timestamp || data.date || null;
+  // Scraper freshness — green if today/yesterday
+  let scraperOk = false;
+  if (ts) {
+    const age = (Date.now() - new Date(ts).getTime()) / 864e5;
+    scraperOk = age < 2;
+  }
+  _dot('hs-scraper', scraperOk);
+
+  // Metrics count (non-null leaf scalars from key on-chain+tech+macro metrics)
+  const metricKeys = ['nupl','mvrv_z_score','rhodl_ratio','cvdd_ratio','asopr','cipherb',
+    'mayer_multiple','fear_greed','yield_curve_spread','m2_yoy','etf_flows','btc_price',
+    'btc_dominance','smc'];
+  const metricCount = metricKeys.filter(k => {
+    const v = m[k];
+    if (v == null) return false;
+    if (typeof v === 'object') return v.value != null;
+    return true;
+  }).length;
+  const staleCount = data.stale_metrics_count != null ? data.stale_metrics_count : 0;
+  _dot('hs-metrics', metricCount >= 10 && staleCount === 0);
+  const staleSuffix = staleCount > 0 ? ` (${staleCount}↩)` : '';
+  _set('hs-metrics-txt', `${metricCount}/${metricKeys.length}${staleSuffix}`);
+
+  // V3 loaded
+  _dot('hs-v3', pos != null);
+  // V5B loaded
+  _dot('hs-v5b2', out != null);
+  // HMM state
+  _dot('hs-hmm2', data.v3_phase != null);
+  _dot('hd-hmm', data.v3_phase != null);
+  // V5B model health badge on layer 3
+  _dot('hd-v5b', out != null);
+
+  // Timestamp in health strip
+  if (ts) {
+    const d = new Date(ts);
+    _set('hs-timestamp', d.toLocaleDateString('uk-UA', { day:'2-digit', month:'short', year:'2-digit' }));
+  }
+
+  // Per-source health dots: check presence of at least one metric per group
+  _dot('hd-oc', ['nupl','mvrv_z_score','rhodl_ratio'].some(k => m[k] != null));
+  _dot('hd-tc', ['cipherb','mayer_multiple','fear_greed'].some(k => m[k] != null));
+  _dot('hd-mc', ['m2_yoy','yield_curve_spread','btc_price'].some(k => m[k] != null));
 }
 
 function updateGaugeTags(score, vals, keys, fr, recoveryWindow, normScores) {

@@ -174,7 +174,11 @@ def compute_std(values):
     return math.sqrt(variance)
 
 
-def evaluate_utility(metric, normalized_score, w_top, w_bot, w_neutral, tiz_maturity=None, recent_scores=None, cycle_day=None):
+_ONCHAIN_METRICS = {'nupl', 'mvrv_z_score', 'rhodl_ratio', 'cvdd_ratio'}
+_PRICE_MOMENTUM_METRICS = {'mayer_multiple', 'fear_greed'}
+
+
+def evaluate_utility(metric, normalized_score, w_top, w_bot, w_neutral, tiz_maturity=None, recent_scores=None, cycle_day=None, div_signal=None):
     """Compute the utility coefficient U_i in [0.1, 1.0] for a given metric.
 
     Uses continuous state-space mixture weights.

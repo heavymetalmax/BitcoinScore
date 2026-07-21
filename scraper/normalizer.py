@@ -6,7 +6,7 @@ using only data available up to target_date.
 """
 import datetime
 import math
-from scraper.scoring import (
+from scraper.maps import (
     map_nupl, map_mvrv, map_rhodl, map_cvdd, map_asopr,
     map_fear_greed, map_m2, map_yield_curve, map_mayer_multiple,
     map_etf_flow, map_funding, map_dxy, map_lth_supply, _load_metric_history,

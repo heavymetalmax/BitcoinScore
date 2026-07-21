@@ -155,6 +155,42 @@ def _bullish_divergence(series, **kw):
     return _divergence(series, kind='bullish', **kw)
 
 
+def _double_divergence(series, lookback=36, peak_window=4, max_peak_age=8, kind='bearish'):
+    """Detect double divergence: THREE consecutive pivots forming TWO divergences in a row.
+
+    Bearish double: price high₁ < high₂ < high₃, but WT1 high₁ > high₂ > high₃
+    Bullish double: price low₁ > low₂ > low₃,  but WT1 low₁ < low₂ < low₃
+    The last pivot must be fresh (<= max_peak_age candles ago).
+    """
+    valid = [s for s in series if s.get('wt1') is not None]
+    if len(valid) < lookback:
+        return False
+    recent = valid[-lookback:]
+    n = len(recent)
+    pivots = []
+    for i in range(peak_window, n - peak_window):
+        c = recent[i]
+        neighbors = recent[max(0, i - peak_window):i] + recent[i + 1:i + peak_window + 1]
+        if kind == 'bearish':
+            if all(c['close'] >= nb['close'] for nb in neighbors):
+                pivots.append((i, c['close'], c['wt1']))
+        else:
+            if all(c['close'] <= nb['close'] for nb in neighbors):
+                pivots.append((i, c['close'], c['wt1']))
+    if len(pivots) < 3:
+        return False
+    i1, p1, w1 = pivots[-3]
+    i2, p2, w2 = pivots[-2]
+    last_i, p3, w3 = pivots[-1]
+    if kind == 'bearish':
+        div1 = p2 > p1 and w2 < w1
+        div2 = p3 > p2 and w3 < w2
+    else:
+        div1 = p2 < p1 and w2 > w1
+        div2 = p3 < p2 and w3 > w2
+    return div1 and div2 and (n - 1 - last_i) <= max_peak_age
+
+
 def _fast_divergence(series, kind='bearish', lookback=20, peak_window=1, max_peak_age=3):
     """
     1-week fast divergence: compare the most recent price peak against the
@@ -276,6 +312,8 @@ def compute_cipherb_from_ohlcv(ohlc, channelLength=9, averageLength=12, wtSmaLen
         bullish_div = False
         fast_bear = False
         fast_bull = False
+        double_bear = False
+        double_bull = False
         if i >= 30:
             # We construct a temporary series up to index i to check divergences
             sub_series = series + [item]
@@ -283,6 +321,8 @@ def compute_cipherb_from_ohlcv(ohlc, channelLength=9, averageLength=12, wtSmaLen
             bullish_div = _bullish_divergence(sub_series)
             fast_bear   = _fast_divergence(sub_series, kind='bearish')
             fast_bull   = _fast_divergence(sub_series, kind='bullish')
+            double_bear = _double_divergence(sub_series, kind='bearish')
+            double_bull = _double_divergence(sub_series, kind='bullish')
 
         # green/red dot representation (1/0) and distances
         green_dot = 1 if buy else 0
@@ -300,7 +340,9 @@ def compute_cipherb_from_ohlcv(ohlc, channelLength=9, averageLength=12, wtSmaLen
             'bearish_divergence': bearish_div,
             'bullish_divergence': bullish_div,
             'fast_bearish_div': fast_bear,
-            'fast_bullish_div': fast_bull
+            'fast_bullish_div': fast_bull,
+            'double_bearish_div': double_bear,
+            'double_bullish_div': double_bull,
         })
         series.append(item)
 
@@ -336,9 +378,13 @@ def get_cipherb(symbol='BTCUSDT'):
         'weekly_score': last_w['weekly_score'],
         'fast_bearish_div': last_w['fast_bearish_div'],
         'fast_bullish_div': last_w['fast_bullish_div'],
+        'double_bearish_div': last_w['double_bearish_div'],
+        'double_bullish_div': last_w['double_bullish_div'],
         'daily_score': last_d['weekly_score'],
         'daily_fast_bearish_div': last_d['fast_bearish_div'],
         'daily_fast_bullish_div': last_d['fast_bullish_div'],
+        'daily_double_bearish_div': last_d['double_bearish_div'],
+        'daily_double_bullish_div': last_d['double_bullish_div'],
     }
     
     return {'series': res_w.get('series'), 'last': last, 'params': res_w.get('params')}
