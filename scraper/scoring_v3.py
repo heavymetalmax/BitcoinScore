@@ -35,13 +35,16 @@ TOP_THRESHOLD = 65
 
 
 def _market_regime(v3: float, v5b: float) -> str:
-    """Map (Position, Outlook) to an action-oriented regime for all-in / all-out strategy.
+    """Map (Market Context, Outlook) to an action-oriented regime for all-in / all-out strategy.
 
     Thresholds derived from 2018-2026 backtest (163x return vs 4.8x B&H):
-      Position < 35 AND Outlook < 20%  → Buy   (both confirm entry)
-      Position ≥ 65 AND Outlook ≥ 45%  → Sell  (both confirm exit)
-      Position ≥ 65 AND Outlook < 45%  → Hold  (in market, rally may continue — don't exit early)
-      Position < 65 AND Outlook ≥ 20%  → Wait  (not yet safe to enter by Outlook)
+      Market Context < 35 AND Outlook < 20%  → Buy   (both confirm entry)
+      Market Context ≥ 65 AND Outlook ≥ 45%  → Sell  (both confirm exit)
+      Market Context ≥ 65 AND Outlook < 45%  → Hold  (in market, rally may continue — don't exit early)
+      Market Context < 65 AND Outlook ≥ 20%  → Wait  (not yet safe to enter by Outlook)
+
+    Note: 'Wait' means stay out — no position, entry criteria not yet met. It is
+    distinct from 'Hold' (in market, stay in). See docs/architecture.md §7.2.
 
     Single-threshold alternative (183x): Outlook ≤ 20% → Buy, ≥ 45% → Sell.
     Dual-threshold is preferred as a conservative filter (fewer false signals).
@@ -474,7 +477,7 @@ def compute_scores_v3(raw_metrics, target_date=None, prev_scores=None, scores_hi
         w_v5b = 1.0 - w_v3
         meta_score     = round(w_v3 * final + w_v5b * v5b_score, 1)
         market_regime  = _market_regime(final, v5b_score)
-        # Composite risk = √(Position × Outlook) — amplifies agreement, dampens disagreement.
+        # Composite risk = √(Market Context × Outlook) — amplifies agreement, dampens disagreement.
         # Scale matches both inputs (0-100). Use for display (gauge/dial), not trading decisions.
         composite_risk = round(_math.sqrt(max(0.0, final) * max(0.0, v5b_score)), 1)
     else:

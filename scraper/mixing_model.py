@@ -55,7 +55,8 @@ def _load():
         _HIST      = p.get('metric_history', {})
         _MEDIANS   = p.get('col_medians')
         return True
-    except Exception:
+    except Exception as e:
+        print(f'Warning: V5A model load failed ({_MODEL_PATH}) — {e}')
         return False
 
 

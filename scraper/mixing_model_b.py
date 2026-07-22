@@ -49,7 +49,8 @@ def _load_b() -> bool:
         # V5A must be loaded so _HIST (metric history) is available for percentile ranks
         _load()
         return True
-    except Exception:
+    except Exception as e:
+        print(f'Warning: V5B model load failed ({_MODEL_B_PATH}) — {e}')
         return False
 
 

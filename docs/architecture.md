@@ -11,11 +11,23 @@ BitcoinScore is a daily-updated Bitcoin risk engine with two models and one acti
 
 | Layer | Question answered | Role |
 |---|---|---|
-| **V5B (Outlook)** | What is the expected max drawdown over the next 365 days? | **Primary signal** — drives entry/exit decisions |
-| **Market Regime** | Is this a Buy / Sell / Hold / Wait moment? | **Actionable output** — combines Outlook + Cycle Context |
-| **V3 (Cycle Context)** | Where are we in the Bitcoin cycle? (0=bottom, 100=top) | **Interpretability layer** — explains why; prevents false exits |
+| **V5B (Outlook)** | What is the expected max drawdown over the next 365 days? | **Prediction Layer** — forecasts future downside risk |
+| **Market Regime** | Is this a Buy / Sell / Hold / Wait moment? | **Decision Layer** — the only field to act on; combines Outlook + Market Context |
+| **V3 (Market Context)** | Where are we in the Bitcoin cycle, and how overheated/coherent are the underlying metrics? | **Explanation Layer** — explains why; prevents false exits |
 
-**V5B is the primary numeric signal.** V3 adds no predictive value for drawdown forecasting (linear coefficient = −0.007 in meta-regression) but serves a real protective role: it prevents false exits during mid-bull rallies where Outlook stays moderate but cycle position is still rising. V3 is retained as a filter inside Market Regime, not as a standalone trading signal.
+```
+Prediction Layer    (V5B / Outlook)
+        ↓
+Decision Layer      (Market Regime — Buy / Sell / Hold / Wait)
+        ↑
+Explanation Layer   (V3 / Market Context)
+```
+
+**Design philosophy:** BitcoinScore separates prediction from interpretation. V5B estimates future downside risk directly from market structure — it is the prediction layer. V3 does not predict returns; it assesses cycle phase, overheating, and cross-metric coherence to provide context that explains and filters the prediction. Market Regime combines both into a single human-readable decision state — the decision layer, and the only field a user should act on.
+
+**Naming note:** "Market Regime" is kept as the field/section name for continuity with `data.json`'s `market_regime` field, even though its four states (Buy/Sell/Hold/Wait) describe a decision/action, not a market regime in the classic Bull/Bear/Risk-On/Risk-Off sense. Likewise, V3 is referred to here as "Market Context" rather than "Cycle Context" — it does more than locate cycle position; it also evaluates overheating, phase, cross-metric coherence, and utility weighting (see §5). Renaming these labels in the docs does not change the underlying `market_regime` / `final_score` field names in `data.json` or the dashboard code.
+
+**V5B is the prediction layer.** V3 does not improve prediction of future drawdown once V5B's features are known — linear meta-regression coefficient = −0.007 (effectively zero). It is used only as a decision filter to reduce premature entries and exits, not because it independently predicts risk: it prevents false exits during mid-bull rallies where Outlook stays moderate but cycle position is still rising. V3 is retained as a filter inside Market Regime, not as a standalone trading signal.
 
 **Meta Score, Signal Agreement, and Composite Risk** are computed but not surfaced in the UI — they are internal fields available in `data.json` for debugging and backtest tooling only.
 
@@ -184,17 +196,7 @@ Both V5A and V5B use the same 49-feature vector and XGBoost architecture (`n_est
 
 ---
 
-### 6A. V5A — Structural Cycle Position (v5.17)
-
-> ⚠️ **Known limitation:** The V5A label (`mean(pct_btc_price, pct_nupl, pct_mvrv, pct_rhodl_ratio) × 100`) is directly computable from 4 of its own input features → baseline MAE = 0 (tautology). V5A does not learn anything beyond that formula. It is retained in the pipeline for legacy continuity but should not be used as an independent signal.
-
-**Entry point:** `scraper/mixing_model.py → predict()`  
-**Model file:** `data/v5_mixing_model.pkl`  
-**Output field:** `v5_score`
-
----
-
-### 6B. V5B — Forward Risk Model (v5b.1)
+### 6A. V5B — Forward Risk Model (v5b.1)
 
 **Entry point:** `scraper/mixing_model_b.py → predict_b()`  
 **Model file:** `data/v5b_model.pkl`  
@@ -247,13 +249,23 @@ python3 tools/build_v5b_labels.py && python3 tools/train_v5b_model.py
 
 ---
 
+### 6B. V5A — Structural Cycle Position (v5.17, legacy compatibility)
+
+> ⚠️ **Known limitation:** The V5A label (`mean(pct_btc_price, pct_nupl, pct_mvrv, pct_rhodl_ratio) × 100`) is directly computable from 4 of its own input features → baseline MAE = 0 (tautology). V5A does not learn anything beyond that formula. It is retained in the pipeline for legacy continuity but should not be used as an independent signal.
+
+**Entry point:** `scraper/mixing_model.py → predict()`  
+**Model file:** `data/v5_mixing_model.pkl`  
+**Output field:** `v5_score`
+
+---
+
 ## 7. Signal Combination
 
 **Computed in:** `scraper/scoring_v3.py`  
-**UI-visible fields:** `v5b_score` (Outlook), `market_regime`, `final_score` (Cycle Context)  
+**UI-visible fields:** `v5b_score` (Outlook), `market_regime`, `final_score` (Market Context)  
 **Internal/debug only:** `signal_agreement`, `composite_risk`, `meta_score`
 
-### 7.1 Outlook (V5B) — primary numeric signal
+### 7.1 Outlook (V5B) — prediction layer
 
 Backtest finding (2018–2026): **Outlook alone is the most powerful single signal** for an all-in/all-out strategy.
 
@@ -263,33 +275,44 @@ Outlook ≥ 45%  → exit zone
 otherwise       → stay out
 ```
 
-Cycle Context (V3) adds no predictive value for drawdown forecasting — V5B was trained on 49 features that already include all V3 phase outputs. Linear meta-regression coefficient = −0.007 (effectively zero).
+Market Context (V3) does not improve prediction of future drawdown once V5B's features are known — V5B was trained on 49 features that already include all V3 phase outputs (linear meta-regression coefficient = −0.007, effectively zero). It is used only as a decision filter (§7.2), not because it independently predicts risk.
 
-### 7.2 Market Regime — the actionable output
+### 7.2 Market Regime — decision layer
 
-The only field to act on. Combines Outlook (primary) and Cycle Context (protective filter).
+The only field to act on. Combines Outlook (prediction layer) and Market Context (protective filter).
 
 ```
-Cycle Context < 35  AND  Outlook < 20%  → Buy   (confirmed entry — both agree)
-Cycle Context ≥ 65  AND  Outlook ≥ 45%  → Sell  (confirmed exit — both agree)
-Cycle Context ≥ 65  AND  Outlook < 45%  → Hold  (in market; rally may continue)
+Market Context < 35  AND  Outlook < 20%  → Buy   (confirmed entry — both agree)
+Market Context ≥ 65  AND  Outlook ≥ 45%  → Sell  (confirmed exit — both agree)
+Market Context ≥ 65  AND  Outlook < 45%  → Hold  (in market; rally may continue)
 otherwise                                → Wait  (out; entry not yet safe by Outlook)
 ```
 
 Backtest result: **163× return, 6 trades in 8 years.**
 
-| Cycle Context | Outlook | Regime | Meaning |
+| Market Context | Outlook | Regime | Meaning |
 |---|---|---|---|
 | < 35 | < 20% | **Buy** | Confirmed: enter |
 | ≥ 65 | ≥ 45% | **Sell** | Confirmed: exit |
 | ≥ 65 | < 45% | **Hold** | In market: stay; late bull may continue |
 | other | ≥ 20% | **Wait** | Out of market: entry not yet safe |
 
-**Why Cycle Context as a filter?** At mid-cycle ATHs (e.g. Mar 2024, $71k), Outlook stays moderate while the cycle is still ascending. Without the Cycle Context ≥ 65 gate, the Sell threshold would never fire anyway in that scenario — but the Hold branch explicitly keeps holders in. The filter's real value is in preventing ambiguous Wait→Sell transitions based on Outlook noise alone.
+**`Wait` vs `Hold` — the distinction that matters most:**
+
+| State | Position | Meaning |
+|---|---|---|
+| `Wait` | No position | Do not enter yet — entry criteria not yet met |
+| `Hold` | Already invested | Do not exit — rally may still continue |
+
+These are opposite instructions that happen to look similar in a status readout — `Wait` is easy to misread as "pause, do nothing" when in fact it means "stay out entirely." A user reading `Wait` should have no BTC position; a user reading `Hold` should keep the position they already have.
+
+**On the thresholds (35 / 65 / 20% / 45%):** these were selected through historical optimization on 2018–2026 backtest data (§7.3) and are not derived from a closed-form model — they may be revised in future versions as more cycle data becomes available.
+
+**Why Market Context as a filter?** At mid-cycle ATHs (e.g. Mar 2024, $71k), Outlook stays moderate while the cycle is still ascending. Without the Market Context ≥ 65 gate, the Sell threshold would never fire anyway in that scenario — but the Hold branch explicitly keeps holders in. The filter's real value is in preventing ambiguous Wait→Sell transitions based on Outlook noise alone.
 
 ### 7.3 Backtest — Key Events
 
-| Date | BTC | Cycle Context | Outlook | Regime | Action |
+| Date | BTC | Market Context | Outlook | Regime | Action |
 |---|---|---|---|---|---|
 | Nov 2018 | $3,900 | 11 | 16.9% | **Buy** | Enter |
 | Jun 2019 | $9,500 | 70 | 50% | **Sell** | Exit |
@@ -301,25 +324,37 @@ Backtest result: **163× return, 6 trades in 8 years.**
 
 ### 7.4 Case Study — Mar 2024 ATH ($71k)
 
-Cycle Context=83 alone would imply sell. Outlook=24% said moderate risk. BTC subsequently rallied to $119–124k (+70%).
+Market Context=83 alone would imply sell. Outlook=24% said moderate risk. BTC subsequently rallied to $119–124k (+70%).
 
 ```
-Cycle Context:  83   → elevated, but…
+Market Context:  83   → elevated, but…
 Outlook:        24%  → below 45% exit threshold
 market_regime:  Hold → correctly: if in, stay in
 ```
 
 No sell fired. The Hold branch of Market Regime correctly kept holders in through the full rally to May 2025 at $105k — where both thresholds aligned and Sell fired.
 
+### 7.4b Case Study — May 2025 ATH ($105k) — Confirmed Agreement
+
+The mirror case to §7.4: Market Context=82 and Outlook=53% cross their exit thresholds together instead of diverging.
+
+```
+Market Context:  82   → ≥ 65 gate met
+Outlook:        53%  → ≥ 45% exit threshold met
+market_regime:  Sell → confirmed exit — both models agree
+```
+
+Sell fired cleanly, with no Hold ambiguity. Read together, §7.4 and §7.4b show the system handles both outcomes correctly: it holds through disagreement at an extended-bull ATH (Mar 2024), and it exits cleanly when both models confirm a classic cycle top (May 2025).
+
 ### 7.5 Internal fields (debug only — not shown in UI)
 
 | Field | Formula | Purpose |
 |---|---|---|
-| `composite_risk` | `√(Cycle Context × Outlook)` | Single-dial display for historical charts |
+| `composite_risk` | `√(Market Context × Outlook)` | Single-dial gauge shown in the pipeline diagram widget (`web/classic.html`); display only, not used in Market Regime logic |
 | `signal_agreement` | `1 − \|Context − Outlook\| / 100` | Diagnostic: how much the two models agree |
 | `meta_score` | Agreement-weighted blend of Context + Outlook | Deprecated aggregate; kept for backtest tooling |
 
-These fields remain in `data.json` for debugging and historical analysis but are not surfaced in the dashboard UI.
+These fields remain in `data.json` for debugging and historical analysis but are not surfaced in the dashboard UI. None of them feed into `market_regime` — that decision is made solely from Outlook and Market Context thresholds (§7.2).
 
 ---
 
@@ -328,7 +363,7 @@ These fields remain in `data.json` for debugging and historical analysis but are
 `scraper/scoring_pipeline.py` is the integration layer. Execution order:
 
 1. **V1 scoring** (`scraper/scoring.py`) — legacy; produces `zone_forecast`, `commentary`, `adaptive_calibration`
-2. **V3 scoring** (`scraper/scoring_v3.py`) — produces `final_score` (Cycle Context 0–100), `v5b_score` (Outlook %), `market_regime`, and internal fields (`composite_risk`, `signal_agreement`, `meta_score`)
+2. **V3 scoring** (`scraper/scoring_v3.py`) — produces `final_score` (Market Context 0–100), `v5b_score` (Outlook %), `market_regime`, and internal fields (`composite_risk`, `signal_agreement`, `meta_score`)
 3. **V3.2 Override block** — final step in `scoring_pipeline.py`; writes V3 outputs to top-level payload fields (`final_score`, `market_regime`, `v5b_score`, etc.)
 
 `v1_score` has been removed from JSON output. Do not use V1 scores.
@@ -345,9 +380,9 @@ Key fields:
 
 | Field | Description |
 |---|---|
-| `v5b_score` | **Outlook** — expected max drawdown % over next 365 days (primary numeric signal) |
-| `market_regime` | **Buy / Sell / Hold / Wait** — the only actionable output |
-| `final_score` | **Cycle Context** — V3 composite 0–100 (interpretability layer; 0=bottom, 100=top) |
+| `v5b_score` | **Outlook** — expected max drawdown % over next 365 days (prediction layer output) |
+| `market_regime` | **Buy / Sell / Hold / Wait** — decision layer output; the only field to act on |
+| `final_score` | **Market Context** — V3 composite 0–100 (explanation layer; 0=bottom, 100=top) |
 | `v3_normalized_scores` | Per-metric V3 risk scores (0–100) — shown in metric table |
 | `onchain_score` / `tech_score` | V3 group averages (display only) |
 | `btc_price` | BTC/USD from Kraken OHLCV close |
@@ -357,7 +392,7 @@ Key fields:
 
 | Field | Description |
 |---|---|
-| `composite_risk` | `√(Cycle Context × Outlook)` — diagnostic gauge |
+| `composite_risk` | `√(Market Context × Outlook)` — single-dial gauge for the pipeline diagram widget (`web/classic.html`); display only, not used in decision logic |
 | `signal_agreement` | `1 − \|Context − Outlook\| / 100` — model agreement (0–1) |
 | `meta_score` | Agreement-weighted blend — deprecated aggregate |
 | `v5_score` | V5A ⚠️ tautological label — internal use only |

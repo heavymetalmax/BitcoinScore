@@ -15,6 +15,7 @@ tools/calibrate_v3.py). No inline magic numbers.
 
 import datetime
 import json
+import math
 import os
 
 from scraper.normalizer import normalize_metric
@@ -480,51 +481,54 @@ def compute_score(
     if pi_cross and final is not None:
         final = max(final, 85)
 
-    # ── V5 "machine-eye" score (stacked ensemble, Layer 3) ──────────────────
-    # V5 receives raw metrics + V3 phase context. Stacked ensemble: labels are
-    # 90-day BTC returns, so V5 learns when to amplify or discount V3's phase call.
+    # ── Shared raw-metric vector for the V5A / V5B mixing models (Layer 3) ───
+    def _s(v):
+        if isinstance(v, dict): v = v.get('value')
+        if isinstance(v, dict): v = v.get('value')
+        return float(v) if isinstance(v, (int, float)) else None
+
+    _cb = raw_metrics.get('cipherb')
+    _cb_daily = None
+    if isinstance(_cb, dict):
+        _cb_inner = _cb.get('value', _cb)
+        if isinstance(_cb_inner, dict):
+            _cb_daily = _cb_inner.get('daily_score')
+
+    _fr = raw_metrics.get('funding_rate')
+    _fr_val = (_fr.get('value') or {}).get('avg_7d') if isinstance(_fr, dict) else None
+
+    _lth_v = _s(raw_metrics.get('lth_supply_pct'))
+    _lth_pct = (_lth_v / 21_000_000 * 100) if _lth_v is not None and _lth_v > 100 else _lth_v
+
+    _mix_raw = {
+        'btc_price':      _s(raw_metrics.get('btc_price')),
+        'nupl':           _s(raw_metrics.get('nupl')),
+        'mvrv':           _s(raw_metrics.get('mvrv')),
+        'rhodl_ratio':    _s(raw_metrics.get('rhodl_ratio')),
+        'cvdd_ratio':     _s(raw_metrics.get('cvdd_ratio')),
+        'puell':          _s(raw_metrics.get('puell_multiple')),
+        'cipherb_daily':  _cb_daily,
+        'mayer_multiple': _s(raw_metrics.get('mayer_multiple')),
+        'fear_greed':     _s(raw_metrics.get('fear_greed')),
+        'funding_rate':   _fr_val,
+        'm2_yoy':         _s(raw_metrics.get('m2_mom')),
+        'lth_supply_pct': _lth_pct,
+        'yield_curve':    _s(raw_metrics.get('yield_curve')),
+        'dxy':            _s(raw_metrics.get('dxy')),
+    }
+
+    # ── V5A "machine-eye" score (stacked ensemble, Layer 3 — legacy) ─────────
+    # V5A receives raw metrics + V3 phase context. Stacked ensemble: labels are
+    # 90-day BTC returns, so V5A learns when to amplify or discount V3's phase call.
+    # Known limitation: tautological label — legacy compatibility only, not an
+    # independent signal (see docs/architecture.md §6B).
     v5_score: float | None = None
     v5_confidence: float | None = None
     v5_shap_top5: list | None = None
     try:
         from scraper import mixing_model as _v5
-
-        def _s(v):
-            if isinstance(v, dict): v = v.get('value')
-            if isinstance(v, dict): v = v.get('value')
-            return float(v) if isinstance(v, (int, float)) else None
-
-        _cb = raw_metrics.get('cipherb')
-        _cb_daily = None
-        if isinstance(_cb, dict):
-            _cb_inner = _cb.get('value', _cb)
-            if isinstance(_cb_inner, dict):
-                _cb_daily = _cb_inner.get('daily_score')
-
-        _fr = raw_metrics.get('funding_rate')
-        _fr_val = (_fr.get('value') or {}).get('avg_7d') if isinstance(_fr, dict) else None
-
-        _lth_v = _s(raw_metrics.get('lth_supply_pct'))
-        _lth_pct = (_lth_v / 21_000_000 * 100) if _lth_v is not None and _lth_v > 100 else _lth_v
-
-        _v5_raw = {
-            'btc_price':      _s(raw_metrics.get('btc_price')),
-            'nupl':           _s(raw_metrics.get('nupl')),
-            'mvrv':           _s(raw_metrics.get('mvrv')),
-            'rhodl_ratio':    _s(raw_metrics.get('rhodl_ratio')),
-            'cvdd_ratio':     _s(raw_metrics.get('cvdd_ratio')),
-            'puell':          _s(raw_metrics.get('puell_multiple')),
-            'cipherb_daily':  _cb_daily,
-            'mayer_multiple': _s(raw_metrics.get('mayer_multiple')),
-            'fear_greed':     _s(raw_metrics.get('fear_greed')),
-            'funding_rate':   _fr_val,
-            'm2_yoy':         _s(raw_metrics.get('m2_mom')),
-            'lth_supply_pct': _lth_pct,
-            'yield_curve':    _s(raw_metrics.get('yield_curve')),
-            'dxy':            _s(raw_metrics.get('dxy')),
-        }
         _v5_result = _v5.predict(
-            _v5_raw,
+            _mix_raw,
             w_top=round(w_top, 3),
             w_bot=round(w_bot, 3),
             v3_score=float(final),
@@ -533,8 +537,47 @@ def compute_score(
             v5_score      = round(_v5_result['score'], 1)
             v5_confidence = _v5_result.get('confidence')
             v5_shap_top5  = _v5_result.get('shap_top5')
-    except Exception:
-        pass
+    except Exception as e:
+        print(f'Warning: V5A (v5_score) failed — {e}')
+
+    # ── V5B "Forward Risk Model" (Outlook, Layer 3 — prediction layer) ───────
+    # Independent of V3: predicts expected max drawdown over the next 365 days.
+    # This is the primary predictive model (docs/architecture.md §6A / §7.1).
+    v5b_score: float | None = None
+    try:
+        from scraper import mixing_model_b as _v5b
+        _v5b_result = _v5b.predict_b(
+            _mix_raw,
+            target_date=target_date,
+            w_top=round(w_top, 3),
+            w_bot=round(w_bot, 3),
+            v3_score=float(final),
+        )
+        if isinstance(_v5b_result, dict):
+            v5b_score = _v5b_result['score']
+    except Exception as e:
+        print(f'Warning: V5B (v5b_score / Outlook) failed — {e}')
+
+    # ── Market Regime — decision layer (Outlook + Market Context) ───────────
+    # Thresholds derived from 2018-2026 backtest (163x return vs 4.8x B&H).
+    # Mirrors scraper/scoring_v3.py::_market_regime() — see docs/architecture.md
+    # §7.2 for the full rationale and the Wait-vs-Hold distinction.
+    market_regime:    str | None = None
+    composite_risk:   float | None = None
+    signal_agreement: float | None = None
+    meta_score:       float | None = None
+    if v5b_score is not None and final is not None:
+        _mc = float(final)
+        buy  = _mc <  35 and v5b_score <  20
+        sell = _mc >= 65 and v5b_score >= 45
+        hold = _mc >= 65 and v5b_score <  45
+        market_regime = 'Buy' if buy else 'Sell' if sell else 'Hold' if hold else 'Wait'
+        # Composite risk = √(Market Context × Outlook) — display gauge only, not used in market_regime.
+        composite_risk   = round(math.sqrt(max(0.0, _mc) * max(0.0, v5b_score)), 1)
+        signal_agreement = round(1.0 - abs(_mc - v5b_score) / 100.0, 2)
+        _w_mc  = signal_agreement / 2
+        _w_v5b = 1.0 - _w_mc
+        meta_score = round(_w_mc * _mc + _w_v5b * v5b_score, 1)
 
     return {
         'final_score':        final,
@@ -564,6 +607,11 @@ def compute_score(
         'v5_score':           v5_score,
         'v5_confidence':      v5_confidence,
         'v5_shap_top5':       v5_shap_top5,
+        'v5b_score':          v5b_score,
+        'market_regime':      market_regime,
+        'composite_risk':     composite_risk,
+        'signal_agreement':   signal_agreement,
+        'meta_score':         meta_score,
         'normalized_scores':  {
             k: round(v) for k, v in normalized.items()
             if v is not None and k not in ('cipherb_weekly', 'cipherb_daily')
