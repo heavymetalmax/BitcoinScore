@@ -1,8 +1,8 @@
 {
-  "timestamp": "2026-07-25T07:01:34Z",
+  "timestamp": "2026-07-25T08:25:16Z",
   "date": "2026-07-25",
-  "btc_price": 64010.89,
-  "btc_dominance": 58.74,
+  "btc_price": 63974.24,
+  "btc_dominance": 58.71,
   "fear_greed": 37.1,
   "fear_greed_label": "CMC",
   "nupl": 17.0655,
@@ -23,37 +23,37 @@
     "nupl": {
       "value": 17.0655,
       "source": "BMP",
-      "updated": "2026-07-25T07:00:17Z"
+      "updated": "2026-07-25T08:25:16Z"
     },
     "mvrv": {
       "value": 0.3608,
       "source": "BMP",
-      "updated": "2026-07-25T07:00:31Z"
+      "updated": "2026-07-25T08:25:16Z"
     },
     "m2": {
       "value": 9.71,
       "source": "MacroMicro",
-      "updated": "2026-07-25T07:00:34Z"
+      "updated": "2026-07-25T08:25:16Z"
     },
     "yield_curve": {
       "value": 0.36,
       "source": "BMP",
-      "updated": "2026-07-25T07:00:37Z"
+      "updated": "2026-07-25T08:25:16Z"
     },
     "cvdd_ratio": {
       "value": 1.3224,
       "source": "BMP",
-      "updated": "2026-07-25T07:00:49Z"
+      "updated": "2026-07-25T08:25:16Z"
     },
     "rhodl_ratio": {
       "value": 670.0644,
       "source": "BMP",
-      "updated": "2026-07-25T07:00:59Z"
+      "updated": "2026-07-25T08:25:16Z"
     },
     "asopr": {
       "value": 1.0014,
       "source": "BMP",
-      "updated": "2026-07-25T07:01:20Z"
+      "updated": "2026-07-25T08:25:16Z"
     },
     "etf_flows": {
       "value": {
@@ -63,12 +63,12 @@
         "date": "2026-07-25"
       },
       "source": "Farside",
-      "updated": "2026-07-25T07:01:30Z"
+      "updated": "2026-07-25T08:25:16Z"
     },
     "dxy": {
       "value": 120.5315,
       "source": "FRED",
-      "updated": "2026-07-25T07:01:34Z"
+      "updated": "2026-07-25T08:25:16Z"
     },
     "fear_greed": {
       "value": 37.1,
@@ -76,7 +76,7 @@
       "avg_7d": 37.1,
       "label": "CMC",
       "source": "CMC",
-      "updated": "2026-07-25T07:01:34Z"
+      "updated": "2026-07-25T08:25:16Z"
     },
     "cipherb": {
       "value": {
@@ -97,7 +97,7 @@
         "daily_double_bullish_div": false
       },
       "source": "Local",
-      "updated": "2026-07-25T07:01:34Z"
+      "updated": "2026-07-25T08:25:16Z"
     },
     "mayer_multiple": {
       "value": {
@@ -107,23 +107,23 @@
         "score": 24
       },
       "source": "Kraken",
-      "updated": "2026-07-25T07:01:35Z"
+      "updated": "2026-07-25T08:25:16Z"
     },
     "funding_rate": {
       "value": {
-        "latest": -0.00185,
-        "avg_7d": 0.00346,
+        "latest": -0.00267,
+        "avg_7d": 0.00329,
         "score": 36,
         "periods": 21,
         "source": "Bybit+Binance"
       },
       "source": "Bybit+Binance",
-      "updated": "2026-07-25T07:01:35Z"
+      "updated": "2026-07-25T08:25:17Z"
     },
     "halving_cycle_day": {
       "value": 827,
       "source": "Local",
-      "updated": "2026-07-25T07:01:35Z"
+      "updated": "2026-07-25T08:25:17Z"
     },
     "pi_cycle": {
       "value": {
@@ -134,22 +134,22 @@
         "cross": false
       },
       "source": "Kraken",
-      "updated": "2026-07-25T07:01:36Z"
+      "updated": "2026-07-25T08:25:18Z"
     },
     "puell_multiple": {
       "value": 0.2998,
       "source": "BMP",
-      "updated": "2026-07-25T07:01:45Z"
+      "updated": "2026-07-25T08:25:27Z"
     },
     "lth_supply_pct": {
       "value": 16823459.6081,
       "source": "BMP",
-      "updated": "2026-07-25T07:01:54Z"
+      "updated": "2026-07-25T08:25:36Z"
     },
     "m2_mom": {
       "value": 9.71,
       "source": "MacroMicro",
-      "updated": "2026-07-25T07:01:54Z"
+      "updated": "2026-07-25T08:25:36Z"
     }
   },
   "m2_mom": 9.71,
@@ -180,8 +180,8 @@
     },
     "mayer": {
       "fixed": 24,
-      "adaptive": 27,
-      "blended": 26,
+      "adaptive": 28,
+      "blended": 27,
       "win_years": 4,
       "blend_w": 0.7
     },
@@ -202,18 +202,18 @@
   "pi_cross": false,
   "wave_resonance": {
     "score": 13,
-    "coherence": 0.822,
+    "coherence": 0.829,
     "mean_osc": 0.054,
-    "std_osc": 0.051,
+    "std_osc": 0.049,
     "oscillators": {
-      "nupl": 0.0421,
-      "mvrv": 0.0412,
-      "puell": 0.0,
-      "cvdd_ratio": 0.0338,
-      "mayer": 0.1938,
-      "pi_gap": 0.1006
+      "nupl": 0.043,
+      "mvrv": 0.0421,
+      "puell": 0.0009,
+      "cvdd_ratio": 0.0347,
+      "mayer": 0.1874,
+      "pi_gap": 0.1007
     },
-    "date_used": "2026-07-24",
+    "date_used": "2026-07-25",
     "window_pts": 1096
   },
   "signal": {
@@ -223,7 +223,7 @@
     "flag": "PROBABLE_BOTTOM",
     "trust": {
       "v3": 0.7,
-      "wr": 0.822
+      "wr": 0.829
     },
     "agreement": "confirmed",
     "tiz_maturity": 0.459,
@@ -291,7 +291,7 @@
     "flag": "PROBABLE_BOTTOM",
     "trust": {
       "v3": 0.7,
-      "wr": 0.822
+      "wr": 0.829
     },
     "agreement": "confirmed",
     "tiz_maturity": 0.459,
@@ -307,11 +307,11 @@
   "v3_tiz_maturity": 0.459,
   "v3_tiz_calibration": 270,
   "v5_score": null,
-  "v5b_score": null,
-  "meta_score": null,
-  "signal_agreement": null,
-  "market_regime": null,
-  "composite_risk": null,
+  "v5b_score": 14.8,
+  "meta_score": 20.9,
+  "signal_agreement": 0.86,
+  "market_regime": "Buy",
+  "composite_risk": 20.7,
   "v3_oc_coherence": 0.7,
   "data_quality": {
     "active_metrics": 15,
@@ -329,7 +329,7 @@
     "w_top": 0.0
   },
   "base": {
-    "btc_price": 64010.89,
+    "btc_price": 63974.24,
     "nupl": {
       "raw": 17.0655,
       "score": 28
@@ -386,8 +386,8 @@
     },
     "funding_rate": {
       "raw": {
-        "latest": -0.00185,
-        "avg_7d": 0.00346,
+        "latest": -0.00267,
+        "avg_7d": 0.00329,
         "score": 36,
         "periods": 21,
         "source": "Bybit+Binance"
@@ -452,11 +452,11 @@
   "scoring": {
     "final_score": 29,
     "v5_score": null,
-    "v5b_score": null,
-    "meta_score": null,
-    "signal_agreement": null,
-    "market_regime": null,
-    "composite_risk": null,
+    "v5b_score": 14.8,
+    "meta_score": 20.9,
+    "signal_agreement": 0.86,
+    "market_regime": "Buy",
+    "composite_risk": 20.7,
     "dxy_adj": -0.1,
     "pi_cross": false,
     "flag": "PROBABLE_BOTTOM",
@@ -938,7 +938,7 @@
     {
       "date": "2026-07-25",
       "score": 30,
-      "price": 64010.89
+      "price": 63974.24
     }
   ]
 }
