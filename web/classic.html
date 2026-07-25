@@ -2647,19 +2647,21 @@ function updatePipelineDiagram(data) {
   _dot('hs-scraper', scraperOk);
 
   // Metrics count (non-null leaf scalars from key on-chain+tech+macro metrics)
-  const metricKeys = ['nupl','mvrv_z_score','rhodl_ratio','cvdd_ratio','asopr','cipherb',
-    'mayer_multiple','fear_greed','yield_curve_spread','m2_yoy','etf_flows','btc_price',
-    'btc_dominance','smc'];
+  // Keys match actual data.metrics field names (mvrv=raw, yield_curve, m2_mom)
+  const metricKeys = ['nupl','mvrv','rhodl_ratio','cvdd_ratio','asopr','cipherb',
+    'mayer_multiple','fear_greed','yield_curve','m2_mom','etf_flows',
+    'funding_rate','dxy'];
   const metricCount = metricKeys.filter(k => {
     const v = m[k];
     if (v == null) return false;
-    if (typeof v === 'object') return v.value != null;
+    if (typeof v === 'object') return v.value != null || Object.keys(v).length > 0;
     return true;
-  }).length;
+  }).length + (data.btc_price != null ? 1 : 0);
+  const metricTotal = metricKeys.length + 1; // +1 for btc_price (top-level)
   const staleCount = data.stale_metrics_count != null ? data.stale_metrics_count : 0;
   _dot('hs-metrics', metricCount >= 10 && staleCount === 0);
   const staleSuffix = staleCount > 0 ? ` (${staleCount}↩)` : '';
-  _set('hs-metrics-txt', `${metricCount}/${metricKeys.length}${staleSuffix}`);
+  _set('hs-metrics-txt', `${metricCount}/${metricTotal}${staleSuffix}`);
 
   // V3 loaded
   _dot('hs-v3', pos != null);

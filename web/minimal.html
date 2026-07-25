@@ -508,7 +508,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 40px;
+      gap: 12px;
       width: 100%;
       border-top: 1px solid var(--border);
       padding-top: 20px;
@@ -517,8 +517,9 @@
     .sub-item {
       display: flex;
       align-items: center;
-      gap: 12px;
-      min-width: 140px;
+      gap: 8px;
+      min-width: 0;
+      flex: 1;
       text-align: left;
       cursor: pointer;
       transition: transform 0.2s ease;
@@ -537,7 +538,7 @@
 
     .sub-value {
       font-family: 'Outfit', sans-serif;
-      font-size: 3rem;
+      font-size: 2.4rem;
       font-weight: 800;
       line-height: 1;
       background: linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(255,255,255,0.75) 100%);
@@ -545,17 +546,18 @@
       -webkit-text-fill-color: transparent;
       background-clip: text;
       filter: drop-shadow(0 2px 8px rgba(255,255,255,0.2));
+      flex-shrink: 0;
     }
 
     .sub-title {
-      font-size: 1.1rem;
+      font-size: 0.9rem;
       font-weight: 500;
       color: var(--text);
       text-transform: lowercase;
     }
 
     .sub-status {
-      font-size: 0.95rem;
+      font-size: 0.78rem;
       font-weight: 500;
       color: var(--text);
       text-transform: lowercase;
@@ -1322,20 +1324,19 @@
         padding: 24px 12px;
       }
       .display-sub-row {
-        gap: 20px;
+        gap: 6px;
       }
       .sub-item {
-        min-width: auto;
-        gap: 8px;
+        gap: 5px;
       }
       .sub-value {
-        font-size: 2.2rem;
+        font-size: 1.9rem;
       }
       .sub-title {
-        font-size: 0.95rem;
+        font-size: 0.75rem;
       }
       .sub-status {
-        font-size: 0.85rem;
+        font-size: 0.65rem;
       }
       .mini-indicator-row {
         grid-template-columns: 95px 50px 1fr 25px;
@@ -1482,7 +1483,7 @@
             </div>
           </div>
 
-          <!-- Bottom Row: On-Chain and Tech/Macro Sub-Indices -->
+          <!-- Bottom Row: On-Chain / Tech / Macro Sub-Indices -->
           <div class="display-sub-row">
             <!-- Zone 2: On-Chain -->
             <div class="click-zone sub-item" onclick="flipTo('onchain')">
@@ -1495,18 +1496,32 @@
                 <span class="sub-status" id="s-oc-status-center">—</span>
               </div>
             </div>
-            
+
             <div class="sub-divider"></div>
-            
-            <!-- Zone 3: Tech/Macro -->
+
+            <!-- Zone 3: Technical -->
             <div class="click-zone sub-item" onclick="flipTo('tech')">
               <span class="sub-value" id="s-tech-center">—</span>
               <div class="sub-label-col">
                 <span class="sub-title">
-                  <span class="ua">тех/макро</span>
-                  <span class="en">tech/macro</span>
+                  <span class="ua">техніч.</span>
+                  <span class="en">tech</span>
                 </span>
                 <span class="sub-status" id="s-tech-status-center">—</span>
+              </div>
+            </div>
+
+            <div class="sub-divider"></div>
+
+            <!-- Zone 4: Macro -->
+            <div class="click-zone sub-item" onclick="flipTo('macro')">
+              <span class="sub-value" id="s-macro-center">—</span>
+              <div class="sub-label-col">
+                <span class="sub-title">
+                  <span class="ua">макро</span>
+                  <span class="en">macro</span>
+                </span>
+                <span class="sub-status" id="s-macro-status-center">—</span>
               </div>
             </div>
           </div>
@@ -1559,13 +1574,28 @@
             </a>
           </div>
 
-          <!-- Back content 3: Tech/Macro detail list -->
+          <!-- Back content 3: Technical indicators -->
           <div id="back-tech" class="back-panel" style="display: none;">
             <div class="back-card-title">
-              <span class="en">Tech &amp; Macro Indicators</span>
-              <span class="ua">Тех &amp; Макро показники</span>
+              <span class="en">Technical Indicators</span>
+              <span class="ua">Технічні показники</span>
             </div>
             <div class="mini-indicators-list" id="list-tech-back">
+              <!-- Populated dynamically -->
+            </div>
+            <a href="about.html#tech-macro" class="back-methodology-link" onclick="event.stopPropagation()">
+              <span class="en">Methodology ↗</span>
+              <span class="ua">Методологія ↗</span>
+            </a>
+          </div>
+
+          <!-- Back content 3b: Macro indicators -->
+          <div id="back-macro" class="back-panel" style="display: none;">
+            <div class="back-card-title">
+              <span class="en">Macro Indicators</span>
+              <span class="ua">Макро показники</span>
+            </div>
+            <div class="mini-indicators-list" id="list-macro-back">
               <!-- Populated dynamically -->
             </div>
             <a href="about.html#tech-macro" class="back-methodology-link" onclick="event.stopPropagation()">
@@ -1998,7 +2028,7 @@
       if (!inner) return;
       
       // Hide all panels
-      const panels = ['forecast', 'onchain', 'tech', 'history'];
+      const panels = ['forecast', 'onchain', 'tech', 'macro', 'history'];
       panels.forEach(p => {
         const el = document.getElementById('back-' + p);
         if (el) el.style.display = 'none';
@@ -2530,18 +2560,21 @@
         { key: 'lth_supply', name: n({en:'LTH Supply', ua:'LTH Supply'}),        score: getV3Score('lth_supply', lthRaw),  raw: lthPct    != null ? lthPct+'%'                        : null },
       ];
       const _techMetrics = [
-        { key: 'cipherb',      name: n({en:'Cipher B', ua:'Cipher B'}),           score: getV3Score('cipherb', cbScore),       raw: cbScore  != null ? (+cbScore).toFixed(1)                                : null },
-        { key: 'mayer',        name: n({en:'Mayer Multiple', ua:'Mayer Multiple'}), score: getV3Score('mayer', mmVal),           raw: mmVal    != null ? (+mmVal).toFixed(3)                                  : null },
-        { key: 'etf',          name: n({en:'ETF Flows (7d)', ua:'ETF Flows (7d)'}), score: getV3Score('etf', etfVal),            raw: etfVal   != null ? '$'+(etfVal/1000).toFixed(2)+'B'                     : null },
-        { key: 'fg',           name: n({en:'Fear & Greed', ua:'Індекс страху'}),   score: getV3Score('fg', fgVal),              raw: fgVal    != null ? (+fgVal).toFixed(0)                                  : null },
-        { key: 'yc',           name: n({en:'Yield Curve', ua:'Крива дохідності'}), score: getV3Score('yield_curve', yc),        raw: yc       != null ? (+yc).toFixed(2)+'%'                                 : null },
-        { key: 'm2',           name: n({en:'Global M2', ua:'Глобальний M2'}),      score: getV3Score('m2', m2raw),              raw: m2raw    != null ? (+m2raw).toFixed(1)+'%'                              : null },
-        { key: 'pi_cycle',     name: n({en:'Pi Cycle Gap', ua:'Pi Cycle Gap'}),    score: getV3Score('pi_cycle', piRaw),        raw: piGapPct != null ? (+piGapPct).toFixed(1)+'%'                          : null },
-        { key: 'funding_rate', name: n({en:'Funding Rate', ua:'Funding Rate'}),    score: getV3Score('funding_rate', frRaw),    raw: frVal    != null ? (frVal*100).toFixed(4)+'%'                          : null },
-        { key: 'dxy',          name: n({en:'DXY', ua:'DXY'}),                      score: getV3Score('dxy', dxyRaw),            raw: dxyVal   != null ? (+dxyVal).toFixed(2)                                 : null },
+        { key: 'cipherb',      name: n({en:'Cipher B', ua:'Cipher B'}),             score: getV3Score('cipherb', cbScore),    raw: cbScore  != null ? (+cbScore).toFixed(1)            : null },
+        { key: 'mayer',        name: n({en:'Mayer Multiple', ua:'Mayer Multiple'}),  score: getV3Score('mayer', mmVal),        raw: mmVal    != null ? (+mmVal).toFixed(3)              : null },
+        { key: 'etf',          name: n({en:'ETF Flows (7d)', ua:'ETF Flows (7d)'}),  score: getV3Score('etf', etfVal),         raw: etfVal   != null ? '$'+(etfVal/1000).toFixed(2)+'B' : null },
+        { key: 'fg',           name: n({en:'Fear & Greed', ua:'Індекс страху'}),     score: getV3Score('fg', fgVal),           raw: fgVal    != null ? (+fgVal).toFixed(0)              : null },
+        { key: 'funding_rate', name: n({en:'Funding Rate', ua:'Funding Rate'}),      score: getV3Score('funding_rate', frRaw), raw: frVal    != null ? (frVal*100).toFixed(4)+'%'       : null },
+        { key: 'pi_cycle',     name: n({en:'Pi Cycle Gap', ua:'Pi Cycle Gap'}),      score: getV3Score('pi_cycle', piRaw),     raw: piGapPct != null ? (+piGapPct).toFixed(1)+'%'      : null },
+      ];
+      const _macroMetrics = [
+        { key: 'yc',  name: n({en:'Yield Curve', ua:'Крива дохідності'}), score: getV3Score('yield_curve', yc),  raw: yc     != null ? (+yc).toFixed(2)+'%'     : null },
+        { key: 'm2',  name: n({en:'Global M2',   ua:'Глобальний M2'}),    score: getV3Score('m2', m2raw),        raw: m2raw  != null ? (+m2raw).toFixed(1)+'%'  : null },
+        { key: 'dxy', name: n({en:'DXY',         ua:'DXY'}),              score: getV3Score('dxy', dxyRaw),      raw: dxyVal != null ? (+dxyVal).toFixed(2)     : null },
       ];
       populateBackCard('list-onchain-back', _ocMetrics);
       populateBackCard('list-tech-back',    _techMetrics);
+      populateBackCard('list-macro-back',   _macroMetrics);
 
       // Compute subgroup aggregates from the same scores shown in indicator blocks
       function subgroupAvg(metrics) {
@@ -2554,10 +2587,12 @@
         }
         return wc > 0 ? Math.round(ws / wc) : null;
       }
-      const _ocAgg   = subgroupAvg(_ocMetrics)   ?? data.onchain_score;
-      const _techAgg = subgroupAvg(_techMetrics)  ?? data.tech_score;
-      setCenterSubVal(_ocAgg,   's-oc-center',   's-oc-status-center');
-      setCenterSubVal(_techAgg, 's-tech-center', 's-tech-status-center');
+      const _ocAgg    = subgroupAvg(_ocMetrics)    ?? data.onchain_score;
+      const _techAgg  = subgroupAvg(_techMetrics)  ?? data.tech_score;
+      const _macroAgg = subgroupAvg(_macroMetrics) ?? null;
+      setCenterSubVal(_ocAgg,    's-oc-center',    's-oc-status-center');
+      setCenterSubVal(_techAgg,  's-tech-center',  's-tech-status-center');
+      setCenterSubVal(_macroAgg, 's-macro-center', 's-macro-status-center');
     }
 
     // ── Historical Returns by Score (bucket_returns.json) ──────────────────
