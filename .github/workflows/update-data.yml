@@ -5,13 +5,6 @@ on:
     - cron: '0 8 * * *'   # fallback — runs only if home server did not push
   workflow_dispatch: {}
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
-  ZYTE_API_KEY: ${{ secrets.ZYTE_API_KEY }}
-  CMC_API_KEY: ${{ secrets.CMC_API_KEY }}
-  PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
-  OPENAI_API_KEY: ${{ secrets.gpt_api }}
-
 jobs:
   update:
     runs-on: ubuntu-24.04
@@ -20,6 +13,12 @@ jobs:
       contents: write
       pages: write
       id-token: write
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+      ZYTE_API_KEY: ${{ secrets.ZYTE_API_KEY }}
+      CMC_API_KEY: ${{ secrets.CMC_API_KEY }}
+      PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
+      OPENAI_API_KEY: ${{ secrets.gpt_api }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4.2.2
