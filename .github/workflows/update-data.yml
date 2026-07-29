@@ -27,26 +27,26 @@ jobs:
         id: freshness
         run: |
           python3 -c "
-import json, sys
-d = json.load(open('data/data.json'))
-ts = d.get('timestamp', '')[:10]
-import datetime
-today = datetime.date.today().isoformat()
-# Check timestamp AND that critical BMP metrics are present
-# If local scraper ran but Playwright failed, nupl/mvrv will be null
-nupl = d.get('nupl')
-mvrv = d.get('mvrv')
-metrics_ok = nupl is not None and mvrv is not None
-if ts == today and metrics_ok:
-    print(f'fresh  ts={ts}  nupl={nupl:.1f}  mvrv={mvrv:.2f}')
-    sys.exit(0)
-elif ts == today and not metrics_ok:
-    print(f'stale  ts={ts}  BMP metrics missing (nupl={nupl} mvrv={mvrv}) — running fallback scraper')
-    sys.exit(1)
-else:
-    print(f'stale  ts={ts}  today={today}')
-    sys.exit(1)
-" && echo "fresh=true" >> $GITHUB_OUTPUT || echo "fresh=false" >> $GITHUB_OUTPUT
+          import json, sys
+          d = json.load(open('data/data.json'))
+          ts = d.get('timestamp', '')[:10]
+          import datetime
+          today = datetime.date.today().isoformat()
+          # Check timestamp AND that critical BMP metrics are present
+          # If local scraper ran but Playwright failed, nupl/mvrv will be null
+          nupl = d.get('nupl')
+          mvrv = d.get('mvrv')
+          metrics_ok = nupl is not None and mvrv is not None
+          if ts == today and metrics_ok:
+              print(f'fresh  ts={ts}  nupl={nupl:.1f}  mvrv={mvrv:.2f}')
+              sys.exit(0)
+          elif ts == today and not metrics_ok:
+              print(f'stale  ts={ts}  BMP metrics missing (nupl={nupl} mvrv={mvrv}) — running fallback scraper')
+              sys.exit(1)
+          else:
+              print(f'stale  ts={ts}  today={today}')
+              sys.exit(1)
+          " && echo "fresh=true" >> $GITHUB_OUTPUT || echo "fresh=false" >> $GITHUB_OUTPUT
 
       - name: Install Python dependencies
         if: steps.freshness.outputs.fresh == 'false'
