@@ -35,7 +35,7 @@ jobs:
           # Check timestamp AND that critical BMP metrics are present
           # If local scraper ran but Playwright failed, nupl/mvrv will be null
           nupl = d.get('nupl')
-          mvrv = d.get('mvrv')
+          mvrv = d.get('mvrv_z_score')
           metrics_ok = nupl is not None and mvrv is not None
           if ts == today and metrics_ok:
               print(f'fresh  ts={ts}  nupl={nupl:.1f}  mvrv={mvrv:.2f}')
