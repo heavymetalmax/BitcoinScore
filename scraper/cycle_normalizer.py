@@ -74,6 +74,29 @@ def _causal_vals(metric: str, ex_type: str, target_date_str: str):
     return result
 
 
+def _interp_fraction(sorted_vals, v) -> float:
+    """Piecewise-linear empirical CDF: fraction of the distribution below v.
+
+    Unlike a hard count (sum(x <= v) / n), this interpolates linearly between
+    adjacent sorted anchors, so the result moves continuously with v instead of
+    stepping by 1/n each time v crosses a single anchor. Anchors map to evenly
+    spaced quantiles: min -> 0.0, max -> 1.0. This matches the docstring intent
+    ("V at/below extreme bottom -> score ~= 0") while removing the staircase that
+    let normal daily metric noise flip the score by several points.
+    """
+    n = len(sorted_vals)
+    if v <= sorted_vals[0]:
+        return 0.0
+    if v >= sorted_vals[-1]:
+        return 1.0
+    for i in range(1, n):
+        if v <= sorted_vals[i]:
+            lo, hi = sorted_vals[i - 1], sorted_vals[i]
+            frac = (v - lo) / (hi - lo) if hi > lo else 0.0
+            return (i - 1 + frac) / (n - 1)
+    return 1.0
+
+
 def cycle_normalize(metric: str, value, target_date) -> int | None:
     """
     Normalize raw metric value to 0-100 using confirmed cycle extremes as anchors.
@@ -89,15 +112,15 @@ def cycle_normalize(metric: str, value, target_date) -> int | None:
     else:
         target_str = str(target_date)
 
-    bottom_vals = _causal_vals(metric, 'BOTTOM', target_str)
-    top_vals    = _causal_vals(metric, 'TOP',    target_str)
+    bottom_vals = sorted(_causal_vals(metric, 'BOTTOM', target_str))
+    top_vals    = sorted(_causal_vals(metric, 'TOP',    target_str))
 
     if len(bottom_vals) < 2 or len(top_vals) < 2:
         return None
 
     v = float(value)
-    b_pct = sum(1 for bv in bottom_vals if bv <= v) / len(bottom_vals)
-    t_pct = sum(1 for tv in top_vals   if tv <= v) / len(top_vals)
+    b_pct = _interp_fraction(bottom_vals, v)
+    t_pct = _interp_fraction(top_vals, v)
     return round((0.5 * b_pct + 0.5 * t_pct) * 100)
 
 
