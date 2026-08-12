@@ -353,6 +353,8 @@ def main():
         'metadata': {
             'trained_at': datetime.datetime.now().isoformat(),
             'model_type': 'Supervised Gaussian HMM (3-states)',
+            'probability_calibrated': False,
+            'output_semantics': 'heuristic_state_similarity_weights',
             'relevance_method': 'ic_initialized_coordinate_descent',
             'ic_alpha': 6.0,
             'phase_horizons': {'BOTTOM': 365, 'NEUTRAL': 270, 'TOP': 180},

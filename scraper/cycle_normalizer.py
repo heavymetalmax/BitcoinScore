@@ -65,7 +65,8 @@ def _causal_vals(metric: str, ex_type: str, target_date_str: str):
     for e in _extremes:
         if e['type'] != ex_type:
             continue
-        if e['date'] >= target_date_str:
+        confirmed_at = e.get('confirmed_at')
+        if not confirmed_at or confirmed_at > target_date_str:
             continue
         row = _scores_map.get(e['date'], {})
         v = row.get(metric)
@@ -145,7 +146,9 @@ def intra_cycle_percentile(metric: str, value, target_date) -> int | None:
 
     # Most recent confirmed BOTTOM strictly before target_date
     bottoms = sorted(
-        [e for e in _extremes if e['type'] == 'BOTTOM' and e['date'] < target_str],
+        [e for e in _extremes
+         if e['type'] == 'BOTTOM' and e.get('confirmed_at')
+         and e['confirmed_at'] <= target_str],
         key=lambda e: e['date'],
     )
     if not bottoms:
@@ -189,7 +192,9 @@ def price_cycle_percentile(target_date, current_price) -> int | None:
         target_str = str(target_date)
 
     bottoms = sorted(
-        [e for e in _extremes if e['type'] == 'BOTTOM' and e['date'] < target_str],
+        [e for e in _extremes
+         if e['type'] == 'BOTTOM' and e.get('confirmed_at')
+         and e['confirmed_at'] <= target_str],
         key=lambda e: e['date'],
     )
     if not bottoms:

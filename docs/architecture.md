@@ -1,6 +1,6 @@
 # BitcoinScore — Architecture & Calculation Reference
 
-**Version:** V4 Market Context + V5A.17 + V5B.1
+**Version:** V4 Market Context + V5A.17 + V5B.2
 **Updated:** 2026-08-12
 
 ---
@@ -12,7 +12,7 @@ BitcoinScore is a daily-updated Bitcoin risk engine with two models and one acti
 | Layer | Question answered | Role |
 |---|---|---|
 | **V5B (Outlook)** | What is the expected max drawdown over the next 365 days? | **Prediction Layer** — forecasts future downside risk |
-| **Market Regime** | Is this a Buy / Sell / Hold / Wait moment? | **Decision Layer** — the only field to act on; combines Outlook + Market Context |
+| **Market Regime** | Is this a Buy / Sell / Hold / Wait moment? | **Decision Layer** — emitted only when model validation and data quorum pass |
 | **V3 (Market Context)** | Where are we in the Bitcoin cycle, and how overheated/coherent are the underlying metrics? | **Explanation Layer** — explains why; prevents false exits |
 
 ```
@@ -23,7 +23,9 @@ Decision Layer      (Market Regime — Buy / Sell / Hold / Wait)
 Explanation Layer   (V3 / Market Context)
 ```
 
-**Design philosophy:** BitcoinScore separates prediction from interpretation. V5B estimates future downside risk directly from market structure — it is the prediction layer. V3 does not predict returns; it assesses cycle phase, overheating, and cross-metric coherence to provide context that explains and filters the prediction. Market Regime combines both into a single human-readable decision state — the decision layer, and the only field a user should act on.
+**Current validation status:** V5B.2 fails its purged walk-forward baseline (MAE 24.05 versus 20.91 for the training-fold mean). Its output is retained for diagnostics, but `v5b_validated=false` and actionable Buy/Sell decisions are suppressed. Historical threshold returns are in-sample research results, not deployable evidence.
+
+**Design philosophy:** BitcoinScore separates prediction from interpretation. V3 assesses cycle phase, overheating, and cross-metric coherence. V5B estimates future downside risk, but it may participate in decisions only after out-of-sample validation beats a naive baseline. Data-quality basket quorums independently gate decisions.
 
 **Naming note:** "Market Regime" is kept as the field/section name for continuity with `data.json`'s `market_regime` field, even though its four states (Buy/Sell/Hold/Wait) describe a decision/action, not a market regime in the classic Bull/Bear/Risk-On/Risk-Off sense. Likewise, V3 is referred to here as "Market Context" rather than "Cycle Context" — it does more than locate cycle position; it also evaluates overheating, phase, cross-metric coherence, and utility weighting (see §5). Renaming these labels in the docs does not change the underlying `market_regime` / `final_score` field names in `data.json` or the dashboard code.
 
@@ -114,15 +116,19 @@ component by 12 risk points before blending, clamped to 0–100.
 
 ### Step 3 — Continuous cycle phase
 
-The phase weights combine three independent inputs:
+The phase weights combine three heuristic inputs:
 
 - `w_bot`: calibrated bottom confluence from on-chain metrics
-- `w_top`: TOP probability from `data/v3_phase_model.pkl`
+- `w_top`: TOP-state similarity weight from `data/v3_phase_model.pkl`
 - halving-cycle prior: a bounded correction when market evidence and cycle timing disagree
 
 The result is normalized into continuous `w_bot`, `w_neutral`, and `w_top`
 weights. The discrete `v3_phase` is informational; scoring uses the continuous
 weights.
+
+These weights sum to one but are not probability-calibrated. Historical extrema
+enter normalization only after their `confirmed_at` date, preventing future-known
+turning points from leaking into historical calculations.
 
 If the HMM cannot load, `w_top` falls back to the Pi Cycle score when it is in
 the top-risk range; otherwise the neutral weight absorbs the missing evidence.
@@ -202,7 +208,7 @@ Both V5A and V5B use the same 49-feature vector and XGBoost architecture (`n_est
 
 ---
 
-### 6A. V5B — Forward Risk Model (v5b.1)
+### 6A. V5B — Forward Risk Model (v5b.2)
 
 **Entry point:** `scraper/mixing_model_b.py → predict_b()`  
 **Model file:** `data/v5b_model.pkl`  
@@ -215,12 +221,11 @@ Both V5A and V5B use the same 49-feature vector and XGBoost architecture (`n_est
 label = max(0, (price_today − min_price_next_365d) / price_today) × 100
 ```
 - Not computable from current features → genuine ML task, no circular dependence
-- Training data: 2017-08-17 to ~2025-07-19 (last ~30 rows lack 365d future window)
+- A row is eligible only after the full 365-calendar-day horizon exists and at least 300 daily prices are present
+- Validation uses expanding walk-forward folds with a 365-day purge before every test window
 - Label range: 0% (perfect buy — price only rises) to ~83% (major bear market)
 
-**Training performance:** MAE = 13.2%, RMSE = 16.5%, Extreme MAE = 14.3%
-
-**Top feature importances:** `ath_divergence` (0.35), `w_top_vs_peak` (0.06), `phase_is_top` (0.05), `qc_cold` (0.05)
+**Purged walk-forward result:** MAE = 24.05%, RMSE = 28.12%; naive mean baseline MAE = 20.91%. The model therefore does not pass the deployment gate. Removing price-position features improves MAE to 20.47%, which is useful ablation evidence but not an independent validation result and is not promoted automatically.
 
 **Key cycle validation:**
 
@@ -234,7 +239,7 @@ label = max(0, (price_today − min_price_next_365d) / price_today) × 100
 
 Note: Mar 2024 ATH case — V5B correctly assessed moderate risk (24%), while V3 called 83 (sell). BTC subsequently rallied to $119–124k. V5B was right.
 
-**Practical interpretation (all-in / all-out strategy):**
+**Historical threshold interpretation (research only while `v5b_validated=false`):**
 
 | V5B | Regime signal |
 |---|---|
@@ -273,7 +278,7 @@ python3 tools/build_v5b_labels.py && python3 tools/train_v5b_model.py
 
 ### 7.1 Outlook (V5B) — prediction layer
 
-Backtest finding (2018–2026): **Outlook alone is the most powerful single signal** for an all-in/all-out strategy.
+The old 2018–2026 in-sample backtest suggested the thresholds below. Purged OOS diagnostics did not validate them: there were zero Buy signals and Sell precision was 16.8%. They are disabled by the deployment gate.
 
 ```
 Outlook ≤ 20%  → entry zone   (183× total return vs 4.8× buy-and-hold)
@@ -285,7 +290,7 @@ Market Context (V3) does not improve prediction of future drawdown once V5B's fe
 
 ### 7.2 Market Regime — decision layer
 
-The only field to act on. Combines Outlook (prediction layer) and Market Context (protective filter).
+Combines Outlook and Market Context only when `v5b_validated=true` and every required basket meets quorum. Otherwise it returns `Wait` or `Unavailable` with `decision_suppressed=true`.
 
 ```
 Market Context < 35  AND  Outlook < 20%  → Buy   (confirmed entry — both agree)
@@ -294,7 +299,7 @@ Market Context ≥ 65  AND  Outlook < 45%  → Hold  (in market; rally may conti
 otherwise                                → Wait  (out; entry not yet safe by Outlook)
 ```
 
-Backtest result: **163× return, 6 trades in 8 years.**
+The former **163×** result is an in-sample historical result and must not be read as expected performance.
 
 | Market Context | Outlook | Regime | Meaning |
 |---|---|---|---|

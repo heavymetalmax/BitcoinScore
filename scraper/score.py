@@ -35,6 +35,7 @@ BASKET_OC = {'nupl', 'mvrv_z_score', 'rhodl_ratio', 'cvdd_ratio', 'puell', 'lth_
 BASKET_MS = {'cipherb', 'mayer_multiple', 'funding_rate', 'fear_greed', 'etf_flows'}
 BASKET_MC = {'m2_yoy', 'yield_curve_spread'}
 BASKET_CP = {'btc_price_cycle', 'pi_gap'}
+BASKET_MIN_COUNTS = {'OC': 4, 'MS': 3, 'MC': 1, 'CP': 1}
 
 # Legacy aliases (backward-compat for any external callers)
 OC_GROUP   = BASKET_OC
@@ -168,7 +169,7 @@ def _phase_weights(normalized: dict, prev_scores: dict | None) -> tuple[float, f
     Compute continuous phase weights (w_bot, w_neutral, w_top) summing to 1.
 
     w_bot: bottom_confluence.py — calibrated from CONFIRMED_BOTTOM_DATES.
-    w_top: HMM model proba[2] — proper probability, trained on confirmed cycle data.
+    w_top: HMM-like similarity weight. It is not a calibrated probability.
            Falls back to 0.0 when model unavailable (safe: neutral wins).
 
     Returns (w_bot, w_neutral, w_top, phase_label, top_signal, bot_signal).
@@ -186,7 +187,7 @@ def _phase_weights(normalized: dict, prev_scores: dict | None) -> tuple[float, f
     except Exception:
         pass
 
-    # ── w_top: HMM probability (proper probability, sums to 1 with bot/neutral)
+    # ── w_top: heuristic HMM similarity weight (not probability-calibrated) ──
     try:
         import os, pickle
         model_path = 'data/v3_phase_model.pkl'
@@ -262,15 +263,35 @@ def _phase_weights(normalized: dict, prev_scores: dict | None) -> tuple[float, f
 
 # ── Weighted average helper ───────────────────────────────────────────────────
 
-def _wavg(group_keys: set, normalized: dict, utilities: dict) -> int | None:
+def _wavg(group_keys: set, normalized: dict, utilities: dict, min_count: int = 1) -> int | None:
     total_uw = total_us = 0.0
+    active = 0
     for k in group_keys:
         s = normalized.get(k)
         u = utilities.get(k, 0.5)
         if s is not None:
+            active += 1
             total_us += s * u
             total_uw += u
-    return round(total_us / total_uw) if total_uw > 0 else None
+    return round(total_us / total_uw) if total_uw > 0 and active >= min_count else None
+
+
+def assess_data_quality(normalized: dict) -> dict:
+    """Classify whether basket coverage is sufficient for an actionable signal."""
+    groups = {'OC': BASKET_OC, 'MS': BASKET_MS, 'MC': BASKET_MC, 'CP': BASKET_CP}
+    counts = {name: sum(normalized.get(k) is not None for k in keys)
+              for name, keys in groups.items()}
+    coverage = {
+        name: {'active': counts[name], 'total': len(keys), 'minimum': BASKET_MIN_COUNTS[name]}
+        for name, keys in groups.items()
+    }
+    if all(counts[name] >= BASKET_MIN_COUNTS[name] for name in groups):
+        status = 'valid'
+    elif counts['OC'] >= 3 and counts['MS'] >= 2 and sum(counts.values()) >= 8:
+        status = 'degraded'
+    else:
+        status = 'invalid'
+    return {'status': status, 'baskets': coverage}
 
 
 # ── Main scoring function ─────────────────────────────────────────────────────
@@ -390,14 +411,15 @@ def compute_score(
     )
 
     # ── 6a. Basket averages (V4) ──────────────────────────────────────────────
-    OC = _wavg(BASKET_OC, normalized, utilities)
-    MS = _wavg(BASKET_MS, normalized, utilities)
-    MC = _wavg(BASKET_MC, normalized, utilities)
-    CP = _wavg(BASKET_CP, normalized, utilities)
+    quality = assess_data_quality(normalized)
+    OC = _wavg(BASKET_OC, normalized, utilities, BASKET_MIN_COUNTS['OC'])
+    MS = _wavg(BASKET_MS, normalized, utilities, BASKET_MIN_COUNTS['MS'])
+    MC = _wavg(BASKET_MC, normalized, utilities, BASKET_MIN_COUNTS['MC'])
+    CP = _wavg(BASKET_CP, normalized, utilities, BASKET_MIN_COUNTS['CP'])
 
     # Informational sub-scores (backward-compat keys for pipeline/dashboard)
     oc_avg   = OC
-    tech_avg = _wavg(BASKET_MS | BASKET_MC | BASKET_CP, normalized, utilities)
+    tech_avg = _wavg(BASKET_MS | BASKET_MC | BASKET_CP, normalized, utilities, 5)
 
     # ── 6b. Step 1: CP contextualises OC (regime multiplier) ─────────────────
     CP_safe = CP if CP is not None else 50
@@ -541,9 +563,10 @@ def compute_score(
         print(f'Warning: V5A (v5_score) failed — {e}')
 
     # ── V5B "Forward Risk Model" (Outlook, Layer 3 — prediction layer) ───────
-    # Independent of V3: predicts expected max drawdown over the next 365 days.
-    # This is the primary predictive model (docs/architecture.md §6A / §7.1).
+    # Predicts expected max drawdown over the next 365 days. Its inputs include
+    # V3 context, so it is a distinct target rather than an independent signal.
     v5b_score: float | None = None
+    v5b_validated = False
     try:
         from scraper import mixing_model_b as _v5b
         _v5b_result = _v5b.predict_b(
@@ -555,6 +578,7 @@ def compute_score(
         )
         if isinstance(_v5b_result, dict):
             v5b_score = _v5b_result['score']
+            v5b_validated = bool(_v5b_result.get('validated'))
     except Exception as e:
         print(f'Warning: V5B (v5b_score / Outlook) failed — {e}')
 
@@ -566,12 +590,20 @@ def compute_score(
     composite_risk:   float | None = None
     signal_agreement: float | None = None
     meta_score:       float | None = None
+    decision_suppressed = quality['status'] != 'valid' or not v5b_validated
+    suppression_reasons = []
+    if quality['status'] != 'valid':
+        suppression_reasons.append(f"data_quality_{quality['status']}")
+    if not v5b_validated:
+        suppression_reasons.append('v5b_not_better_than_baseline')
     if v5b_score is not None and final is not None:
         _mc = float(final)
         buy  = _mc <  35 and v5b_score <  20
         sell = _mc >= 65 and v5b_score >= 45
         hold = _mc >= 65 and v5b_score <  45
         market_regime = 'Buy' if buy else 'Sell' if sell else 'Hold' if hold else 'Wait'
+        if decision_suppressed:
+            market_regime = 'Unavailable' if quality['status'] == 'invalid' else 'Wait'
         # Composite risk = √(Market Context × Outlook) — display gauge only, not used in market_regime.
         composite_risk   = round(math.sqrt(max(0.0, _mc) * max(0.0, v5b_score)), 1)
         signal_agreement = round(1.0 - abs(_mc - v5b_score) / 100.0, 2)
@@ -585,6 +617,8 @@ def compute_score(
         'w_bot':              round(w_bot, 3),
         'w_neutral':          round(w_neutral, 3),
         'w_top':              round(w_top, 3),
+        'phase_method':       'heuristic_hmm_cycle_blend',
+        'phase_probabilistic': False,
         'top_signal':         top_signal,
         'bot_signal':         bot_signal,
         'onchain_avg':        oc_avg,
@@ -608,7 +642,12 @@ def compute_score(
         'v5_confidence':      v5_confidence,
         'v5_shap_top5':       v5_shap_top5,
         'v5b_score':          v5b_score,
+        'v5b_validated':      v5b_validated,
         'market_regime':      market_regime,
+        'score_status':       quality['status'],
+        'basket_coverage':    quality['baskets'],
+        'decision_suppressed': decision_suppressed,
+        'decision_suppression_reason': ','.join(suppression_reasons) or None,
         'composite_risk':     composite_risk,
         'signal_agreement':   signal_agreement,
         'meta_score':         meta_score,

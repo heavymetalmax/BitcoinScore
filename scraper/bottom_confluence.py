@@ -28,6 +28,7 @@ CONFIRMED_NEUTRAL_DATES = ['2019-06-01', '2021-04-14', '2023-06-01', '2025-06-01
 # Metrics validated as reliable bottom indicators (asopr and rhodl_ratio excluded —
 # too much overlap between phases).
 CONFLUENCE_METRICS = ['nupl', 'mvrv_z_score', 'cvdd_ratio', 'mayer_multiple', 'fear_greed', 'cipherb_weekly']
+MIN_CONFLUENCE_METRICS = 4
 
 CACHE_PATH = 'data/bottom_confluence_calibration.json'
 
@@ -128,6 +129,7 @@ def compute_bottom_confluence(normalized_scores: dict, cal: dict | None = None) 
         p for m in CONFLUENCE_METRICS
         if (p := _metric_prob(m, normalized_scores.get(m), cal)) is not None
     ]
-    if not probs:
+    if len(probs) < MIN_CONFLUENCE_METRICS:
         return None
-    return round(sum(probs) / len(probs) * 100)
+    coverage = len(probs) / len(CONFLUENCE_METRICS)
+    return round(sum(probs) / len(probs) * coverage * 100)

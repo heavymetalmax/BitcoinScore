@@ -999,8 +999,8 @@
           <div>
             <div style="font-size: 11px; font-weight: 600; letter-spacing: 0.08em; color: var(--muted); text-transform: uppercase; margin-bottom: 12px;"><span class="en">How to read this</span><span class="ua">Як читати</span></div>
             <div style="font-size: 13px; color: var(--muted2); line-height: 1.6;">
-              <span class="en"><strong>Regime</strong> is the actionable signal: Buy / Sell / Hold / Wait. It combines Outlook (primary) and Cycle Context (filter). <strong>Outlook</strong> is the expected max drawdown over 365 days — below 20% is the entry zone, 45%+ is the exit zone. <strong>Cycle Context</strong> is a V3 interpretability layer showing where we are in the Bitcoin cycle (0 = bottom, 100 = peak); it prevents false exits during mid-bull rallies but is not a standalone trading signal.</span>
-              <span class="ua"><strong>Режим</strong> — це actionable сигнал: Buy / Sell / Hold / Wait. Поєднує Прогноз (головний) і Контекст циклу (фільтр). <strong>Прогноз</strong> — очікуваний максимальний drawdown за 365 днів: нижче 20% — зона входу, 45%+ — зона виходу. <strong>Контекст циклу</strong> (V3) показує де ми у Bitcoin-циклі (0 = дно, 100 = пік); запобігає передчасним продажам у середині бичачого ринку, але не є самостійним торговим сигналом.</span>
+              <span class="en"><strong>Regime</strong> is actionable only when model validation and metric coverage pass. <strong>Outlook</strong> estimates 365-day drawdown; <strong>Cycle Context</strong> explains market structure. When validation fails, the dashboard shows Wait or Unavailable instead of Buy/Sell.</span>
+              <span class="ua"><strong>Режим</strong> придатний для дії лише після успішної перевірки моделі та повноти метрик. <strong>Прогноз</strong> оцінює 365-денний drawdown, а <strong>Контекст циклу</strong> пояснює структуру ринку. Якщо перевірку не пройдено, панель показує Чекати або Недоступно замість Купувати/Продавати.</span>
             </div>
           </div>
           <div style="font-size:9px; font-weight:700; color:var(--accent); text-transform:uppercase; text-align:right;"><span class="en">Click to flip</span><span class="ua">Назад</span></div>
@@ -2255,12 +2255,14 @@ async function loadData() {
       'Sell': { bg:'#EF444418', color:'#EF4444', border:'#EF444440' },
       'Hold': { bg:'#F59E0B18', color:'#F59E0B', border:'#F59E0B40' },
       'Wait': { bg:'#6366F118', color:'#6366F1', border:'#6366F140' },
+      'Unavailable': { bg:'#64748B18', color:'#64748B', border:'#64748B40' },
     };
     const REGIME_LABELS = {
       'Buy':  { en: 'Buy',  ua: 'Купувати' },
       'Sell': { en: 'Sell', ua: 'Продавати' },
       'Hold': { en: 'Hold', ua: 'Тримати' },
       'Wait': { en: 'Wait', ua: 'Чекати' },
+      'Unavailable': { en: 'Unavailable', ua: 'Недоступно' },
     };
     const flagEl = document.getElementById('sig-flag');
     if (flagEl && regime && REGIME_STYLES[regime]) {
@@ -2334,7 +2336,11 @@ async function loadData() {
         ua: `Прогноз: ${v5b != null ? v5b.toFixed(1) + '%' : '—'} очікуваний drawdown — вище порогу входу 20%. Вхід ще не підтверджений. Залишатись у кеші поки Прогноз не впаде нижче 20%.`
       }
     };
-    const expl   = REGIME_EXPLAIN[regime] || (sig && sig.flag ? { en: '', ua: '' } : null);
+    const suppressedExplain = data.decision_suppressed ? {
+      en: `Decision is suppressed: ${data.decision_suppression_reason || 'validation or data-quality gate failed'}. Outlook remains diagnostic only.`,
+      ua: `Рішення заблоковано: ${data.decision_suppression_reason || 'не пройдено перевірку моделі або якості даних'}. Прогноз показано лише для діагностики.`
+    } : null;
+    const expl   = suppressedExplain || REGIME_EXPLAIN[regime] || (sig && sig.flag ? { en: '', ua: '' } : null);
     const explEl = document.getElementById('sig-explain');
     if (expl && explEl) {
       explEl.innerHTML = `<span class="en">${expl.en}</span><span class="ua">${expl.ua}</span>`;

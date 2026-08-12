@@ -1,151 +1,228 @@
 #!/usr/bin/env python3
-"""Train V5B: Forward Risk Model.
+"""Train V5B with purged walk-forward validation.
 
-Input:   data/training_features_b.json  (built by build_v5b_labels.py)
-Output:  data/v5b_model.pkl
-
-V5B answers a different question from V3/V5A:
-  NOT: "Where are we in the cycle?" (cycle position)
-  BUT: "How risky is it to hold BTC right now?" (future downside)
-
-Label: max_drawdown_365d — maximum price drop (%) over the next 365 days.
-  0%   = perfect buy zone (price only goes up)
-  75%+ = major sell zone (severe bear market follows)
-
-Uses the same 49 features as V5A so the feature pipeline is unchanged.
+The 365-day forward label makes adjacent rows overlap heavily. Every validation
+fold therefore removes the 365 days immediately preceding its test window from
+training. Metrics are compared with constant mean/median baselines, and the
+final production model is fit only after out-of-sample diagnostics complete.
 """
+import datetime
+import hashlib
 import json
-import math
+import os
 import pickle
-import numpy as np
+import sys
 from pathlib import Path
 
-import sys, os
+import numpy as np
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from tools.train_mixing_model import FEATURE_COLS, build_metric_history
+
+PURGE_DAYS = 365
+FOLD_START_FRACTIONS = (0.55, 0.70, 0.85)
+
+ABLATION_GROUPS = {
+    'without_price_position': {
+        'pct_btc_price', 'price_vs_qc', 'price_vs_dy', 'price_vs_all',
+        'ath_divergence', 'ath_v3_divergence',
+    },
+    'without_phase_context': {
+        'w_top', 'w_bot', 'v3_score', 'phase_is_top', 'phase_is_bot',
+        'delta_w_bot_90d', 'delta_w_top_30d', 'delta_v3_30d',
+        'w_top_vs_peak', 'v3_vs_peak', 'ath_divergence', 'ath_v3_divergence',
+    },
+}
 
 
 def load_data():
     path = Path('data/training_features_b.json')
     rows = json.loads(path.read_text())
-    X, y, dates = [], [], []
+    packed = []
     for row in rows:
-        lb = row.get('label_b')
-        if lb is None:
+        if row.get('label_b') is None:
             continue
-        feat = [
-            float(row[col]) if row.get(col) is not None else float('nan')
-            for col in FEATURE_COLS
-        ]
-        X.append(feat)
-        y.append(float(lb))
-        dates.append(row['date'])
-    return np.array(X, dtype=np.float32), np.array(y, dtype=np.float32), dates
+        packed.append((
+            row['date'][:10],
+            [float(row[c]) if row.get(c) is not None else float('nan') for c in FEATURE_COLS],
+            float(row['label_b']),
+            row,
+        ))
+    packed.sort(key=lambda x: x[0])
+    dates = [x[0] for x in packed]
+    X = np.array([x[1] for x in packed], dtype=np.float32)
+    y = np.array([x[2] for x in packed], dtype=np.float32)
+    return X, y, dates, [x[3] for x in packed], rows
 
 
-def main():
-    print('Loading features...')
-    X, y, dates = load_data()
-    print(f'  {len(X)} examples  ×  {X.shape[1]} features  (V5B)')
-    print(f'  Label range: {y.min():.1f}% – {y.max():.1f}%  mean={y.mean():.1f}%')
-
-    split = int(len(X) * 0.80)
-    X_tr, X_te = X[:split], X[split:]
-    y_tr, y_te = y[:split], y[split:]
-    dates_te = dates[split:]
-
-    col_medians = np.nanmedian(X_tr, axis=0)
-    col_medians = np.where(np.isnan(col_medians), 0.5, col_medians)
-
-    def impute(arr):
-        out = arr.copy()
-        for j in range(out.shape[1]):
-            mask = np.isnan(out[:, j])
-            out[mask, j] = col_medians[j]
-        return out
-
-    X_tr = impute(X_tr)
-    X_te = impute(X_te)
-
+def make_model():
     try:
         import xgboost as xgb
-        model = xgb.XGBRegressor(
+        return xgb.XGBRegressor(
             n_estimators=400, max_depth=5, learning_rate=0.04,
             subsample=0.8, colsample_bytree=0.75, min_child_weight=8,
             reg_lambda=2.0, random_state=42, tree_method='hist', verbosity=0,
         )
     except ImportError:
         from sklearn.ensemble import GradientBoostingRegressor
-        model = GradientBoostingRegressor(
+        return GradientBoostingRegressor(
             n_estimators=300, max_depth=4, learning_rate=0.05,
             subsample=0.8, random_state=42,
         )
 
-    model.fit(X_tr, y_tr)
 
-    pred_te = model.predict(X_te)
-    residuals = np.abs(pred_te - y_te)
-    mae  = float(residuals.mean())
-    rmse = float(np.sqrt((residuals ** 2).mean()))
+def fit_imputer(X_train):
+    medians = np.nanmedian(X_train, axis=0)
+    return np.where(np.isnan(medians), 0.5, medians)
 
-    # Extreme: dates where actual drawdown > 50% (real sell zones) or < 5% (real buy zones)
-    mask_ext = (y_te > 50) | (y_te < 5)
-    ext_mae = float(residuals[mask_ext].mean()) if mask_ext.any() else float('nan')
 
-    print(f'\n  Test MAE={mae:.2f}%  RMSE={rmse:.2f}%  Extreme MAE={ext_mae:.2f}%')
+def impute(X, medians):
+    return np.where(np.isnan(X), medians, X)
 
-    # Feature importance (top 10)
-    if hasattr(model, 'feature_importances_'):
-        imp = list(zip(FEATURE_COLS, model.feature_importances_))
-        imp.sort(key=lambda x: -x[1])
-        print('\n  Top-10 feature importance:')
-        for name, val in imp[:10]:
-            print(f'    {val:.4f}  {name}')
 
-    # Validate on key cycle dates
-    print('\n  Key date validation (V5B = expected max drawdown %):')
-    rows_all = json.loads(Path('data/training_features_b.json').read_text())
-    by_date = {r['date'][:10]: r for r in rows_all}
-    check = [
-        ('2018-12-15', 'Dec 2018 bottom'),
-        ('2019-06-26', 'Jun 2019 local top'),
-        ('2020-03-12', 'COVID crash'),
-        ('2021-04-14', 'Apr 2021 top'),
-        ('2021-11-10', 'Nov 2021 ATH'),
-        ('2022-06-18', 'Jun 2022 capitulation'),
-        ('2022-11-21', 'FTX bottom'),
-        ('2023-10-23', 'pre-rally 2024'),
-        ('2024-11-15', 'pre-ATH 2025'),
-    ]
-    for date, label in check:
-        row = by_date.get(date)
-        if row is None:
-            print(f'  {date}  {label:26s}  NO DATA')
-            continue
-        feat = np.array([[
-            float(row[col]) if row.get(col) is not None else float('nan')
-            for col in FEATURE_COLS
-        ]], dtype=np.float32)
-        for j in range(feat.shape[1]):
-            if np.isnan(feat[0, j]):
-                feat[0, j] = col_medians[j]
-        pred = float(model.predict(feat)[0])
-        actual = row.get('label_b')
-        print(f'  {date}  {label:26s}  actual={actual:.1f}%  V5B={pred:.1f}%')
-
-    # Save model
-    out = {
-        'model':        model,
-        'feature_cols': FEATURE_COLS,
-        'col_medians':  col_medians,
-        'metric_history': build_metric_history(rows_all),
-        'version':      'v5b.1',
-        'label':        'max_drawdown_365d',
+def regression_metrics(y_true, pred, train_y):
+    residuals = np.abs(pred - y_true)
+    mean_pred = np.full_like(y_true, float(np.mean(train_y)))
+    median_pred = np.full_like(y_true, float(np.median(train_y)))
+    extreme = (y_true > 50) | (y_true < 5)
+    return {
+        'mae': round(float(residuals.mean()), 4),
+        'rmse': round(float(np.sqrt(np.mean((pred - y_true) ** 2))), 4),
+        'extreme_mae': round(float(residuals[extreme].mean()), 4) if extreme.any() else None,
+        'mean_baseline_mae': round(float(np.mean(np.abs(mean_pred - y_true))), 4),
+        'median_baseline_mae': round(float(np.mean(np.abs(median_pred - y_true))), 4),
     }
-    out_path = Path('data/v5b_model.pkl')
-    with open(out_path, 'wb') as f:
-        pickle.dump(out, f)
-    print(f'\n  Saved → {out_path}')
+
+
+def make_purged_folds(dates):
+    n = len(dates)
+    starts = [int(n * f) for f in FOLD_START_FRACTIONS]
+    ends = starts[1:] + [n]
+    folds = []
+    for fold_no, (start, end) in enumerate(zip(starts, ends), 1):
+        test_start = datetime.date.fromisoformat(dates[start])
+        train_cutoff = (test_start - datetime.timedelta(days=PURGE_DAYS)).isoformat()
+        train_idx = np.array([i for i, d in enumerate(dates[:start]) if d <= train_cutoff])
+        test_idx = np.arange(start, end)
+        if len(train_idx) < 365 or len(test_idx) == 0:
+            continue
+        folds.append((fold_no, train_idx, test_idx, train_cutoff))
+    return folds
+
+
+def walk_forward(X, y, dates, feature_cols):
+    selected = [FEATURE_COLS.index(c) for c in feature_cols]
+    oof = []
+    reports = []
+    for fold_no, train_idx, test_idx, cutoff in make_purged_folds(dates):
+        X_tr, X_te = X[train_idx][:, selected], X[test_idx][:, selected]
+        y_tr, y_te = y[train_idx], y[test_idx]
+        medians = fit_imputer(X_tr)
+        model = make_model()
+        model.fit(impute(X_tr, medians), y_tr)
+        pred = model.predict(impute(X_te, medians))
+        metrics = regression_metrics(y_te, pred, y_tr)
+        reports.append({
+            'fold': fold_no,
+            'train_start': dates[int(train_idx[0])],
+            'train_end': dates[int(train_idx[-1])],
+            'purge_cutoff': cutoff,
+            'test_start': dates[int(test_idx[0])],
+            'test_end': dates[int(test_idx[-1])],
+            'train_rows': int(len(train_idx)),
+            'test_rows': int(len(test_idx)),
+            **metrics,
+        })
+        oof.extend((dates[int(i)], float(y[int(i)]), float(p)) for i, p in zip(test_idx, pred))
+    return reports, oof
+
+
+def aggregate(reports):
+    if not reports:
+        return {}
+    keys = ('mae', 'rmse', 'mean_baseline_mae', 'median_baseline_mae')
+    return {k: round(float(np.mean([r[k] for r in reports])), 4) for k in keys}
+
+
+def decision_diagnostics(oof, rows_by_date, context_buy=35, outlook_buy=20,
+                         context_sell=65, outlook_sell=45):
+    counts = {'buy_signals': 0, 'buy_correct': 0, 'sell_signals': 0, 'sell_correct': 0}
+    for date, actual, pred in oof:
+        context = rows_by_date.get(date, {}).get('v3_score')
+        if context is None:
+            continue
+        if context < context_buy and pred < outlook_buy:
+            counts['buy_signals'] += 1
+            counts['buy_correct'] += int(actual < outlook_buy)
+        if context >= context_sell and pred >= outlook_sell:
+            counts['sell_signals'] += 1
+            counts['sell_correct'] += int(actual >= outlook_sell)
+    counts['buy_precision'] = round(counts['buy_correct'] / counts['buy_signals'], 4) if counts['buy_signals'] else None
+    counts['sell_precision'] = round(counts['sell_correct'] / counts['sell_signals'], 4) if counts['sell_signals'] else None
+    return counts
+
+
+def main():
+    X, y, dates, labeled_rows, all_rows = load_data()
+    if len(X) < 1000:
+        raise RuntimeError(f'Insufficient fully labeled rows: {len(X)}')
+    print(f'V5B: {len(X)} complete labels × {X.shape[1]} features ({dates[0]} → {dates[-1]})')
+
+    reports, oof = walk_forward(X, y, dates, FEATURE_COLS)
+    summary = aggregate(reports)
+    if not reports:
+        raise RuntimeError('No valid purged walk-forward folds')
+    for r in reports:
+        print(f"  fold {r['fold']}: train≤{r['train_end']} test={r['test_start']}→{r['test_end']} "
+              f"MAE={r['mae']:.2f} mean-baseline={r['mean_baseline_mae']:.2f}")
+
+    ablations = {}
+    for name, excluded in ABLATION_GROUPS.items():
+        cols = [c for c in FEATURE_COLS if c not in excluded]
+        ablation_reports, _ = walk_forward(X, y, dates, cols)
+        ablations[name] = {'features': len(cols), **aggregate(ablation_reports)}
+
+    by_date = {r['date'][:10]: r for r in labeled_rows}
+    decisions = decision_diagnostics(oof, by_date)
+    baseline_mae = min(summary['mean_baseline_mae'], summary['median_baseline_mae'])
+    passes_baseline = summary['mae'] < baseline_mae
+    validation = {
+        'schema_version': 2,
+        'label': 'max_drawdown_365d',
+        'purge_days': PURGE_DAYS,
+        'folds': reports,
+        'aggregate': summary,
+        'passes_baseline': passes_baseline,
+        'ablations': ablations,
+        'fixed_threshold_oos': decisions,
+        'oof_rows': [{'date': d, 'actual': round(a, 3), 'predicted': round(p, 3)} for d, a, p in oof],
+    }
+    Path('data/v5b_validation.json').write_text(json.dumps(validation, indent=2))
+
+    medians = fit_imputer(X)
+    model = make_model()
+    model.fit(impute(X, medians), y)
+    source_bytes = Path('data/training_features_b.json').read_bytes()
+    package = {
+        'model': model,
+        'feature_cols': FEATURE_COLS,
+        'col_medians': medians,
+        'metric_history': build_metric_history(all_rows),
+        'version': 'v5b.2-purged-walk-forward',
+        'label': 'max_drawdown_365d',
+        'metadata': {
+            'trained_at': datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            'train_start': dates[0], 'train_end': dates[-1], 'train_rows': len(dates),
+            'training_sha256': hashlib.sha256(source_bytes).hexdigest(),
+            'validation': summary, 'purge_days': PURGE_DAYS,
+            'passes_baseline': passes_baseline,
+            'version': 'v5b.2-purged-walk-forward',
+        },
+    }
+    with open('data/v5b_model.pkl', 'wb') as f:
+        pickle.dump(package, f)
+    print(f"OOS aggregate: MAE={summary['mae']:.2f}; mean baseline={summary['mean_baseline_mae']:.2f}")
+    print('Saved data/v5b_validation.json and data/v5b_model.pkl')
 
 
 if __name__ == '__main__':

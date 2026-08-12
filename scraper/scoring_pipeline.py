@@ -195,9 +195,12 @@ def run_scoring_pipeline(p, build_metric_history_fn=None):
         p['v3_tiz_calibration']   = scores['tiz_calibration']
         p['v5_score']             = scores.get('v5_score')
         p['v5b_score']            = scores.get('v5b_score')
+        p['v5b_validated']        = scores.get('v5b_validated', False)
         p['meta_score']           = scores.get('meta_score')
         p['signal_agreement']     = scores.get('signal_agreement')
         p['market_regime']        = scores.get('market_regime')
+        p['decision_suppressed']  = scores.get('decision_suppressed', True)
+        p['decision_suppression_reason'] = scores.get('decision_suppression_reason')
         p['composite_risk']       = scores.get('composite_risk')
         p['v3_oc_coherence']      = scores['oc_coherence']
         p['wave_resonance']        = _wr
@@ -206,6 +209,8 @@ def run_scoring_pipeline(p, build_metric_history_fn=None):
             'total_metrics':  len(_EXPECTED_SCORING_METRICS),
             'quality_pct':    round(len(_active) / len(_EXPECTED_SCORING_METRICS) * 100),
             'missing_metrics': _missing,
+            'status': scores.get('score_status', 'invalid'),
+            'basket_coverage': scores.get('basket_coverage', {}),
         }
         p['final_score']   = scores['final_score']
         p['signal']        = v3_sig
@@ -219,6 +224,8 @@ def run_scoring_pipeline(p, build_metric_history_fn=None):
             'w_bot':      scores['w_bot'],
             'w_neutral':  scores['w_neutral'],
             'w_top':      scores['w_top'],
+            'method':     scores.get('phase_method'),
+            'probabilistic': scores.get('phase_probabilistic', False),
         }
 
         # ── Build 3-layer structured sections ─────────────────────────────────

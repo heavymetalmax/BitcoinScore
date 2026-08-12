@@ -8,8 +8,9 @@ Output: expected max drawdown % (0-80+), where:
   60+   = danger zone (major bear market followed in similar conditions)
 
 Uses the same 49-feature vector and _get_lookback() infrastructure as mixing_model.py.
-The model (v5b_model.pkl) was trained on max_drawdown_365d labels — fully independent
-of V3 and V5A cycle-position scores.
+The model (v5b_model.pkl) was trained on max_drawdown_365d labels. Its feature
+set includes V3 phase context, so it is a separate prediction target but not an
+independent signal.
 """
 import datetime
 import math
@@ -31,10 +32,11 @@ _MODEL_B_PATH = 'data/v5b_model.pkl'
 _MODEL_B:    object | None = None
 _FEAT_COLS_B: list | None = None
 _MEDIANS_B:  np.ndarray | None = None
+_METADATA_B: dict = {}
 
 
 def _load_b() -> bool:
-    global _MODEL_B, _FEAT_COLS_B, _MEDIANS_B
+    global _MODEL_B, _FEAT_COLS_B, _MEDIANS_B, _METADATA_B
     if _MODEL_B is not None:
         return True
     path = Path(_MODEL_B_PATH)
@@ -46,6 +48,7 @@ def _load_b() -> bool:
         _MODEL_B     = p['model']
         _FEAT_COLS_B = p['feature_cols']
         _MEDIANS_B   = p.get('col_medians')
+        _METADATA_B  = p.get('metadata', {})
         # V5A must be loaded so _HIST (metric history) is available for percentile ranks
         _load()
         return True
@@ -189,4 +192,9 @@ def predict_b(
     except Exception:
         return None
 
-    return {'score': score, 'label': 'max_drawdown_365d'}
+    return {
+        'score': score,
+        'label': 'max_drawdown_365d',
+        'validated': bool(_METADATA_B.get('passes_baseline', False)),
+        'model_version': _METADATA_B.get('version', 'unknown'),
+    }

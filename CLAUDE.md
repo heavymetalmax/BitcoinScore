@@ -67,12 +67,12 @@ python -m scraper.scraper
 **`scraper/score.py` (V4 Market Context — authoritative)** pipeline:
 
 1. Normalize raw metrics to 0–100 via `scraper/normalizer.py`.
-2. Build continuous BOTTOM / NEUTRAL / TOP weights from bottom confluence, the HMM top probability, and the halving-cycle prior.
+2. Build continuous BOTTOM / NEUTRAL / TOP heuristic weights from bottom confluence, HMM state similarity, and the halving-cycle prior. These are not calibrated probabilities.
 3. Evaluate dynamic utility coefficients via `scraper/utility_evaluator.py`.
 4. Compute four utility-weighted baskets: OC (on-chain), MS (market sentiment), MC (macro), and CP (cycle position).
 5. Build structural context from OC + CP + MC, then apply TiZ and coherence dampening.
 6. Build vectorial context from MS and top-phase divergence, then synthesize the authoritative `final_score`.
-7. Apply the DXY modifier and Pi Cycle top override; V5A/V5B and `market_regime` are downstream outputs.
+7. Apply the DXY modifier and Pi Cycle top override; V5A/V5B are downstream outputs. `market_regime` is actionable only when V5B beats its purged walk-forward baseline and basket data quorums pass.
 
 `onchain_avg` and `tech_avg` remain informational compatibility fields. The four baskets and structural/vectorial synthesis feed `final_score`.
 
@@ -88,7 +88,9 @@ python -m scraper.scraper
 | `v3_phase` | BOTTOM / NEUTRAL / TOP |
 | `v3_utilities` | Per-metric relevance weights (0–1) — NOT risk scores |
 | `v3_normalized_scores` | Per-metric V3 risk scores (0–100) — shown in UI |
-| `v3_w_bot` / `v3_w_top` | Phase mixture probabilities |
+| `v3_w_bot` / `v3_w_top` | Heuristic phase mixture weights (not calibrated probabilities) |
+| `v5b_validated` | Whether purged walk-forward MAE beats the naive baseline |
+| `decision_suppressed` | True when validation or data-quality gates block a decision |
 
 ### HMM Phase Model
 

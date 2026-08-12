@@ -8,109 +8,128 @@
       "date": "2017-08-17",
       "price": 4285.08,
       "type": "BOTTOM",
-      "score": 76
+      "score": 76,
+      "confirmed_at": "2017-10-20"
     },
     {
       "date": "2017-12-16",
       "price": 19102.66,
       "type": "TOP",
-      "score": 91
+      "score": 91,
+      "confirmed_at": "2018-01-16"
     },
     {
       "date": "2018-02-05",
       "price": 6939.99,
       "type": "BOTTOM",
-      "score": 48
+      "score": 48,
+      "confirmed_at": "2018-02-15"
     },
     {
       "date": "2018-03-04",
       "price": 11515.0,
       "type": "TOP",
-      "score": 67
+      "score": 67,
+      "confirmed_at": "2018-03-30"
     },
     {
       "date": "2018-04-06",
       "price": 6601.39,
       "type": "BOTTOM",
-      "score": 38
+      "score": 38,
+      "confirmed_at": "2018-04-24"
     },
     {
       "date": "2018-05-05",
       "price": 9864.0,
       "type": "TOP",
-      "score": 62
+      "score": 62,
+      "confirmed_at": "2018-06-28"
     },
     {
       "date": "2018-06-28",
       "price": 5853.98,
       "type": "BOTTOM",
-      "score": 33
+      "score": 33,
+      "confirmed_at": "2018-07-24"
     },
     {
       "date": "2018-07-24",
       "price": 8397.24,
       "type": "TOP",
-      "score": 55
+      "score": 55,
+      "confirmed_at": "2018-11-19"
     },
     {
       "date": "2018-12-15",
       "price": 3211.72,
       "type": "BOTTOM",
-      "score": 8
+      "score": 8,
+      "confirmed_at": "2019-04-02"
     },
     {
       "date": "2019-06-26",
       "price": 13093.8,
       "type": "TOP",
-      "score": 65
+      "score": 65,
+      "confirmed_at": "2019-10-06"
     },
     {
       "date": "2019-12-17",
       "price": 6623.82,
       "type": "BOTTOM",
-      "score": 26
+      "score": 26,
+      "confirmed_at": "2020-01-28"
     },
     {
       "date": "2020-02-14",
       "price": 10344.36,
       "type": "TOP",
-      "score": 57
+      "score": 57,
+      "confirmed_at": "2020-03-12"
     },
     {
       "date": "2020-03-12",
       "price": 4800.0,
       "type": "BOTTOM",
-      "score": 22
+      "score": 22,
+      "confirmed_at": "2020-03-24"
     },
     {
       "date": "2021-04-13",
       "price": 63575.0,
       "type": "TOP",
-      "score": 84
+      "score": 84,
+      "confirmed_at": "2021-05-19"
     },
     {
       "date": "2021-07-20",
       "price": 29790.35,
       "type": "BOTTOM",
-      "score": 39
+      "score": 39,
+      "confirmed_at": "2021-07-30"
     },
     {
       "date": "2021-11-08",
       "price": 67525.83,
       "type": "TOP",
-      "score": 69
+      "score": 69,
+      "confirmed_at": "2022-01-21"
     },
     {
       "date": "2022-11-21",
       "price": 15781.29,
       "type": "BOTTOM",
-      "score": 11
+      "score": 11,
+      "confirmed_at": "2023-01-20"
     },
     {
       "date": "2025-10-06",
       "price": 124658.54,
       "type": "TOP",
-      "score": 83
+      "score": 83,
+      "confirmed_at": "2026-02-04"
     }
-  ]
+  ],
+  "confirmation_semantics": "First later daily close that moved min_move_pct in the opposite direction; null means the extreme was not yet causally confirmed."
 }

@@ -17,12 +17,16 @@ import datetime
 import json
 from pathlib import Path
 
+HORIZON_DAYS = 365
+MIN_COVERAGE_DAYS = 300
+
 
 def max_drawdown_365(date_str: str, prices: dict[str, float]) -> float | None:
     """Compute max drawdown (%) from date_str over the next 365 calendar days.
 
-    Returns None if fewer than 30 future price points are available
-    (incomplete window — too close to the present to have a reliable label).
+    Returns None unless the complete 365-calendar-day horizon has elapsed and
+    at least MIN_COVERAGE_DAYS contain prices. This prevents recent partial
+    windows from being mislabeled as unusually safe.
     """
     try:
         d0 = datetime.date.fromisoformat(date_str[:10])
@@ -32,14 +36,18 @@ def max_drawdown_365(date_str: str, prices: dict[str, float]) -> float | None:
     if p0 is None or p0 <= 0:
         return None
 
+    horizon_end = d0 + datetime.timedelta(days=HORIZON_DAYS)
+    if not prices or datetime.date.fromisoformat(max(prices)) < horizon_end:
+        return None
+
     future = []
-    for i in range(1, 366):
+    for i in range(1, HORIZON_DAYS + 1):
         d = (d0 + datetime.timedelta(days=i)).isoformat()
         p = prices.get(d)
         if p is not None:
             future.append(p)
 
-    if len(future) < 30:
+    if len(future) < MIN_COVERAGE_DAYS:
         return None
 
     min_p = min(future)
@@ -76,7 +84,7 @@ def main():
     out_path = Path('data/training_features_b.json')
     out_path.write_text(json.dumps(rows, indent=None, separators=(',', ':')))
     print(f'  Labeled:  {labeled}')
-    print(f'  Skipped:  {skipped}  (< 30 future prices — excluded from training)')
+    print(f'  Skipped:  {skipped}  (incomplete 365d horizon/coverage — excluded from training)')
     print(f'  Written → {out_path}')
 
     # Quick validation on key cycle dates
