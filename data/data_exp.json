@@ -1,7 +1,7 @@
 {
-  "timestamp": "2026-08-12T09:01:25Z",
+  "timestamp": "2026-08-12T09:08:12Z",
   "date": "2026-08-12",
-  "btc_price": 63786.5,
+  "btc_price": 63827.12,
   "btc_dominance": 58.59,
   "fear_greed": 38.6,
   "fear_greed_label": "CMC",
@@ -23,37 +23,37 @@
     "nupl": {
       "value": 15.0183,
       "source": "BMP",
-      "updated": "2026-08-12T09:01:25Z"
+      "updated": "2026-08-12T09:08:12Z"
     },
     "mvrv": {
       "value": 0.3144,
       "source": "BMP",
-      "updated": "2026-08-12T09:01:25Z"
+      "updated": "2026-08-12T09:08:12Z"
     },
     "m2": {
       "value": 5.75,
       "source": "MacroMicro",
-      "updated": "2026-08-12T09:01:25Z"
+      "updated": "2026-08-12T09:08:12Z"
     },
     "yield_curve": {
       "value": 0.48,
       "source": "BMP",
-      "updated": "2026-08-12T09:01:25Z"
+      "updated": "2026-08-12T09:08:12Z"
     },
     "cvdd_ratio": {
       "value": 1.2999,
       "source": "BMP",
-      "updated": "2026-08-12T09:01:25Z"
+      "updated": "2026-08-12T09:08:12Z"
     },
     "rhodl_ratio": {
       "value": 827.6391,
       "source": "BMP",
-      "updated": "2026-08-12T09:01:25Z"
+      "updated": "2026-08-12T09:08:12Z"
     },
     "asopr": {
       "value": 1.0023,
       "source": "BMP",
-      "updated": "2026-08-12T09:01:25Z"
+      "updated": "2026-08-12T09:08:12Z"
     },
     "etf_flows": {
       "value": {
@@ -63,12 +63,12 @@
         "date": "2026-08-12"
       },
       "source": "Farside",
-      "updated": "2026-08-12T09:01:25Z"
+      "updated": "2026-08-12T09:08:12Z"
     },
     "dxy": {
       "value": 119.0649,
       "source": "FRED",
-      "updated": "2026-08-12T09:01:25Z"
+      "updated": "2026-08-12T09:08:12Z"
     },
     "fear_greed": {
       "value": 38.6,
@@ -76,7 +76,7 @@
       "avg_7d": 38.6,
       "label": "CMC",
       "source": "CMC",
-      "updated": "2026-08-12T09:01:25Z"
+      "updated": "2026-08-12T09:08:12Z"
     },
     "cipherb": {
       "value": {
@@ -97,7 +97,7 @@
         "daily_double_bullish_div": false
       },
       "source": "Local",
-      "updated": "2026-08-12T09:01:26Z"
+      "updated": "2026-08-12T09:08:12Z"
     },
     "mayer_multiple": {
       "value": {
@@ -107,7 +107,7 @@
         "score": 26
       },
       "source": "Kraken",
-      "updated": "2026-08-12T09:01:26Z"
+      "updated": "2026-08-12T09:08:13Z"
     },
     "funding_rate": {
       "value": {
@@ -118,12 +118,12 @@
         "source": "Bybit+Binance"
       },
       "source": "Bybit+Binance",
-      "updated": "2026-08-12T09:01:27Z"
+      "updated": "2026-08-12T09:08:13Z"
     },
     "halving_cycle_day": {
       "value": 845,
       "source": "Local",
-      "updated": "2026-08-12T09:01:27Z"
+      "updated": "2026-08-12T09:08:13Z"
     },
     "pi_cycle": {
       "value": {
@@ -134,22 +134,22 @@
         "cross": false
       },
       "source": "Kraken",
-      "updated": "2026-08-12T09:01:27Z"
+      "updated": "2026-08-12T09:08:14Z"
     },
     "puell_multiple": {
       "value": 0.6691,
       "source": "BMP",
-      "updated": "2026-08-12T09:01:37Z"
+      "updated": "2026-08-12T09:08:23Z"
     },
     "lth_supply_pct": {
       "value": 16628358.7661,
       "source": "BMP",
-      "updated": "2026-08-12T09:01:47Z"
+      "updated": "2026-08-12T09:08:33Z"
     },
     "m2_mom": {
       "value": 5.75,
       "source": "MacroMicro",
-      "updated": "2026-08-12T09:01:47Z"
+      "updated": "2026-08-12T09:08:33Z"
     }
   },
   "m2_mom": 5.75,
@@ -345,6 +345,16 @@
       }
     }
   },
+  "bri_score": 31,
+  "forward_risk": 13.3,
+  "legacy_model": null,
+  "market_context": {
+    "score": 31,
+    "phase": "NEUTRAL",
+    "bottom_weight": 0.548,
+    "neutral_weight": 0.452,
+    "top_weight": 0.0
+  },
   "sp_v2": 31,
   "phase": {
     "phase": "NEUTRAL",
@@ -357,7 +367,7 @@
     "probabilistic": false
   },
   "base": {
-    "btc_price": 63786.5,
+    "btc_price": 63827.12,
     "nupl": {
       "raw": 15.0183,
       "score": 24
