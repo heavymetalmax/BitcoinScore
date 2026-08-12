@@ -6,6 +6,11 @@ This file provides guidance to Claude when working with code in this repository.
 
 **BitcoinScore** is a daily-updated Bitcoin buy risk index (0–100 scale). It collects 10+ on-chain and macro metrics from external APIs and computes a composite score. The output is `data/data.json`, which is served via static HTML dashboards on GitHub Pages.
 
+User-facing naming: **BRI Score** (`final_score`/`bri_score`), **Market Context**
+(legacy `v3_*`), **Forward Risk** (`forward_risk`, legacy `v5b_score`), and
+**Legacy Model** (`legacy_model`, legacy `v5_score`). Do not introduce V3/V5 names
+in new UI or user-facing documentation; versioned fields remain compatibility aliases.
+
 ## Production Setup
 
 The scraper runs daily on a **home Mac Mini server (DietPi, x86_64)** at `dietpi@10.0.1.10`:

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>V5B — Forward Risk Model Backtest (2018–present)</title>
+<title>Forward Risk — Backtest (2018–present)</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
@@ -77,10 +77,10 @@
 </head>
 <body>
 
-<h1>V5B — Forward Risk Model</h1>
+<h1>Forward Risk</h1>
 <div class="subtitle">
   <b>Expected maximum drawdown over the next 365 days</b> — trained on actual Bitcoin price history 2017–2025.<br>
-  V5B answers: <i>"How much can I lose if I buy Bitcoin today?"</i> &nbsp;·&nbsp; 0% = perfect buy zone &nbsp;·&nbsp; 75%+ = major bear market follows
+  Forward Risk asks: <i>"How much can I lose if I buy Bitcoin today?"</i> &nbsp;·&nbsp; Diagnostic only while validation is blocked
 </div>
 
 <div class="stats-row" id="statsRow"></div>
@@ -91,7 +91,7 @@
 </div>
 
 <div class="chart-wrap">
-  <div class="chart-label">V5B Score — Expected Max Drawdown % (next 365 days)</div>
+  <div class="chart-label">Forward Risk — Expected Max Drawdown % (next 365 days)</div>
   <canvas id="v5bChart" height="200"></canvas>
 
   <div class="zone-legend">
@@ -103,7 +103,7 @@
   </div>
 
   <div class="legend">
-    <div class="legend-item"><div class="dot" style="background:#6366f1"></div>V5B predicted drawdown</div>
+    <div class="legend-item"><div class="dot" style="background:#6366f1"></div>Forward Risk estimate</div>
     <div class="legend-item"><div class="dot" style="background:#f59e0b;opacity:0.6"></div>Actual max drawdown (where known)</div>
     <div class="legend-item" style="margin-left:auto; color:#4B5563">· Actual ends ~Jul 2025 (365d lookforward)</div>
   </div>

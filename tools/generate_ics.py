@@ -1,5 +1,5 @@
 """
-Generate web/bitcoin_buy_risk.ics — a subscribable iCal feed of daily index values.
+Generate web/bitcoin_buy_risk.ics — a minimal daily BRI calendar feed.
 
 Each run:
   1. Reads data/data.json for today's scores.
@@ -18,18 +18,6 @@ ROOT = os.path.join(os.path.dirname(__file__), '..')
 DATA_JSON      = os.path.join(ROOT, 'data', 'data.json')
 SCORES_HISTORY = os.path.join(ROOT, 'data', 'history', 'scores.json')
 ICS_OUTPUT     = os.path.join(ROOT, 'web', 'bitcoin_buy_risk.ics')
-
-
-def zone_label(score: int) -> str:
-    if score < 20:
-        return "Capitulation / Bottom"
-    if score < 40:
-        return "Discount / Accumulation"
-    if score < 60:
-        return "Neutral Zone"
-    if score < 75:
-        return "Overheating / Caution"
-    return "Extreme Overheating / Sell"
 
 
 def load_history() -> list:
@@ -123,11 +111,11 @@ def generate_ics(entries: list) -> str:
     lines = [
         'BEGIN:VCALENDAR',
         'VERSION:2.0',
-        'PRODID:-//Bitcoin Buy Risk//EN',
+        'PRODID:-//Bitcoin Buy Risk Index//EN',
         'CALSCALE:GREGORIAN',
         'METHOD:PUBLISH',
-        'X-WR-CALNAME:Bitcoin Buy Risk',
-        'X-WR-CALDESC:Daily Bitcoin Buy Risk Index — bitcoin-buy-risk.ics',
+        'X-WR-CALNAME:BRI',
+        'X-WR-CALDESC:Daily Bitcoin Buy Risk Index',
         'X-WR-TIMEZONE:UTC',
         'REFRESH-INTERVAL;VALUE=DURATION:PT12H',
     ]
@@ -137,18 +125,10 @@ def generate_ics(entries: list) -> str:
         next_date = (datetime.date.fromisoformat(e['date']) + datetime.timedelta(days=1)).strftime('%Y%m%d')
 
         final   = e.get('final_score')
-        oc      = e.get('onchain_score')
-        tech    = e.get('tech_score')
-        price   = e.get('btc_price')
-        ts      = e.get('timestamp', '')
-
         if final is None:
             continue
 
-        summary = f'BBR {final} [C{oc} | T{tech}]'
-        description = zone_label(final)
-        if price:
-            description += f' · BTC ${price:,}'
+        summary = f'BRI {round(float(final))}'
 
         uid = f'{date_str}@bitcoin-buy-risk'
 
@@ -157,7 +137,6 @@ def generate_ics(entries: list) -> str:
             f'DTSTART;VALUE=DATE:{date_str}',
             f'DTEND;VALUE=DATE:{next_date}',
             f'SUMMARY:{ics_escape(summary)}',
-            f'DESCRIPTION:{ics_escape(description)}',
             f'UID:{uid}',
             'END:VEVENT',
         ]

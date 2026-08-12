@@ -7,6 +7,21 @@
 
 ## 1. What It Is
 
+### Public names
+
+User-facing documentation and UI use stable functional names instead of model
+version numbers:
+
+| Public name | Meaning | Compatibility key |
+|---|---|---|
+| **BRI Score** | Authoritative 0–100 Bitcoin Buy Risk Index | `final_score`, formerly called V3/V4 |
+| **Market Context** | Phase and structure behind the BRI Score | `market_context`, legacy `v3_*` fields |
+| **Forward Risk** | Diagnostic 365-day drawdown estimate | `forward_risk`, legacy `v5b_score` |
+| **Legacy Model** | Retained non-actionable experimental model | `legacy_model`, legacy `v5_score` |
+
+Versioned keys remain available so existing consumers do not break, but new UI,
+documentation, and integrations should use the public names above.
+
 BitcoinScore is a daily-updated Bitcoin risk engine with two models and one actionable output:
 
 | Layer | Question answered | Role |

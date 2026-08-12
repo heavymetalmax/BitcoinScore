@@ -213,6 +213,18 @@ def run_scoring_pipeline(p, build_metric_history_fn=None):
             'basket_coverage': scores.get('basket_coverage', {}),
         }
         p['final_score']   = scores['final_score']
+        # Stable, human-readable public names. Versioned keys remain as
+        # compatibility aliases for existing clients and historical files.
+        p['bri_score']      = scores['final_score']
+        p['forward_risk']   = scores.get('v5b_score')
+        p['legacy_model']   = scores.get('v5_score')
+        p['market_context'] = {
+            'score': scores['final_score'],
+            'phase': scores['phase'],
+            'bottom_weight': scores['w_bot'],
+            'neutral_weight': scores['w_neutral'],
+            'top_weight': scores['w_top'],
+        }
         p['signal']        = v3_sig
         p['onchain_score'] = scores['onchain_avg']
         p['tech_score']    = scores['tech_avg']
