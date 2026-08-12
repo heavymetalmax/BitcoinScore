@@ -16,19 +16,18 @@ class TestNormalizeDxyAdaptive(unittest.TestCase):
 
     def setUp(self):
         # Patch _load_metric_history to return a controlled series
-        from scraper import scoring as sc
         # Build a synthetic 300-point series: values 100–130 evenly spaced
-        import scraper.scoring as _sc
-        self._orig_cache = _sc._HIST_CACHE.copy()
+        import scraper.maps as _maps
+        self._orig_cache = _maps._HIST_CACHE.copy()
         import datetime as _dt
         base = _dt.date(2010, 1, 1)
         series = [((base + _dt.timedelta(days=i*30)).isoformat(), 100.0 + i * 0.1) for i in range(300)]
-        _sc._HIST_CACHE['dxy'] = series
-        self._sc = _sc
+        _maps._HIST_CACHE['dxy'] = series
+        self._maps = _maps
 
     def tearDown(self):
-        self._sc._HIST_CACHE.clear()
-        self._sc._HIST_CACHE.update(self._orig_cache)
+        self._maps._HIST_CACHE.clear()
+        self._maps._HIST_CACHE.update(self._orig_cache)
 
     def test_adaptive_blend_differs_from_fixed(self):
         """With history available, normalize_metric returns blended value != fixed map."""
@@ -44,7 +43,7 @@ class TestNormalizeDxyAdaptive(unittest.TestCase):
     def test_fallback_to_fixed_when_no_history(self):
         """Without history, normalize_metric returns fixed map score."""
         # Clear the injected history
-        self._sc._HIST_CACHE['dxy'] = []
+        self._maps._HIST_CACHE['dxy'] = []
         from scraper.normalizer import normalize_metric
         from scraper.scoring import map_dxy
         result = normalize_metric('dxy', 120.69, datetime.date(2026, 7, 11))

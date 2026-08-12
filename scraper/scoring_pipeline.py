@@ -4,6 +4,7 @@ Call run_scoring_pipeline(p, build_metric_history_fn) from scraper.main().
 Modifies p in place, writes data.json / data_exp.json, returns p.
 """
 import copy
+import datetime
 import os
 
 from .utils import write_json
@@ -39,7 +40,7 @@ def run_scoring_pipeline(p, build_metric_history_fn=None):
             print('Failed to compute zone forecast:', e)
         if os.environ.get('GITHUB_ACTIONS') == 'true':
             # Reuse today's commentary if home server already generated it
-            _today_str = today.isoformat()
+            _today_str = datetime.date.today().isoformat()
             _cached_commentary = None
             try:
                 import json as _json

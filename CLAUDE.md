@@ -60,25 +60,23 @@ python -m scraper.scraper
   └── append to data/history/      # daily_vector.json + per-metric history files
 ```
 
-### Scoring — V3 is the only source of truth
+### Scoring — `scraper/score.py` is the only source of truth
 
 **`scraper/scoring.py` (V1) is LEGACY.** Still runs in the pipeline to produce `zone_forecast`, `commentary`, and `adaptive_calibration`, but its scores are overwritten by V3. Do NOT rely on V1 scores. `v1_score` has been removed from JSON output.
 
-**`scraper/scoring_v3.py` (V3.1 — authoritative)** pipeline:
+**`scraper/score.py` (V4 Market Context — authoritative)** pipeline:
 
-1. Normalize all raw metrics to 0–100 via `scraper/normalizer.py` → `normalized_scores` dict
-2. Detect cycle phase (BOTTOM / NEUTRAL / TOP) via ML model (`data/v3_phase_model.pkl`, `HMMPhaseClassifier`) with fallback to Mahalanobis
-3. Evaluate dynamic utility coefficients per metric via `scraper/utility_evaluator.py` (0.1–1.0)
-4. **Flat utility-weighted average across ALL metrics** — no hardcoded group split:
-   ```
-   final = Σ(normalized[k] × utility[k]) / Σ(utility[k])   for all metrics
-   ```
-5. In BOTTOM phase with TiZ: `final = 0.80 × flat_avg + 0.20 × tiz_score`
-6. Coherence dampening
+1. Normalize raw metrics to 0–100 via `scraper/normalizer.py`.
+2. Build continuous BOTTOM / NEUTRAL / TOP weights from bottom confluence, the HMM top probability, and the halving-cycle prior.
+3. Evaluate dynamic utility coefficients via `scraper/utility_evaluator.py`.
+4. Compute four utility-weighted baskets: OC (on-chain), MS (market sentiment), MC (macro), and CP (cycle position).
+5. Build structural context from OC + CP + MC, then apply TiZ and coherence dampening.
+6. Build vectorial context from MS and top-phase divergence, then synthesize the authoritative `final_score`.
+7. Apply the DXY modifier and Pi Cycle top override; V5A/V5B and `market_regime` are downstream outputs.
 
-`oc_avg` and `tech_avg` are informational sub-scores only — they do NOT feed into `final`.
+`onchain_avg` and `tech_avg` remain informational compatibility fields. The four baskets and structural/vectorial synthesis feed `final_score`.
 
-**`scraper/scoring_pipeline.py`** V3.2 Override block (~line 207) is the last step — overwrites `final_score`, `onchain_score`, `tech_score` with V3 values.
+**`scraper/scoring_pipeline.py`** runs legacy V1/V2 first, then its authoritative Market Context block overwrites `final_score`, `onchain_score`, and `tech_score` with `score.py` outputs.
 
 ### Key JSON fields in `data/data.json`
 
@@ -94,7 +92,7 @@ python -m scraper.scraper
 
 ### HMM Phase Model
 
-`data/v3_phase_model.pkl` — trained by `tools/train_v3_hmm_model.py`. Uses `HMMPhaseClassifier` (custom class). **Must import this class before `pickle.load`** — `scoring_v3.py` does this automatically. State cache `data/v3_hmm_state_cache.json` is tracked in git so daily HMM state chains correctly across CI runs.
+`data/v3_phase_model.pkl` — trained by `tools/train_v3_hmm_model.py`. Uses `HMMPhaseClassifier` (custom class). **Must import this class before `pickle.load`** — `score.py` does this automatically. State cache `data/v3_hmm_state_cache.json` is tracked in git so daily HMM state chains correctly across CI runs.
 
 ### Caching behaviour
 
@@ -141,7 +139,7 @@ Static HTML5 + vanilla JS. No build step. `web/data.json` copied from `data/data
 
 1. Create `scraper/<metric_name>.py` with `get_<metric>()` returning a scalar or dict.
 2. Add `normalize_<metric>()` logic in `scraper/normalizer.py` (maps raw value → 0–100 risk).
-3. Add metric to `OC_GROUP` or `TECH_GROUP` in `scoring_v3.py`.
+3. Add the metric to the appropriate `BASKET_*` set in `score.py`.
 4. Wire fetch into `build_payload()` in `scraper/scraper.py`.
 5. Update `utility_evaluator.py` with relevance profile per phase.
 6. Run `python tools/backtest.py` to verify score impact.

@@ -1,7 +1,7 @@
 # BitcoinScore — Architecture & Calculation Reference
 
-**Version:** V3.1 + V5A.17 + V5B.1  
-**Updated:** 2026-07-21
+**Version:** V4 Market Context + V5A.17 + V5B.1
+**Updated:** 2026-08-12
 
 ---
 
@@ -69,7 +69,10 @@ This two-condition check ensures BMP metric failures on the home server trigger 
 ### BMP Metrics (Playwright)
 BMP metrics are scraped via `get_bmp_trace()` in `scraper/mm_utils.py`, which opens a headless Chromium instance, waits for the Plotly chart to render, and extracts the last data point. These are the most fragile metrics — if Playwright fails, they come back as `None`.
 
-**Forward-fill policy:** `build_training_features.py` and `scraper/scoring_v3.py` forward-fill BMP metrics from the last known good value so the feature vector remains stable across scraping failures.
+**Missing-data policy:** training tooling may forward-fill BMP metrics when
+building historical feature vectors. Live scoring does not invent a zero-risk
+value: each basket renormalizes over available metrics, and `data_quality`
+reports missing inputs so scraper failures remain visible.
 
 ---
 
@@ -94,9 +97,9 @@ Inverted metrics (higher raw = lower risk): `m2_yoy`, `yield_curve`, `lth_supply
 
 ---
 
-## 5. V3 Scoring Pipeline
+## 5. Market Context Scoring Pipeline
 
-**Entry point:** `scraper/scoring_v3.py → compute_scores_v3()`
+**Entry point:** `scraper/score.py → compute_score()`
 
 ### Step 1 — Normalize
 All raw metrics → 0-100 via `normalize_metric()` (see §4).
@@ -106,27 +109,23 @@ CipherB has two sub-signals:
 ```
 cipherb_score = 0.80 × weekly_score + 0.20 × daily_score
 ```
-Bearish/bullish divergence flags are extracted separately and used to boost utility weight (not the score itself).
+Active bearish/bullish divergence shifts the corresponding weekly or daily
+component by 12 risk points before blending, clamped to 0–100.
 
-### Step 3 — Cycle phase detection (HMM)
+### Step 3 — Continuous cycle phase
 
-Model: `data/v3_phase_model.pkl` — custom `HMMPhaseClassifier` trained by `tools/train_v3_hmm_model.py`.
+The phase weights combine three independent inputs:
 
-Input: 22-dimensional wave vector of normalized metric values + 30d/90d lookback deltas.
+- `w_bot`: calibrated bottom confluence from on-chain metrics
+- `w_top`: TOP probability from `data/v3_phase_model.pkl`
+- halving-cycle prior: a bounded correction when market evidence and cycle timing disagree
 
-Output: continuous mixture weights:
-- `w_bot` — probability of BOTTOM phase
-- `w_top` — probability of TOP phase  
-- `w_neutral = 1 - w_bot - w_top`
+The result is normalized into continuous `w_bot`, `w_neutral`, and `w_top`
+weights. The discrete `v3_phase` is informational; scoring uses the continuous
+weights.
 
-Discrete `v3_phase`:
-- `BOTTOM` if `w_bot > 0.5`
-- `TOP` if `w_top > 0.5`
-- `NEUTRAL` otherwise
-
-State is carried forward via `data/v3_hmm_state_cache.json` (committed to git) so the daily HMM chain is continuous across CI runs.
-
-Fallback when model unavailable: Mahalanobis distance to pre-computed centroids.
+If the HMM cannot load, `w_top` falls back to the Pi Cycle score when it is in
+the top-risk range; otherwise the neutral weight absorbs the missing evidence.
 
 ### Step 4 — Utility coefficients
 `scraper/utility_evaluator.py → evaluate_all_utilities_continuous()`
@@ -136,28 +135,35 @@ Each metric gets a relevance weight `U_i ∈ [0.1, 1.0]` based on:
 - How much the metric typically moves in this phase
 - Divergence flags (e.g., bearish CipherB divergence → higher utility in NEUTRAL/TOP)
 
-### Step 5 — Flat utility-weighted average
+### Step 5 — Four utility-weighted baskets
+
+- **OC:** `nupl`, `mvrv_z_score`, `rhodl_ratio`, `cvdd_ratio`, `puell`, `lth_supply`
+- **MS:** `cipherb`, `mayer_multiple`, `funding_rate`, `fear_greed`, `etf_flows`
+- **MC:** `m2_yoy`, `yield_curve_spread`
+- **CP:** `btc_price_cycle`, `pi_gap`
+
+Each basket renormalizes over the metrics that are actually available. Missing
+metrics therefore reduce data quality without being treated as zero risk.
+
+### Step 6 — Structural context
+
+Cycle Position contextualizes the On-Chain basket, Macro receives a
+phase-dependent weight, and TiZ pulls the structural score lower in proportion
+to `w_bot`. On-chain coherence then dampens only this structural component.
+
+### Step 7 — Vectorial context and synthesis
+
+Market Sentiment and top-phase divergence form a vectorial score describing
+where risk is moving. The final synthesis consumes only the remaining headroom
+above structural risk, with phase weights controlling its influence:
+
 ```
-flat_avg = Σ(normalized[k] × U[k]) / Σ(U[k])   for all metrics k
+headroom = 100 - structural
+final = structural + headroom × vectorial/100 × phase_blend
 ```
 
-Group sub-scores `oc_avg` and `tech_avg` are computed for display only — they do **not** feed into `flat_avg`.
-
-Metric groups:
-- **OC_GROUP** (on-chain): `nupl`, `mvrv_z_score`, `rhodl_ratio`, `cvdd_ratio`, `asopr`, `puell`, `lth_supply`
-- **TECH_GROUP** (technical/macro): `cipherb`, `mayer_multiple`, `fear_greed`, `etf_flows`, `yield_curve_spread`, `m2_yoy`, `pi_gap`, `funding_rate`
-
-### Step 6 — Time-in-Zone (TiZ) blend (BOTTOM phase only)
-If `v3_phase == BOTTOM`:
-```
-final = (1.0 - 0.20 × w_bot) × flat_avg + 0.20 × w_bot × tiz_score
-```
-`tiz_score` measures how long we have been in BOTTOM zone (0–365 days). Longer time in accumulation → lower score (0.20 blend of `tiz_score` pulls final down).
-
-TiZ is off in NEUTRAL/TOP phases — `final = flat_avg`.
-
-### Step 7 — Coherence dampening
-If on-chain metrics disagree significantly (high cross-metric standard deviation), `flat_avg` is dampened slightly toward 50. Prevents overconfident reads when indicators conflict.
+Finally, the DXY macro modifier is applied and a confirmed Pi Cycle cross sets
+an 85-point minimum risk score.
 
 ---
 
@@ -261,7 +267,7 @@ python3 tools/build_v5b_labels.py && python3 tools/train_v5b_model.py
 
 ## 7. Signal Combination
 
-**Computed in:** `scraper/scoring_v3.py`  
+**Computed in:** `scraper/score.py`
 **UI-visible fields:** `v5b_score` (Outlook), `market_regime`, `final_score` (Market Context)  
 **Internal/debug only:** `signal_agreement`, `composite_risk`, `meta_score`
 
@@ -363,8 +369,8 @@ These fields remain in `data.json` for debugging and historical analysis but are
 `scraper/scoring_pipeline.py` is the integration layer. Execution order:
 
 1. **V1 scoring** (`scraper/scoring.py`) — legacy; produces `zone_forecast`, `commentary`, `adaptive_calibration`
-2. **V3 scoring** (`scraper/scoring_v3.py`) — produces `final_score` (Market Context 0–100), `v5b_score` (Outlook %), `market_regime`, and internal fields (`composite_risk`, `signal_agreement`, `meta_score`)
-3. **V3.2 Override block** — final step in `scoring_pipeline.py`; writes V3 outputs to top-level payload fields (`final_score`, `market_regime`, `v5b_score`, etc.)
+2. **Market Context scoring** (`scraper/score.py`) — produces `final_score` (Market Context 0–100), `v5b_score` (Outlook %), `market_regime`, and internal fields (`composite_risk`, `signal_agreement`, `meta_score`)
+3. **Authoritative output block** — final step in `scoring_pipeline.py`; writes Market Context outputs to top-level payload fields (`final_score`, `market_regime`, `v5b_score`, etc.)
 
 `v1_score` has been removed from JSON output. Do not use V1 scores.
 
@@ -424,7 +430,7 @@ All in `data/history/`:
 
 1. Create `scraper/<metric>.py` with `get_<metric>() → scalar`
 2. Add `normalize_<metric>()` in `scraper/normalizer.py`
-3. Add to `OC_GROUP` or `TECH_GROUP` in `scraper/scoring_v3.py`
+3. Add to the appropriate `BASKET_*` set in `scraper/score.py`
 4. Wire fetch into `build_payload()` in `scraper/scraper.py`
 5. Add relevance profile in `scraper/utility_evaluator.py`
 6. Add to `QC_METRICS` / `DY_METRICS` / `MC_METRICS` in `scraper/mixing_model.py` and `tools/build_training_features.py`

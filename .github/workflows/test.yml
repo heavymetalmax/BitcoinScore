@@ -22,7 +22,7 @@ jobs:
         run: |
           pip install --upgrade pip
           if [ -f scraper/requirements.txt ]; then
-            pip install -r scraper/requirements.txt || true
+            pip install -r scraper/requirements.txt
           fi
           pip install pytest requests numpy scikit-learn
 
