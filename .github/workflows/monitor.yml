@@ -2,7 +2,7 @@ name: Data Freshness Monitor
 
 on:
   schedule:
-    - cron: '30 9 * * *'   # 09:30 UTC — after scraper should have run
+    - cron: '0 11 * * *'   # 14:00 Kyiv — after primary and fallback runs
   workflow_dispatch: {}
 
 jobs:

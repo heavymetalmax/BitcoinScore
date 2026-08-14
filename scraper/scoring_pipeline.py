@@ -10,6 +10,21 @@ import os
 from .utils import write_json
 
 
+def sync_public_names(payload: dict, scores: dict) -> None:
+    """Keep stable public fields aligned with the authoritative scoring pass."""
+    final = scores.get('final_score')
+    payload['bri_score'] = final
+    payload['forward_risk'] = scores.get('v5b_score')
+    payload['legacy_model'] = scores.get('v5_score')
+    payload['market_context'] = {
+        'score': final,
+        'phase': scores.get('phase'),
+        'bottom_weight': scores.get('w_bot'),
+        'neutral_weight': scores.get('w_neutral'),
+        'top_weight': scores.get('w_top'),
+    }
+
+
 def run_scoring_pipeline(p, build_metric_history_fn=None):
     """Run all scoring passes on payload p. Returns updated p."""
 
@@ -215,16 +230,7 @@ def run_scoring_pipeline(p, build_metric_history_fn=None):
         p['final_score']   = scores['final_score']
         # Stable, human-readable public names. Versioned keys remain as
         # compatibility aliases for existing clients and historical files.
-        p['bri_score']      = scores['final_score']
-        p['forward_risk']   = scores.get('v5b_score')
-        p['legacy_model']   = scores.get('v5_score')
-        p['market_context'] = {
-            'score': scores['final_score'],
-            'phase': scores['phase'],
-            'bottom_weight': scores['w_bot'],
-            'neutral_weight': scores['w_neutral'],
-            'top_weight': scores['w_top'],
-        }
+        sync_public_names(p, scores)
         p['signal']        = v3_sig
         p['onchain_score'] = scores['onchain_avg']
         p['tech_score']    = scores['tech_avg']

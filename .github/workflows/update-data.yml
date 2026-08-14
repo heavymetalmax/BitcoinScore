@@ -2,7 +2,7 @@ name: Update BTC Data
 
 on:
   schedule:
-    - cron: '0 8 * * *'   # fallback — runs only if home server did not push
+    - cron: '0 10 * * *'  # fallback at 13:00 Kyiv — after 11:00 home-server run
   workflow_dispatch: {}
 
 jobs:

@@ -543,9 +543,24 @@ def main():
         )
 
         p['final_score'] = _v4['final_score']
+        p['onchain_score'] = _v4['onchain_avg']
+        p['tech_score'] = _v4['tech_avg']
         p['v3_w_bot']    = _v4['w_bot']
         p['v3_w_top']    = _v4['w_top']
         p['v3_phase']    = _v4['phase']
+        p['v3_normalized_scores'] = _v4['normalized_scores']
+        p['v3_utilities'] = _v4['utilities']
+        p['v5_score'] = _v4.get('v5_score')
+        p['v5b_score'] = _v4.get('v5b_score')
+        p['v5b_validated'] = _v4.get('v5b_validated', False)
+        p['market_regime'] = _v4.get('market_regime')
+        p['decision_suppressed'] = _v4.get('decision_suppressed', True)
+        p['decision_suppression_reason'] = _v4.get('decision_suppression_reason')
+        if isinstance(p.get('data_quality'), dict):
+            p['data_quality']['status'] = _v4.get('score_status', 'invalid')
+            p['data_quality']['basket_coverage'] = _v4.get('basket_coverage', {})
+        from .scoring_pipeline import sync_public_names
+        sync_public_names(p, _v4)
         print(f'V4: score={_v4["final_score"]}  phase={_v4["phase"]}'
               f'  w_bot={_v4["w_bot"]:.2f}  w_top={_v4["w_top"]:.2f}')
     except Exception as e:
