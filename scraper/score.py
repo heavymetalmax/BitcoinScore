@@ -503,7 +503,7 @@ def compute_score(
     if pi_cross and final is not None:
         final = max(final, 85)
 
-    # ── Shared raw-metric vector for the V5A / V5B mixing models (Layer 3) ───
+    # ── Raw-metric vector for Forward Risk ──────────────────────────────────
     def _s(v):
         if isinstance(v, dict): v = v.get('value')
         if isinstance(v, dict): v = v.get('value')
@@ -539,30 +539,7 @@ def compute_score(
         'dxy':            _s(raw_metrics.get('dxy')),
     }
 
-    # ── V5A "machine-eye" score (stacked ensemble, Layer 3 — legacy) ─────────
-    # V5A receives raw metrics + V3 phase context. Stacked ensemble: labels are
-    # 90-day BTC returns, so V5A learns when to amplify or discount V3's phase call.
-    # Known limitation: tautological label — legacy compatibility only, not an
-    # independent signal (see docs/architecture.md §6B).
-    v5_score: float | None = None
-    v5_confidence: float | None = None
-    v5_shap_top5: list | None = None
-    try:
-        from scraper import mixing_model as _v5
-        _v5_result = _v5.predict(
-            _mix_raw,
-            w_top=round(w_top, 3),
-            w_bot=round(w_bot, 3),
-            v3_score=float(final),
-        )
-        if isinstance(_v5_result, dict):
-            v5_score      = round(_v5_result['score'], 1)
-            v5_confidence = _v5_result.get('confidence')
-            v5_shap_top5  = _v5_result.get('shap_top5')
-    except Exception as e:
-        print(f'Warning: V5A (v5_score) failed — {e}')
-
-    # ── V5B "Forward Risk Model" (Outlook, Layer 3 — prediction layer) ───────
+    # ── Forward Risk (diagnostic prediction layer) ───────────────────────────
     # Predicts expected max drawdown over the next 365 days. Its inputs include
     # V3 context, so it is a distinct target rather than an independent signal.
     v5b_score: float | None = None
@@ -638,9 +615,6 @@ def compute_score(
         'dxy_adj':            round(dxy_adj, 2),
         'wave_resonance':     wr,
         'utilities':          utilities,
-        'v5_score':           v5_score,
-        'v5_confidence':      v5_confidence,
-        'v5_shap_top5':       v5_shap_top5,
         'v5b_score':          v5b_score,
         'v5b_validated':      v5b_validated,
         'market_regime':      market_regime,

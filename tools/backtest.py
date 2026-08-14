@@ -358,47 +358,6 @@ def v2_at(td, series):
     return sp_v2_diag, sp_v2_full
 
 
-def v5_at(td):
-    """Return V5 score (0-100) for a given date using scores.json row."""
-    from scraper import mixing_model as v5m
-    scores_path = 'data/history/scores.json'
-    if not os.path.exists(scores_path):
-        return None
-    try:
-        with open(scores_path, encoding='utf-8') as f:
-            history = json.load(f)
-    except Exception:
-        return None
-    td_str = td.isoformat()
-    row = next((x for x in history if x.get('date') == td_str), None)
-    if row is None:
-        return None
-    raw = {
-        'btc_price':      row.get('btc_price'),
-        'nupl':           row.get('nupl'),
-        'mvrv':           row.get('mvrv'),
-        'rhodl_ratio':    row.get('rhodl_ratio'),
-        'cvdd_ratio':     row.get('cvdd_ratio'),
-        'puell':          row.get('puell'),
-        'cipherb_daily':  row.get('cipherb_daily'),
-        'mayer_multiple': row.get('mayer_multiple'),
-        'fear_greed':     row.get('fear_greed'),
-        'funding_rate':   row.get('funding_rate'),
-        'm2_yoy':         row.get('m2_yoy'),
-        'lth_supply_pct': row.get('lth_supply_pct'),
-        'yield_curve':    row.get('yield_curve'),
-        'dxy':            row.get('dxy'),
-    }
-    result = v5m.predict(
-        raw_metrics=raw,
-        w_top=row.get('w_top') or 0.0,
-        w_bot=row.get('w_bot') or 0.0,
-        v3_score=float(row.get('final_score') or 50),
-        target_date=td,
-    )
-    return result['score'] if isinstance(result, dict) else result
-
-
 def v3_at(td, series):
     """Return clean V3 score results dict for a given date.
 
@@ -511,27 +470,15 @@ def run():
         r = compute_at(td, series)
         results.append((date_str, label, price, r))
 
-    # ── Compute V5 scores ────────────────────────────────────────────────────
-    v5_scores = {}
-    for date_str, label, price, _ in results:
-        td = datetime.date.fromisoformat(date_str)
-        try:
-            v5_scores[date_str] = v5_at(td)
-        except Exception as e:
-            print(f"Error computing V5 at {date_str}: {e}")
-            v5_scores[date_str] = None
-
     # ── Score table ──────────────────────────────────────────────────────────
     header_metrics = " ".join(f"{SHORT[c]:>4}" for c in SCORE_COLS)
-    print(f"\n{'Date':<12} {'Label':<22} {'BTC':>8}  {'V5':>6}  {header_metrics}")
+    print(f"\n{'Date':<12} {'Label':<22} {'BTC':>8}  {header_metrics}")
     print("─" * 120)
 
     for date_str, label, price, r in results:
         sc = r['scores']
         metric_vals = " ".join(fmt(sc.get(c)) for c in SCORE_COLS)
-        v5_val = v5_scores.get(date_str)
-        v5_str = f"{v5_val:5.1f}" if v5_val is not None else "    — "
-        print(f"{date_str:<12} {label:<22} ${price:>8,}  {v5_str}  {metric_vals}")
+        print(f"{date_str:<12} {label:<22} ${price:>8,}  {metric_vals}")
 
     # ── Coverage matrix ──────────────────────────────────────────────────────
     RAW_COLS = ['nupl', 'mvrv', 'rhodl_ratio', 'cvdd_ratio', 'asopr',

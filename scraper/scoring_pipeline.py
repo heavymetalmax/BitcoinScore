@@ -13,9 +13,10 @@ from .utils import write_json
 def sync_public_names(payload: dict, scores: dict) -> None:
     """Keep stable public fields aligned with the authoritative scoring pass."""
     final = scores.get('final_score')
+    for retired_key in ('v5_score', 'v5_confidence', 'v5_shap_top5', 'legacy_model'):
+        payload.pop(retired_key, None)
     payload['bri_score'] = final
     payload['forward_risk'] = scores.get('v5b_score')
-    payload['legacy_model'] = scores.get('v5_score')
     payload['market_context'] = {
         'score': final,
         'phase': scores.get('phase'),
@@ -193,6 +194,10 @@ def run_scoring_pipeline(p, build_metric_history_fn=None):
         _active  = [k for k in _EXPECTED_SCORING_METRICS if _norm.get(k) is not None]
         _missing = sorted(k for k in _EXPECTED_SCORING_METRICS if _norm.get(k) is None)
 
+        # The retired tautological model must not survive via cached payloads.
+        for _retired_key in ('v5_score', 'v5_confidence', 'v5_shap_top5', 'legacy_model'):
+            p.pop(_retired_key, None)
+
         p['v3_score']             = scores['final_score']
         p['v3_onchain_score']     = scores['onchain_avg']
         p['v3_tech_score']        = scores['tech_avg']
@@ -208,7 +213,6 @@ def run_scoring_pipeline(p, build_metric_history_fn=None):
         p['v3_tiz_days']          = scores['tiz_days']
         p['v3_tiz_maturity']      = scores['tiz_maturity']
         p['v3_tiz_calibration']   = scores['tiz_calibration']
-        p['v5_score']             = scores.get('v5_score')
         p['v5b_score']            = scores.get('v5b_score')
         p['v5b_validated']        = scores.get('v5b_validated', False)
         p['meta_score']           = scores.get('meta_score')
@@ -297,10 +301,9 @@ def run_scoring_pipeline(p, build_metric_history_fn=None):
             'utilities': scores.get('utilities', {}),
         }
 
-        # Layer 3 — scoring: final formula outputs + V5
+        # Layer 3 — scoring: BRI and Forward Risk outputs
         _scoring = {
             'final_score':   scores['final_score'],
-            'v5_score':      scores.get('v5_score'),
             'v5b_score':     scores.get('v5b_score'),
             'meta_score':       scores.get('meta_score'),
             'signal_agreement': scores.get('signal_agreement'),
@@ -343,7 +346,6 @@ def run_scoring_pipeline(p, build_metric_history_fn=None):
             _new_entry   = {
                 'date':        _today_str,
                 'final_score': scores['final_score'],
-                'v5_score':    scores.get('v5_score'),
                 'v1_score':    _v1_archive.get('final_score') if _v1_archive else None,
                 'v2_score':    _v2_archive.get('final_score') if _v2_archive else None,
                 'phase':       scores['phase'],
@@ -378,7 +380,7 @@ def run_scoring_pipeline(p, build_metric_history_fn=None):
             f"  phase={scores['phase']}  w_bot={scores['w_bot']}"
             f"  tiz={scores['tiz_score']}({scores['tiz_days']}d)"
             f"  wr={_wr.get('score')}  dxy_adj={scores.get('dxy_adj', 0):+.1f}"
-            f"  v5={scores.get('v5_score')}  v5b={scores.get('v5b_score')}  meta={scores.get('meta_score')}(agree={scores.get('signal_agreement')})  regime={scores.get('market_regime')}"
+            f"  forward_risk={scores.get('v5b_score')}  meta={scores.get('meta_score')}(agree={scores.get('signal_agreement')})  regime={scores.get('market_regime')}"
         )
     except Exception as e:
         print(f'V3 Clean scorer failed: {e}')

@@ -8,8 +8,9 @@ This file provides guidance to Claude when working with code in this repository.
 
 User-facing naming: **BRI Score** (`final_score`/`bri_score`), **Market Context**
 (legacy `v3_*`), **Forward Risk** (`forward_risk`, legacy `v5b_score`), and
-**Legacy Model** (`legacy_model`, legacy `v5_score`). Do not introduce V3/V5 names
-in new UI or user-facing documentation; versioned fields remain compatibility aliases.
+The retired Legacy Model is not executed and must not be added back to production.
+Do not introduce V3/V5 names in new UI or user-facing documentation; remaining
+versioned fields are compatibility aliases for BRI Score and Forward Risk only.
 
 ## Production Setup
 
@@ -77,7 +78,7 @@ python -m scraper.scraper
 4. Compute four utility-weighted baskets: OC (on-chain), MS (market sentiment), MC (macro), and CP (cycle position).
 5. Build structural context from OC + CP + MC, then apply TiZ and coherence dampening.
 6. Build vectorial context from MS and top-phase divergence, then synthesize the authoritative `final_score`.
-7. Apply the DXY modifier and Pi Cycle top override; V5A/V5B are downstream outputs. `market_regime` is actionable only when V5B beats its purged walk-forward baseline and basket data quorums pass.
+7. Apply the DXY modifier and Pi Cycle top override; Forward Risk is a downstream diagnostic output. `market_regime` is actionable only when Forward Risk beats its purged walk-forward baseline and basket data quorums pass.
 
 `onchain_avg` and `tech_avg` remain informational compatibility fields. The four baskets and structural/vectorial synthesis feed `final_score`.
 

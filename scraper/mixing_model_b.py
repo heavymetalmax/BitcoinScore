@@ -7,36 +7,38 @@ Output: expected max drawdown % (0-80+), where:
   15–35 = neutral / moderate risk
   60+   = danger zone (major bear market followed in similar conditions)
 
-Uses the same 49-feature vector and _get_lookback() infrastructure as mixing_model.py.
+Uses a self-contained 49-feature inference pipeline.
 The model (v5b_model.pkl) was trained on max_drawdown_365d labels. Its feature
 set includes V3 phase context, so it is a separate prediction target but not an
 independent signal.
 """
 import datetime
+import bisect
+import json
 import math
+import os
 import pickle
 from pathlib import Path
 
 import numpy as np
 
-# Reuse constants and infrastructure from V5A — no duplication
-from scraper.mixing_model import (
-    QC_METRICS, DY_METRICS, MC_METRICS, ALL_METRICS, RISK_INVERTED,
-    LOOKBACK_HORIZONS,
-    _load,          # ensures V5A model (and _HIST) is loaded
-    _pct_rank, _risk_pct, _avg, _std,
-    _get_lookback,
-)
+QC_METRICS = ['nupl', 'mvrv', 'rhodl_ratio', 'cvdd_ratio', 'puell']
+DY_METRICS = ['cipherb_daily', 'mayer_multiple', 'fear_greed', 'funding_rate']
+MC_METRICS = ['m2_yoy', 'yield_curve', 'dxy']
+ALL_METRICS = QC_METRICS + DY_METRICS + MC_METRICS + ['lth_supply_pct']
+RISK_INVERTED = {'m2_yoy', 'yield_curve', 'lth_supply_pct'}
+LOOKBACK_HORIZONS = {30: 7, 90: 14, 180: 21}
 
 _MODEL_B_PATH = 'data/v5b_model.pkl'
 _MODEL_B:    object | None = None
 _FEAT_COLS_B: list | None = None
 _MEDIANS_B:  np.ndarray | None = None
 _METADATA_B: dict = {}
+_HIST_B: dict = {}
 
 
 def _load_b() -> bool:
-    global _MODEL_B, _FEAT_COLS_B, _MEDIANS_B, _METADATA_B
+    global _MODEL_B, _FEAT_COLS_B, _MEDIANS_B, _METADATA_B, _HIST_B
     if _MODEL_B is not None:
         return True
     path = Path(_MODEL_B_PATH)
@@ -49,12 +51,102 @@ def _load_b() -> bool:
         _FEAT_COLS_B = p['feature_cols']
         _MEDIANS_B   = p.get('col_medians')
         _METADATA_B  = p.get('metadata', {})
-        # V5A must be loaded so _HIST (metric history) is available for percentile ranks
-        _load()
+        _HIST_B      = p.get('metric_history', {})
         return True
     except Exception as e:
         print(f'Warning: V5B model load failed ({_MODEL_B_PATH}) — {e}')
         return False
+
+
+def _pct_rank(metric, value):
+    if value is None:
+        return None
+    buf = _HIST_B.get(metric)
+    if not buf:
+        return None
+    try:
+        v = float(value)
+    except (TypeError, ValueError):
+        return None
+    if math.isnan(v):
+        return None
+    return bisect.bisect_right(buf, v) / len(buf)
+
+
+def _risk_pct(metric, value):
+    raw = _pct_rank(metric, value)
+    if raw is None:
+        return None
+    return 1.0 - raw if metric in RISK_INVERTED else raw
+
+
+def _avg(vals):
+    available = [v for v in vals if v is not None]
+    return sum(available) / len(available) if available else None
+
+
+def _std(vals):
+    available = [v for v in vals if v is not None]
+    if len(available) < 2:
+        return None
+    mean = sum(available) / len(available)
+    return math.sqrt(sum((v - mean) ** 2 for v in available) / len(available))
+
+
+def _get_lookback(target_date: datetime.date | None = None):
+    """Build the causal velocity context used by Forward Risk."""
+    scores_path = 'data/history/scores.json'
+    if not os.path.exists(scores_path):
+        return {}
+    try:
+        with open(scores_path, encoding='utf-8') as f:
+            history = json.load(f)
+    except Exception:
+        return {}
+    target_date = target_date or datetime.date.today()
+    date_rows = {r.get('date', '')[:10]: r for r in history if r.get('date')}
+    best = {n: (None, tolerance + 1) for n, tolerance in LOOKBACK_HORIZONS.items()}
+    w_top_peak_90 = v3_peak_90 = None
+    target_90_start = target_date - datetime.timedelta(days=90)
+    for row in history:
+        try:
+            date = datetime.date.fromisoformat(row.get('date', '')[:10])
+        except ValueError:
+            continue
+        for horizon, tolerance in LOOKBACK_HORIZONS.items():
+            delta = abs((date - (target_date - datetime.timedelta(days=horizon))).days)
+            if delta < best[horizon][1]:
+                best[horizon] = (row, delta)
+        if target_90_start <= date < target_date:
+            w_top = row.get('w_top')
+            context = row.get('final_score')
+            if w_top is not None:
+                w_top_peak_90 = w_top if w_top_peak_90 is None else max(w_top_peak_90, w_top)
+            if context is not None:
+                v3_peak_90 = context if v3_peak_90 is None else max(v3_peak_90, context)
+    out = {'w_top_peak_90d': w_top_peak_90, 'v3_peak_90d': v3_peak_90}
+    for horizon, tolerance in LOOKBACK_HORIZONS.items():
+        row, delta = best[horizon]
+        if row is None or delta > tolerance:
+            continue
+        reference = target_date - datetime.timedelta(days=horizon)
+        qc_vals, dy_vals, mc_vals = [], [], []
+        for day_delta in range(-3, 4):
+            window_row = date_rows.get((reference + datetime.timedelta(days=day_delta)).isoformat())
+            if not window_row:
+                continue
+            risks = {m: _risk_pct(m, window_row.get(m)) for m in ALL_METRICS}
+            for target, metrics in ((qc_vals, QC_METRICS), (dy_vals, DY_METRICS), (mc_vals, MC_METRICS)):
+                value = _avg([risks.get(m) for m in metrics])
+                if value is not None:
+                    target.append(value)
+        out[f'qc_{horizon}d'] = _avg(qc_vals)
+        out[f'dy_{horizon}d'] = _avg(dy_vals)
+        out[f'mc_{horizon}d'] = _avg(mc_vals)
+        out[f'w_bot_{horizon}d'] = row.get('w_bot')
+        out[f'w_top_{horizon}d'] = row.get('w_top')
+        out[f'v3_score_{horizon}d'] = row.get('final_score')
+    return out
 
 
 def predict_b(
@@ -87,7 +179,7 @@ def predict_b(
     if v3_score is None:
         v3_score = raw_metrics.get('v3_score') or raw_metrics.get('final_score')
 
-    # ── Feature building — mirrors mixing_model.predict() exactly ─────────────
+    # ── Forward Risk feature building ────────────────────────────────────────
 
     btc_price = raw_metrics.get('btc_price')
     pct_btc_price = _pct_rank('btc_price', btc_price)

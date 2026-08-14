@@ -21,7 +21,6 @@ from scraper.utility_evaluator import evaluate_all_utilities_continuous
 from scraper.scoring_v2 import phase_signals, _METRIC_LOOKBACK
 from scraper.scoring import _oc_coherence
 from scraper.tiz import adaptive_calibration as _tiz_adaptive_cal
-from scraper import mixing_model as _v5
 from scraper import mixing_model_b as _v5b
 
 # Metric groups for z-weighting
@@ -411,7 +410,7 @@ def compute_scores_v3(raw_metrics, target_date=None, prev_scores=None, scores_hi
     if pi_cross and final is not None:
         final = max(final, 85)
 
-    # 12. V5 multi-scale mixing model (runs alongside V3, stored for comparison).
+    # 12. Build the Forward Risk feature input.
     # raw_metrics = p['metrics']: each entry is {'value': <scalar|dict>, 'source': ...}.
     # _s() unwraps up to two levels of dict nesting to reach the scalar.
     def _s(v):
@@ -449,12 +448,7 @@ def compute_scores_v3(raw_metrics, target_date=None, prev_scores=None, scores_hi
         'yield_curve':    _s(raw_metrics.get('yield_curve')),
         'dxy':            _s(raw_metrics.get('dxy')),
     }
-    _v5_result   = _v5.predict(_v5_raw)
-    v5_score     = round(_v5_result['score'], 1)     if isinstance(_v5_result, dict) else None
-    v5_confidence = _v5_result.get('confidence')     if isinstance(_v5_result, dict) else None
-    v5_shap_top5  = _v5_result.get('shap_top5')      if isinstance(_v5_result, dict) else None
-
-    # V5B: Forward Risk Model — expected max drawdown over next 365 days
+    # Forward Risk — expected max drawdown over next 365 days
     _v5b_raw = {**_v5_raw,
                 'btc_price':  raw_metrics.get('btc_price'),
                 'v3_phase':   phase,
@@ -506,9 +500,6 @@ def compute_scores_v3(raw_metrics, target_date=None, prev_scores=None, scores_hi
         'w_top': round(w_top, 3),
         'w_bot': round(w_bot, 3),
         'w_neutral': round(w_neutral, 3),
-        'v5_score': v5_score,
-        'v5_confidence': v5_confidence,
-        'v5_shap_top5': v5_shap_top5,
         'v5b_score': v5b_score,
         'meta_score': meta_score,
         'signal_agreement': signal_agreement,

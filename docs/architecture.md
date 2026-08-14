@@ -1,6 +1,6 @@
 # BitcoinScore — Architecture & Calculation Reference
 
-**Version:** V4 Market Context + V5A.17 + V5B.2
+**Version:** BRI Market Context + Forward Risk 2.2
 **Updated:** 2026-08-12
 
 ---
@@ -17,7 +17,6 @@ version numbers:
 | **BRI Score** | Authoritative 0–100 Bitcoin Buy Risk Index | `final_score`, formerly called V3/V4 |
 | **Market Context** | Phase and structure behind the BRI Score | `market_context`, legacy `v3_*` fields |
 | **Forward Risk** | Diagnostic 365-day drawdown estimate | `forward_risk`, legacy `v5b_score` |
-| **Legacy Model** | Retained non-actionable experimental model | `legacy_model`, legacy `v5_score` |
 
 Versioned keys remain available so existing consumers do not break, but new UI,
 documentation, and integrations should use the public names above.
@@ -190,7 +189,7 @@ an 85-point minimum risk score.
 
 ## 6. ML Models
 
-Both V5A and V5B use the same 49-feature vector and XGBoost architecture (`n_estimators=400, max_depth=5, lr=0.04`). They differ only in their training label and therefore answer different questions.
+Forward Risk uses a self-contained 49-feature XGBoost inference pipeline (`n_estimators=400, max_depth=5, lr=0.04`). It does not load or execute the retired Legacy Model.
 
 ### Shared feature set (49 features)
 
@@ -275,13 +274,12 @@ python3 tools/build_v5b_labels.py && python3 tools/train_v5b_model.py
 
 ---
 
-### 6B. V5A — Structural Cycle Position (v5.17, legacy compatibility)
+### 6B. Retired Legacy Model
 
-> ⚠️ **Known limitation:** The V5A label (`mean(pct_btc_price, pct_nupl, pct_mvrv, pct_rhodl_ratio) × 100`) is directly computable from 4 of its own input features → baseline MAE = 0 (tautology). V5A does not learn anything beyond that formula. It is retained in the pipeline for legacy continuity but should not be used as an independent signal.
-
-**Entry point:** `scraper/mixing_model.py → predict()`  
-**Model file:** `data/v5_mixing_model.pkl`  
-**Output field:** `v5_score`
+The former structural-cycle model had a tautological label directly computable
+from its own inputs. It was removed from production inference and new JSON output.
+Historical JSON fields may remain solely for reproducibility. The inference
+module was removed; neither BRI Score nor Forward Risk imports or executes it.
 
 ---
 
@@ -421,7 +419,6 @@ Key fields:
 | `composite_risk` | `√(Market Context × Outlook)` — single-dial gauge for the pipeline diagram widget (`web/classic.html`); display only, not used in decision logic |
 | `signal_agreement` | `1 − \|Context − Outlook\| / 100` — model agreement (0–1) |
 | `meta_score` | Agreement-weighted blend — deprecated aggregate |
-| `v5_score` | V5A ⚠️ tautological label — internal use only |
 | `v3_score` | Raw V3 before pipeline overrides |
 | `v3_phase` | `BOTTOM` / `NEUTRAL` / `TOP` |
 | `v3_w_bot` / `v3_w_top` | HMM phase mixture weights |
@@ -453,7 +450,7 @@ All in `data/history/`:
 3. Add to the appropriate `BASKET_*` set in `scraper/score.py`
 4. Wire fetch into `build_payload()` in `scraper/scraper.py`
 5. Add relevance profile in `scraper/utility_evaluator.py`
-6. Add to `QC_METRICS` / `DY_METRICS` / `MC_METRICS` in `scraper/mixing_model.py` and `tools/build_training_features.py`
+6. Add to `QC_METRICS` / `DY_METRICS` / `MC_METRICS` in `scraper/mixing_model_b.py` and `tools/build_training_features.py`
 7. Rebuild training data: `python tools/build_training_features.py`
-8. Retrain V5: `python tools/train_mixing_model.py`
+8. Retrain Forward Risk: `python tools/build_v5b_labels.py && python tools/train_v5b_model.py`
 9. Verify: `python tools/backtest.py`
