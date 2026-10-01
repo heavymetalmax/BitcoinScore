@@ -5191,5 +5191,50 @@
       "etf_flows": 97,
       "funding_rate": 35
     }
+  },
+  {
+    "date": "2026-10-01",
+    "timestamp": "2026-10-01T08:01:38Z",
+    "btc_price": 83460.86,
+    "onchain_score": 36,
+    "tech_score": 57,
+    "final_score": 48,
+    "buy_zone_price": null,
+    "sell_zone_price": null,
+    "raw": {
+      "nupl": 35.8502,
+      "mvrv": 1.0129,
+      "cvdd_ratio": 1.6798,
+      "rhodl_ratio": 996.8427,
+      "asopr": 1.0046,
+      "cipherb": 76.6834950671738,
+      "mayer_multiple": 1.173,
+      "etf_flows": -148.7,
+      "fear_greed": 70.9,
+      "yield_curve": 0.41,
+      "m2_yoy": 8.4,
+      "funding_rate": 0.00252,
+      "halving_cycle_day": 895,
+      "pi_cycle_gap_pct": 55.41,
+      "pi_cycle_cross": false,
+      "puell_multiple": 1.1632,
+      "lth_supply_pct": 16473108.4673
+    },
+    "mapped": {
+      "nupl": 47,
+      "mvrv_z_score": 48,
+      "rhodl_ratio": 41,
+      "cvdd_ratio": 37,
+      "asopr": 52,
+      "mayer_multiple": 59,
+      "fear_greed": 71,
+      "m2_yoy": 39,
+      "yield_curve_spread": 53,
+      "cipherb": 74,
+      "cipherb_weekly": 77,
+      "cipherb_daily": 64,
+      "etf_flows": 33,
+      "funding_rate": 35
+    }
   }
 ]
