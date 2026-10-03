@@ -1,82 +1,82 @@
 {
-  "timestamp": "2026-10-02T08:01:34Z",
-  "date": "2026-10-02",
-  "btc_price": 86108.52,
-  "btc_dominance": 59.08,
-  "fear_greed": 70.3,
+  "timestamp": "2026-10-03T08:01:32Z",
+  "date": "2026-10-03",
+  "btc_price": 84560.01,
+  "btc_dominance": 59.04,
+  "fear_greed": 69.4,
   "fear_greed_label": "CMC",
-  "nupl": 35.8779,
+  "nupl": 36.6767,
   "mvrv_z_score": 1.0498,
-  "cvdd_ratio": 1.6798,
+  "cvdd_ratio": 1.703,
   "rhodl_ratio": 1008.921,
   "asopr": 1.0038571428571428,
   "etf_flows": {
-    "value": 102.7,
-    "daily_flow": 102.7,
-    "total_cumulative": 58050.0,
-    "date": "2026-10-02"
+    "value": 31.7,
+    "daily_flow": 31.7,
+    "total_cumulative": 58090.0,
+    "date": "2026-10-03"
   },
   "m2": 8.4,
   "failed_live_fetches": [],
   "stale_metrics_count": 0,
   "metrics": {
     "nupl": {
-      "value": 35.8779,
+      "value": 36.6767,
       "source": "BMP",
-      "updated": "2026-10-02T08:00:18Z"
+      "updated": "2026-10-03T08:00:19Z"
     },
     "mvrv": {
       "value": 1.0498,
       "source": "BMP",
-      "updated": "2026-10-02T08:00:31Z"
+      "updated": "2026-10-03T08:00:31Z"
     },
     "m2": {
       "value": 8.4,
       "source": "MacroMicro",
-      "updated": "2026-10-02T08:00:36Z"
+      "updated": "2026-10-03T08:00:35Z"
     },
     "yield_curve": {
-      "value": 0.46,
+      "value": 0.45,
       "source": "BMP",
-      "updated": "2026-10-02T08:00:39Z"
+      "updated": "2026-10-03T08:00:37Z"
     },
     "cvdd_ratio": {
-      "value": 1.6798,
+      "value": 1.703,
       "source": "BMP",
-      "updated": "2026-10-02T08:00:52Z"
+      "updated": "2026-10-03T08:00:48Z"
     },
     "rhodl_ratio": {
       "value": 1008.921,
       "source": "BMP",
-      "updated": "2026-10-02T08:01:02Z"
+      "updated": "2026-10-03T08:01:01Z"
     },
     "asopr": {
       "value": 1.0038571428571428,
       "source": "BMP",
-      "updated": "2026-10-02T08:01:24Z"
+      "updated": "2026-10-03T08:01:21Z"
     },
     "etf_flows": {
       "value": {
-        "value": 102.7,
-        "daily_flow": 102.7,
-        "total_cumulative": 58050.0,
-        "date": "2026-10-02"
+        "value": 31.7,
+        "daily_flow": 31.7,
+        "total_cumulative": 58090.0,
+        "date": "2026-10-03"
       },
       "source": "Farside",
-      "updated": "2026-10-02T08:01:31Z"
+      "updated": "2026-10-03T08:01:30Z"
     },
     "dxy": {
       "value": 120.33,
       "source": "FRED",
-      "updated": "2026-10-02T08:01:34Z"
+      "updated": "2026-10-03T08:01:32Z"
     },
     "fear_greed": {
-      "value": 70.3,
-      "latest": 69.0,
-      "avg_7d": 70.3,
+      "value": 69.4,
+      "latest": 67.0,
+      "avg_7d": 69.4,
       "label": "CMC",
       "source": "CMC",
-      "updated": "2026-10-02T08:01:34Z"
+      "updated": "2026-10-03T08:01:32Z"
     },
     "cipherb": {
       "value": {
@@ -90,66 +90,66 @@
         "fast_bullish_div": false,
         "double_bearish_div": false,
         "double_bullish_div": false,
-        "daily_score": 65.18872649612834,
-        "daily_fast_bearish_div": false,
+        "daily_score": 68.819064621129,
+        "daily_fast_bearish_div": true,
         "daily_fast_bullish_div": false,
         "daily_double_bearish_div": false,
         "daily_double_bullish_div": false
       },
       "source": "Local",
-      "updated": "2026-10-02T08:01:34Z"
+      "updated": "2026-10-03T08:01:33Z"
     },
     "mayer_multiple": {
       "value": {
-        "value": 1.19,
-        "dma_200": 71323.8,
-        "current_price": 84849.1,
+        "value": 1.184,
+        "dma_200": 71371.9,
+        "current_price": 84503.7,
         "score": 43
       },
       "source": "Kraken",
-      "updated": "2026-10-02T08:01:35Z"
+      "updated": "2026-10-03T08:01:33Z"
     },
     "funding_rate": {
       "value": {
-        "latest": 0.01,
+        "latest": -0.00342,
         "avg_7d": 0.00328,
         "score": 36,
         "periods": 21,
         "source": "Bybit+Binance"
       },
       "source": "Bybit+Binance",
-      "updated": "2026-10-02T08:01:35Z"
+      "updated": "2026-10-03T08:01:34Z"
     },
     "halving_cycle_day": {
-      "value": 896,
+      "value": 897,
       "source": "Local",
-      "updated": "2026-10-02T08:01:35Z"
+      "updated": "2026-10-03T08:01:34Z"
     },
     "pi_cycle": {
       "value": {
-        "ma111": 69897.0,
-        "ma350x2": 156192.0,
-        "gap_pct": 55.25,
+        "ma111": 70078.0,
+        "ma350x2": 156067.0,
+        "gap_pct": 55.1,
         "score": 45,
         "cross": false
       },
       "source": "Kraken",
-      "updated": "2026-10-02T08:01:35Z"
+      "updated": "2026-10-03T08:01:34Z"
     },
     "puell_multiple": {
       "value": 1.0333,
       "source": "BMP",
-      "updated": "2026-10-02T08:01:45Z"
+      "updated": "2026-10-03T08:01:43Z"
     },
     "lth_supply_pct": {
       "value": 16470004.4561,
       "source": "BMP",
-      "updated": "2026-10-02T08:01:54Z"
+      "updated": "2026-10-03T08:01:52Z"
     },
     "m2_mom": {
       "value": 8.4,
       "source": "MacroMicro",
-      "updated": "2026-10-02T08:01:54Z"
+      "updated": "2026-10-03T08:01:52Z"
     }
   },
   "m2_mom": 8.4,
@@ -158,9 +158,9 @@
   "final_score": 48,
   "adaptive_calibration": {
     "nupl": {
-      "fixed": 47,
-      "adaptive": 47,
-      "blended": 47,
+      "fixed": 48,
+      "adaptive": 49,
+      "blended": 49,
       "win_years": 4,
       "blend_w": 0.7
     },
@@ -172,23 +172,23 @@
       "blend_w": 0.7
     },
     "cvdd_ratio": {
-      "fixed": 32,
-      "adaptive": 39,
-      "blended": 37,
+      "fixed": 33,
+      "adaptive": 41,
+      "blended": 39,
       "win_years": 4,
       "blend_w": 0.7
     },
     "mayer": {
       "fixed": 43,
-      "adaptive": 69,
-      "blended": 61,
+      "adaptive": 68,
+      "blended": 60,
       "win_years": 4,
       "blend_w": 0.7
     },
     "etf_flows": {
-      "fixed": 40,
-      "adaptive": 49,
-      "blended": 46,
+      "fixed": 38,
+      "adaptive": 45,
+      "blended": 43,
       "win_years": 4,
       "blend_w": 0.7
     }
@@ -197,22 +197,22 @@
   "scoring_regime": "neutral",
   "tiz_score": null,
   "tiz_days": 0,
-  "oc_coherence": 0.478,
-  "coh_factor": 0.713,
+  "oc_coherence": 0.753,
+  "coh_factor": 0.864,
   "pi_cross": false,
   "wave_resonance": {
     "score": 36,
-    "coherence": 0.649,
-    "mean_osc": 0.283,
-    "std_osc": 0.101,
+    "coherence": 0.658,
+    "mean_osc": 0.29,
+    "std_osc": 0.099,
     "oscillators": {
-      "nupl": 0.2489,
+      "nupl": 0.2653,
       "mvrv": 0.2635,
-      "puell": 0.5092,
-      "cvdd_ratio": 0.2249,
-      "pi_gap": 0.144
+      "puell": 0.5097,
+      "cvdd_ratio": 0.2349,
+      "pi_gap": 0.1451
     },
-    "date_used": "2026-10-01",
+    "date_used": "2026-10-02",
     "window_pts": 1096
   },
   "signal": {
@@ -222,7 +222,7 @@
     "flag": "UNCERTAIN",
     "trust": {
       "v3": 0.037,
-      "wr": 0.649
+      "wr": 0.658
     },
     "agreement": "directional",
     "tiz_maturity": null,
@@ -237,29 +237,29 @@
   "v3_onchain_score": 34,
   "v3_tech_score": 56,
   "v3_phase": "NEUTRAL",
-  "v3_w_bot": 0.533,
-  "v3_w_neutral": 0.467,
+  "v3_w_bot": 0.535,
+  "v3_w_neutral": 0.465,
   "v3_w_top": 0.0,
   "v3_utilities": {
-    "nupl": 0.8599600000000001,
-    "mvrv_z_score": 0.8599600000000001,
-    "rhodl_ratio": 0.55332,
-    "cvdd_ratio": 0.71992,
+    "nupl": 0.8605,
+    "mvrv_z_score": 0.8605,
+    "rhodl_ratio": 0.5535,
+    "cvdd_ratio": 0.7210000000000001,
     "asopr": 0.1,
-    "puell": 0.7666,
-    "mayer_multiple": 0.49336,
-    "fear_greed": 0.71328,
+    "puell": 0.7675000000000001,
+    "mayer_multiple": 0.49300000000000005,
+    "fear_greed": 0.7140000000000001,
     "m2_yoy": 0.1,
-    "yield_curve_spread": 0.44004,
-    "etf_flows": 0.5334,
-    "funding_rate": 0.39336,
+    "yield_curve_spread": 0.4395,
+    "etf_flows": 0.5325000000000001,
+    "funding_rate": 0.393,
     "dxy": 0.5,
-    "lth_supply": 0.54668,
+    "lth_supply": 0.5465,
     "pi_gap": 0.1,
-    "cipherb": 0.5400400000000001,
+    "cipherb": 0.5395000000000001,
     "cipherb_weekly": 0.5,
     "cipherb_daily": 0.5,
-    "btc_price_cycle": 0.14004
+    "btc_price_cycle": 0.1395
   },
   "v3_normalized_scores": {
     "nupl": 44,
@@ -268,15 +268,15 @@
     "cvdd_ratio": 20,
     "asopr": 52,
     "puell": 39,
-    "mayer_multiple": 61,
-    "fear_greed": 70,
-    "yield_curve_spread": 51,
-    "etf_flows": 46,
+    "mayer_multiple": 60,
+    "fear_greed": 69,
+    "yield_curve_spread": 52,
+    "etf_flows": 43,
     "funding_rate": 36,
     "dxy": 80,
     "lth_supply": 13,
-    "cipherb": 74,
-    "btc_price_cycle": 72
+    "cipherb": 78,
+    "btc_price_cycle": 71
   },
   "v3_dxy_adj": {
     "score": 80,
@@ -289,7 +289,7 @@
     "flag": "UNCERTAIN",
     "trust": {
       "v3": 0.037,
-      "wr": 0.649
+      "wr": 0.658
     },
     "agreement": "directional",
     "tiz_maturity": null,
@@ -304,14 +304,14 @@
   "v3_tiz_days": 0,
   "v3_tiz_maturity": null,
   "v3_tiz_calibration": 200,
-  "v5b_score": 31.4,
+  "v5b_score": 32.6,
   "v5b_validated": false,
-  "meta_score": 35.6,
-  "signal_agreement": 0.81,
+  "meta_score": 38.1,
+  "signal_agreement": 0.85,
   "market_regime": "Wait",
   "decision_suppressed": true,
   "decision_suppression_reason": "v5b_not_better_than_baseline",
-  "composite_risk": 36.1,
+  "composite_risk": 38.5,
   "v3_oc_coherence": 0.037,
   "data_quality": {
     "active_metrics": 15,
@@ -343,12 +343,12 @@
     }
   },
   "bri_score": 48,
-  "forward_risk": 31.4,
+  "forward_risk": 32.6,
   "market_context": {
     "score": 48,
     "phase": "NEUTRAL",
-    "bottom_weight": 0.533,
-    "neutral_weight": 0.467,
+    "bottom_weight": 0.535,
+    "neutral_weight": 0.465,
     "top_weight": 0.0
   },
   "sp_v2": 47,
@@ -356,16 +356,16 @@
     "phase": "NEUTRAL",
     "top_signal": 0,
     "bot_signal": 5,
-    "w_bot": 0.533,
-    "w_neutral": 0.467,
+    "w_bot": 0.535,
+    "w_neutral": 0.465,
     "w_top": 0.0,
     "method": "heuristic_hmm_cycle_blend",
     "probabilistic": false
   },
   "base": {
-    "btc_price": 86108.52,
+    "btc_price": 84560.01,
     "nupl": {
-      "raw": 35.8779,
+      "raw": 36.6767,
       "score": 44
     },
     "mvrv": {
@@ -377,7 +377,7 @@
       "score": 32
     },
     "cvdd_ratio": {
-      "raw": 1.6798,
+      "raw": 1.703,
       "score": 20
     },
     "asopr": {
@@ -390,37 +390,37 @@
     },
     "mayer_multiple": {
       "raw": {
-        "value": 1.19,
-        "dma_200": 71323.8,
-        "current_price": 84849.1,
+        "value": 1.184,
+        "dma_200": 71371.9,
+        "current_price": 84503.7,
         "score": 43
       },
-      "score": 61
+      "score": 60
     },
     "fear_greed": {
-      "raw": 70.3,
-      "score": 70
+      "raw": 69.4,
+      "score": 69
     },
     "m2_mom": {
       "raw": 8.4,
       "score": 39
     },
     "yield_curve": {
-      "raw": 0.46,
-      "score": 51
+      "raw": 0.45,
+      "score": 52
     },
     "etf_flows": {
       "raw": {
-        "value": 102.7,
-        "daily_flow": 102.7,
-        "total_cumulative": 58050.0,
-        "date": "2026-10-02"
+        "value": 31.7,
+        "daily_flow": 31.7,
+        "total_cumulative": 58090.0,
+        "date": "2026-10-03"
       },
-      "score": 46
+      "score": 43
     },
     "funding_rate": {
       "raw": {
-        "latest": 0.01,
+        "latest": -0.00342,
         "avg_7d": 0.00328,
         "score": 36,
         "periods": 21,
@@ -441,13 +441,13 @@
     "baskets": {
       "OC": 34,
       "MS": 59,
-      "MC": 45,
-      "CP": 72
+      "MC": 46,
+      "CP": 71
     },
     "phase": {
       "label": "NEUTRAL",
-      "w_bot": 0.533,
-      "w_neu": 0.467,
+      "w_bot": 0.535,
+      "w_neu": 0.465,
       "w_top": 0.0
     },
     "OC_read": 30,
@@ -462,34 +462,34 @@
       "calibration": 200
     },
     "utilities": {
-      "nupl": 0.8599600000000001,
-      "mvrv_z_score": 0.8599600000000001,
-      "rhodl_ratio": 0.55332,
-      "cvdd_ratio": 0.71992,
+      "nupl": 0.8605,
+      "mvrv_z_score": 0.8605,
+      "rhodl_ratio": 0.5535,
+      "cvdd_ratio": 0.7210000000000001,
       "asopr": 0.1,
-      "puell": 0.7666,
-      "mayer_multiple": 0.49336,
-      "fear_greed": 0.71328,
-      "m2_yoy": 0.44004,
-      "yield_curve_spread": 0.44004,
-      "etf_flows": 0.5334,
-      "funding_rate": 0.39336,
+      "puell": 0.7675000000000001,
+      "mayer_multiple": 0.49300000000000005,
+      "fear_greed": 0.7140000000000001,
+      "m2_yoy": 0.4395,
+      "yield_curve_spread": 0.4395,
+      "etf_flows": 0.5325000000000001,
+      "funding_rate": 0.393,
       "dxy": 0.5,
-      "lth_supply": 0.54668,
+      "lth_supply": 0.5465,
       "pi_gap": 0.1,
-      "cipherb": 0.5400400000000001,
+      "cipherb": 0.5395000000000001,
       "cipherb_weekly": 0.5,
       "cipherb_daily": 0.5,
-      "btc_price_cycle": 0.14004
+      "btc_price_cycle": 0.1395
     }
   },
   "scoring": {
     "final_score": 47,
-    "v5b_score": 27.8,
-    "meta_score": 35.6,
-    "signal_agreement": 0.81,
+    "v5b_score": 31.6,
+    "meta_score": 38.1,
+    "signal_agreement": 0.85,
     "market_regime": "Wait",
-    "composite_risk": 36.1,
+    "composite_risk": 38.5,
     "dxy_adj": 0.0,
     "pi_cross": false,
     "flag": "UNCERTAIN",
@@ -497,9 +497,9 @@
   },
   "archive": {
     "v1": {
-      "onchain_score": 49,
-      "tech_score": 59,
-      "final_score": 54
+      "onchain_score": 50,
+      "tech_score": 61,
+      "final_score": 56
     },
     "v2": {
       "onchain_score": 48,
@@ -510,16 +510,16 @@
     }
   },
   "prev_week": {
-    "date": "2026-09-25",
+    "date": "2026-09-26",
     "final_score": 49,
     "onchain_score": 34,
-    "tech_score": 62
+    "tech_score": 60
   },
   "prev_day": {
-    "date": "2026-10-01",
+    "date": "2026-10-02",
     "final_score": 48,
-    "onchain_score": 36,
-    "tech_score": 57
+    "onchain_score": 34,
+    "tech_score": 59
   },
   "score_history": [
     {
@@ -29976,6 +29976,11 @@
       "date": "2026-10-02",
       "score": 48,
       "price": 86108.52
+    },
+    {
+      "date": "2026-10-03",
+      "score": 48,
+      "price": 84560.01
     }
   ],
   "recovery_window": {
