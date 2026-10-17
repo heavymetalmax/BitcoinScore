@@ -145,9 +145,11 @@ Using a starting capital of **$1,000** in December 2018, we compared different e
 | **Baseline (Sell immediately at Score $\ge 60$)** | **$171,940** | +17,094% | 10 | Sold early at **$35,404** (missed peak extension) |
 | **Price Trailing Stop (10%)** | **$152,009** | +15,100% | 9 | Volatility triggered premature exit |
 | **Price Trailing Stop (20%)** | **$54,474** | +5,347% | 9 | Gave back too much profit on corrections |
-| **Score Trailing Stop (5 pt drop)** | **$313,479** | **+31,247%** | 10 | Captured peak rollover; sold at **$66,001** |
+| **Score Trailing Stop (5 pt drop)** | $313,479 | +31,247% (in-sample) | 10 | Captured peak rollover; sold at **$66,001** |
 
-### Why Score-based Trailing Stops Outperform
+> **Caveat:** all figures above are in-sample. The model, thresholds and the 5-point stop were calibrated on the same ~8–10 cycle events, the stop width was the best of several tested values, and no out-of-sample period exists. They illustrate the mechanism and are not expected returns.
+
+### Why Score-based Trailing Stops Scored Highest In-Sample
 Price-based trailing stops are vulnerable to Bitcoin's intraday volatility wicks. In contrast, the **Risk Score** represents on-chain and macro structure. By letting the score run as high as it wants (often staying in the 80–98 range for weeks during a blow-off top) and exiting only when the score drops by **5 points** from its running maximum, the strategy captures the vertical parabolic blow-off phase while remaining protected from early exits.
 
 ---

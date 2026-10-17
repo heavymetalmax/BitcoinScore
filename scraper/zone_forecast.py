@@ -23,6 +23,7 @@ with the usual co-movement of momentum and sentiment, where does the index sit".
 """
 import copy
 from . import scoring as S
+from . import maps as _maps  # _HIST_CACHE lives in maps.py (single source)
 
 BUY_THRESHOLD = 20
 SELL_THRESHOLD = 80
@@ -107,7 +108,7 @@ def _rescale(metrics, k, price0, direction):
 
 
 def _score(metrics, k, price0, direction):
-    S._HIST_CACHE.clear()
+    _maps._HIST_CACHE.clear()
     return S.compute_scores(_rescale(metrics, k, price0, direction))['final_score']
 
 
@@ -166,5 +167,8 @@ def compute_zone_forecast(metrics, btc_price):
             'realized_price': round(realized),
             'ref_price': round(btc_price),
         }
-    except Exception:
+    except Exception as e:
+        import traceback
+        print('compute_zone_forecast failed:', e)
+        traceback.print_exc()
         return None

@@ -1033,24 +1033,26 @@
   <!-- Hero: live score card -->
   <div class="hero-score-card">
     <div class="hero-score-left">
-      <div class="hero-score-number">25</div>
+      <div class="hero-score-number" id="hero-score-num">25</div>
       <div class="hero-score-denom">out of 100</div>
     </div>
     <div class="hero-score-right">
       <div class="hero-phase-row">
         <span class="hero-phase-dot"></span>
         <span class="hero-phase-label">
-          <span class="en">Confirmed Bottom</span>
-          <span class="ua">Підтверджене дно</span>
+          <span class="en" id="hero-phase-en">Bottom phase (model estimate)</span>
+          <span class="ua" id="hero-phase-ua">Фаза дна (оцінка моделі)</span>
         </span>
       </div>
       <div class="hero-meta-row">
-        <div class="hero-meta-item"><span class="en">BTC Price</span><span class="ua">Ціна BTC</span> <strong>$63,806</strong></div>
-        <div class="hero-meta-item"><span class="en">Phase</span><span class="ua">Фаза</span> <strong>w_bot = 99.9%</strong></div>
+        <div class="hero-meta-item"><span class="en">BTC Price</span><span class="ua">Ціна BTC</span> <strong id="hero-price">$63,806</strong></div>
+        <div class="hero-meta-item"><span class="en">Phase</span><span class="ua">Фаза</span> <strong id="hero-wbot">w_bot = 99.9%</strong></div>
         <div class="hero-meta-item"><span class="en">Signal</span><span class="ua">Сигнал</span> <strong><span class="en">DCA Accumulation</span><span class="ua">DCA Накопичення</span></strong></div>
       </div>
     </div>
   </div>
+
+  <p id="hero-note" style="font-size:11px;color:var(--text-mute);margin:-6px 0 10px;"><span class="en">Static example snapshot, not live. A model phase estimate is not a confirmed bottom. Live values are on the dashboard.</span><span class="ua">Статичний приклад, не live. Оцінка фази моделлю не є підтвердженим дном. Актуальні значення на дашборді.</span></p>
 
   <!-- Risk spectrum: 0–100 gradient with live marker + zone labels -->
   <div class="risk-spectrum" aria-hidden="true">
@@ -1363,8 +1365,8 @@
     </div>
   </div>
 
-  <p class="en">This Score-based Trailing Stop strategy significantly outperforms fixed exits or price-based trailing stops by letting the score run high during blow-off tops and exiting only when the macro structure rolls over:</p>
-  <p class="ua">Цей підхід суттєво перевершує фіксовані виходи чи цінові трейлінг-стопи, оскільки дозволяє утримувати позицію під час вертикального параболічного зростання та фіксувати прибуток при початку розвороту макроструктури:</p>
+  <p class="en">The Score-based Trailing Stop scored highest on this history by letting the score run through blow-off tops and exiting when it rolls over. <strong>Caution:</strong> these are in-sample results. The model, the 5-point stop and the thresholds were all tuned on the same roughly 8–10 cycle events (two to three market cycles), the stop width was picked as the best of several tested values, and there is no out-of-sample period. Treat the figures as an illustration of the mechanism, not as expected returns:</p>
+  <p class="ua">Трейлінг-стоп за оцінкою показав найкращий результат на цій історії: він утримує позицію на параболічних піках і виходить, коли оцінка розвертається. <strong>Увага:</strong> це результати in-sample. Модель, 5-пунктний стоп і пороги підбиралися на тих самих ~8–10 подіях циклів (два-три ринкові цикли), ширину стопу обрано як найкращу з кількох перевірених, а вибірки поза навчанням немає. Сприймайте цифри як ілюстрацію механізму, а не як очікувану дохідність:</p>
 
   <div class="glass-card" style="padding: 0; overflow-x: auto;">
     <table>
@@ -1379,7 +1381,7 @@
       </thead>
       <tbody>
         <tr>
-          <td><strong><span class="en">Baseline (Sell at Score &ge; 60)</span><span class="ua">Базова (вихід при Score &ge; 60)</span></strong></td>
+          <td><strong><span class="en">Baseline (Sell at Score &ge; 60, backtest parameter)</span><span class="ua">Базова (вихід при Score &ge; 60)</span></strong></td>
           <td>$171,940</td>
           <td>+17,094%</td>
           <td>10</td>
@@ -1394,8 +1396,8 @@
         </tr>
         <tr>
           <td><strong><span class="en">Score Trailing Stop (5 pt drop)</span><span class="ua">Трейлінг-стоп за оцінкою (5 п.)</span></strong></td>
-          <td><strong>$313,479</strong></td>
-          <td><strong>+31,247%</strong></td>
+          <td>$313,479</td>
+          <td>+31,247% <span style="font-size:10px;color:var(--text-mute)">(in-sample)</span></td>
           <td>10</td>
           <td><span class="en">Sold at peak rollover: $66,001</span><span class="ua">Продано на розвороті піку: $66,001</span></td>
         </tr>
@@ -1747,6 +1749,18 @@
             document.documentElement.style.setProperty('--index-color-glow', scoreColor(finalVal, 0.08));
           }
 
+          // Hero card: replace the static example with live values when available
+          try {
+            const e = id => document.getElementById(id);
+            if (e('hero-score-num')) e('hero-score-num').textContent = finalVal;
+            if (e('hero-price') && data.btc_price) e('hero-price').textContent = '$' + Math.round(data.btc_price).toLocaleString('en-US');
+            const wb = data.phase && data.phase.w_bot;
+            if (e('hero-wbot') && wb != null) e('hero-wbot').textContent = 'w_bot = ' + (wb <= 1 ? (wb*100).toFixed(1) : (+wb).toFixed(1)) + '%';
+            if (e('hero-note')) { const d = (data.timestamp||'').slice(0,10); e('hero-note').innerHTML = '<span class="en">Live from data.json' + (d ? ' (' + d + ')' : '') + '. Phase is a model estimate, not a confirmed bottom.</span><span class="ua">Live з data.json' + (d ? ' (' + d + ')' : '') + '. Фаза є оцінкою моделі, а не підтвердженим дном.</span>'; }
+            document.querySelectorAll('#hero-phase-en,#hero-phase-ua').forEach(x => x.textContent = (x.id.endsWith('en') ? 'Phase: ' : 'Фаза: ') + (data.v3_phase || (data.phase && data.phase.phase) || '—') + (x.id.endsWith('en') ? ' (model estimate)' : ' (оцінка моделі)'));
+            const tick = document.querySelector('.risk-spectrum-tick');
+            if (tick) { tick.style.left = Math.max(0, Math.min(100, finalVal)) + '%'; const v = tick.querySelector('.risk-spectrum-value'); if (v) v.textContent = finalVal; }
+          } catch (_) {}
           // Fill live milestone row from data.json
           const liveDate = (data.timestamp || '').slice(0, 10);
           const livePrice = data.btc_price;

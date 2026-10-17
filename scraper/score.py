@@ -483,7 +483,7 @@ def compute_score(
     # ── 6g. DXY macro modifier ────────────────────────────────────────────────
     dxy_score = normalized.get('dxy')
     dxy_adj   = 0.0
-    if dxy_score is not None:
+    if dxy_score is not None and dxy_cfg.get('enabled', True):
         if dxy_score > dxy_cfg['high']:
             dxy_adj = -min(dxy_cfg['max_adj'], (dxy_score - dxy_cfg['high']) * dxy_cfg['scale'])
         elif dxy_score < dxy_cfg['low']:

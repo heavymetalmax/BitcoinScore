@@ -19,6 +19,8 @@
     "weight": 0.20
   },
   "dxy_modifier": {
+    "enabled": false,
+    "_enabled_note": "Off by default: DXY is a fiat/macro input, not a crypto-native signal; keeping it out of the headline score keeps the index purely crypto. dxy_adj is still reported (0 when disabled).",
     "_comment": "DXY macro modifier. IC(dxy_norm, fwd_ret_365)=+0.28 from backtest_dxy.py. High DXY = BTC bottom = REDUCE risk score.",
     "high": 80,
     "low": 20,

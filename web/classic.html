@@ -570,7 +570,7 @@
 
 <nav>
   <div class="nav-inner">
-    <div class="nav-logo" role="heading" aria-level="1">BTC<span id="logo-bri">BRI</span><span id="logo-version">alfa 0.4</span><span>Bitcoin Buy Risk Index</span></div>
+    <div class="nav-logo" role="heading" aria-level="1">BTC<span id="logo-bri">BRI</span><span id="logo-version">alpha v3.2</span><span>Bitcoin Buy Risk Index</span></div>
     <div class="nav-links">
       <a href="about.html#philosophy"><span class="en">About</span><span class="ua">Про індикатор</span></a>
       <a href="about.html#construction"><span class="en">Methodology</span><span class="ua">Методологія</span></a>
@@ -646,11 +646,11 @@
           <div class="zone-desc" style="font-size: 11px; color: var(--muted); line-height: 1.4; margin-top: 6px;"><span class="en">Holding today's on-chain cost basis fixed, this solves for the price at which the score would reach each zone.</span><span class="ua">Тримаючи сьогоднішню ончейн-собівартість незмінною, формула розв'язується щодо ціни, за якої бал дійшов би до кожної зони.</span></div>
           <div class="zone-rows" style="margin: 12px 0;">
             <div class="zone-row" style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-              <div class="zone-row-left" style="display: flex; align-items: center; gap: 8px;"><div class="zone-dot" style="background:#EF4444; width: 8px; height: 8px; border-radius: 50%;"></div><span class="en">Sell Zone (≥80)</span><span class="ua">Продаж (≥80)</span></div>
+              <div class="zone-row-left" style="display: flex; align-items: center; gap: 8px;"><div class="zone-dot" style="background:#EF4444; width: 8px; height: 8px; border-radius: 50%;"></div><span class="en">Sell Zone (≥<span class="zt-sell">80</span>)</span><span class="ua">Продаж (≥<span class="zt-sell">80</span>)</span></div>
               <span class="zone-price" id="zone-sell" style="font-weight: 700;">—</span>
             </div>
             <div class="zone-row" style="display: flex; justify-content: space-between;">
-              <div class="zone-row-left" style="display: flex; align-items: center; gap: 8px;"><div class="zone-dot" style="background:#22C55E; width: 8px; height: 8px; border-radius: 50%;"></div><span class="en">Buy Zone (≤20)</span><span class="ua">Купівля (≤20)</span></div>
+              <div class="zone-row-left" style="display: flex; align-items: center; gap: 8px;"><div class="zone-dot" style="background:#22C55E; width: 8px; height: 8px; border-radius: 50%;"></div><span class="en">Buy Zone (≤<span class="zt-buy">20</span>)</span><span class="ua">Купівля (≤<span class="zt-buy">20</span>)</span></div>
               <span class="zone-price" id="zone-buy" style="font-weight: 700;">—</span>
             </div>
           </div>
@@ -781,7 +781,7 @@
               <g transform="translate(5,92)">
                 <rect width="58" height="27" rx="5" fill="#0C0A15" stroke="#3B82F6" stroke-width="1.2" filter="drop-shadow(0 0 2px rgba(59,130,246,.3))"/>
                 <text x="29" y="10.5" fill="#60A5FA" font-size="5.5" font-family="monospace" font-weight="bold" text-anchor="middle">MACRO/FLOW</text>
-                <text x="29" y="18.5" fill="#9CA3AF" font-size="3.9" font-family="sans-serif" text-anchor="middle">M2 YoY · Yield · DXY</text>
+                <text x="29" y="18.5" fill="#9CA3AF" font-size="3.9" font-family="sans-serif" text-anchor="middle">M2 YoY · Yield Curve</text>
                 <text x="29" y="25.5" fill="#6B7280" font-size="3.7" font-family="sans-serif" text-anchor="middle">BTC Price (Kraken OHLCV)</text>
                 <circle id="hd-mc" cx="54" cy="3.5" r="3.5" fill="#10B981"/>
               </g>
@@ -1374,9 +1374,9 @@
         <button class="time-btn" data-range="3M">3M</button>
       </div>
       <div class="chart-legend">
-        <span><span class="legend-dot" style="background:#22C55E"></span><span class="en">Buy zone (≤15)</span><span class="ua">Зона купівлі (≤15)</span></span>
+        <span><span class="legend-dot" style="background:#22C55E"></span><span class="en">Buy zone (≤20)</span><span class="ua">Зона купівлі (≤20)</span></span>
         <span><span class="legend-dot" style="background:#EAB308"></span><span class="en">Neutral (50)</span><span class="ua">Нейтрально (50)</span></span>
-        <span><span class="legend-dot" style="background:#EF4444"></span><span class="en">Sell zone (≥85)</span><span class="ua">Зона продажу (≥85)</span></span>
+        <span><span class="legend-dot" style="background:#EF4444"></span><span class="en">Sell zone (≥80)</span><span class="ua">Зона продажу (≥80)</span></span>
         <span><span class="legend-dot" style="background:#38BDF8; border-radius:2px;"></span><span class="en">Outlook / expected drawdown %</span><span class="ua">Прогноз drawdown %</span></span>
       </div>
     </div>
@@ -1529,19 +1529,19 @@ document.getElementById('langToggle').addEventListener('click', () => {
 // ─── ZONE HELPERS ──────────────────────────────────────
 function scoreToColor(s) {
   if (s == null) return 'var(--muted)';
-  if (s <= 15) return '#22C55E';
-  if (s >= 85) return '#EF4444';
+  if (s <= 20) return '#22C55E';
+  if (s >= 80) return '#EF4444';
   const green  = [34, 197, 94];
   const yellow = [234, 179, 8];
   const red    = [239, 68, 68];
   let r, g, b;
   if (s <= 50) {
-    const t = (s - 15) / 35;
+    const t = (s - 20) / 30;
     r = Math.round(green[0]  + t * (yellow[0] - green[0]));
     g = Math.round(green[1]  + t * (yellow[1] - green[1]));
     b = Math.round(green[2]  + t * (yellow[2] - green[2]));
   } else {
-    const t = (s - 50) / 35;
+    const t = (s - 50) / 30;
     r = Math.round(yellow[0] + t * (red[0] - yellow[0]));
     g = Math.round(yellow[1] + t * (red[1] - yellow[1]));
     b = Math.round(yellow[2] + t * (red[2] - yellow[2]));
@@ -2351,6 +2351,8 @@ async function loadData() {
   const zf = data.zone_forecast || {};
   if (zf.sell)           set('zone-sell',     '≥ ' + fmtPriceK(zf.sell.price));
   if (zf.buy)            set('zone-buy',      '≤ ' + fmtPriceK(zf.buy.price));
+  if (zf.sell_threshold != null) document.querySelectorAll('.zt-sell').forEach(e => e.textContent = zf.sell_threshold);
+  if (zf.buy_threshold  != null) document.querySelectorAll('.zt-buy').forEach(e => e.textContent = zf.buy_threshold);
 
   // Gauge tags
   const frObj = m.funding_rate && m.funding_rate.value ? m.funding_rate.value : null;
@@ -2703,13 +2705,13 @@ function updateGaugeTags(score, vals, keys, fr, recoveryWindow, normScores) {
 
   const tags = [];
 
-  // Recovery Entry Window: score 25-45 within 120d of a confirmed bottom (score ≤22)
+  // Post-low window: score 25-45 within 120d of a local low (score ≤22). The low is only known in hindsight, so this is descriptive, not a signal.
   // Historical win rate: 77% positive 90d return, avg +47.8% vs +4.2% for random 25-45
   if (recoveryWindow && recoveryWindow.active) {
     const d = recoveryWindow.days_since_bottom;
     tags.push({ cls: 'tag-recovery', icon: ICON_BTC,
-      en: `Recovery Entry — ${d}d from confirmed bottom`,
-      ua: `Вікно входу — ${d} днів від підтвердженого дна` });
+      en: `Post-low window — ${d}d since the local low (historical pattern, not a signal)`,
+      ua: `Вікно після мінімуму — ${d} днів від локального дна (історичний патерн, не сигнал)` });
   }
 
   // Tactical Buy: score ≤ 30 AND funding < 0
