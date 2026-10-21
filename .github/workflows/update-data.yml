@@ -2,7 +2,7 @@ name: Update BTC Data
 
 on:
   schedule:
-    - cron: '0 10 * * *'  # fallback at 13:00 Kyiv — after 11:00 home-server run
+    - cron: '10 12 * * *'  # fallback at 08:10 ET (12:10 UTC; GitHub runs it hours late - accepted). Freshness-check skips if the 08:00 ET home-server run already updated.
   workflow_dispatch: {}
 
 jobs:
