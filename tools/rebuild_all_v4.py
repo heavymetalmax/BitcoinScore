@@ -24,6 +24,7 @@ def _run_step(label: str, cmd: list[str]) -> None:
 
 def recompute_recent_scores(days: int = 365) -> None:
     """Recompute V4 scores in data/history/scores.json for the last `days` entries."""
+    import bisect
     from scraper.score import compute_score
     from scraper.cycle_normalizer import invalidate_caches as inv_cycle
     from scraper.maps import invalidate_caches as inv_maps
@@ -39,24 +40,71 @@ def recompute_recent_scores(days: int = 365) -> None:
     with open(scores_path, encoding='utf-8') as f:
         rows = json.load(f)
 
+    # Load weekly and daily CipherB history for accurate historical reconstruction
+    wk_rows_by_date = {}
+    wk_path = os.path.join(ROOT, 'data', 'history', 'cipherb_btcusdt_1w.json')
+    if os.path.exists(wk_path):
+        raw_wk = json.load(open(wk_path, encoding='utf-8'))
+        for r in (raw_wk.get('series', raw_wk) if isinstance(raw_wk, dict) else raw_wk):
+            if isinstance(r, dict) and r.get('date') and r.get('weekly_score') is not None:
+                wk_rows_by_date[r['date'][:10]] = r
+    wk_dates = sorted(wk_rows_by_date.keys())
+
+    d1_rows_by_date = {}
+    d1_path = os.path.join(ROOT, 'data', 'history', 'cipherb_btcusdt_1d.json')
+    if os.path.exists(d1_path):
+        raw_d1 = json.load(open(d1_path, encoding='utf-8'))
+        for r in (raw_d1.get('series', raw_d1) if isinstance(raw_d1, dict) else raw_d1):
+            if isinstance(r, dict) and r.get('date') and r.get('daily_score') is not None:
+                d1_rows_by_date[r['date'][:10]] = r
+
     cutoff = (datetime.date.today() - datetime.timedelta(days=days)).isoformat()
     updated = 0
     history_tuples = []
+    last_res = None
+    n_rows = len(rows)
 
-    for row in rows:
+    for row_idx, row in enumerate(rows):
         d_str = row.get('date', '')[:10]
         if not d_str:
             continue
+        # Backfill missing cipherb_daily in scores.json from 1d history
+        if row.get('cipherb_daily') is None and d_str in d1_rows_by_date:
+            row['cipherb_daily'] = round(float(d1_rows_by_date[d_str]['daily_score']), 2)
+
         if d_str < cutoff or row.get('nupl') is None or row.get('mvrv') is None:
             history_tuples.append((d_str, row.get('final_score'), row.get('phase'), row.get('w_bot')))
             continue
 
         td = datetime.date.fromisoformat(d_str)
         cb_val = row.get('cipherb_daily')
-        cb_dict = (
-            {'weekly_score': cb_val, 'daily_score': cb_val, 'fast_bearish_div': False}
-            if cb_val is not None else None
-        )
+        wk_r = {}
+        if wk_dates:
+            idx = bisect.bisect_right(wk_dates, d_str) - 1
+            if idx >= 0:
+                wk_r = wk_rows_by_date[wk_dates[idx]]
+        d1_r = d1_rows_by_date.get(d_str, {})
+        wk_score = wk_r.get('weekly_score', cb_val)
+
+        cb_dict = None
+        if wk_score is not None or cb_val is not None:
+            cb_dict = {
+                'weekly_score':             wk_score if wk_score is not None else cb_val,
+                'daily_score':              cb_val,
+                'fast_bearish_div':         bool(wk_r.get('fast_bearish_div', False)),
+                'fast_bullish_div':         bool(wk_r.get('fast_bullish_div', False)),
+                'bearish_div':              bool(wk_r.get('bearish_div', False)),
+                'bullish_div':              bool(wk_r.get('bullish_div', False)),
+                'double_bearish_div':       bool(wk_r.get('double_bearish_div', False)),
+                'double_bullish_div':       bool(wk_r.get('double_bullish_div', False)),
+                'daily_fast_bearish_div':   bool(d1_r.get('fast_bear_div', False)),
+                'daily_fast_bullish_div':   bool(d1_r.get('fast_bull_div', False)),
+                'daily_bearish_div':        bool(d1_r.get('bearish_div', False)),
+                'daily_bullish_div':        bool(d1_r.get('bullish_div', False)),
+                'daily_double_bearish_div': bool(d1_r.get('double_bearish_div', False)),
+                'daily_double_bullish_div': bool(d1_r.get('double_bullish_div', False)),
+            }
+
         raw = {
             'nupl': row.get('nupl'),
             'mvrv': row.get('mvrv'),
@@ -79,15 +127,16 @@ def recompute_recent_scores(days: int = 365) -> None:
         res = compute_score(
             raw_metrics=raw,
             target_date=td,
+            prev_scores={},
             scores_history=history_tuples,
             btc_price=row.get('btc_price'),
             persist_hmm_cache=False,
-            include_v5b=True,
+            include_v5b=(row_idx >= n_rows - 14),
         )
         if res.get('final_score') is not None:
             row['final_score'] = res['final_score']
-            row['onchain_score'] = res.get('onchain_score')
-            row['tech_score'] = res.get('tech_score')
+            row['onchain_score'] = res.get('onchain_avg')
+            row['tech_score'] = res.get('tech_avg')
             row['phase'] = res.get('phase')
             row['w_bot'] = res.get('w_bot')
             row['w_top'] = res.get('w_top')
@@ -96,12 +145,45 @@ def recompute_recent_scores(days: int = 365) -> None:
             if res.get('market_regime') is not None:
                 row['market_regime'] = res['market_regime']
             updated += 1
+            last_res = res
 
         history_tuples.append((d_str, row.get('final_score'), row.get('phase'), row.get('w_bot')))
 
     with open(scores_path, 'w', encoding='utf-8') as f:
         json.dump(rows, f, separators=(',', ':'))
     print(f"Recomputed V4 scores for {updated} rows in {scores_path}")
+
+    # Sync latest recomputed score into data/data.json and web/data.json
+    if last_res is not None:
+        for dp in [os.path.join(ROOT, 'data', 'data.json'), os.path.join(ROOT, 'web', 'data.json')]:
+            if os.path.exists(dp):
+                try:
+                    payload = json.load(open(dp, encoding='utf-8'))
+                    payload['final_score'] = last_res['final_score']
+                    payload['onchain_score'] = last_res.get('onchain_avg')
+                    payload['tech_score'] = last_res.get('tech_avg')
+                    payload['phase'] = last_res.get('phase')
+                    payload['w_bot'] = last_res.get('w_bot')
+                    payload['w_neutral'] = last_res.get('w_neutral')
+                    payload['w_top'] = last_res.get('w_top')
+                    payload['oc_basket'] = last_res.get('oc_basket')
+                    payload['ms_basket'] = last_res.get('ms_basket')
+                    payload['mc_basket'] = last_res.get('mc_basket')
+                    payload['cp_basket'] = last_res.get('cp_basket')
+                    payload['utilities'] = last_res.get('utilities')
+                    payload['normalized_scores'] = last_res.get('normalized_scores')
+                    if last_res.get('v5b_score') is not None:
+                        payload['v5b_score'] = last_res['v5b_score']
+                    if last_res.get('market_regime') is not None:
+                        payload['market_regime'] = last_res['market_regime']
+                    if last_res.get('composite_risk') is not None:
+                        payload['composite_risk'] = last_res['composite_risk']
+                    if last_res.get('meta_score') is not None:
+                        payload['meta_score'] = last_res['meta_score']
+                    with open(dp, 'w', encoding='utf-8') as f:
+                        json.dump(payload, f, indent=2)
+                except Exception as e:
+                    print(f"Warning: failed to update {dp}: {e}")
 
 
 def main() -> None:

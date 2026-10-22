@@ -47,7 +47,8 @@ MILESTONES = [
     ("2025-10-06", "2025 ATH",           124_659),
     ("2025-11-10", "Post-ATH dump",       94_000),
     ("2026-04-25", "Local low",           77_500),
-    ("2026-07-19", "Today",               64_574),
+    ("2026-07-19", "Jul 2026 low",        64_574),
+    ("2026-10-22", "Today",               70_092),
 ]
 
 # ── Data loading ─────────────────────────────────────────────────────────────
@@ -87,6 +88,7 @@ def load_data():
     wk_path = os.path.join('data', 'history', 'cipherb_btcusdt_1w.json')
     cipherb_weekly = []
     cipherb_weekly_fb = []  # fast_bearish_div flag as 1/0 series
+    cipherb_weekly_rows = {}
     if os.path.exists(wk_path):
         raw_wk = json.load(open(wk_path, encoding='utf-8'))
         wk_rows = raw_wk if isinstance(raw_wk, list) else raw_wk.get('series', raw_wk)
@@ -102,11 +104,23 @@ def load_data():
             if d is not None and ws is not None:
                 cipherb_weekly.append((d, float(ws)))
                 cipherb_weekly_fb.append((d, 1.0 if fb else 0.0))
+                cipherb_weekly_rows[d[:10]] = r
         cipherb_weekly.sort()
         cipherb_weekly_fb.sort()
         print(f"  {'cipherb_weekly':<20s}: {len(cipherb_weekly):5d} pts  ({cipherb_weekly[0][0]} → {cipherb_weekly[-1][0]})")
     series['cipherb_weekly']    = cipherb_weekly
     series['cipherb_weekly_fb'] = cipherb_weekly_fb
+    series['_cipherb_weekly_rows'] = cipherb_weekly_rows
+
+    d1_path = os.path.join('data', 'history', 'cipherb_btcusdt_1d.json')
+    cipherb_daily_rows = {}
+    if os.path.exists(d1_path):
+        raw_d1 = json.load(open(d1_path, encoding='utf-8'))
+        d1_rows = raw_d1 if isinstance(raw_d1, list) else raw_d1.get('series', raw_d1)
+        for r in d1_rows:
+            if isinstance(r, dict) and r.get('date'):
+                cipherb_daily_rows[r['date'][:10]] = r
+    series['_cipherb_daily_rows'] = cipherb_daily_rows
 
     # ETF flows
     etf_path = os.path.join('data', 'history', 'etf_flows.json')
@@ -213,9 +227,47 @@ def load_data():
             print(f"  {'daily_vector inject':<20s}: {len(dates_dv):5d} pts  ({dates_dv[0]} → {dates_dv[-1]})")
 
     for k, s in series.items():
+        if k.startswith('_'):
+            continue
         if s:
             print(f"  {k:<20s}: {len(s):5d} pts  ({s[0][0]} → {s[-1][0]})")
     return series
+
+
+def _build_cb_dict(td: datetime.date, series: dict, wk_score, wk_fb, cb_daily):
+    """Build full CipherB dict with weekly & daily divergence flags for target_date."""
+    if wk_score is None and cb_daily is None:
+        return None
+    td_str = td.isoformat()
+    wk_rows = series.get('_cipherb_weekly_rows', {})
+    d1_rows = series.get('_cipherb_daily_rows', {})
+
+    # Find nearest weekly row <= td_str (or within 7 days)
+    wk_r = {}
+    if wk_rows:
+        wk_dates = sorted(wk_rows.keys())
+        idx = bisect.bisect_right(wk_dates, td_str) - 1
+        if idx >= 0 and abs((td - datetime.date.fromisoformat(wk_dates[idx])).days) <= MAX_STALENESS:
+            wk_r = wk_rows[wk_dates[idx]]
+
+    d1_r = d1_rows.get(td_str, {})
+    causal_wk_score = wk_r.get('weekly_score', wk_score)
+    return {
+        'weekly_score':             causal_wk_score if causal_wk_score is not None else cb_daily,
+        'daily_score':              cb_daily,
+        'fast_bearish_div':         bool(wk_r.get('fast_bearish_div', bool(wk_fb))),
+        'fast_bullish_div':         bool(wk_r.get('fast_bullish_div', False)),
+        'bearish_div':              bool(wk_r.get('bearish_div', False)),
+        'bullish_div':              bool(wk_r.get('bullish_div', False)),
+        'double_bearish_div':       bool(wk_r.get('double_bearish_div', False)),
+        'double_bullish_div':       bool(wk_r.get('double_bullish_div', False)),
+        'daily_fast_bearish_div':   bool(d1_r.get('fast_bear_div', False)),
+        'daily_fast_bullish_div':   bool(d1_r.get('fast_bull_div', False)),
+        'daily_bearish_div':        bool(d1_r.get('bearish_div', False)),
+        'daily_bullish_div':        bool(d1_r.get('bullish_div', False)),
+        'daily_double_bearish_div': bool(d1_r.get('double_bearish_div', False)),
+        'daily_double_bullish_div': bool(d1_r.get('double_bullish_div', False)),
+    }
 
 
 # ── Core helpers ─────────────────────────────────────────────────────────────
@@ -259,7 +311,7 @@ def compute_at(target_date, series):
     raw_vals = {}
     days_off = {}
     for k in series:
-        if k in ('cipherb_weekly', 'cipherb_weekly_fb'):
+        if k in ('cipherb_weekly', 'cipherb_weekly_fb') or k.startswith('_'):
             continue
         v, d = nearest_strict(series[k], td)
         raw_vals[k] = v
@@ -269,20 +321,7 @@ def compute_at(target_date, series):
     wk_score, _ = nearest_strict(series['cipherb_weekly'], td)
     wk_fb, _    = nearest_strict(series['cipherb_weekly_fb'], td)
     cb_daily = raw_vals.get('cipherb')
-    cb_dict = None
-    if wk_score is not None:
-        cb_dict = {
-            'weekly_score':     wk_score,
-            'daily_score':      cb_daily,
-            'fast_bearish_div': bool(wk_fb),
-        }
-    elif cb_daily is not None:
-        # Weekly file absent — use daily score as fallback for both slots
-        cb_dict = {
-            'weekly_score':     cb_daily,
-            'daily_score':      cb_daily,
-            'fast_bearish_div': False,
-        }
+    cb_dict = _build_cb_dict(td, series, wk_score, wk_fb, cb_daily)
 
     raw = {
         'nupl':               raw_vals.get('nupl'),           # tx=×100 applied in _series()
@@ -375,12 +414,7 @@ def v3_at(td, series):
     wk_score, _    = nearest_strict(series.get('cipherb_weekly', []), td)
     wk_fb, _       = nearest_strict(series.get('cipherb_weekly_fb', []), td)
     cb_daily_val, _ = nearest_strict(series.get('cipherb', []), td)
-    if wk_score is not None:
-        cb_dict = {'weekly_score': wk_score, 'daily_score': cb_daily_val, 'fast_bearish_div': bool(wk_fb)}
-    elif cb_daily_val is not None:
-        cb_dict = {'weekly_score': cb_daily_val, 'daily_score': cb_daily_val, 'fast_bearish_div': False}
-    else:
-        cb_dict = None
+    cb_dict = _build_cb_dict(td, series, wk_score, wk_fb, cb_daily_val)
 
     raw = {
         'nupl':           r['raw'].get('nupl'),

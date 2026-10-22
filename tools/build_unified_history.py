@@ -144,6 +144,18 @@ def main():
     else:
         m2_yoy = compute_m2_yoy('global_m2_history.json')
     cb_d     = load_dict_series('cipherb_btcusdt_1d.json', 'daily_score')
+    # Also merge daily snapshots from cipherb.json (written by history_writer.py)
+    cb_snap_path = os.path.join(BASE, 'cipherb.json')
+    if os.path.exists(cb_snap_path):
+        try:
+            for item in json.load(open(cb_snap_path, encoding='utf-8')):
+                if isinstance(item, dict) and item.get('timestamp'):
+                    d_str = str(item['timestamp'])[:10]
+                    cb_inner = item.get('cipherb')
+                    if isinstance(cb_inner, dict) and cb_inner.get('daily_score') is not None:
+                        cb_d[d_str] = float(cb_inner['daily_score'])
+        except Exception:
+            pass
     pi       = load_dict_series('pi_cycle_daily.json', 'gap_pct')
     dxy      = load_dict_series('dxy_history.json', 'value')
     # dxy_scraper_history.json written daily by history_writer — merge over FRED data

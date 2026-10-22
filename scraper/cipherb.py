@@ -163,14 +163,16 @@ def _double_divergence(series, lookback=36, peak_window=4, max_peak_age=8, kind=
     The last pivot must be fresh (<= max_peak_age candles ago).
     """
     valid = [s for s in series if s.get('wt1') is not None]
-    if len(valid) < lookback:
+    if len(valid) < 10:
         return False
-    recent = valid[-lookback:]
+    recent = valid[-max(lookback, 36):]
     n = len(recent)
     pivots = []
-    for i in range(peak_window, n - peak_window):
+    for i in range(peak_window, n):
         c = recent[i]
-        neighbors = recent[max(0, i - peak_window):i] + recent[i + 1:i + peak_window + 1]
+        neighbors = recent[max(0, i - peak_window):i] + recent[i + 1:min(n, i + peak_window + 1)]
+        if not neighbors:
+            continue
         if kind == 'bearish':
             if all(c['close'] >= nb['close'] for nb in neighbors):
                 pivots.append((i, c['close'], c['wt1']))
@@ -191,23 +193,24 @@ def _double_divergence(series, lookback=36, peak_window=4, max_peak_age=8, kind=
     return div1 and div2 and (n - 1 - last_i) <= max_peak_age
 
 
-def _fast_divergence(series, kind='bearish', lookback=20, peak_window=1, max_peak_age=3):
+def _fast_divergence(series, kind='bearish', lookback=36, peak_window=1, max_peak_age=3):
     """
-    1-week fast divergence: compare the most recent price peak against the
-    peak with the most extreme wt1 in the lookback window.
-    Bearish: last price peak higher, but wt1 at that peak lower than the best prior wt1 peak.
-    Bullish: last price trough lower, but wt1 higher than the worst prior wt1 trough.
-    max_peak_age: how many candles ago the last pivot can be (1 = just confirmed).
+    Fast / macro divergence: compare the most recent price peak against the
+    peak with the most extreme wt1 in the lookback window (up to 36 candles).
+    Includes the current candle (i = n - 1) if it is above/below its left neighbor
+    so divergences fire at the ATH/bottom rather than only after a reversal.
     """
     valid = [s for s in series if s.get('wt1') is not None]
-    if len(valid) < lookback:
+    if len(valid) < 10:
         return False
     recent = valid[-lookback:]
     n = len(recent)
     pivots = []
-    for i in range(peak_window, n - peak_window):
+    for i in range(peak_window, n):
         c = recent[i]
-        neighbors = recent[max(0, i - peak_window):i] + recent[i + 1:i + peak_window + 1]
+        neighbors = recent[max(0, i - peak_window):i] + recent[i + 1:min(n, i + peak_window + 1)]
+        if not neighbors:
+            continue
         if kind == 'bearish':
             if all(c['close'] >= nb['close'] for nb in neighbors):
                 pivots.append((i, c['close'], c['wt1']))
@@ -220,10 +223,10 @@ def _fast_divergence(series, kind='bearish', lookback=20, peak_window=1, max_pea
     # Compare last pivot vs the most extreme wt1 among all previous pivots
     if kind == 'bearish':
         ref = max(pivots[:-1], key=lambda p: p[2])  # highest wt1
-        detected = last_price > ref[1] and last_wt1 < ref[2]
+        detected = last_price > ref[1] and last_wt1 < ref[2] - 2.0
     else:
         ref = min(pivots[:-1], key=lambda p: p[2])  # lowest wt1
-        detected = last_price < ref[1] and last_wt1 > ref[2]
+        detected = last_price < ref[1] and last_wt1 > ref[2] + 2.0
     return detected and (n - 1 - last_i) <= max_peak_age
 
 
@@ -356,6 +359,79 @@ def compute_cipherb_from_ohlcv(ohlc, channelLength=9, averageLength=12, wtSmaLen
     return {'series': series, 'last': last, 'params': {'channelLength': channelLength, 'averageLength': averageLength, 'wtSmaLength': wtSmaLength, 'oversoldLevel': oversoldLevel, 'overboughtLevel': overboughtLevel, 'scoreLow': scoreLow, 'scoreHigh': scoreHigh}}
 
 
+def sync_cipherb_history_files(series_w, series_d, hist_dir='data/history'):
+    """Merge computed weekly and daily CipherB series into cipherb_btcusdt_1w.json and 1d.json."""
+    import json
+    import os
+    from datetime import timezone
+
+    os.makedirs(hist_dir, exist_ok=True)
+
+    # 1. Weekly history
+    if series_w:
+        wk_path = os.path.join(hist_dir, 'cipherb_btcusdt_1w.json')
+        existing_w = {}
+        if os.path.exists(wk_path):
+            try:
+                raw_w = json.load(open(wk_path, encoding='utf-8'))
+                for row in (raw_w.get('series', raw_w) if isinstance(raw_w, dict) else raw_w):
+                    if isinstance(row, dict) and row.get('date'):
+                        existing_w[row['date'][:10]] = row
+            except Exception:
+                pass
+        for it in series_w:
+            if it.get('weekly_score') is None or it.get('timestamp') is None:
+                continue
+            d_str = datetime.fromtimestamp(int(it['timestamp']), tz=timezone.utc).strftime('%Y-%m-%d')
+            existing_w[d_str] = {
+                'date': d_str,
+                'close': round(float(it['close']), 2),
+                'wt1': round(float(it['wt1']), 4) if it.get('wt1') is not None else None,
+                'weekly_score': round(float(it['weekly_score']), 4),
+                'fast_bearish_div': bool(it.get('fast_bearish_div', False)),
+                'fast_bullish_div': bool(it.get('fast_bullish_div', False)),
+                'bearish_div': bool(it.get('bearish_divergence', False)),
+                'bullish_div': bool(it.get('bullish_divergence', False)),
+                'double_bearish_div': bool(it.get('double_bearish_div', False)),
+                'double_bullish_div': bool(it.get('double_bullish_div', False)),
+            }
+        merged_w = [existing_w[k] for k in sorted(existing_w)]
+        with open(wk_path, 'w', encoding='utf-8') as f:
+            json.dump({'series': merged_w}, f, separators=(',', ':'))
+
+    # 2. Daily history
+    if series_d:
+        d_path = os.path.join(hist_dir, 'cipherb_btcusdt_1d.json')
+        existing_d = {}
+        if os.path.exists(d_path):
+            try:
+                raw_d = json.load(open(d_path, encoding='utf-8'))
+                for row in (raw_d.get('series', raw_d) if isinstance(raw_d, dict) else raw_d):
+                    if isinstance(row, dict) and row.get('date'):
+                        existing_d[row['date'][:10]] = row
+            except Exception:
+                pass
+        for it in series_d:
+            if it.get('weekly_score') is None or it.get('timestamp') is None:
+                continue
+            d_str = datetime.fromtimestamp(int(it['timestamp']), tz=timezone.utc).strftime('%Y-%m-%d')
+            existing_d[d_str] = {
+                'date': d_str,
+                'close': round(float(it['close']), 2),
+                'wt1': round(float(it['wt1']), 4) if it.get('wt1') is not None else None,
+                'daily_score': round(float(it['weekly_score']), 4),
+                'fast_bear_div': bool(it.get('fast_bearish_div', False)),
+                'fast_bull_div': bool(it.get('fast_bullish_div', False)),
+                'bearish_div': bool(it.get('bearish_divergence', False)),
+                'bullish_div': bool(it.get('bullish_divergence', False)),
+                'double_bearish_div': bool(it.get('double_bearish_div', False)),
+                'double_bullish_div': bool(it.get('double_bullish_div', False)),
+            }
+        merged_d = [existing_d[k] for k in sorted(existing_d)]
+        with open(d_path, 'w', encoding='utf-8') as f:
+            json.dump({'series': merged_d}, f, separators=(',', ':'))
+
+
 def get_cipherb(symbol='BTCUSDT'):
     ohlc_w = fetch_ohlcv_kraken(symbol=symbol, interval='1w', limit=500)
     ohlc_d = fetch_ohlcv_kraken(symbol=symbol, interval='1d', limit=500)
@@ -368,6 +444,11 @@ def get_cipherb(symbol='BTCUSDT'):
     
     if not last_w or not last_d:
         raise ValueError("Failed to calculate Cipher B for weekly or daily timeframes.")
+
+    try:
+        sync_cipherb_history_files(res_w.get('series'), res_d.get('series'))
+    except Exception as e:
+        print(f"Warning: failed to sync cipherb history files: {e}")
         
     last = {
         'timestamp': last_w['timestamp'],
@@ -376,18 +457,27 @@ def get_cipherb(symbol='BTCUSDT'):
         'wt2': last_w['wt2'],
         'mfi': last_w['mfi'],
         'weekly_score': last_w['weekly_score'],
+        'bearish_divergence': last_w['bearish_divergence'],
+        'bullish_divergence': last_w['bullish_divergence'],
         'fast_bearish_div': last_w['fast_bearish_div'],
         'fast_bullish_div': last_w['fast_bullish_div'],
         'double_bearish_div': last_w['double_bearish_div'],
         'double_bullish_div': last_w['double_bullish_div'],
         'daily_score': last_d['weekly_score'],
+        'daily_bearish_div': last_d['bearish_divergence'],
+        'daily_bullish_div': last_d['bullish_divergence'],
         'daily_fast_bearish_div': last_d['fast_bearish_div'],
         'daily_fast_bullish_div': last_d['fast_bullish_div'],
         'daily_double_bearish_div': last_d['double_bearish_div'],
         'daily_double_bullish_div': last_d['double_bullish_div'],
     }
     
-    return {'series': res_w.get('series'), 'last': last, 'params': res_w.get('params')}
+    return {
+        'series': res_w.get('series'),
+        'series_1d': res_d.get('series'),
+        'last': last,
+        'params': res_w.get('params'),
+    }
 
 
 if __name__ == '__main__':

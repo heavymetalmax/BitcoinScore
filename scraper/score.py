@@ -117,7 +117,13 @@ def _map_pi_gap(v) -> int | None:
 
 
 def _extract_cipherb(cb) -> tuple[int | None, int | None, int | None]:
-    """Return (weekly_raw, daily_raw, blended_score) from cipherb metric."""
+    """Return (weekly_raw, daily_raw, blended_score) from cipherb metric.
+
+    Applies tiered divergence adjustments on both weekly and daily timeframes:
+      - double_*_div : ±18 pts (multi-peak structural exhaustion)
+      - fast_*_div   : ±12 pts (momentum divergence)
+      - *_divergence : ±8 pts  (regular WaveTrend divergence)
+    """
     if not isinstance(cb, dict):
         return None, None, None
     val_dict = cb.get('value', cb)
@@ -129,15 +135,40 @@ def _extract_cipherb(cb) -> tuple[int | None, int | None, int | None]:
     daily_raw  = round(d) if d is not None else None
     if w is None:
         return weekly_raw, daily_raw, None
-    if val_dict.get('fast_bearish_div'):
-        w = min(100.0, w + 12)
+
+    # Weekly divergence shifts: when a fast or double bearish divergence fires on
+    # a higher price high (while raw weekly score w >= 58), it signals structural
+    # top exhaustion even if raw WT1 is lower than Peak 1.
+    if val_dict.get('double_bearish_div'):
+        w = min(100.0, max(w + 22.0, 94.0 if w >= 58.0 else w + 22.0))
+    elif val_dict.get('fast_bearish_div'):
+        w = min(100.0, max(w + 16.0, 88.0 if w >= 60.0 else w + 16.0))
+    elif val_dict.get('bearish_divergence') or val_dict.get('bearish_div'):
+        w = min(100.0, w + 10.0)
+
+    if val_dict.get('double_bullish_div'):
+        w = max(0.0, min(w - 22.0, 4.0 if w <= 40.0 else w - 22.0))
     elif val_dict.get('fast_bullish_div'):
-        w = max(0.0, w - 12)
+        w = max(0.0, min(w - 16.0, 8.0 if w <= 35.0 else w - 16.0))
+    elif val_dict.get('bullish_divergence') or val_dict.get('bullish_div'):
+        w = max(0.0, w - 10.0)
+
     if d is not None:
-        if val_dict.get('daily_fast_bearish_div'):
-            d = min(100.0, d + 12)
-        elif val_dict.get('daily_fast_bullish_div'):
-            d = max(0.0, d - 12)
+        # Daily divergence shifts
+        if val_dict.get('daily_double_bearish_div'):
+            d = min(100.0, d + 20.0)
+        elif val_dict.get('daily_fast_bearish_div') or val_dict.get('fast_bear_div'):
+            d = min(100.0, d + 14.0)
+        elif val_dict.get('daily_bearish_div'):
+            d = min(100.0, d + 8.0)
+
+        if val_dict.get('daily_double_bullish_div'):
+            d = max(0.0, d - 20.0)
+        elif val_dict.get('daily_fast_bullish_div') or val_dict.get('fast_bull_div'):
+            d = max(0.0, d - 14.0)
+        elif val_dict.get('daily_bullish_div'):
+            d = max(0.0, d - 8.0)
+
         blended = round(0.8 * w + 0.2 * d)
     else:
         blended = round(w)
@@ -251,19 +282,22 @@ def _phase_weights(
     except Exception:
         pass
 
-    # ── Consensus fallback when HMM unavailable (w_top still 0.0) ────────────
-    # Uses the three best top/bottom discriminating metrics (disc power from
-    # confirmed cycle extremes: cipherb +80.9, nupl +45.8, mvrv +44.6).
-    # Phase score ≥62 → TOP; continuous w_top scaled 0.65→1.0 above threshold.
-    if w_top == 0.0:
-        _cb = normalized.get('cipherb')
-        _nu = normalized.get('nupl')
-        _mv = normalized.get('mvrv_z_score')
-        _vals = [v for v in [_cb, _nu, _mv] if v is not None]
-        if _vals:
-            _ps = sum(_vals) / len(_vals)
-            if _ps >= 62:
-                w_top      = min(1.0, 0.65 + (_ps - 62) / 38.0 * 0.35)
+    # ── Data-driven top confluence (combines with HMM via max) ───────────────
+    # Uses the strongest top-discriminating metrics (cipherb, nupl, mvrv, rhodl,
+    # btc_price_cycle) so diminishing-return cycle tops are detected even when
+    # the legacy HMM outputs a low probability.
+    _cb = normalized.get('cipherb')
+    _nu = normalized.get('nupl')
+    _mv = normalized.get('mvrv_z_score')
+    _rh = normalized.get('rhodl_ratio')
+    _pc = normalized.get('btc_price_cycle')
+    _vals = [v for v in [_cb, _nu, _mv, _rh, _pc] if v is not None]
+    if _vals:
+        _ps = sum(_vals) / len(_vals)
+        if _ps >= 65:
+            w_top_cons = min(1.0, 0.50 + (_ps - 65.0) / 25.0 * 0.50)
+            if w_top_cons > w_top:
+                w_top      = w_top_cons
                 top_signal = round(w_top * 100)
 
     # ── Normalise so w_bot + w_top + w_neutral = 1 ───────────────────────────
@@ -286,12 +320,19 @@ def _phase_weights(
 
 # ── Weighted average helper ───────────────────────────────────────────────────
 
-def _wavg(group_keys: set, normalized: dict, utilities: dict, min_count: int = 1) -> int | None:
+def _wavg(
+    group_keys: set,
+    normalized: dict,
+    utilities: dict,
+    min_count: int = 1,
+    anchor_multipliers: dict | None = None,
+) -> int | None:
     total_uw = total_us = 0.0
     active = 0
+    mults = anchor_multipliers or {}
     for k in group_keys:
         s = normalized.get(k)
-        u = utilities.get(k, 0.5)
+        u = utilities.get(k, 0.5) * mults.get(k, 1.0)
         if s is not None:
             active += 1
             total_us += s * u
@@ -439,19 +480,24 @@ def compute_score(
     )
 
     # ── 6a. Basket averages (V4) ──────────────────────────────────────────────
+    # CipherB is a multi-timeframe composite (0.8×weekly + 0.2×daily + divergences)
+    # with the highest historical top/bottom discrimination (+80.9 pts), so it gets
+    # a 2.0× structural anchor multiplier inside BASKET_MS.
     quality = assess_data_quality(normalized)
     OC = _wavg(BASKET_OC, normalized, utilities, BASKET_MIN_COUNTS['OC'])
-    MS = _wavg(BASKET_MS, normalized, utilities, BASKET_MIN_COUNTS['MS'])
+    MS = _wavg(BASKET_MS, normalized, utilities, BASKET_MIN_COUNTS['MS'],
+               anchor_multipliers={'cipherb': 2.0})
     MC = _wavg(BASKET_MC, normalized, utilities, BASKET_MIN_COUNTS['MC'])
     CP = _wavg(BASKET_CP, normalized, utilities, BASKET_MIN_COUNTS['CP'])
 
     # Informational sub-scores (backward-compat keys for pipeline/dashboard)
     oc_avg   = OC
-    tech_avg = _wavg(BASKET_MS | BASKET_MC | BASKET_CP, normalized, utilities, 5)
+    tech_avg = _wavg(BASKET_MS | BASKET_MC | BASKET_CP, normalized, utilities, 5,
+                     anchor_multipliers={'cipherb': 1.8})
 
     # ── 6b. Step 1: CP contextualises OC (regime multiplier) ─────────────────
     CP_safe = CP if CP is not None else 50
-    OC_read = OC * (0.60 + 0.40 * CP_safe / 100) if OC is not None else None
+    OC_read = min(100.0, OC * (0.65 + 0.48 * CP_safe / 100.0)) if OC is not None else None
 
     # ── 6c. Step 2: F_structural ("where we are") ────────────────────────────
     w_mc = w_bot * 0.05 + w_neutral * 0.25 + w_top * 0.05
@@ -491,20 +537,29 @@ def compute_score(
     F_structural = neutral_s + (F_structural - neutral_s) * coh_factor
 
     # ── 6e. Step 3: F_vectorial ("where we're going") ────────────────────────
-    # div uses raw OC (not OC_read) to avoid phantom divergence when OC == CP
-    div   = max(0, CP_safe - OC) if OC is not None else 0
-    w_ms  = w_bot * 0.30 + w_neutral * 0.60 + w_top * 0.80
-    w_div = w_top * 0.40
-    denom = w_ms + w_div
-    if MS is not None and denom > 0:
-        F_vectorial = (w_ms * MS + w_div * div) / denom
-    elif MS is not None:
-        F_vectorial = float(MS)
+    # div uses raw OC (not OC_read) as an upward divergence boost when CP > OC at tops.
+    # Avoids averaging MS with 0 when CP_safe <= OC.
+    div = max(0.0, float(CP_safe - OC)) if OC is not None else 0.0
+    if MS is not None:
+        F_vectorial = min(100.0, float(MS) + w_top * 0.35 * div)
     else:
-        F_vectorial = float(div) if div > 0 else 50.0
+        F_vectorial = float(CP_safe)
+
+    # CipherB extremity anchor: when CipherB is in extreme oversold (<=25) or
+    # overbought (>=75) territory, pull F_vectorial directly toward CipherB so
+    # lagging indicators (Mayer, neutral ETF flows) do not dilute cycle extremes.
+    cb_score = normalized.get('cipherb')
+    cb_ext = 0.0
+    if cb_score is not None:
+        cb_ext = max(0.0, (abs(float(cb_score) - 50.0) - 20.0) / 30.0)
+        if cb_ext > 0.0:
+            cb_pull = 0.35 * cb_ext
+            F_vectorial = (1.0 - cb_pull) * F_vectorial + cb_pull * float(cb_score)
 
     # ── 6f. Step 4: Symmetric phase-blended synthesis ────────────────────────
-    phase_blend = w_bot * 0.20 + w_neutral * 0.40 + w_top * 0.75
+    # Base blend increases from 0.35 at bottoms to 0.75 at tops, plus up to +0.25
+    # when CipherB reaches extreme exhaustion/capitulation territory.
+    phase_blend = min(0.85, w_bot * 0.35 + w_neutral * 0.45 + w_top * 0.75 + 0.25 * cb_ext)
     final_float = F_structural + (F_vectorial - F_structural) * phase_blend
 
     # ── 6g. DXY macro modifier ────────────────────────────────────────────────

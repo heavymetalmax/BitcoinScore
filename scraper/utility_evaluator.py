@@ -31,8 +31,10 @@ def halving_cycle_day_for(target_date):
     return (target_date - past[-1]).days
 
 
+# Metrics whose utility should rise near BOTH cycle top and cycle bottom (dual-extreme discriminators)
+DUAL_EXTREME_METRICS = {'cipherb'}
 # Metrics whose utility should rise near cycle top (top-focused indicators)
-TOP_METRICS = {'cipherb', 'mayer_multiple', 'pi_gap', 'funding_rate', 'lth_supply'}
+TOP_METRICS = {'mayer_multiple', 'pi_gap', 'funding_rate', 'lth_supply'}
 # Metrics whose utility should rise in post-peak/accumulation (bottom-focused indicators)
 BOT_METRICS = {'cvdd_ratio', 'puell', 'nupl', 'mvrv_z_score', 'rhodl_ratio'}
 
@@ -61,20 +63,22 @@ def _cycle_net_signal(cycle_day):
 def halving_cycle_multiplier(canonical_key, cycle_day):
     """Utility multiplier [0.85, 1.15] based on cycle position.
 
-    Near ATH  (+signal): TOP metrics ×1.15, BOT metrics ×0.85
-    Near bottom (−signal): BOT metrics ×1.15, TOP metrics ×0.85
+    Near ATH  (+signal): TOP & DUAL_EXTREME metrics ×1.15, BOT metrics ×0.85
+    Near bottom (−signal): BOT & DUAL_EXTREME metrics ×1.15, TOP metrics ×0.85
     Day ~700 (zero crossing): all metrics ×1.0 (neutral)
     Macro/tactical (yield_curve, m2, etf_flows, etc.): always ×1.0
     """
     net = _cycle_net_signal(cycle_day)
-    if canonical_key in TOP_METRICS:
+    if canonical_key in DUAL_EXTREME_METRICS:
+        return 1.0 + abs(net) * 0.15
+    elif canonical_key in TOP_METRICS:
         return 1.0 + net * 0.15
     elif canonical_key in BOT_METRICS:
         return 1.0 - net * 0.15
     return 1.0
 
 
-def blend_phase_with_cycle_prior(w_bot, w_neutral, w_top, target_date, max_alpha=0.55):
+def blend_phase_with_cycle_prior(w_bot, w_neutral, w_top, target_date, max_alpha=0.15):
     """Bayesian blend of HMM phase weights with halving-cycle position prior.
 
     Alpha is computed dynamically from the L1 distance between HMM and cycle prior.
@@ -130,8 +134,8 @@ RELEVANCE_PROFILES = {
     # rhodl: now uses intra_cycle_percentile (within current cycle from last confirmed bottom).
     # Correctly reads 85-100 at cycle peaks and <20 at bottoms — valid top/bottom discriminator.
     'rhodl_ratio':         {'BOTTOM': 0.6, 'NEUTRAL': 0.5, 'TOP': 0.60},
-    # Tech/Macro Top-focused
-    'cipherb':             {'BOTTOM': 0.4, 'NEUTRAL': 0.7, 'TOP': 1.0},
+    # Tech/Momentum — CipherB is the highest-power top/bottom discriminator (+80.9 pts)
+    'cipherb':             {'BOTTOM': 1.0, 'NEUTRAL': 0.85, 'TOP': 1.0},
     'mayer_multiple':      {'BOTTOM': 0.4, 'NEUTRAL': 0.6, 'TOP': 1.0},
     'fear_greed':          {'BOTTOM': 0.9, 'NEUTRAL': 0.5, 'TOP': 0.9},
     # Tactical / Flows
@@ -226,6 +230,15 @@ def evaluate_utility(metric, normalized_score, w_top, w_bot, w_neutral, tiz_matu
     if canonical_key == 'pi_gap' and normalized_score is not None:
         proximity = max(0.0, min(1.0, (float(normalized_score) - 30.0) / 70.0))
         utility *= (0.20 + 0.80 * proximity)
+
+    # 3c. Extremity scaling for CipherB:
+    # Boost utility when CipherB reaches oversold (<=25) or overbought (>=75) territory
+    # or when an active divergence signal is present.
+    if canonical_key == 'cipherb' and normalized_score is not None:
+        extremity = max(0.0, (abs(float(normalized_score) - 50.0) - 15.0) / 35.0)
+        utility *= (1.0 + 0.30 * extremity)
+        if div_signal:
+            utility *= 1.15
 
     # 4. Time-in-Zone Temporal Scaling
     # For bottom-focused indicators, suppress utility if we are in bottom territory and early (tiz_maturity < 0.25)

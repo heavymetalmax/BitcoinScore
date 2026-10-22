@@ -65,7 +65,7 @@ _load()
 
 
 # Recency decay factor per older confirmed extreme (diminishing returns adjustment)
-_RECENCY_GAMMA = 0.70
+_RECENCY_GAMMA = 0.55
 
 
 def _causal_vals(metric: str, ex_type: str, target_date_str: str):
@@ -131,7 +131,8 @@ def _interp_fraction(weighted_vals, v) -> float:
 
 def cycle_normalize(metric: str, value, target_date) -> int | None:
     """
-    Normalize raw metric value to 0-100 using confirmed cycle extremes as anchors.
+    Normalize raw metric value to 0-100 using confirmed cycle extremes as anchors,
+    blended with intra-cycle percentile to account for secular diminishing returns.
 
     Returns None if insufficient history (fewer than 2 confirmed bottoms or tops).
     Caller should fall back to causal percentile in that case.
@@ -153,17 +154,58 @@ def cycle_normalize(metric: str, value, target_date) -> int | None:
     v = float(value)
     b_pct = _interp_fraction(bottom_vals, v)
     t_pct = _interp_fraction(top_vals, v)
-    return round((0.5 * b_pct + 0.5 * t_pct) * 100)
+
+    # Piecewise-continuous anchor mapping:
+    #   [b_min .. b_max] → [0 .. 15]   (confirmed bottom zone)
+    #   [b_max .. t_min] → [15 .. 75]  (neutral / bull transition)
+    #   [t_min .. t_max] → [75 .. 100] (confirmed top zone)
+    b_max = max(x[0] for x in bottom_vals)
+    t_min = min(x[0] for x in top_vals)
+    if v <= b_max:
+        cross_score = 15.0 * b_pct
+    elif v < t_min and t_min > b_max:
+        mid_frac = (v - b_max) / (t_min - b_max)
+        cross_score = 15.0 + 60.0 * mid_frac
+    else:
+        cross_score = 75.0 + 25.0 * t_pct
+
+    intra_score = intra_cycle_percentile(metric, value, target_date)
+    if intra_score is not None and cross_score > 40.0:
+        # Secular diminishing returns compress cycle TOPS (MVRV 9.3 → 5.4 → 3.5 → 2.8),
+        # whereas cycle BOTTOMS remain anchored (MVRV < 0, CVDD ~ 1.0, Puell < 0.5).
+        # Ramp intra-cycle weight from 0% at cross_score=40 to 65% at cross_score>=55.
+        w_intra = min(0.65, (cross_score - 40.0) / 15.0 * 0.65)
+        return round((1.0 - w_intra) * cross_score + w_intra * float(intra_score))
+    return round(cross_score)
+
+
+def _last_major_bottom_date(target_str: str) -> str | None:
+    """Return date of the most recent confirmed major cycle bottom before target_str."""
+    major_bottoms = sorted(
+        [e for e in _extremes
+         if e['type'] == 'BOTTOM' and e.get('major_cycle', True)
+         and e.get('confirmed_at') and e['confirmed_at'] <= target_str],
+        key=lambda e: e['date'],
+    )
+    if major_bottoms:
+        return major_bottoms[-1]['date']
+    bottoms = sorted(
+        [e for e in _extremes
+         if e['type'] == 'BOTTOM' and e.get('confirmed_at')
+         and e['confirmed_at'] <= target_str],
+        key=lambda e: e['date'],
+    )
+    return bottoms[-1]['date'] if bottoms else None
 
 
 def intra_cycle_percentile(metric: str, value, target_date) -> int | None:
     """Percentile rank of value within the current bull cycle.
 
-    Window: from the last confirmed BOTTOM before target_date up to target_date.
+    Window: from the last confirmed major BOTTOM before target_date up to target_date.
     Uses daily raw metric values stored in scores.json (_scores_map).
 
-    For metrics with a secular trend (e.g. rhodl_ratio), intra-cycle comparison
-    is more meaningful than comparing absolute values across different eras.
+    For metrics with a secular trend (e.g. rhodl_ratio, mvrv, nupl, cvdd, puell),
+    intra-cycle comparison captures current-cycle extremes despite diminishing returns.
 
     Returns None if fewer than 90 days of intra-cycle data are available.
     """
@@ -175,17 +217,9 @@ def intra_cycle_percentile(metric: str, value, target_date) -> int | None:
     else:
         target_str = str(target_date)
 
-    # Most recent confirmed BOTTOM strictly before target_date
-    bottoms = sorted(
-        [e for e in _extremes
-         if e['type'] == 'BOTTOM' and e.get('confirmed_at')
-         and e['confirmed_at'] <= target_str],
-        key=lambda e: e['date'],
-    )
-    if not bottoms:
+    cycle_start = _last_major_bottom_date(target_str)
+    if not cycle_start:
         return None
-
-    cycle_start = bottoms[-1]['date']
 
     # Collect all daily metric values in [cycle_start, target_date)
     cycle_vals = []
@@ -222,16 +256,9 @@ def price_cycle_percentile(target_date, current_price) -> int | None:
     else:
         target_str = str(target_date)
 
-    bottoms = sorted(
-        [e for e in _extremes
-         if e['type'] == 'BOTTOM' and e.get('confirmed_at')
-         and e['confirmed_at'] <= target_str],
-        key=lambda e: e['date'],
-    )
-    if not bottoms:
+    cycle_start = _last_major_bottom_date(target_str)
+    if not cycle_start:
         return None
-
-    cycle_start = bottoms[-1]['date']
 
     prices = []
     for date, row in _scores_map.items():

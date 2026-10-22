@@ -42,6 +42,7 @@ _calibration_cache: dict | None = None
 
 def _compute_calibration() -> dict:
     """Derive bottom/neutral thresholds from confirmed historical dates using V4 normalizer."""
+    import bisect
     from scraper.normalizer import normalize_metric
 
     scores_path = 'data/history/scores.json'
@@ -55,6 +56,30 @@ def _compute_calibration() -> dict:
         except Exception:
             pass
 
+    wk_dates: list[str] = []
+    wk_vals: list[float] = []
+    wk_path = 'data/history/cipherb_btcusdt_1w.json'
+    if os.path.exists(wk_path):
+        try:
+            raw_wk = json.load(open(wk_path, encoding='utf-8'))
+            wk_rows = raw_wk.get('series', raw_wk) if isinstance(raw_wk, dict) else raw_wk
+            pairs = sorted(
+                (r['date'][:10], float(r['weekly_score']))
+                for r in wk_rows
+                if isinstance(r, dict) and r.get('date') and r.get('weekly_score') is not None
+            )
+            wk_dates = [p[0] for p in pairs]
+            wk_vals = [p[1] for p in pairs]
+        except Exception:
+            pass
+
+    def _weekly_cb_on(date_str: str, fallback_daily) -> int | None:
+        if wk_dates:
+            idx = bisect.bisect_right(wk_dates, date_str) - 1
+            if idx >= 0:
+                return round(wk_vals[idx])
+        return round(float(fallback_daily)) if fallback_daily is not None else None
+
     def _scores_on(date_str: str) -> dict:
         row = by_date.get(date_str, {})
         td = datetime.date.fromisoformat(date_str)
@@ -64,7 +89,7 @@ def _compute_calibration() -> dict:
             'cvdd_ratio':     normalize_metric('cvdd_ratio', row.get('cvdd_ratio'), td),
             'mayer_multiple': normalize_metric('mayer_multiple', row.get('mayer_multiple'), td),
             'fear_greed':     normalize_metric('fear_greed', row.get('fear_greed'), td),
-            'cipherb_weekly': round(float(row['cipherb_daily'])) if row.get('cipherb_daily') is not None else None,
+            'cipherb_weekly': _weekly_cb_on(date_str, row.get('cipherb_daily')),
         }
 
     bottom_scores: dict[str, list] = {m: [] for m in CONFLUENCE_METRICS}

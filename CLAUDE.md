@@ -73,12 +73,12 @@ python -m scraper.scraper
 
 **`scraper/score.py` (V4 Market Context — authoritative)** pipeline:
 
-1. Normalize all 16 raw metrics to 0–100 via `scraper/normalizer.py` (using recency-weighted empirical CDFs with $\gamma = 0.70$ in `cycle_normalizer.py` and balanced rolling/all-time causal percentiles).
-2. Build continuous BOTTOM / NEUTRAL / TOP heuristic weights from bottom confluence, HMM state similarity, and the halving-cycle prior. These are not calibrated probabilities.
-3. Evaluate dynamic utility coefficients via `scraper/utility_evaluator.py` (including halving-cycle day multipliers, reduced weights on the collinear `nupl`–`mvrv_z_score` pair, and proximity-scaled `pi_gap` utility).
-4. Compute four utility-weighted baskets: OC (on-chain), MS (market sentiment), MC (macro), and CP (cycle position).
+1. Normalize all 16 raw metrics to 0–100 via `scraper/normalizer.py` (using recency-weighted empirical CDFs with $\gamma = 0.55$ + asymmetric intra-cycle percentile blending for diminishing-return tops in `cycle_normalizer.py`, and balanced rolling/all-time causal percentiles).
+2. Build continuous BOTTOM / NEUTRAL / TOP heuristic weights from bottom confluence, data-driven top confluence + HMM state similarity, and the halving-cycle prior (`max_alpha = 0.15`). These are not calibrated probabilities.
+3. Evaluate dynamic utility coefficients via `scraper/utility_evaluator.py` (including dual-extreme halving-cycle multiplier for `cipherb`, extremity utility boosts, reduced weights on the collinear `nupl`–`mvrv_z_score` pair, and proximity-scaled `pi_gap` utility).
+4. Compute four utility-weighted baskets: OC (on-chain), MS (market sentiment, with `2.0×` structural anchor weight on multi-timeframe `cipherb`), MC (macro), and CP (cycle position).
 5. Build structural context from OC + CP + MC, then apply TiZ and Mahalanobis coherence (`oc_coherence` over the 4 core on-chain metrics with Tikhonov shrinkage regularization) dampening.
-6. Build vectorial context from MS and top-phase divergence, then synthesize `final_score` via symmetric phase-blended synthesis (`F_structural + (F_vectorial - F_structural) * phase_blend`).
+6. Build vectorial context from MS, upward top-phase CP-OC divergence, and CipherB extremity pull, then synthesize `final_score` via symmetric phase-blended synthesis (`F_structural + (F_vectorial - F_structural) * phase_blend`).
 7. Apply the DXY modifier and Pi Cycle top override; Forward Risk (`mixing_model_b.py` monotonic ensemble) is computed downstream. `market_regime` is actionable when `v5b_validated` and basket data quorums pass.
 
 `onchain_avg` and `tech_avg` remain informational compatibility fields. The four baskets and structural/vectorial synthesis feed `final_score`.

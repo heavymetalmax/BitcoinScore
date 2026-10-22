@@ -75,7 +75,43 @@ def write_metric_histories(p):
         cb_val = m.get('cipherb', {}).get('value')
         _append('data/history/cipherb.json',
                 {'timestamp': ts, 'btc_price': price, 'cipherb': cb_val})
-        print('Wrote data/history/cipherb.json')
+        if isinstance(cb_val, dict) and ts:
+            d_str = str(ts)[:10]
+            if cb_val.get('daily_score') is not None:
+                d1_path = 'data/history/cipherb_btcusdt_1d.json'
+                raw_d1 = json.load(open(d1_path, encoding='utf-8')) if os.path.exists(d1_path) else {'series': []}
+                d1_by_d = {r['date'][:10]: r for r in raw_d1.get('series', []) if isinstance(r, dict) and r.get('date')}
+                d1_by_d[d_str] = {
+                    'date': d_str,
+                    'close': price or cb_val.get('close'),
+                    'wt1': cb_val.get('wt1'),
+                    'daily_score': round(float(cb_val['daily_score']), 4),
+                    'fast_bear_div': bool(cb_val.get('daily_fast_bearish_div', False)),
+                    'fast_bull_div': bool(cb_val.get('daily_fast_bullish_div', False)),
+                    'bearish_div': bool(cb_val.get('daily_bearish_div', False)),
+                    'bullish_div': bool(cb_val.get('daily_bullish_div', False)),
+                    'double_bearish_div': bool(cb_val.get('daily_double_bearish_div', False)),
+                    'double_bullish_div': bool(cb_val.get('daily_double_bullish_div', False)),
+                }
+                write_json(d1_path, {'series': [d1_by_d[k] for k in sorted(d1_by_d)]})
+            if cb_val.get('weekly_score') is not None:
+                wk_path = 'data/history/cipherb_btcusdt_1w.json'
+                raw_wk = json.load(open(wk_path, encoding='utf-8')) if os.path.exists(wk_path) else {'series': []}
+                wk_by_d = {r['date'][:10]: r for r in raw_wk.get('series', []) if isinstance(r, dict) and r.get('date')}
+                wk_by_d[d_str] = {
+                    'date': d_str,
+                    'close': price or cb_val.get('close'),
+                    'wt1': cb_val.get('wt1'),
+                    'weekly_score': round(float(cb_val['weekly_score']), 4),
+                    'fast_bearish_div': bool(cb_val.get('fast_bearish_div', False)),
+                    'fast_bullish_div': bool(cb_val.get('fast_bullish_div', False)),
+                    'bearish_div': bool(cb_val.get('bearish_divergence', False)),
+                    'bullish_div': bool(cb_val.get('bullish_divergence', False)),
+                    'double_bearish_div': bool(cb_val.get('double_bearish_div', False)),
+                    'double_bullish_div': bool(cb_val.get('double_bullish_div', False)),
+                }
+                write_json(wk_path, {'series': [wk_by_d[k] for k in sorted(wk_by_d)]})
+        print('Wrote data/history/cipherb.json (+ 1d/1w series)')
     except Exception as e:
         print('Failed to write CipherB history:', e)
 

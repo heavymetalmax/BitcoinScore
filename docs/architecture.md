@@ -156,17 +156,17 @@ the top-risk range; otherwise the neutral weight absorbs the missing evidence.
 ### Step 4 — Utility coefficients
 `scraper/utility_evaluator.py → evaluate_all_utilities_continuous()`
 
-Each metric gets a relevance weight `U_i ∈ [0.05, 1.0]` based on:
+Each metric gets a relevance weight `U_i ∈ [0.10, 1.0]` based on:
 - Current continuous phase mixture (`w_bot`, `w_neutral`, `w_top`)
-- Halving-cycle day multiplier (`cycle_day = halving_cycle_day_for(target_date)`), boosting bottom-sensitive metrics during typical bear-bottom windows and top-sensitive metrics during typical peak windows
+- Halving-cycle day multiplier (`cycle_day = halving_cycle_day_for(target_date)`), boosting bottom-sensitive metrics during typical bear-bottom windows, top-sensitive metrics during typical peak windows, and dual-extreme discriminators (`cipherb`, `+80.9` spread) at both cycle extremes (`BOTTOM: 1.0, NEUTRAL: 0.85, TOP: 1.0`)
 - Collinearity adjustment: `nupl` and `mvrv_z_score` (`r ≈ 0.96`) use reduced base weights (`0.65` at extremes, `0.45` in neutral) so their combined weight does not double-count unrealized profit
-- Proximity-based scaling for `pi_gap`: low utility (`0.15×`) when far from a cross, scaling up to `1.20×` as the moving averages converge
-- Divergence flags (e.g., bearish CipherB divergence → higher utility in NEUTRAL/TOP)
+- Proximity-based scaling for `pi_gap`: low utility (`0.20×`) when far from a cross, scaling up to `1.00×` as the moving averages converge
+- Extremity and divergence scaling for `cipherb`: boosts utility up to `1.0` when `cipherb` enters extreme oversold (`≤ 25`) or overbought (`≥ 75`) territory, or when tiered weekly/daily divergences (`double_*_div`, `fast_*_div`, `*_divergence`) are active
 
 ### Step 5 — Four utility-weighted baskets
 
 - **OC:** `nupl`, `mvrv_z_score`, `rhodl_ratio`, `cvdd_ratio`, `puell`, `lth_supply`
-- **MS:** `cipherb`, `mayer_multiple`, `funding_rate`, `fear_greed`, `etf_flows`
+- **MS:** `cipherb` (`2.0×` structural anchor multiplier), `mayer_multiple`, `funding_rate`, `fear_greed`, `etf_flows`
 - **MC:** `m2_yoy`, `yield_curve_spread`
 - **CP:** `btc_price_cycle`, `pi_gap`
 
@@ -175,20 +175,21 @@ metrics therefore reduce data quality without being treated as zero risk.
 
 ### Step 6 — Structural context & Mahalanobis coherence
 
-Cycle Position contextualizes the On-Chain basket, Macro receives a
+Cycle Position contextualizes the On-Chain basket (`OC_read = min(100, OC × (0.65 + 0.48 × CP / 100))`), Macro receives a
 phase-dependent weight, and TiZ pulls the structural score lower in proportion
 to `w_bot`. On-chain coherence (`oc_coherence` in `scraper/maps.py`) is computed via
 Mahalanobis distance over the 4 core structural on-chain metrics (`nupl`,
 `mvrv_z_score`, `rhodl_ratio`, `cvdd_ratio` — excluding noisy flow metric `asopr`)
 with Tikhonov shrinkage regularization (`_reg = 0.005`) on the conditional
 covariance matrix $\Sigma_y$ to prevent collinearity blowups. Coherence dampens
-only the structural component around neutral (50).
+only the structural component around phase-specific targets (`20` bottom, `50` neutral, `82` top).
 
 ### Step 7 — Vectorial context and symmetric phase-blended synthesis
 
-Market Sentiment and top-phase divergence form a vectorial score describing
+Market Sentiment (`MS`), upward top-phase CP-OC divergence (`w_top × 0.35 × max(0, CP − OC)`),
+and direct CipherB extremity pull (`cb_ext`) form a vectorial score describing
 where risk is moving. The final synthesis blends structural and vectorial
-contexts symmetrically using `phase_blend = 0.20 × w_bot + 0.40 × w_neutral + 0.75 × w_top`
+contexts symmetrically using `phase_blend = min(0.85, 0.35 × w_bot + 0.45 × w_neutral + 0.75 × w_top + 0.25 × cb_ext)`
 (preserving idempotence when `structural == vectorial`):
 
 ```
