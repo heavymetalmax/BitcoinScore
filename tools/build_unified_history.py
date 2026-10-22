@@ -163,13 +163,89 @@ def main():
     fr       = load_dict_series('funding_rate_history.json', 'value')
     btc      = load_btc_price('btc_price_history.json')
 
+    # LTH supply (% of 21M BTC)
+    lth_raw  = load_list_series('lth_supply_history.json')
+    lth      = {d: round((v / 21_000_000 * 100.0) if v > 100 else v, 4) for d, v in lth_raw.items()}
+
+    # Yield curve (10Y-2Y spread)
+    yc       = load_dict_series('yield_curve_history.json', 'value')
+    yc_snap_path = os.path.join(BASE, 'yield_curve.json')
+    if os.path.exists(yc_snap_path):
+        try:
+            for item in json.load(open(yc_snap_path, encoding='utf-8')):
+                if isinstance(item, dict) and item.get('timestamp') and item.get('yield_curve') is not None:
+                    yc[str(item['timestamp'])[:10]] = float(item['yield_curve'])
+        except Exception:
+            pass
+
+    # Merge daily_vector.json (authoritative daily snapshots since May 2026)
+    dv_path = os.path.join(BASE, 'daily_vector.json')
+    if os.path.exists(dv_path):
+        try:
+            for item in json.load(open(dv_path, encoding='utf-8')):
+                if not isinstance(item, dict) or not item.get('date'):
+                    continue
+                d_str = str(item['date'])[:10]
+                if item.get('btc_price') is not None and d_str not in btc:
+                    btc[d_str] = float(item['btc_price'])
+                raw_dv = item.get('raw') or {}
+                if raw_dv.get('nupl') is not None and d_str not in nupl:
+                    v = float(raw_dv['nupl'])
+                    nupl[d_str] = round(v * 100.0, 4) if abs(v) <= 1.5 else v
+                if raw_dv.get('mvrv') is not None and d_str not in mvrv:
+                    mvrv[d_str] = float(raw_dv['mvrv'])
+                if raw_dv.get('puell_multiple') is not None and d_str not in puell:
+                    puell[d_str] = float(raw_dv['puell_multiple'])
+                if raw_dv.get('rhodl_ratio') is not None and d_str not in rhodl:
+                    rhodl[d_str] = float(raw_dv['rhodl_ratio'])
+                if raw_dv.get('asopr') is not None and d_str not in asopr:
+                    v = float(raw_dv['asopr'])
+                    asopr[d_str] = round(v + 1.0, 6) if v < 0.5 else v
+                if raw_dv.get('cvdd_ratio') is not None and d_str not in cvdd:
+                    cvdd[d_str] = float(raw_dv['cvdd_ratio'])
+                if raw_dv.get('mayer_multiple') is not None:
+                    mayer_d[d_str] = float(raw_dv['mayer_multiple'])
+                if raw_dv.get('fear_greed') is not None and d_str not in fg:
+                    fg[d_str] = float(raw_dv['fear_greed'])
+                if raw_dv.get('m2_yoy') is not None and d_str not in m2_yoy:
+                    m2_yoy[d_str] = float(raw_dv['m2_yoy'])
+                if raw_dv.get('cipherb') is not None and d_str not in cb_d:
+                    cb_d[d_str] = float(raw_dv['cipherb'])
+                if raw_dv.get('pi_cycle_gap_pct') is not None:
+                    pi[d_str] = float(raw_dv['pi_cycle_gap_pct'])
+                if raw_dv.get('funding_rate') is not None and d_str not in fr:
+                    fr[d_str] = float(raw_dv['funding_rate'])
+                if raw_dv.get('yield_curve') is not None:
+                    yc[d_str] = float(raw_dv['yield_curve'])
+                if raw_dv.get('lth_supply_pct') is not None:
+                    lv = float(raw_dv['lth_supply_pct'])
+                    lth[d_str] = round((lv / 21_000_000 * 100.0) if lv > 100 else lv, 4)
+        except Exception as e:
+            print("Warning: daily_vector merge failed:", e)
+
+    # Compute missing mayer_multiple and pi_gap_pct deterministically from btc_price
+    sorted_btc_dates = sorted(btc.keys())
+    btc_prices_seq = [btc[d] for d in sorted_btc_dates]
+    for i, d_str in enumerate(sorted_btc_dates):
+        p_now = btc_prices_seq[i]
+        if d_str not in mayer_d and d_str not in mayer_h and i >= 199:
+            sma200 = sum(btc_prices_seq[i - 199:i + 1]) / 200.0
+            if sma200 > 0:
+                mayer_d[d_str] = round(p_now / sma200, 4)
+        if d_str not in pi and i >= 349:
+            ma111 = sum(btc_prices_seq[i - 110:i + 1]) / 111.0
+            ma350x2 = 2.0 * (sum(btc_prices_seq[i - 349:i + 1]) / 350.0)
+            if ma350x2 > 0:
+                pi[d_str] = round((1.0 - ma111 / ma350x2) * 100.0, 2)
+
     # mayer: prefer mayer_daily (more precise), fill pre-2018 from mayer_history
     mayer = {**mayer_h, **mayer_d}
 
     all_dates = sorted(set(
         list(nupl) + list(mvrv) + list(puell) + list(rhodl) +
         list(asopr) + list(cvdd) + list(mayer) + list(fg) +
-        list(m2_yoy) + list(cb_d) + list(pi) + list(dxy) + list(fr) + list(btc)
+        list(m2_yoy) + list(cb_d) + list(pi) + list(dxy) + list(fr) +
+        list(lth) + list(yc) + list(btc)
     ))
 
     print(f"  nupl:          {len(nupl):5d} pts  ({min(nupl) if nupl else '?'} → {max(nupl) if nupl else '?'})")
@@ -185,6 +261,8 @@ def main():
     print(f"  pi_gap_pct:    {len(pi):5d} pts")
     print(f"  dxy:           {len(dxy):5d} pts  ({min(dxy) if dxy else '?'} → {max(dxy) if dxy else '?'})")
     print(f"  funding_rate:  {len(fr):5d} pts  ({min(fr) if fr else 'no history yet'})")
+    print(f"  lth_supply_pct:{len(lth):5d} pts")
+    print(f"  yield_curve:   {len(yc):5d} pts")
     print(f"  btc_price:     {len(btc):5d} pts")
     print(f"\nTotal unique dates: {len(all_dates)}  ({all_dates[0]} → {all_dates[-1]})")
 
@@ -204,6 +282,8 @@ def main():
         row['pi_gap_pct']     = pi.get(d)
         row['dxy']            = dxy.get(d)
         row['funding_rate']   = fr.get(d)
+        row['lth_supply_pct'] = lth.get(d)
+        row['yield_curve']    = yc.get(d)
         row['btc_price']      = btc.get(d)
         series.append(row)
 

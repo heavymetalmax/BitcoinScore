@@ -102,18 +102,20 @@ def map_dxy(v):
 
 
 def load_dxy_sparkline(cutoff):
-    path = 'data/history/dxy_history.json'
-    if not os.path.exists(path):
-        return {}
-    with open(path) as f:
-        raw = json.load(f)
-    series = raw.get('series', raw) if isinstance(raw, dict) else raw
     result = {}
-    for pt in series:
-        date = pt.get('date', '')
-        if not date or date < cutoff:
+    for path in ('data/history/dxy_history.json', 'data/history/dxy_scraper_history.json'):
+        if not os.path.exists(path):
             continue
-        result[date] = map_dxy(pt.get('value'))
+        with open(path) as f:
+            raw = json.load(f)
+        series = raw.get('series', raw) if isinstance(raw, dict) else raw
+        for pt in series:
+            if not isinstance(pt, dict):
+                continue
+            date = str(pt.get('date', ''))[:10]
+            if not date or date < cutoff or pt.get('value') is None:
+                continue
+            result[date] = map_dxy(pt.get('value'))
     return result
 
 
@@ -208,18 +210,33 @@ def main():
 
     result = {
         'dates':              [r['date'] for r in recent],
-        'nupl':               [_nm('nupl',           r.get('nupl'),           r['date'], map_nupl)    for r in recent],
-        'mvrv_z_score':       [_nm('mvrv_z_score',   r.get('mvrv'),           r['date'], map_mvrv)    for r in recent],
-        'rhodl_ratio':        [_nm('rhodl_ratio',    r.get('rhodl_ratio'),    r['date'], map_rhodl)   for r in recent],
-        'cvdd_ratio':         [_nm('cvdd_ratio',     r.get('cvdd_ratio'),     r['date'], map_cvdd)    for r in recent],
-        'asopr':              [_nm('asopr',          r.get('asopr'),          r['date'], map_asopr)   for r in recent],
-        'cipherb':            [map_cipherb(r.get('cipherb_daily'))                                    for r in recent],
-        'mayer_multiple':     [_nm('mayer_multiple', r.get('mayer_multiple'), r['date'], map_mayer)   for r in recent],
-        'etf_flows':          [etf_by_date.get(r['date'])                                             for r in recent],
-        'fear_greed':         [_nm('fear_greed',     r.get('fear_greed'),     r['date'], map_fg)      for r in recent],
-        'yield_curve_spread': [yc_by_date.get(r['date'])                                              for r in recent],
-        'm2_yoy':             [_nm('m2_yoy',         r.get('m2_yoy'),         r['date'], map_m2)      for r in recent],
-        'dxy':                [dxy_by_date.get(r['date'])                                             for r in recent],
+        'nupl':               [_nm('nupl',            r.get('nupl'),           r['date'], map_nupl)    for r in recent],
+        'mvrv_z_score':       [_nm('mvrv_z_score',    r.get('mvrv'),           r['date'], map_mvrv)    for r in recent],
+        'rhodl_ratio':        [_nm('rhodl_ratio',     r.get('rhodl_ratio'),    r['date'], map_rhodl)   for r in recent],
+        'cvdd_ratio':         [_nm('cvdd_ratio',      r.get('cvdd_ratio'),     r['date'], map_cvdd)    for r in recent],
+        'asopr':              [_nm('asopr',           r.get('asopr'),          r['date'], map_asopr)   for r in recent],
+        'puell_multiple':     [_nm('puell_multiple',  r.get('puell'),          r['date'], lambda v: None) for r in recent],
+        'lth_supply_pct':     [_nm('lth_supply_pct',  r.get('lth_supply_pct'), r['date'], lambda v: None) for r in recent],
+        'btc_price_cycle':    [_nm('btc_price_cycle', r.get('btc_price'),      r['date'], lambda v: None) for r in recent],
+        'cipherb':            [map_cipherb(r.get('cipherb_daily'))                                     for r in recent],
+        'mayer_multiple':     [_nm('mayer_multiple',  r.get('mayer_multiple'), r['date'], map_mayer)   for r in recent],
+        'pi_cycle':           [_nm('pi_cycle',        r.get('pi_gap_pct'),     r['date'], lambda v: None) for r in recent],
+        'funding_rate':       [_nm('funding_rate',    r.get('funding_rate'),   r['date'], lambda v: None) for r in recent],
+        'etf_flows':          [etf_by_date.get(r['date'])                                              for r in recent],
+        'fear_greed':         [_nm('fear_greed',      r.get('fear_greed'),     r['date'], map_fg)      for r in recent],
+        'yield_curve_spread': [
+            yc_by_date.get(r['date'])
+            if yc_by_date.get(r['date']) is not None
+            else _nm('yield_curve', r.get('yield_curve'), r['date'], map_yc)
+            for r in recent
+        ],
+        'm2_yoy':             [_nm('m2_yoy',          r.get('m2_yoy'),         r['date'], map_m2)      for r in recent],
+        'dxy':                [
+            dxy_by_date.get(r['date'])
+            if dxy_by_date.get(r['date']) is not None
+            else _nm('dxy', r.get('dxy'), r['date'], map_dxy)
+            for r in recent
+        ],
     }
 
     out_path = 'web/sparklines.json'

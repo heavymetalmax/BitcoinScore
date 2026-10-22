@@ -143,7 +143,7 @@ Static HTML5 + vanilla JS. No build step. `web/data.json` copied from `data/data
 - **Surgical changes only** — modify exactly what the task requires; do not reformat unrelated code.
 - **Ask before building** — if the task is ambiguous, describe the plan and wait for confirmation.
 - **Minimum viable implementation** — avoid new classes where a plain function suffices.
-- **Verify after changes** — run backtest to confirm nothing is broken: `python tools/backtest.py`
+- **Verify after changes** — run the 6-layer system invariant suite and backtest to confirm nothing is broken: `python3 tools/verify_system_invariants.py` and `python3 tools/backtest_unified.py`
 - **Architecture first** — before any change, check how it fits with scoring_pipeline.py and the V3 data flow.
 
 ## Adding or Modifying a Metric

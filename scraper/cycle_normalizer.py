@@ -173,8 +173,8 @@ def cycle_normalize(metric: str, value, target_date) -> int | None:
     if intra_score is not None and cross_score > 40.0:
         # Secular diminishing returns compress cycle TOPS (MVRV 9.3 → 5.4 → 3.5 → 2.8),
         # whereas cycle BOTTOMS remain anchored (MVRV < 0, CVDD ~ 1.0, Puell < 0.5).
-        # Ramp intra-cycle weight from 0% at cross_score=40 to 65% at cross_score>=55.
-        w_intra = min(0.65, (cross_score - 40.0) / 15.0 * 0.65)
+        # Ramp intra-cycle weight from 0% at cross_score=40 to 75% at cross_score>=55.
+        w_intra = min(0.75, (cross_score - 40.0) / 15.0 * 0.75)
         return round((1.0 - w_intra) * cross_score + w_intra * float(intra_score))
     return round(cross_score)
 

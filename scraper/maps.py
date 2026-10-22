@@ -15,7 +15,7 @@ import datetime
 # ── Adaptive normalization constants ────────────────────────────────────────
 # Valuation metrics whose cyclical extremes compress as Bitcoin matures get a
 # blended risk score: w * (rolling-percentile) + (1-w) * (fixed map).
-ADAPTIVE_METRICS = {'nupl', 'mvrv', 'mayer', 'cvdd_ratio', 'puell', 'rhodl_ratio', 'etf_flows', 'dxy'}
+ADAPTIVE_METRICS = {'nupl', 'mvrv', 'mayer', 'cvdd_ratio', 'puell', 'rhodl_ratio', 'etf_flows', 'dxy', 'funding_rate'}
 _UNIFIED_FIELD   = {'mayer': 'mayer_multiple', 'cvdd_ratio': 'cvdd_ratio'}
 _DV_KEY          = {'mayer': 'mayer_multiple', 'cvdd_ratio': 'cvdd_ratio'}
 ADAPTIVE_BLEND         = 0.7    # 70% percentile + 30% fixed map
@@ -187,14 +187,24 @@ def map_mayer_multiple(v):
 
 
 def map_funding(v):
-    """avg_7d range -0.05% .. +0.10%."""
+    """Piecewise mapping for 7d average funding rate (% per 8h):
+    <= -0.010% → 0   (shorts paying longs, deep capitulation)
+     = +0.0045% → 50 (empirical 2-year median baseline)
+    >= +0.025% → 100 (heavily overheated long leverage)
+    """
     if v is None: return None
     if isinstance(v, dict):
         avg = v.get('avg_7d')
         if avg is None: return v.get('score')
         v = avg
     v = float(v)
-    return round(max(0, min(100, (v + 0.05) / 0.15 * 100)))
+    if v <= -0.010:
+        return 0
+    if v >= 0.025:
+        return 100
+    if v <= 0.0045:
+        return round((v - (-0.010)) / (0.0045 - (-0.010)) * 50.0)
+    return round(50.0 + (v - 0.0045) / (0.025 - 0.0045) * 50.0)
 
 
 def map_cvdd(v):

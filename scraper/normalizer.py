@@ -13,7 +13,7 @@ from scraper.maps import (
     ADAPTIVE_METRICS, ADAPTIVE_BLEND, ADAPTIVE_BLEND_OVERRIDE, ADAPTIVE_WIN_YEARS,
 )
 from scraper.cycle_normalizer import (
-    cycle_normalize, intra_cycle_percentile,
+    cycle_normalize, intra_cycle_percentile, price_cycle_percentile,
     SUPPORTED_METRICS as CYCLE_METRICS,
     INTRA_CYCLE_METRICS,
 )
@@ -83,6 +83,33 @@ def normalize_metric(metric, value, target_date=None):
     if value is None:
         return None
 
+    # Handle composite CipherB dict directly if passed to normalize_metric
+    if metric == 'cipherb':
+        if isinstance(value, dict):
+            from scraper.score import _extract_cipherb
+            _, _, blended = _extract_cipherb(value)
+            return blended
+        elif isinstance(value, (int, float)):
+            return round(max(0.0, min(100.0, float(value))))
+        return None
+
+    # Handle Pi Cycle gap directly if passed to normalize_metric
+    if metric in ('pi_cycle', 'pi_gap', 'pi_gap_pct'):
+        from scraper.score import _map_pi_gap
+        return _map_pi_gap(value)
+
+    # Handle BTC price within current cycle
+    if metric == 'btc_price_cycle':
+        metric_val = value.get('value') if isinstance(value, dict) and 'value' in value else value
+        if not isinstance(metric_val, (int, float)):
+            return None
+        td_obj = (
+            datetime.date.fromisoformat(str(target_date)[:10])
+            if isinstance(target_date, str)
+            else (target_date or datetime.date.today())
+        )
+        return price_cycle_percentile(td_obj, float(metric_val))
+
     # Unwrap dictionaries before any normalization path
     metric_val = value
     if isinstance(metric_val, dict) and 'value' in metric_val:
@@ -119,7 +146,7 @@ def normalize_metric(metric, value, target_date=None):
         fixed_score = map_cvdd(metric_val)
     elif metric == 'asopr':
         fixed_score = map_asopr(metric_val)
-    elif metric == 'puell':
+    elif metric in ('puell', 'puell_multiple'):
         fixed_score = map_puell(metric_val)
     elif metric == 'mayer_multiple':
         fixed_score = map_mayer_multiple(metric_val)
@@ -135,7 +162,7 @@ def normalize_metric(metric, value, target_date=None):
         fixed_score = map_funding(metric_val)
     elif metric == 'dxy':
         fixed_score = map_dxy(metric_val)
-    elif metric == 'lth_supply':
+    elif metric in ('lth_supply', 'lth_supply_pct'):
         fixed_score = map_lth_supply(metric_val)
 
     # If the metric is adaptive, blend with rolling percentile

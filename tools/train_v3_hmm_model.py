@@ -118,17 +118,20 @@ class HMMPhaseClassifier(BaseEstimator):
                 probs[t] = alpha
             return probs
         else:
-            # Single-step mode (daily scraper run)
+            # Single-step mode (daily scraper run or batch recompute)
             date_str = self._get_current_date()
             
-            # Load cache
-            cache = {}
-            if os.path.exists(CACHE_PATH):
-                try:
-                    with open(CACHE_PATH, 'r', encoding='utf-8') as f:
-                        cache = json.load(f)
-                except Exception:
-                    pass
+            # Load cache once into memory
+            cache = getattr(self, '_mem_cache', None)
+            if cache is None:
+                cache = {}
+                if os.path.exists(CACHE_PATH):
+                    try:
+                        with open(CACHE_PATH, 'r', encoding='utf-8') as f:
+                            cache = json.load(f)
+                    except Exception:
+                        pass
+                self._mem_cache = cache
             
             # Find yesterday's date
             try:
@@ -153,9 +156,9 @@ class HMMPhaseClassifier(BaseEstimator):
             # Perform single forward step
             alpha_curr = self._forward_step(X_f[0], alpha_prev)
             
-            # Save today's probabilities to cache only when persistence is enabled
+            # Always update in-memory cache; persist to disk only when enabled
+            cache[date_str] = [float(v) for v in alpha_curr]
             if getattr(self, '_persist_cache', True):
-                cache[date_str] = [float(v) for v in alpha_curr]
                 try:
                     with open(CACHE_PATH, 'w', encoding='utf-8') as f:
                         json.dump(cache, f, indent=2)

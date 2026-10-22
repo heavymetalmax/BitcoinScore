@@ -233,3 +233,82 @@ def write_metric_histories(p):
                 print(f'm2_yoy_history.json already has entry for {month_str}, skipping')
     except Exception as e:
         print('Failed to write M2 YoY history:', e)
+
+    # ── Puell Multiple — append daily to puell_history.json ──────────────────
+    try:
+        puell_raw = m.get('puell_multiple', {})
+        puell_val = puell_raw.get('value') if isinstance(puell_raw, dict) else puell_raw
+        if puell_val is not None:
+            date_str = ts[:10] if ts else datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%d')
+            path = 'data/history/puell_history.json'
+            hist = json.load(open(path, encoding='utf-8')) if os.path.exists(path) else []
+            last_date = hist[-1][0] if hist and isinstance(hist[-1], list) else None
+            if last_date != date_str:
+                hist.append([date_str, round(float(puell_val), 6)])
+                write_json(path, hist)
+                print(f'Wrote data/history/puell_history.json  ({puell_val})')
+    except Exception as e:
+        print('Failed to write Puell history:', e)
+
+    # ── LTH Supply — append daily to lth_supply_history.json ─────────────────
+    try:
+        lth_raw = m.get('lth_supply_pct', {})
+        lth_val = lth_raw.get('value') if isinstance(lth_raw, dict) else lth_raw
+        if lth_val is not None:
+            date_str = ts[:10] if ts else datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%d')
+            path = 'data/history/lth_supply_history.json'
+            hist = json.load(open(path, encoding='utf-8')) if os.path.exists(path) else []
+            last_date = hist[-1][0] if hist and isinstance(hist[-1], list) else None
+            if last_date != date_str:
+                hist.append([date_str, round(float(lth_val), 6)])
+                write_json(path, hist)
+                print(f'Wrote data/history/lth_supply_history.json  ({lth_val})')
+    except Exception as e:
+        print('Failed to write LTH supply history:', e)
+
+    # ── Mayer Multiple — append daily to mayer_daily.json ────────────────────
+    try:
+        mayer_raw = m.get('mayer_multiple', {}).get('value')
+        mayer_val = mayer_raw.get('value') if isinstance(mayer_raw, dict) else mayer_raw
+        dma200    = mayer_raw.get('dma200') if isinstance(mayer_raw, dict) else None
+        if mayer_val is not None and ts:
+            date_str = str(ts)[:10]
+            path = 'data/history/mayer_daily.json'
+            raw_md = json.load(open(path, encoding='utf-8')) if os.path.exists(path) else {'series': []}
+            ser = raw_md.get('series', raw_md) if isinstance(raw_md, dict) else raw_md
+            by_d = {r['date'][:10]: r for r in ser if isinstance(r, dict) and r.get('date')}
+            by_d[date_str] = {
+                'date': date_str,
+                'close': price,
+                'dma200': dma200 or (round(price / float(mayer_val), 2) if price and float(mayer_val) > 0 else None),
+                'mayer_multiple': round(float(mayer_val), 4),
+            }
+            out_ser = [by_d[k] for k in sorted(by_d)]
+            write_json(path, {'series': out_ser} if isinstance(raw_md, dict) else out_ser)
+            print(f'Wrote data/history/mayer_daily.json  ({mayer_val})')
+    except Exception as e:
+        print('Failed to write Mayer daily history:', e)
+
+    # ── Pi Cycle — append daily to pi_cycle_daily.json ───────────────────────
+    try:
+        pi_raw = m.get('pi_cycle', {}).get('value')
+        if isinstance(pi_raw, dict) and pi_raw.get('gap_pct') is not None and ts:
+            date_str = str(ts)[:10]
+            path = 'data/history/pi_cycle_daily.json'
+            raw_pi = json.load(open(path, encoding='utf-8')) if os.path.exists(path) else {'series': []}
+            ser = raw_pi.get('series', raw_pi) if isinstance(raw_pi, dict) else raw_pi
+            by_d = {r['date'][:10]: r for r in ser if isinstance(r, dict) and r.get('date')}
+            by_d[date_str] = {
+                'date': date_str,
+                'close': price,
+                'ma111': pi_raw.get('ma111'),
+                'ma350x2': pi_raw.get('ma350x2'),
+                'gap_pct': round(float(pi_raw['gap_pct']), 2),
+                'score': pi_raw.get('score'),
+                'cross': bool(pi_raw.get('cross', False)),
+            }
+            out_ser = [by_d[k] for k in sorted(by_d)]
+            write_json(path, {'series': out_ser} if isinstance(raw_pi, dict) else out_ser)
+            print(f'Wrote data/history/pi_cycle_daily.json  ({pi_raw["gap_pct"]}%)')
+    except Exception as e:
+        print('Failed to write Pi Cycle daily history:', e)

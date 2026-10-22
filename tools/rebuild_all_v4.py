@@ -28,9 +28,7 @@ def recompute_recent_scores(days: int = 365) -> None:
     from scraper.score import compute_score
     from scraper.cycle_normalizer import invalidate_caches as inv_cycle
     from scraper.maps import invalidate_caches as inv_maps
-
-    inv_cycle()
-    inv_maps()
+    from scraper.wave_resonance import invalidate_caches as inv_wr
 
     scores_path = os.path.join(ROOT, 'data', 'history', 'scores.json')
     if not os.path.exists(scores_path):
@@ -39,6 +37,68 @@ def recompute_recent_scores(days: int = 365) -> None:
 
     with open(scores_path, encoding='utf-8') as f:
         rows = json.load(f)
+
+    # Merge missing raw metrics from unified_history.json into scores.json
+    uh_path = os.path.join(ROOT, 'data', 'history', 'unified_history.json')
+    uh_by_date = {}
+    if os.path.exists(uh_path):
+        raw_uh = json.load(open(uh_path, encoding='utf-8'))
+        for r in (raw_uh.get('series', raw_uh) if isinstance(raw_uh, dict) else raw_uh):
+            if isinstance(r, dict) and r.get('date'):
+                uh_by_date[r['date'][:10]] = r
+
+    raw_fields = [
+        'btc_price', 'nupl', 'mvrv', 'puell', 'rhodl_ratio', 'asopr',
+        'cvdd_ratio', 'mayer_multiple', 'fear_greed', 'm2_yoy',
+        'cipherb_daily', 'pi_gap_pct', 'dxy', 'funding_rate',
+        'lth_supply_pct', 'yield_curve',
+    ]
+    ffill_max_days = {
+        'dxy': 7,
+        'yield_curve': 10,
+        'm2_yoy': 45,
+        'lth_supply_pct': 30,
+        'puell': 14,
+        'funding_rate': 7,
+        'cvdd_ratio': 7,
+        'asopr': 7,
+        'rhodl_ratio': 7,
+    }
+    last_seen_val = {}
+    last_seen_date = {}
+
+    for row in rows:
+        d_str = row.get('date', '')[:10]
+        if not d_str:
+            continue
+        uh_r = uh_by_date.get(d_str, {})
+        for fld in raw_fields:
+            v = row.get(fld)
+            if v is None and uh_r.get(fld) is not None:
+                v = uh_r[fld]
+                row[fld] = v
+            # Normalize units if needed
+            if v is not None and fld == 'lth_supply_pct' and float(v) > 100:
+                v = round(float(v) / 21_000_000 * 100.0, 4)
+                row[fld] = v
+            if v is not None:
+                last_seen_val[fld] = v
+                last_seen_date[fld] = d_str
+            elif fld in ffill_max_days and fld in last_seen_val:
+                try:
+                    gap = (datetime.date.fromisoformat(d_str) - datetime.date.fromisoformat(last_seen_date[fld])).days
+                    if 0 < gap <= ffill_max_days[fld]:
+                        row[fld] = last_seen_val[fld]
+                except Exception:
+                    pass
+
+    # Save enriched raw metrics to scores.json first so normalizer/WR caches see full series
+    with open(scores_path, 'w', encoding='utf-8') as f:
+        json.dump(rows, f, separators=(',', ':'))
+
+    inv_cycle()
+    inv_maps()
+    inv_wr()
 
     # Load weekly and daily CipherB history for accurate historical reconstruction
     wk_rows_by_date = {}

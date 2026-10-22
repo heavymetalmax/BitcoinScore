@@ -148,8 +148,9 @@ RELEVANCE_PROFILES = {
     'pi_gap':              {'BOTTOM': 0.1, 'NEUTRAL': 0.5, 'TOP': 1.0},
     # Funding Rate: longs overheated = high risk; more relevant at TOP than BOTTOM
     'funding_rate':        {'BOTTOM': 0.3, 'NEUTRAL': 0.5, 'TOP': 0.8},
-    # LTH Supply: distribution is an early TOP warning; accumulation validates BOTTOM
-    'lth_supply':          {'BOTTOM': 0.5, 'NEUTRAL': 0.6, 'TOP': 0.9},
+    # LTH Supply: 155-day threshold causes coins bought early in a bull run to mature
+    # into LTH before late-cycle tops (e.g. Nov 2021, Oct 2025), so downweight at TOP.
+    'lth_supply':          {'BOTTOM': 0.4, 'NEUTRAL': 0.4, 'TOP': 0.20},
     # BTC price within current cycle: 0=cycle bottom, 100=new cycle ATH.
     # Direct price-based risk: at ATH in TOP phase = maximum buy risk.
     # Zero weight at BOTTOM (price near lows is expected/desired there).
