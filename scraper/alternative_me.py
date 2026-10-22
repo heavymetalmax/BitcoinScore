@@ -63,7 +63,7 @@ def get_fear_greed():
         try:
             with open(_HISTORY_FILE) as f:
                 data = json.load(f)
-            series = data.get('series', [])
+            series = data.get('series', []) if isinstance(data, dict) else (data if isinstance(data, list) else [])
             if series:
                 last = series[-1]
                 score = last.get('score')

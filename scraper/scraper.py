@@ -140,38 +140,18 @@ def build_payload():
         except Exception as e:
             print('CMC global metrics error', e)
 
-    # MacroMicro: avoid spamming requests. If cached MacroMicro metrics exist and are
-    # recent (<=24h) and valid, reuse them instead of live-fetching.
+    # Check cached metrics individually by their own 'updated' timestamp (<=12h)
     nupl = None
     mvrv = None
-    prev_metrics = None
+    prev_metrics = {}
     cache_path = 'data/data.json'
     try:
         if os.path.exists(cache_path):
             with open(cache_path, 'r', encoding='utf-8') as hf:
                 prev = json.load(hf)
-                prev_ts = prev.get('timestamp')
-                if prev_ts:
-                    prev_dt = datetime.datetime.fromisoformat(prev_ts.replace('Z', '+00:00'))
-                    age = (datetime.datetime.now(datetime.timezone.utc) - prev_dt).total_seconds()
-                else:
-                    age = None
                 prev_metrics = prev.get('metrics', {}) if isinstance(prev, dict) else {}
-                # consider cached valid if NUPL present and not null
-                cached_nupl = None
-                if prev_metrics and 'nupl' in prev_metrics and prev_metrics['nupl'].get('value') is not None:
-                    cached_nupl = prev_metrics['nupl'].get('value')
-                if cached_nupl is not None and age is not None and age <= 43200:
-                    # reuse cached MacroMicro metrics
-                    try:
-                        nupl = float(cached_nupl)
-                    except Exception:
-                        nupl = cached_nupl
-                    if 'mvrv' in prev_metrics and prev_metrics['mvrv'].get('value') is not None:
-                        mvrv = prev_metrics['mvrv'].get('value')
     except Exception:
-        nupl = None
-        mvrv = None
+        prev_metrics = {}
 
     # If not reused from cache, perform live fetches sequentially per metric.
     import random
@@ -198,12 +178,31 @@ def build_payload():
         ('dxy', dxy_mod.get_dxy, None, lambda r: r),
     ]
 
+    now_utc = datetime.datetime.now(datetime.timezone.utc)
+
     for name, fn, visit_url, extractor in metric_specs:
-        # prefer cached value when available and recent
+        # prefer cached value only when this specific metric was live-fetched <=12h ago
         cached_val = None
-        if prev_metrics and name in prev_metrics and prev_metrics[name].get('value') is not None and 'age' in locals() and age is not None and age <= 43200 and os.environ.get('FORCE_LIVE') != '1':
-            if not (name == 'm2' and prev_metrics[name].get('source') == 'BMP'):
-                _cv = prev_metrics[name].get('value')
+        prev_m = prev_metrics.get(name) if isinstance(prev_metrics, dict) else None
+        prev_updated = prev_m.get('updated') if isinstance(prev_m, dict) else None
+        metric_age = None
+        if prev_updated:
+            try:
+                m_dt = datetime.datetime.fromisoformat(prev_updated.replace('Z', '+00:00'))
+                metric_age = (now_utc - m_dt).total_seconds()
+            except Exception:
+                metric_age = None
+
+        if (
+            isinstance(prev_m, dict)
+            and prev_m.get('value') is not None
+            and not prev_m.get('is_fallback', False)
+            and metric_age is not None
+            and metric_age <= 43200
+            and os.environ.get('FORCE_LIVE') != '1'
+        ):
+            if not (name == 'm2' and prev_m.get('source') == 'BMP'):
+                _cv = prev_m.get('value')
                 if name == 'etf_flows' and isinstance(_cv, dict) and _cv.get('date'):
                     try:
                         import datetime as _dt_etf
@@ -213,8 +212,12 @@ def build_payload():
                     except Exception:
                         pass
                 cached_val = _cv
+
+        is_fallback = False
+        reused_cache = False
         if cached_val is not None:
             val = cached_val
+            reused_cache = True
         else:
             # open humanized visit if requested and url provided
             try:
@@ -232,15 +235,23 @@ def build_payload():
             except Exception:
                 val = res
 
-            # validate
+            # validate range and daily jump plausibility
+            from .utils import is_plausible_daily_change
+            prev_raw_val = prev_m.get('value') if isinstance(prev_m, dict) else None
             if not is_valid_metric(name, val):
+                val = None
+            elif (
+                metric_age is not None
+                and metric_age <= 172800  # previous reading within 48h
+                and not is_plausible_daily_change(name, val, prev_raw_val)
+            ):
+                print(f"Warning: {name}={val} failed daily jump guard vs prev={prev_raw_val}, rejecting outlier")
                 val = None
 
             # Fallback to cached value (even if stale) on live fetch failure
-            is_fallback = False
             if val is None:
-                if prev_metrics and name in prev_metrics and prev_metrics[name].get('value') is not None:
-                    val = prev_metrics[name].get('value')
+                if isinstance(prev_m, dict) and prev_m.get('value') is not None:
+                    val = prev_m.get('value')
                     print(f"Warning: live fetch failed for {name}, fell back to cached value: {val}")
                     is_fallback = True
                 else:
@@ -274,8 +285,15 @@ def build_payload():
         # save into metrics dict placeholder (later merged into payload)
         if 'metrics' not in locals():
             metrics = {}
-        src = 'MacroMicro' if name == 'm2' else 'Farside' if name == 'etf_flows' else 'FRED' if name == 'dxy' else 'BMP'
-        metrics[name] = {'value': val, 'source': src if val is not None else None, 'updated': now_iso()}
+        src = 'FRED' if name in ('m2', 'yield_curve', 'dxy') else 'Farside' if name == 'etf_flows' else 'BMP'
+        # Preserve original timestamp if reused from cache or fell back on failure
+        eff_updated = prev_updated if ((reused_cache or is_fallback) and prev_updated) else now_iso()
+        metrics[name] = {
+            'value': val,
+            'source': src if val is not None else None,
+            'updated': eff_updated,
+            'is_fallback': is_fallback,
+        }
 
     if 'metrics' not in locals():
         metrics = {}
@@ -494,78 +512,20 @@ def main():
     from .history_writer import write_metric_histories
     write_metric_histories(p)
 
-    # ── V3 pipeline (zone_forecast, onchain/tech sub-scores only) ────────────
+    # Ensure top-level m2_yoy and pi_gap_pct aliases are populated before scoring
+    _m_pre = p.get('metrics', {})
+    if p.get('m2_mom') is not None:
+        p['m2_yoy'] = p['m2_mom']
+    elif (_m_pre.get('m2_mom') or {}).get('value') is not None:
+        p['m2_yoy'] = _m_pre['m2_mom']['value']
+        p['m2_mom'] = p['m2_yoy']
+    _pi_val_pre = (_m_pre.get('pi_cycle') or {}).get('value')
+    if isinstance(_pi_val_pre, dict) and _pi_val_pre.get('gap_pct') is not None:
+        p['pi_gap_pct'] = _pi_val_pre['gap_pct']
+
+    # ── Authoritative scoring pipeline (V1 archive → V2 archive → V4 BRI + V5B) ─
     from .scoring_pipeline import run_scoring_pipeline
     p = run_scoring_pipeline(p, _build_metric_history)
-
-    # ── V4 final score ─────────────────────────────────────────────────────────
-    try:
-        import datetime as _datetime
-        from .score import compute_score as _v4_score
-
-        _m = p.get('metrics', {})
-        _lth_raw = (_m.get('lth_supply_pct') or {}).get('value')
-        _lth = (_lth_raw / 21_000_000 * 100) if (_lth_raw and _lth_raw > 100) else _lth_raw
-
-        _raw_v4 = {
-            'nupl':           p.get('nupl'),
-            'mvrv':           p.get('mvrv_z_score'),
-            'rhodl_ratio':    p.get('rhodl_ratio'),
-            'cvdd_ratio':     p.get('cvdd_ratio'),
-            'asopr':          p.get('asopr'),
-            'puell_multiple': (_m.get('puell_multiple') or {}).get('value'),
-            'mayer_multiple': ((_m.get('mayer_multiple') or {}).get('value') or {}).get('value'),
-            'fear_greed':     p.get('fear_greed'),
-            'm2_mom':         p.get('m2_yoy'),
-            'yield_curve':    (_m.get('yield_curve') or {}).get('value'),
-            'lth_supply_pct': _lth,
-            'dxy':            (_m.get('dxy') or {}).get('value'),
-            'funding_rate':   (_m.get('funding_rate') or {}).get('value'),
-            'pi_cycle':       p.get('pi_gap_pct'),
-            'cipherb':        (_m.get('cipherb') or {}).get('value'),
-            'etf_flows':      (_m.get('etf_flows') or {}).get('value'),
-        }
-
-        _today_d = _datetime.date.today()
-        _hist_raw = json.load(open('data/history/scores.json', encoding='utf-8'))
-        _sh = [
-            (e['date'], e['final_score'], e.get('phase'), e.get('w_bot'))
-            for e in _hist_raw
-            if e.get('date') < _today_d.isoformat() and e.get('final_score') is not None
-        ]
-
-        _v4 = _v4_score(
-            raw_metrics=_raw_v4,
-            target_date=_today_d,
-            prev_scores=None,
-            scores_history=_sh,
-            btc_price=p.get('btc_price'),
-        )
-
-        p['final_score'] = _v4['final_score']
-        p['onchain_score'] = _v4['onchain_avg']
-        p['tech_score'] = _v4['tech_avg']
-        p['v3_w_bot']    = _v4['w_bot']
-        p['v3_w_top']    = _v4['w_top']
-        p['v3_phase']    = _v4['phase']
-        p['v3_normalized_scores'] = _v4['normalized_scores']
-        p['v3_utilities'] = _v4['utilities']
-        p['v5_score'] = _v4.get('v5_score')
-        p['v5b_score'] = _v4.get('v5b_score')
-        p['v5b_validated'] = _v4.get('v5b_validated', False)
-        p['market_regime'] = _v4.get('market_regime')
-        p['decision_suppressed'] = _v4.get('decision_suppressed', True)
-        p['decision_suppression_reason'] = _v4.get('decision_suppression_reason')
-        if isinstance(p.get('data_quality'), dict):
-            p['data_quality']['status'] = _v4.get('score_status', 'invalid')
-            p['data_quality']['basket_coverage'] = _v4.get('basket_coverage', {})
-        from .scoring_pipeline import sync_public_names
-        sync_public_names(p, _v4)
-        print(f'V4: score={_v4["final_score"]}  phase={_v4["phase"]}'
-              f'  w_bot={_v4["w_bot"]:.2f}  w_top={_v4["w_top"]:.2f}')
-    except Exception as e:
-        import traceback; traceback.print_exc()
-        print(f'Warning: V4 compute_score failed, keeping V3 score — {e}')
 
     # ── Upsert today into scores.json with full raw metrics ───────────────────
     try:
@@ -592,6 +552,11 @@ def main():
         _lth2 = (_lth_raw2 / 21_000_000 * 100) if (_lth_raw2 and _lth_raw2 > 100) else _lth_raw2
         _mayer_v = (_m.get('mayer_multiple') or {}).get('value') or {}
         _mayer = _mayer_v.get('value') if isinstance(_mayer_v, dict) else _mayer_v
+        _pi_v = (_m.get('pi_cycle') or {}).get('value') or {}
+        _pi_gap = _pi_v.get('gap_pct') if isinstance(_pi_v, dict) else p.get('pi_gap_pct')
+        _m2_yoy = p.get('m2_mom') if p.get('m2_mom') is not None else (
+            (_m.get('m2_mom') or {}).get('value') if (_m.get('m2_mom') or {}).get('value') is not None else p.get('m2_yoy')
+        )
 
         today_rec = {
             'date':           today_str,
@@ -610,8 +575,8 @@ def main():
             'fear_greed':     p.get('fear_greed'),
             'funding_rate':   ((_m.get('funding_rate') or {}).get('value') or {}).get('avg_7d'),
             'cipherb_daily':  ((_m.get('cipherb') or {}).get('value') or {}).get('daily_score'),
-            'pi_gap_pct':     p.get('pi_gap_pct'),
-            'm2_yoy':         p.get('m2_yoy'),
+            'pi_gap_pct':     _pi_gap,
+            'm2_yoy':         _m2_yoy,
             'lth_supply_pct': _lth2,
             'yield_curve':    (_m.get('yield_curve') or {}).get('value'),
             'dxy':            (_m.get('dxy') or {}).get('value'),

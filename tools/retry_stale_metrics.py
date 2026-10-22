@@ -39,27 +39,39 @@ def _build_metric_specs():
     from scraper import nupl as nupl_mod
     from scraper import mvrv as mvrv_mod
     from scraper import m2_metric as m2_mod
+    from scraper import yield_curve_metric as yc_mod
     from scraper import cvdd as cvdd_mod
     from scraper import rhodl as rhodl_mod
-    from scraper import rainbow as rainbow_mod
+    from scraper import asopr as asopr_mod
+    from scraper import etf_flows as etf_flows_mod
+    from scraper import dxy_metric as dxy_mod
+    from scraper import mayer_multiple as mayer_mod
+    from scraper import pi_cycle as pi_cycle_mod
+    from scraper import puell as puell_mod
+    from scraper import lth_supply as lth_mod
     from scraper.alternative_me import get_fear_greed
     from scraper.coingecko import get_price
     from scraper.cipherb import get_cipherb
-    from scraper.smc import get_smc
     from scraper.funding_rate import get_funding_rate
 
     return {
         'nupl': (nupl_mod.get_nupl, lambda r: r),
         'mvrv': (mvrv_mod.get_mvrv, lambda r: r),
         'm2': (m2_mod.get_m2, lambda r: r),
+        'yield_curve': (yc_mod.get_yield_curve, lambda r: r),
         'cvdd_ratio': (cvdd_mod.get_cvdd_ratio, lambda r: r),
         'rhodl_ratio': (rhodl_mod.get_rhodl_ratio, lambda r: r),
-        'rainbow_band': (rainbow_mod.get_rainbow_band, lambda r: r),
-        'fear_greed': (get_fear_greed, lambda r: r.get('value') if isinstance(r, dict) else r),
+        'asopr': (asopr_mod.get_asopr, lambda r: r),
+        'etf_flows': (etf_flows_mod.get_etf_flows, lambda r: r),
+        'dxy': (dxy_mod.get_dxy, lambda r: r),
+        'fear_greed': (get_fear_greed, lambda r: r.get('avg_7d', r.get('latest')) if isinstance(r, dict) else r),
         'btc_price': (get_price, lambda r: r.get('price') if isinstance(r, dict) else r),
         'cipherb': (lambda: get_cipherb('BTCUSDT'), lambda r: r.get('last') if isinstance(r, dict) else r),
-        'smc': (lambda: get_smc('BTCUSDT', timeframe='1w', size=10), lambda r: r.get('last') if isinstance(r, dict) else r),
+        'mayer_multiple': (mayer_mod.get_mayer_multiple, lambda r: r),
         'funding_rate': (lambda: get_funding_rate('BTCUSDT'), lambda r: r),
+        'pi_cycle': (pi_cycle_mod.get_pi_cycle, lambda r: r),
+        'puell_multiple': (puell_mod.get_puell_multiple, lambda r: r),
+        'lth_supply_pct': (lth_mod.get_lth_supply_pct, lambda r: r),
     }
 
 
@@ -100,14 +112,24 @@ def save_data(data: dict):
 
 
 def find_stale_metrics(data: dict, threshold_hours: float, candidates: list[str]) -> list[str]:
-    """Return metric names that are either missing or older than threshold_hours."""
+    """Return metric names that are missing, fell back on last run, or older than threshold_hours."""
     metrics = data.get('metrics', {})
     data_ts = data.get('timestamp')
+    failed_live = set(data.get('failed_live_fetches') or [])
     stale = []
     for name in candidates:
+        if name == 'btc_price':
+            if data.get('btc_price') is None or 'btc_price' in failed_live:
+                logger.info('%-22s → missing or failed live fetch', name)
+                stale.append(name)
+            continue
         entry = metrics.get(name)
-        if entry is None:
+        if entry is None or entry.get('value') is None:
             logger.info('%-22s → missing entirely', name)
+            stale.append(name)
+            continue
+        if entry.get('is_fallback') or name in failed_live:
+            logger.info('%-22s → fallback on previous run, retrying', name)
             stale.append(name)
             continue
         age = _metric_age_hours(entry, data_ts)
@@ -124,6 +146,8 @@ def retry_metrics(stale: list[str], data: dict, specs: dict) -> dict[str, bool]:
     from scraper.utils import is_valid_metric
 
     results = {}
+    failed_fetches = list(data.get('failed_live_fetches') or [])
+
     for name in stale:
         if name not in specs:
             logger.warning('No fetch spec for metric "%s", skipping', name)
@@ -145,8 +169,7 @@ def retry_metrics(stale: list[str], data: dict, specs: dict) -> dict[str, bool]:
 
         # Validate
         if not is_valid_metric(name, val):
-            # addresses_in_profit is a special derived field, skip validation
-            if name not in ('rainbow_band', 'fear_greed', 'btc_price', 'cipherb', 'smc', 'funding_rate'):
+            if name not in ('fear_greed', 'btc_price', 'cipherb', 'funding_rate', 'mayer_multiple', 'pi_cycle', 'puell_multiple', 'lth_supply_pct'):
                 logger.warning('  %s value failed validation: %r', name, val)
                 val = None
 
@@ -154,6 +177,9 @@ def retry_metrics(stale: list[str], data: dict, specs: dict) -> dict[str, bool]:
         results[name] = success
         status = 'OK' if success else 'FAILED'
         logger.info('  %s → %s (%r)', name, status, val)
+
+        if success and name in failed_fetches:
+            failed_fetches.remove(name)
 
         # Patch data in memory
         if 'metrics' not in data:
@@ -163,51 +189,82 @@ def retry_metrics(stale: list[str], data: dict, specs: dict) -> dict[str, bool]:
 
         if name == 'nupl' and val is not None:
             data['nupl'] = val
-            data['metrics']['nupl'] = {'value': val, 'source': 'MacroMicro', 'updated': now}
+            data['metrics']['nupl'] = {'value': val, 'source': 'BMP', 'updated': now, 'is_fallback': False}
 
         elif name == 'mvrv' and val is not None:
             data['mvrv_z_score'] = val
-            data['metrics']['mvrv'] = {'value': val, 'source': 'MacroMicro', 'updated': now}
+            data['metrics']['mvrv'] = {'value': val, 'source': 'BMP', 'updated': now, 'is_fallback': False}
 
         elif name == 'm2' and val is not None:
             data['m2'] = val
-            data['metrics']['m2'] = {'value': val, 'source': 'BMP', 'updated': now}
+            data['metrics']['m2'] = {'value': val, 'source': 'FRED', 'updated': now, 'is_fallback': False}
+
+        elif name == 'yield_curve' and val is not None:
+            data['metrics']['yield_curve'] = {'value': val, 'source': 'FRED', 'updated': now, 'is_fallback': False}
 
         elif name == 'cvdd_ratio' and val is not None:
             data['cvdd_ratio'] = val
-            data['metrics']['cvdd_ratio'] = {'value': val, 'source': 'BMP', 'updated': now}
+            data['metrics']['cvdd_ratio'] = {'value': val, 'source': 'BMP', 'updated': now, 'is_fallback': False}
 
         elif name == 'rhodl_ratio' and val is not None:
             data['rhodl_ratio'] = val
-            data['metrics']['rhodl_ratio'] = {'value': val, 'source': 'BMP', 'updated': now}
+            data['metrics']['rhodl_ratio'] = {'value': val, 'source': 'BMP', 'updated': now, 'is_fallback': False}
 
-        elif name == 'rainbow_band' and val is not None:
-            data['rainbow_band'] = val
-            data['metrics']['rainbow_band'] = {'value': val, 'source': 'BMP', 'updated': now}
+        elif name == 'asopr' and val is not None:
+            data['asopr'] = val
+            data['metrics']['asopr'] = {'value': val, 'source': 'BMP', 'updated': now, 'is_fallback': False}
+
+        elif name == 'etf_flows' and val is not None:
+            data['etf_flows'] = val
+            data['metrics']['etf_flows'] = {'value': val, 'source': 'Farside', 'updated': now, 'is_fallback': False}
+
+        elif name == 'dxy' and val is not None:
+            data['metrics']['dxy'] = {'value': val, 'source': 'FRED', 'updated': now, 'is_fallback': False}
 
         elif name == 'fear_greed' and val is not None:
             fg_raw = raw if isinstance(raw, dict) else {}
             data['fear_greed'] = val
             data['fear_greed_label'] = fg_raw.get('label')
-            data['metrics']['fear_greed'] = {'value': val, 'label': fg_raw.get('label'), 'source': 'Alternative.me', 'updated': now}
+            data['metrics']['fear_greed'] = {
+                'value': val,
+                'latest': fg_raw.get('latest', val),
+                'avg_7d': fg_raw.get('avg_7d', val),
+                'label': fg_raw.get('label'),
+                'source': fg_raw.get('label', 'Alternative.me'),
+                'updated': now,
+                'is_fallback': False,
+            }
 
         elif name == 'btc_price' and val is not None:
             data['btc_price'] = val
 
         elif name == 'cipherb' and val is not None:
-            data['metrics']['cipherb'] = {'value': val, 'source': 'Local', 'updated': now}
+            data['metrics']['cipherb'] = {'value': val, 'source': 'Local', 'updated': now, 'is_fallback': False}
 
-        elif name == 'smc' and val is not None:
-            data['metrics']['smc'] = {'value': val, 'source': 'Local', 'updated': now}
+        elif name == 'mayer_multiple' and val is not None:
+            data['metrics']['mayer_multiple'] = {'value': val, 'source': 'Kraken', 'updated': now, 'is_fallback': False}
 
         elif name == 'funding_rate' and raw is not None:
             source = raw.get('source', 'Bybit') if isinstance(raw, dict) else 'Bybit'
-            data['metrics']['funding_rate'] = {'value': raw, 'source': source, 'updated': now}
+            data['metrics']['funding_rate'] = {'value': raw, 'source': source, 'updated': now, 'is_fallback': False}
+
+        elif name == 'pi_cycle' and val is not None:
+            data['metrics']['pi_cycle'] = {'value': val, 'source': 'Kraken', 'updated': now, 'is_fallback': False}
+            if isinstance(val, dict) and val.get('gap_pct') is not None:
+                data['pi_gap_pct'] = val['gap_pct']
+
+        elif name == 'puell_multiple' and val is not None:
+            data['metrics']['puell_multiple'] = {'value': val, 'source': 'BMP', 'updated': now, 'is_fallback': False}
+
+        elif name == 'lth_supply_pct' and val is not None:
+            data['metrics']['lth_supply_pct'] = {'value': val, 'source': 'BMP', 'updated': now, 'is_fallback': False}
 
         # Random pause between requests to avoid hammering sources
         if name != stale[-1]:
             time.sleep(1 + random.random() * 2)
 
+    data['failed_live_fetches'] = failed_fetches
+    data['stale_metrics_count'] = len(failed_fetches)
     return results
 
 
@@ -221,13 +278,14 @@ def main():
                         help='Only report stale metrics, do not re-fetch')
     args = parser.parse_args()
 
-    # Default set of retryable metrics (excludes derived ones computed from others)
+    # Default set of retryable V4 metrics
     default_metrics = [
         'btc_price', 'fear_greed',
         'nupl', 'mvrv',
-        'm2',
-        'cvdd_ratio', 'rhodl_ratio', 'rainbow_band',
-        'cipherb', 'smc', 'funding_rate',
+        'm2', 'yield_curve', 'dxy',
+        'cvdd_ratio', 'rhodl_ratio', 'asopr', 'etf_flows',
+        'cipherb', 'mayer_multiple', 'funding_rate',
+        'pi_cycle', 'puell_multiple', 'lth_supply_pct',
     ]
 
     candidates = [m.strip() for m in args.metrics.split(',')] if args.metrics else default_metrics
@@ -251,6 +309,19 @@ def main():
 
     specs = _build_metric_specs()
     results = retry_metrics(stale, data, specs)
+
+    if any(results.values()):
+        try:
+            from scraper.history_writer import write_metric_histories
+            from scraper.scoring_pipeline import run_scoring_pipeline
+            from scraper.scraper import _build_metric_history
+            write_metric_histories(data)
+            if data.get('m2_mom') is not None:
+                data['m2_yoy'] = data['m2_mom']
+            data = run_scoring_pipeline(data, _build_metric_history)
+            logger.info('Re-ran scoring pipeline after refreshing metrics.')
+        except Exception as exc:
+            logger.warning('Scoring pipeline re-run failed after retry: %s', exc)
 
     save_data(data)
     logger.info('Saved updated data/data.json')

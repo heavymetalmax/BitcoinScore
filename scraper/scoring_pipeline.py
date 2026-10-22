@@ -187,8 +187,7 @@ def run_scoring_pipeline(p, build_metric_history_fn=None):
         _EXPECTED_SCORING_METRICS = {
             'nupl', 'mvrv_z_score', 'rhodl_ratio', 'cvdd_ratio', 'asopr', 'puell',
             'lth_supply', 'mayer_multiple', 'fear_greed', 'm2_yoy', 'yield_curve_spread',
-            'etf_flows', 'cipherb', 'funding_rate', 'btc_price_cycle',
-            # pi_gap intentionally excluded: returns None when gap > 20% (not firing)
+            'etf_flows', 'cipherb', 'funding_rate', 'btc_price_cycle', 'pi_gap',
         }
         _norm    = scores.get('normalized_scores', {})
         _active  = [k for k in _EXPECTED_SCORING_METRICS if _norm.get(k) is not None]
@@ -260,7 +259,7 @@ def run_scoring_pipeline(p, build_metric_history_fn=None):
             'mayer_multiple': 'mayer_multiple', 'fear_greed': 'fear_greed',
             'm2_mom': 'm2_yoy', 'yield_curve': 'yield_curve_spread',
             'etf_flows': 'etf_flows', 'funding_rate': 'funding_rate',
-            'dxy': 'dxy', 'lth_supply_pct': 'lth_supply',
+            'dxy': 'dxy', 'lth_supply_pct': 'lth_supply', 'pi_cycle': 'pi_gap',
         }
 
         def _raw_val(key):
@@ -338,20 +337,48 @@ def run_scoring_pipeline(p, build_metric_history_fn=None):
         except Exception:
             pass
 
-        # ── Append today's entry to scores.json so TiZ advances each day ────
+        # ── Upsert today's entry in scores.json so TiZ advances each day ────
         try:
             import json as _json
             _scores_path = 'data/history/scores.json'
             _today_str   = today.isoformat()
+            _m = p.get('metrics', {})
+            _lth_raw = (_m.get('lth_supply_pct') or {}).get('value')
+            _lth_pct = (_lth_raw / 21_000_000 * 100) if (_lth_raw and _lth_raw > 100) else _lth_raw
+            _mayer_v = (_m.get('mayer_multiple') or {}).get('value') or {}
+            _mayer_val = _mayer_v.get('value') if isinstance(_mayer_v, dict) else _mayer_v
+            _pi_v = (_m.get('pi_cycle') or {}).get('value') or {}
+            _pi_gap = _pi_v.get('gap_pct') if isinstance(_pi_v, dict) else p.get('pi_gap_pct')
+            _m2_yoy = p.get('m2_mom') if p.get('m2_mom') is not None else (
+                (_m.get('m2_mom') or {}).get('value') if (_m.get('m2_mom') or {}).get('value') is not None else p.get('m2_yoy')
+            )
             _new_entry   = {
-                'date':        _today_str,
-                'final_score': scores['final_score'],
-                'v1_score':    _v1_archive.get('final_score') if _v1_archive else None,
-                'v2_score':    _v2_archive.get('final_score') if _v2_archive else None,
-                'phase':       scores['phase'],
-                'w_bot':       scores['w_bot'],
-                'w_top':       scores['w_top'],
-                'btc_price':   p.get('btc_price'),
+                'date':           _today_str,
+                'final_score':    scores['final_score'],
+                'v1_score':       _v1_archive.get('final_score') if _v1_archive else None,
+                'v2_score':       _v2_archive.get('final_score') if _v2_archive else None,
+                'phase':          scores['phase'],
+                'w_bot':          scores['w_bot'],
+                'w_top':          scores['w_top'],
+                'btc_price':      p.get('btc_price'),
+                'nupl':           p.get('nupl'),
+                'mvrv':           p.get('mvrv_z_score'),
+                'rhodl_ratio':    p.get('rhodl_ratio'),
+                'cvdd_ratio':     p.get('cvdd_ratio'),
+                'asopr':          p.get('asopr'),
+                'puell':          (_m.get('puell_multiple') or {}).get('value'),
+                'mayer_multiple': _mayer_val,
+                'fear_greed':     p.get('fear_greed'),
+                'funding_rate':   ((_m.get('funding_rate') or {}).get('value') or {}).get('avg_7d'),
+                'cipherb_daily':  ((_m.get('cipherb') or {}).get('value') or {}).get('daily_score'),
+                'pi_gap_pct':     _pi_gap,
+                'm2_yoy':         _m2_yoy,
+                'lth_supply_pct': _lth_pct,
+                'yield_curve':    (_m.get('yield_curve') or {}).get('value'),
+                'dxy':            (_m.get('dxy') or {}).get('value'),
+                'v5b_score':      scores.get('v5b_score'),
+                'market_regime':  scores.get('market_regime'),
+                'source':         'live_v4',
             }
             _hist: list = []
             if os.path.exists(_scores_path):
@@ -360,12 +387,15 @@ def run_scoring_pipeline(p, build_metric_history_fn=None):
                         _hist = _json.load(_f)
                 except Exception:
                     pass
-            # Replace or append today's entry (deduplicate by date)
-            _hist = [e for e in _hist if e.get('date') != _today_str]
-            _hist.append(_new_entry)
+            # Update in-place if today's entry exists, otherwise append
+            _idx = next((i for i, e in enumerate(_hist) if e.get('date') == _today_str), None)
+            if _idx is not None:
+                _hist[_idx].update(_new_entry)
+            else:
+                _hist.append(_new_entry)
             _hist.sort(key=lambda e: e.get('date', ''))
             write_json(_scores_path, _hist)
-            print(f"scores.json: appended {_today_str} ({len(_hist)} total entries)")
+            print(f"scores.json: upserted {_today_str} ({len(_hist)} total entries)")
             # Mirror to web/ immediately
             try:
                 import subprocess as _sp

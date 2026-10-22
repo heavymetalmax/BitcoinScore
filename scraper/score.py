@@ -20,7 +20,11 @@ import os
 
 from scraper.normalizer import normalize_metric
 from scraper.cycle_normalizer import price_cycle_percentile
-from scraper.utility_evaluator import evaluate_all_utilities_continuous, blend_phase_with_cycle_prior
+from scraper.utility_evaluator import (
+    evaluate_all_utilities_continuous,
+    blend_phase_with_cycle_prior,
+    halving_cycle_day_for,
+)
 from scraper.bottom_confluence import (
     compute_bottom_confluence,
     load_calibration as _load_bc_cal,
@@ -94,16 +98,22 @@ def _extract_pi_gap(v):
 
 
 def _map_pi_gap(v) -> int | None:
+    """Continuous 0-100 mapping for Pi Cycle Gap % (eliminates step discontinuity at 20%).
+    gap <= 0%   → 100 (Pi Cycle top cross confirmed)
+    gap = 20%   → 50  (approaching top zone)
+    gap >= 75%  → 0   (deep bear / early cycle)
+    """
     gap = _extract_pi_gap(v)
     if gap is None:
         return None
     gap = float(gap)
     if gap <= 0.0:
-        return 100  # pi cross confirmed
-    if gap > 20.0:
-        return None  # indicator not firing — exclude from flat_avg entirely
-    # gap 0..20%: linear 100..50
-    return round(50 + (1.0 - gap / 20.0) * 50)
+        return 100
+    if gap <= 20.0:
+        return round(50.0 + (1.0 - gap / 20.0) * 50.0)
+    if gap >= 75.0:
+        return 0
+    return round((1.0 - (gap - 20.0) / 55.0) * 50.0)
 
 
 def _extract_cipherb(cb) -> tuple[int | None, int | None, int | None]:
@@ -164,7 +174,12 @@ def _normalize(raw_metrics: dict, target_date: datetime.date) -> dict:
 
 # ── Phase weights ─────────────────────────────────────────────────────────────
 
-def _phase_weights(normalized: dict, prev_scores: dict | None) -> tuple[float, float, float, str, int, int]:
+def _phase_weights(
+    normalized: dict,
+    prev_scores: dict | None,
+    target_date: datetime.date | str | None = None,
+    persist_hmm_cache: bool = True,
+) -> tuple[float, float, float, str, int, int]:
     """
     Compute continuous phase weights (w_bot, w_neutral, w_top) summing to 1.
 
@@ -222,6 +237,14 @@ def _phase_weights(normalized: dict, prev_scores: dict | None) -> tuple[float, f
                 s_prev = (prev_scores or {}).get(m)
                 vec.append(s_now - s_prev if (s_now is not None and s_prev is not None) else None)
             row   = [v if v is not None else float('nan') for v in vec]
+            clf = getattr(pipeline, 'named_steps', {}).get('clf')
+            if clf is not None:
+                clf._active_target_date = (
+                    target_date.isoformat()[:10]
+                    if hasattr(target_date, 'isoformat')
+                    else (str(target_date)[:10] if target_date else None)
+                )
+                clf._persist_cache = persist_hmm_cache
             probs = pipeline.predict_proba(np.array([row], dtype=float))[0]
             w_top      = float(probs[2])  # only use top probability from HMM
             top_signal = round(w_top * 100)
@@ -302,6 +325,8 @@ def compute_score(
     prev_scores: dict | None = None,
     scores_history: list | None = None,
     btc_price: float | None = None,
+    persist_hmm_cache: bool = True,
+    include_v5b: bool = True,
 ) -> dict:
     """
     Compute the composite risk score for a given set of raw metric values.
@@ -346,7 +371,9 @@ def compute_score(
         except Exception:
             pass
 
-    w_bot, w_neutral, w_top, phase, top_signal, bot_signal = _phase_weights(normalized, prev_scores)
+    w_bot, w_neutral, w_top, phase, top_signal, bot_signal = _phase_weights(
+        normalized, prev_scores, target_date=target_date, persist_hmm_cache=persist_hmm_cache
+    )
 
     # Blend HMM phase weights with halving-cycle position prior (dynamic alpha)
     w_bot, w_neutral, w_top = blend_phase_with_cycle_prior(w_bot, w_neutral, w_top, target_date)
@@ -406,8 +433,9 @@ def compute_score(
     tiz_maturity = round(tiz_days / tiz_calibration, 3) if tiz_days > 0 else None
 
     # ── 5. Utility weights ────────────────────────────────────────────────────
+    cycle_day = halving_cycle_day_for(target_date)
     utilities = evaluate_all_utilities_continuous(
-        normalized, w_top, w_bot, w_neutral, tiz_maturity
+        normalized, w_top, w_bot, w_neutral, tiz_maturity, cycle_day=cycle_day
     )
 
     # ── 6a. Basket averages (V4) ──────────────────────────────────────────────
@@ -475,10 +503,9 @@ def compute_score(
     else:
         F_vectorial = float(div) if div > 0 else 50.0
 
-    # ── 6f. Step 4: Headroom synthesis ───────────────────────────────────────
-    phase_blend = w_bot * 0.20 + w_neutral * 0.50 + w_top * 1.00
-    headroom    = 100.0 - F_structural
-    final_float = F_structural + headroom * (F_vectorial / 100.0) * phase_blend
+    # ── 6f. Step 4: Symmetric phase-blended synthesis ────────────────────────
+    phase_blend = w_bot * 0.20 + w_neutral * 0.40 + w_top * 0.75
+    final_float = F_structural + (F_vectorial - F_structural) * phase_blend
 
     # ── 6g. DXY macro modifier ────────────────────────────────────────────────
     dxy_score = normalized.get('dxy')
@@ -544,20 +571,21 @@ def compute_score(
     # V3 context, so it is a distinct target rather than an independent signal.
     v5b_score: float | None = None
     v5b_validated = False
-    try:
-        from scraper import mixing_model_b as _v5b
-        _v5b_result = _v5b.predict_b(
-            _mix_raw,
-            target_date=target_date,
-            w_top=round(w_top, 3),
-            w_bot=round(w_bot, 3),
-            v3_score=float(final),
-        )
-        if isinstance(_v5b_result, dict):
-            v5b_score = _v5b_result['score']
-            v5b_validated = bool(_v5b_result.get('validated'))
-    except Exception as e:
-        print(f'Warning: V5B (v5b_score / Outlook) failed — {e}')
+    if include_v5b:
+        try:
+            from scraper import mixing_model_b as _v5b
+            _v5b_result = _v5b.predict_b(
+                _mix_raw,
+                target_date=target_date,
+                w_top=round(w_top, 3),
+                w_bot=round(w_bot, 3),
+                v3_score=float(final),
+            )
+            if isinstance(_v5b_result, dict):
+                v5b_score = _v5b_result['score']
+                v5b_validated = bool(_v5b_result.get('validated'))
+        except Exception as e:
+            print(f'Warning: V5B (v5b_score / Outlook) failed — {e}')
 
     # ── Market Regime — decision layer (Outlook + Market Context) ───────────
     # Thresholds derived from 2018-2026 backtest (163x return vs 4.8x B&H).

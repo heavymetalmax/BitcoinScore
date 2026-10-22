@@ -124,7 +124,9 @@ def load_btc_price(filename):
 def main():
     print("Loading sources...")
 
-    nupl     = load_list_series('nupl_history.json')
+    nupl_raw = load_list_series('nupl_history.json')
+    # Convert fraction (-1..1) from nupl_history.json to percentage (-100..100) to match scores.json / map_nupl
+    nupl     = {d: (round(v * 100.0, 4) if abs(v) <= 1.5 else v) for d, v in nupl_raw.items()}
     mvrv     = load_list_series('mvrv_history.json')
     puell    = load_list_series('puell_history.json')
     rhodl    = load_list_series('rhodl_history.json')

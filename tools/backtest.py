@@ -359,13 +359,11 @@ def v2_at(td, series):
 
 
 def v3_at(td, series):
-    """Return clean V3 score results dict for a given date.
+    """Return authoritative V4 Market Context score results dict for a given date.
 
     Uses scraper.score.compute_score — identical code path to live scraper.
-    Wave resonance is computed from scores.json (causal, point-in-time).
     """
     from scraper.score import compute_score
-    from scraper.orchestrator import orchestrate
 
     r    = compute_at(td, series)
     prev = _prev_scores(td, series)
@@ -393,12 +391,14 @@ def v3_at(td, series):
         'puell_multiple': r['raw'].get('puell_multiple'),
         'mayer_multiple': r['raw'].get('mayer_multiple'),
         'fear_greed':     r['raw'].get('fear_greed'),
+        'm2_yoy':         r['raw'].get('m2_yoy'),
         'm2_mom':         r['raw'].get('m2_yoy'),
         'yield_curve':    r['raw'].get('yield_curve_spread'),
         'lth_supply_pct': r['raw'].get('lth_supply'),
         'dxy':            dxy_val,
         'funding_rate':   fr_val,
         'pi_cycle':       pi_val,
+        'pi_gap_pct':     pi_val,
         'cipherb':        cb_dict,
         'etf_flows':      r['raw'].get('etf_flows'),
     }
@@ -412,41 +412,25 @@ def v3_at(td, series):
                 history_data = json.load(f)
             scores_history = [
                 (x['date'], x.get('final_score'), x.get('phase'), x.get('w_bot'))
-                for x in history_data if x.get('date')
+                for x in history_data if x.get('date') and x['date'] <= td.isoformat()
             ]
             td_str = td.isoformat()
             for x in reversed(history_data):
-                if x.get('date') == td_str and x.get('btc_price') is not None:
+                if x.get('date') <= td_str and x.get('btc_price') is not None:
                     btc_price = float(x['btc_price'])
                     break
         except Exception:
             pass
 
     out = compute_score(
-        raw_metrics    = raw,
-        target_date    = td,
-        prev_scores    = prev,
-        scores_history = scores_history,
-        btc_price      = btc_price,
+        raw_metrics       = raw,
+        target_date       = td,
+        prev_scores       = prev,
+        scores_history    = scores_history,
+        btc_price         = btc_price,
+        persist_hmm_cache = False,
+        include_v5b       = False,
     )
-
-    wr = out.get('wave_resonance') or {}
-    sig = orchestrate(
-        v2_score        = out['final_score'],
-        v2_oc_coherence = out.get('oc_coherence', 1.0),
-        wr_score        = wr.get('score'),
-        wr_coherence    = wr.get('coherence'),
-        tiz_maturity    = out.get('tiz_maturity'),
-        top_signal      = out.get('top_signal'),
-        bot_signal      = out.get('bot_signal'),
-        is_v3           = True,
-        btc_price       = btc_price,
-        target_date     = td,
-    )
-
-    out['final_score'] = sig['meta_score']
-    out['bear_div']    = sig.get('bear_div', False)
-    out['bull_div']    = sig.get('bull_div', False)
     return out
 
 
@@ -468,17 +452,20 @@ def run():
     for date_str, label, price in MILESTONES:
         td = datetime.date.fromisoformat(date_str)
         r = compute_at(td, series)
-        results.append((date_str, label, price, r))
+        v4 = v3_at(td, series)
+        results.append((date_str, label, price, r, v4))
 
-    # ── Score table ──────────────────────────────────────────────────────────
+    # ── Score table (V4 normalized scores + BRI final_score) ─────────────────
     header_metrics = " ".join(f"{SHORT[c]:>4}" for c in SCORE_COLS)
-    print(f"\n{'Date':<12} {'Label':<22} {'BTC':>8}  {header_metrics}")
-    print("─" * 120)
+    print(f"\n{'Date':<12} {'Label':<22} {'BTC':>8}  {'BRI':>4} {'Phase':<7}  {header_metrics}")
+    print("─" * 134)
 
-    for date_str, label, price, r in results:
-        sc = r['scores']
+    for date_str, label, price, r, v4 in results:
+        sc = v4.get('normalized_scores') or r['scores']
+        bri = fmt(v4.get('final_score'))
+        ph = (v4.get('phase') or '—')[:7]
         metric_vals = " ".join(fmt(sc.get(c)) for c in SCORE_COLS)
-        print(f"{date_str:<12} {label:<22} ${price:>8,}  {metric_vals}")
+        print(f"{date_str:<12} {label:<22} ${price:>8,}  {bri:>4} {ph:<7}  {metric_vals}")
 
     # ── Coverage matrix ──────────────────────────────────────────────────────
     RAW_COLS = ['nupl', 'mvrv', 'rhodl_ratio', 'cvdd_ratio', 'asopr',
@@ -492,7 +479,7 @@ def run():
     print(f"{'Date':<12} {'Label':<22} {cov_header}  FULL")
     print("─" * 130)
 
-    for date_str, label, price, r in results:
+    for date_str, label, price, r, _v4 in results:
         doff = r['days_off']
         raw  = r['raw']
 

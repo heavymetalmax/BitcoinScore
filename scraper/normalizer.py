@@ -68,8 +68,8 @@ def compute_causal_percentile(metric, value, target_date=None):
     win_alltime = [v for (_, v) in pts]
     pct_alltime = round(sum(1 for v in win_alltime if v <= cmp_val) / len(win_alltime) * 100)
 
-    # Ratchet: take the higher of the two so a correction cannot drop the baseline
-    return max(pct_rolling, pct_alltime)
+    # Balanced blend of 4-year rolling and all-time causal percentiles (avoids upward ratchet bias at bottoms)
+    return round(0.5 * pct_rolling + 0.5 * pct_alltime)
 
 
 def normalize_metric(metric, value, target_date=None):

@@ -32,16 +32,28 @@ jobs:
           ts = d.get('timestamp', '')[:10]
           import datetime
           today = datetime.date.today().isoformat()
-          # Check timestamp AND that critical BMP metrics are present
-          # If local scraper ran but Playwright failed, nupl/mvrv will be null
+          # Check timestamp AND that critical BMP metrics are freshly scraped (not fallback)
           nupl = d.get('nupl')
           mvrv = d.get('mvrv_z_score')
-          metrics_ok = nupl is not None and mvrv is not None
+          metrics_obj = d.get('metrics') or {}
+          nupl_meta = metrics_obj.get('nupl') or {}
+          mvrv_meta = metrics_obj.get('mvrv') or {}
+          nupl_fresh = (
+              nupl is not None
+              and not nupl_meta.get('is_fallback', False)
+              and (nupl_meta.get('updated') or '')[:10] == today
+          )
+          mvrv_fresh = (
+              mvrv is not None
+              and not mvrv_meta.get('is_fallback', False)
+              and (mvrv_meta.get('updated') or '')[:10] == today
+          )
+          metrics_ok = nupl_fresh and mvrv_fresh
           if ts == today and metrics_ok:
               print(f'fresh  ts={ts}  nupl={nupl:.1f}  mvrv={mvrv:.2f}')
               sys.exit(0)
           elif ts == today and not metrics_ok:
-              print(f'stale  ts={ts}  BMP metrics missing (nupl={nupl} mvrv={mvrv}) — running fallback scraper')
+              print(f'stale  ts={ts}  BMP metrics fallback/stale (nupl_fresh={nupl_fresh} mvrv_fresh={mvrv_fresh}) — running fallback scraper')
               sys.exit(1)
           else:
               print(f'stale  ts={ts}  today={today}')
@@ -105,9 +117,11 @@ jobs:
           git push
 
       - name: Upload Pages artifact
+        if: steps.freshness.outputs.fresh == 'false'
         uses: actions/upload-pages-artifact@v3
         with:
           path: web
 
       - name: Deploy to GitHub Pages
+        if: steps.freshness.outputs.fresh == 'false'
         uses: actions/deploy-pages@v4

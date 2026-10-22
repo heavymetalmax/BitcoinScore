@@ -68,8 +68,8 @@ def map_fg(v):
 
 def map_m2(v):
     if v is None: return None
-    c = max(-5, min(10, v))
-    return round(((10 - c) / 15) * 100)
+    c = max(-2, min(15, float(v)))
+    return round(((15 - c) / 17) * 100)
 
 
 def map_etf(v):
@@ -183,20 +183,43 @@ def main():
     yc_by_date  = load_yc_sparkline(cutoff)
     dxy_by_date = load_dxy_sparkline(cutoff)
 
+    try:
+        import sys
+        root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        if root not in sys.path:
+            sys.path.insert(0, root)
+        from scraper.normalizer import normalize_metric as _norm_m
+    except Exception:
+        _norm_m = None
+
+    def _nm(metric_key, val, date_str, fallback_fn):
+        if isinstance(val, dict):
+            val = val.get('value') if val.get('value') is not None else val.get('avg_7d')
+        if val is None or isinstance(val, dict):
+            return None
+        if _norm_m is not None:
+            try:
+                res = _norm_m(metric_key, val, date_str)
+                if res is not None:
+                    return res
+            except Exception:
+                pass
+        return fallback_fn(val)
+
     result = {
         'dates':              [r['date'] for r in recent],
-        'nupl':               [map_nupl(r.get('nupl'))             for r in recent],
-        'mvrv_z_score':       [map_mvrv(r.get('mvrv'))             for r in recent],
-        'rhodl_ratio':        [map_rhodl(r.get('rhodl_ratio'))     for r in recent],
-        'cvdd_ratio':         [map_cvdd(r.get('cvdd_ratio'))       for r in recent],
-        'asopr':              [map_asopr(r.get('asopr'))           for r in recent],
-        'cipherb':            [map_cipherb(r.get('cipherb_daily')) for r in recent],
-        'mayer_multiple':     [map_mayer(r.get('mayer_multiple'))  for r in recent],
-        'etf_flows':          [etf_by_date.get(r['date'])          for r in recent],
-        'fear_greed':         [map_fg(r.get('fear_greed'))         for r in recent],
-        'yield_curve_spread': [yc_by_date.get(r['date'])           for r in recent],
-        'm2_yoy':             [map_m2(r.get('m2_yoy'))             for r in recent],
-        'dxy':                [dxy_by_date.get(r['date'])          for r in recent],
+        'nupl':               [_nm('nupl',           r.get('nupl'),           r['date'], map_nupl)    for r in recent],
+        'mvrv_z_score':       [_nm('mvrv_z_score',   r.get('mvrv'),           r['date'], map_mvrv)    for r in recent],
+        'rhodl_ratio':        [_nm('rhodl_ratio',    r.get('rhodl_ratio'),    r['date'], map_rhodl)   for r in recent],
+        'cvdd_ratio':         [_nm('cvdd_ratio',     r.get('cvdd_ratio'),     r['date'], map_cvdd)    for r in recent],
+        'asopr':              [_nm('asopr',          r.get('asopr'),          r['date'], map_asopr)   for r in recent],
+        'cipherb':            [map_cipherb(r.get('cipherb_daily'))                                    for r in recent],
+        'mayer_multiple':     [_nm('mayer_multiple', r.get('mayer_multiple'), r['date'], map_mayer)   for r in recent],
+        'etf_flows':          [etf_by_date.get(r['date'])                                             for r in recent],
+        'fear_greed':         [_nm('fear_greed',     r.get('fear_greed'),     r['date'], map_fg)      for r in recent],
+        'yield_curve_spread': [yc_by_date.get(r['date'])                                              for r in recent],
+        'm2_yoy':             [_nm('m2_yoy',         r.get('m2_yoy'),         r['date'], map_m2)      for r in recent],
+        'dxy':                [dxy_by_date.get(r['date'])                                             for r in recent],
     }
 
     out_path = 'web/sparklines.json'

@@ -70,6 +70,9 @@ class HMMPhaseClassifier(BaseEstimator):
         return alpha
 
     def _get_current_date(self):
+        explicit_td = getattr(self, '_active_target_date', None)
+        if explicit_td:
+            return str(explicit_td)[:10]
         try:
             import inspect
             for frame_record in inspect.stack():
@@ -150,13 +153,14 @@ class HMMPhaseClassifier(BaseEstimator):
             # Perform single forward step
             alpha_curr = self._forward_step(X_f[0], alpha_prev)
             
-            # Save today's probabilities to cache
-            cache[date_str] = [float(v) for v in alpha_curr]
-            try:
-                with open(CACHE_PATH, 'w', encoding='utf-8') as f:
-                    json.dump(cache, f, indent=2)
-            except Exception:
-                pass
+            # Save today's probabilities to cache only when persistence is enabled
+            if getattr(self, '_persist_cache', True):
+                cache[date_str] = [float(v) for v in alpha_curr]
+                try:
+                    with open(CACHE_PATH, 'w', encoding='utf-8') as f:
+                        json.dump(cache, f, indent=2)
+                except Exception:
+                    pass
                 
             return np.array([alpha_curr])
 
@@ -199,14 +203,15 @@ def main():
         score_cache[d] = scores
         
         # 22-dimensional wave vector = [11 metrics] + [11 deltas]
-        # (Mirroring exact feature structure expected by scoring_v3)
+        prev_d = (td - datetime.timedelta(days=30)).isoformat()
+        prev_sc = score_cache.get(prev_d, {})
         vec = []
         for m in METRIC_ORDER:
             vec.append(scores.get(m))
         for m in METRIC_ORDER:
-            # We don't strictly need delta values for the HMM emission, 
-            # but we need to include them to keep the 22-dim shape consistent.
-            vec.append(0.0) 
+            s_now = scores.get(m)
+            s_prev = prev_sc.get(m)
+            vec.append((s_now - s_prev) if (s_now is not None and s_prev is not None) else 0.0) 
             
         X_raw.append(vec)
         

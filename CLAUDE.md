@@ -55,30 +55,31 @@ CMC_API_KEY=...    # CoinMarketCap Pro API
 python -m scraper.scraper
   └── build_payload()              # collect all metrics
         ├── CMC / CoinGecko        → btc_price, fear_greed, btc_dominance
-        ├── BMP (via Playwright)   → nupl, mvrv, rhodl_ratio, cvdd_ratio, asopr
-        ├── Farside (HTML parse)   → etf_flows
-        ├── FRED REST              → yield_curve
+        ├── CoinMetrics REST       → puell_multiple (IssTotUSD / 365d MA; BMP + BGeometrics fallbacks)
+        ├── BMP + BGeometrics      → nupl, mvrv, rhodl_ratio, cvdd_ratio, asopr
+        ├── Farside (HTML parse)   → etf_flows (dynamic Date/Total column resolution)
+        ├── FRED REST              → yield_curve, dxy_30d_delta
         ├── MacroMicro / FRED      → m2_yoy (YoY%)
-        ├── Kraken OHLCV           → cipherb, mayer_multiple, smc, funding_rate
+        ├── Kraken OHLCV           → cipherb, mayer_multiple, pi_cycle, rsi_weekly, ma2y_pct, funding_rate
         └── alternative.me         → fear_greed (fallback)
-  └── scoring_pipeline.py          # V1 → V3 → orchestrator → V3.2 Override
+  └── scoring_pipeline.py          # V1 legacy commentary → V4 Market Context + V5B Forward Risk
   └── write_json('data/data.json') # final output
-  └── append to data/history/      # daily_vector.json + per-metric history files
+  └── append to data/history/      # scores.json + daily_vector.json + per-metric history files
 ```
 
 ### Scoring — `scraper/score.py` is the only source of truth
 
-**`scraper/scoring.py` (V1) is LEGACY.** Still runs in the pipeline to produce `zone_forecast`, `commentary`, and `adaptive_calibration`, but its scores are overwritten by V3. Do NOT rely on V1 scores. `v1_score` has been removed from JSON output.
+**`scraper/scoring.py` (V1) is LEGACY.** Still runs in the pipeline to produce `commentary` and `adaptive_calibration`, while `zone_forecast.py` simulates 30-day scenarios directly through `score.compute_score()`. Do NOT rely on V1 scores. `v1_score` has been removed from JSON output.
 
 **`scraper/score.py` (V4 Market Context — authoritative)** pipeline:
 
-1. Normalize raw metrics to 0–100 via `scraper/normalizer.py`.
+1. Normalize all 16 raw metrics to 0–100 via `scraper/normalizer.py` (using recency-weighted empirical CDFs with $\gamma = 0.70$ in `cycle_normalizer.py` and balanced rolling/all-time causal percentiles).
 2. Build continuous BOTTOM / NEUTRAL / TOP heuristic weights from bottom confluence, HMM state similarity, and the halving-cycle prior. These are not calibrated probabilities.
-3. Evaluate dynamic utility coefficients via `scraper/utility_evaluator.py`.
+3. Evaluate dynamic utility coefficients via `scraper/utility_evaluator.py` (including halving-cycle day multipliers, reduced weights on the collinear `nupl`–`mvrv_z_score` pair, and proximity-scaled `pi_gap` utility).
 4. Compute four utility-weighted baskets: OC (on-chain), MS (market sentiment), MC (macro), and CP (cycle position).
-5. Build structural context from OC + CP + MC, then apply TiZ and coherence dampening.
-6. Build vectorial context from MS and top-phase divergence, then synthesize the authoritative `final_score`.
-7. Apply the DXY modifier and Pi Cycle top override; Forward Risk is a downstream diagnostic output. `market_regime` is actionable only when Forward Risk beats its purged walk-forward baseline and basket data quorums pass.
+5. Build structural context from OC + CP + MC, then apply TiZ and Mahalanobis coherence (`oc_coherence` over the 4 core on-chain metrics with Tikhonov shrinkage regularization) dampening.
+6. Build vectorial context from MS and top-phase divergence, then synthesize `final_score` via symmetric phase-blended synthesis (`F_structural + (F_vectorial - F_structural) * phase_blend`).
+7. Apply the DXY modifier and Pi Cycle top override; Forward Risk (`mixing_model_b.py` monotonic ensemble) is computed downstream. `market_regime` is actionable when `v5b_validated` and basket data quorums pass.
 
 `onchain_avg` and `tech_avg` remain informational compatibility fields. The four baskets and structural/vectorial synthesis feed `final_score`.
 
@@ -104,11 +105,13 @@ python -m scraper.scraper
 
 ### Caching behaviour
 
-`scraper.py` reads `data/data.json` on startup. If file is <24 hours old and NUPL is non-null, reuses cached metrics. Override with `FORCE_LIVE=1`.
+`scraper.py` reads `data/data.json` on startup. Each metric is checked individually: a cached value is reused only if its own `updated` timestamp is $\le 12$ hours old (`43200` seconds) AND `is_fallback` is false. When reusing a cached or fallback metric, its original `updated` timestamp is preserved (never overwritten with `now_iso`) so stale metrics naturally age out and get retried. Live fetches are also validated against `is_valid_metric` and `is_plausible_daily_change` to reject single-day scraping spikes. Override cache reuse with `FORCE_LIVE=1`.
 
-### Playwright scraping (`scraper/mm_utils.py`)
+### On-chain scraping & REST fallbacks (`scraper/mm_utils.py`, `nupl.py`, `mvrv.py`, `puell.py`)
 
-`get_bmp_trace(chart_url, trace_name)` opens headless Chromium, waits for BMP Plotly chart to render, extracts last data point. Used for NUPL, MVRV, RHODL, CVDD, aSOPR.
+`get_bmp_trace(chart_url, trace_name)` opens headless Chromium, waits for BMP Plotly chart to render, and extracts the last data point. Used for NUPL, MVRV Z-Score, RHODL, CVDD, and aSOPR.
+- **Puell Multiple (`scraper/puell.py`)**: Computed directly from the browserless CoinMetrics Community REST API (`IssTotUSD` divided by its 365-day moving average), with BMP Playwright and BGeometrics REST API (`bitcoin-data.com`) as fallbacks.
+- **NUPL & MVRV (`scraper/nupl.py`, `scraper/mvrv.py`)**: Include automatic BGeometrics REST API fallbacks when Playwright/Cloudflare blocks headless Chromium.
 
 ### History files (`data/history/`)
 

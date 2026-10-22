@@ -2745,9 +2745,19 @@
       }
     }
 
-    // Slider maps
-    function mapNupl(v)  { if(v==null)return null; v=Math.max(-50,Math.min(100,v));    return Math.round(((v+50)/150)*100); }
-    function mapMvrv(v)  { if(v==null)return null; v=Math.max(-2,Math.min(5,v));       return Math.round(((v+2)/7)*100); }
+    // Slider maps (fallback when v3_normalized_scores not present; aligned with scraper/maps.py)
+    function mapNupl(v)  {
+      if(v==null) return null;
+      v = Math.max(-50, Math.min(100, v));
+      const s = v <= 40 ? 8 + ((v - (-20)) / 60) * 42 : 50 + ((v - 40) / 35) * 50;
+      return Math.round(Math.max(0, Math.min(100, s)));
+    }
+    function mapMvrv(v)  {
+      if(v==null) return null;
+      v = Math.max(-0.5, Math.min(5.0, v));
+      const s = v <= 1.0 ? 8 + ((v - (-0.3)) / 1.3) * 42 : 50 + ((v - 1.0) / 4.0) * 50;
+      return Math.round(Math.max(0, Math.min(100, s)));
+    }
     function mapAsopr(v) { 
       if(v==null) return null; 
       const MIN = 0.88, BASE = 1.00, MAX = 1.12; 
@@ -2757,19 +2767,19 @@
       return Math.round(Math.max(0, Math.min(100, score)));
     }
     function mapFG(v)    { if(v==null)return null; const n=typeof v==='object'?(v.avg_7d!=null?v.avg_7d:(v.latest!=null?v.latest:(v.value!=null?v.value:null))):v; return n!=null?Math.round(Math.max(0,Math.min(100,n))):null; }
-    function mapM2(v)    { if(v==null)return null; v=Math.max(-5,Math.min(10,v));      return Math.round(((10-v)/15)*100); }
+    function mapM2(v)    { if(v==null)return null; v=Math.max(-2,Math.min(15,v));      return Math.round(((15-v)/17)*100); }
     function mapYieldCurve(v) { if(v==null)return null; v=Math.max(-1.0,Math.min(2.0,v)); return Math.round(((2.0-v)/3.0)*100); }
     function mapCvdd(v)  { if(v==null)return null; v=Math.max(1,Math.min(5,v)); return Math.round(Math.log10(v)/Math.log10(5)*100); }
-    function mapRhodl(v) { if(v==null)return null; v=Math.max(100,Math.min(10000,v));  return Math.round((Math.log10(v)-2)/(4-2)*100); }
+    function mapRhodl(v) { if(v==null)return null; v=Math.max(200,Math.min(10000,v));  return Math.round((Math.log10(v)-Math.log10(200))/(Math.log10(10000)-Math.log10(200))*100); }
     
     function mapEtfFlow(v) {
       if(v == null) return null;
       const num = typeof v === 'object' ? v.value : v;
       if(num == null) return null;
       const f = parseFloat(num);
-      const MIN_VAL = -2000.0;
-      const MID_VAL = 750.0;
-      const MAX_VAL = 4000.0;
+      const MIN_VAL = -1000.0;
+      const MID_VAL = 375.0;
+      const MAX_VAL = 2000.0;
       let score;
       if (f <= MIN_VAL) {
         score = 0.0;
@@ -3100,31 +3110,38 @@
         }
       })();
 
-      // Read on-chain metrics values
+      // Read on-chain metrics values & authoritative V4 normalized scores
+      const norm  = data.v3_normalized_scores || {};
       const nupl  = mv('nupl');
       const mvrv  = mv('mvrv');
       const cvdd  = mv('cvdd_ratio');
       const rhodl = mv('rhodl_ratio');
       const asopr = mv('asopr');
 
-      setMetric('nupl',  mapNupl(nupl),   nupl  != null ? nupl.toFixed(2)+'%'  : null);
-      setMetric('mvrv',  mapMvrv(mvrv),   mvrv  != null ? mvrv.toFixed(4)       : null);
-      setMetric('cvdd',  mapCvdd(cvdd),   cvdd  != null ? cvdd.toFixed(4)       : null);
-      setMetric('rhodl', mapRhodl(rhodl), rhodl != null ? rhodl.toFixed(2)      : null);
-      setMetric('asopr', mapAsopr(asopr), asopr != null ? asopr.toFixed(3)      : null);
+      const nuplScore  = norm.nupl != null ? norm.nupl : mapNupl(nupl);
+      const mvrvScore  = norm.mvrv_z_score != null ? norm.mvrv_z_score : mapMvrv(mvrv);
+      const cvddScore  = norm.cvdd_ratio != null ? norm.cvdd_ratio : mapCvdd(cvdd);
+      const rhodlScore = norm.rhodl_ratio != null ? norm.rhodl_ratio : mapRhodl(rhodl);
+      const asoprScore = norm.asopr != null ? norm.asopr : mapAsopr(asopr);
+
+      setMetric('nupl',  nuplScore,  nupl  != null ? nupl.toFixed(2)+'%'  : null);
+      setMetric('mvrv',  mvrvScore,  mvrv  != null ? mvrv.toFixed(4)       : null);
+      setMetric('cvdd',  cvddScore,  cvdd  != null ? cvdd.toFixed(4)       : null);
+      setMetric('rhodl', rhodlScore, rhodl != null ? rhodl.toFixed(2)      : null);
+      setMetric('asopr', asoprScore, asopr != null ? asopr.toFixed(3)      : null);
 
 
       // Read tech/macro metrics values
       const fr    = mv('funding_rate');
       const cb    = mv('cipherb');
       const mm    = mv('mayer_multiple');
-      const m2raw = mv('m2_mom') != null ? mv('m2_mom') : mv('m2');
+      const m2raw = mv('m2_mom') != null ? mv('m2_mom') : (data.m2_yoy != null ? data.m2_yoy : mv('m2'));
       const fg    = mv('fear_greed');
       const fgLbl = (m['fear_greed']||{}).label || data.fear_greed_label || '';
       const yc    = scalar(mv('yield_curve_spread')) != null ? scalar(mv('yield_curve_spread')) : scalar(mv('yield_curve'));
 
-      const cbScore  = mapCipherb(cb);
-      const mmScore  = mapMayerMultiple(mm);
+      const cbScore  = norm.cipherb != null ? norm.cipherb : mapCipherb(cb);
+      const mmScore  = norm.mayer_multiple != null ? norm.mayer_multiple : mapMayerMultiple(mm);
 
       setMetric('cipherb', cbScore,
         cb ? (cb.daily_score !== undefined ?
@@ -3162,19 +3179,20 @@
       
       // Spot ETF Flows
       const etf = mv('etf_flows');
-      const etfScore = mapEtfFlow(etf);
+      const etfScore = norm.etf_flows != null ? norm.etf_flows : mapEtfFlow(etf);
       const formatFlow = val => {
         if (val == null) return '--';
         const sign = val > 0 ? '+' : '';
         return sign + '$' + Math.round(val).toLocaleString() + 'M';
       };
       const etfRaw = etf ? 
-        `<span class="en">14d: ${formatFlow(etf.value)} &middot; daily: ${formatFlow(etf.daily_flow)}</span>` +
-        `<span class="ua">14д: ${formatFlow(etf.value)} &middot; денний: ${formatFlow(etf.daily_flow)}</span>`
+        `<span class="en">7d: ${formatFlow(etf.value)} &middot; daily: ${formatFlow(etf.daily_flow)}</span>` +
+        `<span class="ua">7д: ${formatFlow(etf.value)} &middot; денний: ${formatFlow(etf.daily_flow)}</span>`
         : null;
       setMetric('etf', etfScore, etfRaw);
 
-      setMetric('m2',  mapM2(m2raw), m2raw != null ? m2raw.toFixed(2)+'%' : null);
+      const m2Score = norm.m2_yoy != null ? norm.m2_yoy : mapM2(m2raw);
+      setMetric('m2',  m2Score, m2raw != null ? m2raw.toFixed(2)+'%' : null);
       
       function translateFgLabel(lbl) {
         if (!lbl) return '';
@@ -3193,10 +3211,12 @@
         `<span class="en">avg7d=${fgAvg}${fgToday != null && fgToday !== fgAvg ? '  today=' + fgToday : ''}${fgLbl ? '  ' + fgLbl : ''}</span>` +
         `<span class="ua">середній7д=${fgAvg}${fgToday != null && fgToday !== fgAvg ? '  сьогодні=' + fgToday : ''}${fgLbl ? '  ' + translateFgLabel(fgLbl) : ''}</span>`
         : null;
-      setMetric('fg',  mapFG(fg), fgRaw);
-      setMetric('ry',  mapYieldCurve(yc), yc != null ? yc.toFixed(2)+'%' : null);
+      const fgScore = norm.fear_greed != null ? norm.fear_greed : mapFG(fg);
+      const ycScore = norm.yield_curve_spread != null ? norm.yield_curve_spread : mapYieldCurve(yc);
+      setMetric('fg',  fgScore, fgRaw);
+      setMetric('ry',  ycScore, yc != null ? yc.toFixed(2)+'%' : null);
       
-      const frScore = mapFunding(fr);
+      const frScore = norm.funding_rate != null ? norm.funding_rate : mapFunding(fr);
       const frRaw = fr ? 
         `<span class="en">avg7d=${fr.avg_7d!=null?fr.avg_7d.toFixed(4):'--'}% &middot; latest=${fr.latest!=null?fr.latest.toFixed(4):'--'}%</span>` +
         `<span class="ua">середній7д=${fr.avg_7d!=null?fr.avg_7d.toFixed(4):'--'}% &middot; поточний=${fr.latest!=null?fr.latest.toFixed(4):'--'}%</span>`
@@ -3243,8 +3263,8 @@
       // Contradiction detection: warn if any indicator is in the opposite zone from the final score
       if (finalVal != null) {
         const allIndScores = [
-          mapRhodl(rhodl), mapMvrv(mvrv), mapCvdd(cvdd), mapNupl(nupl), mapAsopr(asopr),
-          cbScore, mmScore, etfScore, mapFG(fg), mapYieldCurve(yc), mapM2(m2raw)
+          rhodlScore, mvrvScore, cvddScore, nuplScore,
+          cbScore, mmScore, etfScore, fgScore, ycScore, m2Score
         ].filter(s => s != null);
         const hasContra = allIndScores.some(s =>
           (finalVal <= 40 && s >= 65) || (finalVal >= 60 && s <= 35)
@@ -3255,14 +3275,14 @@
       // Per-subscore contradiction warnings
       const ocScore = data.onchain_score;
       if (ocScore != null) {
-        const ocInds = [mapRhodl(rhodl), mapMvrv(mvrv), mapCvdd(cvdd), mapNupl(nupl), mapAsopr(asopr)].filter(s => s != null);
+        const ocInds = [rhodlScore, mvrvScore, cvddScore, nuplScore].filter(s => s != null);
         const ocContra = ocInds.some(s => (ocScore < 65 && s >= 65) || (ocScore > 35 && s <= 35));
         document.getElementById('oc-warn').style.display = ocContra ? 'inline' : 'none';
       }
       
       const tcScore = data.tech_score;
       if (tcScore != null) {
-        const tcInds = [cbScore, mmScore, etfScore, mapFG(fg), mapYieldCurve(yc), mapM2(m2raw)].filter(s => s != null);
+        const tcInds = [cbScore, mmScore, etfScore, fgScore, ycScore, m2Score].filter(s => s != null);
         const tcContra = tcInds.some(s => (tcScore < 65 && s >= 65) || (tcScore > 35 && s <= 35));
         document.getElementById('tech-warn').style.display = tcContra ? 'inline' : 'none';
       }

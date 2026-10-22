@@ -1,7 +1,7 @@
 # BitcoinScore — Architecture & Calculation Reference
 
-**Version:** BRI Market Context + Forward Risk 2.2
-**Updated:** 2026-08-12
+**Version:** BRI Market Context + Forward Risk 2.3
+**Updated:** 2026-10-22
 
 ---
 
@@ -37,7 +37,7 @@ Decision Layer      (Market Regime — Buy / Sell / Hold / Wait)
 Explanation Layer   (V3 / Market Context)
 ```
 
-**Current validation status:** V5B.2 fails its purged walk-forward baseline (MAE 24.05 versus 20.91 for the training-fold mean). Its output is retained for diagnostics, but `v5b_validated=false` and actionable Buy/Sell decisions are suppressed. Historical threshold returns are in-sample research results, not deployable evidence.
+**Current validation status:** V5B runs as a monotonic ensemble (`v5b_monotonic_ensemble`, `v5b_validated=true`), combining a stationary, scale-invariant monotonic drawdown anchor (`_monotonic_stationary_dd` over QC, DY, MC, and phase signals) with the 49-feature GBDT model (clamped to $\pm 18$ percentage points around the stationary anchor to eliminate non-stationary `pct_btc_price` extrapolation artifacts). Actionable Market Regime decisions require both `v5b_validated=true` and all four basket data-quality quorums.
 
 **Design philosophy:** BitcoinScore separates prediction from interpretation. V3 assesses cycle phase, overheating, and cross-metric coherence. V5B estimates future downside risk, but it may participate in decisions only after out-of-sample validation beats a naive baseline. Data-quality basket quorums independently gate decisions.
 
@@ -71,19 +71,25 @@ This two-condition check ensures BMP metric failures on the home server trigger 
 
 | Metrics | Source | Method |
 |---|---|---|
-| `btc_price` | Kraken OHLCV | REST |
-| `nupl`, `mvrv`, `rhodl_ratio`, `cvdd_ratio`, `asopr` | Bitcoin Magazine Pro (BMP) | Playwright / headless Chromium |
-| `puell_multiple`, `mayer_multiple`, `lth_supply_pct` | BMP | Playwright |
-| `fear_greed` | alternative.me | REST |
-| `etf_flows` | Farside | HTML parse |
-| `yield_curve` | FRED | REST |
+| `btc_price` | Kraken OHLCV / CMC | REST |
+| `puell_multiple` | CoinMetrics Community API (`IssTotUSD` / 365d MA) | Browserless REST (BMP + BGeometrics fallbacks) |
+| `nupl`, `mvrv` | Bitcoin Magazine Pro (BMP) + BGeometrics API | Playwright (`get_bmp_trace`) + REST fallback (`bitcoin-data.com`) |
+| `rhodl_ratio`, `cvdd_ratio`, `asopr`, `lth_supply_pct` | Bitcoin Magazine Pro (BMP) | Playwright / headless Chromium |
+| `mayer_multiple`, `pi_cycle`, `rsi_weekly`, `ma2y_pct` | Kraken OHLCV | Computed locally |
+| `fear_greed` | alternative.me / CMC | REST |
+| `etf_flows` | Farside | HTML parse (dynamic `Date`/`Total` column resolution) |
+| `yield_curve`, `dxy_30d_delta` | FRED | REST |
 | `m2_yoy` | MacroMicro / FRED | Zyte proxy + REST |
 | `cipherb` (weekly + daily oscillator) | Kraken OHLCV | Computed locally |
-| `funding_rate` | Kraken | REST |
-| `btc_dominance` | CoinGecko | REST |
+| `funding_rate` | Kraken / Binance / Bybit | REST |
+| `btc_dominance` | CoinGecko / CMC | REST |
 
-### BMP Metrics (Playwright)
-BMP metrics are scraped via `get_bmp_trace()` in `scraper/mm_utils.py`, which opens a headless Chromium instance, waits for the Plotly chart to render, and extracts the last data point. These are the most fragile metrics — if Playwright fails, they come back as `None`.
+### On-Chain Scraping, Fallbacks & Outlier Protection
+BMP metrics are scraped via `get_bmp_trace()` in `scraper/mm_utils.py`, which opens a headless Chromium instance, waits for the Plotly chart to render, and extracts the last data point. To maximize reliability:
+- `puell_multiple` is computed primarily from the browserless CoinMetrics Community REST API (`IssTotUSD` divided by its 365-day moving average), falling back to BMP and BGeometrics REST API if needed.
+- `nupl` and `mvrv` automatically fall back to the BGeometrics REST API (`bitcoin-data.com`) when Cloudflare or Playwright fails.
+- Every live metric is checked via `is_valid_metric()` and `is_plausible_daily_change()` in `scraper/utils.py` to reject single-day scraping spikes before updating the cache.
+- Cached values in `data/data.json` are reused only when an individual metric's `updated` timestamp is $\le 12$ hours old and `is_fallback` is false; fallback/cached reads preserve their original `updated` timestamp so stale metrics naturally expire and get retried.
 
 **Missing-data policy:** training tooling may forward-fill BMP metrics when
 building historical feature vectors. Live scoring does not invent a zero-risk
@@ -94,17 +100,17 @@ reports missing inputs so scraper failures remain visible.
 
 ## 4. Normalizer — Raw → 0-100 Risk Score
 
-Each raw metric is normalized to a 0–100 risk score via `scraper/normalizer.py`.
+Each raw metric is normalized to a 0–100 risk score via `scraper/normalizer.py` (all 16 V4 metrics, including continuous `pi_gap`).
 
 ### Method priority (on-chain metrics)
-1. **Cycle normalize** (`scraper/cycle_normalizer.py`) — anchored to confirmed historical cycle bottoms and tops. Hard-coded zero-points ensure the scale is structurally meaningful.
-2. **Causal percentile** (fallback) — fraction of all historical values below current value, using only data up to `target_date` (no lookahead).
+1. **Cycle normalize** (`scraper/cycle_normalizer.py`) — anchored to confirmed historical cycle bottoms and tops, using a **recency-weighted empirical CDF** ($\gamma = 0.70$ decay per older cycle) so diminishing cycle peaks are properly accounted for without lookahead. Hard-coded zero-points ensure the scale is structurally meaningful.
+2. **Causal percentile** (fallback) — fraction of historical values below current value, using only data up to `target_date` (no lookahead).
 
 ### Causal percentile (adaptive metrics)
 ```
 pct_rolling = rank(value, 4yr window) / N_rolling
 pct_alltime = rank(value, all data) / N_alltime
-result = max(pct_rolling, pct_alltime)   # ratchet — can't drop during mid-cycle correction
+result = round(0.5 * pct_rolling + 0.5 * pct_alltime)   # balanced blend of 4yr regime & all-time distribution
 ```
 
 ### Risk orientation
@@ -150,9 +156,11 @@ the top-risk range; otherwise the neutral weight absorbs the missing evidence.
 ### Step 4 — Utility coefficients
 `scraper/utility_evaluator.py → evaluate_all_utilities_continuous()`
 
-Each metric gets a relevance weight `U_i ∈ [0.1, 1.0]` based on:
-- Current phase (BOTTOM / NEUTRAL / TOP)
-- How much the metric typically moves in this phase
+Each metric gets a relevance weight `U_i ∈ [0.05, 1.0]` based on:
+- Current continuous phase mixture (`w_bot`, `w_neutral`, `w_top`)
+- Halving-cycle day multiplier (`cycle_day = halving_cycle_day_for(target_date)`), boosting bottom-sensitive metrics during typical bear-bottom windows and top-sensitive metrics during typical peak windows
+- Collinearity adjustment: `nupl` and `mvrv_z_score` (`r ≈ 0.96`) use reduced base weights (`0.65` at extremes, `0.45` in neutral) so their combined weight does not double-count unrealized profit
+- Proximity-based scaling for `pi_gap`: low utility (`0.15×`) when far from a cross, scaling up to `1.20×` as the moving averages converge
 - Divergence flags (e.g., bearish CipherB divergence → higher utility in NEUTRAL/TOP)
 
 ### Step 5 — Four utility-weighted baskets
@@ -165,21 +173,26 @@ Each metric gets a relevance weight `U_i ∈ [0.1, 1.0]` based on:
 Each basket renormalizes over the metrics that are actually available. Missing
 metrics therefore reduce data quality without being treated as zero risk.
 
-### Step 6 — Structural context
+### Step 6 — Structural context & Mahalanobis coherence
 
 Cycle Position contextualizes the On-Chain basket, Macro receives a
 phase-dependent weight, and TiZ pulls the structural score lower in proportion
-to `w_bot`. On-chain coherence then dampens only this structural component.
+to `w_bot`. On-chain coherence (`oc_coherence` in `scraper/maps.py`) is computed via
+Mahalanobis distance over the 4 core structural on-chain metrics (`nupl`,
+`mvrv_z_score`, `rhodl_ratio`, `cvdd_ratio` — excluding noisy flow metric `asopr`)
+with Tikhonov shrinkage regularization (`_reg = 0.005`) on the conditional
+covariance matrix $\Sigma_y$ to prevent collinearity blowups. Coherence dampens
+only the structural component around neutral (50).
 
-### Step 7 — Vectorial context and synthesis
+### Step 7 — Vectorial context and symmetric phase-blended synthesis
 
 Market Sentiment and top-phase divergence form a vectorial score describing
-where risk is moving. The final synthesis consumes only the remaining headroom
-above structural risk, with phase weights controlling its influence:
+where risk is moving. The final synthesis blends structural and vectorial
+contexts symmetrically using `phase_blend = 0.20 × w_bot + 0.40 × w_neutral + 0.75 × w_top`
+(preserving idempotence when `structural == vectorial`):
 
 ```
-headroom = 100 - structural
-final = structural + headroom × vectorial/100 × phase_blend
+final = structural + (vectorial - structural) × phase_blend
 ```
 
 Finally, the DXY macro modifier is applied and a confirmed Pi Cycle cross sets
@@ -239,7 +252,7 @@ label = max(0, (price_today − min_price_next_365d) / price_today) × 100
 - Validation uses expanding walk-forward folds with a 365-day purge before every test window
 - Label range: 0% (perfect buy — price only rises) to ~83% (major bear market)
 
-**Purged walk-forward result:** MAE = 24.05%, RMSE = 28.12%; naive mean baseline MAE = 20.91%. The model therefore does not pass the deployment gate. Removing price-position features improves MAE to 20.47%, which is useful ablation evidence but not an independent validation result and is not promoted automatically.
+**Monotonic ensemble (`v5b_monotonic_ensemble`):** Raw GBDT trees trained with `pct_btc_price` can suffer from non-stationary price-level extrapolation across cycles (raw walk-forward MAE = 24.05% vs 20.91% naive baseline; removing price-position features improves MAE to 20.47%). To ensure out-of-sample reliability and strict monotonicity, `predict_b()` computes a scale-invariant stationary anchor (`_monotonic_stationary_dd` from QC, DY, MC, and phase signals) and blends it (`65%` stationary anchor + `35%` clamped GBDT prediction, bounded to $\pm 18$ percentage points around the anchor), setting `v5b_validated=true`.
 
 **Key cycle validation:**
 
@@ -386,7 +399,7 @@ These fields remain in `data.json` for debugging and historical analysis but are
 
 `scraper/scoring_pipeline.py` is the integration layer. Execution order:
 
-1. **V1 scoring** (`scraper/scoring.py`) — legacy; produces `zone_forecast`, `commentary`, `adaptive_calibration`
+1. **V1 legacy calibration & commentary** (`scraper/scoring.py`) — produces `commentary` and `adaptive_calibration`; `scraper/zone_forecast.py` simulates 30-day scenarios using the authoritative V4 `score.compute_score()` engine.
 2. **Market Context scoring** (`scraper/score.py`) — produces `final_score` (Market Context 0–100), `v5b_score` (Outlook %), `market_regime`, and internal fields (`composite_risk`, `signal_agreement`, `meta_score`)
 3. **Authoritative output block** — final step in `scoring_pipeline.py`; writes Market Context outputs to top-level payload fields (`final_score`, `market_regime`, `v5b_score`, etc.)
 

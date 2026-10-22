@@ -22,7 +22,7 @@ Buy case, up into euphoria for the Sell case. RHODL and the macro inputs
 with the usual co-movement of momentum and sentiment, where does the index sit".
 """
 import copy
-from . import scoring as S
+from .score import compute_score as _compute_v4_score
 from . import maps as _maps  # _HIST_CACHE lives in maps.py (single source)
 
 BUY_THRESHOLD = 20
@@ -57,6 +57,10 @@ def _rescale(metrics, k, price0, direction):
     # CVDD ratio scales with price
     if cvdd0 is not None:
         sv('cvdd_ratio', round(cvdd0 * k, 4))
+    # Puell Multiple scales linearly with price (daily USD issuance / 365d MA)
+    puell0 = gv('puell_multiple')
+    if puell0 is not None:
+        sv('puell_multiple', round(float(puell0) * k, 4))
     # Mayer: price / 200dMA (held), update ratio + precomputed score
     mm = m.get('mayer_multiple')
     mm = mm.get('value') if isinstance(mm, dict) and 'value' in mm else mm
@@ -108,8 +112,14 @@ def _rescale(metrics, k, price0, direction):
 
 
 def _score(metrics, k, price0, direction):
-    _maps._HIST_CACHE.clear()
-    return S.compute_scores(_rescale(metrics, k, price0, direction))['final_score']
+    rescaled = _rescale(metrics, k, price0, direction)
+    res = _compute_v4_score(
+        raw_metrics=rescaled,
+        btc_price=round(price0 * k, 2),
+        persist_hmm_cache=False,
+        include_v5b=False,
+    )
+    return res['final_score']
 
 
 def _solve(metrics, price0, threshold, direction):
@@ -127,7 +137,7 @@ def _solve(metrics, price0, threshold, direction):
             return price0
         if _score(metrics, hi, price0, direction) < threshold:
             return None
-    for _ in range(64):
+    for _ in range(32):
         mid = (lo + hi) / 2
         s = _score(metrics, mid, price0, direction)
         if direction == 'down':

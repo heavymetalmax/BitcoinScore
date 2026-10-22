@@ -41,24 +41,44 @@ _calibration_cache: dict | None = None
 
 
 def _compute_calibration() -> dict:
-    """Derive bottom/neutral thresholds from confirmed historical dates."""
-    from tools.backtest import load_data, compute_at  # type: ignore
+    """Derive bottom/neutral thresholds from confirmed historical dates using V4 normalizer."""
+    from scraper.normalizer import normalize_metric
 
-    series = load_data()
+    scores_path = 'data/history/scores.json'
+    by_date: dict[str, dict] = {}
+    if os.path.exists(scores_path):
+        try:
+            with open(scores_path, encoding='utf-8') as f:
+                for row in json.load(f):
+                    if row.get('date'):
+                        by_date[row['date'][:10]] = row
+        except Exception:
+            pass
+
+    def _scores_on(date_str: str) -> dict:
+        row = by_date.get(date_str, {})
+        td = datetime.date.fromisoformat(date_str)
+        return {
+            'nupl':           normalize_metric('nupl', row.get('nupl'), td),
+            'mvrv_z_score':   normalize_metric('mvrv_z_score', row.get('mvrv'), td),
+            'cvdd_ratio':     normalize_metric('cvdd_ratio', row.get('cvdd_ratio'), td),
+            'mayer_multiple': normalize_metric('mayer_multiple', row.get('mayer_multiple'), td),
+            'fear_greed':     normalize_metric('fear_greed', row.get('fear_greed'), td),
+            'cipherb_weekly': round(float(row['cipherb_daily'])) if row.get('cipherb_daily') is not None else None,
+        }
+
     bottom_scores: dict[str, list] = {m: [] for m in CONFLUENCE_METRICS}
     neutral_scores: dict[str, list] = {m: [] for m in CONFLUENCE_METRICS}
 
     for date_str in CONFIRMED_BOTTOM_DATES:
-        td = datetime.date.fromisoformat(date_str)
-        sc = compute_at(td, series)['scores']
+        sc = _scores_on(date_str)
         for m in CONFLUENCE_METRICS:
             v = sc.get(m)
             if v is not None:
                 bottom_scores[m].append(v)
 
     for date_str in CONFIRMED_NEUTRAL_DATES:
-        td = datetime.date.fromisoformat(date_str)
-        sc = compute_at(td, series)['scores']
+        sc = _scores_on(date_str)
         for m in CONFLUENCE_METRICS:
             v = sc.get(m)
             if v is not None:
@@ -131,5 +151,4 @@ def compute_bottom_confluence(normalized_scores: dict, cal: dict | None = None) 
     ]
     if len(probs) < MIN_CONFLUENCE_METRICS:
         return None
-    coverage = len(probs) / len(CONFLUENCE_METRICS)
-    return round(sum(probs) / len(probs) * coverage * 100)
+    return round(sum(probs) / len(probs) * 100)

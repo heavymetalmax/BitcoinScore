@@ -56,12 +56,21 @@ def _load():
     _scores_map = {r['date']: r for r in rows if r.get('date')}
 
 
+def invalidate_caches():
+    """Reload extremes and scores.json from disk."""
+    _load()
+
+
 _load()
 
 
+# Recency decay factor per older confirmed extreme (diminishing returns adjustment)
+_RECENCY_GAMMA = 0.70
+
+
 def _causal_vals(metric: str, ex_type: str, target_date_str: str):
-    """Raw metric values at confirmed extremes of ex_type before target_date."""
-    result = []
+    """Return [(value, recency_weight), ...] at confirmed extremes before target_date."""
+    matched = []
     for e in _extremes:
         if e['type'] != ex_type:
             continue
@@ -71,30 +80,52 @@ def _causal_vals(metric: str, ex_type: str, target_date_str: str):
         row = _scores_map.get(e['date'], {})
         v = row.get(metric)
         if v is not None:
-            result.append(float(v))
-    return result
+            matched.append((e['date'], float(v)))
+    matched.sort(key=lambda item: item[0])
+    n = len(matched)
+    # Newer extremes receive higher weight: w_i = gamma^(n - 1 - i)
+    return [(val, _RECENCY_GAMMA ** (n - 1 - idx)) for idx, (_, val) in enumerate(matched)]
 
 
-def _interp_fraction(sorted_vals, v) -> float:
-    """Piecewise-linear empirical CDF: fraction of the distribution below v.
+def _interp_fraction(weighted_vals, v) -> float:
+    """Recency-weighted piecewise-linear empirical CDF in [0, 1].
 
-    Unlike a hard count (sum(x <= v) / n), this interpolates linearly between
-    adjacent sorted anchors, so the result moves continuously with v instead of
-    stepping by 1/n each time v crosses a single anchor. Anchors map to evenly
-    spaced quantiles: min -> 0.0, max -> 1.0. This matches the docstring intent
-    ("V at/below extreme bottom -> score ~= 0") while removing the staircase that
-    let normal daily metric noise flip the score by several points.
+    Accepts either [(val, weight), ...] or plain [val, ...].
     """
-    n = len(sorted_vals)
-    if v <= sorted_vals[0]:
+    if not weighted_vals:
+        return 0.5
+    if isinstance(weighted_vals[0], (tuple, list)):
+        pairs = sorted(weighted_vals, key=lambda x: x[0])
+    else:
+        pairs = [(float(x), 1.0) for x in sorted(weighted_vals)]
+
+    n = len(pairs)
+    vals = [p[0] for p in pairs]
+    weights = [p[1] for p in pairs]
+
+    if v <= vals[0]:
         return 0.0
-    if v >= sorted_vals[-1]:
+    if v >= vals[-1]:
         return 1.0
+
+    # Cumulative weight quantiles anchored at 0.0 (min) and 1.0 (max)
+    interval_weights = [0.5 * (weights[i - 1] + weights[i]) for i in range(1, n)]
+    total_iw = sum(interval_weights)
+    if total_iw <= 0:
+        quantiles = [i / (n - 1) for i in range(n)]
+    else:
+        quantiles = [0.0]
+        acc = 0.0
+        for iw in interval_weights:
+            acc += iw
+            quantiles.append(acc / total_iw)
+        quantiles[-1] = 1.0
+
     for i in range(1, n):
-        if v <= sorted_vals[i]:
-            lo, hi = sorted_vals[i - 1], sorted_vals[i]
+        if v <= vals[i]:
+            lo, hi = vals[i - 1], vals[i]
             frac = (v - lo) / (hi - lo) if hi > lo else 0.0
-            return (i - 1 + frac) / (n - 1)
+            return quantiles[i - 1] + frac * (quantiles[i] - quantiles[i - 1])
     return 1.0
 
 
@@ -113,8 +144,8 @@ def cycle_normalize(metric: str, value, target_date) -> int | None:
     else:
         target_str = str(target_date)
 
-    bottom_vals = sorted(_causal_vals(metric, 'BOTTOM', target_str))
-    top_vals    = sorted(_causal_vals(metric, 'TOP',    target_str))
+    bottom_vals = _causal_vals(metric, 'BOTTOM', target_str)
+    top_vals    = _causal_vals(metric, 'TOP',    target_str)
 
     if len(bottom_vals) < 2 or len(top_vals) < 2:
         return None
@@ -219,3 +250,6 @@ def price_cycle_percentile(target_date, current_price) -> int | None:
 def reload():
     """Re-load source files (call after scores.json or cycle_extremes.json update)."""
     _load()
+
+
+_load()

@@ -144,13 +144,20 @@ def is_valid_metric(name, value):
         if math.isnan(value) or math.isinf(value):
             return False
         thresholds = {
-            'nupl': (-50, 100),
-            'mvrv': (-10, 20),
+            'nupl': (-60, 100),
+            'mvrv': (-2.0, 15.0),
+            'cvdd_ratio': (0.5, 10.0),
+            'rhodl_ratio': (50, 250000),
+            'asopr': (0.70, 1.35),
+            'puell_multiple': (0.1, 12.0),
+            'lth_supply_pct': (40.0, 21000000.0),
+            'yield_curve': (-3.5, 5.0),
+            'dxy': (70.0, 160.0),
+            'm2': (-15.0, 35.0),
+            'fear_greed': (0, 100),
             'addresses_in_loss': (0, 100),
-            'm2': (None, None),
-            'real_yield': (-5, 10),   # FRED DFII10 US 10Y Real Yield (%)
-            'rhodl_ratio': (0, 500000),  # RHODL Ratio (BMP)
-            'etf_flows': (None, None),
+            'real_yield': (-5, 10),
+            'etf_flows': (-10000.0, 15000.0),
         }
         if name in thresholds:
             lo, hi = thresholds[name]
@@ -162,7 +169,7 @@ def is_valid_metric(name, value):
 
     # dicts: try common numeric fields
     if isinstance(value, dict):
-        for k in ('delta', 'value', 'current', 'last'):
+        for k in ('delta', 'value', 'current', 'last', 'avg_7d', 'weekly_score', 'gap_pct'):
             if k in value and isinstance(value[k], (int, float)):
                 return is_valid_metric(name, value[k])
         return False
@@ -175,3 +182,29 @@ def is_valid_metric(name, value):
         return False
 
     return False
+
+
+# Maximum plausible single-day jump before a scraped reading is flagged as an outlier
+_MAX_DAILY_JUMP = {
+    'nupl': 20.0,         # percentage points
+    'mvrv': 1.5,          # Z-score units
+    'cvdd_ratio': 0.50,   # ratio units
+    'asopr': 0.15,        # SOPR units
+    'dxy': 5.0,           # index points
+    'yield_curve': 0.60,  # percentage points
+    'puell_multiple': 1.2,
+}
+
+
+def is_plausible_daily_change(name: str, new_val, prev_val) -> bool:
+    """Return False if new_val jumped by an implausible amount from prev_val in 1 day."""
+    if name not in _MAX_DAILY_JUMP or new_val is None or prev_val is None:
+        return True
+    try:
+        nv = new_val.get('value') if isinstance(new_val, dict) else new_val
+        pv = prev_val.get('value') if isinstance(prev_val, dict) else prev_val
+        if nv is None or pv is None:
+            return True
+        return abs(float(nv) - float(pv)) <= _MAX_DAILY_JUMP[name]
+    except Exception:
+        return True

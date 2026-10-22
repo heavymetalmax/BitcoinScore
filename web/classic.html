@@ -2290,12 +2290,19 @@ async function loadData() {
     set('sig-wr-score', wrScore != null ? Math.round(wrScore) : '—');
     set('sig-wr-coh', wrCoh != null ? Math.round(wrCoh * (wrCoh <= 1.0 ? 100 : 1)) + '%' : '—');
 
-    // TiZ (only relevant in bottom phase)
+    // TiZ (relevant in bottom/accumulation zone even when V5B decision_suppressed forces regime='Wait')
     const tizDays     = data.v3_tiz_days != null ? data.v3_tiz_days : (data.tiz_days || 0);
-    const tizMaturity = sig ? sig.tiz_maturity : null;
+    const tizMaturity = sig && sig.tiz_maturity != null ? sig.tiz_maturity : (data.v3_tiz_maturity != null ? data.v3_tiz_maturity : null);
     const tizWrap     = document.getElementById('sig-tiz-wrap');
     const statsEl     = document.querySelector('.signal-stats');
-    if (tizMaturity != null && regime === 'Buy') {
+    const v3Flag      = (sig && sig.flag) || (data.v3_signal && data.v3_signal.flag) || '';
+    const showTiz     = tizMaturity != null && (
+      regime === 'Buy' ||
+      (data.final_score != null && data.final_score <= 40) ||
+      v3Flag.includes('ACCUMULATE') ||
+      v3Flag.includes('BOTTOM')
+    );
+    if (showTiz) {
       if (tizWrap) tizWrap.style.display = '';
       if (statsEl) statsEl.classList.add('has-tiz');
       set('sig-tiz', Math.round(tizMaturity * 100) + '%');
@@ -2367,21 +2374,27 @@ async function loadData() {
     return null;
   };
 
+  const v3Utils = data.v3_utilities || {};
+  const uFor = (key, fallbackW) => {
+    const nk = V3_KEY[key];
+    return (nk && v3Utils[nk] != null) ? v3Utils[nk] : fallbackW;
+  };
+
   const ocList = [
-    { key: 'nupl', val: nupl, w: 0.30 },
-    { key: 'mvrv', val: mvrv, w: 0.20 },
-    { key: 'rhodl', val: rhodl, w: 0.20 },
-    { key: 'cvdd', val: cvdd, w: 0.15 },
-    { key: 'asopr', val: asopr, w: 0.15 }
+    { key: 'nupl', val: nupl, w: uFor('nupl', 0.30) },
+    { key: 'mvrv', val: mvrv, w: uFor('mvrv', 0.25) },
+    { key: 'rhodl', val: rhodl, w: uFor('rhodl', 0.20) },
+    { key: 'cvdd', val: cvdd, w: uFor('cvdd', 0.15) },
+    { key: 'asopr', val: asopr, w: uFor('asopr', 0.0) }
   ];
 
   const techList = [
-    { key: 'cipherb', val: cbScore, w: 0.40, group: 'tech' },
-    { key: 'mayer', val: mayer, w: 0.20, group: 'tech' },
-    { key: 'etf', val: etfVal, w: 0.10, group: 'macro' },
-    { key: 'fg', val: fgVal, w: 0.10, group: 'macro' },
-    { key: 'yield_curve', val: ycVal, w: 0.10, group: 'macro' },
-    { key: 'm2', val: m2Val, w: 0.10, group: 'macro' }
+    { key: 'cipherb', val: cbScore, w: uFor('cipherb', 0.40), group: 'tech' },
+    { key: 'mayer', val: mayer, w: uFor('mayer', 0.20), group: 'tech' },
+    { key: 'etf', val: etfVal, w: uFor('etf', 0.10), group: 'macro' },
+    { key: 'fg', val: fgVal, w: uFor('fg', 0.10), group: 'macro' },
+    { key: 'yield_curve', val: ycVal, w: uFor('yield_curve', 0.10), group: 'macro' },
+    { key: 'm2', val: m2Val, w: uFor('m2', 0.10), group: 'macro' }
   ];
 
   let ocSum = 0, ocW = 0;

@@ -53,24 +53,19 @@ def _check_score_drift(current, prev_dv_entry, prev_phase):
     if delta <= SCORE_DRIFT_THRESHOLD:
         return alerts
 
-    # Check if any mapped metric moved enough to explain the change
-    curr_mapped = current.get('v3_utilities') or {}
-    if not curr_mapped:
-        # fallback: build from metrics if v3_utilities not present
-        curr_mapped = {}
-    # daily_vector 'mapped' dict is the canonical source
-    prev_mapped = prev_dv_entry.get('mapped', {})
+    # Check if any normalized metric moved enough to explain the change
+    curr_mapped = current.get('v3_normalized_scores') or {}
+    prev_mapped = prev_dv_entry.get('mapped') or {}
 
-    # Use data.json metrics mapped field if available
     metric_changed = False
     for key, prev_val in prev_mapped.items():
-        # curr mapped not in data.json directly — use prev vs score delta heuristic
-        # We compare with the most recent daily_vector mapped (current run writes it AFTER scoring)
-        # so prev_mapped is yesterday's, and we infer today's from data.json signals
-        _ = prev_val  # comparison below uses phase + score pattern instead
-        metric_changed = metric_changed  # will use phase + raw approach
+        curr_val = curr_mapped.get(key)
+        if isinstance(prev_val, (int, float)) and isinstance(curr_val, (int, float)):
+            if abs(curr_val - prev_val) >= METRIC_CHANGE_MIN:
+                metric_changed = True
+                break
 
-    # Simpler: check if any raw metric changed significantly
+    # Also check if any raw metric changed significantly
     curr_raw_m = {k: v.get('value') if isinstance(v, dict) else v
                   for k, v in (current.get('metrics') or {}).items()}
     prev_raw_m = prev_dv_entry.get('raw', {})
@@ -82,7 +77,6 @@ def _check_score_drift(current, prev_dv_entry, prev_phase):
             continue
         if not isinstance(prev_val, (int, float)) or not isinstance(curr_val, (int, float)):
             continue
-        # Normalize change relative to typical range
         if abs(curr_val - prev_val) > 0.01 * max(abs(prev_val), 1e-9) * 5:
             raw_changed = True
             break
@@ -90,7 +84,7 @@ def _check_score_drift(current, prev_dv_entry, prev_phase):
     curr_phase = current.get('v3_phase') or (current.get('phase') or {}).get('phase')
     phase_changed = (curr_phase != prev_phase)
 
-    if not raw_changed and not phase_changed:
+    if not metric_changed and not raw_changed and not phase_changed:
         alerts.append(
             f"SCORE_DRIFT: {prev_score}→{curr_score} (Δ{delta:.1f}pts) "
             f"with no metric change or phase transition"

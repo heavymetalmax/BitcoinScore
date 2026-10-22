@@ -32,6 +32,14 @@ _HIST_CACHE: dict    = {}
 _SCORES_CACHE        = None
 
 
+def invalidate_caches():
+    """Clear in-memory caches so subsequent calls reload updated history files."""
+    global _SCORES_CACHE, _covariance_cache
+    _SCORES_CACHE = None
+    _HIST_CACHE.clear()
+    _covariance_cache = None
+
+
 def _load_scores_cache():
     global _SCORES_CACHE
     if _SCORES_CACHE is not None:
@@ -220,11 +228,12 @@ def map_etf_flow(v):
 # Shared by normalizer.py and score.py.
 
 OC_WEIGHTS = {
-    'rhodl_ratio':  0.20,
-    'mvrv_z_score': 0.20,
-    'cvdd_ratio':   0.15,
     'nupl':         0.30,
-    'asopr':        0.15,
+    'mvrv_z_score': 0.25,
+    'rhodl_ratio':  0.20,
+    'cvdd_ratio':   0.15,
+    'puell':        0.05,
+    'lth_supply':   0.05,
 }
 
 _COV_PATH = os.path.join(os.path.dirname(__file__), '..', 'data', 'mahalanobis_covariance.json')
@@ -262,17 +271,17 @@ def _oc_coherence(sm: dict) -> float:
         var     = sum(w * (v - mean_v) ** 2 for w, v in zip(weights, vals)) / total_w
         return max(0.0, 1.0 - var ** 0.5 / 0.289)
 
-    oc_keys = cov_data['keys']
+    oc_keys = [k for k in cov_data['keys'] if k != 'asopr']
     K = [k for k in oc_keys if sm.get(k) is not None]
     n = len(K)
     if n < 3:
         return 1.0
 
     x_K = [sm[k] / 100.0 for k in K]
-    indices = [oc_keys.index(k) for k in K]
+    indices = [cov_data['keys'].index(k) for k in K]
     Sigma_K = [[cov_data['covariance'][r][c] for c in indices] for r in indices]
 
-    # Orthonormal basis orthogonal to [1,...,1]^T
+    # Orthonormal basis orthogonal to [1,...,1]^T (projects out the current mean across K)
     u1 = [1.0 / math.sqrt(n)] * n
     basis = []
     for i in range(n - 1):
@@ -295,6 +304,12 @@ def _oc_coherence(sm: dict) -> float:
     temp = [[sum(Sigma_K[r][i] * V_K[i][c] for i in range(n)) for c in range(n - 1)] for r in range(n)]
     Sigma_y = [[sum(V_K[i][r] * temp[i][c] for i in range(n)) for c in range(n - 1)] for r in range(n - 1)]
 
+    # Tikhonov / shrinkage regularization on Sigma_y to prevent near-collinear pairs
+    # (e.g. nupl & mvrv r=0.993) from blowing up D_M on normal 5-pt quantization spread
+    _reg = 0.005
+    for i in range(n - 1):
+        Sigma_y[i][i] += _reg
+
     aug = [row[:] + [1.0 if i == j else 0.0 for j in range(n - 1)] for i, row in enumerate(Sigma_y)]
     for i in range(n - 1):
         piv = max(range(i, n - 1), key=lambda r: abs(aug[r][i]))
@@ -312,4 +327,4 @@ def _oc_coherence(sm: dict) -> float:
     tmp_y = [sum(inv_Sigma_y[r][c] * y[c] for c in range(n - 1)) for r in range(n - 1)]
     dm_sq = sum(y[i] * tmp_y[i] for i in range(n - 1))
     dm = math.sqrt(max(0.0, dm_sq))
-    return max(0.0, min(1.0, 1.0 - (dm - 1.0) / 2.5))
+    return round(max(0.0, min(1.0, 1.0 - max(0.0, dm - 0.8) / 2.5)), 4)

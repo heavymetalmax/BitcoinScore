@@ -123,9 +123,10 @@ RELEVANCE_PROFILES = {
     # from final_score; raw value still stored in scores.json for capitulation alerts
     # (asopr < 1.0 = selling at a loss = short-term buy confirmation signal).
     'asopr':               {'BOTTOM': 0.0, 'NEUTRAL': 0.0, 'TOP': 0.0},
-    # General On-Chain (high relevance at both extremes)
-    'nupl':                {'BOTTOM': 1.0, 'NEUTRAL': 0.7, 'TOP': 1.0},
-    'mvrv_z_score':        {'BOTTOM': 1.0, 'NEUTRAL': 0.7, 'TOP': 1.0},
+    # General On-Chain (collinear pair nupl & mvrv_z_score r>0.99; each weighted ~0.65
+    # so their combined weight is ~1.30 rather than drowning out cvdd, puell, rhodl, lth_supply)
+    'nupl':                {'BOTTOM': 0.65, 'NEUTRAL': 0.45, 'TOP': 0.65},
+    'mvrv_z_score':        {'BOTTOM': 0.65, 'NEUTRAL': 0.45, 'TOP': 0.65},
     # rhodl: now uses intra_cycle_percentile (within current cycle from last confirmed bottom).
     # Correctly reads 85-100 at cycle peaks and <20 at bottoms — valid top/bottom discriminator.
     'rhodl_ratio':         {'BOTTOM': 0.6, 'NEUTRAL': 0.5, 'TOP': 0.60},
@@ -218,6 +219,13 @@ def evaluate_utility(metric, normalized_score, w_top, w_bot, w_neutral, tiz_matu
 
     # 3. Halving-cycle position modifier (±15%)
     utility *= halving_cycle_multiplier(canonical_key, cycle_day)
+
+    # 3b. Proximity-based scaling for Pi Cycle Gap:
+    # When gap > 42% (normalized_score <= 30), keep utility low so wide gaps don't
+    # artificially depress CP; ramp smoothly to 100% as gap narrows toward cross.
+    if canonical_key == 'pi_gap' and normalized_score is not None:
+        proximity = max(0.0, min(1.0, (float(normalized_score) - 30.0) / 70.0))
+        utility *= (0.20 + 0.80 * proximity)
 
     # 4. Time-in-Zone Temporal Scaling
     # For bottom-focused indicators, suppress utility if we are in bottom territory and early (tiz_maturity < 0.25)

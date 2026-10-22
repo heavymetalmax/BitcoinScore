@@ -43,6 +43,12 @@ _METRICS = {
 _UNIFIED_CACHE = None   # {date: row_dict}, lazy-loaded
 
 
+def invalidate_caches():
+    """Clear in-memory scores.json cache."""
+    global _UNIFIED_CACHE
+    _UNIFIED_CACHE = None
+
+
 def _load_unified():
     global _UNIFIED_CACHE
     if _UNIFIED_CACHE is not None:

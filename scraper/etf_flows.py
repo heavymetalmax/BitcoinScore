@@ -73,22 +73,32 @@ def get_etf_flows():
         if df.iloc[0].isna().all() or df.iloc[0, 0] == 'Date':
             df = df.iloc[1:].reset_index(drop=True)
             
-        # Clean columns
-        expected_cols = ['Date', 'IBIT', 'FBTC', 'BITB', 'ARKB', 'BTCO', 'EZBC', 'BRRR', 'HODL', 'BTCW', 'MSBT', 'GBTC', 'BTC', 'Total']
-        if len(df.columns) >= len(expected_cols):
-            df = df.iloc[:, :len(expected_cols)]
-            df.columns = expected_cols
-        else:
+        # Clean columns dynamically (first col = Date, last col = Total)
+        if len(df.columns) < 3:
             logger.warning(f"Farside columns do not match expected format: {list(df.columns)}")
             return None
-            
+
+        col_names = []
+        for idx, c in enumerate(df.columns):
+            c_str = str(c[-1] if isinstance(c, tuple) else c).strip()
+            if idx == 0:
+                col_names.append('Date')
+            elif idx == len(df.columns) - 1 or c_str.lower() == 'total':
+                col_names.append('Total')
+            else:
+                col_names.append(c_str if c_str else f'ETF_{idx}')
+        # Ensure the very last column is named Total if none matched
+        if 'Total' not in col_names:
+            col_names[-1] = 'Total'
+        df.columns = col_names
+
         # Filter Date column
         df = df[df['Date'].notna()]
         df['Date'] = df['Date'].astype(str).str.strip()
         df = df[~df['Date'].str.lower().isin(['total', 'average', 'maximum', 'minimum'])]
-        
+
         # Convert numeric values
-        for col in expected_cols[1:]:
+        for col in df.columns[1:]:
             df[col] = df[col].apply(parse_financial_value)
             
         # Parse Dates

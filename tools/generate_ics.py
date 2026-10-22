@@ -34,13 +34,54 @@ def save_history(entries: list) -> None:
 
 
 def update_history(entries: list, data: dict) -> list:
-    """Append or update today's entry."""
+    """Append or update today's entry in-place without dropping existing fields."""
     ts = data.get('timestamp', '')
     date_str = ts[:10] if ts else datetime.date.today().isoformat()
 
-    phase_data = data.get('phase', {})
-    phase_str = phase_data.get('phase') if isinstance(phase_data, dict) else None
-    w_bot = phase_data.get('w_bot') if isinstance(phase_data, dict) else None
+    phase_data = data.get('phase', {}) if isinstance(data.get('phase'), dict) else {}
+    phase_str = data.get('v3_phase') or phase_data.get('phase')
+    w_bot = data.get('v3_w_bot') if data.get('v3_w_bot') is not None else phase_data.get('w_bot')
+    w_top = data.get('v3_w_top') if data.get('v3_w_top') is not None else phase_data.get('w_top')
+
+    metrics_dict = data.get('metrics') if isinstance(data.get('metrics'), dict) else {}
+    def _mval(top_key, metric_key=None):
+        v = data.get(top_key)
+        if isinstance(v, dict):
+            v = v.get('value') if v.get('value') is not None else v.get('avg_7d')
+        if v is not None and not isinstance(v, dict):
+            return v
+        m_obj = metrics_dict.get(metric_key or top_key)
+        if isinstance(m_obj, dict):
+            inner = m_obj.get('value')
+            if isinstance(inner, dict):
+                return inner.get('value') if inner.get('value') is not None else inner.get('avg_7d')
+            return inner
+        return None
+
+    mvrv_val = _mval('mvrv_z_score', 'mvrv')
+    if mvrv_val is None:
+        mvrv_val = _mval('mvrv', 'mvrv')
+    m2_val = _mval('m2_yoy', 'm2_mom')
+    if m2_val is None:
+        m2_val = data.get('m2_mom') if data.get('m2_mom') is not None else data.get('m2')
+
+    cb_daily = data.get('cipherb_daily')
+    if isinstance(cb_daily, dict):
+        cb_daily = cb_daily.get('daily_score')
+    if cb_daily is None and isinstance(metrics_dict.get('cipherb'), dict):
+        cb_inner = metrics_dict['cipherb'].get('value')
+        if isinstance(cb_inner, dict):
+            cb_daily = cb_inner.get('daily_score')
+        else:
+            cb_daily = metrics_dict['cipherb'].get('daily_score')
+
+    pi_gap = data.get('pi_gap_pct')
+    if pi_gap is None and isinstance(metrics_dict.get('pi_cycle'), dict):
+        pi_inner = metrics_dict['pi_cycle'].get('value')
+        if isinstance(pi_inner, dict):
+            pi_gap = pi_inner.get('gap_pct')
+        else:
+            pi_gap = metrics_dict['pi_cycle'].get('gap_pct')
 
     entry = {
         'date':          date_str,
@@ -51,28 +92,29 @@ def update_history(entries: list, data: dict) -> list:
         'btc_price':     data.get('btc_price'),
         'phase':         phase_str,
         'w_bot':         w_bot,
+        'w_top':         w_top,
         # Raw metrics — same units as scores.json (nupl in %, asopr actual value)
-        'nupl':          data.get('nupl'),
-        'mvrv':          data.get('mvrv_z_score') or data.get('mvrv'),
-        'asopr':         data.get('asopr'),
-        'mayer_multiple':data.get('mayer_multiple'),
-        'cvdd_ratio':    data.get('cvdd_ratio'),
-        'rhodl_ratio':   data.get('rhodl_ratio'),
-        'puell':         data.get('puell'),
-        'fear_greed':    data.get('fear_greed'),
-        'm2_yoy':        data.get('m2_mom') or data.get('m2_yoy') or data.get('m2'),
-        'dxy':           data.get('dxy'),
-        'cipherb_daily': data.get('cipherb'),
-        'pi_gap_pct':    data.get('pi_gap_pct'),
-        'funding_rate':  data.get('funding_rate'),
+        'nupl':          _mval('nupl'),
+        'mvrv':          mvrv_val,
+        'asopr':         _mval('asopr'),
+        'mayer_multiple':_mval('mayer_multiple'),
+        'cvdd_ratio':    _mval('cvdd_ratio'),
+        'rhodl_ratio':   _mval('rhodl_ratio'),
+        'puell':         _mval('puell_multiple', 'puell_multiple') if _mval('puell_multiple', 'puell_multiple') is not None else data.get('puell'),
+        'fear_greed':    _mval('fear_greed'),
+        'm2_yoy':        m2_val,
+        'dxy':           _mval('dxy'),
+        'cipherb_daily': cb_daily,
+        'pi_gap_pct':    pi_gap,
+        'funding_rate':  _mval('funding_rate'),
         'v5b_score':     data.get('v5b_score'),
         'market_regime': data.get('market_regime'),
     }
 
-    # Replace existing entry for same date, otherwise append
+    # Update existing entry in-place for same date, otherwise append
     for i, e in enumerate(entries):
         if e.get('date') == date_str:
-            entries[i] = entry
+            entries[i].update({k: v for k, v in entry.items() if (v is not None and not isinstance(v, dict)) or k not in entries[i]})
             return entries
     entries.append(entry)
     return entries
