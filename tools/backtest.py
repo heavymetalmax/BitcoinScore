@@ -48,7 +48,7 @@ MILESTONES = [
     ("2025-11-10", "Post-ATH dump",       94_000),
     ("2026-04-25", "Local low",           77_500),
     ("2026-07-19", "Jul 2026 low",        64_574),
-    ("2026-10-22", "Today",               70_092),
+    ("2026-10-22", "Today",               81_778),
 ]
 
 # ── Data loading ─────────────────────────────────────────────────────────────
@@ -465,6 +465,7 @@ def v3_at(td, series):
         persist_hmm_cache = False,
         include_v5b       = False,
     )
+    out['_btc_price'] = btc_price
     return out
 
 
@@ -498,8 +499,9 @@ def run():
         sc = v4.get('normalized_scores') or r['scores']
         bri = fmt(v4.get('final_score'))
         ph = (v4.get('phase') or '—')[:7]
+        actual_p = v4.get('_btc_price') or price
         metric_vals = " ".join(fmt(sc.get(c)) for c in SCORE_COLS)
-        print(f"{date_str:<12} {label:<22} ${price:>8,}  {bri:>4} {ph:<7}  {metric_vals}")
+        print(f"{date_str:<12} {label:<22} ${round(actual_p):>8,}  {bri:>4} {ph:<7}  {metric_vals}")
 
     # ── Coverage matrix ──────────────────────────────────────────────────────
     RAW_COLS = ['nupl', 'mvrv', 'rhodl_ratio', 'cvdd_ratio', 'asopr',
