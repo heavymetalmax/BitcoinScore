@@ -1,19 +1,167 @@
 [
   {
-    "timestamp": "2026-10-21T15:02:25Z",
-    "btc_price": 84472.43121735024,
+    "timestamp": "2026-07-05T12:47:47Z",
+    "btc_price": 62655,
     "cipherb": {
-      "timestamp": 1791417600,
-      "close": 81576.4,
-      "wt1": 53.5842381594936,
-      "wt2": 54.57986311706353,
-      "mfi": -8.052746668842333,
-      "weekly_score": 76.5059601028991,
+      "timestamp": 1782345600,
+      "close": 59959.4,
+      "wt1": -49.69876837809786,
+      "wt2": -43.829512184043324,
+      "mfi": -7.841785465973615,
+      "weekly_score": 9.871762336711058,
+      "fast_bearish_div": false,
+      "fast_bullish_div": true,
+      "daily_score": 35.75576442369014,
+      "daily_fast_bearish_div": false,
+      "daily_fast_bullish_div": false
+    }
+  },
+  {
+    "timestamp": "2026-07-12T15:31:52Z",
+    "btc_price": 64183,
+    "cipherb": {
+      "timestamp": 1782950400,
+      "close": 62241.1,
+      "wt1": -49.20663061024242,
+      "wt2": -47.7225268365832,
+      "mfi": -8.58736572418294,
+      "weekly_score": 10.189270574037147,
+      "fast_bearish_div": false,
+      "fast_bullish_div": true,
+      "daily_score": 64.47451513758273,
+      "daily_fast_bearish_div": false,
+      "daily_fast_bullish_div": false
+    }
+  },
+  {
+    "timestamp": "2026-07-12T15:34:32Z",
+    "btc_price": 64183,
+    "cipherb": {
+      "timestamp": 1782950400,
+      "close": 62241.1,
+      "wt1": -49.20663061024242,
+      "wt2": -47.7225268365832,
+      "mfi": -8.58736572418294,
+      "weekly_score": 10.189270574037147,
+      "fast_bearish_div": false,
+      "fast_bullish_div": true,
+      "daily_score": 64.47451513758273,
+      "daily_fast_bearish_div": false,
+      "daily_fast_bullish_div": false
+    }
+  },
+  {
+    "timestamp": "2026-07-18T14:49:55Z",
+    "btc_price": 64169.16,
+    "cipherb": {
+      "timestamp": 1783555200,
+      "close": 64709.4,
+      "wt1": -45.191989072136465,
+      "wt2": -48.03246268682551,
+      "mfi": -8.63095196222498,
+      "weekly_score": 12.779361888944216,
+      "fast_bearish_div": false,
+      "fast_bullish_div": true,
+      "daily_score": 63.97491984105733,
+      "daily_fast_bearish_div": false,
+      "daily_fast_bullish_div": false
+    }
+  },
+  {
+    "timestamp": "2026-07-19T15:42:01Z",
+    "btc_price": 64574.01,
+    "cipherb": {
+      "timestamp": 1783555200,
+      "close": 64709.4,
+      "wt1": -45.191989072136465,
+      "wt2": -48.03246268682551,
+      "mfi": -8.63095196222498,
+      "weekly_score": 12.779361888944216,
+      "fast_bearish_div": false,
+      "fast_bullish_div": true,
+      "daily_score": 66.98316899839872,
+      "daily_fast_bearish_div": false,
+      "daily_fast_bullish_div": false
+    }
+  },
+  {
+    "timestamp": "2026-07-22T15:17:30Z",
+    "btc_price": 65930.49,
+    "cipherb": {
+      "timestamp": 1783555200,
+      "close": 64709.4,
+      "wt1": -45.191989072136465,
+      "wt2": -48.03246268682551,
+      "mfi": -8.63095196222498,
+      "weekly_score": 12.779361888944216,
+      "fast_bearish_div": false,
+      "fast_bullish_div": true,
+      "double_bearish_div": false,
+      "double_bullish_div": false,
+      "daily_score": 80.01454288451491,
+      "daily_fast_bearish_div": false,
+      "daily_fast_bullish_div": false,
+      "daily_double_bearish_div": false,
+      "daily_double_bullish_div": false
+    }
+  },
+  {
+    "timestamp": "2026-07-22T15:25:25Z",
+    "btc_price": 66038.44,
+    "cipherb": {
+      "timestamp": 1783555200,
+      "close": 64709.4,
+      "wt1": -45.191989072136465,
+      "wt2": -48.03246268682551,
+      "mfi": -8.63095196222498,
+      "weekly_score": 12.779361888944216,
+      "fast_bearish_div": false,
+      "fast_bullish_div": true,
+      "double_bearish_div": false,
+      "double_bullish_div": false,
+      "daily_score": 80.01454288451491,
+      "daily_fast_bearish_div": false,
+      "daily_fast_bullish_div": false,
+      "daily_double_bearish_div": false,
+      "daily_double_bullish_div": false
+    }
+  },
+  {
+    "timestamp": "2026-08-17T06:51:07Z",
+    "btc_price": 63663.67,
+    "cipherb": {
+      "timestamp": 1785974400,
+      "close": 63412.0,
+      "wt1": -32.406936033107044,
+      "wt2": -34.271189005044185,
+      "mfi": -7.315995436087051,
+      "weekly_score": 21.02778320444707,
       "fast_bearish_div": false,
       "fast_bullish_div": false,
       "double_bearish_div": false,
       "double_bullish_div": false,
-      "daily_score": 24.085719980066088,
+      "daily_score": 16.121174505262367,
+      "daily_fast_bearish_div": false,
+      "daily_fast_bullish_div": true,
+      "daily_double_bearish_div": false,
+      "daily_double_bullish_div": false
+    }
+  },
+  {
+    "timestamp": "2026-10-22T11:14:37Z",
+    "btc_price": 81993.67,
+    "cipherb": {
+      "timestamp": 1792022400,
+      "close": 84022.5,
+      "wt1": 51.850885675290876,
+      "wt2": 53.91035255745399,
+      "mfi": -5.989332789376014,
+      "weekly_score": 75.38766817760701,
+      "fast_bearish_div": false,
+      "fast_bullish_div": false,
+      "double_bearish_div": false,
+      "double_bullish_div": false,
+      "daily_score": 38.140025232717356,
       "daily_fast_bearish_div": false,
       "daily_fast_bullish_div": false,
       "daily_double_bearish_div": false,
