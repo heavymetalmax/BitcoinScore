@@ -13,4 +13,8 @@
   .sp2-phase-badge, .bear-div-badge, .bull-div-badge, #logo-version,
   [style*="font-size:8px"], [style*="font-size: 8px"],
   [style*="font-size:9px"], [style*="font-size: 9px"] { font-size: 12px !important; }
+
+  /* Beat the inline style block's 10px !important card-back rule + footer logo text */
+  div.comp-card-back-desc { font-size: 14px !important; }
+  .footer-logo span { font-size: 12px !important; }
 }
