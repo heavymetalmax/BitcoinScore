@@ -17,4 +17,6 @@
   /* Beat the inline style block's 10px !important card-back rule + footer logo text */
   div.comp-card-back-desc { font-size: 14px !important; }
   .footer-logo span { font-size: 12px !important; }
+  .comp-card-back { overflow-y: auto !important; }
+
 }
