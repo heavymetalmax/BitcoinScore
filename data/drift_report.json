@@ -1,8 +1,10 @@
 {
-  "date": "2026-10-27",
+  "date": "2026-10-30",
   "phase": "NEUTRAL",
-  "score": 46,
+  "score": 43,
   "alerts": [],
-  "warnings": [],
+  "warnings": [
+    "OOD: funding_rate=100 is high (z=3.1, mean=40.6, \u03c3=19.4, n=145)"
+  ],
   "ok": true
 }
