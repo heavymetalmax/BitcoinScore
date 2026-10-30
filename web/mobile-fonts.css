@@ -1,0 +1,16 @@
+/* Mobile readability: larger fonts on small screens */
+@media (max-width: 768px) {
+  .comp-header span, .comp-name, .comp-sub, .comp-group-hdr, .comp-card-back-desc,
+  .signal-stat-label, .signal-stat-sub, .market-row-sub, .market-title,
+  .zone-note, .zone-title, .score-hint, .score-label, .section-title,
+  .status-bar, .signal-block-label, .mini-gauge-title, .sp2-label, .sp2-row-label,
+  .ai-block-label, .health-badge, .signal-badge, .signal-main-badge, .gauge-tag,
+  .signal-trust-labels, .time-btn, .view-btn, .comp-back-btn,
+  .disclaimer-btn .disc-arrow, .comp-value .range,
+  [style*="font-size:10px"], [style*="font-size: 10px"],
+  [style*="font-size:11px"], [style*="font-size: 11px"] { font-size: 14px !important; }
+  .gauge-bar-ticks, .gauge-labels, .chart-legend span, .ai-block-badge,
+  .sp2-phase-badge, .bear-div-badge, .bull-div-badge, #logo-version,
+  [style*="font-size:8px"], [style*="font-size: 8px"],
+  [style*="font-size:9px"], [style*="font-size: 9px"] { font-size: 12px !important; }
+}
