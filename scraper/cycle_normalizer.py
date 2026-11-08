@@ -26,6 +26,7 @@ Metrics supported (all higher-value = more risk):
     nupl, mvrv, cvdd_ratio, rhodl_ratio, puell
 """
 
+import bisect
 import json
 import os
 import datetime
@@ -33,6 +34,7 @@ import datetime
 _ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _EXTREMES_PATH = os.path.join(_ROOT, 'data', 'cycle_extremes.json')
 _SCORES_PATH   = os.path.join(_ROOT, 'data', 'history', 'scores.json')
+_CVDD_RATIO_PATH = os.path.join(_ROOT, 'data', 'history', 'cvdd_ratio_history.json')
 
 SUPPORTED_METRICS = {'nupl', 'mvrv', 'cvdd_ratio', 'puell'}
 # rhodl_ratio is excluded from cycle_normalize: it has a secular downward trend
@@ -43,10 +45,12 @@ INTRA_CYCLE_METRICS = {'rhodl_ratio'}
 # Loaded once at module init
 _extremes: list = []
 _scores_map: dict = {}
+_price_dates: list[str] = []
+_price_vals: list[float] = []
 
 
 def _load():
-    global _extremes, _scores_map
+    global _extremes, _scores_map, _price_dates, _price_vals
     if not os.path.exists(_EXTREMES_PATH) or not os.path.exists(_SCORES_PATH):
         return
     with open(_EXTREMES_PATH) as f:
@@ -54,6 +58,23 @@ def _load():
     with open(_SCORES_PATH) as f:
         rows = json.load(f)
     _scores_map = {r['date']: r for r in rows if r.get('date')}
+
+    price_by_date: dict[str, float] = {}
+    if os.path.exists(_CVDD_RATIO_PATH):
+        try:
+            with open(_CVDD_RATIO_PATH, encoding='utf-8') as f:
+                cv_raw = json.load(f)
+            cv_rows = cv_raw.get('series', cv_raw) if isinstance(cv_raw, dict) else cv_raw
+            for r in cv_rows:
+                if isinstance(r, dict) and r.get('date') and r.get('btc_price'):
+                    price_by_date[r['date'][:10]] = float(r['btc_price'])
+        except Exception:
+            pass
+    for d, r in _scores_map.items():
+        if r.get('btc_price') is not None:
+            price_by_date[d[:10]] = float(r['btc_price'])
+    _price_dates = sorted(price_by_date.keys())
+    _price_vals = [price_by_date[d] for d in _price_dates]
 
 
 def invalidate_caches():
@@ -236,15 +257,123 @@ def intra_cycle_percentile(metric: str, value, target_date) -> int | None:
     return round(sum(1 for cv in cycle_vals if cv <= v) / len(cycle_vals) * 100)
 
 
+def wma200_at(target_date) -> float | None:
+    """Causal 200-week (1400-day) simple moving average of BTC price at target_date."""
+    if not _price_dates:
+        return None
+    target_str = target_date.isoformat() if isinstance(target_date, datetime.date) else str(target_date)[:10]
+    idx = bisect.bisect_right(_price_dates, target_str) - 1
+    if idx < 199:
+        return None
+    win = _price_vals[max(0, idx - 1399) : idx + 1]
+    return sum(win) / len(win)
+
+
+def dma200_at(target_date) -> float | None:
+    """Causal 200-day simple moving average of BTC price at target_date."""
+    if not _price_dates:
+        return None
+    target_str = target_date.isoformat() if isinstance(target_date, datetime.date) else str(target_date)[:10]
+    row = _scores_map.get(target_str)
+    if row and row.get('btc_price') and row.get('mayer_multiple') and float(row['mayer_multiple']) > 0:
+        return float(row['btc_price']) / float(row['mayer_multiple'])
+    idx = bisect.bisect_right(_price_dates, target_str) - 1
+    if idx < 199:
+        return None
+    win = _price_vals[idx - 199 : idx + 1]
+    return sum(win) / len(win)
+
+
+def compute_ma_context(target_date, current_price=None, mayer_raw=None) -> dict:
+    """Compute causal 200D MA (with 30d slope & regime) and 200W MA context at target_date.
+
+    Returns dict with:
+      dma_200           : float | None  — 200-day SMA in USD
+      dma_200_slope_30d : float | None  — 30-day % change of 200-day SMA
+      above_dma_200     : bool  | None  — True when price >= 200D MA
+      mayer_multiple    : float | None  — Price / 200D MA
+      wma_200           : float | None  — 200-week (1400d) SMA in USD
+      ma200w_ratio      : float | None  — Price / 200W MA
+      ma_regime         : str           — 'BULL_EXPANSION' | 'BULL_PULLBACK' | 'RECOVERY' |
+                                          'BEAR_CONTRACTION' | 'DEEP_ACCUMULATION' | 'NEUTRAL'
+    """
+    if isinstance(target_date, str):
+        td = datetime.date.fromisoformat(target_date[:10])
+    elif isinstance(target_date, datetime.date):
+        td = target_date
+    else:
+        td = datetime.date.today()
+    td_str = td.isoformat()
+
+    p = float(current_price) if isinstance(current_price, (int, float)) else None
+    if p is None and _scores_map.get(td_str, {}).get('btc_price') is not None:
+        p = float(_scores_map[td_str]['btc_price'])
+
+    mm_val = None
+    dma_200 = None
+    slope_30d = None
+    if isinstance(mayer_raw, dict):
+        inner = mayer_raw.get('value', mayer_raw)
+        if isinstance(inner, dict):
+            mm_val = inner.get('value')
+            dma_200 = inner.get('dma_200')
+            slope_30d = inner.get('dma_200_slope_30d')
+        elif isinstance(inner, (int, float)):
+            mm_val = float(inner)
+    elif isinstance(mayer_raw, (int, float)):
+        mm_val = float(mayer_raw)
+
+    if dma_200 is None:
+        if p is not None and mm_val is not None and mm_val > 0:
+            dma_200 = p / mm_val
+        else:
+            dma_200 = dma200_at(td)
+
+    if mm_val is None and p is not None and dma_200 and dma_200 > 0:
+        mm_val = p / dma_200
+
+    if slope_30d is None and dma_200 and dma_200 > 0:
+        dma_prev30 = dma200_at(td - datetime.timedelta(days=30))
+        if dma_prev30 and dma_prev30 > 0:
+            slope_30d = round((dma_200 / dma_prev30 - 1.0) * 100.0, 2)
+
+    wma_200 = wma200_at(td)
+    ma200w_ratio = round(p / wma_200, 3) if (p is not None and wma_200 and wma_200 > 0) else None
+    above_dma_200 = (mm_val >= 1.0) if mm_val is not None else None
+
+    ma_regime = 'NEUTRAL'
+    if above_dma_200 is not None:
+        sl = slope_30d if slope_30d is not None else 0.0
+        r200w = ma200w_ratio if ma200w_ratio is not None else 1.5
+        if above_dma_200:
+            ma_regime = 'BULL_EXPANSION' if sl >= 0.0 else 'RECOVERY'
+        else:
+            if sl > 0.5 and r200w >= 1.35:
+                ma_regime = 'BULL_PULLBACK'
+            elif sl <= 0.0 and r200w <= 1.15:
+                ma_regime = 'DEEP_ACCUMULATION'
+            else:
+                ma_regime = 'BEAR_CONTRACTION'
+
+    return {
+        'dma_200':           round(dma_200, 1) if dma_200 is not None else None,
+        'dma_200_slope_30d': round(slope_30d, 2) if slope_30d is not None else None,
+        'above_dma_200':     above_dma_200,
+        'mayer_multiple':    round(mm_val, 3) if mm_val is not None else None,
+        'wma_200':           round(wma_200, 1) if wma_200 is not None else None,
+        'ma200w_ratio':      ma200w_ratio,
+        'ma_regime':         ma_regime,
+    }
+
+
 def price_cycle_percentile(target_date, current_price) -> int | None:
-    """Percentile rank of current BTC price within the current bull cycle.
+    """Percentile rank of current BTC price within the current bull cycle,
+    anchored by the 200-week moving average (200W MA) at macro cycle floors.
 
-    When price is at new cycle ATH → 100. At cycle bottom → 0.
-    Uses btc_price field from scores.json (_scores_map).
-
-    This metric captures the direct price-based risk dimension: being at a
-    higher price within the cycle is unambiguously riskier to buy regardless
-    of what on-chain metrics show. High utility in TOP phase only.
+    When price is at new cycle ATH → 100. At cycle bottom / below 200W MA → 0.
+    Uses btc_price field from scores.json (_scores_map) plus causal 200W MA
+    so bear-market bottoms prior to causal confirmation date still register
+    as low cycle position rather than mid-range vs the previous cycle's bottom.
 
     Returns None if fewer than 90 days of price history in current cycle.
     """
@@ -254,7 +383,7 @@ def price_cycle_percentile(target_date, current_price) -> int | None:
     if isinstance(target_date, datetime.date):
         target_str = target_date.isoformat()
     else:
-        target_str = str(target_date)
+        target_str = str(target_date)[:10]
 
     cycle_start = _last_major_bottom_date(target_str)
     if not cycle_start:
@@ -271,7 +400,21 @@ def price_cycle_percentile(target_date, current_price) -> int | None:
         return None
 
     p = float(current_price)
-    return round(sum(1 for pv in prices if pv <= p) / len(prices) * 100)
+    raw_pct = sum(1 for pv in prices if pv <= p) / len(prices) * 100.0
+
+    # Anchor cycle position to 200-week MA when price approaches or drops below
+    # the macro 200W MA floor (eliminates pre-confirmation bottom lag in bear markets).
+    wma = wma200_at(target_str)
+    if wma and wma > 0:
+        r200w = p / wma
+        if r200w <= 1.35:
+            floor_score = max(0.0, min(25.0, (r200w - 0.65) / 0.50 * 20.0))
+            if r200w <= 1.05:
+                return round(min(raw_pct, floor_score))
+            blend = (r200w - 1.05) / 0.30
+            return round(min(raw_pct, (1.0 - blend) * floor_score + blend * raw_pct))
+
+    return round(raw_pct)
 
 
 def reload():

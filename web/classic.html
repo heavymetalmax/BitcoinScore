@@ -2159,6 +2159,19 @@ async function loadData() {
   setScore('v-asopr',   'r-asopr',   'asopr',       asopr,   v => (+v).toFixed(4));
   setScore('v-cipherb', 'r-cipherb', 'cipherb',     cbVal,   v => (+v).toFixed(1));
   setScore('v-mayer',   'r-mayer',   'mayer',       mayer,   v => (+v).toFixed(3));
+  {
+    const mmObj = m.mayer_multiple && m.mayer_multiple.value ? m.mayer_multiple.value : {};
+    const maCtx = data.ma_context || mmObj || {};
+    const dma200 = mmObj.dma_200 ?? maCtx.dma_200;
+    const sl30   = mmObj.dma_200_slope_30d ?? maCtx.dma_200_slope_30d;
+    const wma200 = mmObj.wma_200 ?? maCtx.wma_200;
+    const rMayer = document.getElementById('r-mayer');
+    if (rMayer && dma200 != null) {
+      const slStr = sl30 != null ? ` (${sl30 >= 0 ? '+' : ''}${sl30.toFixed(1)}%)` : '';
+      const wmaStr = wma200 != null ? ` · 200W $${Math.round(wma200 / 1000)}k` : '';
+      rMayer.textContent = `200D $${Math.round(dma200 / 1000)}k${slStr}${wmaStr}`;
+    }
+  }
   setScore('v-etf',     'r-etf',     'etf',         etfVal,  v => '$' + (v / 1000).toFixed(2) + 'B');
   setScore('v-fg',      'r-fg',      'fg',          fgVal,   v => (+v).toFixed(0));
   setScore('v-yc',      'r-yc',      'yield_curve', ycVal,   v => (+v).toFixed(2) + '%');

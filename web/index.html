@@ -3173,9 +3173,14 @@
         }
       }
       
+      const maCtx = data.ma_context || (mm && typeof mm === 'object' ? mm : {}) || {};
+      const mmSlope = (mm && mm.dma_200_slope_30d != null) ? mm.dma_200_slope_30d : maCtx.dma_200_slope_30d;
+      const wma200  = (mm && mm.wma_200 != null) ? mm.wma_200 : maCtx.wma_200;
+      const slopeTxt = mmSlope != null ? ` (${mmSlope >= 0 ? '+' : ''}${mmSlope.toFixed(1)}%)` : '';
+      const wmaTxt   = wma200 != null ? ` &middot; 200WMA=$${Math.round(wma200).toLocaleString()}` : '';
       setMetric('mayer', mmScore,
-        mm ? `<span class="en">val=${mm.value.toFixed(2)} &middot; 200DMA=$${Math.round(mm.dma_200).toLocaleString()}</span>` +
-             `<span class="ua">знач=${mm.value.toFixed(2)} &middot; 200DMA=$${Math.round(mm.dma_200).toLocaleString()}</span>` : null);
+        mm ? `<span class="en">val=${mm.value.toFixed(2)} &middot; 200DMA=$${Math.round(mm.dma_200).toLocaleString()}${slopeTxt}${wmaTxt}</span>` +
+             `<span class="ua">знач=${mm.value.toFixed(2)} &middot; 200DMA=$${Math.round(mm.dma_200).toLocaleString()}${slopeTxt}${wmaTxt}</span>` : null);
       
       // Spot ETF Flows
       const etf = mv('etf_flows');

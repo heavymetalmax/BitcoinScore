@@ -232,6 +232,15 @@ def recompute_recent_scores(days: int = 365) -> None:
                     payload['cp_basket'] = last_res.get('cp_basket')
                     payload['utilities'] = last_res.get('utilities')
                     payload['normalized_scores'] = last_res.get('normalized_scores')
+                    payload['v3_normalized_scores'] = last_res.get('normalized_scores')
+                    payload['v3_utilities'] = last_res.get('utilities')
+                    if last_res.get('ma_context') is not None:
+                        payload['ma_context'] = last_res['ma_context']
+                        _mm_obj = (payload.get('metrics') or {}).get('mayer_multiple')
+                        if isinstance(_mm_obj, dict) and isinstance(_mm_obj.get('value'), dict):
+                            for _mk in ('dma_200', 'dma_200_slope_30d', 'above_dma_200', 'wma_200', 'ma200w_ratio', 'ma_regime'):
+                                if last_res['ma_context'].get(_mk) is not None:
+                                    _mm_obj['value'][_mk] = last_res['ma_context'][_mk]
                     if last_res.get('v5b_score') is not None:
                         payload['v5b_score'] = last_res['v5b_score']
                     if last_res.get('market_regime') is not None:

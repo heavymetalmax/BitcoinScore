@@ -17,12 +17,19 @@ def sync_public_names(payload: dict, scores: dict) -> None:
         payload.pop(retired_key, None)
     payload['bri_score'] = final
     payload['forward_risk'] = scores.get('v5b_score')
+    ma_ctx = scores.get('ma_context') or {}
+    payload['ma_context'] = ma_ctx
     payload['market_context'] = {
         'score': final,
         'phase': scores.get('phase'),
         'bottom_weight': scores.get('w_bot'),
         'neutral_weight': scores.get('w_neutral'),
         'top_weight': scores.get('w_top'),
+        'ma_regime': ma_ctx.get('ma_regime'),
+        'dma_200': ma_ctx.get('dma_200'),
+        'dma_200_slope_30d': ma_ctx.get('dma_200_slope_30d'),
+        'wma_200': ma_ctx.get('wma_200'),
+        'ma200w_ratio': ma_ctx.get('ma200w_ratio'),
     }
 
 
@@ -238,6 +245,14 @@ def run_scoring_pipeline(p, build_metric_history_fn=None):
         p['onchain_score'] = scores['onchain_avg']
         p['tech_score']    = scores['tech_avg']
         p['sp_v2']         = scores['final_score']
+        _ma_ctx = scores.get('ma_context') or {}
+        if isinstance(p.get('metrics', {}).get('mayer_multiple'), dict):
+            _mm_inner = p['metrics']['mayer_multiple'].get('value')
+            if isinstance(_mm_inner, dict):
+                for _mk in ('dma_200', 'dma_200_slope_30d', 'above_dma_200', 'wma_200', 'ma200w_ratio', 'ma_regime'):
+                    if _mm_inner.get(_mk) is None and _ma_ctx.get(_mk) is not None:
+                        _mm_inner[_mk] = _ma_ctx[_mk]
+
         p['phase'] = {
             'phase':      scores['phase'],
             'top_signal': scores['top_signal'],
@@ -245,6 +260,7 @@ def run_scoring_pipeline(p, build_metric_history_fn=None):
             'w_bot':      scores['w_bot'],
             'w_neutral':  scores['w_neutral'],
             'w_top':      scores['w_top'],
+            'ma_regime':  _ma_ctx.get('ma_regime'),
             'method':     scores.get('phase_method'),
             'probabilistic': scores.get('phase_probabilistic', False),
         }
@@ -285,7 +301,9 @@ def run_scoring_pipeline(p, build_metric_history_fn=None):
                 'w_bot':  scores['w_bot'],
                 'w_neu':  scores['w_neutral'],
                 'w_top':  scores['w_top'],
+                'ma_regime': _ma_ctx.get('ma_regime'),
             },
+            'ma_context': _ma_ctx,
             'OC_read':  scores.get('oc_read'),
             'coherence': {
                 'oc_score': scores.get('oc_coherence'),

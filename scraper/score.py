@@ -19,7 +19,7 @@ import math
 import os
 
 from scraper.normalizer import normalize_metric
-from scraper.cycle_normalizer import price_cycle_percentile
+from scraper.cycle_normalizer import price_cycle_percentile, compute_ma_context
 from scraper.utility_evaluator import (
     evaluate_all_utilities_continuous,
     blend_phase_with_cycle_prior,
@@ -210,6 +210,7 @@ def _phase_weights(
     prev_scores: dict | None,
     target_date: datetime.date | str | None = None,
     persist_hmm_cache: bool = True,
+    ma_context: dict | None = None,
 ) -> tuple[float, float, float, str, int, int]:
     """
     Compute continuous phase weights (w_bot, w_neutral, w_top) summing to 1.
@@ -284,21 +285,48 @@ def _phase_weights(
 
     # ── Data-driven top confluence (combines with HMM via max) ───────────────
     # Uses the strongest top-discriminating metrics (cipherb, nupl, mvrv, rhodl,
-    # btc_price_cycle) so diminishing-return cycle tops are detected even when
-    # the legacy HMM outputs a low probability.
+    # btc_price_cycle, mayer_multiple) so diminishing-return cycle tops are
+    # detected even when the legacy HMM outputs a low probability.
     _cb = normalized.get('cipherb')
     _nu = normalized.get('nupl')
     _mv = normalized.get('mvrv_z_score')
     _rh = normalized.get('rhodl_ratio')
     _pc = normalized.get('btc_price_cycle')
-    _vals = [v for v in [_cb, _nu, _mv, _rh, _pc] if v is not None]
-    if _vals:
-        _ps = sum(_vals) / len(_vals)
-        if _ps >= 65:
-            w_top_cons = min(1.0, 0.50 + (_ps - 65.0) / 25.0 * 0.50)
-            if w_top_cons > w_top:
-                w_top      = w_top_cons
-                top_signal = round(w_top * 100)
+    _mm = normalized.get('mayer_multiple')
+    _vals = [v for v in [_cb, _nu, _mv, _rh, _pc, _mm] if v is not None]
+    _ps = sum(_vals) / len(_vals) if _vals else 0.0
+    if _vals and _ps >= 65:
+        w_top_cons = min(1.0, 0.50 + (_ps - 65.0) / 25.0 * 0.50)
+        if w_top_cons > w_top:
+            w_top      = w_top_cons
+            top_signal = round(w_top * 100)
+
+    # ── 200D MA & 200W MA Regime Conditioning ────────────────────────────────
+    # 1. Prevent false HMM TOP in early pre-bull / neutral regimes when price is
+    #    barely above 200D MA (mayer_multiple < 55) and top confluence < 62.
+    if _mm is not None and _mm < 55 and _ps < 62.0 and w_top > 0.35:
+        w_top *= 0.65
+        top_signal = round(w_top * 100)
+
+    if ma_context:
+        ma_reg = ma_context.get('ma_regime')
+        r200w = ma_context.get('ma200w_ratio')
+        above_200d = ma_context.get('above_dma_200')
+        # 2. Mid-bull pullback below a still-rising 200D MA while well above 200W MA
+        #    (e.g. Jul 2021 summer dip): dampen w_bot so it stays NEUTRAL, not BOTTOM.
+        if ma_reg == 'BULL_PULLBACK':
+            w_bot *= 0.75
+            bot_signal = round(w_bot * 100)
+        # 3. Deep accumulation below falling 200D MA and near/below 200W MA floor:
+        #    confirm macro bottom regime.
+        elif ma_reg == 'DEEP_ACCUMULATION' and r200w is not None and r200w <= 1.05:
+            w_bot = min(1.0, w_bot * 1.12)
+            bot_signal = round(w_bot * 100)
+        # 4. Once price decisively reclaims 200D MA (mayer score >= 48), transition
+        #    out of BOTTOM into NEUTRAL recovery.
+        elif above_200d and _mm is not None and _mm >= 48 and w_bot >= BOTTOM_PHASE_THRESHOLD:
+            w_bot *= 0.80
+            bot_signal = round(w_bot * 100)
 
     # ── Normalise so w_bot + w_top + w_neutral = 1 ───────────────────────────
     total = w_bot + w_top
@@ -403,6 +431,15 @@ def compute_score(
         _raw_with_price['btc_price'] = btc_price
     normalized = _normalize(_raw_with_price, target_date)
 
+    _eff_price = _raw_with_price.get('btc_price') or _raw_with_price.get('price')
+    if isinstance(_eff_price, dict):
+        _eff_price = _eff_price.get('value')
+    ma_context = compute_ma_context(
+        target_date,
+        current_price=_eff_price,
+        mayer_raw=raw_metrics.get('mayer_multiple'),
+    )
+
     # ── 2. Phase weights ──────────────────────────────────────────────────────
     if prev_scores is None:
         try:
@@ -413,7 +450,11 @@ def compute_score(
             pass
 
     w_bot, w_neutral, w_top, phase, top_signal, bot_signal = _phase_weights(
-        normalized, prev_scores, target_date=target_date, persist_hmm_cache=persist_hmm_cache
+        normalized,
+        prev_scores,
+        target_date=target_date,
+        persist_hmm_cache=persist_hmm_cache,
+        ma_context=ma_context,
     )
 
     # Blend HMM phase weights with halving-cycle position prior (dynamic alpha)
@@ -696,6 +737,7 @@ def compute_score(
         'coh_factor':         coh_factor,
         'pi_cross':           pi_cross,
         'dxy_adj':            round(dxy_adj, 2),
+        'ma_context':         ma_context,
         'wave_resonance':     wr,
         'utilities':          utilities,
         'v5b_score':          v5b_score,
