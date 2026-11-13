@@ -536,8 +536,48 @@
       box-sizing: border-box;
     }
 
-    /* Sub-baskets on mobile: 3 compact cards in 1 row */
+    /* TODAY Gauge Card on mobile (First) */
+    .gauge-card-container {
+      order: 1;
+      height: auto !important;
+      min-height: 380px;
+      width: 100%;
+      min-width: 0;
+      box-sizing: border-box;
+    }
+    .gauge-card-inner {
+      height: 100%;
+      min-height: 380px;
+    }
+    .gauge-card-front {
+      position: relative !important;
+      height: auto !important;
+      min-height: 380px;
+      padding: 18px 16px 16px !important;
+      box-sizing: border-box;
+    }
+    .gauge-card-back {
+      height: 100% !important;
+      min-height: 380px;
+    }
+    .gauge-card-inner.flipped .gauge-card-front {
+      position: absolute !important;
+    }
+    .gauge-val {
+      font-size: 56px;
+    }
+    .gauge-tags {
+      margin-top: 10px;
+      gap: 4px;
+    }
+    .gauge-tag {
+      padding: 5px 8px;
+      font-size: 10px;
+    }
+
+    /* Sub-baskets on mobile: 3 compact cards in 1 row (Second) */
     .sub-baskets-col {
+      order: 2;
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 8px;
@@ -595,46 +635,9 @@
       display: none;
     }
 
-    /* TODAY Gauge Card on mobile */
-    .gauge-card-container {
-      height: auto !important;
-      min-height: 380px;
-      width: 100%;
-      min-width: 0;
-      box-sizing: border-box;
-    }
-    .gauge-card-inner {
-      height: 100%;
-      min-height: 380px;
-    }
-    .gauge-card-front {
-      position: relative !important;
-      height: auto !important;
-      min-height: 380px;
-      padding: 18px 16px 16px !important;
-      box-sizing: border-box;
-    }
-    .gauge-card-back {
-      height: 100% !important;
-      min-height: 380px;
-    }
-    .gauge-card-inner.flipped .gauge-card-front {
-      position: absolute !important;
-    }
-    .gauge-val {
-      font-size: 56px;
-    }
-    .gauge-tags {
-      margin-top: 10px;
-      gap: 4px;
-    }
-    .gauge-tag {
-      padding: 5px 8px;
-      font-size: 10px;
-    }
-
-    /* YESTERDAY + 7 DAYS on mobile: 2 cards side-by-side */
+    /* YESTERDAY + 7 DAYS on mobile: 2 cards side-by-side (Third) */
     .mini-gauges-col {
+      order: 3;
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 10px;
