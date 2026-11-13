@@ -1709,18 +1709,28 @@
             </div>
           </div>
           
-          <!-- Modern Style Canvas Gauge -->
-          <div class="modern-gauge-container" style="display: none; flex-direction: column; align-items: center; margin: 2px 0 4px;">
+          <!-- Modern Style Concentric Arcs Gauge -->
+          <div class="modern-gauge-container" style="display: none; flex-direction: column; align-items: center; margin: 4px 0 6px;">
             <div class="modern-main-gauge-wrap">
-              <canvas id="modern-gauge-canvas" style="max-width: 320px; width: 100%;"></canvas>
+              <canvas id="modern-gauge-canvas" style="max-width: 340px; width: 100%;"></canvas>
             </div>
-            <div id="modern-gauge-status" style="font-size: 1rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: var(--index-color); margin-top: 2px;">
-              <span class="en" id="modern-gauge-status-en">—</span>
-              <span class="ua" id="modern-gauge-status-ua">—</span>
-            </div>
-            <div style="font-size: 0.62rem; font-weight: 700; color: var(--text-mute); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 2px;">
-              <span class="en">50% On-Chain + 50% Tech</span>
-              <span class="ua">50% Ончейн + 50% Тех</span>
+            <!-- Concentric Arcs Legend -->
+            <div class="concentric-legend" style="display: flex; gap: 16px; justify-content: center; align-items: center; margin-top: 6px; flex-wrap: wrap; font-size: 0.78rem; font-weight: 700;">
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span style="width: 8px; height: 8px; border-radius: 50%; background: #00F2FE; display: inline-block; box-shadow: 0 0 6px rgba(0,242,254,0.6);"></span>
+                <span style="color: var(--text-mute);"><span class="en">On-Chain</span><span class="ua">Ончейн</span>:</span>
+                <span id="arc-val-oc" style="color: #00F2FE;">—</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span style="width: 8px; height: 8px; border-radius: 50%; background: #F7931A; display: inline-block; box-shadow: 0 0 6px rgba(247,147,26,0.6);"></span>
+                <span style="color: var(--text-mute);"><span class="en">Tech</span><span class="ua">Тех</span>:</span>
+                <span id="arc-val-tech" style="color: #F7931A;">—</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span style="width: 8px; height: 8px; border-radius: 50%; background: #A855F7; display: inline-block; box-shadow: 0 0 6px rgba(168,85,247,0.6);"></span>
+                <span style="color: var(--text-mute);"><span class="en">Macro</span><span class="ua">Макро</span>:</span>
+                <span id="arc-val-macro" style="color: #A855F7;">—</span>
+              </div>
             </div>
             <span id="modern-gauge-badge" style="display:none">— / 100</span>
           </div>
@@ -2323,6 +2333,119 @@
     setInterval(updateModernClock, 1000);
     updateModernClock();
 
+    // ── Apple Fitness-Style Concentric Arcs Gauge (Palette A) ────────────────
+    // Outer Arc: On-Chain (#00F2FE Electric Cyan)
+    // Middle Arc: Technical (#F7931A Bitcoin Orange)
+    // Inner Arc: Macro (#A855F7 Vibrant Purple)
+    // Center: Final Score Number, / 100, BTC Price (No Regimes)
+    function drawConcentricGauge(canvas, finalScore, ocScore, techScore, macroScore, priceStr) {
+      if (!canvas || finalScore == null) return;
+      const isDark = !document.documentElement.classList.contains('theme-light');
+      const dpr = window.devicePixelRatio || 1;
+
+      // Responsive sizing
+      const parentW = canvas.parentElement ? canvas.parentElement.clientWidth : 340;
+      const maxW = 340;
+      const W = Math.min(parentW > 0 ? parentW : maxW, maxW);
+      const scale = Math.max(W / maxW, 0.75);
+      const H = Math.round(195 * scale);
+
+      canvas.width = W * dpr;
+      canvas.height = H * dpr;
+      canvas.style.width = W + 'px';
+      canvas.style.height = H + 'px';
+
+      const ctx = canvas.getContext('2d');
+      ctx.save();
+      ctx.scale(dpr, dpr);
+
+      const cx = W / 2;
+      const cy = H - Math.round(20 * scale);
+
+      const arcWidth = Math.round(11 * scale);
+      const arcs = [
+        {
+          val: ocScore != null ? ocScore : 0,
+          r: Math.round(124 * scale),
+          color: '#00F2FE',
+          track: isDark ? 'rgba(0, 242, 254, 0.14)' : 'rgba(0, 200, 220, 0.16)',
+        },
+        {
+          val: techScore != null ? techScore : 0,
+          r: Math.round(104 * scale),
+          color: '#F7931A',
+          track: isDark ? 'rgba(247, 147, 26, 0.14)' : 'rgba(247, 147, 26, 0.16)',
+        },
+        {
+          val: macroScore != null ? macroScore : 0,
+          r: Math.round(84 * scale),
+          color: '#A855F7',
+          track: isDark ? 'rgba(168, 85, 247, 0.14)' : 'rgba(168, 85, 247, 0.16)',
+        }
+      ];
+
+      const toAngle = v => Math.PI + (Math.min(Math.max(v, 0), 100) / 100) * Math.PI;
+
+      // 1. Background Tracks (180° semicircle)
+      arcs.forEach(arc => {
+        ctx.beginPath();
+        ctx.arc(cx, cy, arc.r, Math.PI, 2 * Math.PI, false);
+        ctx.strokeStyle = arc.track;
+        ctx.lineWidth = arcWidth;
+        ctx.lineCap = 'round';
+        ctx.stroke();
+      });
+
+      // 2. Active Value Arcs
+      arcs.forEach(arc => {
+        if (arc.val > 0) {
+          const endAngle = toAngle(arc.val);
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(cx, cy, arc.r, Math.PI, endAngle, false);
+          ctx.strokeStyle = arc.color;
+          ctx.lineWidth = arcWidth;
+          ctx.lineCap = 'round';
+          if (isDark) {
+            ctx.shadowColor = arc.color;
+            ctx.shadowBlur = 8 * scale;
+          }
+          ctx.stroke();
+          ctx.restore();
+        }
+      });
+
+      // 3. Center Score & Details (NO REGIMES)
+      const scoreNum = Math.round(finalScore);
+      const textColor = isDark ? '#ffffff' : '#0f172a';
+      const muteColor = isDark ? '#8892a4' : '#64748b';
+
+      // Big Final Score Number
+      const scoreFontSize = Math.round(44 * scale);
+      ctx.font = `800 ${scoreFontSize}px 'Outfit', -apple-system, sans-serif`;
+      ctx.fillStyle = textColor;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      const numY = cy - Math.round(44 * scale);
+      ctx.fillText(String(scoreNum), cx, numY);
+
+      // Score Scale / Identity
+      const subFontSize = Math.round(11 * scale);
+      ctx.font = `700 ${subFontSize}px 'Outfit', -apple-system, sans-serif`;
+      ctx.fillStyle = muteColor;
+      ctx.fillText('/ 100', cx, cy - Math.round(20 * scale));
+
+      // BTC Price Context
+      if (priceStr) {
+        const priceFontSize = Math.round(11 * scale);
+        ctx.font = `600 ${priceFontSize}px 'Outfit', monospace`;
+        ctx.fillStyle = isDark ? '#64748b' : '#94a3b8';
+        ctx.fillText(priceStr, cx, cy - Math.round(4 * scale));
+      }
+
+      ctx.restore();
+    }
+
     // ── Modern Canvas Gauge ──────────────────────────────────────────────────
     // 5 zones (0→100): darkGray → gray → lightGray → lightOrange → orange
     // Fill: 0..value = bright zone colour; value..100 = uniform dim
@@ -2531,7 +2654,14 @@
         const ocWarn   = document.getElementById('oc-warn');
         const techWarn = document.getElementById('tech-warn');
         const tac = window._tacticalSignal || null;
-        drawModernGauge(document.getElementById('modern-gauge-canvas'),  v.final,     false, false, tac);
+        drawConcentricGauge(
+          document.getElementById('modern-gauge-canvas'),
+          v.final,
+          v.onchain,
+          v.tech,
+          v.macro,
+          v.price
+        );
         drawModernGauge(document.getElementById('zone-gauge-canvas'),    v.final,     false, false, null);
         drawModernGauge(document.getElementById('gauge-oc'),             v.onchain,   true,  ocWarn   && ocWarn.style.display   !== 'none');
         drawModernGauge(document.getElementById('gauge-tech'),           v.tech,      true,  techWarn && techWarn.style.display !== 'none', tac);
@@ -3059,39 +3189,61 @@
 
       // Update Modern Canvas Gauges
       if (finalVal != null) {
-        // Status label — matches track ticks (20/40/60/80)
-        let modernStatusEn = finalVal <= 20 ? 'Low Risk'
+        // Crawlable SEO score line (text, readable by search engines)
+        let seoStatusEn = finalVal <= 20 ? 'Low Risk'
           : finalVal <= 40 ? 'Accumulate'
           : finalVal <= 60 ? 'Neutral'
           : finalVal <= 80 ? 'Distribute' : 'High Risk';
-        let modernStatusUa = finalVal <= 20 ? 'Низький ризик'
+        let seoStatusUa = finalVal <= 20 ? 'Низький ризик'
           : finalVal <= 40 ? 'Накопичення'
           : finalVal <= 60 ? 'Нейтрально'
           : finalVal <= 80 ? 'Розподіл' : 'Високий ризик';
 
-        const mStatusEnEl = document.getElementById('modern-gauge-status-en');
-        const mStatusUaEl = document.getElementById('modern-gauge-status-ua');
-        if (mStatusEnEl) mStatusEnEl.textContent = modernStatusEn;
-        if (mStatusUaEl) mStatusUaEl.textContent = modernStatusUa;
-
-        // Crawlable SEO score line (text, readable by search engines)
         const seoScore   = document.getElementById('seo-score');
         const seoScoreUa = document.getElementById('seo-score-ua');
         const seoStEn    = document.getElementById('seo-status-en');
         const seoStUa    = document.getElementById('seo-status-ua');
         if (seoScore)   seoScore.textContent   = finalVal;
         if (seoScoreUa) seoScoreUa.textContent = finalVal;
-        if (seoStEn)    seoStEn.textContent    = modernStatusEn;
-        if (seoStUa)    seoStUa.textContent    = modernStatusUa;
+        if (seoStEn)    seoStEn.textContent    = seoStatusEn;
+        if (seoStUa)    seoStUa.textContent    = seoStatusUa;
 
         const mBadgeEl = document.getElementById('modern-gauge-badge');
         if (mBadgeEl) mBadgeEl.textContent = finalVal + ' / 100';
+
+        // Compute Macro subscore from macro indicators (M2, Yield Curve, ETF Flows, DXY)
+        let macroVal = data.macro_score != null ? data.macro_score : null;
+        if (macroVal == null && data.v3_normalized_scores) {
+          const m = data.v3_normalized_scores;
+          const macroKeys = ['m2_yoy', 'yield_curve_spread', 'etf_flows', 'dxy'];
+          let sum = 0, count = 0;
+          macroKeys.forEach(k => {
+            if (m[k] != null && !isNaN(m[k])) {
+              sum += Number(m[k]);
+              count++;
+            }
+          });
+          if (count > 0) macroVal = Math.round(sum / count);
+        }
+        if (macroVal == null) macroVal = 54;
+
+        // Update Concentric Arcs Legend
+        const arcOcEl = document.getElementById('arc-val-oc');
+        const arcTechEl = document.getElementById('arc-val-tech');
+        const arcMacroEl = document.getElementById('arc-val-macro');
+        if (arcOcEl) arcOcEl.textContent = data.onchain_score != null ? data.onchain_score : '—';
+        if (arcTechEl) arcTechEl.textContent = data.tech_score != null ? data.tech_score : '—';
+        if (arcMacroEl) arcMacroEl.textContent = macroVal != null ? macroVal : '—';
+
+        const formattedPrice = data.btc_price ? '$' + Math.round(data.btc_price).toLocaleString('en-US') : '';
 
         // Store values and draw all canvas gauges
         window._gaugeValues = {
           final:     finalVal,
           onchain:   data.onchain_score,
           tech:      data.tech_score,
+          macro:     macroVal,
+          price:     formattedPrice,
           yesterday: yesterdayScore,
           week:      (avg7d != null) ? avg7d : (data.prev_week ? data.prev_week.final_score : null),
         };
