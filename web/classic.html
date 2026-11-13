@@ -160,6 +160,16 @@
   .gauge-card { display: flex; flex-direction: column; align-items: stretch; justify-content: space-between; padding: 24px 28px 20px; }
   .gauge-arc-wrap { position: relative; width: 100%; }
   .gauge-svg { display: block; width: 100%; overflow: visible; }
+  .gauge-svg path { stroke-width: 8px; }
+  .gauge-svg circle { stroke-width: 2.5px; }
+
+  /* Mini gauge arc thickness adaptations */
+  .mini-gauges-col .mini-gauge-svg path { stroke-width: 5px; }
+  .mini-gauges-col .mini-gauge-svg circle { stroke-width: 1.8px; }
+
+  .sub-basket-card .mini-gauge-svg path { stroke-width: 3.8px; }
+  .sub-basket-card .mini-gauge-svg circle { stroke-width: 1.4px; }
+  .sub-basket-card .gauge-bar { height: 3.5px; }
   .gauge-arc-number { position: absolute; top: 58%; left: 0; right: 0; display: flex; justify-content: center; align-items: center; transform: translateY(-50%); }
   .gauge-val { font-size: 80px; font-weight: 700; letter-spacing: -0.04em; line-height: 1; }
   .gauge-denom { font-size: 20px; color: var(--muted); font-weight: 400; }
@@ -567,6 +577,12 @@
     .gauge-val {
       font-size: 56px;
     }
+    .gauge-svg path {
+      stroke-width: 7px;
+    }
+    .gauge-svg circle {
+      stroke-width: 2.2px;
+    }
     .gauge-tags {
       margin-top: 10px;
       gap: 4px;
@@ -610,6 +626,13 @@
       height: auto;
       min-width: 0;
     }
+    .sub-basket-card .mini-gauge-svg path {
+      stroke-width: 2.6px;
+    }
+    .sub-basket-card .mini-gauge-svg circle {
+      stroke-width: 1.1px;
+      r: 2.8px;
+    }
     .sub-basket-card .mini-gauge-val {
       font-size: 20px;
     }
@@ -619,7 +642,7 @@
       min-width: 0;
     }
     .sub-basket-card .gauge-bar {
-      height: 3px;
+      height: 2.5px;
       min-width: 0;
     }
     .sub-basket-card .gauge-bar-ticks {
@@ -652,12 +675,22 @@
       overflow: hidden;
       box-sizing: border-box;
     }
+    .mini-gauges-col .mini-gauge-svg path {
+      stroke-width: 4.5px;
+    }
+    .mini-gauges-col .mini-gauge-svg circle {
+      stroke-width: 1.6px;
+      r: 4px;
+    }
     .mini-gauges-col .mini-gauge-val {
       font-size: 28px;
     }
     .mini-gauges-col .gauge-scale {
       padding: 0 4%;
       gap: 4px;
+    }
+    .mini-gauges-col .gauge-bar {
+      height: 4px;
     }
     .mini-gauges-col .gauge-labels {
       font-size: 8px;
@@ -803,10 +836,10 @@
                 <stop offset="100%" stop-color="#EF4444"/>
               </linearGradient>
             </defs>
-            <path d="M 20 120 A 100 100 0 0 1 220 120" stroke="var(--surface2)" stroke-width="6" stroke-linecap="round" fill="none" vector-effect="non-scaling-stroke"/>
-            <path d="M 20 120 A 100 100 0 0 1 220 120" stroke="url(#arcGradOC)" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.18" vector-effect="non-scaling-stroke"/>
-            <path id="sub-arc-oc" d="" stroke="#22C55E" stroke-width="6" stroke-linecap="round" fill="none" vector-effect="non-scaling-stroke"/>
-            <circle id="sub-needle-oc" cx="20" cy="120" r="5" fill="var(--bg)" stroke="#22C55E" stroke-width="2" vector-effect="non-scaling-stroke"/>
+            <path d="M 20 120 A 100 100 0 0 1 220 120" stroke="var(--surface2)" stroke-width="3.8" stroke-linecap="round" fill="none" vector-effect="non-scaling-stroke"/>
+            <path d="M 20 120 A 100 100 0 0 1 220 120" stroke="url(#arcGradOC)" stroke-width="3.8" stroke-linecap="round" fill="none" opacity="0.18" vector-effect="non-scaling-stroke"/>
+            <path id="sub-arc-oc" d="" stroke="#22C55E" stroke-width="3.8" stroke-linecap="round" fill="none" vector-effect="non-scaling-stroke"/>
+            <circle id="sub-needle-oc" cx="20" cy="120" r="3.5" fill="var(--bg)" stroke="#22C55E" stroke-width="1.4" vector-effect="non-scaling-stroke"/>
           </svg>
           <div class="mini-gauge-arc-number">
             <span class="mini-gauge-val" id="sub-val-oc" style="color:#22C55E">—</span>
@@ -837,10 +870,10 @@
                 <stop offset="100%" stop-color="#EF4444"/>
               </linearGradient>
             </defs>
-            <path d="M 20 120 A 100 100 0 0 1 220 120" stroke="var(--surface2)" stroke-width="6" stroke-linecap="round" fill="none" vector-effect="non-scaling-stroke"/>
-            <path d="M 20 120 A 100 100 0 0 1 220 120" stroke="url(#arcGradTech)" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.18" vector-effect="non-scaling-stroke"/>
-            <path id="sub-arc-tech" d="" stroke="#22C55E" stroke-width="6" stroke-linecap="round" fill="none" vector-effect="non-scaling-stroke"/>
-            <circle id="sub-needle-tech" cx="20" cy="120" r="5" fill="var(--bg)" stroke="#22C55E" stroke-width="2" vector-effect="non-scaling-stroke"/>
+            <path d="M 20 120 A 100 100 0 0 1 220 120" stroke="var(--surface2)" stroke-width="3.8" stroke-linecap="round" fill="none" vector-effect="non-scaling-stroke"/>
+            <path d="M 20 120 A 100 100 0 0 1 220 120" stroke="url(#arcGradTech)" stroke-width="3.8" stroke-linecap="round" fill="none" opacity="0.18" vector-effect="non-scaling-stroke"/>
+            <path id="sub-arc-tech" d="" stroke="#22C55E" stroke-width="3.8" stroke-linecap="round" fill="none" vector-effect="non-scaling-stroke"/>
+            <circle id="sub-needle-tech" cx="20" cy="120" r="3.5" fill="var(--bg)" stroke="#22C55E" stroke-width="1.4" vector-effect="non-scaling-stroke"/>
           </svg>
           <div class="mini-gauge-arc-number">
             <span class="mini-gauge-val" id="sub-val-tech" style="color:#22C55E">—</span>
@@ -871,10 +904,10 @@
                 <stop offset="100%" stop-color="#EF4444"/>
               </linearGradient>
             </defs>
-            <path d="M 20 120 A 100 100 0 0 1 220 120" stroke="var(--surface2)" stroke-width="6" stroke-linecap="round" fill="none" vector-effect="non-scaling-stroke"/>
-            <path d="M 20 120 A 100 100 0 0 1 220 120" stroke="url(#arcGradMacro)" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.18" vector-effect="non-scaling-stroke"/>
-            <path id="sub-arc-macro" d="" stroke="#22C55E" stroke-width="6" stroke-linecap="round" fill="none" vector-effect="non-scaling-stroke"/>
-            <circle id="sub-needle-macro" cx="20" cy="120" r="5" fill="var(--bg)" stroke="#22C55E" stroke-width="2" vector-effect="non-scaling-stroke"/>
+            <path d="M 20 120 A 100 100 0 0 1 220 120" stroke="var(--surface2)" stroke-width="3.8" stroke-linecap="round" fill="none" vector-effect="non-scaling-stroke"/>
+            <path d="M 20 120 A 100 100 0 0 1 220 120" stroke="url(#arcGradMacro)" stroke-width="3.8" stroke-linecap="round" fill="none" opacity="0.18" vector-effect="non-scaling-stroke"/>
+            <path id="sub-arc-macro" d="" stroke="#22C55E" stroke-width="3.8" stroke-linecap="round" fill="none" vector-effect="non-scaling-stroke"/>
+            <circle id="sub-needle-macro" cx="20" cy="120" r="3.5" fill="var(--bg)" stroke="#22C55E" stroke-width="1.4" vector-effect="non-scaling-stroke"/>
           </svg>
           <div class="mini-gauge-arc-number">
             <span class="mini-gauge-val" id="sub-val-macro" style="color:#22C55E">—</span>
@@ -925,13 +958,13 @@
                 </linearGradient>
               </defs>
               <!-- Track -->
-              <path d="M 20 120 A 100 100 0 0 1 220 120" stroke="var(--surface2)" stroke-width="6" stroke-linecap="round" fill="none" vector-effect="non-scaling-stroke"/>
+              <path d="M 20 120 A 100 100 0 0 1 220 120" stroke="var(--surface2)" stroke-width="8" stroke-linecap="round" fill="none" vector-effect="non-scaling-stroke"/>
               <!-- Faint gradient track -->
-              <path d="M 20 120 A 100 100 0 0 1 220 120" stroke="url(#arcGrad)" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.18" vector-effect="non-scaling-stroke"/>
+              <path d="M 20 120 A 100 100 0 0 1 220 120" stroke="url(#arcGrad)" stroke-width="8" stroke-linecap="round" fill="none" opacity="0.18" vector-effect="non-scaling-stroke"/>
               <!-- Active arc -->
-              <path id="gauge-arc" d="" stroke="#22C55E" stroke-width="6" stroke-linecap="round" fill="none" vector-effect="non-scaling-stroke"/>
+              <path id="gauge-arc" d="" stroke="#22C55E" stroke-width="8" stroke-linecap="round" fill="none" vector-effect="non-scaling-stroke"/>
               <!-- Needle dot -->
-              <circle id="gauge-needle" cx="20" cy="120" r="5" fill="var(--bg)" stroke="#22C55E" stroke-width="2" vector-effect="non-scaling-stroke"/>
+              <circle id="gauge-needle" cx="20" cy="120" r="6" fill="var(--bg)" stroke="#22C55E" stroke-width="2.5" vector-effect="non-scaling-stroke"/>
             </svg>
             <div class="gauge-arc-number">
               <span class="gauge-val" id="gauge-val">—</span>
@@ -1127,10 +1160,10 @@
                 <stop offset="100%" stop-color="#EF4444"/>
               </linearGradient>
             </defs>
-            <path d="M 20 120 A 100 100 0 0 1 220 120" stroke="var(--surface2)" stroke-width="6" stroke-linecap="round" fill="none" vector-effect="non-scaling-stroke"/>
-            <path d="M 20 120 A 100 100 0 0 1 220 120" stroke="url(#arcGrad1d)" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.18" vector-effect="non-scaling-stroke"/>
-            <path id="mini-arc-1d" d="" stroke="#22C55E" stroke-width="6" stroke-linecap="round" fill="none" vector-effect="non-scaling-stroke"/>
-            <circle id="mini-needle-1d" cx="20" cy="120" r="5" fill="var(--bg)" stroke="#22C55E" stroke-width="2" vector-effect="non-scaling-stroke"/>
+            <path d="M 20 120 A 100 100 0 0 1 220 120" stroke="var(--surface2)" stroke-width="5" stroke-linecap="round" fill="none" vector-effect="non-scaling-stroke"/>
+            <path d="M 20 120 A 100 100 0 0 1 220 120" stroke="url(#arcGrad1d)" stroke-width="5" stroke-linecap="round" fill="none" opacity="0.18" vector-effect="non-scaling-stroke"/>
+            <path id="mini-arc-1d" d="" stroke="#22C55E" stroke-width="5" stroke-linecap="round" fill="none" vector-effect="non-scaling-stroke"/>
+            <circle id="mini-needle-1d" cx="20" cy="120" r="4.5" fill="var(--bg)" stroke="#22C55E" stroke-width="1.8" vector-effect="non-scaling-stroke"/>
           </svg>
           <div class="mini-gauge-arc-number">
             <span class="mini-gauge-val" id="mini-val-1d" style="color:#22C55E">—</span>
@@ -1160,10 +1193,10 @@
                 <stop offset="100%" stop-color="#EF4444"/>
               </linearGradient>
             </defs>
-            <path d="M 20 120 A 100 100 0 0 1 220 120" stroke="var(--surface2)" stroke-width="6" stroke-linecap="round" fill="none" vector-effect="non-scaling-stroke"/>
-            <path d="M 20 120 A 100 100 0 0 1 220 120" stroke="url(#arcGrad7d)" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.18" vector-effect="non-scaling-stroke"/>
-            <path id="mini-arc-7d" d="" stroke="#22C55E" stroke-width="6" stroke-linecap="round" fill="none" vector-effect="non-scaling-stroke"/>
-            <circle id="mini-needle-7d" cx="20" cy="120" r="5" fill="var(--bg)" stroke="#22C55E" stroke-width="2" vector-effect="non-scaling-stroke"/>
+            <path d="M 20 120 A 100 100 0 0 1 220 120" stroke="var(--surface2)" stroke-width="5" stroke-linecap="round" fill="none" vector-effect="non-scaling-stroke"/>
+            <path d="M 20 120 A 100 100 0 0 1 220 120" stroke="url(#arcGrad7d)" stroke-width="5" stroke-linecap="round" fill="none" opacity="0.18" vector-effect="non-scaling-stroke"/>
+            <path id="mini-arc-7d" d="" stroke="#22C55E" stroke-width="5" stroke-linecap="round" fill="none" vector-effect="non-scaling-stroke"/>
+            <circle id="mini-needle-7d" cx="20" cy="120" r="4.5" fill="var(--bg)" stroke="#22C55E" stroke-width="1.8" vector-effect="non-scaling-stroke"/>
           </svg>
           <div class="mini-gauge-arc-number">
             <span class="mini-gauge-val" id="mini-val-7d" style="color:#22C55E">—</span>
