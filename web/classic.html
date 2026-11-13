@@ -92,7 +92,7 @@
 
   main { max-width: 1200px; margin: 0 auto; padding: 32px 32px 64px; flex: 1; width: 100%; }
 
-  .hero { display: grid; grid-template-columns: 260px 1fr 260px; gap: 20px; margin-bottom: 24px; }
+  .hero { display: grid; grid-template-columns: 260px 1fr 260px; gap: 20px; margin-bottom: 24px; align-items: stretch; }
   .mini-gauges-col { display: flex; flex-direction: column; gap: 12px; }
   .mini-gauge-card { display: flex; flex-direction: column; padding: 14px 16px 10px; flex: 1; }
   .mini-gauge-title { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted2); margin-bottom: 4px; }
@@ -100,6 +100,12 @@
   .mini-gauge-svg { display: block; width: 100%; overflow: visible; }
   .mini-gauge-arc-number { position: absolute; top: 56%; left: 0; right: 0; display: flex; justify-content: center; align-items: center; transform: translateY(-50%); }
   .mini-gauge-val { font-size: 38px; font-weight: 700; letter-spacing: -0.03em; line-height: 1; }
+
+  /* Sub-baskets column */
+  .sub-baskets-col { display: flex; flex-direction: column; gap: 10px; height: 100%; }
+  .sub-basket-card { display: flex; flex-direction: column; padding: 10px 14px 8px; flex: 1; justify-content: space-between; }
+  .sub-basket-card .mini-gauge-val { font-size: 30px; }
+  .sub-basket-card .gauge-scale { padding: 0 4%; gap: 4px; }
 
   .card {
     background: var(--surface);
@@ -489,8 +495,10 @@
     .nav-links { display: none; }
     .nav-right .view-switch { display: none; }
     .hero { grid-template-columns: 1fr; }
-    .gauge-card-container { height: 320px !important; }
-    .score-card-container { height: 430px !important; }
+    .gauge-card-container { height: auto !important; min-height: 320px; }
+    .sub-baskets-col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; height: auto; }
+    .sub-basket-card { padding: 10px 10px 8px; }
+    .sub-basket-card .mini-gauge-val { font-size: 26px; }
     .bottom-grid { grid-template-columns: 1fr; }
     .signals-container { grid-template-columns: 1fr; gap: 16px; }
     .comp-header, .comp-row { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) auto; gap: 8px; }
@@ -513,6 +521,15 @@
     .menu-toggle-btn { display: flex; }
     footer { flex-direction: column; align-items: flex-start; gap: 20px; }
     .footer-links { flex-direction: column; gap: 12px; align-items: flex-start; width: 100%; }
+  }
+
+  @media (max-width: 540px) {
+    .sub-baskets-col { gap: 6px; }
+    .sub-basket-card { padding: 8px 6px 6px; }
+    .sub-basket-card .mini-gauge-title { font-size: 9px; letter-spacing: 0.04em; }
+    .sub-basket-card .mini-gauge-val { font-size: 22px; }
+    .sub-basket-card .gauge-labels { font-size: 8px; }
+    .sub-basket-card .gauge-bar-ticks { font-size: 8px; }
   }
 
   @media (max-width: 400px) {
@@ -611,65 +628,111 @@
   <!-- HERO -->
   <div class="hero">
 
-    <!-- Score card -->
-    <div class="score-card-container">
-      <div class="score-card-inner" onclick="this.classList.toggle('flipped')">
-        
-        <!-- FRONT SIDE (Score Card) -->
-        <div class="card score-card score-card-front" style="backface-visibility: hidden; -webkit-backface-visibility: hidden; width: 100%; height: 100%; position: absolute; top:0; left:0; display:flex; flex-direction:column; justify-content:space-between; padding: 22px 24px; box-sizing: border-box; margin:0;">
-          <div class="score-label" style="display:flex;align-items:center;gap:6px;">BTCBRI <span class="en">SCORE</span><span class="ua">ІНДЕКС</span><span style="font-size:9px;font-weight:600;letter-spacing:0.06em;color:#64748B;text-transform:lowercase;">v0.4</span><span id="health-indicator" style="width:7px;height:7px;border-radius:50%;background:#22C55E;flex-shrink:0;margin-left:2px;"></span></div>
-          <div>
-            <div class="score-number" id="score-number"><span class="score-val">—</span><span class="score-denom">/100</span></div>
-            <div class="score-zone" id="score-zone"></div>
-            <div id="data-quality-bar" style="display:none;font-size:10px;color:var(--muted);margin-top:3px;opacity:0.85;"></div>
-            <div class="score-desc" id="score-desc" style="display:none"></div>
-            <div class="score-hint" id="score-hint">
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/><circle cx="7" cy="4.5" r="0.75" fill="currentColor"/><line x1="7" y1="6.5" x2="7" y2="10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-              <span id="hint-text"></span>
-            </div>
-          </div>
-          <div class="status-bar">
-            <div class="status-row">
-              <span><span class="en">Price</span><span class="ua">Ціна</span></span>
-              <span class="status-val" id="market-price">—</span>
-            </div>
-            <div class="status-row">
-              <span><span class="en">Updated</span><span class="ua">Оновлено</span></span>
-              <span class="status-val" id="market-updated">—</span>
-            </div>
-            <div class="status-row">
-              <span><span class="en">Next in</span><span class="ua">Наступне за</span></span>
-              <span class="status-val status-countdown" id="market-next">—:—</span>
-            </div>
-          </div>
-          <div style="font-size: 8px; color: var(--muted2); text-align: center; margin-top: 8px; opacity: 0.8;"><span class="en">Click to see zone price levels</span><span class="ua">Натисніть для перегляду рівнів зон</span></div>
-        </div>
+    <!-- Backward compatibility hidden container -->
+    <div style="display:none;" id="score-card-compat"><span id="market-price"></span><span id="score-number"></span><span id="score-zone"></span><span id="zone-sell"></span><span id="zone-buy"></span><span id="health-indicator"></span><span id="hint-text"></span><span id="score-desc"></span></div>
 
-        <!-- BACK SIDE (Zone Price Levels) -->
-        <div class="card score-card-back" style="backface-visibility: hidden; -webkit-backface-visibility: hidden; transform: rotateY(180deg); width: 100%; height: 100%; position: absolute; top:0; left:0; display:flex; flex-direction:column; justify-content:space-between; padding: 22px 24px; box-sizing: border-box; margin:0;">
-          <div class="zone-title" style="display:flex; justify-content:space-between; align-items:center; width:100%;">
-            <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted);"><span class="en">Zone Price Levels</span><span class="ua">Цінові рівні зон</span></span>
-            <span style="font-size:8px; font-weight:700; color:var(--accent); display:flex; align-items:center; gap:4px; padding: 2px 6px; border-radius: 4px; background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.2);">
-              <span class="en">BACK</span><span class="ua">НАЗАД</span>
-            </span>
-          </div>
-          <div class="zone-desc" style="font-size: 11px; color: var(--muted); line-height: 1.4; margin-top: 6px;"><span class="en">Holding today's on-chain cost basis fixed, this solves for the price at which the score would reach each zone.</span><span class="ua">Тримаючи сьогоднішню ончейн-собівартість незмінною, формула розв'язується щодо ціни, за якої бал дійшов би до кожної зони.</span></div>
-          <div class="zone-rows" style="margin: 12px 0;">
-            <div class="zone-row" style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-              <div class="zone-row-left" style="display: flex; align-items: center; gap: 8px;"><div class="zone-dot" style="background:#EF4444; width: 8px; height: 8px; border-radius: 50%;"></div><span class="en">Sell Zone (≥<span class="zt-sell">80</span>)</span><span class="ua">Продаж (≥<span class="zt-sell">80</span>)</span></div>
-              <span class="zone-price" id="zone-sell" style="font-weight: 700;">—</span>
-            </div>
-            <div class="zone-row" style="display: flex; justify-content: space-between;">
-              <div class="zone-row-left" style="display: flex; align-items: center; gap: 8px;"><div class="zone-dot" style="background:#22C55E; width: 8px; height: 8px; border-radius: 50%;"></div><span class="en">Buy Zone (≤<span class="zt-buy">20</span>)</span><span class="ua">Купівля (≤<span class="zt-buy">20</span>)</span></div>
-              <span class="zone-price" id="zone-buy" style="font-weight: 700;">—</span>
-            </div>
-          </div>
-          <div class="zone-note" style="font-size: 10px; color: var(--muted2); border-top: 1px solid var(--border); padding-top: 6px; margin-top: auto; display: flex; flex-direction: column; gap: 4px;">
-            <div><span class="en">Levels update daily based on current market conditions.</span><span class="ua">Рівні оновлюються щодня відповідно до ринкових умов.</span></div>
-            <div style="font-size: 8px; color: var(--accent); text-align: center; margin-top: 2px; opacity: 0.8;"><span class="en">Click anywhere to flip back</span><span class="ua">Натисніть для повернення</span></div>
+    <!-- Sub-baskets column: On-Chain, Technical, Macro -->
+    <div class="sub-baskets-col">
+      <!-- On-Chain -->
+      <div class="card mini-gauge-card sub-basket-card">
+        <div class="mini-gauge-title"><span class="en">ON-CHAIN</span><span class="ua">ОНЧЕЙН</span></div>
+        <div class="mini-gauge-arc-wrap">
+          <svg class="mini-gauge-svg" viewBox="0 0 240 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="arcGradOC" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%"   stop-color="#22C55E"/>
+                <stop offset="33%"  stop-color="#EAB308"/>
+                <stop offset="66%"  stop-color="#F97316"/>
+                <stop offset="100%" stop-color="#EF4444"/>
+              </linearGradient>
+            </defs>
+            <path d="M 20 120 A 100 100 0 0 1 220 120" stroke="var(--surface2)" stroke-width="6" stroke-linecap="round" fill="none" vector-effect="non-scaling-stroke"/>
+            <path d="M 20 120 A 100 100 0 0 1 220 120" stroke="url(#arcGradOC)" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.18" vector-effect="non-scaling-stroke"/>
+            <path id="sub-arc-oc" d="" stroke="#22C55E" stroke-width="6" stroke-linecap="round" fill="none" vector-effect="non-scaling-stroke"/>
+            <circle id="sub-needle-oc" cx="20" cy="120" r="5" fill="var(--bg)" stroke="#22C55E" stroke-width="2" vector-effect="non-scaling-stroke"/>
+          </svg>
+          <div class="mini-gauge-arc-number">
+            <span class="mini-gauge-val" id="sub-val-oc" style="color:#22C55E">—</span>
           </div>
         </div>
+        <div class="gauge-scale">
+          <div class="gauge-bar"></div>
+          <div class="gauge-bar-ticks"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
+          <div class="gauge-labels">
+            <span class="gl-1"><span class="en">V.LOW</span><span class="ua">МІН.</span></span>
+            <span class="gl-2"><span class="en">MODER.</span><span class="ua">ПОМІР.</span></span>
+            <span class="gl-3"><span class="en">HIGH</span><span class="ua">ЗНАЧН.</span></span>
+            <span class="gl-4"><span class="en">V.HIGH</span><span class="ua">НАДМ.</span></span>
+          </div>
+        </div>
+      </div>
 
+      <!-- Technical -->
+      <div class="card mini-gauge-card sub-basket-card">
+        <div class="mini-gauge-title"><span class="en">TECHNICAL</span><span class="ua">ТЕХНІЧНИЙ</span></div>
+        <div class="mini-gauge-arc-wrap">
+          <svg class="mini-gauge-svg" viewBox="0 0 240 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="arcGradTech" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%"   stop-color="#22C55E"/>
+                <stop offset="33%"  stop-color="#EAB308"/>
+                <stop offset="66%"  stop-color="#F97316"/>
+                <stop offset="100%" stop-color="#EF4444"/>
+              </linearGradient>
+            </defs>
+            <path d="M 20 120 A 100 100 0 0 1 220 120" stroke="var(--surface2)" stroke-width="6" stroke-linecap="round" fill="none" vector-effect="non-scaling-stroke"/>
+            <path d="M 20 120 A 100 100 0 0 1 220 120" stroke="url(#arcGradTech)" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.18" vector-effect="non-scaling-stroke"/>
+            <path id="sub-arc-tech" d="" stroke="#22C55E" stroke-width="6" stroke-linecap="round" fill="none" vector-effect="non-scaling-stroke"/>
+            <circle id="sub-needle-tech" cx="20" cy="120" r="5" fill="var(--bg)" stroke="#22C55E" stroke-width="2" vector-effect="non-scaling-stroke"/>
+          </svg>
+          <div class="mini-gauge-arc-number">
+            <span class="mini-gauge-val" id="sub-val-tech" style="color:#22C55E">—</span>
+          </div>
+        </div>
+        <div class="gauge-scale">
+          <div class="gauge-bar"></div>
+          <div class="gauge-bar-ticks"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
+          <div class="gauge-labels">
+            <span class="gl-1"><span class="en">V.LOW</span><span class="ua">МІН.</span></span>
+            <span class="gl-2"><span class="en">MODER.</span><span class="ua">ПОМІР.</span></span>
+            <span class="gl-3"><span class="en">HIGH</span><span class="ua">ЗНАЧН.</span></span>
+            <span class="gl-4"><span class="en">V.HIGH</span><span class="ua">НАДМ.</span></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Macro -->
+      <div class="card mini-gauge-card sub-basket-card">
+        <div class="mini-gauge-title"><span class="en">MACRO</span><span class="ua">МАКРО</span></div>
+        <div class="mini-gauge-arc-wrap">
+          <svg class="mini-gauge-svg" viewBox="0 0 240 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="arcGradMacro" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%"   stop-color="#22C55E"/>
+                <stop offset="33%"  stop-color="#EAB308"/>
+                <stop offset="66%"  stop-color="#F97316"/>
+                <stop offset="100%" stop-color="#EF4444"/>
+              </linearGradient>
+            </defs>
+            <path d="M 20 120 A 100 100 0 0 1 220 120" stroke="var(--surface2)" stroke-width="6" stroke-linecap="round" fill="none" vector-effect="non-scaling-stroke"/>
+            <path d="M 20 120 A 100 100 0 0 1 220 120" stroke="url(#arcGradMacro)" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.18" vector-effect="non-scaling-stroke"/>
+            <path id="sub-arc-macro" d="" stroke="#22C55E" stroke-width="6" stroke-linecap="round" fill="none" vector-effect="non-scaling-stroke"/>
+            <circle id="sub-needle-macro" cx="20" cy="120" r="5" fill="var(--bg)" stroke="#22C55E" stroke-width="2" vector-effect="non-scaling-stroke"/>
+          </svg>
+          <div class="mini-gauge-arc-number">
+            <span class="mini-gauge-val" id="sub-val-macro" style="color:#22C55E">—</span>
+          </div>
+        </div>
+        <div class="gauge-scale">
+          <div class="gauge-bar"></div>
+          <div class="gauge-bar-ticks"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
+          <div class="gauge-labels">
+            <span class="gl-1"><span class="en">V.LOW</span><span class="ua">МІН.</span></span>
+            <span class="gl-2"><span class="en">MODER.</span><span class="ua">ПОМІР.</span></span>
+            <span class="gl-3"><span class="en">HIGH</span><span class="ua">ЗНАЧН.</span></span>
+            <span class="gl-4"><span class="en">V.HIGH</span><span class="ua">НАДМ.</span></span>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -678,13 +741,21 @@
       <div class="gauge-card-inner" id="gauge-card-inner" onclick="this.classList.toggle('flipped')" style="transform-style: preserve-3d; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); width: 100%; height: 100%; position: relative; cursor: pointer;">
         
         <!-- FRONT SIDE (Gauge Card) -->
-        <div class="card gauge-card gauge-card-front" style="backface-visibility: hidden; -webkit-backface-visibility: hidden; width: 100%; height: 100%; position: absolute; top:0; left:0; display:flex; flex-direction:column; padding: 22px 24px; box-sizing: border-box; margin:0;">
-          <div style="display:flex; justify-content:space-between; align-items:center; width:100%; margin-bottom:2px;">
-            <div style="font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted2);"><span class="en">TODAY</span><span class="ua">СЬОГОДНІ</span></div>
-            <span style="display:flex;align-items:center;gap:5px;">
-              <span style="font-size:8px;font-weight:700;letter-spacing:0.06em;color:#22C55E;text-transform:uppercase;opacity:0.9;">LIVE</span>
-              <span id="live-price" style="font-size:12px;font-weight:600;color:var(--text);letter-spacing:0.01em;font-variant-numeric:tabular-nums;opacity:0.85;">—</span>
-            </span>
+        <div class="card gauge-card gauge-card-front" style="backface-visibility: hidden; -webkit-backface-visibility: hidden; width: 100%; height: 100%; position: absolute; top:0; left:0; display:flex; flex-direction:column; padding: 22px 24px; box-sizing: border-box; margin:0; justify-content:space-between;">
+          <div style="display:flex; justify-content:space-between; align-items:center; width:100%; margin-bottom: 6px; flex-wrap: wrap; gap: 8px;">
+            <div style="display:flex; align-items:center; gap: 8px;">
+              <span style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted2);"><span class="en">TODAY</span><span class="ua">СЬОГОДНІ</span></span>
+              <span style="display:inline-flex; align-items:center; gap:4px; background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.25); padding: 2px 7px; border-radius: 999px;">
+                <span style="width:5px; height:5px; border-radius:50%; background:#22C55E;"></span>
+                <span style="font-size:9px;font-weight:700;letter-spacing:0.06em;color:#22C55E;text-transform:uppercase;">LIVE</span>
+                <span id="live-price" style="font-size:11px;font-weight:700;color:var(--text);font-variant-numeric:tabular-nums;margin-left:2px;">—</span>
+              </span>
+            </div>
+            <div style="display:flex; align-items:center; gap: 8px; font-size: 10px; color: var(--muted2); font-variant-numeric: tabular-nums;">
+              <div><span class="en">Updated:</span><span class="ua">Оновлено:</span> <span id="market-updated" style="color:var(--text); font-weight:600;">—</span></div>
+              <div style="opacity:0.4;">|</div>
+              <div><span class="en">Next:</span><span class="ua">Наступне:</span> <span id="market-next" class="status-countdown" style="color:var(--text); font-weight:600;">—:—</span></div>
+            </div>
           </div>
           <div class="gauge-arc-wrap">
             <svg class="gauge-svg" viewBox="0 0 240 130" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -849,10 +920,10 @@
                 <text x="23" y="14"   fill="#6B7280" font-size="3.5" font-family="sans-serif" text-anchor="middle">√(Pos × Out)</text>
                 <text id="pipe-comp-val" x="23" y="23" fill="#FDE68A" font-size="8.5" font-family="sans-serif" font-weight="900" text-anchor="middle">—</text>
               </g>
-              <!-- REGIME output circle -->
+              <!-- BRI SCORE output circle -->
               <g transform="translate(303,47)">
                 <circle id="pipe-regime-circle" cx="22" cy="22" r="22" fill="#0C0A15" stroke="#10B981" stroke-width="1.8" filter="drop-shadow(0 0 6px rgba(16,185,129,.5))"/>
-                <text x="22" y="12" fill="#9CA3AF" font-size="4.5" font-family="monospace" font-weight="bold" text-anchor="middle">REGIME</text>
+                <text x="22" y="12" fill="#9CA3AF" font-size="4.2" font-family="monospace" font-weight="bold" text-anchor="middle">BRI SCORE</text>
                 <text id="pipe-regime-val" x="22" y="24" fill="#34D399" font-size="8" font-family="sans-serif" font-weight="900" text-anchor="middle">—</text>
                 <!-- backward compat hidden elements -->
                 <text class="zone-indicator" x="22" y="35" fill="transparent" font-size="0" text-anchor="middle"></text>
@@ -965,8 +1036,8 @@
   </div>
   <!-- SIGNALS CONTAINER -->
   <div class="signals-container">
-    <!-- SIGNAL BLOCK -->
-    <div class="flip-card-wrap" id="signal-block" style="display:none">
+    <!-- SIGNAL BLOCK (Market Regime hidden per design) -->
+    <div class="flip-card-wrap" id="signal-block" style="display:none !important">
       <div class="flip-card-inner" onclick="this.classList.toggle('flipped')">
         <!-- Front -->
         <div class="card signal-block flip-card-front" style="display: flex; flex-direction: column;">
@@ -2108,6 +2179,8 @@ async function loadData() {
   // BTC price + 7D change
   if (data.btc_price) {
     set('market-price', fmtPrice(data.btc_price));
+    const lp = document.getElementById('live-price');
+    if (lp && (lp.textContent === '—' || !lp.textContent)) lp.textContent = fmtPrice(data.btc_price);
   }
 
   const prev1d = data.prev_day?.final_score ?? null;
@@ -2118,6 +2191,28 @@ async function loadData() {
 
   updateMiniGauge('mini-arc-1d', 'mini-needle-1d', 'mini-val-1d', prev1d);
   updateMiniGauge('mini-arc-7d', 'mini-needle-7d', 'mini-val-7d', prev7d);
+
+  // Sub-baskets: On-Chain, Technical, Macro
+  let ocVal = data.onchain_score ?? data.v3_onchain_score ?? null;
+  let techVal = data.tech_score ?? data.v3_tech_score ?? null;
+  let macroVal = data.macro_score ?? null;
+  if (macroVal == null && data.v3_normalized_scores) {
+    const mNorm = data.v3_normalized_scores;
+    const macroKeys = ['m2_yoy', 'yield_curve_spread', 'etf_flows', 'dxy'];
+    let sum = 0, count = 0;
+    macroKeys.forEach(k => {
+      if (mNorm[k] != null && !isNaN(mNorm[k])) {
+        sum += Number(mNorm[k]);
+        count++;
+      }
+    });
+    if (count > 0) macroVal = Math.round(sum / count);
+  }
+  if (macroVal == null) macroVal = 54;
+
+  updateMiniGauge('sub-arc-oc', 'sub-needle-oc', 'sub-val-oc', ocVal);
+  updateMiniGauge('sub-arc-tech', 'sub-needle-tech', 'sub-val-tech', techVal);
+  updateMiniGauge('sub-arc-macro', 'sub-needle-macro', 'sub-val-macro', macroVal);
 
   const fg7d = m.fear_greed ? (m.fear_greed.avg_7d ?? m.fear_greed.latest) : data.fear_greed;
   if (data.timestamp) {
@@ -2265,12 +2360,12 @@ async function loadData() {
   }
 
   // Composite Signal block
-  // Market Regime card — primary actionable signal
+  // Market Regime card — kept hidden per user instruction
   const regime = data.market_regime;
   const sig = data.v3_signal || data.signal;
   if (regime || (sig && sig.flag)) {
     const block = document.getElementById('signal-block');
-    if (block) block.style.display = '';
+    if (block) block.style.display = 'none';
 
     // Regime badge — Buy/Sell/Hold/Wait
     const REGIME_STYLES = {
@@ -2666,13 +2761,13 @@ function updatePipelineDiagram(data) {
   // Composite risk
   const comp = data.composite_risk != null ? data.composite_risk : null;
   _set('pipe-comp-val', comp != null ? Math.round(comp) : '—');
-  // Market Regime
-  const regime = data.market_regime || '—';
-  _set('pipe-regime-val', regime);
-  const regimeColor = { Buy: '#10B981', Sell: '#EF4444', Hold: '#F59E0B', Wait: '#6366F1' };
+  // BRI Score Output
+  const briVal = data.final_score != null ? Math.round(data.final_score) : (data.bri_score ?? '—');
+  _set('pipe-regime-val', String(briVal));
   const rc = document.getElementById('pipe-regime-circle');
   if (rc) {
-    const c = regimeColor[regime] || '#6B7280';
+    const briNum = typeof briVal === 'number' ? briVal : 31;
+    const c = riskZone(briNum).color || '#10B981';
     rc.setAttribute('stroke', c);
     rc.setAttribute('filter', `drop-shadow(0 0 6px ${c}80)`);
     const rv = document.getElementById('pipe-regime-val');
