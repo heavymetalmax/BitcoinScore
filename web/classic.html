@@ -225,6 +225,16 @@
     width: 100%;
     height: 100%;
     box-sizing: border-box;
+    visibility: hidden;
+    pointer-events: none;
+  }
+  .flip-card-inner.flipped .flip-card-back {
+    visibility: visible;
+    pointer-events: auto;
+  }
+  .flip-card-inner.flipped .flip-card-front {
+    visibility: hidden;
+    pointer-events: none;
   }
   .comp-card-wrap {
     perspective: 1000px;
@@ -1179,8 +1189,8 @@
   </div>
   <!-- SIGNALS CONTAINER -->
   <div class="signals-container">
-    <!-- SIGNAL BLOCK (Market Regime hidden per design) -->
-    <div class="flip-card-wrap" id="signal-block" style="display:none !important">
+    <!-- SIGNAL BLOCK (Market Regime) -->
+    <div class="flip-card-wrap" id="signal-block" style="display:none">
       <div class="flip-card-inner" onclick="this.classList.toggle('flipped')">
         <!-- Front -->
         <div class="card signal-block flip-card-front" style="display: flex; flex-direction: column;">
@@ -1223,8 +1233,8 @@
           <div>
             <div style="font-size: 11px; font-weight: 600; letter-spacing: 0.08em; color: var(--muted); text-transform: uppercase; margin-bottom: 12px;"><span class="en">How to read this</span><span class="ua">Як читати</span></div>
             <div style="font-size: 13px; color: var(--muted2); line-height: 1.6;">
-              <span class="en"><strong>Regime</strong> is actionable only when model validation and metric coverage pass. <strong>Outlook</strong> estimates 365-day drawdown; <strong>Cycle Context</strong> explains market structure. When validation fails, the dashboard shows Wait or Unavailable instead of Buy/Sell.</span>
-              <span class="ua"><strong>Режим</strong> придатний для дії лише після успішної перевірки моделі та повноти метрик. <strong>Прогноз</strong> оцінює 365-денний drawdown, а <strong>Контекст циклу</strong> пояснює структуру ринку. Якщо перевірку не пройдено, панель показує Чекати або Недоступно замість Купувати/Продавати.</span>
+              <span class="en"><strong>Market Regime</strong> synthesizes multi-layer market models. <strong>Outlook</strong> estimates 365-day forward drawdown; <strong>Cycle Context</strong> reflects macro cycle structure.</span>
+              <span class="ua"><strong>Режим ринку</strong> синтезує багаторівневі моделі аналізу. <strong>Прогноз</strong> оцінює очікуваний 365-денний drawdown, а <strong>Контекст циклу</strong> відображає поточну макроструктуру циклу.</span>
             </div>
           </div>
           <div style="font-size:9px; font-weight:700; color:var(--accent); text-transform:uppercase; text-align:right;"><span class="en">Click to flip</span><span class="ua">Назад</span></div>
@@ -2503,12 +2513,12 @@ async function loadData() {
   }
 
   // Composite Signal block
-  // Market Regime card — kept hidden per user instruction
+  // Market Regime card — diagnostic summary without actionable instructions
   const regime = data.market_regime;
   const sig = data.v3_signal || data.signal;
   if (regime || (sig && sig.flag)) {
     const block = document.getElementById('signal-block');
-    if (block) block.style.display = 'none';
+    if (block) block.style.display = '';
 
     // Regime badge — Buy/Sell/Hold/Wait
     const REGIME_STYLES = {
@@ -2583,30 +2593,30 @@ async function loadData() {
       if (bar) bar.style.width = v3p + '%';
     }
 
-    // Plain-language explanation keyed on market_regime
+    // Plain-language explanation keyed on market_regime (purely diagnostic, no actionable/trading instructions)
     const v5b = data.v5b_score;
     const pos  = data.final_score != null ? Math.round(data.final_score) : null;
     const REGIME_EXPLAIN = {
       'Buy': {
-        en: `Outlook is ${v5b != null ? v5b.toFixed(1) + '%' : 'low'} expected drawdown — below the 20% entry threshold. Cycle context (${pos ?? '—'}/100) confirms we are near a cycle low. Both signals align: all-in entry zone.`,
-        ua: `Прогноз: ${v5b != null ? v5b.toFixed(1) + '%' : 'низький'} очікуваний drawdown — нижче порогу входу 20%. Контекст циклу (${pos ?? '—'}/100) підтверджує близькість до дна. Обидва сигнали збігаються: зона повного входу.`
+        en: `Outlook shows ${v5b != null ? v5b.toFixed(1) + '%' : 'low'} expected drawdown (below 20% threshold). Cycle context (${pos ?? '—'}/100) aligns with historical macro bottom conditions.`,
+        ua: `Прогноз: ${v5b != null ? v5b.toFixed(1) + '%' : 'низький'} очікуваний drawdown (нижче порогу 20%). Контекст циклу (${pos ?? '—'}/100) узгоджується з умовами історичного макродна.`
       },
       'Sell': {
-        en: `Outlook is ${v5b != null ? v5b.toFixed(1) + '%' : 'high'} expected drawdown — above the 45% exit threshold. Cycle context (${pos ?? '—'}/100) is in the upper range. Both signals confirm: exit zone.`,
-        ua: `Прогноз: ${v5b != null ? v5b.toFixed(1) + '%' : 'високий'} очікуваний drawdown — вище порогу виходу 45%. Контекст циклу (${pos ?? '—'}/100) у верхньому діапазоні. Обидва сигнали підтверджують: зона виходу.`
+        en: `Outlook shows ${v5b != null ? v5b.toFixed(1) + '%' : 'high'} expected drawdown (above 45% threshold). Cycle context (${pos ?? '—'}/100) is in the upper historical cycle range.`,
+        ua: `Прогноз: ${v5b != null ? v5b.toFixed(1) + '%' : 'високий'} очікуваний drawdown (вище порогу 45%). Контекст циклу (${pos ?? '—'}/100) перебуває у верхньому історичному діапазоні циклу.`
       },
       'Hold': {
-        en: `Outlook is ${v5b != null ? v5b.toFixed(1) + '%' : 'moderate'} expected drawdown — elevated but below the 45% exit level. Cycle context (${pos ?? '—'}/100) is high, suggesting a late bull run may still continue. Stay in if already holding; do not add.`,
-        ua: `Прогноз: ${v5b != null ? v5b.toFixed(1) + '%' : 'помірний'} drawdown — підвищений, але нижче порогу виходу 45%. Контекст циклу (${pos ?? '—'}/100) високий — пізній бичачий ринок може продовжуватись. Тримати якщо вже в позиції; не докуповувати.`
+        en: `Outlook shows ${v5b != null ? v5b.toFixed(1) + '%' : 'moderate'} expected drawdown (below 45% threshold). Cycle context (${pos ?? '—'}/100) remains elevated in the trend continuation zone.`,
+        ua: `Прогноз: ${v5b != null ? v5b.toFixed(1) + '%' : 'помірний'} drawdown (нижче порогу 45%). Контекст циклу (${pos ?? '—'}/100) залишається підвищеним у зоні продовження тренду.`
       },
       'Wait': {
-        en: `Outlook is ${v5b != null ? v5b.toFixed(1) + '%' : '—'} expected drawdown — above the 20% entry threshold. Entry is not yet confirmed. Stay in cash until Outlook drops below 20%.`,
-        ua: `Прогноз: ${v5b != null ? v5b.toFixed(1) + '%' : '—'} очікуваний drawdown — вище порогу входу 20%. Вхід ще не підтверджений. Залишатись у кеші поки Прогноз не впаде нижче 20%.`
+        en: `Outlook shows ${v5b != null ? v5b.toFixed(1) + '%' : '—'} expected drawdown (above 20% threshold). Cycle context (${pos ?? '—'}/100) is in the intermediate zone.`,
+        ua: `Прогноз: ${v5b != null ? v5b.toFixed(1) + '%' : '—'} очікуваний drawdown (вище порогу 20%). Контекст циклу (${pos ?? '—'}/100) знаходиться у проміжній зоні.`
       }
     };
     const suppressedExplain = data.decision_suppressed ? {
-      en: `Decision is suppressed: ${data.decision_suppression_reason || 'validation or data-quality gate failed'}. Outlook remains diagnostic only.`,
-      ua: `Рішення заблоковано: ${data.decision_suppression_reason || 'не пройдено перевірку моделі або якості даних'}. Прогноз показано лише для діагностики.`
+      en: `Model validation or data-quality gate failed (${data.decision_suppression_reason || 'check logs'}). Outlook remains diagnostic only.`,
+      ua: `Не пройдено перевірку моделі або якості даних (${data.decision_suppression_reason || 'див. логи'}). Прогноз показано для діагностики.`
     } : null;
     const expl   = suppressedExplain || REGIME_EXPLAIN[regime] || (sig && sig.flag ? { en: '', ua: '' } : null);
     const explEl = document.getElementById('sig-explain');
