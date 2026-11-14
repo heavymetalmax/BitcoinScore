@@ -2384,20 +2384,22 @@ async function loadData() {
   // Sub-baskets: On-Chain, Technical, Macro
   let ocVal = data.onchain_score ?? data.v3_onchain_score ?? null;
   let techVal = data.tech_score ?? data.v3_tech_score ?? null;
-  let macroVal = data.macro_score ?? null;
+  let macroVal = data.macro_score ?? data.v3_macro_score ?? null;
   if (macroVal == null && data.v3_normalized_scores) {
     const mNorm = data.v3_normalized_scores;
-    const macroKeys = ['m2_yoy', 'yield_curve_spread', 'etf_flows', 'dxy'];
-    let sum = 0, count = 0;
+    const util = data.v3_utilities || {};
+    const macroKeys = ['yield_curve_spread', 'm2_yoy', 'dxy'];
+    let ws = 0, wc = 0;
     macroKeys.forEach(k => {
       if (mNorm[k] != null && !isNaN(mNorm[k])) {
-        sum += Number(mNorm[k]);
-        count++;
+        const u = util[k] ?? 0.5;
+        ws += Number(mNorm[k]) * u;
+        wc += u;
       }
     });
-    if (count > 0) macroVal = Math.round(sum / count);
+    if (wc > 0) macroVal = Math.round(ws / wc);
   }
-  if (macroVal == null) macroVal = 54;
+  if (macroVal == null) macroVal = 60;
 
   updateMiniGauge('sub-arc-oc', 'sub-needle-oc', 'sub-val-oc', ocVal);
   updateMiniGauge('sub-arc-tech', 'sub-needle-tech', 'sub-val-tech', techVal);

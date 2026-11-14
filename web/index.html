@@ -3211,21 +3211,23 @@
         const mBadgeEl = document.getElementById('modern-gauge-badge');
         if (mBadgeEl) mBadgeEl.textContent = finalVal + ' / 100';
 
-        // Compute Macro subscore from macro indicators (M2, Yield Curve, ETF Flows, DXY)
-        let macroVal = data.macro_score != null ? data.macro_score : null;
+        // Compute Macro subscore from macro indicators (Yield Curve, M2, DXY)
+        let macroVal = data.macro_score ?? data.v3_macro_score ?? null;
         if (macroVal == null && data.v3_normalized_scores) {
           const m = data.v3_normalized_scores;
-          const macroKeys = ['m2_yoy', 'yield_curve_spread', 'etf_flows', 'dxy'];
-          let sum = 0, count = 0;
+          const util = data.v3_utilities || {};
+          const macroKeys = ['yield_curve_spread', 'm2_yoy', 'dxy'];
+          let ws = 0, wc = 0;
           macroKeys.forEach(k => {
             if (m[k] != null && !isNaN(m[k])) {
-              sum += Number(m[k]);
-              count++;
+              const u = util[k] ?? 0.5;
+              ws += Number(m[k]) * u;
+              wc += u;
             }
           });
-          if (count > 0) macroVal = Math.round(sum / count);
+          if (wc > 0) macroVal = Math.round(ws / wc);
         }
-        if (macroVal == null) macroVal = 54;
+        if (macroVal == null) macroVal = 60;
 
         // Update Concentric Arcs Legend
         const arcOcEl = document.getElementById('arc-val-oc');

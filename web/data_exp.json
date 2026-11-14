@@ -174,7 +174,7 @@
   "m2_yoy": 8.24,
   "pi_gap_pct": 49.48,
   "onchain_score": 30,
-  "tech_score": 41,
+  "tech_score": 39,
   "final_score": 31,
   "adaptive_calibration": {
     "nupl": {
@@ -270,7 +270,7 @@
   },
   "v3_score": 31,
   "v3_onchain_score": 30,
-  "v3_tech_score": 41,
+  "v3_tech_score": 39,
   "v3_phase": "NEUTRAL",
   "v3_w_bot": 0.563,
   "v3_w_neutral": 0.437,
@@ -509,7 +509,10 @@
       "OC": 30,
       "MS": 41,
       "MC": 50,
-      "CP": 18
+      "CP": 18,
+      "onchain": 30,
+      "tech": 39,
+      "macro": 60
     },
     "phase": {
       "label": "NEUTRAL",
@@ -585,5 +588,7 @@
       "regime": "bottom",
       "tiz_score": null
     }
-  }
+  },
+  "macro_score": 60,
+  "v3_macro_score": 60
 }

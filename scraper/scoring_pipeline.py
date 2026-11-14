@@ -17,6 +17,12 @@ def sync_public_names(payload: dict, scores: dict) -> None:
         payload.pop(retired_key, None)
     payload['bri_score'] = final
     payload['forward_risk'] = scores.get('v5b_score')
+    if scores.get('onchain_avg') is not None:
+        payload['onchain_score'] = scores['onchain_avg']
+    if scores.get('tech_avg') is not None:
+        payload['tech_score'] = scores['tech_avg']
+    if scores.get('macro_avg') is not None:
+        payload['macro_score'] = scores['macro_avg']
     ma_ctx = scores.get('ma_context') or {}
     payload['ma_context'] = ma_ctx
     payload['market_context'] = {
@@ -207,6 +213,7 @@ def run_scoring_pipeline(p, build_metric_history_fn=None):
         p['v3_score']             = scores['final_score']
         p['v3_onchain_score']     = scores['onchain_avg']
         p['v3_tech_score']        = scores['tech_avg']
+        p['v3_macro_score']       = scores.get('macro_avg')
         p['v3_phase']             = scores['phase']
         p['v3_w_bot']             = scores['w_bot']
         p['v3_w_neutral']         = scores['w_neutral']
@@ -244,6 +251,7 @@ def run_scoring_pipeline(p, build_metric_history_fn=None):
         p['signal']        = v3_sig
         p['onchain_score'] = scores['onchain_avg']
         p['tech_score']    = scores['tech_avg']
+        p['macro_score']   = scores.get('macro_avg')
         p['sp_v2']         = scores['final_score']
         _ma_ctx = scores.get('ma_context') or {}
         if isinstance(p.get('metrics', {}).get('mayer_multiple'), dict):
@@ -295,6 +303,9 @@ def run_scoring_pipeline(p, build_metric_history_fn=None):
                 'MS': scores.get('ms_basket'),
                 'MC': scores.get('mc_basket'),
                 'CP': scores.get('cp_basket'),
+                'onchain': scores.get('onchain_avg'),
+                'tech':    scores.get('tech_avg'),
+                'macro':   scores.get('macro_avg'),
             },
             'phase': {
                 'label':  scores['phase'],

@@ -2585,9 +2585,9 @@
         }
         return wc > 0 ? Math.round(ws / wc) : null;
       }
-      const _ocAgg    = subgroupAvg(_ocMetrics)    ?? data.onchain_score;
-      const _techAgg  = subgroupAvg(_techMetrics)  ?? data.tech_score;
-      const _macroAgg = subgroupAvg(_macroMetrics) ?? null;
+      const _ocAgg    = data.onchain_score ?? subgroupAvg(_ocMetrics);
+      const _techAgg  = data.tech_score    ?? subgroupAvg(_techMetrics);
+      const _macroAgg = data.macro_score   ?? (subgroupAvg(_macroMetrics) ?? data.v3_macro_score);
       setCenterSubVal(_ocAgg,    's-oc-center',    's-oc-status-center');
       setCenterSubVal(_techAgg,  's-tech-center',  's-tech-status-center');
       setCenterSubVal(_macroAgg, 's-macro-center', 's-macro-status-center');

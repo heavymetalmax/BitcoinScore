@@ -23,10 +23,12 @@ from scraper.scoring import _oc_coherence
 from scraper.tiz import adaptive_calibration as _tiz_adaptive_cal
 from scraper import mixing_model_b as _v5b
 
-# Metric groups for z-weighting
+# Metric groups for z-weighting and dashboard sub-baskets
 OC_GROUP = {'nupl', 'mvrv_z_score', 'rhodl_ratio', 'cvdd_ratio', 'asopr', 'puell', 'lth_supply'}
-TECH_GROUP = {'cipherb', 'mayer_multiple', 'fear_greed', 'etf_flows', 'yield_curve_spread', 'm2_yoy', 'pi_gap', 'funding_rate'}
-# dxy removed from TECH_GROUP — it acts as a Macro Modifier in scoring_pipeline.py instead
+TECH_GROUP = {'cipherb', 'mayer_multiple', 'fear_greed', 'etf_flows', 'funding_rate', 'pi_gap'}
+MACRO_GROUP = {'yield_curve_spread', 'm2_yoy', 'dxy'}
+# Core set used for flat utility-weighted average (V3 overall final_score before TiZ/modifiers)
+CORE_SCORING_GROUP = OC_GROUP | TECH_GROUP | {'yield_curve_spread', 'm2_yoy'}
 
 # Bottom and top thresholds for regime mapping (aligned with V2)
 BOTTOM_THRESHOLD = 40
@@ -379,10 +381,11 @@ def compute_scores_v3(raw_metrics, target_date=None, prev_scores=None, scores_hi
     # Informational sub-scores (shown on dashboard, not used for final computation)
     oc_avg = weighted_avg(OC_GROUP)
     tech_avg = weighted_avg(TECH_GROUP)
+    macro_avg = weighted_avg(MACRO_GROUP)
 
-    # 9. Flat utility-weighted average across ALL metrics — utilities decide the weight,
+    # 9. Flat utility-weighted average across ALL core metrics — utilities decide the weight,
     #    no hardcoded group split. This is the original V3 intent.
-    flat_avg = weighted_avg(OC_GROUP | TECH_GROUP)
+    flat_avg = weighted_avg(CORE_SCORING_GROUP)
 
     if flat_avg is not None:
         if tiz_score is not None:
@@ -483,6 +486,7 @@ def compute_scores_v3(raw_metrics, target_date=None, prev_scores=None, scores_hi
     return {
         'onchain_avg': oc_avg,
         'tech_avg': tech_avg,
+        'macro_avg': macro_avg,
         'final_score': final,
         'phase': phase,
         'top_signal': top_signal,
