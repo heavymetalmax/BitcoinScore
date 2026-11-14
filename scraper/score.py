@@ -532,9 +532,10 @@ def compute_score(
     CP = _wavg(BASKET_CP, normalized, utilities, BASKET_MIN_COUNTS['CP'])
 
     # Informational sub-scores (backward-compat keys for pipeline/dashboard)
-    oc_avg   = OC
-    tech_avg = _wavg(BASKET_MS | BASKET_MC | BASKET_CP, normalized, utilities, 5,
-                     anchor_multipliers={'cipherb': 1.8})
+    oc_avg    = OC
+    tech_avg  = _wavg(BASKET_MS | BASKET_CP, normalized, utilities, 3,
+                      anchor_multipliers={'cipherb': 1.8})
+    macro_avg = _wavg(BASKET_MC | {'dxy'}, normalized, utilities, 1)
 
     # ── 6b. Step 1: CP contextualises OC (regime multiplier) ─────────────────
     CP_safe = CP if CP is not None else 50
@@ -722,8 +723,9 @@ def compute_score(
         'phase_probabilistic': False,
         'top_signal':         top_signal,
         'bot_signal':         bot_signal,
-        'onchain_avg':        oc_avg,
-        'tech_avg':           tech_avg,
+        'onchain_avg':        round(oc_avg) if oc_avg is not None else None,
+        'tech_avg':           round(tech_avg) if tech_avg is not None else None,
+        'macro_avg':          round(macro_avg) if macro_avg is not None else None,
         'oc_basket':          round(OC) if OC is not None else None,
         'ms_basket':          round(MS) if MS is not None else None,
         'mc_basket':          round(MC) if MC is not None else None,
