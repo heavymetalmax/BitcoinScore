@@ -176,8 +176,8 @@
   "m2_yoy": 8.24,
   "pi_gap_pct": 49.41,
   "onchain_score": 28,
-  "tech_score": 37,
-  "final_score": 29,
+  "tech_score": 35,
+  "final_score": 33,
   "adaptive_calibration": {
     "nupl": {
       "fixed": 37,
@@ -217,12 +217,12 @@
   },
   "zone_forecast": {
     "buy": {
-      "price": 57128,
-      "pct": -12.5
+      "price": 55915,
+      "pct": -14.3
     },
     "sell": {
-      "price": 100501,
-      "pct": 54.0
+      "price": null,
+      "pct": null
     },
     "buy_threshold": 20,
     "sell_threshold": 80,
@@ -253,7 +253,7 @@
     "window_pts": 1079
   },
   "signal": {
-    "meta_score": 26,
+    "meta_score": 30,
     "zone": "bottom",
     "conviction": 0.673,
     "flag": "PROBABLE_BOTTOM",
@@ -270,9 +270,9 @@
     "bear_div": false,
     "bull_div": false
   },
-  "v3_score": 29,
+  "v3_score": 33,
   "v3_onchain_score": 28,
-  "v3_tech_score": 37,
+  "v3_tech_score": 35,
   "v3_macro_score": 60,
   "v3_phase": "NEUTRAL",
   "v3_w_bot": 0.598,
@@ -323,7 +323,7 @@
     "adjustment": 0.0
   },
   "v3_signal": {
-    "meta_score": 26,
+    "meta_score": 30,
     "zone": "bottom",
     "conviction": 0.673,
     "flag": "PROBABLE_BOTTOM",
@@ -344,14 +344,14 @@
   "v3_tiz_days": 290,
   "v3_tiz_maturity": 1.036,
   "v3_tiz_calibration": 280,
-  "v5b_score": 22.9,
+  "v5b_score": 24.0,
   "v5b_validated": true,
-  "meta_score": 25.8,
-  "signal_agreement": 0.94,
+  "meta_score": 28.1,
+  "signal_agreement": 0.91,
   "market_regime": "Wait",
   "decision_suppressed": false,
   "decision_suppression_reason": null,
-  "composite_risk": 25.8,
+  "composite_risk": 28.1,
   "v3_oc_coherence": 0.792,
   "data_quality": {
     "active_metrics": 16,
@@ -382,8 +382,8 @@
       }
     }
   },
-  "bri_score": 29,
-  "forward_risk": 22.9,
+  "bri_score": 33,
+  "forward_risk": 24.0,
   "ma_context": {
     "dma_200": 73036.0,
     "dma_200_slope_30d": 1.15,
@@ -394,7 +394,7 @@
     "ma_regime": "BEAR_CONTRACTION"
   },
   "market_context": {
-    "score": 29,
+    "score": 33,
     "phase": "NEUTRAL",
     "bottom_weight": 0.598,
     "neutral_weight": 0.402,
@@ -406,7 +406,7 @@
     "ma200w_ratio": 0.972
   },
   "macro_score": 60,
-  "sp_v2": 29,
+  "sp_v2": 33,
   "phase": {
     "phase": "NEUTRAL",
     "top_signal": 0,
@@ -511,11 +511,11 @@
   "computed": {
     "baskets": {
       "OC": 28,
-      "MS": 39,
+      "MS": 37,
       "MC": 49,
       "CP": 18,
       "onchain": 28,
-      "tech": 37,
+      "tech": 35,
       "macro": 60
     },
     "phase": {
@@ -534,7 +534,7 @@
       "ma200w_ratio": 0.972,
       "ma_regime": "BEAR_CONTRACTION"
     },
-    "OC_read": 21,
+    "OC_read": 28,
     "coherence": {
       "oc_score": 0.792,
       "factor": 0.917
@@ -568,12 +568,12 @@
     }
   },
   "scoring": {
-    "final_score": 29,
-    "v5b_score": 22.9,
-    "meta_score": 25.8,
-    "signal_agreement": 0.94,
+    "final_score": 33,
+    "v5b_score": 24.0,
+    "meta_score": 28.1,
+    "signal_agreement": 0.91,
     "market_regime": "Wait",
-    "composite_risk": 25.8,
+    "composite_risk": 28.1,
     "dxy_adj": 0.0,
     "pi_cross": false,
     "flag": "PROBABLE_BOTTOM",

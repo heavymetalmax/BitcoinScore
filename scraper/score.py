@@ -520,51 +520,36 @@ def compute_score(
         normalized, w_top, w_bot, w_neutral, tiz_maturity, cycle_day=cycle_day
     )
 
-    # ── 6a. Basket averages (V4) ──────────────────────────────────────────────
-    # CipherB is a multi-timeframe composite (0.8×weekly + 0.2×daily + divergences)
-    # with the highest historical top/bottom discrimination (+80.9 pts), so it gets
-    # a 2.0× structural anchor multiplier inside BASKET_MS.
+    # ── 6a. Basket averages & Dynamic Utilities ──────────────────────────────
     quality = assess_data_quality(normalized)
     OC = _wavg(BASKET_OC, normalized, utilities, BASKET_MIN_COUNTS['OC'])
-    MS = _wavg(BASKET_MS, normalized, utilities, BASKET_MIN_COUNTS['MS'],
-               anchor_multipliers={'cipherb': 2.0})
+    MS = _wavg(BASKET_MS, normalized, utilities, BASKET_MIN_COUNTS['MS'])
     MC = _wavg(BASKET_MC, normalized, utilities, BASKET_MIN_COUNTS['MC'])
     CP = _wavg(BASKET_CP, normalized, utilities, BASKET_MIN_COUNTS['CP'])
 
-    # Informational sub-scores (backward-compat keys for pipeline/dashboard)
+    # Canonical sub-scores:
+    # On-Chain, Technical (MS + CP), and Macro (MC + DXY)
     oc_avg    = OC
-    tech_avg  = _wavg(BASKET_MS | BASKET_CP, normalized, utilities, 3,
-                      anchor_multipliers={'cipherb': 1.8})
+    tech_avg  = _wavg(BASKET_MS | BASKET_CP, normalized, utilities, 3)
     macro_avg = _wavg(BASKET_MC | {'dxy'}, normalized, utilities, 1)
 
-    # ── 6b. Step 1: CP contextualises OC (regime multiplier) ─────────────────
-    CP_safe = CP if CP is not None else 50
-    OC_read = min(100.0, OC * (0.65 + 0.48 * CP_safe / 100.0)) if OC is not None else None
+    # ── 6b. Dynamic utility-weighted master core score ────────────────────────
+    # The overall index is a pure data-driven composite across all available
+    # core metrics, weighted by their context-dependent utilities U_i.
+    ALL_SCORING_METRICS = BASKET_OC | BASKET_MS | BASKET_CP | BASKET_MC
+    flat_avg = _wavg(ALL_SCORING_METRICS, normalized, utilities, min_count=4)
+    if flat_avg is None:
+        flat_avg = oc_avg or tech_avg or 50
 
-    # ── 6c. Step 2: F_structural ("where we are") ────────────────────────────
-    w_mc = w_bot * 0.05 + w_neutral * 0.25 + w_top * 0.05
-    if OC_read is not None:
-        if MC is not None:
-            F_structural = (1.0 - w_mc) * OC_read + w_mc * MC
-        else:
-            F_structural = OC_read
-    elif MC is not None:
-        F_structural = float(MC)
-    else:
-        F_structural = 50.0
-
-    # TiZ blend: scales with w_bot (BOTTOM phase emphasis)
-    if tiz_score is not None:
+    # ── 6c. Time-in-Zone (TiZ) in confirmed bottom phase ─────────────────────
+    # TiZ only applies when in a true bottom accumulation regime (w_bot >= 0.50).
+    score_tiz = flat_avg
+    if phase == 'BOTTOM' and tiz_score is not None and w_bot >= BOTTOM_PHASE_THRESHOLD:
         tw = tiz_cfg['weight']  # 0.20
-        F_structural = (1.0 - tw * w_bot) * F_structural + tw * w_bot * tiz_score
+        score_tiz = (1.0 - tw * w_bot) * flat_avg + tw * w_bot * tiz_score
 
-    # OC floor: prevent CP from over-discounting on-chain signal early in cycle
-    if OC is not None:
-        F_structural = max(F_structural, 0.70 * OC)
-
-    # ── 6d. Coherence dampening — applied to F_structural only ───────────────
+    # ── 6d. Coherence dampening — ensemble agreement ──────────────────────────
     oc_coherence = _oc_coherence(normalized)
-    coh_factor   = 1.0
     coh_floor = (
         cd['bottom_coh_floor'] * w_bot
         + cd['neutral_coh_floor'] * w_neutral
@@ -575,39 +560,13 @@ def compute_score(
         + cd['neutral_neutral_target'] * w_neutral
         + cd['top_neutral_target']    * w_top
     )
-    coh_factor   = round(coh_floor + (1.0 - coh_floor) * oc_coherence, 3)
-    F_structural = neutral_s + (F_structural - neutral_s) * coh_factor
+    coh_factor  = round(coh_floor + (1.0 - coh_floor) * oc_coherence, 3)
+    final_float = neutral_s + (score_tiz - neutral_s) * coh_factor
 
-    # ── 6e. Step 3: F_vectorial ("where we're going") ────────────────────────
-    # div uses raw OC (not OC_read) as an upward divergence boost when CP > OC at tops.
-    # Avoids averaging MS with 0 when CP_safe <= OC.
-    div = max(0.0, float(CP_safe - OC)) if OC is not None else 0.0
-    if MS is not None:
-        F_vectorial = min(100.0, float(MS) + w_top * 0.35 * div)
-    else:
-        F_vectorial = float(CP_safe)
-
-    # CipherB extremity anchor: when CipherB is in extreme oversold (<=25) or
-    # overbought (>=75) territory, pull F_vectorial directly toward CipherB so
-    # lagging indicators (Mayer, neutral ETF flows) do not dilute cycle extremes.
-    cb_score = normalized.get('cipherb')
-    cb_ext = 0.0
-    if cb_score is not None:
-        cb_ext = max(0.0, (abs(float(cb_score) - 50.0) - 20.0) / 30.0)
-        if cb_ext > 0.0:
-            cb_pull = 0.35 * cb_ext
-            F_vectorial = (1.0 - cb_pull) * F_vectorial + cb_pull * float(cb_score)
-
-    # ── 6f. Step 4: Symmetric phase-blended synthesis ────────────────────────
-    # Base blend increases from 0.35 at bottoms to 0.75 at tops, plus up to +0.25
-    # when CipherB reaches extreme exhaustion/capitulation territory.
-    phase_blend = min(0.85, w_bot * 0.35 + w_neutral * 0.45 + w_top * 0.75 + 0.25 * cb_ext)
-    final_float = F_structural + (F_vectorial - F_structural) * phase_blend
-
-    # ── 6g. DXY macro modifier ────────────────────────────────────────────────
+    # ── 6e. DXY macro modifier ────────────────────────────────────────────────
     dxy_score = normalized.get('dxy')
     dxy_adj   = 0.0
-    if dxy_score is not None and dxy_cfg.get('enabled', True):
+    if dxy_score is not None and dxy_cfg.get('enabled', False):
         if dxy_score > dxy_cfg['high']:
             dxy_adj = -min(dxy_cfg['max_adj'], (dxy_score - dxy_cfg['high']) * dxy_cfg['scale'])
         elif dxy_score < dxy_cfg['low']:
@@ -616,7 +575,7 @@ def compute_score(
 
     final = max(0, min(100, round(final_float)))
 
-    # ── 6h. Pi Cycle top override ─────────────────────────────────────────────
+    # ── 6f. Pi Cycle top override ─────────────────────────────────────────────
     # pi_raw is a dict with 'cross' key during live scoring, but a plain float
     # (pi_gap_pct) during recompute from scores.json — detect both forms.
     _pi_gap_val = _extract_pi_gap(pi_raw)
@@ -730,7 +689,7 @@ def compute_score(
         'ms_basket':          round(MS) if MS is not None else None,
         'mc_basket':          round(MC) if MC is not None else None,
         'cp_basket':          round(CP) if CP is not None else None,
-        'oc_read':            round(OC_read) if OC_read is not None else None,
+        'oc_read':            round(OC) if OC is not None else None,
         'tiz_score':          tiz_score,
         'tiz_days':           tiz_days,
         'tiz_maturity':       tiz_maturity,
