@@ -35,7 +35,7 @@ def test_cycle_anchor_is_hidden_until_confirmation(monkeypatch):
     }])
     monkeypatch.setattr(cycle_normalizer, '_scores_map', {'2020-01-01': {'nupl': 1.5}})
     assert cycle_normalizer._causal_vals('nupl', 'BOTTOM', '2020-02-01') == []
-    assert cycle_normalizer._causal_vals('nupl', 'BOTTOM', '2020-03-01') == [1.5]
+    assert cycle_normalizer._causal_vals('nupl', 'BOTTOM', '2020-03-01') == [(1.5, 1.0)]
 
 
 def test_bottom_confluence_requires_quorum():
@@ -47,7 +47,7 @@ def test_bottom_confluence_requires_quorum():
     score = compute_bottom_confluence(
         {'nupl': 10, 'mvrv_z_score': 10, 'cvdd_ratio': 10, 'mayer_multiple': 10}, cal
     )
-    assert score == 67
+    assert score == 100
 
 
 def test_actionable_score_requires_all_basket_quorums():

@@ -67,25 +67,36 @@ def compute_tiz(threshold=_THRESHOLD, window=_WINDOW_DAYS):
         return None, 0, _CALIBRATION
 
     cutoff = (datetime.date.today() - datetime.timedelta(days=window)).isoformat()
+    target_str = datetime.date.today().isoformat()
 
-    def _in_zone(r):
-        if r.get('date', '') < cutoff:
-            return False
-        ph = r.get('phase')
-        if ph is not None:
-            return ph == 'BOTTOM'
+    sub = [r for r in history if r.get('date') and cutoff <= r['date'] <= target_str]
+    sub.sort(key=lambda r: r['date'])
+
+    accumulated_days = 0.0
+    min_score = 100
+
+    for r in sub:
         s = r.get('final_score')
-        return s is not None and s <= threshold
+        if s is None:
+            continue
+        if s <= threshold:
+            accumulated_days += 1.0
+            if s < min_score:
+                min_score = s
+        elif s >= 55:
+            accumulated_days = max(0.0, accumulated_days - 3.0)
+            if accumulated_days == 0.0:
+                min_score = 100
+        else:
+            accumulated_days = max(0.0, accumulated_days - 1.5)
+            if accumulated_days == 0.0:
+                min_score = 100
 
-    in_zone = [r for r in history if _in_zone(r)]
-
-    if not in_zone:
+    days_in_zone = int(round(accumulated_days))
+    if days_in_zone <= 0 or min_score > threshold:
         return None, 0, _CALIBRATION
 
-    min_score = min(r['final_score'] for r in in_zone)
     calibration = adaptive_calibration(min_score)
-    days_in_zone = len(in_zone)
-
     progress = min(1.0, days_in_zone / calibration)
     risk = round(_SCORE_FRESH + (_SCORE_MATURE - _SCORE_FRESH) * progress)
     return risk, days_in_zone, calibration
@@ -133,31 +144,47 @@ def compute_tiz_causal(scores_history, target_date, threshold=_THRESHOLD, window
     if latest_score is None or latest_score > threshold:
         return None, 0, _CALIBRATION
 
-    def _in_zone(rec):
-        d = rec[0]
-        if not (cutoff_str <= d <= target_str):
-            return False
-        s = rec[1]
-        return s is not None and s <= threshold
+    # Chronological accumulation with regime decay for out-of-zone days.
+    # Brief pullbacks or choppy action don't reset the bottom clock,
+    # but sustained bull/neutral trends rapidly decay the old accumulation counter.
+    sub = [r for r in history if cutoff_str <= r[0] <= target_str]
+    sub.sort(key=lambda x: x[0])
 
-    in_zone = [r for r in history if _in_zone(r)]
-    if not in_zone:
-        return None, 0, _CALIBRATION
+    accumulated_days = 0.0
+    min_score = 100
 
-    min_score    = min(r[1] for r in in_zone if r[1] is not None)
-    calibration  = adaptive_calibration(min_score)
-    days_in_zone = len(in_zone)
+    for r in sub:
+        s = r[1]
+        if s is None:
+            continue
+        if s <= threshold:
+            accumulated_days += 1.0
+            if s < min_score:
+                min_score = s
+        elif s >= 55:
+            accumulated_days = max(0.0, accumulated_days - 3.0)
+            if accumulated_days == 0.0:
+                min_score = 100
+        else:
+            accumulated_days = max(0.0, accumulated_days - 1.5)
+            if accumulated_days == 0.0:
+                min_score = 100
 
     # Include the gap between the last recorded in-zone date and target_date.
-    # Today's entry isn't in scores.json yet when compute_score() runs, so
-    # without this correction the count freezes at yesterday's value.
-    last_in_zone_date = datetime.date.fromisoformat(in_zone[-1][0])
-    gap = (target_date - last_in_zone_date).days
-    if gap > 0:
-        days_in_zone += gap
+    last_in_zone = [r for r in sub if r[1] is not None and r[1] <= threshold]
+    if last_in_zone:
+        last_dt = datetime.date.fromisoformat(last_in_zone[-1][0])
+        gap = (target_date - last_dt).days
+        if gap > 0:
+            accumulated_days += gap
 
-    progress  = min(1.0, days_in_zone / calibration)
-    tiz_score = round(_SCORE_FRESH + (_SCORE_MATURE - _SCORE_FRESH) * progress)
+    days_in_zone = int(round(accumulated_days))
+    if days_in_zone <= 0 or min_score > threshold:
+        return None, 0, _CALIBRATION
+
+    calibration  = adaptive_calibration(min_score)
+    progress     = min(1.0, days_in_zone / calibration)
+    tiz_score    = round(_SCORE_FRESH + (_SCORE_MATURE - _SCORE_FRESH) * progress)
     return tiz_score, days_in_zone, calibration
 
 

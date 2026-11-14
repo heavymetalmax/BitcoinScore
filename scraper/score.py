@@ -175,6 +175,55 @@ def _extract_cipherb(cb) -> tuple[int | None, int | None, int | None]:
     return weekly_raw, daily_raw, blended
 
 
+def _cipherb_has_div(cb) -> bool:
+    """Return True if an active divergence signal is present on Cipher B."""
+    if not isinstance(cb, dict):
+        return False
+    val_dict = cb.get('value', cb)
+    if not isinstance(val_dict, dict):
+        return False
+    div_keys = (
+        'double_bearish_div', 'fast_bearish_div', 'bearish_divergence', 'bearish_div',
+        'double_bullish_div', 'fast_bullish_div', 'bullish_divergence', 'bullish_div',
+        'daily_double_bearish_div', 'daily_fast_bearish_div', 'fast_bear_div', 'daily_bearish_div',
+        'daily_double_bullish_div', 'daily_fast_bullish_div', 'fast_bull_div', 'daily_bullish_div',
+    )
+    return any(bool(val_dict.get(k)) for k in div_keys)
+
+
+_sp_history_cache: dict | None = None
+
+
+def _get_metrics_history(target_date: datetime.date | None = None) -> dict[str, list[float]] | None:
+    """Return recent normalized scores (last 7 days) per metric up to target_date."""
+    global _sp_history_cache
+    import bisect
+    sp_path = 'web/sparklines.json'
+    if not os.path.exists(sp_path):
+        sp_path = 'data/sparklines.json'
+        if not os.path.exists(sp_path):
+            return None
+    try:
+        if _sp_history_cache is None:
+            with open(sp_path, encoding='utf-8') as f:
+                _sp_history_cache = json.load(f)
+        dates = _sp_history_cache.get('dates', [])
+        if not dates:
+            return None
+        target_str = target_date.isoformat() if target_date else dates[-1]
+        idx = bisect.bisect_right(dates, target_str)
+        if idx <= 0:
+            return None
+        start_idx = max(0, idx - 7)
+        history = {}
+        for k, v in _sp_history_cache.items():
+            if k != 'dates' and isinstance(v, list):
+                history[k] = [float(x) for x in v[start_idx:idx] if x is not None]
+        return history
+    except Exception:
+        return None
+
+
 def _normalize(raw_metrics: dict, target_date: datetime.date) -> dict:
     """Normalize all raw metrics to [0, 100] risk scores."""
     normalized: dict[str, int | None] = {}
@@ -396,6 +445,7 @@ def compute_score(
     btc_price: float | None = None,
     persist_hmm_cache: bool = True,
     include_v5b: bool = True,
+    metrics_history: dict | None = None,
 ) -> dict:
     """
     Compute the composite risk score for a given set of raw metric values.
@@ -516,8 +566,18 @@ def compute_score(
 
     # ── 5. Utility weights ────────────────────────────────────────────────────
     cycle_day = halving_cycle_day_for(target_date)
+    div_signal = _cipherb_has_div(raw_metrics.get('cipherb'))
+    if metrics_history is None:
+        metrics_history = _get_metrics_history(target_date)
     utilities = evaluate_all_utilities_continuous(
-        normalized, w_top, w_bot, w_neutral, tiz_maturity, cycle_day=cycle_day
+        normalized,
+        w_top,
+        w_bot,
+        w_neutral,
+        tiz_maturity=tiz_maturity,
+        metrics_history=metrics_history,
+        cycle_day=cycle_day,
+        div_signal=div_signal,
     )
 
     # ── 6a. Basket averages & Dynamic Utilities ──────────────────────────────

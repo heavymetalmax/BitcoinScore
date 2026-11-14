@@ -155,6 +155,9 @@ RELEVANCE_PROFILES = {
     # Direct price-based risk: at ATH in TOP phase = maximum buy risk.
     # Zero weight at BOTTOM (price near lows is expected/desired there).
     'btc_price_cycle':     {'BOTTOM': 0.0, 'NEUTRAL': 0.3, 'TOP': 0.8},
+    # DXY: inversely correlated with global liquidity and BTC risk appetite.
+    # Strong macro compass in neutral consolidations; decouples at extreme blow-off tops.
+    'dxy':                 {'BOTTOM': 0.4, 'NEUTRAL': 0.6, 'TOP': 0.3},
 }
 
 _MODEL_PATH = 'data/v3_phase_model.pkl'
@@ -241,6 +244,13 @@ def evaluate_utility(metric, normalized_score, w_top, w_bot, w_neutral, tiz_matu
         if div_signal:
             utility *= 1.15
 
+    # 3d. Information-content / Extremity scaling for tactical & sentiment metrics:
+    # When sitting near 50 (neutral noise), downweight so it doesn't dilute structural signals;
+    # as score reaches high-conviction extremes (<25 or >75), ramp smoothly up to full utility.
+    if canonical_key in {'funding_rate', 'etf_flows', 'fear_greed'} and normalized_score is not None:
+        dist_from_50 = abs(float(normalized_score) - 50.0) / 50.0  # in [0, 1]
+        utility *= (0.55 + 0.45 * dist_from_50)
+
     # 4. Time-in-Zone Temporal Scaling
     # For bottom-focused indicators, suppress utility if we are in bottom territory and early (tiz_maturity < 0.25)
     if w_bot > 0.5 and tiz_maturity is not None and tiz_maturity < 0.25:
@@ -252,11 +262,64 @@ def evaluate_utility(metric, normalized_score, w_top, w_bot, w_neutral, tiz_matu
     return max(0.1, min(1.0, utility))
 
 
-def evaluate_all_utilities_continuous(normalized_scores, w_top, w_bot, w_neutral, tiz_maturity=None, metrics_history=None, cycle_day=None):
+# ── Collinearity & Redundancy Discounting ───────────────────────────────────────
+# Empirical correlation between known redundant/collinear pairs:
+# Pairwise correlation r in (0, 1]. When both metrics in a pair are present,
+# each receives a redundancy discount multiplier: 1 / (1 + r) based on effective
+# degrees of freedom N_eff = 2 / (1 + r).
+COLLINEAR_PAIRS = [
+    (('nupl', 'mvrv_z_score'), 0.98),
+    (('mayer_multiple', 'btc_price_cycle'), 0.82),
+]
+
+
+def apply_collinearity_discount(utilities: dict, present_metrics: set | dict) -> dict:
+    """Adjust utilities so collinear pairs share their informational budget.
+
+    Based on effective degrees of freedom N_eff = 2 / (1 + r).
+    Each metric's utility is scaled by 1 / (1 + r) when both are active.
+    """
+    discounted = dict(utilities)
+    present = set(present_metrics.keys()) if isinstance(present_metrics, dict) else set(present_metrics)
+
+    for (m1, m2), r in COLLINEAR_PAIRS:
+        if m1 in present and m2 in present:
+            if isinstance(present_metrics, dict):
+                if present_metrics.get(m1) is None or present_metrics.get(m2) is None:
+                    continue
+            scale = 1.0 / (1.0 + r)
+            if m1 in discounted:
+                discounted[m1] = max(0.05, discounted[m1] * scale)
+            if m2 in discounted:
+                discounted[m2] = max(0.05, discounted[m2] * scale)
+
+    return discounted
+
+
+def evaluate_all_utilities_continuous(
+    normalized_scores,
+    w_top,
+    w_bot,
+    w_neutral,
+    tiz_maturity=None,
+    metrics_history=None,
+    cycle_day=None,
+    div_signal=None,
+    apply_decorrelation: bool = True,
+):
     """Evaluate utility coefficients for all metrics using continuous weights."""
     utilities = {}
     history = metrics_history or {}
     for k, v in normalized_scores.items():
         recent = history.get(k)
-        utilities[k] = evaluate_utility(k, v, w_top, w_bot, w_neutral, tiz_maturity, recent, cycle_day=cycle_day)
+        cb_div = div_signal if k == 'cipherb' else None
+        utilities[k] = evaluate_utility(
+            k, v, w_top, w_bot, w_neutral,
+            tiz_maturity=tiz_maturity,
+            recent_scores=recent,
+            cycle_day=cycle_day,
+            div_signal=cb_div,
+        )
+    if apply_decorrelation:
+        utilities = apply_collinearity_discount(utilities, normalized_scores)
     return utilities
