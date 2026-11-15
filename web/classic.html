@@ -3052,7 +3052,7 @@ function updatePipelineDiagram(data) {
   // Metrics count (non-null leaf scalars from key on-chain+tech+macro metrics)
   // Keys match actual data.metrics field names (mvrv=raw, yield_curve, m2_mom)
   const metricKeys = ['nupl','mvrv','rhodl_ratio','cvdd_ratio','asopr','cipherb',
-    'mayer_multiple','fear_greed','yield_curve','m2_mom','etf_flows',
+    'mayer_multiple','fear_greed','yield_curve','m2','m2_mom','etf_flows',
     'funding_rate','dxy'];
   const metricCount = metricKeys.filter(k => {
     const v = m[k];
@@ -3060,9 +3060,9 @@ function updatePipelineDiagram(data) {
     if (typeof v === 'object') return v.value != null || Object.keys(v).length > 0;
     return true;
   }).length + (data.btc_price != null ? 1 : 0);
-  const metricTotal = metricKeys.length + 1; // +1 for btc_price (top-level)
   const staleCount = data.stale_metrics_count != null ? data.stale_metrics_count : 0;
-  _dot('hs-metrics', metricCount >= 10 && staleCount === 0);
+  // Green when all key metrics available; fallback/stale is normal for off-chain/slow metrics
+  _dot('hs-metrics', metricCount >= 10);
   const staleSuffix = staleCount > 0 ? ` (${staleCount}↩)` : '';
   _set('hs-metrics-txt', `${metricCount}/${metricTotal}${staleSuffix}`);
 
@@ -3083,9 +3083,9 @@ function updatePipelineDiagram(data) {
   }
 
   // Per-source health dots: check presence of at least one metric per group
-  _dot('hd-oc', ['nupl','mvrv_z_score','rhodl_ratio'].some(k => m[k] != null));
+  _dot('hd-oc', ['nupl','mvrv_z_score','mvrv','rhodl_ratio'].some(k => m[k] != null));
   _dot('hd-tc', ['cipherb','mayer_multiple','fear_greed'].some(k => m[k] != null));
-  _dot('hd-mc', ['m2_yoy','yield_curve_spread','btc_price'].some(k => m[k] != null));
+  _dot('hd-mc', ['m2','m2_yoy','m2_mom','yield_curve','yield_curve_spread','dxy'].some(k => m[k] != null) || data.btc_price != null);
 }
 
 function updateGaugeTags(score, vals, keys, fr, recoveryWindow, normScores) {
