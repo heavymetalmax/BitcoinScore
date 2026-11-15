@@ -125,7 +125,7 @@ python -m scraper.scraper
 Static HTML5 + vanilla JS. No build step. `web/data.json` copied from `data/data.json` by CI.
 
 - `classic.html` — primary financial dashboard:
-  - **Hero card layout**: Centered title `BITCOIN BUY RISK INDEX` in top row (`.base-hero-top`), compact live price badge, `TODAY` section heading above the gauge, and `SUB-BASKETS` on the right. Secret click flips the card to reveal the zone forecast and back-side model parameters.
+  - **Hero card layout**: Centered title `BITCOIN BUY RISK INDEX` in top row (`.base-hero-top`), compact live price badge, `TODAY` section heading above the gauge, and `SCORES` on the right. Secret click flips the card to reveal the zone forecast and back-side model parameters.
   - **Dual-arc Gauge**: Outer main BRI score arc + needle; inner *Uncertainty* arc ($R=86$) with curved label ($R=72$).
   - **Uncertainty Modal**: Clicking the inner arc (`#uncertainty-group`) opens `#uncertainty-modal-overlay` displaying the live conflict score ($0–100$), model confidence % ($100 - \text{conflict}$), mathematical formula, and 3-tier interpretation (Low 0–24, Moderate 25–54, High 55–100).
   - **Component Table**: 5 columns (Indicator / Score / vs History 1Y sparkline / Metric Risk 0–100 / Risk tag badge).

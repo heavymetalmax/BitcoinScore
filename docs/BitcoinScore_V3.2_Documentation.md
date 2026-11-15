@@ -90,7 +90,7 @@ All Metric Risk numbers, progress bars, 1-year sparklines, and status badges sha
 
 ### Hero & Gauge UX Refinements:
 - **Centered Index Title**: `BITCOIN BUY RISK INDEX` placed in the center of the live price row (`.base-hero-top`).
-- **Symmetrical Section Headings**: `TODAY` (`СЬОГОДНІ`) positioned directly over the main gauge, mirroring `SUB-BASKETS` (`КОШИКИ ПОКАЗНИКІВ`) over the right column.
+- **Symmetrical Section Headings**: `TODAY` (`СЬОГОДНІ`) positioned directly over the main gauge, mirroring `SCORES` (`ОЦІНКИ`) over the right column.
 - **Interactive Uncertainty Arc**: The inner gauge arc on `classic.html` is clickable (`e.stopPropagation()` prevents card flipping) and opens a modal with live metrics, calculation formulas, and level interpretations.
 - **Symmetrical Minimalist Confidence**: `minimal.html` displays `confidence` on the left of the main score mirroring `yesterday` / `7 days` on the right, with click-to-explain modal dialogs.
 - **Secret Card Flip**: Clicking anywhere on the front hero card (except interactive controls, links, and buttons) flips to reveal the zone forecast and back-side analytics.
