@@ -1673,30 +1673,37 @@
   </div>
   
 
-  <!-- BASE UI TABS COMPONENT -->
-  <div class="base-tabs" id="main-tabs">
-    <div class="base-tabs-list" role="tablist" aria-label="Dashboard Sections">
-      <button class="base-tab-trigger active" role="tab" id="tab-btn-components" data-tab="components" aria-selected="true" aria-controls="tab-panel-components">
+    <!-- BASE UI IN-PAGE STICKY ANCHOR BAR -->
+  <div class="base-anchor-bar" id="anchor-bar" aria-label="Sections">
+    <div class="base-anchor-list">
+      <button class="base-anchor-btn active" data-target="components">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
         <span><span class="en">Components</span><span class="ua">Компоненти</span></span>
       </button>
-      <button class="base-tab-trigger" role="tab" id="tab-btn-history" data-tab="history" aria-selected="false" aria-controls="tab-panel-history">
+      <button class="base-anchor-btn" data-target="history">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
         <span><span class="en">History Chart</span><span class="ua">Історія (Графік)</span></span>
       </button>
-
-      <button class="base-tab-trigger" role="tab" id="tab-btn-regime" data-tab="regime" aria-selected="false" aria-controls="tab-panel-regime">
+      <button class="base-anchor-btn" data-target="regime">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path></svg>
         <span><span class="en">Market Regime</span><span class="ua">Режим ринку</span></span>
       </button>
     </div>
-
-    <!-- Panel 1: Components -->
-    <div class="base-tab-panel active" id="tab-panel-components" role="tabpanel" aria-labelledby="tab-btn-components">
-      <!-- COMPONENTS -->
-  <div class="section-header" style="justify-content: center; margin-top: 42px; margin-bottom: 8px;">
-    <span class="section-title" role="heading" aria-level="2"><span class="en">Components</span><span class="ua">Компоненти</span></span>
   </div>
+
+  <!-- SECTION 1: COMPONENTS (IN A UNIFIED CARD) -->
+  <div class="card base-components-card base-section-anchor" id="components">
+    <div class="base-card-section-hdr">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span style="display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; border-radius:6px; background:rgba(56,189,248,0.12); color:#38BDF8;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+        </span>
+        <span class="section-title" role="heading" aria-level="2"><span class="en">Components</span><span class="ua">Компоненти</span></span>
+      </div>
+      <span style="font-size: 11px; font-weight: 600; color: var(--muted2);">15 <span class="en">Model Indicators</span><span class="ua">Індикаторів моделі</span></span>
+    </div>
+    <!-- COMPONENTS -->
+  
 
   <div class="components-grid">
     <!-- On-Chain -->
@@ -1994,13 +2001,11 @@
     </div>
   </div>
   </div>
+  </div>
 
-  
-    </div>
-
-    <!-- Panel 2: History Chart -->
-    <div class="base-tab-panel" id="tab-panel-history" role="tabpanel" aria-labelledby="tab-btn-history">
-      <!-- BOTTOM GRID -->
+  <!-- SECTION 2: HISTORY CHART -->
+  <div class="base-section-anchor" id="history">
+    <!-- BOTTOM GRID -->
   <div class="bottom-grid" id="history">
     <div class="card">
       <div class="section-header" style="margin-bottom:4px">
@@ -2042,10 +2047,11 @@
   
     </div>
     </div>
+  </div>
 
-    <!-- Panel 4: Market Regime & Signals -->
-    <div class="base-tab-panel" id="tab-panel-regime" role="tabpanel" aria-labelledby="tab-btn-regime">
-      <!-- SIGNALS CONTAINER -->
+  <!-- SECTION 3: MARKET REGIME & SIGNALS -->
+  <div class="base-section-anchor" id="regime">
+    <!-- SIGNALS CONTAINER -->
   <div class="signals-container">
     <!-- SIGNAL BLOCK (Market Regime) -->
     <div class="flip-card-wrap" id="signal-block" style="display:none">
@@ -2146,10 +2152,7 @@
       </div>
     </div>
   </div>
-
-  
-    </div>
-  </div>
+</div>
 
 <button class="disclaimer-btn" id="disc-btn">
     <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M10 2L3 6v5c0 4.4 3 8.5 7 9.5 4-1 7-5.1 7-9.5V6L10 2z" stroke="#3B82F6" stroke-width="1.5" stroke-linejoin="round"/></svg>
@@ -2423,29 +2426,37 @@ function updateZoneForecast(zf, btcPrice) {
   }
 }
 
-function initBaseTabs() {
-  const triggers = document.querySelectorAll('.base-tab-trigger');
-  const panels = document.querySelectorAll('.base-tab-panel');
-  triggers.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const tabId = btn.dataset.tab;
-      triggers.forEach(b => {
-        const isActive = b === btn;
-        b.classList.toggle('active', isActive);
-        b.setAttribute('aria-selected', isActive ? 'true' : 'false');
-      });
-      panels.forEach(p => {
-        const isTarget = p.id === 'tab-panel-' + tabId;
-        p.classList.toggle('active', isTarget);
-      });
-      if (tabId === 'history' && historyScores.length) {
-        setTimeout(() => drawHistory(activeRange), 50);
-      }
-      if (tabId === 'components') {
-        setTimeout(drawSparklines, 50);
-      }
+// ─── ANCHOR SCROLL CONTROLLER ──────────────────────────
+function initAnchorScroll() {
+  const btns = document.querySelectorAll('.base-anchor-btn');
+  const sections = ['components', 'history', 'regime'].map(id => document.getElementById(id)).filter(Boolean);
+
+  btns.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const targetId = btn.dataset.target;
+      const targetEl = document.getElementById(targetId);
+      if (!targetEl) return;
+      const navOffset = 135;
+      const targetPos = targetEl.getBoundingClientRect().top + window.pageYOffset - navOffset;
+      window.scrollTo({ top: Math.max(0, targetPos), behavior: 'smooth' });
     });
   });
+
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const id = entry.target.id;
+          btns.forEach(b => {
+            b.classList.toggle('active', b.dataset.target === id);
+          });
+        }
+      });
+    }, { rootMargin: '-20% 0px -60% 0px', threshold: 0.1 });
+
+    sections.forEach(sec => observer.observe(sec));
+  }
 }
 
 function updateBaseMeter(prefix, score) {
@@ -3750,7 +3761,7 @@ function updateCountdown() {
   el.innerHTML = `${pad(h)}<span class="blink-colon">:</span>${pad(m)}`;
 }
 
-window.addEventListener('load', () => { initBaseTabs(); initHeroFlip(); loadData(); updateCountdown(); setInterval(updateCountdown, 60000); });
+window.addEventListener('load', () => { initAnchorScroll(); initHeroFlip(); loadData(); updateCountdown(); setInterval(updateCountdown, 60000); });
 window.addEventListener('resize', () => { if (historyScores.length) drawHistory(activeRange); drawSparklines(); });
 
 // ─── DISCLAIMER MODAL ──────────────────────────────────
