@@ -1059,12 +1059,6 @@
     align-items: baseline;
     gap: 8px;
   }
-  .base-meter-status {
-    font-size: 10.5px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-  }
   .base-meter-val {
     font-size: 16px;
     font-weight: 800;
@@ -1381,10 +1375,7 @@
               <div class="base-meter" data-meter="onchain">
                 <div class="base-meter-header">
                   <span class="base-meter-label"><span class="en">On-Chain</span><span class="ua">Ончейн</span></span>
-                  <div class="base-meter-val-wrap">
-                    <span class="base-meter-status" id="sub-status-oc">—</span>
-                    <span class="base-meter-val" id="sub-val-oc">—</span>
-                  </div>
+                  <span class="base-meter-val" id="sub-val-oc">—</span>
                 </div>
                 <div class="base-meter-track" role="meter" aria-label="On-Chain Score" aria-valuemin="0" aria-valuemax="100">
                   <div class="base-meter-indicator" id="sub-bar-oc" style="width: 0%;"></div>
@@ -1395,10 +1386,7 @@
               <div class="base-meter" data-meter="technical">
                 <div class="base-meter-header">
                   <span class="base-meter-label"><span class="en">Technical</span><span class="ua">Технічний</span></span>
-                  <div class="base-meter-val-wrap">
-                    <span class="base-meter-status" id="sub-status-tech">—</span>
-                    <span class="base-meter-val" id="sub-val-tech">—</span>
-                  </div>
+                  <span class="base-meter-val" id="sub-val-tech">—</span>
                 </div>
                 <div class="base-meter-track" role="meter" aria-label="Technical Score" aria-valuemin="0" aria-valuemax="100">
                   <div class="base-meter-indicator" id="sub-bar-tech" style="width: 0%;"></div>
@@ -1409,10 +1397,7 @@
               <div class="base-meter" data-meter="macro">
                 <div class="base-meter-header">
                   <span class="base-meter-label"><span class="en">Macro</span><span class="ua">Макро</span></span>
-                  <div class="base-meter-val-wrap">
-                    <span class="base-meter-status" id="sub-status-macro">—</span>
-                    <span class="base-meter-val" id="sub-val-macro">—</span>
-                  </div>
+                  <span class="base-meter-val" id="sub-val-macro">—</span>
                 </div>
                 <div class="base-meter-track" role="meter" aria-label="Macro Score" aria-valuemin="0" aria-valuemax="100">
                   <div class="base-meter-indicator" id="sub-bar-macro" style="width: 0%;"></div>
@@ -2466,15 +2451,19 @@ function updateBaseMeter(prefix, score) {
   const valEl = document.getElementById('sub-val-' + prefix);
   const barEl = document.getElementById('sub-bar-' + prefix);
   const stEl  = document.getElementById('sub-status-' + prefix);
-  if (valEl) { valEl.textContent = num; valEl.style.color = z.color; }
+  if (valEl) {
+    valEl.textContent = num;
+    valEl.style.color = z.color;
+    valEl.title = `${z.label} / ${z.labelUa} (${num})`;
+  }
   if (barEl) {
     barEl.style.width = Math.min(100, Math.max(0, num)) + '%';
     barEl.style.backgroundColor = z.color;
     barEl.style.boxShadow = `0 0 8px ${z.color}40`;
+    barEl.title = `${z.label} / ${z.labelUa} (${num})`;
   }
   if (stEl) {
-    stEl.innerHTML = `<span class="en">${z.stateEn}</span><span class="ua">${z.stateUa}</span>`;
-    stEl.style.color = z.color;
+    stEl.remove();
   }
 }
 
