@@ -426,6 +426,30 @@
   .disc-modal-body { font-size: 13px; color: var(--muted2); line-height: 1.7; }
   .disc-modal-body strong { color: var(--text); }
   .disc-close { position: absolute; top: 16px; right: 16px; width: 32px; height: 32px; border-radius: 50%; background: var(--surface2); border: 1px solid var(--border2); color: var(--muted2); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+  @media (max-width: 600px) {
+    .disc-modal { padding: 22px 18px 24px; max-height: 88vh; overflow-y: auto; }
+  }
+
+  /* Uncertainty Interactive Arc in Gauge */
+  .uncertainty-interactive {
+    cursor: pointer;
+    outline: none;
+    transition: transform 0.15s ease, filter 0.15s ease;
+  }
+  .uncertainty-interactive text {
+    transition: fill 0.15s ease, opacity 0.15s ease;
+  }
+  .uncertainty-interactive:hover text {
+    fill: var(--text);
+    opacity: 1;
+  }
+  .uncertainty-interactive:hover .conflict-arc-path {
+    filter: drop-shadow(0 0 5px rgba(234, 179, 8, 0.5));
+  }
+  .uncertainty-interactive:active {
+    transform: scale(0.985);
+    transform-origin: 120px 120px;
+  }
 
   footer { border-top: 1px solid var(--border); padding: 24px 32px; display: flex; align-items: center; background: var(--surface); flex-wrap: wrap; gap: 12px; }
   .footer-logo { font-weight: 700; font-size: 14px; margin-right: 48px; color: var(--logo-text); }
@@ -1373,8 +1397,11 @@
                 <!-- Needle indicator dot at value 33 -->
                 <circle id="gauge-needle" cx="79.5" cy="39.8" r="5.5" fill="var(--bg)" stroke="#22C55E" stroke-width="2"/>
 
-                <!-- Inner Uncertainty / Disagreement Arc -->
-                <g id="uncertainty-group">
+                <!-- Inner Uncertainty / Disagreement Arc (Clickable for explanation) -->
+                <g id="uncertainty-group" class="uncertainty-interactive" role="button" tabindex="0" aria-label="Uncertainty explanation">
+                  <title>Click to view Uncertainty explanation / Натисніть для пояснення невизначеності</title>
+                  <!-- Generous invisible click hit area -->
+                  <path d="M 34 120 A 86 86 0 0 1 206 120" stroke="transparent" stroke-width="22" stroke-linecap="round" fill="none" style="pointer-events: stroke; cursor: pointer;"/>
                   <path class="conflict-arc-path" d="M 34 120 A 86 86 0 0 1 206 120" stroke="url(#arcGrad)" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.12"/>
                   <path class="conflict-arc-path" id="gauge-conflict-arc" d="" stroke="#22C55E" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.92"/>
                   <circle class="conflict-needle-dot" id="gauge-conflict-needle" cx="34" cy="120" r="3.2" fill="var(--bg)" stroke="#22C55E" stroke-width="1.5"/>
@@ -2194,6 +2221,81 @@
         <p><span class="en"><strong>BTCBRI is an information indicator, not financial advice.</strong> This index is not a call to action or an objective measure of risk — no claims accepted.</span><span class="ua"><strong>BTCBRI — інформаційний індикатор, а не фінансова порада.</strong> Цей індекс не є закликом до дії та не є об'єктивним вимірюванням ризику — жодних претензій.</span></p>
         <br>
         <p><span class="en">The score reflects a composite of on-chain, technical and macro metrics. It is provided for informational purposes only. Past patterns do not guarantee future results. Always do your own research before making investment decisions.</span><span class="ua">Індекс відображає сукупність он-чейн, технічних та макроекономічних метрик. Він надається виключно в інформаційних цілях. Минулі закономірності не гарантують майбутніх результатів. Завжди проводьте власне дослідження перед прийняттям інвестиційних рішень.</span></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Uncertainty Explanation Modal -->
+  <div class="disc-modal-overlay" id="uncertainty-modal-overlay">
+    <div class="disc-modal" style="max-width: 580px;">
+      <button class="disc-close" id="uncertainty-modal-close" aria-label="Close">×</button>
+      <div class="disc-modal-title" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; padding-right: 36px;">
+        <span style="font-size: 16px; font-weight: 700;">
+          <span class="en">Index Uncertainty &amp; Divergence</span>
+          <span class="ua">Невизначеність та розбіжність індексу</span>
+        </span>
+        <div id="modal-uncertainty-badge" style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 9999px; font-size: 11px; font-weight: 700; border: 1px solid var(--border); background: var(--surface2); flex-shrink: 0;">
+          <span id="modal-uncertainty-score" style="font-variant-numeric: tabular-nums;">—</span>
+          <span id="modal-uncertainty-tag">—</span>
+        </div>
+      </div>
+      <div class="disc-modal-body" style="display: flex; flex-direction: column; gap: 14px; font-size: 13px; line-height: 1.65;">
+        <p>
+          <span class="en"><strong>What does the inner arc represent?</strong> The inner arc shows the degree of divergence or conflict between model components (scored 0 to 100). When metrics disagree on market phase, uncertainty rises.</span>
+          <span class="ua"><strong>Що показує внутрішня дуга?</strong> Внутрішня шкала відображає ступінь розбіжності (конфлікту) між компонентами моделі (від 0 до 100). Коли метрики розходяться в оцінці фази ринку, рівень невизначеності зростає.</span>
+        </p>
+
+        <div style="background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div>
+            <div style="font-size: 10.5px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em;">
+              <span class="en">Current Uncertainty</span>
+              <span class="ua">Поточна невизначеність</span>
+            </div>
+            <div id="modal-cs-val" style="font-size: 20px; font-weight: 800; margin-top: 3px; font-variant-numeric: tabular-nums;">—</div>
+          </div>
+          <div>
+            <div style="font-size: 10.5px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em;">
+              <span class="en">Model Confidence</span>
+              <span class="ua">Впевненість моделі</span>
+            </div>
+            <div id="modal-conf-val" style="font-size: 20px; font-weight: 800; color: var(--text); margin-top: 3px; font-variant-numeric: tabular-nums;">—</div>
+          </div>
+        </div>
+
+        <div>
+          <div style="font-weight: 700; margin-bottom: 6px; color: var(--text);">
+            <span class="en">How is it calculated?</span>
+            <span class="ua">Як це розраховується?</span>
+          </div>
+          <p style="margin: 0;">
+            <span class="en">Calculated dynamically from the spread between sub-baskets (On-Chain vs. Tech/Macro) combined with the weighted variance across all 15 underlying metrics. High model confidence corresponds to low uncertainty.</span>
+            <span class="ua">Розраховується динамічно на основі розриву між підкошиками (ончейн проти тех/макро) у поєднанні зі зваженою дисперсією всіх 15 базових метрик. Висока впевненість моделі відповідає низькій невизначеності.</span>
+          </p>
+        </div>
+
+        <div>
+          <div style="font-weight: 700; margin-bottom: 6px; color: var(--text);">
+            <span class="en">Interpretation Guide:</span>
+            <span class="ua">Як інтерпретувати рівні:</span>
+          </div>
+          <ul style="margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px;">
+            <li>
+              <strong style="color: #22C55E;"><span class="en">Low (0 – 24):</span><span class="ua">Низька (0 – 24):</span></strong>
+              <span class="en"> Broad consensus across on-chain and macro indicators. Maximum directional reliability.</span>
+              <span class="ua"> Широкий консенсус між ончейн і макроіндикаторами. Максимальна надійність сигналу.</span>
+            </li>
+            <li>
+              <strong style="color: #EAB308;"><span class="en">Moderate (25 – 54):</span><span class="ua">Помірна (25 – 54):</span></strong>
+              <span class="en"> Normal market divergence; slight phase lead/lag between indicators. The composite index remains fully actionable.</span>
+              <span class="ua"> Звичайна ринкова розбіжність; типове випередження/запізнення метрик. Підсумковий індекс залишається надійним орієнтиром.</span>
+            </li>
+            <li>
+              <strong style="color: #EF4444;"><span class="en">High (55 – 100):</span><span class="ua">Висока (55 – 100):</span></strong>
+              <span class="en"> Sub-models strongly contradict each other (e.g. on-chain deep value vs. macro stress or derivative overheating). Exercise extra caution and check individual sub-baskets.</span>
+              <span class="ua"> Моделі суттєво суперечать одна одній (наприклад, ончейн-накопичення при макротиску або перегріві деривативів). Рекомендується підвищена обачність та окремий аналіз підкошиків.</span>
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
   </div>
@@ -3802,6 +3904,64 @@ const discOverlay = document.getElementById('disc-overlay');
 document.getElementById('disc-btn').addEventListener('click', () => discOverlay.classList.add('open'));
 document.getElementById('disc-close').addEventListener('click', () => discOverlay.classList.remove('open'));
 discOverlay.addEventListener('click', e => { if (e.target === discOverlay) discOverlay.classList.remove('open'); });
+
+// ─── UNCERTAINTY MODAL ─────────────────────────────────
+function openUncertaintyModal() {
+  const cs = window._conflictScore != null ? Math.round(window._conflictScore) : null;
+  const conf = cs != null ? Math.max(0, 100 - cs) : null;
+  const cz = cs != null ? riskZone(cs) : null;
+
+  const scoreEl = document.getElementById('modal-uncertainty-score');
+  const tagEl = document.getElementById('modal-uncertainty-tag');
+  const csValEl = document.getElementById('modal-cs-val');
+  const confValEl = document.getElementById('modal-conf-val');
+  const badgeEl = document.getElementById('modal-uncertainty-badge');
+
+  if (cs != null && cz) {
+    if (scoreEl) { scoreEl.textContent = cs + ' / 100'; scoreEl.style.color = cz.color; }
+    if (tagEl) {
+      tagEl.innerHTML = `<span class="en">${cz.label}</span><span class="ua">${cz.labelUa}</span>`;
+      tagEl.style.color = cz.color;
+    }
+    if (csValEl) { csValEl.textContent = cs + ' / 100'; csValEl.style.color = cz.color; }
+    if (confValEl) { confValEl.textContent = conf + '%'; }
+    if (badgeEl) { badgeEl.style.borderColor = cz.color; }
+  }
+  const overlay = document.getElementById('uncertainty-modal-overlay');
+  if (overlay) overlay.classList.add('open');
+}
+
+function closeUncertaintyModal() {
+  const overlay = document.getElementById('uncertainty-modal-overlay');
+  if (overlay) overlay.classList.remove('open');
+}
+
+const uncGroup = document.getElementById('uncertainty-group');
+if (uncGroup) {
+  uncGroup.addEventListener('click', (e) => {
+    e.stopPropagation();
+    openUncertaintyModal();
+  });
+  uncGroup.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      e.stopPropagation();
+      openUncertaintyModal();
+    }
+  });
+}
+const uncClose = document.getElementById('uncertainty-modal-close');
+const uncOverlay = document.getElementById('uncertainty-modal-overlay');
+if (uncClose) uncClose.addEventListener('click', closeUncertaintyModal);
+if (uncOverlay) uncOverlay.addEventListener('click', (e) => {
+  if (e.target === uncOverlay) closeUncertaintyModal();
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    closeUncertaintyModal();
+    if (discOverlay) discOverlay.classList.remove('open');
+  }
+});
 
 // ─── LIVE BTC PRICE ────────────────────────────────────
 function fetchLivePrice() {

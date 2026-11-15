@@ -1531,7 +1531,7 @@
             <!-- Main Score group (centered) + Confidence (abs left) + Yesterday/7d (abs right) -->
             <div class="display-main-row">
               <!-- Confidence Column (Left, mirrors Yesterday) -->
-              <div class="display-confidence-column" id="s-confidence-col" title="Рівень внутрішньої узгодженості індикатора / Indicator internal confidence">
+              <div class="display-confidence-column" id="s-confidence-col" onclick="event.stopPropagation(); showMetricHelp('confidence')" style="cursor: pointer;" title="Рівень внутрішньої узгодженості індикатора / Indicator internal confidence">
                 <div class="history-item">
                   <span class="history-label"><span class="ua">впевненість</span><span class="en">confidence</span></span>
                   <span class="history-value" id="s-confidence-val">—</span>
@@ -2176,6 +2176,10 @@
         title: { en: 'Indicator Contradiction', ua: 'Розбіжність Індикаторів' },
         text:  { en: 'One or more individual indicators points in the opposite direction from the overall index. The composite score is still the best single summary, but the divergence signals uncertainty — treat the current reading with extra caution and check the on-chain and tech/macro sub-scores for details.',
                   ua: 'Один або кілька індикаторів вказують у протилежному від загального напрямку. Підсумковий бал — найкраще зведення, але розбіжність свідчить про невизначеність. Перевірте підбали ончейн та тех/макро, щоб побачити, де саме є суперечність.' } },
+      confidence: {
+        title: { en: 'Model Confidence & Uncertainty', ua: 'Впевненість та Невизначеність' },
+        text:  { en: 'Confidence (0–100) reflects the internal agreement among all 15 indicators across on-chain, technical, and macro models. High confidence means metrics align on the same market phase. Low confidence (high uncertainty) means components disagree — proceed with extra caution.',
+                  ua: 'Впевненість (0–100) відображає ступінь узгодженості між усіма 15 метриками ончейн, технічних та макромоделей. Висока впевненість означає, що показники вказують на одну фазу. Низька впевненість (висока невизначеність) свідчить про суперечність між індикаторами — дійте обачніше.' } },
     };
 
     function showMetricHelp(key) {
