@@ -162,6 +162,8 @@
   .gauge-svg { display: block; width: 100%; overflow: visible; }
   .gauge-svg path { stroke-width: 8px; }
   .gauge-svg circle { stroke-width: 2.5px; }
+  .gauge-svg path.conflict-arc-path { stroke-width: 3px; }
+  .gauge-svg circle.conflict-needle-dot { stroke-width: 1.5px; }
 
   /* Mini gauge arc thickness adaptations */
   .mini-gauges-col .mini-gauge-svg path { stroke-width: 5px; }
@@ -170,7 +172,7 @@
   .sub-basket-card .mini-gauge-svg path { stroke-width: 3.8px; }
   .sub-basket-card .mini-gauge-svg circle { stroke-width: 1.4px; }
   .sub-basket-card .gauge-bar { height: 3.5px; }
-  .gauge-arc-number { position: absolute; top: 58%; left: 0; right: 0; display: flex; justify-content: center; align-items: center; transform: translateY(-50%); }
+  .gauge-arc-number { position: absolute; top: 73%; left: 0; right: 0; display: flex; justify-content: center; align-items: center; transform: translateY(-50%); }
   .gauge-val { font-size: 80px; font-weight: 700; letter-spacing: -0.04em; line-height: 1; }
   .gauge-denom { font-size: 20px; color: var(--muted); font-weight: 400; }
   .gauge-denom-spacer { font-size: 20px; font-weight: 400; visibility: hidden; pointer-events: none; }
@@ -551,25 +553,25 @@
     .gauge-card-container {
       order: 1;
       height: auto !important;
-      min-height: 380px;
+      min-height: 300px;
       width: 100%;
       min-width: 0;
       box-sizing: border-box;
     }
     .gauge-card-inner {
       height: 100%;
-      min-height: 380px;
+      min-height: 300px;
     }
     .gauge-card-front {
       position: relative !important;
       height: auto !important;
-      min-height: 380px;
+      min-height: 300px;
       padding: 18px 16px 16px !important;
       box-sizing: border-box;
     }
     .gauge-card-back {
       height: 100% !important;
-      min-height: 380px;
+      min-height: 300px;
     }
     .gauge-card-inner.flipped .gauge-card-front {
       position: absolute !important;
@@ -582,6 +584,12 @@
     }
     .gauge-svg circle {
       stroke-width: 2.2px;
+    }
+    .gauge-svg path.conflict-arc-path {
+      stroke-width: 2.5px;
+    }
+    .gauge-svg circle.conflict-needle-dot {
+      stroke-width: 1.3px;
     }
     .gauge-tags {
       margin-top: 10px;
@@ -956,6 +964,7 @@
                   <stop offset="66%"  stop-color="#F97316"/>
                   <stop offset="100%" stop-color="#EF4444"/>
                 </linearGradient>
+                <path id="uncertainty-label-path" d="M 43 120 A 77 77 0 0 1 197 120" fill="none"/>
               </defs>
               <!-- Track -->
               <path d="M 20 120 A 100 100 0 0 1 220 120" stroke="var(--surface2)" stroke-width="8" stroke-linecap="round" fill="none" vector-effect="non-scaling-stroke"/>
@@ -965,6 +974,16 @@
               <path id="gauge-arc" d="" stroke="#22C55E" stroke-width="8" stroke-linecap="round" fill="none" vector-effect="non-scaling-stroke"/>
               <!-- Needle dot -->
               <circle id="gauge-needle" cx="20" cy="120" r="6" fill="var(--bg)" stroke="#22C55E" stroke-width="2.5" vector-effect="non-scaling-stroke"/>
+              <!-- Inner Conflict / Disagreement Arc (0 = High Sync/Low Conflict, 100 = High Conflict) -->
+              <g id="gauge-conflict-group">
+                <title id="gauge-conflict-title">Невизначеність / Uncertainty</title>
+                <path class="conflict-arc-path" d="M 34 120 A 86 86 0 0 1 206 120" stroke="var(--surface2)" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.7" vector-effect="non-scaling-stroke"/>
+                <path class="conflict-arc-path" d="M 34 120 A 86 86 0 0 1 206 120" stroke="url(#arcGrad)" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.12" vector-effect="non-scaling-stroke"/>
+                <path class="conflict-arc-path" id="gauge-conflict-arc" d="" stroke="#22C55E" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.92" vector-effect="non-scaling-stroke"/>
+                <circle class="conflict-needle-dot" id="gauge-conflict-needle" cx="34" cy="120" r="3.2" fill="var(--bg)" stroke="#22C55E" stroke-width="1.5" vector-effect="non-scaling-stroke"/>
+                <text class="en" font-size="5.5" font-weight="600" letter-spacing="0.12em" fill="var(--muted)" opacity="0.85"><textPath href="#uncertainty-label-path" startOffset="4.5%">UNCERTAINTY</textPath></text>
+                <text class="ua" font-size="5.3" font-weight="600" letter-spacing="0.10em" fill="var(--muted)" opacity="0.85"><textPath href="#uncertainty-label-path" startOffset="4.5%">НЕВИЗНАЧЕНІСТЬ</textPath></text>
+              </g>
             </svg>
             <div class="gauge-arc-number">
               <span class="gauge-val" id="gauge-val">—</span>
@@ -980,7 +999,7 @@
               <span class="gl-4"><span class="en">V.HIGH</span><span class="ua">НАДМ.</span></span>
             </div>
           </div>
-          <div class="gauge-tags" id="gauge-tags"></div>
+          <div class="gauge-tags" id="gauge-tags" style="display:none;"></div>
         </div>
 
         <!-- BACK SIDE (Algorithm schematic) -->
@@ -1863,6 +1882,25 @@ function updateGauge(score) {
     zoneInd.style.color = z.color; 
   }
 }
+function updateConflictGauge(conflictScore) {
+  if (conflictScore == null || isNaN(conflictScore)) return;
+  const cs = Math.max(0, Math.min(100, conflictScore));
+  const cz = riskZone(cs);
+  const ang = Math.PI - (cs / 100) * Math.PI;
+  const nx = (120 + 86 * Math.cos(ang)).toFixed(1);
+  const ny = (120 - 86 * Math.sin(ang)).toFixed(1);
+  const arc = document.getElementById('gauge-conflict-arc');
+  const needle = document.getElementById('gauge-conflict-needle');
+  if (arc) {
+    arc.setAttribute('d', cs > 0 ? `M 34 120 A 86 86 0 0 1 ${nx} ${ny}` : '');
+    arc.setAttribute('stroke', cz.color);
+  }
+  if (needle) {
+    needle.setAttribute('cx', nx);
+    needle.setAttribute('cy', ny);
+    needle.setAttribute('stroke', cz.color);
+  }
+}
 function updateMiniGauge(arcId, needleId, valId, score) {
   if (score == null) return;
   const z = riskZone(score);
@@ -2404,6 +2442,41 @@ async function loadData() {
   updateMiniGauge('sub-arc-oc', 'sub-needle-oc', 'sub-val-oc', ocVal);
   updateMiniGauge('sub-arc-tech', 'sub-needle-tech', 'sub-val-tech', techVal);
   updateMiniGauge('sub-arc-macro', 'sub-needle-macro', 'sub-val-macro', macroVal);
+
+  // Inner Conflict / Disagreement Arc (0 → 100, left to right)
+  {
+    const bVals = [ocVal, techVal, macroVal].filter(v => v != null && !isNaN(v));
+    const basketSpread = bVals.length >= 2 ? (Math.max(...bVals) - Math.min(...bVals)) : 0;
+    const mNorm = data.v3_normalized_scores || {};
+    const util = data.v3_utilities || {};
+    let wSum = 0, wMeanNum = 0;
+    Object.keys(mNorm).forEach(k => {
+      const s = Number(mNorm[k]);
+      const u = Number(util[k] ?? 0.5);
+      if (!isNaN(s) && u > 0) {
+        wMeanNum += s * u;
+        wSum += u;
+      }
+    });
+    let weightedStd = 0;
+    if (wSum > 0) {
+      const wMean = wMeanNum / wSum;
+      let varNum = 0;
+      Object.keys(mNorm).forEach(k => {
+        const s = Number(mNorm[k]);
+        const u = Number(util[k] ?? 0.5);
+        if (!isNaN(s) && u > 0) {
+          varNum += u * Math.pow(s - wMean, 2);
+        }
+      });
+      weightedStd = Math.sqrt(varNum / wSum);
+    }
+    const conflictScore = Math.min(100, Math.max(0, Math.round(
+      0.6 * (basketSpread / 55 * 100) + 0.4 * (weightedStd / 32 * 100)
+    )));
+    window._conflictScore = conflictScore;
+    updateConflictGauge(conflictScore);
+  }
 
   const fg7d = m.fear_greed ? (m.fear_greed.avg_7d ?? m.fear_greed.latest) : data.fear_greed;
   if (data.timestamp) {
@@ -3050,9 +3123,10 @@ function updateGaugeTags(score, vals, keys, fr, recoveryWindow, normScores) {
       ua: 'Перегрів плеча — ризик лонг-сквізу' });
   }
 
-  // Divergence: overall low (≤40) but some indicator high (≥65), or vice versa (≥60 / ≤35)
+  // Divergence: overall low (≤40) but some indicator high (≥65), or vice versa (≥60 / ≤35), or elevated basket conflict
   const indivScores = normKeyList.map(k => normScores[k]).filter(s => s != null);
   const hasDivergence =
+    (window._conflictScore != null && window._conflictScore >= 50) ||
     (score <= 40 && indivScores.some(s => s >= 65)) ||
     (score >= 60 && indivScores.some(s => s <= 35));
   if (hasDivergence) {

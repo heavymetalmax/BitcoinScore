@@ -504,14 +504,66 @@
       margin: 2px 0;
     }
 
+    .display-confidence-row {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 18px;
+      padding: 0 2px;
+    }
+
+    .confidence-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text);
+      opacity: 0.8;
+      text-transform: lowercase;
+      letter-spacing: 0.03em;
+      line-height: 1;
+    }
+
+    .confidence-track {
+      width: 100%;
+      height: 3px;
+      background: rgba(255, 255, 255, 0.14);
+      border-radius: 99px;
+      position: relative;
+    }
+
+    .confidence-fill {
+      height: 100%;
+      width: 100%;
+      background: var(--text);
+      border-radius: 99px;
+      opacity: 0.85;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.25);
+      transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .confidence-thumb {
+      position: absolute;
+      top: 50%;
+      left: 100%;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--text);
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 8px rgba(255, 255, 255, 0.45);
+      transition: left 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
     .display-sub-row {
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 12px;
       width: 100%;
-      border-top: 1px solid var(--border);
-      padding-top: 20px;
+      padding-top: 2px;
     }
 
     .sub-item {
@@ -1480,6 +1532,17 @@
                   <span class="history-value" id="s-week">—</span>
                   <span class="history-label"><span class="ua">7 днів</span><span class="en">7 days</span></span>
                 </div>
+              </div>
+            </div>
+
+            <!-- Confidence Slider (inverse of Uncertainty: 100% = full sync, lower = indicator disagreement) -->
+            <div class="display-confidence-row" id="s-confidence-row" title="Рівень внутрішньої узгодженості індикатора / Indicator internal confidence">
+              <div class="confidence-header">
+                <span><span class="ua">впевненість</span><span class="en">confidence</span></span>
+              </div>
+              <div class="confidence-track">
+                <div class="confidence-fill" id="s-confidence-fill" style="width: 50%;"></div>
+                <div class="confidence-thumb" id="s-confidence-thumb" style="left: 50%;"></div>
               </div>
             </div>
           </div>
@@ -2502,39 +2565,6 @@
           }
         }
 
-        // 2) Fallback to Contradiction Warning
-        if (!icon) {
-          const allIndScores = [
-            getV3Score('nupl', nupl),
-            getV3Score('mvrv', mvrv),
-            getV3Score('rhodl', rhodl),
-            getV3Score('cvdd', cvdd),
-            getV3Score('asopr', asopr),
-            getV3Score('puell', puellRaw),
-            getV3Score('lth_supply', lthRaw),
-            getV3Score('cipherb', cbScore),
-            getV3Score('mayer', mmVal),
-            getV3Score('etf', etfVal),
-            getV3Score('fg', fgVal),
-            getV3Score('yield_curve', yc),
-            getV3Score('m2', m2raw),
-            getV3Score('pi_cycle', piRaw),
-            getV3Score('funding_rate', frRaw),
-            getV3Score('dxy', dxyRaw),
-          ].filter(s => s != null);
-          const hasContra = allIndScores.some(s =>
-            (data.final_score <= 40 && s >= 65) || (data.final_score >= 60 && s <= 35)
-          );
-          if (hasContra) {
-            icon = WARN_SVG;
-            color = '#ef5350';
-            tip = lang === 'ua'
-              ? 'Розбіжність: один або кілька індикаторів суперечать загальному тренду'
-              : 'Contradiction: one or more key indicators contradicts the overall index direction';
-            warnEl.dataset.alertType = 'alert_contradiction';
-          }
-        }
-
         if (icon) {
           warnEl.innerHTML = icon;
           warnEl.style.color = color;
@@ -2591,6 +2621,42 @@
       setCenterSubVal(_ocAgg,    's-oc-center',    's-oc-status-center');
       setCenterSubVal(_techAgg,  's-tech-center',  's-tech-status-center');
       setCenterSubVal(_macroAgg, 's-macro-center', 's-macro-status-center');
+
+      // Update Confidence Slider (inverse of Uncertainty / Conflict: 100 - conflictScore)
+      {
+        const bVals = [_ocAgg, _techAgg, _macroAgg].filter(v => v != null && !isNaN(v));
+        const basketSpread = bVals.length >= 2 ? (Math.max(...bVals) - Math.min(...bVals)) : 0;
+        let wSum = 0, wMeanNum = 0;
+        Object.keys(normScores).forEach(k => {
+          const s = Number(normScores[k]);
+          const u = Number(utilities[k] ?? 0.5);
+          if (!isNaN(s) && u > 0) {
+            wMeanNum += s * u;
+            wSum += u;
+          }
+        });
+        let weightedStd = 0;
+        if (wSum > 0) {
+          const wMean = wMeanNum / wSum;
+          let varNum = 0;
+          Object.keys(normScores).forEach(k => {
+            const s = Number(normScores[k]);
+            const u = Number(utilities[k] ?? 0.5);
+            if (!isNaN(s) && u > 0) {
+              varNum += u * Math.pow(s - wMean, 2);
+            }
+          });
+          weightedStd = Math.sqrt(varNum / wSum);
+        }
+        const conflictScore = Math.min(100, Math.max(0, Math.round(
+          0.6 * (basketSpread / 55 * 100) + 0.4 * (weightedStd / 32 * 100)
+        )));
+        const confidenceScore = Math.min(100, Math.max(0, 100 - conflictScore));
+        const cFill = document.getElementById('s-confidence-fill');
+        const cThumb = document.getElementById('s-confidence-thumb');
+        if (cFill) cFill.style.width = confidenceScore + '%';
+        if (cThumb) cThumb.style.left = confidenceScore + '%';
+      }
     }
 
     // ── Historical Returns by Score (bucket_returns.json) ──────────────────
