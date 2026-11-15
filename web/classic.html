@@ -3194,11 +3194,8 @@ async function loadData() {
     const val = normScores[key];
     if (val == null) { el.innerHTML = '—'; return; }
     const score = Math.round(val);
-    const barColor = score < 25 ? '#22C55E'
-                   : score < 40 ? '#4ADE80'
-                   : score < 55 ? '#EAB308'
-                   : score < 70 ? '#F97316'
-                   : '#EF4444';
+    const sig = score < 25 ? 'vlow' : score < 35 ? 'low' : score < 55 ? 'mod' : score < 75 ? 'high' : 'vhigh';
+    const barColor = (SIG_LABELS[sig] || SIG_LABELS.mod).color;
     el.innerHTML = `
       <div style="display:flex; flex-direction:column; align-items:center; gap:3px;">
         <span style="font-weight:700; color:${barColor}; font-variant-numeric:tabular-nums; font-size:12px;">${score}</span>
