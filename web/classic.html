@@ -117,7 +117,7 @@
     box-shadow: var(--shadow);
     transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
   }
-  .card:not(.flip-card-front):not(.flip-card-back):hover {
+  .card:not(.flip-card-front):not(.flip-card-back):not(.base-hero-front):not(.base-hero-back):hover {
     transform: translateY(-2px);
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3), 0 0 15px rgba(99, 102, 241, 0.08);
     border-color: rgba(99, 102, 241, 0.25);
@@ -739,7 +739,229 @@
     .signal-badge { padding: 2px 6px; font-size: 9.5px; }
   }
 
-  /* ─── BASE UI REDESIGN SYSTEM ───────────────────────── */
+
+  /* ─── BASE UI HERO FLIP SYSTEM ───────────────────────── */
+  .base-hero-flip-wrap {
+    perspective: 2000px;
+    margin-bottom: 24px;
+    width: 100%;
+  }
+  .base-hero-flip-inner {
+    position: relative;
+    width: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.65s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .base-hero-flip-inner.flipped {
+    transform: rotateY(180deg);
+  }
+  .base-hero-front {
+    position: relative;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transform: rotateY(0deg) !important;
+    transition: none !important;
+    z-index: 2;
+  }
+  .base-hero-back {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transform: rotateY(180deg) !important;
+    transition: none !important;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+  .base-hero-front:hover, .base-hero-back:hover {
+    box-shadow: var(--shadow) !important;
+    border-color: var(--border) !important;
+  }
+  .base-hero-flip-inner.flipped .base-hero-front {
+    pointer-events: none;
+  }
+  .base-hero-flip-inner:not(.flipped) .base-hero-back {
+    pointer-events: none;
+  }
+
+  .base-flip-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    font-family: inherit;
+    color: var(--muted2);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 9999px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .base-flip-btn:hover {
+    color: var(--text);
+    border-color: rgba(56, 189, 248, 0.4);
+    background: rgba(56, 189, 248, 0.08);
+  }
+  .base-flip-btn.back-active {
+    color: #38BDF8;
+    border-color: rgba(56, 189, 248, 0.35);
+    background: rgba(56, 189, 248, 0.1);
+  }
+
+  /* Back face elements */
+  .base-back-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    color: var(--text);
+    text-transform: uppercase;
+  }
+  .base-back-grid {
+    display: grid;
+    grid-template-columns: 1.25fr 1px 1fr;
+    gap: 22px;
+    align-items: center;
+    flex: 1;
+    min-height: 0;
+  }
+  .base-back-divider {
+    width: 1px;
+    height: 92%;
+    background: var(--border);
+    align-self: center;
+  }
+  .base-back-pipeline {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 8px;
+    height: 100%;
+  }
+  .base-back-inversion {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
+    height: 100%;
+  }
+  .base-inversion-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .base-inv-card {
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .base-inv-card.inv-cost {
+    grid-column: span 2;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 7px 12px;
+  }
+  .base-inv-badge-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .base-inv-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .base-inv-name {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--muted2);
+  }
+  .base-inv-delta {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 5px;
+    border-radius: 4px;
+    margin-left: auto;
+  }
+  .base-inv-delta.delta-up {
+    color: #22C55E;
+    background: rgba(34, 197, 94, 0.12);
+  }
+  .base-inv-delta.delta-down {
+    color: #EF4444;
+    background: rgba(239, 68, 68, 0.12);
+  }
+  .base-inv-price {
+    font-size: 18px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    color: var(--text);
+    line-height: 1.15;
+  }
+  .base-inv-card.inv-buy .base-inv-price {
+    color: #22C55E;
+  }
+  .base-inv-card.inv-sell .base-inv-price {
+    color: #F59E0B;
+  }
+  .base-inv-card.inv-cost .base-inv-price {
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .base-inv-sub {
+    font-size: 9px;
+    color: var(--muted);
+    line-height: 1.2;
+  }
+  .base-inv-explainer {
+    font-size: 9.5px;
+    line-height: 1.45;
+    color: var(--muted2);
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px dashed var(--border);
+  }
+
+  @media (max-width: 900px) {
+    .base-hero-back {
+      position: relative;
+      height: auto;
+      min-height: 480px;
+    }
+    .base-hero-flip-inner.flipped .base-hero-front {
+      position: absolute;
+    }
+    .base-back-grid {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+    .base-back-divider {
+      display: none;
+    }
+    .base-inversion-cards {
+      grid-template-columns: 1fr;
+    }
+    .base-inv-card.inv-cost {
+      grid-column: span 1;
+    }
+  }
+
   .base-hero-card {
     display: flex;
     flex-direction: column;
@@ -1067,146 +1289,379 @@
 
 <main>
 
-    <!-- BASE UI UNIFIED HERO DASHBOARD -->
-  <div class="base-hero-card card">
-    <!-- Top Meta Status Bar -->
-    <div class="base-hero-top">
-      <div class="base-hero-badge">
-        <span class="base-live-dot"></span>
-        <span style="font-size:10px;font-weight:700;letter-spacing:0.06em;color:#22C55E;text-transform:uppercase;">LIVE</span>
-        <span id="live-price" style="font-size:12px;font-weight:700;color:var(--text);font-variant-numeric:tabular-nums;margin-left:2px;">—</span>
-      </div>
-      <div class="base-hero-time">
-        <span><span class="en">Updated:</span><span class="ua">Оновлено:</span> <strong id="market-updated">—</strong></span>
-        <span style="opacity:0.35;">•</span>
-        <span><span class="en">Next:</span><span class="ua">Наступне:</span> <strong id="market-next" class="status-countdown">—:—</strong></span>
-      </div>
-    </div>
-
-    <!-- Main Hero Split (Gauge on Left, Meters on Right) -->
-    <div class="base-hero-body">
-      <!-- Left Column: Primary Gauge -->
-      <div class="base-hero-left">
-        <div class="gauge-arc-wrap">
-          <svg class="gauge-svg" viewBox="0 0 240 130" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <linearGradient id="arcGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%"   stop-color="#22C55E"/>
-                <stop offset="33%"  stop-color="#EAB308"/>
-                <stop offset="66%"  stop-color="#F97316"/>
-                <stop offset="100%" stop-color="#EF4444"/>
-              </linearGradient>
-              <path id="uncertainty-label-path" d="M 43 120 A 77 77 0 0 1 197 120" fill="none"/>
-            </defs>
-            <!-- Track -->
-            <path d="M 20 120 A 100 100 0 0 1 220 120" stroke="var(--surface2)" stroke-width="8" stroke-linecap="round" fill="none" vector-effect="non-scaling-stroke"/>
-            <!-- Faint gradient track -->
-            <path d="M 20 120 A 100 100 0 0 1 220 120" stroke="url(#arcGrad)" stroke-width="8" stroke-linecap="round" fill="none" opacity="0.18" vector-effect="non-scaling-stroke"/>
-            <!-- Active arc -->
-            <path id="gauge-arc" d="" stroke="#22C55E" stroke-width="8" stroke-linecap="round" fill="none" vector-effect="non-scaling-stroke"/>
-            <!-- Needle dot -->
-            <circle id="gauge-needle" cx="20" cy="120" r="6" fill="var(--bg)" stroke="#22C55E" stroke-width="2.5" vector-effect="non-scaling-stroke"/>
-            <!-- Inner Conflict / Uncertainty Arc -->
-            <g id="gauge-conflict-group">
-              <title id="gauge-conflict-title">Невизначеність / Uncertainty</title>
-              <path class="conflict-arc-path" d="M 34 120 A 86 86 0 0 1 206 120" stroke="var(--surface2)" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.7" vector-effect="non-scaling-stroke"/>
-              <path class="conflict-arc-path" d="M 34 120 A 86 86 0 0 1 206 120" stroke="url(#arcGrad)" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.12" vector-effect="non-scaling-stroke"/>
-              <path class="conflict-arc-path" id="gauge-conflict-arc" d="" stroke="#22C55E" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.92" vector-effect="non-scaling-stroke"/>
-              <circle class="conflict-needle-dot" id="gauge-conflict-needle" cx="34" cy="120" r="3.2" fill="var(--bg)" stroke="#22C55E" stroke-width="1.5" vector-effect="non-scaling-stroke"/>
-              <text class="en" font-size="5.5" font-weight="600" letter-spacing="0.12em" fill="var(--muted)" opacity="0.85"><textPath href="#uncertainty-label-path" startOffset="4.5%">UNCERTAINTY</textPath></text>
-              <text class="ua" font-size="5.3" font-weight="600" letter-spacing="0.10em" fill="var(--muted)" opacity="0.85"><textPath href="#uncertainty-label-path" startOffset="4.5%">НЕВИЗНАЧЕНІСТЬ</textPath></text>
-            </g>
-          </svg>
-          <div class="gauge-arc-number">
-            <span class="gauge-val" id="gauge-val">—</span>
+    <!-- BASE UI UNIFIED HERO DASHBOARD (WITH FLIP) -->
+  <div class="base-hero-flip-wrap" id="hero-flip-wrap">
+    <div class="base-hero-flip-inner" id="hero-flip-inner">
+      <!-- FRONT SIDE -->
+      <div class="card base-hero-card base-hero-front" id="hero-card-front">
+        <div class="base-hero-top">
+          <div class="base-hero-badge">
+            <span class="base-live-dot"></span>
+            <span class="live-price" id="hero-live-price">LIVE $64,710</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <div class="base-hero-time">
+              <span><span class="en">Updated:</span><span class="ua">Оновлено:</span> <strong id="hero-updated-time">14.11.26 17:38</strong></span>
+              <span>•</span>
+              <span><span class="en">Next:</span><span class="ua">Наступне:</span> <strong id="hero-next-time" class="countdown">06:47</strong></span>
+            </div>
+            <button class="base-flip-btn" id="btn-hero-flip" type="button" title="Архітектура конвеєра та ціни входу">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+              <span class="en">Pipeline &amp; Entry Prices</span>
+              <span class="ua">Конвеєр &amp; Ціни входу</span>
+              <span style="font-size:10px; opacity:0.8;">⟲</span>
+            </button>
           </div>
         </div>
-        <div class="gauge-scale">
-          <div class="gauge-bar"></div>
-          <div class="gauge-bar-ticks"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
-          <div class="gauge-labels">
-            <span class="gl-1"><span class="en">V.LOW</span><span class="ua">МІН.</span></span>
-            <span class="gl-2"><span class="en">MODER.</span><span class="ua">ПОМІР.</span></span>
-            <span class="gl-3"><span class="en">HIGH</span><span class="ua">ЗНАЧН.</span></span>
-            <span class="gl-4"><span class="en">V.HIGH</span><span class="ua">НАДМ.</span></span>
-          </div>
-        </div>
-      </div>
 
-      <!-- Vertical divider -->
-      <div class="base-hero-divider"></div>
+        <div class="base-hero-body">
+          <!-- Left Column: Main Arc Gauge -->
+          <div class="base-hero-left">
+            <div class="gauge-wrap" style="width: 240px; height: 130px; position: relative; margin: 0 auto;">
+              <svg class="gauge-svg" viewBox="0 0 240 130" style="width: 100%; height: 100%; display: block; overflow: visible;">
+                <defs>
+                  <linearGradient id="arcGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%"   stop-color="#22C55E"/>
+                    <stop offset="25%"  stop-color="#84CC16"/>
+                    <stop offset="50%"  stop-color="#EAB308"/>
+                    <stop offset="75%"  stop-color="#F97316"/>
+                    <stop offset="100%" stop-color="#EF4444"/>
+                  </linearGradient>
+                  <path id="uncertainty-label-path" d="M 40 120 A 80 80 0 0 1 200 120" fill="none"/>
+                </defs>
+                <!-- Background track -->
+                <path d="M 20 120 A 100 100 0 0 1 220 120" stroke="var(--border)" stroke-width="6" stroke-linecap="round" fill="none"/>
+                <!-- Filled arc: default 33% -->
+                <path id="gauge-arc" d="M 20 120 A 100 100 0 0 1 79.5 39.8" stroke="#22C55E" stroke-width="6" stroke-linecap="round" fill="none"/>
+                <!-- Needle indicator dot at value 33 -->
+                <circle id="gauge-needle" cx="79.5" cy="39.8" r="5" fill="var(--bg)" stroke="#22C55E" stroke-width="2"/>
 
-      <!-- Right Column: Base UI Meters & Dynamics -->
-      <div class="base-hero-right">
-        <div class="base-section-heading">
-          <span class="en">SUB-BASKETS</span>
-          <span class="ua">КОШИКИ ПОКАЗНИКІВ</span>
-        </div>
-
-        <div class="base-meters-list">
-          <!-- Meter: On-Chain -->
-          <div class="base-meter" data-meter="onchain">
-            <div class="base-meter-header">
-              <span class="base-meter-label"><span class="en">On-Chain</span><span class="ua">Ончейн</span></span>
-              <div class="base-meter-val-wrap">
-                <span class="base-meter-status" id="sub-status-oc">—</span>
-                <span class="base-meter-val" id="sub-val-oc">—</span>
+                <!-- Inner Uncertainty / Disagreement Arc -->
+                <g id="uncertainty-group">
+                  <path class="conflict-arc-path" d="M 34 120 A 86 86 0 0 1 206 120" stroke="url(#arcGrad)" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.12"/>
+                  <path class="conflict-arc-path" id="gauge-conflict-arc" d="" stroke="#22C55E" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.92"/>
+                  <circle class="conflict-needle-dot" id="gauge-conflict-needle" cx="34" cy="120" r="3.2" fill="var(--bg)" stroke="#22C55E" stroke-width="1.5"/>
+                  <text class="en" font-size="5.5" font-weight="600" letter-spacing="0.12em" fill="var(--muted)" opacity="0.85"><textPath href="#uncertainty-label-path" startOffset="4.5%">UNCERTAINTY</textPath></text>
+                  <text class="ua" font-size="5.3" font-weight="600" letter-spacing="0.10em" fill="var(--muted)" opacity="0.85"><textPath href="#uncertainty-label-path" startOffset="4.5%">НЕВИЗНАЧЕНІСТЬ</textPath></text>
+                </g>
+              </svg>
+              <!-- Center Score Value (Lowered) -->
+              <div class="gauge-arc-number" style="position: absolute; top: 70%; left: 0; right: 0; display: flex; justify-content: center; align-items: center; transform: translateY(-50%);">
+                <span class="gauge-val" id="gauge-val" style="font-size: 72px; font-weight: 700; letter-spacing: -0.04em; line-height: 1; color: #22C55E;">33</span>
               </div>
             </div>
-            <div class="base-meter-track" role="meter" aria-label="On-Chain Score" aria-valuemin="0" aria-valuemax="100">
-              <div class="base-meter-indicator" id="sub-bar-oc" style="width: 0%;"></div>
+
+            <!-- Lower Zone Scale Bar -->
+            <div class="gauge-scale" style="width: 100%; max-width: 250px; margin-top: 10px;">
+              <div class="gauge-bar" style="height: 4px; border-radius: 2px; background: linear-gradient(90deg, #22C55E 0%, #84CC16 25%, #EAB308 50%, #F97316 75%, #EF4444 100%);"></div>
+              <div class="gauge-bar-ticks" style="display: flex; justify-content: space-between; font-size: 9px; color: var(--muted); margin-top: 3px;">
+                <span>0</span><span>25</span><span>50</span><span>75</span><span>100</span>
+              </div>
+              <div class="gauge-labels" style="display: flex; justify-content: space-between; font-size: 9px; font-weight: 700; margin-top: 2px;">
+                <span class="gl-1" style="color: #22C55E;"><span class="en">V.LOW</span><span class="ua">МІН.</span></span>
+                <span class="gl-2" style="color: #EAB308;"><span class="en">MODER.</span><span class="ua">ПОМІР.</span></span>
+                <span class="gl-3" style="color: #F97316;"><span class="en">HIGH</span><span class="ua">ЗНАЧН.</span></span>
+                <span class="gl-4" style="color: #EF4444;"><span class="en">V.HIGH</span><span class="ua">НАДМ.</span></span>
+              </div>
             </div>
           </div>
 
-          <!-- Meter: Technical -->
-          <div class="base-meter" data-meter="technical">
-            <div class="base-meter-header">
-              <span class="base-meter-label"><span class="en">Technical</span><span class="ua">Технічний</span></span>
-              <div class="base-meter-val-wrap">
-                <span class="base-meter-status" id="sub-status-tech">—</span>
-                <span class="base-meter-val" id="sub-val-tech">—</span>
-              </div>
-            </div>
-            <div class="base-meter-track" role="meter" aria-label="Technical Score" aria-valuemin="0" aria-valuemax="100">
-              <div class="base-meter-indicator" id="sub-bar-tech" style="width: 0%;"></div>
-            </div>
-          </div>
+          <!-- Vertical divider -->
+          <div class="base-hero-divider"></div>
 
-          <!-- Meter: Macro -->
-          <div class="base-meter" data-meter="macro">
-            <div class="base-meter-header">
-              <span class="base-meter-label"><span class="en">Macro</span><span class="ua">Макро</span></span>
-              <div class="base-meter-val-wrap">
-                <span class="base-meter-status" id="sub-status-macro">—</span>
-                <span class="base-meter-val" id="sub-val-macro">—</span>
+          <!-- Right Column: Base UI Meters & Dynamics -->
+          <div class="base-hero-right">
+            <div class="base-section-heading">
+              <span class="en">SUB-BASKETS</span>
+              <span class="ua">КОШИКИ ПОКАЗНИКІВ</span>
+            </div>
+
+            <div class="base-meters-list">
+              <!-- Meter: On-Chain -->
+              <div class="base-meter" data-meter="onchain">
+                <div class="base-meter-header">
+                  <span class="base-meter-label"><span class="en">On-Chain</span><span class="ua">Ончейн</span></span>
+                  <div class="base-meter-val-wrap">
+                    <span class="base-meter-status" id="sub-status-oc">—</span>
+                    <span class="base-meter-val" id="sub-val-oc">—</span>
+                  </div>
+                </div>
+                <div class="base-meter-track" role="meter" aria-label="On-Chain Score" aria-valuemin="0" aria-valuemax="100">
+                  <div class="base-meter-indicator" id="sub-bar-oc" style="width: 0%;"></div>
+                </div>
+              </div>
+
+              <!-- Meter: Technical -->
+              <div class="base-meter" data-meter="technical">
+                <div class="base-meter-header">
+                  <span class="base-meter-label"><span class="en">Technical</span><span class="ua">Технічний</span></span>
+                  <div class="base-meter-val-wrap">
+                    <span class="base-meter-status" id="sub-status-tech">—</span>
+                    <span class="base-meter-val" id="sub-val-tech">—</span>
+                  </div>
+                </div>
+                <div class="base-meter-track" role="meter" aria-label="Technical Score" aria-valuemin="0" aria-valuemax="100">
+                  <div class="base-meter-indicator" id="sub-bar-tech" style="width: 0%;"></div>
+                </div>
+              </div>
+
+              <!-- Meter: Macro -->
+              <div class="base-meter" data-meter="macro">
+                <div class="base-meter-header">
+                  <span class="base-meter-label"><span class="en">Macro</span><span class="ua">Макро</span></span>
+                  <div class="base-meter-val-wrap">
+                    <span class="base-meter-status" id="sub-status-macro">—</span>
+                    <span class="base-meter-val" id="sub-val-macro">—</span>
+                  </div>
+                </div>
+                <div class="base-meter-track" role="meter" aria-label="Macro Score" aria-valuemin="0" aria-valuemax="100">
+                  <div class="base-meter-indicator" id="sub-bar-macro" style="width: 0%;"></div>
+                </div>
               </div>
             </div>
-            <div class="base-meter-track" role="meter" aria-label="Macro Score" aria-valuemin="0" aria-valuemax="100">
-              <div class="base-meter-indicator" id="sub-bar-macro" style="width: 0%;"></div>
+
+            <!-- Dynamics Mini Grid (Yesterday & 7 Days) -->
+            <div class="base-dynamics-grid">
+              <div class="base-dyn-card">
+                <span class="base-dyn-label"><span class="en">Yesterday</span><span class="ua">Вчора</span></span>
+                <div class="base-dyn-row">
+                  <span class="base-dyn-val" id="mini-val-1d">—</span>
+                  <span class="base-dyn-diff" id="mini-diff-1d"></span>
+                </div>
+              </div>
+              <div class="base-dyn-card">
+                <span class="base-dyn-label"><span class="en">7-Day Avg</span><span class="ua">7 Днів сер.</span></span>
+                <div class="base-dyn-row">
+                  <span class="base-dyn-val" id="mini-val-7d">—</span>
+                  <span class="base-dyn-diff" id="mini-diff-7d"></span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
+      </div>
 
-        <!-- Dynamics Mini Grid (Yesterday & 7 Days) -->
-        <div class="base-dynamics-grid">
-          <div class="base-dyn-card">
-            <span class="base-dyn-label"><span class="en">Yesterday</span><span class="ua">Вчора</span></span>
-            <div class="base-dyn-row">
-              <span class="base-dyn-val" id="mini-val-1d">—</span>
-              <span class="base-dyn-diff" id="mini-diff-1d"></span>
-            </div>
+      <!-- BACK SIDE (Pipeline Architecture & Inverse Entry Price) -->
+      <div class="card base-hero-card base-hero-back" id="hero-card-back">
+        <div class="base-hero-top">
+          <div class="base-back-title">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#38BDF8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            <span class="en">Pipeline Architecture &amp; Inverse Entry Prices</span>
+            <span class="ua">Конвеєр обрахунку та ціни входу</span>
           </div>
-          <div class="base-dyn-card">
-            <span class="base-dyn-label"><span class="en">7-Day Avg</span><span class="ua">7 Днів сер.</span></span>
-            <div class="base-dyn-row">
-              <span class="base-dyn-val" id="mini-val-7d">—</span>
-              <span class="base-dyn-diff" id="mini-diff-7d"></span>
+          <button class="base-flip-btn back-active" id="btn-hero-flip-back" type="button" title="Повернутися до індексу">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 2v6h6M2.66 15.57a10 10 0 1 0 .57-8.38l-5.67-5.67"/></svg>
+            <span class="en">Return to Score</span>
+            <span class="ua">До індексу</span>
+            <span style="font-size:10px; opacity:0.8;">⟲</span>
+          </button>
+        </div>
+
+        <div class="base-back-grid">
+          <!-- Column 1: Pipeline diagram -->
+          <div class="base-back-pipeline">
+            <div class="base-back-section-lbl">
+              <span class="en">SCORING PIPELINE ARCHITECTURE (V4.2)</span>
+              <span class="ua">АРХІТЕКТУРА КОНВЕЄРА ОБРАХУНКУ (V4.2)</span>
+            </div>
+            <div style="display: flex; flex: 1; align-items: center; justify-content: center; position: relative; width: 100%; height: 152px; margin-top: 2px; margin-bottom: 2px;">
+            <svg style="width:100%; height:100%; z-index:1;" viewBox="0 0 360 152">
+              <defs>
+                <filter id="gp2" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="2" result="b"/><feComposite in="SourceGraphic" in2="b" operator="over"/></filter>
+                <filter id="gb2" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="2" result="b"/><feComposite in="SourceGraphic" in2="b" operator="over"/></filter>
+                <filter id="gg2" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="2" result="b"/><feComposite in="SourceGraphic" in2="b" operator="over"/></filter>
+                <filter id="ga2" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="2" result="b"/><feComposite in="SourceGraphic" in2="b" operator="over"/></filter>
+              </defs>
+
+              <!-- ── PATHS: Sources → Processing ── -->
+              <path id="pa01" d="M 63 21 C 70 21,70 23,73 23" fill="none" stroke="#8B5CF6" stroke-width="1" stroke-linecap="round" opacity="0.35" filter="url(#gp2)"/>
+              <path id="pa02" d="M 63 63 C 70 63,70 23,73 23" fill="none" stroke="#6366F1" stroke-width="1" stroke-linecap="round" opacity="0.2"  filter="url(#gp2)"/>
+              <path id="pa03" d="M 63 105 C 70 105,70 23,73 23" fill="none" stroke="#3B82F6" stroke-width="1" stroke-linecap="round" opacity="0.15" filter="url(#gb2)"/>
+              <path id="pa04" d="M 63 21 C 70 21,70 105,73 105" fill="none" stroke="#8B5CF6" stroke-width="1" stroke-linecap="round" opacity="0.15" filter="url(#gp2)"/>
+              <path id="pa05" d="M 63 63 C 70 63,70 105,73 105" fill="none" stroke="#6366F1" stroke-width="1" stroke-linecap="round" opacity="0.2"  filter="url(#gp2)"/>
+              <path id="pa06" d="M 63 105 C 70 105,70 105,73 105" fill="none" stroke="#3B82F6" stroke-width="1" stroke-linecap="round" opacity="0.35" filter="url(#gb2)"/>
+              <!-- ── PATHS: Processing → Models ── -->
+              <path id="pa07" d="M 123 23 C 128 23,128 23,133 23" fill="none" stroke="#A78BFA" stroke-width="1.2" stroke-linecap="round" opacity="0.45" filter="url(#gp2)"/>
+              <path id="pa08" d="M 123 105 C 128 105,128 23,133 23" fill="none" stroke="#60A5FA" stroke-width="1"   stroke-linecap="round" opacity="0.25" filter="url(#gb2)"/>
+              <path id="pa09" d="M 123 105 C 128 105,128 105,133 105" fill="none" stroke="#60A5FA" stroke-width="1.2" stroke-linecap="round" opacity="0.45" filter="url(#gb2)"/>
+              <path id="pa10" d="M 123 23 C 128 23,128 105,133 105" fill="none" stroke="#A78BFA" stroke-width="1"   stroke-linecap="round" opacity="0.2"  filter="url(#gp2)"/>
+              <!-- ── PATHS: Models → Outputs ── -->
+              <path id="pa11" d="M 183 23 C 188 23,188 27,193 27" fill="none" stroke="#C084FC" stroke-width="1.3" stroke-linecap="round" opacity="0.55" filter="url(#gp2)"/>
+              <path id="pa12" d="M 183 105 C 188 105,188 105,193 105" fill="none" stroke="#38BDF8" stroke-width="1.3" stroke-linecap="round" opacity="0.55" filter="url(#gb2)"/>
+              <!-- ── PATHS: Outputs → Composite ── -->
+              <path id="pa13" d="M 241 27 C 247 27,247 34,253 34" fill="none" stroke="#F59E0B" stroke-width="1.2" stroke-linecap="round" opacity="0.45" filter="url(#ga2)"/>
+              <path id="pa14" d="M 241 105 C 247 105,247 34,253 34" fill="none" stroke="#F59E0B" stroke-width="1.2" stroke-linecap="round" opacity="0.45" filter="url(#ga2)"/>
+              <!-- ── PATH: Composite → Regime ── -->
+              <path id="pa15" d="M 299 34 C 302 34,303 50,303 69" fill="none" stroke="#10B981" stroke-width="1.8" stroke-linecap="round" opacity="0.5"  filter="url(#gg2)"/>
+
+              <!-- Animated data packets -->
+              <circle r="1.5" fill="#E9D5FF" filter="url(#gp2)"><animateMotion dur="1.4s" repeatCount="indefinite"><mpath href="#pa01"/></animateMotion></circle>
+              <circle r="1.5" fill="#BFDBFE" filter="url(#gb2)"><animateMotion dur="2.0s" repeatCount="indefinite"><mpath href="#pa06"/></animateMotion></circle>
+              <circle r="1.5" fill="#DDD6FE" filter="url(#gp2)"><animateMotion dur="1.6s" repeatCount="indefinite"><mpath href="#pa07"/></animateMotion></circle>
+              <circle r="1.5" fill="#BAE6FD" filter="url(#gb2)"><animateMotion dur="1.8s" repeatCount="indefinite"><mpath href="#pa09"/></animateMotion></circle>
+              <circle r="1.5" fill="#D8B4FE" filter="url(#gp2)"><animateMotion dur="1.2s" repeatCount="indefinite"><mpath href="#pa11"/></animateMotion></circle>
+              <circle r="1.5" fill="#67E8F9" filter="url(#gb2)"><animateMotion dur="1.5s" repeatCount="indefinite"><mpath href="#pa12"/></animateMotion></circle>
+              <circle r="1.5" fill="#FDE68A" filter="url(#ga2)"><animateMotion dur="1.3s" repeatCount="indefinite"><mpath href="#pa13"/></animateMotion></circle>
+              <circle r="1.5" fill="#FDE68A" filter="url(#ga2)"><animateMotion dur="2.1s" repeatCount="indefinite"><mpath href="#pa14"/></animateMotion></circle>
+              <circle r="2.0" fill="#A7F3D0" filter="url(#gg2)"><animateMotion dur="0.9s" repeatCount="indefinite"><mpath href="#pa15"/></animateMotion></circle>
+
+              <!-- ══ LAYER 1 — DATA SOURCES ══ -->
+              <g transform="translate(5,8)">
+                <rect width="58" height="27" rx="5" fill="#0C0A15" stroke="#8B5CF6" stroke-width="1.2" filter="drop-shadow(0 0 2px rgba(139,92,246,.3))"/>
+                <text x="29" y="10.5" fill="#C084FC" font-size="5.5" font-family="monospace" font-weight="bold" text-anchor="middle">ON-CHAIN</text>
+                <text x="29" y="18.5" fill="#9CA3AF" font-size="3.9" font-family="sans-serif" text-anchor="middle">NUPL · MVRV · RHODL</text>
+                <text x="29" y="25.5" fill="#6B7280" font-size="3.7" font-family="sans-serif" text-anchor="middle">CVDD · aSOPR · Puell · LTH</text>
+                <circle id="hd-oc" cx="54" cy="3.5" r="3.5" fill="#10B981"/>
+              </g>
+              <g transform="translate(5,50)">
+                <rect width="58" height="27" rx="5" fill="#0C0A15" stroke="#6366F1" stroke-width="1.2" filter="drop-shadow(0 0 2px rgba(99,102,241,.3))"/>
+                <text x="29" y="10.5" fill="#818CF8" font-size="5.5" font-family="monospace" font-weight="bold" text-anchor="middle">TECHNICAL</text>
+                <text x="29" y="18.5" fill="#9CA3AF" font-size="3.9" font-family="sans-serif" text-anchor="middle">CipherB · Mayer · F&amp;G</text>
+                <text x="29" y="25.5" fill="#6B7280" font-size="3.7" font-family="sans-serif" text-anchor="middle">Funding Rate · ETF Flows</text>
+                <circle id="hd-tc" cx="54" cy="3.5" r="3.5" fill="#10B981"/>
+              </g>
+              <g transform="translate(5,92)">
+                <rect width="58" height="27" rx="5" fill="#0C0A15" stroke="#3B82F6" stroke-width="1.2" filter="drop-shadow(0 0 2px rgba(59,130,246,.3))"/>
+                <text x="29" y="10.5" fill="#60A5FA" font-size="5.5" font-family="monospace" font-weight="bold" text-anchor="middle">MACRO/FLOW</text>
+                <text x="29" y="18.5" fill="#9CA3AF" font-size="3.9" font-family="sans-serif" text-anchor="middle">M2 YoY · Yield Curve</text>
+                <text x="29" y="25.5" fill="#6B7280" font-size="3.7" font-family="sans-serif" text-anchor="middle">BTC Price (Kraken OHLCV)</text>
+                <circle id="hd-mc" cx="54" cy="3.5" r="3.5" fill="#10B981"/>
+              </g>
+
+              <!-- ══ LAYER 2 — PROCESSING ══ -->
+              <g transform="translate(73,6)">
+                <rect width="50" height="34" rx="5" fill="#0C0A15" stroke="#A78BFA" stroke-width="1.2"/>
+                <text x="25" y="11" fill="#C084FC" font-size="5.5" font-family="monospace" font-weight="bold" text-anchor="middle">NORMALIZER</text>
+                <text x="25" y="20"  fill="#9CA3AF" font-size="4" font-family="sans-serif" text-anchor="middle">Causal Pctile</text>
+                <text x="25" y="27"  fill="#9CA3AF" font-size="4" font-family="sans-serif" text-anchor="middle">0–100 Risk</text>
+              </g>
+              <g transform="translate(73,88)">
+                <rect width="50" height="34" rx="5" fill="#0C0A15" stroke="#60A5FA" stroke-width="1.2"/>
+                <text x="25" y="11" fill="#60A5FA" font-size="5.5" font-family="monospace" font-weight="bold" text-anchor="middle">HMM PHASE</text>
+                <text x="25" y="20"  fill="#9CA3AF" font-size="4" font-family="sans-serif" text-anchor="middle">w_top/bot</text>
+                <text x="25" y="27"  fill="#9CA3AF" font-size="4" font-family="sans-serif" text-anchor="middle">State Chain</text>
+                <circle id="hd-hmm" cx="45" cy="3" r="3.5" fill="#10B981"/>
+              </g>
+
+              <!-- ══ LAYER 3 — MODELS ══ -->
+              <g transform="translate(133,6)">
+                <rect width="50" height="34" rx="5" fill="#0C0A15" stroke="#C084FC" stroke-width="1.2"/>
+                <text x="25" y="11" fill="#E879F9" font-size="5.5" font-family="monospace" font-weight="bold" text-anchor="middle">BRI ENGINE</text>
+                <text x="25" y="20"  fill="#9CA3AF" font-size="4" font-family="sans-serif" text-anchor="middle">Utility Wts</text>
+                <text x="25" y="27"  fill="#9CA3AF" font-size="4" font-family="sans-serif" text-anchor="middle">Coherence</text>
+              </g>
+              <g transform="translate(133,88)">
+                <rect width="50" height="34" rx="5" fill="#0C0A15" stroke="#38BDF8" stroke-width="1.2"/>
+                <text x="25" y="11" fill="#38BDF8" font-size="5.5" font-family="monospace" font-weight="bold" text-anchor="middle">FORWARD RISK</text>
+                <text x="25" y="20"  fill="#9CA3AF" font-size="4" font-family="sans-serif" text-anchor="middle">XGBoost</text>
+                <text x="25" y="27"  fill="#9CA3AF" font-size="4" font-family="sans-serif" text-anchor="middle">49 features</text>
+                <circle id="hd-v5b" cx="45" cy="3" r="3.5" fill="#10B981"/>
+              </g>
+
+              <!-- ══ LAYER 4 — OUTPUTS ══ -->
+              <!-- CYCLE CONTEXT badge -->
+              <g transform="translate(193,14)">
+                <rect width="48" height="26" rx="4" fill="#0C0A15" stroke="#C084FC" stroke-width="1.3" filter="drop-shadow(0 0 3px rgba(192,132,252,.3))"/>
+                <text x="24" y="7.5" fill="#9CA3AF" font-size="3.8" font-family="monospace" font-weight="bold" text-anchor="middle">CYCLE</text>
+                <text x="24" y="13" fill="#9CA3AF" font-size="3.8" font-family="monospace" font-weight="bold" text-anchor="middle">CONTEXT</text>
+                <text class="meta-indicator" id="pipe-pos-val" x="24" y="23" fill="#E879F9" font-size="9.5" font-family="sans-serif" font-weight="900" text-anchor="middle">—</text>
+              </g>
+              <!-- OUTLOOK badge -->
+              <g transform="translate(193,92)">
+                <rect width="48" height="26" rx="4" fill="#0C0A15" stroke="#38BDF8" stroke-width="1.3" filter="drop-shadow(0 0 3px rgba(56,189,248,.3))"/>
+                <text x="24" y="9.5" fill="#9CA3AF" font-size="4.5" font-family="monospace" font-weight="bold" text-anchor="middle">OUTLOOK</text>
+                <text id="pipe-out-val" x="24" y="21" fill="#38BDF8" font-size="9.5" font-family="sans-serif" font-weight="900" text-anchor="middle">—%</text>
+              </g>
+
+              <!-- ══ LAYER 5 — SYNTHESIS ══ -->
+              <!-- COMPOSITE RISK -->
+              <g transform="translate(253,20)">
+                <rect width="46" height="28" rx="4" fill="#0C0A15" stroke="#F59E0B" stroke-width="1.2" filter="drop-shadow(0 0 3px rgba(245,158,11,.25))"/>
+                <text x="23" y="10.5" fill="#F59E0B" font-size="4.5" font-family="monospace" font-weight="bold" text-anchor="middle">COMPOSITE</text>
+                <text x="23" y="14"   fill="#6B7280" font-size="3.5" font-family="sans-serif" text-anchor="middle">√(Pos × Out)</text>
+                <text id="pipe-comp-val" x="23" y="23" fill="#FDE68A" font-size="8.5" font-family="sans-serif" font-weight="900" text-anchor="middle">—</text>
+              </g>
+              <!-- BRI SCORE output circle -->
+              <g transform="translate(303,47)">
+                <circle id="pipe-regime-circle" cx="22" cy="22" r="22" fill="#0C0A15" stroke="#10B981" stroke-width="1.8" filter="drop-shadow(0 0 6px rgba(16,185,129,.5))"/>
+                <text x="22" y="12" fill="#9CA3AF" font-size="4.2" font-family="monospace" font-weight="bold" text-anchor="middle">BRI SCORE</text>
+                <text id="pipe-regime-val" x="22" y="24" fill="#34D399" font-size="8" font-family="sans-serif" font-weight="900" text-anchor="middle">—</text>
+                <!-- backward compat hidden elements -->
+                <text class="zone-indicator" x="22" y="35" fill="transparent" font-size="0" text-anchor="middle"></text>
+              </g>
+
+              <!-- ══ HEALTH STRIP ══ -->
+              <line x1="2" y1="128" x2="358" y2="128" stroke="#1F2937" stroke-width="0.5"/>
+              <g transform="translate(4,132)">
+                <circle id="hs-scraper" cx="5" cy="5" r="4" fill="#10B981"/>
+                <text x="13" y="8.5" fill="#4B5563" font-size="4.3" font-family="sans-serif">SCRAPER</text>
+                <circle id="hs-metrics" cx="65" cy="5" r="4" fill="#10B981"/>
+                <text id="hs-metrics-txt" x="73" y="8.5" fill="#4B5563" font-size="4.3" font-family="sans-serif">14/14</text>
+                <circle id="hs-v3" cx="120" cy="5" r="4" fill="#10B981"/>
+                <text x="128" y="8.5" fill="#4B5563" font-size="4.3" font-family="sans-serif">POSITION</text>
+                <circle id="hs-v5b2" cx="180" cy="5" r="4" fill="#10B981"/>
+                <text x="188" y="8.5" fill="#4B5563" font-size="4.3" font-family="sans-serif">OUTLOOK</text>
+                <circle id="hs-hmm2" cx="238" cy="5" r="4" fill="#10B981"/>
+                <text x="246" y="8.5" fill="#4B5563" font-size="4.3" font-family="sans-serif">HMM STATE</text>
+                <text id="hs-timestamp" x="352" y="8.5" fill="#374151" font-size="3.8" font-family="sans-serif" text-anchor="end">—</text>
+              </g>
+            </svg>
+          </div>
+          </div>
+
+          <!-- Vertical Divider -->
+          <div class="base-back-divider"></div>
+
+          <!-- Column 2: Inverted Entry Price / Zone Forecast -->
+          <div class="base-back-inversion">
+            <div class="base-back-section-lbl">
+              <span class="en">INVERSE ENTRY PRICE (ZONE FORECAST)</span>
+              <span class="ua">ЗВОРОТНИЙ РОЗРАХУНОК ЦІНИ ВХОДУ</span>
+            </div>
+
+            <div class="base-inversion-cards">
+              <!-- Buy Zone Target -->
+              <div class="base-inv-card inv-buy">
+                <div class="base-inv-badge-row">
+                  <span class="base-inv-dot" style="background:#22C55E"></span>
+                  <span class="base-inv-name"><span class="en">Buy Zone (≤20)</span><span class="ua">Зона купівлі (≤20)</span></span>
+                  <span class="base-inv-delta delta-up" id="inv-buy-pct">—</span>
+                </div>
+                <div class="base-inv-price" id="inv-buy-price">—</div>
+                <div class="base-inv-sub"><span class="en">Target entry trigger</span><span class="ua">Розрахунковий тригер купівлі</span></div>
+              </div>
+
+              <!-- Sell Zone Target -->
+              <div class="base-inv-card inv-sell">
+                <div class="base-inv-badge-row">
+                  <span class="base-inv-dot" style="background:#EF4444"></span>
+                  <span class="base-inv-name"><span class="en">Sell Zone (≥80)</span><span class="ua">Зона продажу (≥80)</span></span>
+                  <span class="base-inv-delta delta-down" id="inv-sell-pct">—</span>
+                </div>
+                <div class="base-inv-price" id="inv-sell-price">—</div>
+                <div class="base-inv-sub"><span class="en">Take-profit trigger</span><span class="ua">Розрахунковий тригер фіксації</span></div>
+              </div>
+
+              <!-- Realized Price / Network Cost Basis -->
+              <div class="base-inv-card inv-cost">
+                <div class="base-inv-badge-row">
+                  <span class="base-inv-dot" style="background:#8B5CF6"></span>
+                  <span class="base-inv-name"><span class="en">Realized Price (Network Basis)</span><span class="ua">Реалізована ціна (Собівартість)</span></span>
+                </div>
+                <div class="base-inv-price" id="inv-realized-price">—</div>
+              </div>
+            </div>
+
+            <div class="base-inv-explainer">
+              <span class="en"><strong>Not a price prediction.</strong> Holding today's on-chain cost basis fixed, the formula is solved for the exact price at which the composite score enters each zone.</span>
+              <span class="ua"><strong>Не є прогнозом ціни.</strong> Тримаючи поточну ончейн-собівартість незмінною, формула розв'язується відносно ціни, за якої зведений індекс досягне меж кожної зони.</span>
             </div>
           </div>
         </div>
       </div>
     </div>
   </div>
+
 
 <!-- AI Analysis -->
   <div class="card ai-block" id="ai-block" style="display:none">
@@ -1229,10 +1684,7 @@
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
         <span><span class="en">History Chart</span><span class="ua">Історія (Графік)</span></span>
       </button>
-      <button class="base-tab-trigger" role="tab" id="tab-btn-pipeline" data-tab="pipeline" aria-selected="false" aria-controls="tab-panel-pipeline">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-        <span><span class="en">Pipeline</span><span class="ua">Конвеєр</span></span>
-      </button>
+
       <button class="base-tab-trigger" role="tab" id="tab-btn-regime" data-tab="regime" aria-selected="false" aria-controls="tab-panel-regime">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path></svg>
         <span><span class="en">Market Regime</span><span class="ua">Режим ринку</span></span>
@@ -1589,159 +2041,6 @@
 
   
     </div>
-
-    <!-- Panel 3: Pipeline Diagram -->
-    <div class="base-tab-panel" id="tab-panel-pipeline" role="tabpanel" aria-labelledby="tab-btn-pipeline">
-      <div class="card base-pipeline-card">
-        <div style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted2);margin-bottom:14px;">
-          <span class="en">CALCULATION PIPELINE ARCHITECTURE (V4.2)</span>
-          <span class="ua">АРХІТЕКТУРА КОНВЕЄРА ОБРАХУНКУ (V4.2)</span>
-        </div>
-        <!-- Pipeline diagram v2 — Position + Outlook + Composite + Regime -->
-          <div style="display: flex; flex: 1; align-items: center; justify-content: center; position: relative; width: 100%; height: 152px; margin-top: 2px; margin-bottom: 2px;">
-            <svg style="width:100%; height:100%; z-index:1;" viewBox="0 0 360 152">
-              <defs>
-                <filter id="gp2" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="2" result="b"/><feComposite in="SourceGraphic" in2="b" operator="over"/></filter>
-                <filter id="gb2" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="2" result="b"/><feComposite in="SourceGraphic" in2="b" operator="over"/></filter>
-                <filter id="gg2" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="2" result="b"/><feComposite in="SourceGraphic" in2="b" operator="over"/></filter>
-                <filter id="ga2" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="2" result="b"/><feComposite in="SourceGraphic" in2="b" operator="over"/></filter>
-              </defs>
-
-              <!-- ── PATHS: Sources → Processing ── -->
-              <path id="pa01" d="M 63 21 C 70 21,70 23,73 23" fill="none" stroke="#8B5CF6" stroke-width="1" stroke-linecap="round" opacity="0.35" filter="url(#gp2)"/>
-              <path id="pa02" d="M 63 63 C 70 63,70 23,73 23" fill="none" stroke="#6366F1" stroke-width="1" stroke-linecap="round" opacity="0.2"  filter="url(#gp2)"/>
-              <path id="pa03" d="M 63 105 C 70 105,70 23,73 23" fill="none" stroke="#3B82F6" stroke-width="1" stroke-linecap="round" opacity="0.15" filter="url(#gb2)"/>
-              <path id="pa04" d="M 63 21 C 70 21,70 105,73 105" fill="none" stroke="#8B5CF6" stroke-width="1" stroke-linecap="round" opacity="0.15" filter="url(#gp2)"/>
-              <path id="pa05" d="M 63 63 C 70 63,70 105,73 105" fill="none" stroke="#6366F1" stroke-width="1" stroke-linecap="round" opacity="0.2"  filter="url(#gp2)"/>
-              <path id="pa06" d="M 63 105 C 70 105,70 105,73 105" fill="none" stroke="#3B82F6" stroke-width="1" stroke-linecap="round" opacity="0.35" filter="url(#gb2)"/>
-              <!-- ── PATHS: Processing → Models ── -->
-              <path id="pa07" d="M 123 23 C 128 23,128 23,133 23" fill="none" stroke="#A78BFA" stroke-width="1.2" stroke-linecap="round" opacity="0.45" filter="url(#gp2)"/>
-              <path id="pa08" d="M 123 105 C 128 105,128 23,133 23" fill="none" stroke="#60A5FA" stroke-width="1"   stroke-linecap="round" opacity="0.25" filter="url(#gb2)"/>
-              <path id="pa09" d="M 123 105 C 128 105,128 105,133 105" fill="none" stroke="#60A5FA" stroke-width="1.2" stroke-linecap="round" opacity="0.45" filter="url(#gb2)"/>
-              <path id="pa10" d="M 123 23 C 128 23,128 105,133 105" fill="none" stroke="#A78BFA" stroke-width="1"   stroke-linecap="round" opacity="0.2"  filter="url(#gp2)"/>
-              <!-- ── PATHS: Models → Outputs ── -->
-              <path id="pa11" d="M 183 23 C 188 23,188 27,193 27" fill="none" stroke="#C084FC" stroke-width="1.3" stroke-linecap="round" opacity="0.55" filter="url(#gp2)"/>
-              <path id="pa12" d="M 183 105 C 188 105,188 105,193 105" fill="none" stroke="#38BDF8" stroke-width="1.3" stroke-linecap="round" opacity="0.55" filter="url(#gb2)"/>
-              <!-- ── PATHS: Outputs → Composite ── -->
-              <path id="pa13" d="M 241 27 C 247 27,247 34,253 34" fill="none" stroke="#F59E0B" stroke-width="1.2" stroke-linecap="round" opacity="0.45" filter="url(#ga2)"/>
-              <path id="pa14" d="M 241 105 C 247 105,247 34,253 34" fill="none" stroke="#F59E0B" stroke-width="1.2" stroke-linecap="round" opacity="0.45" filter="url(#ga2)"/>
-              <!-- ── PATH: Composite → Regime ── -->
-              <path id="pa15" d="M 299 34 C 302 34,303 50,303 69" fill="none" stroke="#10B981" stroke-width="1.8" stroke-linecap="round" opacity="0.5"  filter="url(#gg2)"/>
-
-              <!-- Animated data packets -->
-              <circle r="1.5" fill="#E9D5FF" filter="url(#gp2)"><animateMotion dur="1.4s" repeatCount="indefinite"><mpath href="#pa01"/></animateMotion></circle>
-              <circle r="1.5" fill="#BFDBFE" filter="url(#gb2)"><animateMotion dur="2.0s" repeatCount="indefinite"><mpath href="#pa06"/></animateMotion></circle>
-              <circle r="1.5" fill="#DDD6FE" filter="url(#gp2)"><animateMotion dur="1.6s" repeatCount="indefinite"><mpath href="#pa07"/></animateMotion></circle>
-              <circle r="1.5" fill="#BAE6FD" filter="url(#gb2)"><animateMotion dur="1.8s" repeatCount="indefinite"><mpath href="#pa09"/></animateMotion></circle>
-              <circle r="1.5" fill="#D8B4FE" filter="url(#gp2)"><animateMotion dur="1.2s" repeatCount="indefinite"><mpath href="#pa11"/></animateMotion></circle>
-              <circle r="1.5" fill="#67E8F9" filter="url(#gb2)"><animateMotion dur="1.5s" repeatCount="indefinite"><mpath href="#pa12"/></animateMotion></circle>
-              <circle r="1.5" fill="#FDE68A" filter="url(#ga2)"><animateMotion dur="1.3s" repeatCount="indefinite"><mpath href="#pa13"/></animateMotion></circle>
-              <circle r="1.5" fill="#FDE68A" filter="url(#ga2)"><animateMotion dur="2.1s" repeatCount="indefinite"><mpath href="#pa14"/></animateMotion></circle>
-              <circle r="2.0" fill="#A7F3D0" filter="url(#gg2)"><animateMotion dur="0.9s" repeatCount="indefinite"><mpath href="#pa15"/></animateMotion></circle>
-
-              <!-- ══ LAYER 1 — DATA SOURCES ══ -->
-              <g transform="translate(5,8)">
-                <rect width="58" height="27" rx="5" fill="#0C0A15" stroke="#8B5CF6" stroke-width="1.2" filter="drop-shadow(0 0 2px rgba(139,92,246,.3))"/>
-                <text x="29" y="10.5" fill="#C084FC" font-size="5.5" font-family="monospace" font-weight="bold" text-anchor="middle">ON-CHAIN</text>
-                <text x="29" y="18.5" fill="#9CA3AF" font-size="3.9" font-family="sans-serif" text-anchor="middle">NUPL · MVRV · RHODL</text>
-                <text x="29" y="25.5" fill="#6B7280" font-size="3.7" font-family="sans-serif" text-anchor="middle">CVDD · aSOPR · Puell · LTH</text>
-                <circle id="hd-oc" cx="54" cy="3.5" r="3.5" fill="#10B981"/>
-              </g>
-              <g transform="translate(5,50)">
-                <rect width="58" height="27" rx="5" fill="#0C0A15" stroke="#6366F1" stroke-width="1.2" filter="drop-shadow(0 0 2px rgba(99,102,241,.3))"/>
-                <text x="29" y="10.5" fill="#818CF8" font-size="5.5" font-family="monospace" font-weight="bold" text-anchor="middle">TECHNICAL</text>
-                <text x="29" y="18.5" fill="#9CA3AF" font-size="3.9" font-family="sans-serif" text-anchor="middle">CipherB · Mayer · F&amp;G</text>
-                <text x="29" y="25.5" fill="#6B7280" font-size="3.7" font-family="sans-serif" text-anchor="middle">Funding Rate · ETF Flows</text>
-                <circle id="hd-tc" cx="54" cy="3.5" r="3.5" fill="#10B981"/>
-              </g>
-              <g transform="translate(5,92)">
-                <rect width="58" height="27" rx="5" fill="#0C0A15" stroke="#3B82F6" stroke-width="1.2" filter="drop-shadow(0 0 2px rgba(59,130,246,.3))"/>
-                <text x="29" y="10.5" fill="#60A5FA" font-size="5.5" font-family="monospace" font-weight="bold" text-anchor="middle">MACRO/FLOW</text>
-                <text x="29" y="18.5" fill="#9CA3AF" font-size="3.9" font-family="sans-serif" text-anchor="middle">M2 YoY · Yield Curve</text>
-                <text x="29" y="25.5" fill="#6B7280" font-size="3.7" font-family="sans-serif" text-anchor="middle">BTC Price (Kraken OHLCV)</text>
-                <circle id="hd-mc" cx="54" cy="3.5" r="3.5" fill="#10B981"/>
-              </g>
-
-              <!-- ══ LAYER 2 — PROCESSING ══ -->
-              <g transform="translate(73,6)">
-                <rect width="50" height="34" rx="5" fill="#0C0A15" stroke="#A78BFA" stroke-width="1.2"/>
-                <text x="25" y="11" fill="#C084FC" font-size="5.5" font-family="monospace" font-weight="bold" text-anchor="middle">NORMALIZER</text>
-                <text x="25" y="20"  fill="#9CA3AF" font-size="4" font-family="sans-serif" text-anchor="middle">Causal Pctile</text>
-                <text x="25" y="27"  fill="#9CA3AF" font-size="4" font-family="sans-serif" text-anchor="middle">0–100 Risk</text>
-              </g>
-              <g transform="translate(73,88)">
-                <rect width="50" height="34" rx="5" fill="#0C0A15" stroke="#60A5FA" stroke-width="1.2"/>
-                <text x="25" y="11" fill="#60A5FA" font-size="5.5" font-family="monospace" font-weight="bold" text-anchor="middle">HMM PHASE</text>
-                <text x="25" y="20"  fill="#9CA3AF" font-size="4" font-family="sans-serif" text-anchor="middle">w_top/bot</text>
-                <text x="25" y="27"  fill="#9CA3AF" font-size="4" font-family="sans-serif" text-anchor="middle">State Chain</text>
-                <circle id="hd-hmm" cx="45" cy="3" r="3.5" fill="#10B981"/>
-              </g>
-
-              <!-- ══ LAYER 3 — MODELS ══ -->
-              <g transform="translate(133,6)">
-                <rect width="50" height="34" rx="5" fill="#0C0A15" stroke="#C084FC" stroke-width="1.2"/>
-                <text x="25" y="11" fill="#E879F9" font-size="5.5" font-family="monospace" font-weight="bold" text-anchor="middle">BRI ENGINE</text>
-                <text x="25" y="20"  fill="#9CA3AF" font-size="4" font-family="sans-serif" text-anchor="middle">Utility Wts</text>
-                <text x="25" y="27"  fill="#9CA3AF" font-size="4" font-family="sans-serif" text-anchor="middle">Coherence</text>
-              </g>
-              <g transform="translate(133,88)">
-                <rect width="50" height="34" rx="5" fill="#0C0A15" stroke="#38BDF8" stroke-width="1.2"/>
-                <text x="25" y="11" fill="#38BDF8" font-size="5.5" font-family="monospace" font-weight="bold" text-anchor="middle">FORWARD RISK</text>
-                <text x="25" y="20"  fill="#9CA3AF" font-size="4" font-family="sans-serif" text-anchor="middle">XGBoost</text>
-                <text x="25" y="27"  fill="#9CA3AF" font-size="4" font-family="sans-serif" text-anchor="middle">49 features</text>
-                <circle id="hd-v5b" cx="45" cy="3" r="3.5" fill="#10B981"/>
-              </g>
-
-              <!-- ══ LAYER 4 — OUTPUTS ══ -->
-              <!-- CYCLE CONTEXT badge -->
-              <g transform="translate(193,14)">
-                <rect width="48" height="26" rx="4" fill="#0C0A15" stroke="#C084FC" stroke-width="1.3" filter="drop-shadow(0 0 3px rgba(192,132,252,.3))"/>
-                <text x="24" y="7.5" fill="#9CA3AF" font-size="3.8" font-family="monospace" font-weight="bold" text-anchor="middle">CYCLE</text>
-                <text x="24" y="13" fill="#9CA3AF" font-size="3.8" font-family="monospace" font-weight="bold" text-anchor="middle">CONTEXT</text>
-                <text class="meta-indicator" id="pipe-pos-val" x="24" y="23" fill="#E879F9" font-size="9.5" font-family="sans-serif" font-weight="900" text-anchor="middle">—</text>
-              </g>
-              <!-- OUTLOOK badge -->
-              <g transform="translate(193,92)">
-                <rect width="48" height="26" rx="4" fill="#0C0A15" stroke="#38BDF8" stroke-width="1.3" filter="drop-shadow(0 0 3px rgba(56,189,248,.3))"/>
-                <text x="24" y="9.5" fill="#9CA3AF" font-size="4.5" font-family="monospace" font-weight="bold" text-anchor="middle">OUTLOOK</text>
-                <text id="pipe-out-val" x="24" y="21" fill="#38BDF8" font-size="9.5" font-family="sans-serif" font-weight="900" text-anchor="middle">—%</text>
-              </g>
-
-              <!-- ══ LAYER 5 — SYNTHESIS ══ -->
-              <!-- COMPOSITE RISK -->
-              <g transform="translate(253,20)">
-                <rect width="46" height="28" rx="4" fill="#0C0A15" stroke="#F59E0B" stroke-width="1.2" filter="drop-shadow(0 0 3px rgba(245,158,11,.25))"/>
-                <text x="23" y="10.5" fill="#F59E0B" font-size="4.5" font-family="monospace" font-weight="bold" text-anchor="middle">COMPOSITE</text>
-                <text x="23" y="14"   fill="#6B7280" font-size="3.5" font-family="sans-serif" text-anchor="middle">√(Pos × Out)</text>
-                <text id="pipe-comp-val" x="23" y="23" fill="#FDE68A" font-size="8.5" font-family="sans-serif" font-weight="900" text-anchor="middle">—</text>
-              </g>
-              <!-- BRI SCORE output circle -->
-              <g transform="translate(303,47)">
-                <circle id="pipe-regime-circle" cx="22" cy="22" r="22" fill="#0C0A15" stroke="#10B981" stroke-width="1.8" filter="drop-shadow(0 0 6px rgba(16,185,129,.5))"/>
-                <text x="22" y="12" fill="#9CA3AF" font-size="4.2" font-family="monospace" font-weight="bold" text-anchor="middle">BRI SCORE</text>
-                <text id="pipe-regime-val" x="22" y="24" fill="#34D399" font-size="8" font-family="sans-serif" font-weight="900" text-anchor="middle">—</text>
-                <!-- backward compat hidden elements -->
-                <text class="zone-indicator" x="22" y="35" fill="transparent" font-size="0" text-anchor="middle"></text>
-              </g>
-
-              <!-- ══ HEALTH STRIP ══ -->
-              <line x1="2" y1="128" x2="358" y2="128" stroke="#1F2937" stroke-width="0.5"/>
-              <g transform="translate(4,132)">
-                <circle id="hs-scraper" cx="5" cy="5" r="4" fill="#10B981"/>
-                <text x="13" y="8.5" fill="#4B5563" font-size="4.3" font-family="sans-serif">SCRAPER</text>
-                <circle id="hs-metrics" cx="65" cy="5" r="4" fill="#10B981"/>
-                <text id="hs-metrics-txt" x="73" y="8.5" fill="#4B5563" font-size="4.3" font-family="sans-serif">14/14</text>
-                <circle id="hs-v3" cx="120" cy="5" r="4" fill="#10B981"/>
-                <text x="128" y="8.5" fill="#4B5563" font-size="4.3" font-family="sans-serif">POSITION</text>
-                <circle id="hs-v5b2" cx="180" cy="5" r="4" fill="#10B981"/>
-                <text x="188" y="8.5" fill="#4B5563" font-size="4.3" font-family="sans-serif">OUTLOOK</text>
-                <circle id="hs-hmm2" cx="238" cy="5" r="4" fill="#10B981"/>
-                <text x="246" y="8.5" fill="#4B5563" font-size="4.3" font-family="sans-serif">HMM STATE</text>
-                <text id="hs-timestamp" x="352" y="8.5" fill="#374151" font-size="3.8" font-family="sans-serif" text-anchor="end">—</text>
-              </g>
-            </svg>
-          </div>
-      </div>
     </div>
 
     <!-- Panel 4: Market Regime & Signals -->
@@ -2069,6 +2368,61 @@ function updateConflictGauge(conflictScore) {
 }
 
 // ─── BASE UI TABS CONTROLLER ───────────────────────────
+
+// ─── HERO FLIP CONTROLLER ──────────────────────────────
+function initHeroFlip() {
+  const inner = document.getElementById('hero-flip-inner');
+  const btnFront = document.getElementById('btn-hero-flip');
+  const btnBack = document.getElementById('btn-hero-flip-back');
+  if (!inner) return;
+
+  const toggleFlip = (e) => {
+    if (e) e.stopPropagation();
+    inner.classList.toggle('flipped');
+  };
+
+  if (btnFront) btnFront.addEventListener('click', toggleFlip);
+  if (btnBack) btnBack.addEventListener('click', toggleFlip);
+}
+
+function updateZoneForecast(zf, btcPrice) {
+  if (!zf) return;
+  const fmtP = (p) => (p != null && !isNaN(p)) ? '$' + Math.round(p).toLocaleString('en-US') : '—';
+  const fmtPct = (v) => (v != null && !isNaN(v)) ? (v > 0 ? '+' : '') + v.toFixed(1) + '%' : '';
+
+  const buyEl = document.getElementById('inv-buy-price');
+  const buyPctEl = document.getElementById('inv-buy-pct');
+  const sellEl = document.getElementById('inv-sell-price');
+  const sellPctEl = document.getElementById('inv-sell-pct');
+  const realEl = document.getElementById('inv-realized-price');
+
+  if (buyEl) buyEl.textContent = zf.buy && zf.buy.price ? fmtP(zf.buy.price) : '—';
+  if (buyPctEl) {
+    if (zf.buy && zf.buy.pct != null) {
+      buyPctEl.textContent = fmtPct(zf.buy.pct);
+      buyPctEl.style.display = 'inline-block';
+    } else {
+      buyPctEl.style.display = 'none';
+    }
+  }
+
+  if (sellEl) {
+    sellEl.textContent = zf.sell && zf.sell.price ? fmtP(zf.sell.price) : '—';
+  }
+  if (sellPctEl) {
+    if (zf.sell && zf.sell.pct != null) {
+      sellPctEl.textContent = fmtPct(zf.sell.pct);
+      sellPctEl.style.display = 'inline-block';
+    } else {
+      sellPctEl.style.display = 'none';
+    }
+  }
+
+  if (realEl) {
+    realEl.textContent = zf.realized_price ? fmtP(zf.realized_price) : '—';
+  }
+}
+
 function initBaseTabs() {
   const triggers = document.querySelectorAll('.base-tab-trigger');
   const panels = document.querySelectorAll('.base-tab-panel');
@@ -2658,6 +3012,7 @@ async function loadData() {
   updateBaseMeter('oc', ocVal);
   updateBaseMeter('tech', techVal);
   updateBaseMeter('macro', macroVal);
+  updateZoneForecast(data.zone_forecast, data.btc_price);
 
   // Update Dynamics diff
   if (score != null && prev1d != null) {
@@ -3395,7 +3750,7 @@ function updateCountdown() {
   el.innerHTML = `${pad(h)}<span class="blink-colon">:</span>${pad(m)}`;
 }
 
-window.addEventListener('load', () => { initBaseTabs(); loadData(); updateCountdown(); setInterval(updateCountdown, 60000); });
+window.addEventListener('load', () => { initBaseTabs(); initHeroFlip(); loadData(); updateCountdown(); setInterval(updateCountdown, 60000); });
 window.addEventListener('resize', () => { if (historyScores.length) drawHistory(activeRange); drawSparklines(); });
 
 // ─── DISCLAIMER MODAL ──────────────────────────────────
