@@ -160,7 +160,7 @@
   .gauge-svg { display: block; width: 100%; overflow: visible; }
   .gauge-svg path { stroke-width: 8px; }
   .gauge-svg circle { stroke-width: 2.5px; }
-  .gauge-svg path.conflict-arc-path { stroke-width: 3px; }
+  .gauge-svg path.conflict-arc-path, .gauge-svg path.conflict-arc-track { stroke-width: 3px; }
   .gauge-svg circle.conflict-needle-dot { stroke-width: 1.5px; }
 
   /* Mini gauge arc thickness adaptations */
@@ -443,7 +443,7 @@
     fill: var(--text);
     opacity: 1;
   }
-  .uncertainty-interactive:hover .conflict-arc-path {
+  .uncertainty-interactive:hover #gauge-conflict-arc {
     filter: drop-shadow(0 0 5px rgba(234, 179, 8, 0.5));
   }
   .uncertainty-interactive:active {
@@ -609,7 +609,7 @@
     .gauge-svg circle {
       stroke-width: 2.2px;
     }
-    .gauge-svg path.conflict-arc-path {
+    .gauge-svg path.conflict-arc-path, .gauge-svg path.conflict-arc-track {
       stroke-width: 2.5px;
     }
     .gauge-svg circle.conflict-needle-dot {
@@ -1402,7 +1402,7 @@
                   <title>Click to view Uncertainty explanation / Натисніть для пояснення невизначеності</title>
                   <!-- Generous invisible click hit area -->
                   <path d="M 34 120 A 86 86 0 0 1 206 120" stroke="transparent" stroke-width="22" stroke-linecap="round" fill="none" style="pointer-events: stroke; cursor: pointer;"/>
-                  <path class="conflict-arc-path" d="M 34 120 A 86 86 0 0 1 206 120" stroke="url(#arcGrad)" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.12"/>
+                  <path class="conflict-arc-track" d="M 34 120 A 86 86 0 0 1 206 120" stroke="var(--border)" stroke-width="3" stroke-linecap="round" fill="none"/>
                   <path class="conflict-arc-path" id="gauge-conflict-arc" d="" stroke="#22C55E" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.92"/>
                   <circle class="conflict-needle-dot" id="gauge-conflict-needle" cx="34" cy="120" r="3.2" fill="var(--bg)" stroke="#22C55E" stroke-width="1.5"/>
                   <text class="en" font-size="5.5" font-weight="600" letter-spacing="0.12em" fill="var(--muted)" opacity="0.85"><textPath href="#uncertainty-label-path" startOffset="4.5%">UNCERTAINTY</textPath></text>
