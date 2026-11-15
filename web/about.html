@@ -1509,6 +1509,103 @@
   <p class="en">The active calculations run daily on the backend and are exposed as a JSON payload (<code>data.json</code>) to drive the dashboard. It exposes the final risk score, phase, and the real-time observer state machine state (e.g. <code>state: 'HOLD_BTC'</code>, <code>trailing_trigger_score</code> etc.).</p>
   <p class="ua">Активні обчислення виконуються щодня на бекенді та зберігаються в JSON-файл (<code>data.json</code>) для відображення на дашбордах. Сюди входять фінальна оцінка, активна фаза, а також детальний стан кінцевого автомата (наприклад, <code>state: 'HOLD_BTC'</code>, <code>trailing_trigger_score</code> тощо).</p>
 
+  <h3>
+    <span class="en">7.1 Indicator Uncertainty &amp; Model Confidence Engine</span>
+    <span class="ua">7.1 Двигун невизначеності та впевненості моделі</span>
+  </h3>
+  <p class="en">A composite score alone is insufficient if the underlying indicators disagree. The system continuously evaluates <strong>Internal Uncertainty / Conflict Score</strong> ($0–100$) and its mirror <strong>Model Confidence Score</strong> ($100 - \text{Conflict}$):</p>
+  <p class="ua">Одного підсумкового балу недостатньо, якщо складові індикатори суперечать один одному. Система безперервно обчислює <strong>Оцінку внутрішнього конфлікту / невизначеності</strong> ($0–100$) та її дзеркало — <strong>Впевненість моделі</strong> ($100 - \text{Conflict}$):</p>
+
+  <div class="glass-card" style="padding: 18px 24px; margin: 16px 0;">
+    <p style="margin: 0; font-family: monospace; font-size: 13px; color: var(--text);">
+      Conflict Score = min(100, max(0, round(0.60 &times; (basketSpread / 55 &times; 100) + 0.40 &times; (weightedStd / 32 &times 100))))<br>
+      Confidence Score = 100 &minus; Conflict Score
+    </p>
+  </div>
+
+  <p class="en">Where <code>basketSpread</code> measures divergence between sub-baskets (On-Chain fundamentals vs. Technical/Macro), and <code>weightedStd</code> calculates the utility-weighted dispersion across all 15 component indicators.</p>
+  <p class="ua">Де <code>basketSpread</code> вимірює розходження між підкошиками (ончейн-фундаментал проти технічних та макроіндикаторів), а <code>weightedStd</code> визначає зважене стандартне відхилення всіх 15 метрик з урахуванням їхньої фазової актуальності.</p>
+
+  <ul>
+    <li>
+      <span class="en"><strong>Low Uncertainty (0–24) / High Confidence</strong>: Broad consensus across all models. Indicators point in the same direction, indicating maximum signal clarity and reliability.</span>
+      <span class="ua"><strong>Низька невизначеність (0–24) / Висока впевненість</strong>: Повний консенсус між усіма моделями. Метрики узгоджено вказують на одну фазу, що забезпечує максимальну надійність сигналу.</span>
+    </li>
+    <li>
+      <span class="en"><strong>Moderate Uncertainty (25–54)</strong>: Typical market transition. Minor lead/lag between indicators; the composite index remains fully actionable.</span>
+      <span class="ua"><strong>Помірна невизначеність (25–54)</strong>: Звичайна ринкова розбіжність. Нормальний часовий лаг між випереджаючими та запізнілими метриками; підсумковий індекс залишається надійним орієнтиром.</span>
+    </li>
+    <li>
+      <span class="en"><strong>High Uncertainty (55–100) / Low Confidence</strong>: Sub-models strongly contradict each other (e.g. deep on-chain accumulation while macro liquidity or derivatives indicate severe stress). Exercise extra caution and examine sub-baskets individually.</span>
+      <span class="ua"><strong>Висока невизначеність (55–100) / Низька впевненість</strong>: Моделі суттєво суперечать одна одній (наприклад, ончейн показує глибоку недооціненість, тоді як макрофактори або деривативи сигналізують про перегрів). Рекомендується підвищена обачність та аналіз окремих кошиків.</span>
+    </li>
+  </ul>
+
+  <h3>
+    <span class="en">7.2 Interactive UI &amp; Unified Risk Tier Hierarchy</span>
+    <span class="ua">7.2 Інтерактивний UI та єдина ієрархія зон ризику</span>
+  </h3>
+  <p class="en">All dashboards enforce a synchronized 5-tier risk taxonomy across individual score values, progress bars, 1-year sparkline charts, and status badges:</p>
+  <p class="ua">Всі дашборди підтримують синхронізовану 5-рівневу систему зон ризику для числових показників, прогрес-барів, 1-річних графіків-спарклайнів та статусних бейджів:</p>
+
+  <div class="glass-card" style="margin-top: 14px; margin-bottom: 20px; overflow-x: auto; padding: 0;">
+    <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 13px;">
+      <thead>
+        <tr style="border-bottom: 1px solid var(--border); background: rgba(255,255,255,0.02);">
+          <th style="padding: 10px 16px;"><span class="en">Score Range</span><span class="ua">Діапазон</span></th>
+          <th style="padding: 10px 16px;"><span class="en">Risk Zone</span><span class="ua">Зона ризику</span></th>
+          <th style="padding: 10px 16px;"><span class="en">Action / State</span><span class="ua">Дія / Стан</span></th>
+          <th style="padding: 10px 16px;"><span class="en">Color Hex</span><span class="ua">Колір</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="border-bottom: 1px solid var(--border);">
+          <td style="padding: 10px 16px; font-weight: 700; color: #22C55E;">&lt; 25</td>
+          <td style="padding: 10px 16px; color: #22C55E;"><span class="en">Very Low Risk</span><span class="ua">Мінімальний ризик</span></td>
+          <td style="padding: 10px 16px;"><span class="en">Accumulation (Active DCA)</span><span class="ua">Накопичення (Активний DCA)</span></td>
+          <td style="padding: 10px 16px; font-family: monospace;">#22C55E</td>
+        </tr>
+        <tr style="border-bottom: 1px solid var(--border);">
+          <td style="padding: 10px 16px; font-weight: 700; color: #4ADE80;">25 – 34</td>
+          <td style="padding: 10px 16px; color: #4ADE80;"><span class="en">Low Risk</span><span class="ua">Незначний ризик</span></td>
+          <td style="padding: 10px 16px;"><span class="en">Undervalued (Gradual buy)</span><span class="ua">Недооцінено (Помірний викуп)</span></td>
+          <td style="padding: 10px 16px; font-family: monospace;">#4ADE80</td>
+        </tr>
+        <tr style="border-bottom: 1px solid var(--border);">
+          <td style="padding: 10px 16px; font-weight: 700; color: #EAB308;">35 – 54</td>
+          <td style="padding: 10px 16px; color: #EAB308;"><span class="en">Moderate Risk</span><span class="ua">Помірний ризик</span></td>
+          <td style="padding: 10px 16px;"><span class="en">Hold / Neutral</span><span class="ua">Утримання / Нейтрально</span></td>
+          <td style="padding: 10px 16px; font-family: monospace;">#EAB308</td>
+        </tr>
+        <tr style="border-bottom: 1px solid var(--border);">
+          <td style="padding: 10px 16px; font-weight: 700; color: #F97316;">55 – 74</td>
+          <td style="padding: 10px 16px; color: #F97316;"><span class="en">High Risk</span><span class="ua">Значний ризик</span></td>
+          <td style="padding: 10px 16px;"><span class="en">Distribution (Reduce exposure)</span><span class="ua">Розподіл (Зниження ризику)</span></td>
+          <td style="padding: 10px 16px; font-family: monospace;">#F97316</td>
+        </tr>
+        <tr>
+          <td style="padding: 10px 16px; font-weight: 700; color: #EF4444;">&ge; 75</td>
+          <td style="padding: 10px 16px; color: #EF4444;"><span class="en">Very High Risk</span><span class="ua">Надмірний ризик</span></td>
+          <td style="padding: 10px 16px;"><span class="en">Sell Zone (Take profit)</span><span class="ua">Зона продажу (Фіксація прибутку)</span></td>
+          <td style="padding: 10px 16px; font-family: monospace;">#EF4444</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="en">In addition, the dashboards offer interactive modal dialogs:</p>
+  <p class="ua">Крім того, на дашбордах реалізовано інтерактивні модальні вікна:</p>
+  <ul>
+    <li>
+      <span class="en"><strong>Classic View (<code>classic.html</code>)</strong>: Clicking the inner <em>Uncertainty / Невизначеність</em> gauge arc opens a detailed breakdown showing live conflict score, model confidence %, explanation of indicator divergence, and interpretation rules.</span>
+      <span class="ua"><strong>Класичний вигляд (<code>classic.html</code>)</strong>: Клік на внутрішню дугу <em>Невизначеність</em> відкриває детальне модальне вікно з поточним балом конфлікту, відсотком впевненості, поясненням розходжень та правилами інтерпретації.</span>
+    </li>
+    <li>
+      <span class="en"><strong>Stressless View (<code>minimal.html</code>)</strong>: The left-side <em>Confidence / Впевненість</em> counter provides single-tap access to metric guidance and model certainty without cognitive overload.</span>
+      <span class="ua"><strong>Безстресовий вигляд (<code>minimal.html</code>)</strong>: Лівий лічильник <em>Впевненість</em> відкриває пояснення узгодженості метрик в один клік без візуального перевантаження.</span>
+    </li>
+  </ul>
+
   <!-- Section 8 -->
   <span class="section-eyebrow"><span class="en">Perspective / 08</span><span class="ua">Перспектива / 08</span></span>
   <h2 id="rower">

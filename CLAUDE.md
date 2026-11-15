@@ -124,11 +124,22 @@ python -m scraper.scraper
 
 Static HTML5 + vanilla JS. No build step. `web/data.json` copied from `data/data.json` by CI.
 
-- `index.html` — main dashboard
-- `classic.html` — metric table with 5 columns: Indicator / Score / vs History / V3 Risk (0–100) / Signal
-  - "V3 Risk" column reads `v3_normalized_scores` (per-metric risk, color-coded green→red)
-  - Signal badges use raw metric values mapped through `getSignal()`
-- `minimal.html`, `compare.html` — alternative views
+- `classic.html` — primary financial dashboard:
+  - **Hero card layout**: Centered title `BITCOIN BUY RISK INDEX` in top row (`.base-hero-top`), compact live price badge, `TODAY` section heading above the gauge, and `SUB-BASKETS` on the right. Secret click flips the card to reveal the zone forecast and back-side model parameters.
+  - **Dual-arc Gauge**: Outer main BRI score arc + needle; inner *Uncertainty* arc ($R=86$) with curved label ($R=72$).
+  - **Uncertainty Modal**: Clicking the inner arc (`#uncertainty-group`) opens `#uncertainty-modal-overlay` displaying the live conflict score ($0–100$), model confidence % ($100 - \text{conflict}$), mathematical formula, and 3-tier interpretation (Low 0–24, Moderate 25–54, High 55–100).
+  - **Component Table**: 5 columns (Indicator / Score / vs History 1Y sparkline / Metric Risk 0–100 / Risk tag badge).
+  - **Unified Risk Colors & Thresholds**: Strictly synchronized across Metric Risk numbers, progress bars, 1Y sparklines, and badges:
+    - `< 25`: Very Low (`#22C55E`)
+    - `25–34`: Low (`#4ADE80` / `#84CC16`)
+    - `35–54`: Moderate (`#EAB308`)
+    - `55–74`: High (`#F97316`)
+    - `≥ 75`: Very High (`#EF4444`)
+- `minimal.html` — Stressless dashboard:
+  - Symmetrical hero: Main score centered; `confidence` counter on the left mirroring `yesterday` / `7 days` on the right with tabular numbers and `:active { transform: scale(0.97); }`.
+  - Tapping `confidence` opens the metric help modal explaining ensemble confidence and uncertainty.
+- `about.html` — Comprehensive methodology documentation (10 sections with live EN/UA language toggle).
+- `compare.html` — Model comparison view.
 
 ## CI/CD
 

@@ -62,9 +62,42 @@ The Orchestrator blends the dynamic V3.1ML score with the Wave Resonance (WR) ve
 
 *Implementation: [orchestrator.py](file:///Users/max/BitcoinScore/scraper/orchestrator.py)*
 
+### Stage 6: Uncertainty, Indicator Conflict & Model Confidence
+The system continuously evaluates internal consistency across its 15 underlying metrics and sub-baskets:
+$$\text{basketSpread} = \max(\text{baskets}) - \min(\text{baskets})$$
+$$\text{weightedStd} = \sqrt{\frac{\sum u_i (s_i - \bar{s}_w)^2}{\sum u_i}}$$
+$$\text{Conflict Score} = \min\left(100, \max\left(0, \text{round}\left(0.60 \times \frac{\text{basketSpread}}{55} \times 100 + 0.40 \times \frac{\text{weightedStd}}{32} \times 100\right)\right)\right)$$
+$$\text{Confidence Score} = 100 - \text{Conflict Score}$$
+
+- **Conflict Score $\in [0, 100]$**: Measures divergence among sub-baskets and indicator variance. Displayed on the Classic dashboard (`web/classic.html`) as an inner gauge arc with interactive click-to-explain modal.
+- **Confidence Score $\in [0, 100]$**: Measures ensemble certainty. Displayed on the Stressless dashboard (`web/minimal.html`) symmetrically on the left of the main score.
+
 ---
 
-## 2. Weight Optimization Framework
+## 2. Risk Zones & Frontend Visual Architecture
+
+To eliminate conflicting visual cues across all dashboards, the system enforces a strict 5-tier risk taxonomy:
+
+| Score Range | Tier | Status Label | Action State | Color Hex |
+| :---: | :---: | :---: | :---: | :---: |
+| **0 – 24** | `vlow` | Very Low / Мінімальний | Accumulation (Active DCA) | `#22C55E` |
+| **25 – 34** | `low` | Low / Незначний | Undervalued (Gradual buy) | `#4ADE80` |
+| **35 – 54** | `mod` | Moderate / Помірний | Hold / Neutral | `#EAB308` |
+| **55 – 74** | `high` | High / Значний | Distribution (Reduce risk) | `#F97316` |
+| **75 – 100** | `vhigh` | Very High / Надмірний | Sell Zone (Take profit) | `#EF4444` |
+
+All Metric Risk numbers, progress bars, 1-year sparklines, and status badges share these identical thresholds and color tokens.
+
+### Hero & Gauge UX Refinements:
+- **Centered Index Title**: `BITCOIN BUY RISK INDEX` placed in the center of the live price row (`.base-hero-top`).
+- **Symmetrical Section Headings**: `TODAY` (`СЬОГОДНІ`) positioned directly over the main gauge, mirroring `SUB-BASKETS` (`КОШИКИ ПОКАЗНИКІВ`) over the right column.
+- **Interactive Uncertainty Arc**: The inner gauge arc on `classic.html` is clickable (`e.stopPropagation()` prevents card flipping) and opens a modal with live metrics, calculation formulas, and level interpretations.
+- **Symmetrical Minimalist Confidence**: `minimal.html` displays `confidence` on the left of the main score mirroring `yesterday` / `7 days` on the right, with click-to-explain modal dialogs.
+- **Secret Card Flip**: Clicking anywhere on the front hero card (except interactive controls, links, and buttons) flips to reveal the zone forecast and back-side analytics.
+
+---
+
+## 3. Weight Optimization Framework
 
 The weight profiles are calibrated using a **Trader-focused coordinate descent optimizer**. It optimizes parameters to maximize a fitness function representing a successful macro trader strategy.
 
