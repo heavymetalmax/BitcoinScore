@@ -1077,7 +1077,7 @@
   .base-meter-indicator {
     height: 100%;
     border-radius: 9999px;
-    transition: width 0.7s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.4s ease;
+    transition: width 400ms var(--ease-out), background-color 300ms ease;
   }
   .base-dynamics-grid {
     display: grid;
@@ -1119,25 +1119,36 @@
     font-variant-numeric: tabular-nums;
   }
 
-  /* Base UI Tabs Styling */
-  .base-tabs {
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
-    margin-bottom: 24px;
+  /* Emil Kowalski Animation & Interaction Tokens */
+  :root {
+    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+    --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
   }
-  .base-tabs-list {
-    display: flex;
+
+  /* Base UI Sticky Anchor Bar & Navigation */
+  .base-anchor-bar, .base-tabs {
+    position: sticky;
+    top: 68px;
+    z-index: 40;
+    margin-bottom: 24px;
+    padding: 6px 0;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  .base-anchor-list, .base-tabs-list {
+    display: inline-flex;
     gap: 4px;
     background: var(--surface);
     border: 1px solid var(--border);
     padding: 4px;
     border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     overflow-x: auto;
     scrollbar-width: none;
   }
-  .base-tabs-list::-webkit-scrollbar { display: none; }
-  .base-tab-trigger {
+  .base-anchor-list::-webkit-scrollbar, .base-tabs-list::-webkit-scrollbar { display: none; }
+  
+  .base-anchor-btn, .base-tab-trigger {
     display: inline-flex;
     align-items: center;
     gap: 8px;
@@ -1146,27 +1157,31 @@
     border: none;
     background: transparent;
     color: var(--muted);
-    font-size: 12px;
+    font-size: 12.5px;
     font-weight: 600;
     font-family: inherit;
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: transform 160ms var(--ease-out), background-color 160ms ease, color 160ms ease, box-shadow 160ms ease;
     white-space: nowrap;
+    user-select: none;
   }
-  .base-tab-trigger:hover {
+  .base-anchor-btn:active, .base-tab-trigger:active, .base-flip-btn:active, .theme-btn:active, .lang-btn:active, .disclaimer-btn:active {
+    transform: scale(0.97);
+  }
+  .base-anchor-btn:hover, .base-tab-trigger:hover {
     color: var(--text);
     background: var(--surface2);
   }
-  .base-tab-trigger.active {
+  .base-anchor-btn.active, .base-tab-trigger.active {
     color: var(--text);
     background: var(--surface2);
-    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
   }
-  .base-tab-trigger svg {
+  .base-anchor-btn svg, .base-tab-trigger svg {
     opacity: 0.7;
-    transition: opacity 0.15s ease;
+    transition: opacity 160ms ease, color 160ms ease;
   }
-  .base-tab-trigger.active svg {
+  .base-anchor-btn.active svg, .base-tab-trigger.active svg {
     opacity: 1;
     color: #38BDF8;
   }
