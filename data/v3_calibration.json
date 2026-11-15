@@ -26,5 +26,12 @@
     "low": 20,
     "scale": 0.10,
     "max_adj": 3.0
+  },
+  "uncertainty": {
+    "_comment": "Cross-model conflict and confidence scoring constants. basket_spread_max: max expected divergence between sub-baskets; weighted_std_max: max expected utility-weighted indicator dispersion.",
+    "basket_spread_max": 55.0,
+    "weighted_std_max": 32.0,
+    "weight_spread": 0.60,
+    "weight_std": 0.40
   }
 }

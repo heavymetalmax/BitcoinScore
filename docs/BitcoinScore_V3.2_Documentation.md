@@ -66,11 +66,13 @@ The Orchestrator blends the dynamic V3.1ML score with the Wave Resonance (WR) ve
 The system continuously evaluates internal consistency across its 15 underlying metrics and sub-baskets:
 $$\text{basketSpread} = \max(\text{baskets}) - \min(\text{baskets})$$
 $$\text{weightedStd} = \sqrt{\frac{\sum u_i (s_i - \bar{s}_w)^2}{\sum u_i}}$$
-$$\text{Conflict Score} = \min\left(100, \max\left(0, \text{round}\left(0.60 \times \frac{\text{basketSpread}}{55} \times 100 + 0.40 \times \frac{\text{weightedStd}}{32} \times 100\right)\right)\right)$$
+$$\text{Conflict Score} = \min\left(100, \max\left(0, \text{round}\left(w_{\text{spread}} \times \frac{\text{basketSpread}}{\text{spread}_{\max}} \times 100 + w_{\text{std}} \times \frac{\text{weightedStd}}{\text{std}_{\max}} \times 100\right)\right)\right)$$
 $$\text{Confidence Score} = 100 - \text{Conflict Score}$$
 
-- **Conflict Score $\in [0, 100]$**: Measures divergence among sub-baskets and indicator variance. Displayed on the Classic dashboard (`web/classic.html`) as an inner gauge arc with interactive click-to-explain modal.
-- **Confidence Score $\in [0, 100]$**: Measures ensemble certainty. Displayed on the Stressless dashboard (`web/minimal.html`) symmetrically on the left of the main score.
+Where calibration parameters ($w_{\text{spread}} = 0.60$, $w_{\text{std}} = 0.40$, $\text{spread}_{\max} = 55.0$, $\text{std}_{\max} = 32.0$) are defined in [data/v3_calibration.json](file:///Users/max/BitcoinScore/data/v3_calibration.json).
+
+- **Conflict Score $\in [0, 100]$**: Measures divergence among sub-baskets and indicator variance. Calculated centrally by `scraper/score.py` and displayed on the Classic dashboard (`web/classic.html`) as an inner gauge arc with interactive click-to-explain modal.
+- **Confidence Score $\in [0, 100]$**: Measures ensemble certainty ($100 - \text{Conflict Score}$). Displayed on the Stressless dashboard (`web/minimal.html`) symmetrically on the left of the main score.
 
 ---
 

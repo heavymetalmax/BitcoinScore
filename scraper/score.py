@@ -435,6 +435,70 @@ def assess_data_quality(normalized: dict) -> dict:
     return {'status': status, 'baskets': coverage}
 
 
+def compute_uncertainty(
+    baskets: list,
+    normalized: dict,
+    utilities: dict,
+    cfg: dict | None = None,
+) -> tuple[int, int]:
+    """Compute ensemble conflict score and model confidence in [0, 100].
+
+    Parameters
+    ----------
+    baskets : list
+        Sub-basket averages, e.g. [oc_avg, tech_avg, macro_avg].
+    normalized : dict
+        Normalized indicator scores (0-100).
+    utilities : dict
+        Per-metric relevance weights (0-1).
+    cfg : dict, optional
+        Calibration constants from data/v3_calibration.json ['uncertainty'].
+
+    Returns
+    -------
+    tuple[int, int]
+        (conflict_score, confidence_score) both in [0, 100].
+    """
+    if cfg is None:
+        cfg = {}
+    spread_max = float(cfg.get('basket_spread_max', 55.0))
+    std_max    = float(cfg.get('weighted_std_max', 32.0))
+    w_spread   = float(cfg.get('weight_spread', 0.60))
+    w_std      = float(cfg.get('weight_std', 0.40))
+
+    valid_baskets = [float(b) for b in baskets if b is not None and not math.isnan(b)]
+    if len(valid_baskets) < 2:
+        return 50, 50
+
+    basket_spread = max(valid_baskets) - min(valid_baskets)
+
+    w_mean_num = 0.0
+    w_sum = 0.0
+    for k, s in normalized.items():
+        if s is not None and not math.isnan(s):
+            u = float(utilities.get(k, 0.5))
+            if u > 0:
+                w_mean_num += float(s) * u
+                w_sum += u
+
+    weighted_std = 0.0
+    if w_sum > 0:
+        w_mean = w_mean_num / w_sum
+        var_num = sum(
+            float(utilities.get(k, 0.5)) * ((float(s) - w_mean) ** 2)
+            for k, s in normalized.items()
+            if s is not None and not math.isnan(s) and float(utilities.get(k, 0.5)) > 0
+        )
+        weighted_std = math.sqrt(var_num / w_sum)
+
+    spread_term = (basket_spread / spread_max) * 100.0 if spread_max > 0 else 0.0
+    std_term    = (weighted_std / std_max) * 100.0 if std_max > 0 else 0.0
+
+    conflict   = int(min(100, max(0, round(w_spread * spread_term + w_std * std_term))))
+    confidence = int(min(100, max(0, 100 - conflict)))
+    return conflict, confidence
+
+
 # ── Main scoring function ─────────────────────────────────────────────────────
 
 def compute_score(
@@ -592,6 +656,14 @@ def compute_score(
     oc_avg    = OC
     tech_avg  = _wavg(BASKET_MS | BASKET_CP, normalized, utilities, 3)
     macro_avg = _wavg(BASKET_MC | {'dxy'}, normalized, utilities, 1)
+
+    unc_cfg = cal.get('uncertainty', {})
+    conflict_score, confidence_score = compute_uncertainty(
+        [oc_avg, tech_avg, macro_avg],
+        normalized,
+        utilities,
+        unc_cfg,
+    )
 
     # ── 6b. Dynamic utility-weighted master core score ────────────────────────
     # The overall index is a pure data-driven composite across all available
@@ -771,6 +843,8 @@ def compute_score(
         'composite_risk':     composite_risk,
         'signal_agreement':   signal_agreement,
         'meta_score':         meta_score,
+        'conflict_score':     conflict_score,
+        'confidence_score':   confidence_score,
         'normalized_scores':  {
             k: round(v) for k, v in normalized.items()
             if v is not None and k not in ('cipherb_weekly', 'cipherb_daily')

@@ -23,6 +23,10 @@ def sync_public_names(payload: dict, scores: dict) -> None:
         payload['tech_score'] = scores['tech_avg']
     if scores.get('macro_avg') is not None:
         payload['macro_score'] = scores['macro_avg']
+    if scores.get('conflict_score') is not None:
+        payload['conflict_score'] = scores['conflict_score']
+    if scores.get('confidence_score') is not None:
+        payload['confidence_score'] = scores['confidence_score']
     ma_ctx = scores.get('ma_context') or {}
     payload['ma_context'] = ma_ctx
     payload['market_context'] = {
@@ -31,6 +35,8 @@ def sync_public_names(payload: dict, scores: dict) -> None:
         'bottom_weight': scores.get('w_bot'),
         'neutral_weight': scores.get('w_neutral'),
         'top_weight': scores.get('w_top'),
+        'conflict_score': scores.get('conflict_score'),
+        'confidence_score': scores.get('confidence_score'),
         'ma_regime': ma_ctx.get('ma_regime'),
         'dma_200': ma_ctx.get('dma_200'),
         'dma_200_slope_30d': ma_ctx.get('dma_200_slope_30d'),
@@ -235,6 +241,8 @@ def run_scoring_pipeline(p, build_metric_history_fn=None):
         p['decision_suppression_reason'] = scores.get('decision_suppression_reason')
         p['composite_risk']       = scores.get('composite_risk')
         p['v3_oc_coherence']      = scores['oc_coherence']
+        p['conflict_score']       = scores.get('conflict_score')
+        p['confidence_score']     = scores.get('confidence_score')
         p['wave_resonance']        = _wr
         p['data_quality'] = {
             'active_metrics': len(_active),
