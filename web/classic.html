@@ -1326,7 +1326,7 @@
         <div class="base-hero-body">
           <!-- Left Column: Main Arc Gauge -->
           <div class="base-hero-left">
-            <div class="gauge-wrap" style="width: 240px; height: 130px; position: relative; margin: 0 auto;">
+            <div class="gauge-wrap" style="width: 100%; max-width: 380px; aspect-ratio: 240 / 130; position: relative; margin: 0 auto;">
               <svg class="gauge-svg" viewBox="0 0 240 130" style="width: 100%; height: 100%; display: block; overflow: visible;">
                 <defs>
                   <linearGradient id="arcGrad" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -1339,11 +1339,11 @@
                   <path id="uncertainty-label-path" d="M 40 120 A 80 80 0 0 1 200 120" fill="none"/>
                 </defs>
                 <!-- Background track -->
-                <path d="M 20 120 A 100 100 0 0 1 220 120" stroke="var(--border)" stroke-width="6" stroke-linecap="round" fill="none"/>
+                <path d="M 20 120 A 100 100 0 0 1 220 120" stroke="var(--border)" stroke-width="7" stroke-linecap="round" fill="none"/>
                 <!-- Filled arc: default 33% -->
-                <path id="gauge-arc" d="M 20 120 A 100 100 0 0 1 79.5 39.8" stroke="#22C55E" stroke-width="6" stroke-linecap="round" fill="none"/>
+                <path id="gauge-arc" d="M 20 120 A 100 100 0 0 1 79.5 39.8" stroke="#22C55E" stroke-width="7" stroke-linecap="round" fill="none"/>
                 <!-- Needle indicator dot at value 33 -->
-                <circle id="gauge-needle" cx="79.5" cy="39.8" r="5" fill="var(--bg)" stroke="#22C55E" stroke-width="2"/>
+                <circle id="gauge-needle" cx="79.5" cy="39.8" r="5.5" fill="var(--bg)" stroke="#22C55E" stroke-width="2"/>
 
                 <!-- Inner Uncertainty / Disagreement Arc -->
                 <g id="uncertainty-group">
@@ -1354,23 +1354,24 @@
                   <text class="ua" font-size="5.3" font-weight="600" letter-spacing="0.10em" fill="var(--muted)" opacity="0.85"><textPath href="#uncertainty-label-path" startOffset="4.5%">НЕВИЗНАЧЕНІСТЬ</textPath></text>
                 </g>
               </svg>
-              <!-- Center Score Value (Lowered) -->
-              <div class="gauge-arc-number" style="position: absolute; top: 70%; left: 0; right: 0; display: flex; justify-content: center; align-items: center; transform: translateY(-50%);">
-                <span class="gauge-val" id="gauge-val" style="font-size: 72px; font-weight: 700; letter-spacing: -0.04em; line-height: 1; color: #22C55E;">33</span>
+              <!-- Center Score Value (Lowered & Scaled) -->
+              <div class="gauge-arc-number" style="position: absolute; top: 73%; left: 0; right: 0; display: flex; justify-content: center; align-items: center; transform: translateY(-50%);">
+                <span class="gauge-val" id="gauge-val" style="font-size: 80px; font-weight: 800; letter-spacing: -0.04em; line-height: 1; color: #22C55E;">33</span>
               </div>
             </div>
 
-            <!-- Lower Zone Scale Bar -->
-            <div class="gauge-scale" style="width: 100%; max-width: 250px; margin-top: 10px;">
-              <div class="gauge-bar" style="height: 4px; border-radius: 2px; background: linear-gradient(90deg, #22C55E 0%, #84CC16 25%, #EAB308 50%, #F97316 75%, #EF4444 100%);"></div>
-              <div class="gauge-bar-ticks" style="display: flex; justify-content: space-between; font-size: 9px; color: var(--muted); margin-top: 3px;">
+            <!-- Lower Zone Scale Bar (Aligned 0-100 to arc endpoints via 8.33% margin) -->
+            <div class="gauge-scale" style="width: 100%; max-width: 380px; padding: 0 8.33%; box-sizing: border-box; margin-top: 14px;">
+              <div class="gauge-bar" style="height: 5px; border-radius: 9999px; background: linear-gradient(90deg, #22C55E 0%, #84CC16 25%, #EAB308 50%, #F97316 75%, #EF4444 100%);"></div>
+              <div class="gauge-bar-ticks" style="display: flex; justify-content: space-between; font-size: 9.5px; font-weight: 600; color: var(--muted); margin-top: 4px;">
                 <span>0</span><span>25</span><span>50</span><span>75</span><span>100</span>
               </div>
-              <div class="gauge-labels" style="display: flex; justify-content: space-between; font-size: 9px; font-weight: 700; margin-top: 2px;">
+              <div class="gauge-labels" style="display: flex; justify-content: space-between; font-size: 9.5px; font-weight: 700; margin-top: 3px;">
                 <span class="gl-1" style="color: #22C55E;"><span class="en">V.LOW</span><span class="ua">МІН.</span></span>
-                <span class="gl-2" style="color: #EAB308;"><span class="en">MODER.</span><span class="ua">ПОМІР.</span></span>
-                <span class="gl-3" style="color: #F97316;"><span class="en">HIGH</span><span class="ua">ЗНАЧН.</span></span>
-                <span class="gl-4" style="color: #EF4444;"><span class="en">V.HIGH</span><span class="ua">НАДМ.</span></span>
+                <span class="gl-2" style="color: #84CC16;"><span class="en">LOW</span><span class="ua">НЕЗН.</span></span>
+                <span class="gl-3" style="color: #EAB308;"><span class="en">MODER.</span><span class="ua">ПОМІР.</span></span>
+                <span class="gl-4" style="color: #F97316;"><span class="en">HIGH</span><span class="ua">ЗНАЧН.</span></span>
+                <span class="gl-5" style="color: #EF4444;"><span class="en">V.HIGH</span><span class="ua">НАДМ.</span></span>
               </div>
             </div>
           </div>
