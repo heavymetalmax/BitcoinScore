@@ -1308,18 +1308,10 @@
             <span class="base-live-dot"></span>
             <span class="live-price" id="hero-live-price">LIVE $64,710</span>
           </div>
-          <div style="display:flex; align-items:center; gap:10px;">
-            <div class="base-hero-time">
-              <span><span class="en">Updated:</span><span class="ua">Оновлено:</span> <strong id="hero-updated-time">14.11.26 17:38</strong></span>
-              <span>•</span>
-              <span><span class="en">Next:</span><span class="ua">Наступне:</span> <strong id="hero-next-time" class="countdown">06:47</strong></span>
-            </div>
-            <button class="base-flip-btn" id="btn-hero-flip" type="button" title="Архітектура конвеєра та ціни входу">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
-              <span class="en">Pipeline &amp; Entry Prices</span>
-              <span class="ua">Конвеєр &amp; Ціни входу</span>
-              <span style="font-size:10px; opacity:0.8;">⟲</span>
-            </button>
+          <div class="base-hero-time">
+            <span><span class="en">Updated:</span><span class="ua">Оновлено:</span> <strong id="hero-updated-time">14.11.26 17:38</strong></span>
+            <span>•</span>
+            <span><span class="en">Next:</span><span class="ua">Наступне:</span> <strong id="hero-next-time" class="countdown">06:47</strong></span>
           </div>
         </div>
 
@@ -2373,17 +2365,23 @@ function updateConflictGauge(conflictScore) {
 // ─── HERO FLIP CONTROLLER ──────────────────────────────
 function initHeroFlip() {
   const inner = document.getElementById('hero-flip-inner');
-  const btnFront = document.getElementById('btn-hero-flip');
+  const front = document.getElementById('hero-card-front');
   const btnBack = document.getElementById('btn-hero-flip-back');
   if (!inner) return;
 
-  const toggleFlip = (e) => {
-    if (e) e.stopPropagation();
-    inner.classList.toggle('flipped');
+  const flipToBack = (e) => {
+    if (e && e.target.closest('button, a, input, select')) return;
+    inner.classList.add('flipped');
   };
 
-  if (btnFront) btnFront.addEventListener('click', toggleFlip);
-  if (btnBack) btnBack.addEventListener('click', toggleFlip);
+  const flipToFront = (e) => {
+    if (e) e.stopPropagation();
+    inner.classList.remove('flipped');
+  };
+
+  // Secret activation: click anywhere on the front hero card
+  if (front) front.addEventListener('click', flipToBack);
+  if (btnBack) btnBack.addEventListener('click', flipToFront);
 }
 
 function updateZoneForecast(zf, btcPrice) {
