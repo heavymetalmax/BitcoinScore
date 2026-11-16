@@ -964,12 +964,21 @@
 
   @media (max-width: 900px) {
     .base-hero-back {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+    .base-hero-flip-inner.flipped .base-hero-back {
       position: relative;
       height: auto;
       min-height: 480px;
     }
     .base-hero-flip-inner.flipped .base-hero-front {
       position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
     }
     .base-back-grid {
       grid-template-columns: 1fr;
