@@ -3131,6 +3131,8 @@ async function loadData() {
     set('market-price', fmtPrice(data.btc_price));
     const lp = document.getElementById('live-price');
     if (lp && (lp.textContent === '—' || !lp.textContent)) lp.textContent = fmtPrice(data.btc_price);
+    const hlp = document.getElementById('hero-live-price');
+    if (hlp && !hlp.dataset.liveLoaded) hlp.textContent = 'LIVE ' + fmtPrice(data.btc_price);
   }
 
   const prev1d = data.prev_day?.final_score ?? null;
@@ -3234,7 +3236,9 @@ async function loadData() {
   if (data.timestamp) {
     const d = new Date(data.timestamp);
     const pad2 = n => String(n).padStart(2, '0');
-    set('market-updated', `${pad2(d.getDate())}.${pad2(d.getMonth()+1)}.${String(d.getFullYear()).slice(-2)} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`);
+    const updatedStr = `${pad2(d.getDate())}.${pad2(d.getMonth()+1)}.${String(d.getFullYear()).slice(-2)} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+    set('market-updated', updatedStr);
+    set('hero-updated-time', updatedStr);
     window._dataTimestamp = data.timestamp;
     updateCountdown();
   }
@@ -3892,7 +3896,8 @@ function updateGaugeTags(score, vals, keys, fr, recoveryWindow, normScores) {
 
 function updateCountdown() {
   const el = document.getElementById('market-next');
-  if (!el) return;
+  const heroEl = document.getElementById('hero-next-time');
+  if (!el && !heroEl) return;
   const now = new Date();
   let target;
   if (window._dataTimestamp) {
@@ -3906,7 +3911,9 @@ function updateCountdown() {
   const h = Math.floor(diffSecs / 3600);
   const m = Math.floor((diffSecs % 3600) / 60);
   const pad = n => String(n).padStart(2, '0');
-  el.innerHTML = `${pad(h)}<span class="blink-colon">:</span>${pad(m)}`;
+  const html = `${pad(h)}<span class="blink-colon">:</span>${pad(m)}`;
+  if (el) el.innerHTML = html;
+  if (heroEl) heroEl.innerHTML = html;
 }
 
 window.addEventListener('load', () => { initAnchorScroll(); initHeroFlip(); loadData(); updateCountdown(); setInterval(updateCountdown, 60000); });
@@ -3981,8 +3988,15 @@ function fetchLivePrice() {
   fetch('https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT')
     .then(r => r.json())
     .then(d => {
+      if (!d.price) return;
+      const formatted = '$' + Math.round(d.price).toLocaleString('en-US');
       const el = document.getElementById('live-price');
-      if (el && d.price) el.textContent = '$' + Math.round(d.price).toLocaleString('en-US');
+      if (el) el.textContent = formatted;
+      const heroEl = document.getElementById('hero-live-price');
+      if (heroEl) {
+        heroEl.textContent = 'LIVE ' + formatted;
+        heroEl.dataset.liveLoaded = '1';
+      }
     })
     .catch(() => {});
 }
