@@ -51,10 +51,11 @@ def compute_causal_percentile(metric, value, target_date=None):
     if len(pts) < 24:
         return None
 
-    # 4-year rolling window
+    # 4-year rolling window (2-year for DXY to avoid 20-year secular drift)
     last_date_str = pts[-1][0][:10]
     last_date = datetime.date.fromisoformat(last_date_str)
-    lo = (last_date - datetime.timedelta(days=ADAPTIVE_WIN_DAYS)).isoformat()
+    win_days = 730 if metric == 'dxy' else ADAPTIVE_WIN_DAYS
+    lo = (last_date - datetime.timedelta(days=win_days)).isoformat()
     win_rolling = [v for (d, v) in pts if d[:10] >= lo]
 
     if len(win_rolling) < 12:
@@ -63,6 +64,17 @@ def compute_causal_percentile(metric, value, target_date=None):
     cmp_val = float(value)
 
     pct_rolling = round(sum(1 for v in win_rolling if v <= cmp_val) / len(win_rolling) * 100)
+
+    if metric == 'dxy':
+        # For DXY, blend 2Y level percentile (70%) with 90-day momentum RoC (30%).
+        lo_90 = (last_date - datetime.timedelta(days=90)).isoformat()
+        val_90 = next((v for (d, v) in pts if d[:10] >= lo_90), None)
+        if val_90 and val_90 > 0:
+            roc_90 = (cmp_val / val_90 - 1.0) * 100.0
+            # Map -5%..+5% 90d RoC -> 0..100
+            roc_score = max(0.0, min(100.0, (roc_90 + 5.0) / 10.0 * 100.0))
+            return round(0.70 * pct_rolling + 0.30 * roc_score)
+        return pct_rolling
 
     # All-time causal window (never fewer data points than rolling window)
     win_alltime = [v for (_, v) in pts]

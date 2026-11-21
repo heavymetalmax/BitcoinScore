@@ -81,6 +81,24 @@ def _load_metric_history(metric):
         except Exception:
             pass
 
+    # dxy lives in dxy_history.json + dxy_scraper_history.json
+    if not pts and metric == 'dxy':
+        dxy_by_date: dict[str, float] = {}
+        for dxy_path in ('data/history/dxy_history.json', 'data/history/dxy_scraper_history.json'):
+            try:
+                if os.path.exists(dxy_path):
+                    raw_dxy = json.load(open(dxy_path, encoding='utf-8'))
+                    rows = raw_dxy.get('series', []) if isinstance(raw_dxy, dict) else raw_dxy
+                    if isinstance(rows, list):
+                        for r in rows:
+                            d = (r.get('date') or r.get('timestamp', ''))[:10]
+                            v = r.get('value')
+                            if d and v is not None:
+                                dxy_by_date[d] = float(v)
+            except Exception:
+                pass
+        pts = sorted(dxy_by_date.items())
+
     # Tail: daily_vector for very recent dates not yet flushed to scores.json
     try:
         dv = 'data/history/daily_vector.json'

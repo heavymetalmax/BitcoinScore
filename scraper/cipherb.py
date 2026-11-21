@@ -220,11 +220,16 @@ def _fast_divergence(series, kind='bearish', lookback=36, peak_window=1, max_pea
     if len(pivots) < 2:
         return False
     last_i, last_price, last_wt1 = pivots[-1]
-    # Compare last pivot vs the most extreme wt1 among all previous pivots
+    # Require momentum confirmation on the latest candle so we don't fire on
+    # a vertical falling knife / melt-up before WT1 actually turns.
     if kind == 'bearish':
+        if n >= 2 and recent[-1]['wt1'] >= recent[-2]['wt1']:
+            return False
         ref = max(pivots[:-1], key=lambda p: p[2])  # highest wt1
         detected = last_price > ref[1] and last_wt1 < ref[2] - 2.0
     else:
+        if n >= 2 and recent[-1]['wt1'] <= recent[-2]['wt1']:
+            return False
         ref = min(pivots[:-1], key=lambda p: p[2])  # lowest wt1
         detected = last_price < ref[1] and last_wt1 > ref[2] + 2.0
     return detected and (n - 1 - last_i) <= max_peak_age

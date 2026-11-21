@@ -197,9 +197,13 @@ def run_scoring_pipeline(p, build_metric_history_fn=None):
             target_date     = today,
         )
 
-        # Guard: overheated funding contradicts CONFIRMED_BOTTOM
+        # Guard: overheated funding or low model confidence contradicts CONFIRMED_BOTTOM
         _fr_score = scores.get('normalized_scores', {}).get('funding_rate')
-        if _fr_score is not None and _fr_score > 80 and v3_sig.get('flag') == 'CONFIRMED_BOTTOM':
+        _conf_score = scores.get('confidence_score')
+        if v3_sig.get('flag') == 'CONFIRMED_BOTTOM' and (
+            (_fr_score is not None and _fr_score > 80)
+            or (_conf_score is not None and _conf_score < 50)
+        ):
             v3_sig = dict(v3_sig)
             v3_sig['flag'] = 'PROBABLE_BOTTOM'
 
@@ -211,6 +215,21 @@ def run_scoring_pipeline(p, build_metric_history_fn=None):
         _norm    = scores.get('normalized_scores', {})
         _active  = [k for k in _EXPECTED_SCORING_METRICS if _norm.get(k) is not None]
         _missing = sorted(k for k in _EXPECTED_SCORING_METRICS if _norm.get(k) is None)
+        _NORM_TO_RAW = {
+            'mvrv_z_score': 'mvrv', 'puell': 'puell_multiple',
+            'lth_supply': 'lth_supply_pct', 'm2_yoy': 'm2_mom',
+            'yield_curve_spread': 'yield_curve', 'pi_gap': 'pi_cycle',
+        }
+        _metrics_dict = p.get('metrics', {})
+        _failed_set = set(p.get('failed_live_fetches') or [])
+        _stale = sorted(
+            k for k in _active
+            if k in _failed_set
+            or _NORM_TO_RAW.get(k, k) in _failed_set
+            or (isinstance(_metrics_dict.get(_NORM_TO_RAW.get(k, k)), dict)
+                and _metrics_dict[_NORM_TO_RAW.get(k, k)].get('is_fallback'))
+        )
+        _eff_active = max(0.0, len(_active) - 0.5 * len(_stale))
 
         # The retired tautological model must not survive via cached payloads.
         for _retired_key in ('v5_score', 'v5_confidence', 'v5_shap_top5', 'legacy_model'):
@@ -247,7 +266,8 @@ def run_scoring_pipeline(p, build_metric_history_fn=None):
         p['data_quality'] = {
             'active_metrics': len(_active),
             'total_metrics':  len(_EXPECTED_SCORING_METRICS),
-            'quality_pct':    round(len(_active) / len(_EXPECTED_SCORING_METRICS) * 100),
+            'quality_pct':    round(_eff_active / len(_EXPECTED_SCORING_METRICS) * 100),
+            'stale_metrics':  _stale,
             'missing_metrics': _missing,
             'status': scores.get('score_status', 'invalid'),
             'basket_coverage': scores.get('basket_coverage', {}),
@@ -266,8 +286,10 @@ def run_scoring_pipeline(p, build_metric_history_fn=None):
             _mm_inner = p['metrics']['mayer_multiple'].get('value')
             if isinstance(_mm_inner, dict):
                 for _mk in ('dma_200', 'dma_200_slope_30d', 'above_dma_200', 'wma_200', 'ma200w_ratio', 'ma_regime'):
-                    if _mm_inner.get(_mk) is None and _ma_ctx.get(_mk) is not None:
+                    if _ma_ctx.get(_mk) is not None:
                         _mm_inner[_mk] = _ma_ctx[_mk]
+                if p.get('btc_price') is not None:
+                    _mm_inner['current_price'] = round(float(p['btc_price']), 1)
 
         p['phase'] = {
             'phase':      scores['phase'],

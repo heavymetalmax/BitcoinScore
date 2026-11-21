@@ -440,6 +440,7 @@ def compute_uncertainty(
     normalized: dict,
     utilities: dict,
     cfg: dict | None = None,
+    basket_weights: list | None = None,
 ) -> tuple[int, int]:
     """Compute ensemble conflict score and model confidence in [0, 100].
 
@@ -453,6 +454,9 @@ def compute_uncertainty(
         Per-metric relevance weights (0-1).
     cfg : dict, optional
         Calibration constants from data/v3_calibration.json ['uncertainty'].
+    basket_weights : list, optional
+        Total active utility weight per basket; prevents low-weight outlier
+        baskets (e.g. Macro during BOTTOM) from dominating spread.
 
     Returns
     -------
@@ -466,11 +470,24 @@ def compute_uncertainty(
     w_spread   = float(cfg.get('weight_spread', 0.60))
     w_std      = float(cfg.get('weight_std', 0.40))
 
-    valid_baskets = [float(b) for b in baskets if b is not None and not math.isnan(b)]
-    if len(valid_baskets) < 2:
+    valid_pairs = [
+        (float(b), float(basket_weights[i]) if basket_weights and i < len(basket_weights) and basket_weights[i] is not None else 1.0)
+        for i, b in enumerate(baskets)
+        if b is not None and not math.isnan(b)
+    ]
+    if len(valid_pairs) < 2:
         return 50, 50
 
-    basket_spread = max(valid_baskets) - min(valid_baskets)
+    if basket_weights:
+        w_tot = sum(w for _, w in valid_pairs if w > 0)
+        if w_tot > 0:
+            w_b_mean = sum(b * w for b, w in valid_pairs if w > 0) / w_tot
+            w_b_var = sum(w * ((b - w_b_mean) ** 2) for b, w in valid_pairs if w > 0) / w_tot
+            basket_spread = 2.0 * math.sqrt(w_b_var)
+        else:
+            basket_spread = max(b for b, _ in valid_pairs) - min(b for b, _ in valid_pairs)
+    else:
+        basket_spread = max(b for b, _ in valid_pairs) - min(b for b, _ in valid_pairs)
 
     w_mean_num = 0.0
     w_sum = 0.0
@@ -644,6 +661,34 @@ def compute_score(
         div_signal=div_signal,
     )
 
+    # Dampen utility weight of stale / fallback cached metrics
+    _RAW_TO_NORM = {
+        'nupl': 'nupl', 'mvrv': 'mvrv_z_score', 'mvrv_z_score': 'mvrv_z_score',
+        'rhodl_ratio': 'rhodl_ratio', 'cvdd_ratio': 'cvdd_ratio', 'asopr': 'asopr',
+        'puell_multiple': 'puell', 'puell': 'puell', 'lth_supply_pct': 'lth_supply',
+        'mayer_multiple': 'mayer_multiple', 'fear_greed': 'fear_greed',
+        'm2_mom': 'm2_yoy', 'm2_yoy': 'm2_yoy', 'yield_curve': 'yield_curve_spread',
+        'etf_flows': 'etf_flows', 'funding_rate': 'funding_rate', 'dxy': 'dxy',
+        'cipherb': 'cipherb', 'pi_cycle': 'pi_gap',
+    }
+    _td = (
+        datetime.date.fromisoformat(str(target_date)[:10])
+        if target_date is not None else datetime.date.today()
+    )
+    for _rk, _nk in _RAW_TO_NORM.items():
+        _entry = raw_metrics.get(_rk)
+        if isinstance(_entry, dict) and _entry.get('is_fallback') and _nk in utilities:
+            _mult = 0.7
+            _upd = _entry.get('updated')
+            if isinstance(_upd, str) and len(_upd) >= 10:
+                try:
+                    _age_days = (_td - datetime.date.fromisoformat(_upd[:10])).days
+                    if _age_days >= 2:
+                        _mult = 0.4
+                except ValueError:
+                    pass
+            utilities[_nk] = round(float(utilities[_nk]) * _mult, 4)
+
     # ── 6a. Basket averages & Dynamic Utilities ──────────────────────────────
     quality = assess_data_quality(normalized)
     OC = _wavg(BASKET_OC, normalized, utilities, BASKET_MIN_COUNTS['OC'])
@@ -657,12 +702,14 @@ def compute_score(
     tech_avg  = _wavg(BASKET_MS | BASKET_CP, normalized, utilities, 3)
     macro_avg = _wavg(BASKET_MC | {'dxy'}, normalized, utilities, 1)
 
+    _bsum = lambda ks: sum(float(utilities.get(k, 0.5)) for k in ks if normalized.get(k) is not None)
     unc_cfg = cal.get('uncertainty', {})
     conflict_score, confidence_score = compute_uncertainty(
         [oc_avg, tech_avg, macro_avg],
         normalized,
         utilities,
         unc_cfg,
+        basket_weights=[_bsum(BASKET_OC), _bsum(BASKET_MS | BASKET_CP), _bsum(BASKET_MC | {'dxy'})],
     )
 
     # ── 6b. Dynamic utility-weighted master core score ────────────────────────
