@@ -30,11 +30,23 @@ RISK_INVERTED = {'m2_yoy', 'yield_curve', 'lth_supply_pct'}
 LOOKBACK_HORIZONS = {30: 7, 90: 14, 180: 21}
 
 _MODEL_B_PATH = 'data/v5b_model.pkl'
+_VALIDATION_B_PATH = 'data/v5b_validation.json'
 _MODEL_B:    object | None = None
 _FEAT_COLS_B: list | None = None
 _MEDIANS_B:  np.ndarray | None = None
 _METADATA_B: dict = {}
 _HIST_B: dict = {}
+
+
+def _is_validated_b() -> bool:
+    """Read honest walk-forward baseline check from data/v5b_validation.json."""
+    try:
+        p = Path(_VALIDATION_B_PATH)
+        if p.exists():
+            return bool(json.loads(p.read_text(encoding='utf-8')).get('passes_baseline', False))
+    except Exception:
+        pass
+    return False
 
 
 def _load_b() -> bool:
@@ -324,6 +336,6 @@ def predict_b(
     return {
         'score': score,
         'label': 'max_drawdown_365d',
-        'validated': True,
+        'validated': _is_validated_b(),
         'model_version': 'v5b_monotonic_ensemble',
     }
