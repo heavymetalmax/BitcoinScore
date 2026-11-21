@@ -286,6 +286,21 @@ def build_payload():
         if 'metrics' not in locals():
             metrics = {}
         src = 'FRED' if name in ('m2', 'yield_curve', 'dxy') else 'Farside' if name == 'etf_flows' else 'BMP'
+        _meta_mods = {'m2': m2_mod, 'yield_curve': yc_mod, 'dxy': dxy_mod}
+        _extra_meta = {}
+        if name in _meta_mods:
+            if reused_cache or is_fallback:
+                _prev_m = prev_metrics.get(name, {})
+                for _mk in ('series_id', 'observation_date', 'is_us_fallback'):
+                    if _prev_m.get(_mk) is not None:
+                        _extra_meta[_mk] = _prev_m[_mk]
+                if name == 'm2' and _prev_m.get('source'):
+                    src = _prev_m['source']
+            else:
+                _lm = getattr(_meta_mods[name], 'LAST_META', None) or {}
+                _extra_meta.update(_lm)
+                if name == 'm2' and _lm.get('series_id') == 'MACROMICRO_GLOBAL_M2':
+                    src = 'MacroMicro'
         # Preserve original timestamp if reused from cache or fell back on failure
         eff_updated = prev_updated if ((reused_cache or is_fallback) and prev_updated) else now_iso()
         metrics[name] = {
@@ -293,6 +308,7 @@ def build_payload():
             'source': src if val is not None else None,
             'updated': eff_updated,
             'is_fallback': is_fallback,
+            **_extra_meta,
         }
 
     if 'metrics' not in locals():

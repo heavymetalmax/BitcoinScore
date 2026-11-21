@@ -346,6 +346,7 @@ def run_scoring_pipeline(p, build_metric_history_fn=None):
             },
             'ma_context': _ma_ctx,
             'OC_read':  scores.get('oc_read'),
+            'raw_utility_score': scores.get('raw_utility_score'),
             'coherence': {
                 'oc_score': scores.get('oc_coherence'),
                 'factor':   scores.get('coh_factor'),

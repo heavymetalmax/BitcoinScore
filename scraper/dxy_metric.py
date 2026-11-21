@@ -13,20 +13,24 @@ import urllib.request
 logger = logging.getLogger(__name__)
 
 _FRED_URL = 'https://fred.stlouisfed.org/graph/fredgraph.csv?id=DTWEXBGS'
+LAST_META: dict = {}
 
 
 def get_dxy():
     """Return Nominal Broad Dollar Index value (FRED DTWEXBGS). Returns None on failure."""
+    global LAST_META
     try:
         ctx = ssl.create_default_context()
         req = urllib.request.Request(_FRED_URL, headers={'User-Agent': 'curl/7.88'})
         with urllib.request.urlopen(req, timeout=30, context=ctx) as r:
             text = r.read().decode()
         rows = list(csv.reader(io.StringIO(text)))
-        vals = [float(row[1]) for row in rows[1:] if row[1] not in ('.', '')]
-        if not vals:
+        valid = [(row[0], float(row[1])) for row in rows[1:] if len(row) >= 2 and row[1] not in ('.', '')]
+        if not valid:
             raise ValueError('No values found in CSV')
-        return round(vals[-1], 4)
+        obs_date, latest_val = valid[-1]
+        LAST_META = {'series_id': 'DTWEXBGS', 'observation_date': obs_date}
+        return round(latest_val, 4)
     except Exception as e:
         logger.warning('get_dxy failed: %s. Trying history fallback...', e)
         try:

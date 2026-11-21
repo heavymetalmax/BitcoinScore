@@ -19,6 +19,7 @@ logger = logging.getLogger(__name__)
 _MACROMICRO_URL = 'https://en.macromicro.me/charts/3439/major-bank-m2-comparsion'
 _FRED_URL = 'https://fred.stlouisfed.org/graph/fredgraph.csv?id=WM2NS'
 _ZYTE_API_URL = 'https://api.zyte.com/v1/extract'
+LAST_META: dict = {}
 
 
 def _fetch_wm2ns_series():
@@ -35,6 +36,7 @@ def _fetch_wm2ns_series():
 
 def _fetch_fred_fallback():
     """Calculate US M2 YoY % change from FRED as fallback."""
+    global LAST_META
     logger.info('get_m2: Attempting FRED fallback...')
     try:
         series = _fetch_wm2ns_series()
@@ -44,6 +46,7 @@ def _fetch_fred_fallback():
         current_val = series[-1][1]
         past_val    = series[-53][1]   # ~52 weeks ago
         yoy = round((current_val - past_val) / past_val * 100, 2)
+        LAST_META = {'series_id': 'WM2NS_US_FALLBACK', 'observation_date': series[-1][0], 'is_us_fallback': True}
         logger.info('get_m2 fallback: US M2 YoY=%.2f%% (%s → %s)',
                     yoy, series[-53][0], series[-1][0])
         return yoy
@@ -116,6 +119,8 @@ def get_m2():
         latest_point = yoy_series[-1]  # [date, value]
         latest_date = latest_point[0]
         latest_val = float(latest_point[1])
+        global LAST_META
+        LAST_META = {'series_id': 'MACROMICRO_GLOBAL_M2', 'observation_date': str(latest_date)[:10], 'is_us_fallback': False}
         
         logger.info('get_m2: Global M2 YoY in USD = %.2f%% (date: %s)', latest_val, latest_date)
         return round(latest_val, 2)

@@ -853,6 +853,7 @@ def compute_score(
 
     return {
         'final_score':        final,
+        'raw_utility_score':  round(flat_avg) if flat_avg is not None else None,
         'phase':              phase,
         'w_bot':              round(w_bot, 3),
         'w_neutral':          round(w_neutral, 3),
