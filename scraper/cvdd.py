@@ -13,18 +13,31 @@ from .mm_utils import get_bmp_traces
 logger = logging.getLogger(__name__)
 
 _BMP_URL = 'https://www.bitcoinmagazinepro.com/charts/bitcoin-price-prediction/'
+_BMP_CVDD_URL = 'https://www.bitcoinmagazinepro.com/charts/cvdd/'
 
 
-def get_cvdd_ratio():
+def get_cvdd_ratio(btc_price=None):
     """Return BTC price / CVDD as float, e.g. 1.64.
 
-    Fetches both BTC Price and CVDD from the same BMP page in a single call.
-    Returns None if either value is unavailable or CVDD <= 0.
+    Fetches both BTC Price and CVDD from BMP in a single call, with fallback
+    to /charts/cvdd/ and optional spot btc_price if the price trace is missing.
+    Returns None if CVDD is unavailable/non-positive or no price is available.
     """
-    traces = get_bmp_traces(_BMP_URL, ['btc price', 'cvdd'])
-    price = traces.get('btc price')
-    cvdd = traces.get('cvdd')
-    
+    price = None
+    cvdd = None
+    for url in (_BMP_URL, _BMP_CVDD_URL):
+        traces = get_bmp_traces(url, ['btc price', 'bitcoin price', 'cvdd'])
+        cvdd = traces.get('cvdd')
+        price = traces.get('btc price') or traces.get('bitcoin price')
+        if cvdd is not None and cvdd > 0:
+            break
+
+    if price is None and btc_price is not None:
+        try:
+            price = float(btc_price)
+        except (TypeError, ValueError):
+            price = None
+
     if price is None or cvdd is None:
         logger.error('get_cvdd_ratio: missing data — price=%s cvdd=%s', price, cvdd)
         return None

@@ -36,7 +36,11 @@ def get_bmp_trace(url, trace_name_substr, multiply=1.0, timeout=60000):
             browser = p.chromium.launch(headless=True)
             ctx = browser.new_context()
             page = ctx.new_page()
-            page.goto(url, wait_until='networkidle', timeout=timeout)
+            page.goto(url, wait_until='domcontentloaded', timeout=timeout)
+            try:
+                page.wait_for_selector('.js-plotly-plot', timeout=min(timeout, 30000))
+            except Exception:
+                pass
             page.wait_for_timeout(4000)
             js = f"""() => {{
                 const gd = document.querySelector('.js-plotly-plot');
@@ -83,7 +87,11 @@ def get_bmp_trace_full(url, trace_name_substr, multiply=1.0, timeout=90000):
             browser = p.chromium.launch(headless=True)
             ctx = browser.new_context()
             page = ctx.new_page()
-            page.goto(url, wait_until='networkidle', timeout=timeout)
+            page.goto(url, wait_until='domcontentloaded', timeout=timeout)
+            try:
+                page.wait_for_selector('.js-plotly-plot', timeout=min(timeout, 30000))
+            except Exception:
+                pass
             page.wait_for_timeout(4000)
             js = f"""() => {{
                 const gd = document.querySelector('.js-plotly-plot');
@@ -122,7 +130,11 @@ def get_bmp_trace_last_n(url, trace_name_substr, n=7, multiply=1.0, timeout=6000
             browser = p.chromium.launch(headless=True)
             ctx = browser.new_context()
             page = ctx.new_page()
-            page.goto(url, wait_until='networkidle', timeout=timeout)
+            page.goto(url, wait_until='domcontentloaded', timeout=timeout)
+            try:
+                page.wait_for_selector('.js-plotly-plot', timeout=min(timeout, 30000))
+            except Exception:
+                pass
             page.wait_for_timeout(4000)
             js = f"""() => {{
                 const gd = document.querySelector('.js-plotly-plot');
@@ -174,7 +186,11 @@ def get_bmp_traces(url, trace_names_list, timeout=60000):
             browser = p.chromium.launch(headless=True)
             ctx = browser.new_context()
             page = ctx.new_page()
-            page.goto(url, wait_until='networkidle', timeout=timeout)
+            page.goto(url, wait_until='domcontentloaded', timeout=timeout)
+            try:
+                page.wait_for_selector('.js-plotly-plot', timeout=min(timeout, 30000))
+            except Exception:
+                pass
             page.wait_for_timeout(4000)
             
             needles = [name.lower() for name in trace_names_list]

@@ -171,7 +171,7 @@ def build_payload():
         ('mvrv', mvrv_mod.get_mvrv, None, lambda r: r),
         ('m2', m2_mod.get_m2, None, lambda r: r),
         ('yield_curve', yc_mod.get_yield_curve, None, lambda r: r),
-        ('cvdd_ratio', cvdd_mod.get_cvdd_ratio, None, lambda r: r),
+        ('cvdd_ratio', lambda: cvdd_mod.get_cvdd_ratio(btc_price=price['price'] if price else None), None, lambda r: r),
         ('rhodl_ratio', rhodl_mod.get_rhodl_ratio, None, lambda r: r),
         ('asopr', asopr_mod.get_asopr, None, lambda r: r),
         ('etf_flows', etf_flows_mod.get_etf_flows, None, lambda r: r),
