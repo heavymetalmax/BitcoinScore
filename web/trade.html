@@ -982,8 +982,8 @@
                 <th>Патерн та правило</th>
                 <th>2018–26 (2 цикли)</th>
                 <th>MaxDD / Calmar</th>
-                <th>Цикл 1 / 2 · 4р Calmar</th>
-                <th>Пул 6р (vs DCA)</th>
+                <th>Цикл 1 / 2 · Win Rate</th>
+                <th>Пул 6р / 9.3р</th>
                 <th>Живий сигнал і тригер</th>
               </tr>
             </thead>
@@ -1543,31 +1543,31 @@
         return;
       }
       $('tab-pat-count').textContent = PATTERNS.top_patterns.length;
-      const bh18 = PATTERNS.benchmarks?.buy_and_hold?.modern_2018;
-      const dca6 = PATTERNS.benchmarks?.dca_monthly_6y;
-      const dcaF = PATTERNS.benchmarks?.dca_monthly_full;
-      if (bh18 && dca6) {
-        strip.innerHTML = `
-          <span>Бенчмарк <strong>Buy &amp; Hold (2018–26): ${bh18.multiple}×</strong> (CAGR ${bh18.cagr_pct}%, MaxDD ${bh18.max_dd_pct}%, Calmar ${bh18.calmar})</span>
-          <span>Бенчмарк <strong>DCA $100/міс: ${dca6.multiple}×</strong> (6р) / <strong>${dcaF?.multiple ?? '—'}×</strong> (9.3р)</span>
-          <span>Стратегій: <strong>${PATTERNS.methodology?.strategies_tested ?? '—'}</strong> · Ковзних 4р вікон: <strong>${PATTERNS.methodology?.rolling_4y_windows ?? '—'}</strong></span>
-        `;
-      }
-      const list = PATTERNS.top_patterns.filter(p => ACTIVE_PAT_FAM === 'ALL' || p.family === ACTIVE_PAT_FAM);
+      const listAll = PATTERNS.top_patterns;
+      const bestRet = [...listAll].sort((a, b) => (b.modern_2018?.multiple || 0) - (a.modern_2018?.multiple || 0))[0];
+      const bestCal = [...listAll].sort((a, b) => (b.modern_2018?.calmar || 0) - (a.modern_2018?.calmar || 0))[0];
+      const bestPool = [...listAll].sort((a, b) => (b.pool_6y?.multiple || 0) - (a.pool_6y?.multiple || 0))[0];
+      strip.innerHTML = `
+        <span>Лідер дохідності (2018–26): <strong>${escHtml(bestRet?.id || '—')} (${bestRet?.modern_2018?.multiple ?? '—'}×)</strong></span>
+        <span>Лідер ризик/прибуток (Calmar): <strong>${escHtml(bestCal?.id || '—')} (${bestCal?.modern_2018?.calmar ?? '—'}, DD −${bestCal?.modern_2018?.max_dd_pct ?? '—'}%)</strong></span>
+        <span>Лідер кеш-пулу (6р): <strong>${escHtml(bestPool?.id || '—')} (${bestPool?.pool_6y?.multiple ?? '—'}×)</strong></span>
+        <span>Протестовано стратегій: <strong>${PATTERNS.methodology?.strategies_tested ?? '—'}</strong></span>
+      `;
+      const list = listAll.filter(p => ACTIVE_PAT_FAM === 'ALL' || p.family === ACTIVE_PAT_FAM);
       tbody.innerHTML = list.map(p => {
         const m18 = p.modern_2018 || {};
         const c1 = p.cycle1 || {};
         const c2 = p.cycle2 || {};
-        const r4 = p.rolling_4y || {};
         const p6 = p.pool_6y || {};
         const pf = p.pool_full || {};
         const live = evaluatePatternLive(p);
         const famKey = p.family === 'Cipher B' ? 'Cipher' : p.family;
         const lt = p.last_trade;
         const lastStr = lt ? `Остання угода: ${lt.date} ${lt.action} @ ${fmtUSD(lt.price)} (BRI=${Math.round(lt.bri)})` : '';
-        const multColor = (bh18 && m18.multiple > bh18.multiple * 1.5) ? 'var(--green)' : (bh18 && m18.multiple > bh18.multiple ? 'var(--blue)' : 'var(--text)');
+        const multColor = m18.multiple >= 9.5 ? 'var(--green)' : (m18.multiple >= 6.0 ? 'var(--blue)' : 'var(--text)');
         const ddColor = m18.max_dd_pct <= 50 ? 'var(--green)' : (m18.max_dd_pct <= 60 ? 'var(--blue)' : 'var(--amber)');
-        const p6Beats = dca6 && p6.multiple > dca6.multiple;
+        const wr = p.full?.win_rate_pct != null ? `${p.full.win_rate_pct}%` : '—';
+        const exp = p.full?.exposure_pct != null ? `${p.full.exposure_pct}%` : '—';
         return `<tr>
           <td>
             <div class="pat-name"><span class="fam-badge fam-${famKey}">${escHtml(p.family)}</span>${escHtml(p.name)}</div>
@@ -1583,11 +1583,11 @@
             <div class="muted" style="font-size:11.5px;">Calmar <strong style="color:var(--text);">${m18.calmar}</strong></div>
           </td>
           <td class="num">
-            <div>${p.beats_bh_both_cycles ? '✅ ' : ''}${c1.return_pct >= 0 ? '+' : ''}${Math.round(c1.return_pct)}% / ${c2.return_pct >= 0 ? '+' : ''}${Math.round(c2.return_pct)}%</div>
-            <div class="muted" style="font-size:11px;">4р Calmar &gt; B&amp;H: <strong>${Math.round(r4.beats_bh_calmar_pct)}%</strong></div>
+            <div>${c1.return_pct >= 0 ? '+' : ''}${Math.round(c1.return_pct)}% / ${c2.return_pct >= 0 ? '+' : ''}${Math.round(c2.return_pct)}%</div>
+            <div class="muted" style="font-size:11px;">Win: <strong>${wr}</strong> · В BTC: ${exp}</div>
           </td>
           <td class="num">
-            <div style="color:${p6Beats ? 'var(--green)' : 'var(--text)'}; font-weight:700;">${p6.multiple}× ${p6Beats ? '▲' : ''}</div>
+            <div style="font-weight:700;">${p6.multiple}×</div>
             <div class="muted" style="font-size:11px;">9.3р: ${pf.multiple}×</div>
           </td>
           <td>
