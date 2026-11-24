@@ -18,6 +18,7 @@ export default async function handler(req, res) {
   const freeModels = [
     'google/gemma-4-31b-it:free',
     'google/gemma-4-26b-a4b-it:free',
+    'nvidia/nemotron-3-ultra-550b-a55b:free',
     'openrouter/free',
   ];
 
@@ -38,12 +39,12 @@ export default async function handler(req, res) {
             {
               role: 'system',
               content:
-                'Ти — кількісний аналітик BTC на горизонті 1–3 роки. Відповідай українською мовою, чітко, структуровано, без води, спираючись виключно на передані дані BTCBRI.',
+                'Ти — старший кількісний аналітик BTC на горизонті 1–3 роки. Пиши бездоганною літературною українською мовою без суржику й обірваних слів. Спирайся виключно на передані JSON-цифри. Формат: короткі заголовки (###), стислі списки та 1–2 компактні таблиці (до 500 слів загалом). Примітка: buy_threshold=20 означає поріг індексу BRI ≤ 20, а не 20 кроків.',
             },
             { role: 'user', content: prompt },
           ],
-          max_tokens: 1800,
-          temperature: 0.3,
+          max_tokens: 3200,
+          temperature: 0.25,
         }),
       });
 
