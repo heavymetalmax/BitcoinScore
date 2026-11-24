@@ -94,14 +94,18 @@ def write_metric_histories(p):
                     'double_bullish_div': bool(cb_val.get('daily_double_bullish_div', False)),
                 }
                 write_json(d1_path, {'series': [d1_by_d[k] for k in sorted(d1_by_d)]})
-            if cb_val.get('weekly_score') is not None:
+            if cb_val.get('weekly_score') is not None and cb_val.get('timestamp') is not None:
                 wk_path = 'data/history/cipherb_btcusdt_1w.json'
                 raw_wk = json.load(open(wk_path, encoding='utf-8')) if os.path.exists(wk_path) else {'series': []}
                 wk_by_d = {r['date'][:10]: r for r in raw_wk.get('series', []) if isinstance(r, dict) and r.get('date')}
-                wk_by_d[d_str] = {
-                    'date': d_str,
-                    'close': price or cb_val.get('close'),
+                bar_dt = datetime.datetime.fromtimestamp(int(cb_val['timestamp']), tz=datetime.timezone.utc)
+                bar_d_str = bar_dt.strftime('%Y-%m-%d')
+                wk_by_d[bar_d_str] = {
+                    'date': bar_d_str,
+                    'bar_close_utc': (bar_dt + datetime.timedelta(days=7)).strftime('%Y-%m-%dT00:00:00Z'),
+                    'close': cb_val.get('close') or price,
                     'wt1': cb_val.get('wt1'),
+                    'wt2': cb_val.get('wt2'),
                     'weekly_score': round(float(cb_val['weekly_score']), 4),
                     'fast_bearish_div': bool(cb_val.get('fast_bearish_div', False)),
                     'fast_bullish_div': bool(cb_val.get('fast_bullish_div', False)),
@@ -109,6 +113,7 @@ def write_metric_histories(p):
                     'bullish_div': bool(cb_val.get('bullish_divergence', False)),
                     'double_bearish_div': bool(cb_val.get('double_bearish_div', False)),
                     'double_bullish_div': bool(cb_val.get('double_bullish_div', False)),
+                    'is_closed_bar': True,
                 }
                 write_json(wk_path, {'series': [wk_by_d[k] for k in sorted(wk_by_d)]})
         print('Wrote data/history/cipherb.json (+ 1d/1w series)')

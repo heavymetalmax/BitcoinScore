@@ -366,7 +366,7 @@
   "v3_tiz_days": 191,
   "v3_tiz_maturity": 0.682,
   "v3_tiz_calibration": 280,
-  "v5b_score": 23.5,
+  "v5b_score": 17.5,
   "v5b_validated": true,
   "meta_score": 23.7,
   "signal_agreement": 0.99,
@@ -409,7 +409,7 @@
   },
   "bri_score": 24,
   "bri_version": "v5",
-  "forward_risk": 23.5,
+  "forward_risk": 17.5,
   "forward_risk_validated": true,
   "target_allocation_pct": 50,
   "allocation_signal": {
@@ -30317,5 +30317,121 @@
     "last_action_price": 60855.47,
     "trailing_trigger_score": null,
     "peak_score_in_run": 0
+  },
+  "tail_risk_13w": {
+    "score": 17.5,
+    "prob_dd25_13w_pct": 17.5,
+    "validated": true,
+    "method": "causal_vol13_logistic",
+    "shadow_m2_pct": 13.9,
+    "train_n": 457,
+    "vol13_ann_pct": 39.7
+  },
+  "forward_risk_method": "causal_vol13_logistic",
+  "causal_valuation": {
+    "valuation_score": 19.2,
+    "mvrv_pct": 0.1924,
+    "value_sell_veto": true,
+    "history_n": 5924
+  },
+  "entry_exit_checklist": {
+    "items": [
+      {
+        "key": "mvrv",
+        "label": "Собівартість (MVRV Z)",
+        "role": "core_valuation",
+        "value": 0.267,
+        "causal_pct": 19.2,
+        "status": "value_zone",
+        "stale": false
+      },
+      {
+        "key": "cipherb_1w",
+        "label": "Cipher B (1W wt1−wt2)",
+        "role": "core_timing",
+        "value": -21.88,
+        "status": "bearish_caution",
+        "stale": false
+      },
+      {
+        "key": "mayer_multiple",
+        "label": "Тренд 200DMA (Mayer)",
+        "role": "core_trend",
+        "value": 0.847,
+        "status": "value_zone",
+        "stale": false
+      },
+      {
+        "key": "puell_multiple",
+        "label": "Майнери (Puell)",
+        "role": "confirmation",
+        "value": 0.953,
+        "status": "neutral",
+        "stale": false
+      },
+      {
+        "key": "cvdd_ratio",
+        "label": "Підлога циклу (CVDD)",
+        "role": "confirmation",
+        "value": 1.202,
+        "status": "value_zone",
+        "stale": false
+      },
+      {
+        "key": "asopr",
+        "label": "Реаліз. прибуток (aSOPR)",
+        "role": "confirmation",
+        "value": 0.9836,
+        "status": "capitulation",
+        "stale": false
+      },
+      {
+        "key": "fear_greed",
+        "label": "Fear & Greed (7d)",
+        "role": "sentiment",
+        "value": 9.7,
+        "status": "extreme_fear",
+        "stale": false
+      },
+      {
+        "key": "funding_rate",
+        "label": "Фандінг 7d (%)",
+        "role": "leverage",
+        "value": 0.00199,
+        "status": "neutral",
+        "stale": false
+      },
+      {
+        "key": "etf_flows",
+        "label": "Спот ETF 7d ($M)",
+        "role": "institutional_flow",
+        "value": -569.7,
+        "status": "outflow",
+        "stale": false
+      },
+      {
+        "key": "dxy",
+        "label": "Індекс долара (DXY)",
+        "role": "macro",
+        "value": 123.6,
+        "observation_date": "2026-11-20",
+        "status": "macro_pressure",
+        "stale": false
+      },
+      {
+        "key": "m2_mom",
+        "label": "Глобальна M2 YoY (%)",
+        "role": "macro",
+        "value": 8.24,
+        "observation_date": null,
+        "status": "liquidity_expansion",
+        "stale": false
+      }
+    ],
+    "abstain": true,
+    "abstain_reasons": [
+      "value_vs_momentum_conflict"
+    ],
+    "status_label": "UNCERTAIN"
   }
 }

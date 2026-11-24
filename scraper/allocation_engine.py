@@ -19,6 +19,7 @@ def compute_allocation_signal(
     confidence_score: float = 50.0,
     forward_risk: float | None = None,
     forward_risk_validated: bool = False,
+    prev_cb_in_pos: bool | None = None,
 ) -> dict:
     """Compute causal V5 dual-sleeve allocation and backward-compatible market_regime."""
     if final_score is None:
@@ -93,6 +94,8 @@ def compute_allocation_signal(
             cb_in_pos = True
         elif wt_spread <= -2.0:
             cb_in_pos = False
+        elif prev_cb_in_pos is not None:
+            cb_in_pos = bool(prev_cb_in_pos)
         else:
             cb_in_pos = wt_spread > 0.0
     elif weekly_score is not None:

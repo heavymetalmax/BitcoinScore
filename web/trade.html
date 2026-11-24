@@ -799,7 +799,7 @@
             <div class="kpi-sub" id="kpi-realized">Realized: —</div>
           </div>
           <div class="kpi">
-            <div class="kpi-label">Forward Risk (365d)</div>
+            <div class="kpi-label">Ризик падіння ≥25% (13т)</div>
             <div class="kpi-val" id="kpi-forward">—</div>
             <div class="kpi-sub" id="kpi-conf">Впевненість: —</div>
           </div>
@@ -841,6 +841,9 @@
       </button>
       <button class="ws-tab" data-tab="ai" type="button">
         ШІ-Звіт <span class="tab-badge" id="tab-ai-badge">…</span>
+      </button>
+      <button class="ws-tab" data-tab="causal" type="button">
+        Причинне ядро &amp; Бектест <span class="tab-badge">NEW</span>
       </button>
       <button class="ws-tab" data-tab="metrics" type="button">
         Метрики (On-Chain / Macro)
@@ -1018,7 +1021,75 @@
       </div>
     </div>
 
-    <!-- TAB 4: METRICS BREAKDOWN -->
+    <!-- TAB 4: CAUSAL CORE & ZERO-LOOKAHEAD BACKTEST -->
+    <div class="tab-panel" id="panel-causal">
+      <div class="card" style="margin-bottom:14px;">
+        <div class="card-hdr">
+          <div class="card-title">Причинне ядро (4 незалежні виходи · без витоку майбутнього)</div>
+          <span class="pill" id="checklist-status-pill">—</span>
+        </div>
+        <div class="calc-summary" id="causal-core-summary" style="margin-bottom:12px;"></div>
+        <div class="card-hdr" style="margin-top:8px;">
+          <div class="card-title" style="font-size:13px;">Чек-лист підтвердження входу/виходу (11 ортогональних факторів)</div>
+          <span class="muted">Собівартість · Цикл · Психологія · Деривативи · Потоки · Макро</span>
+        </div>
+        <div class="check-list" id="checklist-grid"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-hdr">
+          <div class="card-title">Бектест ефективності правил (Zero-Lookahead · Тижневі бари)</div>
+          <div style="display:flex; gap:6px; align-items:center;">
+            <button class="pill active" id="bt-win-2018" type="button" style="cursor:pointer;">2018–2026 (9р)</button>
+            <button class="pill" id="bt-win-2021" type="button" style="cursor:pointer;">2021–2026 (6р)</button>
+          </div>
+        </div>
+        <div class="muted" id="bt-methodology" style="margin-bottom:10px; line-height:1.45;">Завантаження даних бектесту...</div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Стратегія</th>
+                <th class="num">Дохід (0.5% / 1%)</th>
+                <th class="num">MaxDD / Calmar</th>
+                <th class="num">Угоди · Win%</th>
+                <th class="num">DD26т після входу</th>
+                <th class="num">Бутстреп vs B&amp;H</th>
+              </tr>
+            </thead>
+            <tbody id="causal-backtest-tbody">
+              <tr><td colspan="6" class="muted">Завантаження...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:14px;">
+        <div class="card-hdr">
+          <div class="card-title">Causal BTCBRI (0% витоку) на історичних мінімумах і максимумах</div>
+          <span class="pill blue" id="causal-bri-today-pill">Сьогодні: —</span>
+        </div>
+        <div class="muted" id="causal-bri-meta" style="margin-bottom:10px; line-height:1.45;">Завантаження...</div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Дата · Подія</th>
+                <th class="num">Ціна BTC</th>
+                <th class="num">Causal BTCBRI</th>
+                <th class="num">Legacy BRI</th>
+                <th class="num">Складові (MVRV · Mayer · CipherB 1W)</th>
+              </tr>
+            </thead>
+            <tbody id="causal-extremes-tbody">
+              <tr><td colspan="5" class="muted">Завантаження...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 5: METRICS BREAKDOWN -->
     <div class="tab-panel" id="panel-metrics">
       <div class="card">
         <div class="card-hdr">
@@ -1035,6 +1106,9 @@
   <script>
     let DATA = null;
     let PATTERNS = null;
+    let CAUSAL_BT = null;
+    let CAUSAL_EXT = null;
+    let ACTIVE_BT_WIN = 'full_2018_2026';
     let ACTIVE_TAB = 'plan';
     let ACTIVE_MODE = 'tranche';
     let ACTIVE_PAT_FAM = 'ALL';
@@ -1262,8 +1336,11 @@
         const pct = ((s.entry20 / s.spot) - 1) * 100;
         $('kpi-realized').textContent = `${pct.toFixed(1)}% · Realized ${fmtUSD(s.realized)}`;
       }
-      $('kpi-forward').textContent = s.forward != null ? s.forward.toFixed(1) + '%' : '—';
-      $('kpi-conf').textContent = `Впевненість: ${DATA.confidence_score ?? '—'} · F&G: ${s.fg ?? '—'}`;
+      const tr13 = DATA.tail_risk_13w;
+      const riskPct = tr13?.prob_dd25_13w_pct ?? s.forward;
+      $('kpi-forward').textContent = riskPct != null ? riskPct.toFixed(1) + '%' : '—';
+      const absLbl = DATA.entry_exit_checklist?.abstain ? ' · UNCERTAIN' : '';
+      $('kpi-conf').textContent = `Впевненість: ${DATA.confidence_score ?? '—'}${absLbl} · F&G: ${s.fg ?? '—'}`;
       $('kpi-wt').textContent = s.wtSpread != null ? `${s.wtSpread >= 0 ? '+' : ''}${s.wtSpread}` : '—';
       $('kpi-wt').style.color = s.wtSpread != null && s.wtSpread >= 2 ? 'var(--green)' : 'var(--amber)';
       $('kpi-wscore').textContent = `1W Score: ${s.wScore != null ? s.wScore.toFixed(1) : '—'} (ціль пулу ≤25)`;
@@ -1598,7 +1675,95 @@
       }).join('');
     }
 
+    function renderCausalBacktest() {
+      const tbody = $('causal-backtest-tbody');
+      if (!tbody) return;
+      if (!CAUSAL_BT?.windows) {
+        tbody.innerHTML = '<tr><td colspan="6" class="muted">Файл causal_backtest.json ще не завантажено.</td></tr>';
+        return;
+      }
+      const win = CAUSAL_BT.windows[ACTIVE_BT_WIN];
+      if (!win) return;
+      if ($('bt-methodology')) {
+        $('bt-methodology').textContent = `${CAUSAL_BT.methodology} Період: ${win.start} .. ${win.end} (${win.weeks} тижнів).`;
+      }
+      tbody.innerHTML = (win.strategies || []).map(st => {
+        const boot = st.boot_vs_bh
+          ? `<strong>${st.boot_vs_bh.rel_multiple}×</strong> <span class="muted">[${st.boot_vs_bh.p05}..${st.boot_vs_bh.p95}] · P&gt;1: ${st.boot_vs_bh.prob_gt_1}%</span>`
+          : '<span class="muted">Бенчмарк</span>';
+        const tradesTxt = st.closed_trades > 0
+          ? `${st.closed_trades} (${st.win_rate_pct ?? '—'}%)`
+          : '0 (Hold)';
+        const ddEntryTxt = st.median_post_entry_dd26_pct != null ? `−${st.median_post_entry_dd26_pct}%` : '—';
+        const multColor = st.multiple >= 4 ? 'var(--green)' : (st.multiple >= 2 ? 'var(--blue)' : 'var(--text)');
+        return `<tr>
+          <td><strong>${escHtml(st.label || st.mode)}</strong><div class="muted" style="font-size:11px;">Експозиція: ${st.exposure_pct}%</div></td>
+          <td class="num"><strong style="color:${multColor};">${st.multiple}×</strong> <span class="muted">/ ${st.multiple_fee10}×</span><div class="muted" style="font-size:11px;">CAGR ${st.cagr_pct}%</div></td>
+          <td class="num">−${st.max_dd_pct}% <div class="muted" style="font-size:11px;">Calmar ${st.calmar}</div></td>
+          <td class="num">${tradesTxt}</td>
+          <td class="num">${ddEntryTxt}</td>
+          <td class="num">${boot}</td>
+        </tr>`;
+      }).join('');
+    }
+
+    function renderCausalExtremes() {
+      const tbody = $('causal-extremes-tbody');
+      if (!tbody || !CAUSAL_EXT) return;
+      const rows = (CAUSAL_EXT.extremes || []).filter(r => r.causal_bri != null);
+      const todayRow = rows.find(r => r.type === 'today');
+      if ($('causal-bri-today-pill') && todayRow) {
+        $('causal-bri-today-pill').textContent = `Causal BTCBRI: ${todayRow.causal_bri} (Legacy: ${todayRow.legacy_bri})`;
+      }
+      if ($('causal-bri-meta') && CAUSAL_EXT.separation && CAUSAL_EXT.regime_ic) {
+        const sep = CAUSAL_EXT.separation;
+        const ic21 = CAUSAL_EXT.regime_ic['2021_2025'] || {};
+        $('causal-bri-meta').textContent = `${CAUSAL_EXT.formula}. Середнє дно: ${sep.causal_mean_bottom}, середня вершина: ${sep.causal_mean_top} (розділення ${sep.causal_separation} б.). IC 2021–25: дохід ${ic21.causal_spearman_ret365} (vs Legacy ${ic21.legacy_spearman_ret365}), просадка ${ic21.causal_spearman_dd365} (vs Legacy ${ic21.legacy_spearman_dd365}).`;
+      }
+      tbody.innerHTML = rows.map(r => {
+        const cls = r.type === 'bottom' ? 'green' : (r.type === 'top' ? 'red' : 'blue');
+        const p = r.parts || {};
+        const partsTxt = `${p.mvrv_pct ?? '—'} · ${p.mayer_pct ?? '—'} · ${p.momentum_pct ?? '—'}`;
+        return `<tr>
+          <td><strong>${escHtml(r.date)}</strong> · <span class="pill ${cls}">${escHtml(r.label)}</span></td>
+          <td class="num">${fmtUSD(r.price)}</td>
+          <td class="num"><strong>${r.causal_bri}</strong></td>
+          <td class="num muted">${r.legacy_bri ?? '—'}</td>
+          <td class="num muted">${partsTxt}</td>
+        </tr>`;
+      }).join('');
+    }
+
     function renderMetricsBreakdown() {
+      const cv = DATA.causal_valuation || {};
+      const tr = DATA.tail_risk_13w || {};
+      const cl = DATA.entry_exit_checklist || {};
+      const stPill = $('checklist-status-pill');
+      if (stPill) {
+        const isUnc = !!cl.abstain;
+        stPill.textContent = isUnc ? `UNCERTAIN (${(cl.abstain_reasons || []).join(', ')})` : 'CLEAR · Підтвердження активне';
+        stPill.className = 'pill ' + (isUnc ? 'amber' : 'green');
+      }
+      if ($('causal-core-summary')) {
+        const valStr = cv.valuation_score != null ? `${cv.valuation_score}/100` : '—';
+        const vetoStr = cv.value_sell_veto ? 'VETO ON (не продавати дешево)' : 'Нейтрально';
+        const riskStr = tr.prob_dd25_13w_pct != null ? `${tr.prob_dd25_13w_pct}%` : '—';
+        const cbSpread = (DATA.allocation_signal?.weekly_wt_spread != null) ? `${DATA.allocation_signal.weekly_wt_spread >= 0 ? '+' : ''}${DATA.allocation_signal.weekly_wt_spread}` : '—';
+        $('causal-core-summary').innerHTML = `
+          <div class="calc-sum-box"><div class="kpi-label">1. Собівартість (MVRV ранг)</div><div class="calc-sum-val">${valStr}</div></div>
+          <div class="calc-sum-box"><div class="kpi-label">2. Тренд Cipher B (1W) + Veto</div><div class="calc-sum-val" style="font-size:13px;">${cbSpread} · ${vetoStr}</div></div>
+          <div class="calc-sum-box"><div class="kpi-label">3. Ризик падіння ≥25% (13т)</div><div class="calc-sum-val">${riskStr}</div></div>
+        `;
+      }
+      if ($('checklist-grid') && Array.isArray(cl.items)) {
+        const statusTone = st => (['value_zone','bullish_confirm','bull_trend','profit_recovery','extreme_fear','inflow','liquidity_expansion'].includes(st) ? 'green' : (['overheated','bearish_caution','overheated_longs','outflow','tightening','macro_pressure'].includes(st) ? 'red' : 'amber'));
+        $('checklist-grid').innerHTML = cl.items.map(it => {
+          const valTxt = it.value != null ? it.value : '—';
+          const obsTxt = it.observation_date ? ` · obs ${it.observation_date}` : '';
+          const staleTxt = it.stale ? ' · STALE' : '';
+          return `<div class="check-item"><div class="check-left"><div class="check-title">${escHtml(it.label)}</div><div class="check-sub">Значення: ${valTxt}${it.causal_pct != null ? ' (ранг ' + it.causal_pct + '%)' : ''}${obsTxt}${staleTxt}</div></div><span class="pill ${statusTone(it.status)}">${escHtml(it.status)}</span></div>`;
+        }).join('');
+      }
       const s = getMetricsState();
       const norm = DATA.v3_normalized_scores || DATA.normalized_scores || {};
       const fmtN = (v, suffix = '') => v == null ? '—' : (typeof v === 'number' ? v.toFixed(2) + suffix : String(v));
@@ -1865,6 +2030,31 @@
       renderRecommendations();
       renderPatterns();
       renderCalculator();
+      fetch('causal_backtest.json?t=' + Date.now())
+        .then(r => r.ok ? r.json() : null)
+        .then(bt => {
+          if (bt) { CAUSAL_BT = bt; renderCausalBacktest(); }
+        }).catch(() => {});
+
+      fetch('causal_bri_extremes.json?t=' + Date.now())
+        .then(r => r.ok ? r.json() : null)
+        .then(ex => {
+          if (ex) { CAUSAL_EXT = ex; renderCausalExtremes(); }
+        }).catch(() => {});
+
+      $('bt-win-2018')?.addEventListener('click', () => {
+        ACTIVE_BT_WIN = 'full_2018_2026';
+        $('bt-win-2018').classList.add('active');
+        $('bt-win-2021')?.classList.remove('active');
+        renderCausalBacktest();
+      });
+      $('bt-win-2021')?.addEventListener('click', () => {
+        ACTIVE_BT_WIN = 'modern_2021_2026';
+        $('bt-win-2021').classList.add('active');
+        $('bt-win-2018')?.classList.remove('active');
+        renderCausalBacktest();
+      });
+
       renderMetricsBreakdown();
       if (!loadCachedOpenRouterReport()) {
         generateWithOpenRouter(false);

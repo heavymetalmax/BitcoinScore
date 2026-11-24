@@ -100,16 +100,13 @@ def compute_wave_resonance(date=None, raw_overrides=None):
     if date is None:
         return _empty(date)
 
-    # find nearest available date (±7 days), then fall back to most recent past entry
+    # find nearest past/current available date (0..-7 days, strictly causal — no future lookahead)
     target = datetime.date.fromisoformat(date)
     actual_date = None
     for offset in range(8):
-        for sign in (0, 1, -1):
-            cand = (target + datetime.timedelta(days=offset * sign)).isoformat()
-            if cand in unified:
-                actual_date = cand
-                break
-        if actual_date:
+        cand = (target - datetime.timedelta(days=offset)).isoformat()
+        if cand in unified:
+            actual_date = cand
             break
     if not actual_date:
         # scores.json may be stale — use most recent date with ≥3 core metrics present

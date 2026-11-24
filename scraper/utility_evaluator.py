@@ -2,8 +2,8 @@
 
 Computes dynamic utility coefficients U_i in [0.1, 1.0] for each metric using
 a continuous mixture of three state-space weights (w_top, w_bottom, w_neutral)
-derived from cycle proximity metrics. Relevance weights are loaded from the
-model pickle (single source of truth); Python defaults are the cold-start fallback.
+derived from cycle proximity metrics. Relevance weights are explicit domain
+constants defined in RELEVANCE_PROFILES (load_relevance_weights is a no-op).
 """
 
 import os
