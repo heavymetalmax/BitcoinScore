@@ -1405,16 +1405,16 @@
                 <!-- Needle indicator dot at value 33 -->
                 <circle id="gauge-needle" cx="79.5" cy="39.8" r="5.5" fill="var(--bg)" stroke="#22C55E" stroke-width="2"/>
 
-                <!-- Inner V5.2 New Index Arc (Clickable for explanation) -->
-                <g id="uncertainty-group" class="uncertainty-interactive" role="button" tabindex="0" aria-label="New Index v5.2 explanation">
-                  <title>New Risk Index v5.2 (no hindsight bias) / Новий індекс ризику v5.2 (без підгонки під історію)</title>
+                <!-- Inner Uncertainty / Disagreement Arc (Clickable for explanation) -->
+                <g id="uncertainty-group" class="uncertainty-interactive" role="button" tabindex="0" aria-label="Uncertainty explanation">
+                  <title>Click to view Uncertainty explanation / Натисніть для пояснення невизначеності</title>
                   <!-- Generous invisible click hit area -->
                   <path d="M 34 120 A 86 86 0 0 1 206 120" stroke="transparent" stroke-width="22" stroke-linecap="round" fill="none" style="pointer-events: stroke; cursor: pointer;"/>
                   <path class="conflict-arc-track" d="M 34 120 A 86 86 0 0 1 206 120" stroke="var(--border)" stroke-width="3" stroke-linecap="round" fill="none"/>
                   <path class="conflict-arc-path" id="gauge-conflict-arc" d="" stroke="#22C55E" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.92"/>
                   <circle class="conflict-needle-dot" id="gauge-conflict-needle" cx="34" cy="120" r="3.2" fill="var(--bg)" stroke="#22C55E" stroke-width="1.5"/>
-                  <text class="en" font-size="5.5" font-weight="600" letter-spacing="0.12em" fill="var(--muted)" opacity="0.85"><textPath href="#uncertainty-label-path" startOffset="4.5%">INDEX V5.2</textPath></text>
-                  <text class="ua" font-size="5.3" font-weight="600" letter-spacing="0.10em" fill="var(--muted)" opacity="0.85"><textPath href="#uncertainty-label-path" startOffset="4.5%">НОВИЙ ІНДЕКС</textPath></text>
+                  <text class="en" font-size="5.5" font-weight="600" letter-spacing="0.12em" fill="var(--muted)" opacity="0.85"><textPath href="#uncertainty-label-path" startOffset="4.5%">UNCERTAINTY</textPath></text>
+                  <text class="ua" font-size="5.3" font-weight="600" letter-spacing="0.10em" fill="var(--muted)" opacity="0.85"><textPath href="#uncertainty-label-path" startOffset="4.5%">НЕВИЗНАЧЕНІСТЬ</textPath></text>
                 </g>
               </svg>
               <!-- Center Score Value (Lowered & Scaled) -->
@@ -2239,8 +2239,8 @@
       <button class="disc-close" id="uncertainty-modal-close" aria-label="Close">×</button>
       <div class="disc-modal-title" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; padding-right: 36px;">
         <span style="font-size: 16px; font-weight: 700;">
-          <span class="en">New Risk Index v5.2 (Unbiased)</span>
-          <span class="ua">Новий індекс ризику v5.2 (без підгонки)</span>
+          <span class="en">Index Uncertainty &amp; Divergence</span>
+          <span class="ua">Невизначеність та розбіжність індексу</span>
         </span>
         <div id="modal-uncertainty-badge" style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 9999px; font-size: 11px; font-weight: 700; border: 1px solid var(--border); background: var(--surface2); flex-shrink: 0;">
           <span id="modal-uncertainty-score" style="font-variant-numeric: tabular-nums;">—</span>
@@ -2249,15 +2249,15 @@
       </div>
       <div class="disc-modal-body" style="display: flex; flex-direction: column; gap: 14px; font-size: 13px; line-height: 1.65;">
         <p>
-          <span class="en"><strong>What does the inner arc represent?</strong> The inner arc shows the updated <strong>v5.2 Risk Index (0–100)</strong> calculated strictly on historical data known at each moment — without hindsight tuning.</span>
-          <span class="ua"><strong>Що показує внутрішня дуга?</strong> Внутрішня дуга показує оновлений <strong>індекс ризику v5.2 (0–100)</strong>, порахований чесно на даних, відомих на момент часу — без підгонки під минулі цикли.</span>
+          <span class="en"><strong>What does the inner arc represent?</strong> The inner arc shows the degree of divergence or conflict between model components (scored 0 to 100). When metrics disagree on market phase, uncertainty rises.</span>
+          <span class="ua"><strong>Що показує внутрішня дуга?</strong> Внутрішня шкала відображає ступінь розбіжності (конфлікту) між компонентами моделі (від 0 до 100). Коли метрики розходяться в оцінці фази ринку, рівень невизначеності зростає.</span>
         </p>
 
         <div style="background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
           <div>
             <div style="font-size: 10.5px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em;">
-              <span class="en">New Index v5.2</span>
-              <span class="ua">Новий індекс v5.2</span>
+              <span class="en">Current Uncertainty</span>
+              <span class="ua">Поточна невизначеність</span>
             </div>
             <div id="modal-cs-val" style="font-size: 20px; font-weight: 800; margin-top: 3px; font-variant-numeric: tabular-nums;">—</div>
           </div>
@@ -2276,31 +2276,31 @@
             <span class="ua">Як це розраховується?</span>
           </div>
           <p style="margin: 0;">
-            <span class="en"><strong>0.70 × Causal Cost Basis</strong> (MVRV, Puell, CVDD expanding percentile) + <strong>0.30 × Weekly WaveTrend WT1 rank</strong>, plus a distribution break premium (+15/+10) when MVRV ≥ 50% and D1 sleeves exit. OOS 2021–2025 Spearman IC on 365d return: <strong>−0.44</strong> (vs −0.10 legacy).</span>
-            <span class="ua"><strong>0.70 × Причинна собівартість</strong> (expanding-перцентиль MVRV, Puell, CVDD) + <strong>0.30 × ранг тижневого WaveTrend WT1</strong>, плюс премія зламу тренду D1 (+15/+10), коли MVRV ≥ 50% і рукави виходять у кеш. OOS 2021–2025 IC на 365д дохід: <strong>−0.44</strong> (проти −0.10 у legacy).</span>
+            <span class="en">Calculated dynamically from the spread between sub-baskets (On-Chain vs. Tech/Macro) combined with the weighted variance across all 15 underlying metrics. High model confidence corresponds to low uncertainty.</span>
+            <span class="ua">Розраховується динамічно на основі розриву між підкошиками (ончейн проти тех/макро) у поєднанні зі зваженою дисперсією всіх 15 базових метрик. Висока впевненість моделі відповідає низькій невизначеності.</span>
           </p>
         </div>
 
         <div>
           <div style="font-weight: 700; margin-bottom: 6px; color: var(--text);">
-            <span class="en">Thermometer Zones:</span>
-            <span class="ua">Зони термометра:</span>
+            <span class="en">Interpretation Guide:</span>
+            <span class="ua">Як інтерпретувати рівні:</span>
           </div>
           <ul style="margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px;">
             <li>
-              <strong style="color: #22C55E;"><span class="en">Fear / Value (0 – 24):</span><span class="ua">Страх / Дешево (0 – 24):</span></strong>
-              <span class="en"> Deep cost-basis discount (2018 bottom: 0.7, 2022 bottom: 4.2). High expected 365d forward return.</span>
-              <span class="ua"> Зона дешевої собівартості (дно 2018: 0.7, дно 2022: 4.2). Найвища очікувана 365-денна дохідність.</span>
+              <strong style="color: #22C55E;"><span class="en">Low (0 – 24):</span><span class="ua">Низька (0 – 24):</span></strong>
+              <span class="en"> Broad consensus across on-chain and macro indicators. Maximum directional reliability.</span>
+              <span class="ua"> Широкий консенсус між ончейн і макроіндикаторами. Максимальна надійність сигналу.</span>
             </li>
             <li>
-              <strong style="color: #EAB308;"><span class="en">Neutral / Mid-Cycle (25 – 74):</span><span class="ua">Нейтрально / Середина циклу (25 – 74):</span></strong>
-              <span class="en"> Trend regime is governed by the Causal D1 Dual-Sleeve (SMA40w + Cipher B 1W) on the Trading Desk.</span>
-              <span class="ua"> Управління позицією визначається причинним алгоритмом D1 (SMA40w + Cipher B 1W) на вкладці Trading.</span>
+              <strong style="color: #EAB308;"><span class="en">Moderate (25 – 54):</span><span class="ua">Помірна (25 – 54):</span></strong>
+              <span class="en"> Normal market divergence; slight phase lead/lag between indicators. The composite index remains fully actionable.</span>
+              <span class="ua"> Звичайна ринкова розбіжність; типове випередження/запізнення метрик. Підсумковий індекс залишається надійним орієнтиром.</span>
             </li>
             <li>
-              <strong style="color: #EF4444;"><span class="en">Euphoria / Overheated (75 – 100):</span><span class="ua">Ейфорія / Перегрів (75 – 100):</span></strong>
-              <span class="en"> Historical cycle tops (2017: 94.3, 2021-04: 98.3, 2024-03: 80.8). Elevated 13w drawdown risk.</span>
-              <span class="ua"> Історичні вершини (2017: 94.3, 2021-04: 98.3, 2024-03: 80.8). Підвищений ризик глибокої корекції.</span>
+              <strong style="color: #EF4444;"><span class="en">High (55 – 100):</span><span class="ua">Висока (55 – 100):</span></strong>
+              <span class="en"> Sub-models strongly contradict each other (e.g. on-chain deep value vs. macro stress or derivative overheating). Exercise extra caution and check individual sub-baskets.</span>
+              <span class="ua"> Моделі суттєво суперечать одна одній (наприклад, ончейн-накопичення при макротиску або перегріві деривативів). Рекомендується підвищена обачність та окремий аналіз підкошиків.</span>
             </li>
           </ul>
         </div>
@@ -3058,7 +3058,7 @@ async function loadData() {
     if (!Object.keys(data).length)  return;
   } catch (e) { return; }
 
-  const score = data.final_score ?? 0;
+  const score = data.causal_btcbri != null ? Math.round(data.causal_btcbri) : (data.final_score ?? 0);
   const z = riskZone(score);
   const logoBri = document.getElementById('logo-bri');
   if (logoBri) logoBri.style.color = z.color;
@@ -3229,9 +3229,8 @@ async function loadData() {
     } else {
       conflictScore = Math.round(conflictScore);
     }
-    const innerThermometer = data.causal_btcbri ?? data.causal_valuation?.valuation_score ?? conflictScore;
-    window._conflictScore = innerThermometer;
-    updateConflictGauge(innerThermometer);
+    window._conflictScore = conflictScore;
+    updateConflictGauge(conflictScore);
   }
 
   const fg7d = m.fear_greed ? (m.fear_greed.avg_7d ?? m.fear_greed.latest) : data.fear_greed;

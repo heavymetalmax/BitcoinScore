@@ -3127,8 +3127,9 @@
         : (data.prev_day && data.prev_day.final_score != null ? data.prev_day.final_score : null);
       const tUpEl = document.getElementById('marker-trend-up');
       const tDownEl = document.getElementById('marker-trend-down');
-      if(ref != null && data.final_score != null && tUpEl && tDownEl) {
-        const diff = data.final_score - ref;
+      const primaryScore = data.causal_btcbri != null ? Math.round(data.causal_btcbri) : data.final_score;
+      if(ref != null && primaryScore != null && tUpEl && tDownEl) {
+        const diff = primaryScore - ref;
         if(diff > 0)       { tUpEl.textContent = '▲'; tDownEl.textContent = ''; }
         else if(diff < 0)  { tUpEl.textContent = ''; tDownEl.textContent = '▼'; }
         else               { tUpEl.textContent = ''; tDownEl.textContent = ''; }
@@ -3138,7 +3139,7 @@
       }
       
       // Update main score values (numerical labels)
-      setScore('s-final', 'b-final', data.final_score);
+      setScore('s-final', 'b-final', primaryScore);
       setScore('s-oc',    'b-oc',    data.onchain_score);
       setScore('s-tech',  'b-tech',  data.tech_score);
 
@@ -3160,7 +3161,7 @@
       setSubStatus('yesterday-status', yesterdayScore);
       setSubStatus('week-status',      (avg7d != null) ? avg7d : (data.prev_week ? data.prev_week.final_score : null));
 
-      const finalVal = data.final_score;
+      const finalVal = primaryScore;
 
       // Update Modern Canvas Gauges
       if (finalVal != null) {
