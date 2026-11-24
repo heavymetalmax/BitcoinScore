@@ -61,11 +61,16 @@ def compute_cipherb_wt_on_ohlc(
 
 def _load_daily_mvrv_ranks(
     scores_path: str = 'data/history/scores.json',
-    as_of_date: datetime.date | None = None,
+    as_of_date: datetime.date | str | None = None,
 ) -> list[tuple[datetime.date, float]]:
     """Return sorted (date, causal_mvrv_pct) strictly <= as_of_date."""
     if not os.path.exists(scores_path):
         return []
+    as_of_dt: datetime.date | None = None
+    if isinstance(as_of_date, str):
+        as_of_dt = datetime.date.fromisoformat(as_of_date[:10])
+    elif isinstance(as_of_date, datetime.date):
+        as_of_dt = as_of_date
     raw_by_d: dict[datetime.date, float] = {}
     try:
         for row in json.load(open(scores_path, encoding='utf-8')):
@@ -74,7 +79,7 @@ def _load_daily_mvrv_ranks(
             if not d_str or mv is None:
                 continue
             d = datetime.date.fromisoformat(d_str)
-            if as_of_date is not None and d > as_of_date:
+            if as_of_dt is not None and d > as_of_dt:
                 continue
             raw_by_d[d] = float(mv)
     except Exception:
