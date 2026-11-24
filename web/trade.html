@@ -979,11 +979,11 @@
           <table>
             <thead>
               <tr>
-                <th>Патерн та правило</th>
-                <th>2018–26 (2 цикли)</th>
-                <th>MaxDD / Calmar</th>
-                <th>Цикл 1 / 2 · Win Rate</th>
-                <th>Пул 6р / 9.3р</th>
+                <th>Стратегія та правило</th>
+                <th>Результат (2018–26)</th>
+                <th>Макс. падіння / Віддача</th>
+                <th>Цикл 1 / 2 · Успішні угоди</th>
+                <th>Кеш-пул 6р / 9.3р</th>
                 <th>Живий сигнал і тригер</th>
               </tr>
             </thead>
@@ -1548,9 +1548,9 @@
       const bestCal = [...listAll].sort((a, b) => (b.modern_2018?.calmar || 0) - (a.modern_2018?.calmar || 0))[0];
       const bestPool = [...listAll].sort((a, b) => (b.pool_6y?.multiple || 0) - (a.pool_6y?.multiple || 0))[0];
       strip.innerHTML = `
-        <span>Лідер дохідності (2018–26): <strong>${escHtml(bestRet?.id || '—')} (${bestRet?.modern_2018?.multiple ?? '—'}×)</strong></span>
-        <span>Лідер ризик/прибуток (Calmar): <strong>${escHtml(bestCal?.id || '—')} (${bestCal?.modern_2018?.calmar ?? '—'}, DD −${bestCal?.modern_2018?.max_dd_pct ?? '—'}%)</strong></span>
-        <span>Лідер кеш-пулу (6р): <strong>${escHtml(bestPool?.id || '—')} (${bestPool?.pool_6y?.multiple ?? '—'}×)</strong></span>
+        <span>Найприбутковіша (2018–26): <strong>${escHtml(bestRet?.name || '—')} (${bestRet?.modern_2018?.multiple ?? '—'}×)</strong></span>
+        <span>Найкращий баланс: <strong>${escHtml(bestCal?.name || '—')} (віддача ${bestCal?.modern_2018?.calmar ?? '—'}, падіння −${bestCal?.modern_2018?.max_dd_pct ?? '—'}%)</strong></span>
+        <span>Лідер кеш-пулу (6р): <strong>${escHtml(bestPool?.name || '—')} (${bestPool?.pool_6y?.multiple ?? '—'}×)</strong></span>
         <span>Протестовано стратегій: <strong>${PATTERNS.methodology?.strategies_tested ?? '—'}</strong></span>
       `;
       const list = listAll.filter(p => ACTIVE_PAT_FAM === 'ALL' || p.family === ACTIVE_PAT_FAM);
@@ -1579,12 +1579,12 @@
             <div class="muted" style="font-size:11px;">CAGR ${m18.cagr_pct}% · ${m18.trades} угод</div>
           </td>
           <td class="num">
-            <div style="color:${ddColor}; font-weight:700;">DD −${m18.max_dd_pct}%</div>
-            <div class="muted" style="font-size:11.5px;">Calmar <strong style="color:var(--text);">${m18.calmar}</strong></div>
+            <div style="color:${ddColor}; font-weight:700;">Падіння −${m18.max_dd_pct}%</div>
+            <div class="muted" style="font-size:11.5px;">Віддача <strong style="color:var(--text);">${m18.calmar}</strong></div>
           </td>
           <td class="num">
             <div>${c1.return_pct >= 0 ? '+' : ''}${Math.round(c1.return_pct)}% / ${c2.return_pct >= 0 ? '+' : ''}${Math.round(c2.return_pct)}%</div>
-            <div class="muted" style="font-size:11px;">Win: <strong>${wr}</strong> · В BTC: ${exp}</div>
+            <div class="muted" style="font-size:11px;">Успішних: <strong>${wr}</strong> · В BTC: ${exp}</div>
           </td>
           <td class="num">
             <div style="font-weight:700;">${p6.multiple}×</div>
