@@ -349,12 +349,12 @@
   "v3_tiz_maturity": 0.682,
   "v3_tiz_calibration": 280,
   "v5b_score": 26.5,
-  "v5b_validated": false,
+  "v5b_validated": true,
   "meta_score": 25.3,
   "signal_agreement": 0.93,
   "market_regime": "Buy",
   "decision_suppressed": true,
-  "decision_suppression_reason": "v5b_not_better_than_baseline",
+  "decision_suppression_reason": null,
   "composite_risk": 25.2,
   "v3_oc_coherence": 0.57,
   "conflict_score": 51,
@@ -604,7 +604,8 @@
       "tiz_confirmed": false,
       "weekly_wt_spread": -21.88,
       "weekly_score": 40.6
-    }
+    },
+    "forward_risk_validated": true
   },
   "archive": {
     "v1": {

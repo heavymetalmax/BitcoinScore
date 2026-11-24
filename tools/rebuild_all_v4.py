@@ -301,6 +301,11 @@ def recompute_recent_scores(days: int = 365) -> None:
                                     _mm_obj['value'][_mk] = last_res['ma_context'][_mk]
                     if last_res.get('v5b_score') is not None:
                         payload['v5b_score'] = last_res['v5b_score']
+                    if last_res.get('v5b_validated') is not None:
+                        payload['v5b_validated'] = bool(last_res['v5b_validated'])
+                    if last_res.get('decision_suppressed') is not None:
+                        payload['decision_suppressed'] = bool(last_res['decision_suppressed'])
+                    payload['decision_suppression_reason'] = last_res.get('decision_suppression_reason')
                     if last_res.get('market_regime') is not None:
                         payload['market_regime'] = last_res['market_regime']
                     if last_res.get('composite_risk') is not None:
