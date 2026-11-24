@@ -3,80 +3,134 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BTCBRI Trading Desk — Бот-дашборд &amp; ШІ-звіти</title>
+  <title>BTCBRI Trading Desk — V5 Сигнали, Патерни та ШІ-аналітика</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #0b0e14;
-      --surface: #131822;
-      --surface2: #1a2130;
-      --border: rgba(255, 255, 255, 0.08);
+      --bg: #090c12;
+      --surface: #111622;
+      --surface2: #171e2e;
+      --surface3: #1e273b;
+      --border: rgba(255, 255, 255, 0.075);
       --border2: rgba(255, 255, 255, 0.14);
-      --text: #e2e8f0;
-      --muted: #94a3b8;
+      --text: #eef2f7;
+      --muted: #8b9bb4;
       --green: #22c55e;
-      --green-bg: rgba(34, 197, 94, 0.14);
+      --green-bg: rgba(34, 197, 94, 0.13);
+      --green-bd: rgba(34, 197, 94, 0.30);
       --amber: #f59e0b;
-      --amber-bg: rgba(245, 158, 11, 0.14);
+      --amber-bg: rgba(245, 158, 11, 0.13);
+      --amber-bd: rgba(245, 158, 11, 0.30);
       --red: #ef4444;
-      --red-bg: rgba(239, 68, 68, 0.14);
+      --red-bg: rgba(239, 68, 68, 0.13);
+      --red-bd: rgba(239, 68, 68, 0.30);
       --blue: #38bdf8;
-      --blue-bg: rgba(56, 189, 248, 0.14);
+      --blue-bg: rgba(56, 189, 248, 0.13);
+      --blue-bd: rgba(56, 189, 248, 0.30);
       --accent: #6366f1;
+      --accent-bg: rgba(99, 102, 241, 0.15);
+      --accent-bd: rgba(99, 102, 241, 0.35);
+      --shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
     }
     :root[data-theme="light"] {
-      --bg: #f8f9fa;
+      --bg: #f4f6fa;
       --surface: #ffffff;
-      --surface2: #f1f3f5;
+      --surface2: #f1f5f9;
+      --surface3: #e2e8f0;
       --border: rgba(15, 23, 42, 0.08);
-      --border2: rgba(15, 23, 42, 0.16);
+      --border2: rgba(15, 23, 42, 0.15);
       --text: #0f172a;
       --muted: #64748b;
       --green: #16a34a;
-      --green-bg: rgba(22, 163, 74, 0.12);
+      --green-bg: rgba(22, 163, 74, 0.11);
+      --green-bd: rgba(22, 163, 74, 0.28);
       --amber: #d97706;
-      --amber-bg: rgba(217, 119, 6, 0.12);
+      --amber-bg: rgba(217, 119, 6, 0.11);
+      --amber-bd: rgba(217, 119, 6, 0.28);
       --red: #dc2626;
-      --red-bg: rgba(220, 38, 38, 0.12);
+      --red-bg: rgba(220, 38, 38, 0.11);
+      --red-bd: rgba(220, 38, 38, 0.28);
       --blue: #0284c7;
-      --blue-bg: rgba(2, 132, 199, 0.12);
+      --blue-bg: rgba(2, 132, 199, 0.11);
+      --blue-bd: rgba(2, 132, 199, 0.28);
+      --accent: #4f46e5;
+      --accent-bg: rgba(79, 70, 229, 0.11);
+      --accent-bd: rgba(79, 70, 229, 0.30);
+      --shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
     }
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: 'Inter', system-ui, -apple-system, sans-serif;
       background: var(--bg);
       color: var(--text);
       line-height: 1.5;
-      padding-bottom: 60px;
+      padding-bottom: 64px;
+      -webkit-font-smoothing: antialiased;
     }
+
+    /* Sticky Topbar */
     nav {
-      height: 56px;
-      border-bottom: 1px solid var(--border);
-      background: var(--surface);
       position: sticky;
       top: 0;
-      z-index: 50;
+      z-index: 60;
+      background: color-mix(in srgb, var(--surface) 88%, transparent);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
     }
     .nav-inner {
-      max-width: 1180px;
+      max-width: 1220px;
       margin: 0 auto;
       padding: 0 20px;
-      height: 100%;
+      height: 58px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
+      gap: 14px;
     }
-    .nav-brand { font-weight: 800; font-size: 15px; display: flex; align-items: center; gap: 10px; }
-    .nav-brand span { color: var(--muted); font-weight: 500; font-size: 12px; }
-    .nav-actions { display: flex; align-items: center; gap: 8px; }
-    .btn-nav, .btn {
+    .nav-left { display: flex; align-items: center; gap: 14px; min-width: 0; }
+    .nav-brand {
+      font-weight: 800;
+      font-size: 15px;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+    }
+    .brand-dot {
+      width: 9px; height: 9px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--green), var(--accent));
+      box-shadow: 0 0 10px var(--green);
+    }
+    .nav-ticker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      font-size: 12.5px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+    .nav-ticker .live-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--green);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+    .nav-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+    .btn, .btn-nav {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 7px 13px;
-      border-radius: 8px;
+      padding: 7px 12px;
+      border-radius: 9px;
       font-size: 12.5px;
       font-weight: 600;
       cursor: pointer;
@@ -84,26 +138,355 @@
       background: var(--surface2);
       color: var(--text);
       text-decoration: none;
-      transition: transform 0.1s, border-color 0.15s;
+      font-family: inherit;
+      transition: all 0.14s ease;
+      white-space: nowrap;
     }
     .btn:hover, .btn-nav:hover { border-color: var(--accent); transform: translateY(-1px); }
-    .btn-primary {
-      background: var(--accent);
-      border-color: var(--accent);
-      color: #fff;
+    .btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .btn-primary:hover { filter: brightness(1.08); }
+    .btn-green { background: var(--green-bg); border-color: var(--green-bd); color: var(--green); }
+
+    /* Pills */
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 11.5px;
+      font-weight: 700;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      white-space: nowrap;
     }
-    .btn-green {
-      background: var(--green-bg);
-      border-color: rgba(34, 197, 94, 0.35);
-      color: var(--green);
+    .pill.green { background: var(--green-bg); color: var(--green); border-color: var(--green-bd); }
+    .pill.amber { background: var(--amber-bg); color: var(--amber); border-color: var(--amber-bd); }
+    .pill.red   { background: var(--red-bg);   color: var(--red);   border-color: var(--red-bd); }
+    .pill.blue  { background: var(--blue-bg);  color: var(--blue);  border-color: var(--blue-bd); }
+    .pill.accent{ background: var(--accent-bg);color: #818cf8;      border-color: var(--accent-bd); }
+    :root[data-theme="light"] .pill.accent { color: var(--accent); }
+
+    .container {
+      max-width: 1220px;
+      margin: 20px auto 0;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
     }
 
-    .container { max-width: 1180px; margin: 22px auto 0; padding: 0 20px; display: flex; flex-direction: column; gap: 18px; }
+    /* Meta strip */
+    .meta-strip {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .meta-pills { display: flex; gap: 6px; flex-wrap: wrap; }
+
+    /* Hero Decision Cockpit */
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.38fr 1fr;
+      gap: 16px;
+    }
     .card {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 20px 24px;
+      border-radius: 18px;
+      padding: 20px 22px;
+      box-shadow: var(--shadow);
+    }
+    .hero-verdict-card {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .eyebrow {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    .verdict-headline {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .verdict-sub {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 5px;
+      line-height: 1.45;
+    }
+
+    /* Allocation visual split bar */
+    .alloc-bar-wrap { display: flex; flex-direction: column; gap: 7px; }
+    .alloc-bar-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .alloc-bar {
+      height: 12px;
+      border-radius: 999px;
+      background: var(--surface3);
+      overflow: hidden;
+      display: flex;
+      border: 1px solid var(--border);
+    }
+    .alloc-seg-bri {
+      background: linear-gradient(90deg, #16a34a, #22c55e);
+      transition: width 0.35s ease;
+    }
+    .alloc-seg-cb {
+      background: linear-gradient(90deg, #0284c7, #38bdf8);
+      transition: width 0.35s ease;
+    }
+
+    /* Two Sleeves inside Hero */
+    .sleeves-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .sleeve-box {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .sleeve-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .sleeve-detail { font-size: 11.5px; color: var(--muted); line-height: 1.4; }
+    .mini-progress {
+      height: 5px;
+      border-radius: 999px;
+      background: var(--surface3);
+      overflow: hidden;
+      margin-top: 2px;
+    }
+    .mini-progress > div {
+      height: 100%;
+      border-radius: 999px;
+      transition: width 0.35s ease;
+    }
+
+    /* BRI Risk Scale bar */
+    .bri-scale-wrap {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 11px 14px;
+    }
+    .bri-scale-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11.5px;
+      margin-bottom: 8px;
+    }
+    .bri-track {
+      position: relative;
+      height: 8px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #22c55e 0%, #4ade80 22%, #eab308 50%, #f97316 75%, #ef4444 100%);
+    }
+    .bri-marker {
+      position: absolute;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--text);
+      border: 3px solid var(--surface);
+      box-shadow: 0 0 0 2px var(--accent);
+      transition: left 0.35s ease;
+    }
+    .bri-ticks {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10.5px;
+      color: var(--muted);
+      margin-top: 6px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Right Hero: Market Pulse + Traffic Light */
+    .hero-right { display: flex; flex-direction: column; gap: 14px; }
+    .kpi-2x2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .kpi {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+    }
+    .kpi-label { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+    .kpi-val { font-size: 22px; font-weight: 800; margin-top: 3px; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+    .kpi-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+    .triggers-box {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex: 1;
+    }
+    .triggers-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .trigger-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      font-size: 12.5px;
+      padding: 7px 10px;
+      border-radius: 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+    }
+
+    /* Main Workspace Tabs */
+    .workspace-tabs {
+      display: flex;
+      gap: 6px;
+      padding: 5px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .ws-tab {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 9px 15px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--muted);
+      background: transparent;
+      border: 1px solid transparent;
+      cursor: pointer;
+      font-family: inherit;
+      white-space: nowrap;
+      transition: all 0.14s ease;
+    }
+    .ws-tab:hover { color: var(--text); background: var(--surface2); }
+    .ws-tab.active {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(99, 102, 241, 0.28);
+    }
+    .ws-tab .tab-badge {
+      padding: 1px 7px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      background: rgba(255,255,255,0.16);
+    }
+    .ws-tab:not(.active) .tab-badge {
+      background: var(--surface2);
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+
+    .tab-panel { display: none; flex-direction: column; gap: 16px; }
+    .tab-panel.active { display: flex; }
+
+    /* Sub-tabs inside Plan panel */
+    .mode-switcher {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .mode-card {
+      text-align: left;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      color: var(--text);
+      font-family: inherit;
+      transition: all 0.14s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .mode-card:hover { border-color: var(--border2); }
+    .mode-card.active {
+      border-color: var(--accent);
+      background: var(--accent-bg);
+    }
+    .mode-card-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; width: 100%; }
+    .mode-card-title { font-size: 13px; font-weight: 700; }
+    .mode-card-sub { font-size: 11.5px; color: var(--muted); }
+
+    .check-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 8px; }
+    .check-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12.5px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      gap: 10px;
+    }
+
+    /* Calculator + Exit Ladder 2-col */
+    .plan-bottom-grid {
+      display: grid;
+      grid-template-columns: 1.45fr 1fr;
+      gap: 16px;
     }
     .card-hdr {
       display: flex;
@@ -111,144 +494,171 @@
       align-items: center;
       flex-wrap: wrap;
       gap: 10px;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
     }
-    .card-title { font-size: 14px; font-weight: 700; letter-spacing: 0.02em; display: flex; align-items: center; gap: 8px; }
-    .muted { color: var(--muted); font-size: 12.5px; }
-
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 4px 11px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 700;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-    }
-    .pill.green { background: var(--green-bg); color: var(--green); border-color: rgba(34,197,94,0.25); }
-    .pill.amber { background: var(--amber-bg); color: var(--amber); border-color: rgba(245,158,11,0.25); }
-    .pill.red { background: var(--red-bg); color: var(--red); border-color: rgba(239,68,68,0.25); }
-    .pill.blue { background: var(--blue-bg); color: var(--blue); border-color: rgba(56,189,248,0.25); }
-
-    .kpi-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
-      gap: 12px;
-    }
-    .kpi {
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 13px 15px;
-    }
-    .kpi-label { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
-    .kpi-val { font-size: 24px; font-weight: 800; margin-top: 4px; font-variant-numeric: tabular-nums; }
-    .kpi-sub { font-size: 11.5px; color: var(--muted); margin-top: 3px; }
-
-    .two-col { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; }
-    .box {
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 16px 18px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-    .box-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
-    .box-title { font-size: 14px; font-weight: 700; }
-
-    .check-list { display: flex; flex-direction: column; gap: 8px; }
-    .check-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 13px;
-      padding: 8px 11px;
-      border-radius: 8px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      gap: 8px;
-    }
+    .card-title { font-size: 14.5px; font-weight: 700; letter-spacing: -0.01em; }
+    .muted { color: var(--muted); font-size: 12px; }
 
     .calc-controls {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 14px;
-      margin-bottom: 16px;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
     }
-    .field label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 6px; }
-    .field input[type="number"], .field input[type="password"], .field input[type="text"], .field select {
+    .field label {
+      display: block;
+      font-size: 10.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      margin-bottom: 5px;
+    }
+    .field input[type="number"] {
       width: 100%;
       padding: 9px 12px;
-      border-radius: 8px;
+      border-radius: 9px;
       border: 1px solid var(--border2);
       background: var(--surface2);
       color: var(--text);
-      font-size: 13.5px;
-      font-weight: 600;
+      font-size: 14px;
+      font-weight: 700;
       font-family: inherit;
     }
-    .field input[type="range"] { width: 100%; accent-color: var(--accent); }
+    .field input[type="range"] { width: 100%; accent-color: var(--accent); margin-top: 8px; }
+    .calc-summary {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .calc-sum-box {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 9px 12px;
+    }
+    .calc-sum-val { font-size: 16px; font-weight: 800; font-variant-numeric: tabular-nums; margin-top: 2px; }
 
-    table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
-    th { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); background: var(--surface2); }
+    /* Tables */
+    .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+    th, td { text-align: left; padding: 10px 11px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    th {
+      font-size: 10.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      background: var(--surface2);
+    }
     tr:last-child td { border-bottom: none; }
     .num { font-variant-numeric: tabular-nums; font-weight: 600; white-space: nowrap; }
 
-    .ai-toolbar {
+    /* Patterns tab */
+    .pat-tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+    .pat-tab {
+      padding: 5px 11px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid var(--border2);
+      background: var(--surface2);
+      color: var(--muted);
+      font-family: inherit;
+      transition: all 0.12s;
+    }
+    .pat-tab.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .bench-strip {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
-      align-items: center;
+      gap: 8px 18px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      font-size: 12px;
+      color: var(--muted);
       margin-bottom: 14px;
     }
+    .bench-strip strong { color: var(--text); }
+    .pat-name { font-weight: 700; font-size: 13px; color: var(--text); }
+    .pat-rule { font-size: 11.5px; color: var(--muted); margin-top: 3px; line-height: 1.4; }
+    .pat-last { font-size: 11px; color: var(--muted); margin-top: 3px; opacity: 0.85; }
+    .pat-trigger { font-size: 11.5px; color: var(--muted); margin-top: 4px; line-height: 1.35; max-width: 270px; }
+    .fam-badge {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 6px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-right: 6px;
+    }
+    .fam-Hybrid { background: var(--accent-bg); color: #818cf8; border: 1px solid var(--accent-bd); }
+    .fam-BTCBRI { background: var(--green-bg);  color: var(--green); border: 1px solid var(--green-bd); }
+    .fam-Cipher { background: var(--blue-bg);   color: var(--blue);  border: 1px solid var(--blue-bd); }
+
+    /* AI Report tab */
+    .ai-toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 14px; }
     .ai-output {
       background: var(--surface2);
       border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 18px 20px;
+      border-radius: 14px;
+      padding: 20px 24px;
       font-size: 13.5px;
-      line-height: 1.65;
-      max-height: 620px;
+      line-height: 1.68;
+      max-height: 680px;
       overflow-y: auto;
     }
+    .ai-output-inner { max-width: 82ch; }
     .ai-output .ai-meta {
       font-size: 11.5px;
       font-weight: 600;
       color: var(--muted);
       padding-bottom: 10px;
-      margin-bottom: 12px;
+      margin-bottom: 14px;
       border-bottom: 1px solid var(--border);
     }
-    .ai-output h2, .ai-output h3, .ai-output h4 {
-      font-size: 14.5px;
-      font-weight: 700;
-      margin: 16px 0 8px;
-      color: var(--text);
-    }
+    .ai-output h2, .ai-output h3, .ai-output h4 { font-size: 15px; font-weight: 700; margin: 18px 0 8px; color: var(--text); }
     .ai-output h3:first-child { margin-top: 0; }
     .ai-output p { margin: 8px 0; }
     .ai-output ul { margin: 8px 0 8px 18px; display: flex; flex-direction: column; gap: 5px; }
     .ai-output table { margin: 12px 0; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
     .ai-output th { background: var(--surface); border-bottom: 1px solid var(--border2); }
-    .ai-output code { background: var(--surface); padding: 1px 5px; border-radius: 4px; font-size: 12.5px; border: 1px solid var(--border); }
+    .ai-output code { background: var(--surface); padding: 1px 5px; border-radius: 4px; font-size: 12px; border: 1px solid var(--border); }
     .ai-output hr { border: none; border-top: 1px solid var(--border); margin: 14px 0; }
-    .api-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      align-items: center;
-      padding: 12px 14px;
+
+    /* Metrics Breakdown Tab */
+    .baskets-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+    .basket-card {
       background: var(--surface2);
       border: 1px solid var(--border);
-      border-radius: 10px;
-      margin-bottom: 14px;
+      border-radius: 14px;
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
     }
-    .api-row input { flex: 1; min-width: 220px; }
+    .basket-head { display: flex; justify-content: space-between; align-items: baseline; }
+    .basket-score { font-size: 24px; font-weight: 800; font-variant-numeric: tabular-nums; }
+    .metric-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12.5px;
+      padding: 7px 10px;
+      border-radius: 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+    }
+
     .toast {
       position: fixed;
       bottom: 20px;
@@ -262,63 +672,34 @@
       font-weight: 600;
       display: none;
       z-index: 999;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
     }
-    .pat-tabs { display: flex; flex-wrap: wrap; gap: 6px; }
-    .pat-tab {
-      padding: 5px 11px;
-      border-radius: 8px;
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      border: 1px solid var(--border2);
-      background: var(--surface2);
-      color: var(--muted);
-      transition: all 0.12s;
+
+    @media (max-width: 960px) {
+      .hero-grid, .plan-bottom-grid, .baskets-grid { grid-template-columns: 1fr; }
+      .mode-switcher { grid-template-columns: 1fr; }
     }
-    .pat-tab.active {
-      background: var(--accent);
-      border-color: var(--accent);
-      color: #fff;
+    @media (max-width: 600px) {
+      .sleeves-grid, .kpi-2x2, .calc-controls, .calc-summary { grid-template-columns: 1fr; }
+      .nav-ticker { display: none; }
+      .verdict-headline { font-size: 22px; }
+      .card { padding: 16px; }
     }
-    .bench-strip {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px 18px;
-      padding: 10px 14px;
-      border-radius: 10px;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      font-size: 12px;
-      color: var(--muted);
-      margin-bottom: 14px;
-    }
-    .bench-strip strong { color: var(--text); }
-    .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-    .pat-name { font-weight: 700; font-size: 13px; color: var(--text); }
-    .pat-rule { font-size: 11.5px; color: var(--muted); margin-top: 3px; line-height: 1.4; }
-    .pat-last { font-size: 11px; color: var(--muted); margin-top: 3px; opacity: 0.85; }
-    .pat-trigger { font-size: 11.5px; color: var(--muted); margin-top: 4px; line-height: 1.35; max-width: 260px; }
-    .fam-badge {
-      display: inline-block;
-      padding: 2px 7px;
-      border-radius: 6px;
-      font-size: 10.5px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      margin-right: 6px;
-    }
-    .fam-Hybrid { background: rgba(99, 102, 241, 0.18); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.32); }
-    .fam-BTCBRI { background: var(--green-bg); color: var(--green); border: 1px solid rgba(34, 197, 94, 0.28); }
-    .fam-Cipher { background: var(--blue-bg); color: var(--blue); border: 1px solid rgba(56, 189, 248, 0.28); }
   </style>
 </head>
 <body>
   <nav>
     <div class="nav-inner">
-      <div class="nav-brand">
-        <span>BTCBRI</span> Trading Desk <span>· Бот-сигнали &amp; ШІ-звіти</span>
+      <div class="nav-left">
+        <div class="nav-brand">
+          <span class="brand-dot"></span>
+          BTCBRI <span style="color:var(--muted); font-weight:500;">Trading Desk</span>
+        </div>
+        <div class="nav-ticker" title="Жива ціна BTC/USDT з Binance">
+          <span class="live-dot"></span>
+          <span>BTC</span>
+          <span id="nav-live-price">—</span>
+        </div>
       </div>
       <div class="nav-actions">
         <a class="btn-nav" href="https://btcbri.com/">← Індекс</a>
@@ -328,196 +709,324 @@
   </nav>
 
   <div class="container">
-    <!-- Top Status KPIs -->
-    <div class="card">
-      <div class="card-hdr">
-        <div class="card-title">Поточний стан ринку та якість сигналу</div>
-        <div style="display:flex; gap:8px; flex-wrap:wrap;" id="status-pills">
-          <span class="pill" id="pill-updated">Оновлення...</span>
-          <span class="pill" id="pill-quality">Якість: —</span>
-          <span class="pill" id="pill-validated">Forward Risk: —</span>
-        </div>
-      </div>
-
-      <div class="kpi-grid">
-        <div class="kpi">
-          <div class="kpi-label">BTC Live (Binance)</div>
-          <div class="kpi-val" id="kpi-price">—</div>
-          <div class="kpi-sub" id="kpi-ma200w">200W MA: —</div>
-        </div>
-        <div class="kpi">
-          <div class="kpi-label">BTCBRI (Індекс)</div>
-          <div class="kpi-val" id="kpi-bri">—</div>
-          <div class="kpi-sub" id="kpi-raw-util">Raw utility: —</div>
-        </div>
-        <div class="kpi">
-          <div class="kpi-label">Ціна входу (BRI &lt; 20)</div>
-          <div class="kpi-val" id="kpi-entry20" style="color:var(--green);">—</div>
-          <div class="kpi-sub" id="kpi-realized">Realized Price: —</div>
-        </div>
-        <div class="kpi">
-          <div class="kpi-label">Forward Risk (365d)</div>
-          <div class="kpi-val" id="kpi-forward">—</div>
-          <div class="kpi-sub" id="kpi-phase">Фаза: —</div>
-        </div>
-        <div class="kpi">
-          <div class="kpi-label">Spot ETF / aSOPR</div>
-          <div class="kpi-val" id="kpi-etf" style="font-size:20px;">—</div>
-          <div class="kpi-sub" id="kpi-asopr">aSOPR: —</div>
-        </div>
+    <!-- Compact Data Freshness Strip -->
+    <div class="meta-strip">
+      <span id="meta-updated">Завантаження актуального зрізу...</span>
+      <div class="meta-pills">
+        <span class="pill" id="pill-version">BTCBRI V5</span>
+        <span class="pill" id="pill-quality">Якість: —</span>
+        <span class="pill" id="pill-validated">Forward Risk: —</span>
       </div>
     </div>
 
-    <!-- Bot Recommendations -->
-    <div class="card">
-      <div class="card-hdr">
-        <div class="card-title">Пропозиції торгового бота (горизонт 1–3 роки)</div>
-        <span class="muted">Детерміновані правила на основі живого зрізу <code>data.json</code></span>
-      </div>
-      <div class="two-col">
-        <!-- Mode A: Multi-Tranche -->
-        <div class="box">
-          <div class="box-head">
-            <div class="box-title">Режим 1: Мульти-траншевий набір (4 транші)</div>
-            <span class="pill" id="tranche-verdict">—</span>
+    <!-- HERO DECISION COCKPIT -->
+    <div class="hero-grid">
+      <!-- Left: Primary V5 Dual-Sleeve Verdict -->
+      <div class="card hero-verdict-card">
+        <div class="hero-top">
+          <div>
+            <div class="eyebrow">Головний вердикт · BTCBRI V5 Dual-Sleeve Engine</div>
+            <div class="verdict-headline">
+              <span id="hero-alloc-headline">—</span>
+              <span class="pill" id="hero-regime-pill">—</span>
+            </div>
+            <div class="verdict-sub" id="hero-verdict-sub">Оцінка поточної фази циклу та тижневого імпульсу...</div>
           </div>
-          <div class="check-list" id="tranche-list"></div>
         </div>
 
-        <!-- Mode B: Single-Shot -->
-        <div class="box">
-          <div class="box-head">
-            <div class="box-title">Режим 2: 1 єдиний ордер (Dual-Trigger, 100%)</div>
-            <span class="pill" id="single-verdict">—</span>
+        <!-- Visual Allocation Split Bar -->
+        <div class="alloc-bar-wrap">
+          <div class="alloc-bar-labels">
+            <span style="color:var(--green);" id="alloc-lbl-btc">BTC: —</span>
+            <span style="color:var(--muted);" id="alloc-lbl-cash">Кеш-резерв: —</span>
           </div>
-          <div class="check-list" id="single-list"></div>
+          <div class="alloc-bar">
+            <div class="alloc-seg-bri" id="alloc-seg-bri" style="width:0%"></div>
+            <div class="alloc-seg-cb" id="alloc-seg-cb" style="width:0%"></div>
+          </div>
         </div>
-      </div>
 
-      <!-- Mode C: Cipher B Weekly Pool (2016-2026 Study) -->
-      <div class="box" style="margin-top:16px;">
-        <div class="box-head">
-          <div class="box-title">Режим 3 (окремо): Cipher B Weekly Pool · Дослідження 2016–2026</div>
-          <span class="pill" id="cbpool-verdict">—</span>
+        <!-- Two Orthogonal Sleeves -->
+        <div class="sleeves-grid">
+          <div class="sleeve-box">
+            <div class="sleeve-head">
+              <span>Рукав 1 · BTCBRI Цикл (50%)</span>
+              <span class="pill" id="sleeve1-pill">—</span>
+            </div>
+            <div class="sleeve-detail" id="sleeve1-detail">—</div>
+            <div class="mini-progress"><div id="sleeve1-bar" style="width:0%; background:var(--green);"></div></div>
+          </div>
+          <div class="sleeve-box">
+            <div class="sleeve-head">
+              <span>Рукав 2 · Cipher B 1W ±2 (50%)</span>
+              <span class="pill" id="sleeve2-pill">—</span>
+            </div>
+            <div class="sleeve-detail" id="sleeve2-detail">—</div>
+            <div class="mini-progress"><div id="sleeve2-bar" style="width:0%; background:var(--blue);"></div></div>
+          </div>
         </div>
-        <div class="check-list" id="cbpool-list"></div>
-        <div class="muted" style="font-size:11.5px; line-height:1.45;">
-          Дисклеймер: за тестом 50 пар на 2016–2026 лише тижневі «малі зелені» крапки (<code>wt1 &gt; wt2</code> на закритті тижня) обійшли DCA на обох 3-річних половинах і на 59 ковзних 6-річних вікнах (Пара #3: медіана 4.76×, XIRR 26.2%; Пара #4: 5.78×, XIRR 19.1% проти DCA 4.24×). Загальна кореляція рангів пар між половинами відʼємна (-0.27); виконувати суворо для пулу внесків по закриттю тижня.
-        </div>
-      </div>
-    </div>
 
-    <!-- Discovered Strategy Patterns (Zero-Lookahead Backtest 2017-2026) -->
-    <div class="card">
-      <div class="card-hdr">
-        <div class="card-title">Потенційні патерни для майбутніх угод (Бектест 2017–2026)</div>
-        <div class="pat-tabs" id="pat-tabs">
-          <button class="pat-tab active" data-fam="ALL" type="button">Усі (7)</button>
-          <button class="pat-tab" data-fam="Hybrid" type="button">Гібрид (3)</button>
-          <button class="pat-tab" data-fam="BTCBRI" type="button">BTCBRI (2)</button>
-          <button class="pat-tab" data-fam="Cipher B" type="button">Cipher B (2)</button>
-        </div>
-      </div>
-      <div class="bench-strip" id="pat-bench-strip">
-        <span>Завантаження результатів бектесту...</span>
-      </div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Патерн та правило</th>
-              <th>2018–26 (2 цикли)</th>
-              <th>MaxDD / Calmar</th>
-              <th>Цикл 1 / Цикл 2 · 4р Calmar</th>
-              <th>Пул 6р (vs DCA)</th>
-              <th>Живий сигнал і наступний тригер</th>
-            </tr>
-          </thead>
-          <tbody id="pat-table-body">
-            <tr><td colspan="6" class="muted">Завантаження патернів...</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="muted" style="font-size:11.5px; line-height:1.45; margin-top:12px;">
-        Zero-Lookahead аудит: тижневі свічки Kraken (<code>cipherb_btcusdt_1w.json</code>, четвергові бари) закриваються у середу (+6 днів) і стають видимими строго після закриття середи; ордери виконуються на <code>t+1</code> закритті з комісією 0.5% за сторону. Контрольний тест денних дивергенцій (<code>1D</code>) показав лише 1.41× (Calmar 0.06), що підтверджує перевагу тижневих та гібридних правил. Історична прибутковість не гарантує майбутніх результатів.
-      </div>
-    </div>
-
-    <!-- Entry Price & Capital Calculator -->
-    <div class="card">
-      <div class="card-hdr">
-        <div class="card-title">Калькулятор ціни точки входу (BRI &lt; 20) та алокації капіталу</div>
-        <span class="muted">Базується на <code>zone_forecast</code> та актуальній вартості мережі</span>
-      </div>
-
-      <div class="calc-controls">
-        <div class="field">
-          <label for="calc-capital">Ваш капітал (USDT / USD)</label>
-          <input type="number" id="calc-capital" value="10000" min="100" step="100" />
-        </div>
-        <div class="field">
-          <label for="calc-target-bri">Цільовий поріг входу BTCBRI: <strong id="calc-target-bri-val">20</strong></label>
-          <input type="range" id="calc-target-bri" min="10" max="30" value="20" step="1" />
-        </div>
-        <div class="field">
-          <label>Оцінена ціна входу для BRI = <span id="calc-bri-echo">20</span></label>
-          <div class="kpi" style="padding:9px 12px;">
-            <span id="calc-est-price" style="font-size:18px;font-weight:800;color:var(--green);">—</span>
-            <span id="calc-est-pct" class="muted" style="margin-left:8px;">—</span>
+        <!-- BRI Risk Scale -->
+        <div class="bri-scale-wrap">
+          <div class="bri-scale-top">
+            <span><strong>Позиція індексу BTCBRI:</strong> <span id="scale-bri-val">—</span> / 100 (<span id="scale-phase-val">—</span>)</span>
+            <span class="muted" id="scale-raw-util">Raw utility: —</span>
+          </div>
+          <div class="bri-track">
+            <div class="bri-marker" id="bri-marker" style="left:50%;"></div>
+          </div>
+          <div class="bri-ticks">
+            <span>0 · Дно</span>
+            <span>20 · Глибоке дно</span>
+            <span>35 · Набір</span>
+            <span>65 · Ріст</span>
+            <span>85+ · Trailing Пік</span>
           </div>
         </div>
       </div>
 
-      <table>
-        <thead>
-          <tr>
-            <th>Рівень / Транш</th>
-            <th>Умова спрацювання</th>
-            <th>Цільова ціна BTC</th>
-            <th>Сума ($)</th>
-            <th>Обсяг (BTC)</th>
-            <th>Статус</th>
-          </tr>
-        </thead>
-        <tbody id="calc-table-body"></tbody>
-      </table>
+      <!-- Right: 2x2 Key KPIs + 3-Trigger Traffic Light -->
+      <div class="card hero-right">
+        <div class="kpi-2x2">
+          <div class="kpi">
+            <div class="kpi-label">BTC Live (Binance)</div>
+            <div class="kpi-val" id="kpi-price">—</div>
+            <div class="kpi-sub" id="kpi-ma200w">200W MA: —</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Ціна входу (BRI &lt; 20)</div>
+            <div class="kpi-val" id="kpi-entry20" style="color:var(--green);">—</div>
+            <div class="kpi-sub" id="kpi-realized">Realized: —</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Forward Risk (365d)</div>
+            <div class="kpi-val" id="kpi-forward">—</div>
+            <div class="kpi-sub" id="kpi-conf">Впевненість: —</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">1W WaveTrend (wt1−wt2)</div>
+            <div class="kpi-val" id="kpi-wt">—</div>
+            <div class="kpi-sub" id="kpi-wscore">1W Score: —</div>
+          </div>
+        </div>
+
+        <div class="triggers-box">
+          <div class="triggers-head">
+            <span>Світлофор підтвердження розвороту</span>
+            <span class="pill" id="triggers-count-pill">0 / 3</span>
+          </div>
+          <div class="trigger-row">
+            <span><strong>Spot ETF потік</strong> <span class="muted" id="trig-etf-val">(—)</span></span>
+            <span class="pill" id="trig-etf-pill">—</span>
+          </div>
+          <div class="trigger-row">
+            <span><strong>aSOPR ≥ 1.00</strong> <span class="muted" id="trig-asopr-val">(—)</span></span>
+            <span class="pill" id="trig-asopr-pill">—</span>
+          </div>
+          <div class="trigger-row">
+            <span><strong>Cipher B імпульс</strong> <span class="muted" id="trig-cb-val">(1W / 1D)</span></span>
+            <span class="pill" id="trig-cb-pill">—</span>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- Exit Ladder -->
-    <div class="card">
-      <div class="card-hdr">
-        <div class="card-title">Сітка виходу (Exit Ladder)</div>
-        <span class="muted" id="exit-status">Поточний стан: —</span>
-      </div>
-      <table>
-        <thead>
-          <tr>
-            <th>Зона BTCBRI</th>
-            <th>Частка фіксації</th>
-            <th>Підтвердження</th>
-            <th>Статус зараз</th>
-          </tr>
-        </thead>
-        <tbody id="exit-table-body"></tbody>
-      </table>
+    <!-- MAIN WORKSPACE TABS -->
+    <div class="workspace-tabs" id="workspace-tabs" role="tablist">
+      <button class="ws-tab active" data-tab="plan" type="button">
+        План дій &amp; Калькулятор
+      </button>
+      <button class="ws-tab" data-tab="patterns" type="button">
+        Патерни (2017–2026) <span class="tab-badge" id="tab-pat-count">7</span>
+      </button>
+      <button class="ws-tab" data-tab="ai" type="button">
+        ШІ-Звіт <span class="tab-badge" id="tab-ai-badge">…</span>
+      </button>
+      <button class="ws-tab" data-tab="metrics" type="button">
+        Метрики (On-Chain / Macro)
+      </button>
     </div>
 
-    <!-- AI Report & Prompt Studio -->
-    <div class="card">
-      <div class="card-hdr">
-        <div class="card-title">ШІ-звіт та експорт контекст-пакета</div>
-        <span class="pill" id="ai-cache-pill">Перевірка...</span>
+    <!-- TAB 1: PLAN & CALCULATOR -->
+    <div class="tab-panel active" id="panel-plan">
+      <div class="card">
+        <div class="card-hdr">
+          <div class="card-title">Обери торговий режим (горизонт 1–3 роки)</div>
+          <span class="muted">Детерміновані правила на основі живого <code>data.json</code></span>
+        </div>
+
+        <div class="mode-switcher" id="mode-switcher">
+          <button class="mode-card active" data-mode="tranche" type="button">
+            <div class="mode-card-top">
+              <span class="mode-card-title">1. Мульти-транш (4 транші)</span>
+              <span class="pill" id="tranche-verdict">—</span>
+            </div>
+            <div class="mode-card-sub">Плавний набір 30% / 30% / 25% / 15%</div>
+          </button>
+          <button class="mode-card" data-mode="single" type="button">
+            <div class="mode-card-top">
+              <span class="mode-card-title">2. 1-Ордер (Dual-Trigger)</span>
+              <span class="pill" id="single-verdict">—</span>
+            </div>
+            <div class="mode-card-sub">100% на капітуляції або 2/3 підтверджень</div>
+          </button>
+          <button class="mode-card" data-mode="cbpool" type="button">
+            <div class="mode-card-top">
+              <span class="mode-card-title">3. Cipher B Weekly Pool</span>
+              <span class="pill" id="cbpool-verdict">—</span>
+            </div>
+            <div class="mode-card-sub">Пул внесків · Дослідження 2016–2026</div>
+          </button>
+        </div>
+
+        <div class="check-list" id="active-mode-list"></div>
+        <div class="muted" id="active-mode-note" style="margin-top:10px; line-height:1.45;"></div>
       </div>
 
-      <div class="ai-toolbar">
-        <button class="btn btn-primary" id="btn-regen-openrouter" type="button">↻ Перегенерувати ШІ-звіт</button>
-        <button class="btn btn-green" id="btn-gen-local" type="button">Системний звіт (0₴)</button>
-        <button class="btn" id="btn-copy-prompt" type="button">Скопіювати Prompt + Дані</button>
-        <button class="btn" id="btn-dl-package" type="button">Завантажити .md пакет</button>
-        <button class="btn" id="btn-dl-json" type="button">Завантажити data.json</button>
-      </div>
+      <div class="plan-bottom-grid">
+        <!-- Capital Calculator -->
+        <div class="card">
+          <div class="card-hdr">
+            <div class="card-title">Калькулятор капіталу та ордерів</div>
+            <span class="muted">Інтерполяція від <code>zone_forecast</code></span>
+          </div>
 
-      <div class="ai-output" id="ai-output">Завантаження актуального ШІ-звіту...</div>
+          <div class="calc-controls">
+            <div class="field">
+              <label for="calc-capital">Ваш капітал (USDT / USD)</label>
+              <input type="number" id="calc-capital" value="10000" min="100" step="100" />
+            </div>
+            <div class="field">
+              <label for="calc-target-bri">Цільовий поріг BRI: <strong id="calc-target-bri-val">20</strong> → <span id="calc-est-price" style="color:var(--green);">—</span> <span id="calc-est-pct"></span></label>
+              <input type="range" id="calc-target-bri" min="10" max="30" value="20" step="1" />
+            </div>
+          </div>
+
+          <div class="calc-summary">
+            <div class="calc-sum-box">
+              <div class="kpi-label">Задіяти зараз (V5)</div>
+              <div class="calc-sum-val" style="color:var(--green);" id="calc-now-usd">—</div>
+            </div>
+            <div class="calc-sum-box">
+              <div class="kpi-label">Обсяг BTC зараз</div>
+              <div class="calc-sum-val" id="calc-now-btc">—</div>
+            </div>
+            <div class="calc-sum-box">
+              <div class="kpi-label">Кеш-резерв</div>
+              <div class="calc-sum-val" style="color:var(--muted);" id="calc-res-usd">—</div>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Транш</th>
+                  <th>Умова</th>
+                  <th>Ціна BTC</th>
+                  <th>Сума</th>
+                  <th>BTC</th>
+                  <th>Статус</th>
+                </tr>
+              </thead>
+              <tbody id="calc-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Exit Ladder -->
+        <div class="card">
+          <div class="card-hdr">
+            <div class="card-title">Сітка фіксації (Exit Ladder + Trailing)</div>
+            <span class="pill" id="exit-status-pill">—</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Зона BRI</th>
+                  <th>Частка</th>
+                  <th>Умова</th>
+                  <th>Статус</th>
+                </tr>
+              </thead>
+              <tbody id="exit-table-body"></tbody>
+            </table>
+          </div>
+          <div class="muted" style="margin-top:12px; line-height:1.45;">
+            Порада V5: під час параболічного росту не продавайте 100% на першому дотику <code>BRI ≥ 80</code> — дочекайтесь армування <strong>Trailing Peak (BRI ≥ 85, відкат −15 п.)</strong> або тижневого розвороту <code>1W (wt2 − wt1) ≥ +2</code>.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: BACKTESTED PATTERNS -->
+    <div class="tab-panel" id="panel-patterns">
+      <div class="card">
+        <div class="card-hdr">
+          <div class="card-title">Потенційні патерни для майбутніх угод (Бектест 2017–2026)</div>
+          <div class="pat-tabs" id="pat-tabs">
+            <button class="pat-tab active" data-fam="ALL" type="button">Усі (7)</button>
+            <button class="pat-tab" data-fam="Hybrid" type="button">Гібрид (3)</button>
+            <button class="pat-tab" data-fam="BTCBRI" type="button">BTCBRI (2)</button>
+            <button class="pat-tab" data-fam="Cipher B" type="button">Cipher B (2)</button>
+          </div>
+        </div>
+        <div class="bench-strip" id="pat-bench-strip">
+          <span>Завантаження результатів бектесту...</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Патерн та правило</th>
+                <th>2018–26 (2 цикли)</th>
+                <th>MaxDD / Calmar</th>
+                <th>Цикл 1 / 2 · 4р Calmar</th>
+                <th>Пул 6р (vs DCA)</th>
+                <th>Живий сигнал і тригер</th>
+              </tr>
+            </thead>
+            <tbody id="pat-table-body">
+              <tr><td colspan="6" class="muted">Завантаження патернів...</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="muted" style="margin-top:12px; line-height:1.45;">
+          Zero-Lookahead аудит: тижневі свічки Kraken (четвергові бари) стають доступними строго на закритті середи (+6 днів); ордери виконуються на <code>t+1</code> із комісією 0.5% за сторону. Контрольний тест денних дивергенцій (<code>1D</code>) показав лише 1.41× (Calmar 0.06). Історична прибутковість не гарантує майбутніх результатів.
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: AI REPORT -->
+    <div class="tab-panel" id="panel-ai">
+      <div class="card">
+        <div class="card-hdr">
+          <div class="card-title">ШІ-звіт та експорт аналітичного контексту</div>
+          <span class="pill" id="ai-cache-pill">Перевірка...</span>
+        </div>
+
+        <div class="ai-toolbar">
+          <button class="btn btn-primary" id="btn-regen-openrouter" type="button">↻ Перегенерувати ШІ-звіт</button>
+          <button class="btn btn-green" id="btn-gen-local" type="button">Системний звіт (0₴)</button>
+          <button class="btn" id="btn-copy-prompt" type="button">Копіювати Prompt + Дані</button>
+          <button class="btn" id="btn-dl-package" type="button">Завантажити .md</button>
+          <button class="btn" id="btn-dl-json" type="button">Завантажити data.json</button>
+        </div>
+
+        <div class="ai-output" id="ai-output">Завантаження актуального ШІ-звіту...</div>
+      </div>
+    </div>
+
+    <!-- TAB 4: METRICS BREAKDOWN -->
+    <div class="tab-panel" id="panel-metrics">
+      <div class="card">
+        <div class="card-hdr">
+          <div class="card-title">Деталізація кошиків індексу (On-Chain · Tech · Macro)</div>
+          <span class="muted">Сирі значення та нормалізовані бали 0–100 з останнього зрізу</span>
+        </div>
+        <div class="baskets-grid" id="baskets-grid"></div>
+      </div>
     </div>
   </div>
 
@@ -526,6 +1035,8 @@
   <script>
     let DATA = null;
     let PATTERNS = null;
+    let ACTIVE_TAB = 'plan';
+    let ACTIVE_MODE = 'tranche';
     let ACTIVE_PAT_FAM = 'ALL';
     let LIVE_PRICE = null;
 
@@ -539,6 +1050,10 @@
       setTimeout(() => { t.style.display = 'none'; }, 2800);
     }
 
+    function escHtml(str) {
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
     // Theme toggle
     const savedTheme = localStorage.getItem('btcbri_trade_theme') || 'dark';
     document.documentElement.setAttribute('data-theme', savedTheme);
@@ -549,15 +1064,30 @@
       localStorage.setItem('btcbri_trade_theme', next);
     });
 
+    // Main workspace tabs
+    $('workspace-tabs').addEventListener('click', e => {
+      const btn = e.target.closest('.ws-tab');
+      if (!btn) return;
+      ACTIVE_TAB = btn.dataset.tab;
+      $('workspace-tabs').querySelectorAll('.ws-tab').forEach(b => b.classList.toggle('active', b === btn));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + ACTIVE_TAB));
+    });
+
+    // Trading mode sub-tabs
+    $('mode-switcher').addEventListener('click', e => {
+      const btn = e.target.closest('.mode-card');
+      if (!btn) return;
+      ACTIVE_MODE = btn.dataset.mode;
+      $('mode-switcher').querySelectorAll('.mode-card').forEach(b => b.classList.toggle('active', b === btn));
+      renderActiveModeDetails();
+    });
+
     async function loadPatterns() {
       const urls = ['strategy_patterns.json?t=' + Date.now(), 'https://btcbri.com/strategy_patterns.json?t=' + Date.now()];
       for (const u of urls) {
         try {
           const r = await fetch(u);
-          if (r.ok) {
-            PATTERNS = await r.json();
-            break;
-          }
+          if (r.ok) { PATTERNS = await r.json(); break; }
         } catch (_) {}
       }
       renderPatterns();
@@ -568,10 +1098,7 @@
       for (const u of urls) {
         try {
           const r = await fetch(u);
-          if (r.ok) {
-            DATA = await r.json();
-            break;
-          }
+          if (r.ok) { DATA = await r.json(); break; }
         } catch (_) {}
       }
       if (!DATA) {
@@ -591,7 +1118,10 @@
         .then(d => {
           if (d && d.price) {
             LIVE_PRICE = parseFloat(d.price);
-            if (DATA) renderKPIs();
+            if (DATA) {
+              renderHeroAndKPIs();
+              renderCalculator();
+            }
           }
         }).catch(() => {});
     }
@@ -601,6 +1131,7 @@
       const rawUtil = DATA.computed?.raw_utility_score ?? bri;
       const spot = LIVE_PRICE || DATA.btc_price;
       const wma200 = DATA.ma_context?.wma_200 || null;
+      const dma200 = DATA.ma_context?.dma_200 || null;
       const nupl = DATA.nupl;
       const cvdd = DATA.cvdd_ratio;
       const asopr = DATA.asopr;
@@ -609,6 +1140,8 @@
       const cb = DATA.metrics?.cipherb?.value || {};
       const wt1 = cb.wt1;
       const wt2 = cb.wt2;
+      const wtSpread = (wt1 != null && wt2 != null) ? Number((wt1 - wt2).toFixed(2)) : null;
+      const wScore = cb.weekly_score ?? null;
       const dailyBullDiv = !!(cb.daily_fast_bullish_div || cb.daily_bullish_div);
       const zf = DATA.zone_forecast || {};
       const entry20 = zf.buy?.price || null;
@@ -616,186 +1149,17 @@
       const forward = DATA.forward_risk ?? DATA.v5b_score;
       const forwardValid = DATA.forward_risk_validated ?? DATA.v5b_validated;
       const fg = DATA.fear_greed;
-      return { bri, rawUtil, spot, wma200, nupl, cvdd, asopr, puell, etf, wt1, wt2, dailyBullDiv, entry20, realized, forward, forwardValid, fg };
-    }
-
-    function renderKPIs() {
-      const s = getMetricsState();
-      $('kpi-price').textContent = fmtUSD(s.spot);
-      if (s.wma200) {
-        const diff = ((s.spot / s.wma200) - 1) * 100;
-        $('kpi-ma200w').textContent = `200W MA: ${fmtUSD(s.wma200)} (${diff >= 0 ? '+' : ''}${diff.toFixed(1)}%)`;
-      }
-      $('kpi-bri').textContent = `${s.bri} / 100`;
-      $('kpi-bri').style.color = s.bri <= 25 ? 'var(--green)' : s.bri >= 65 ? 'var(--red)' : 'var(--amber)';
-      const allocPct = DATA.target_allocation_pct ?? DATA.allocation_signal?.target_allocation_pct;
-      const allocTxt = allocPct != null ? ` · Ціль: ${allocPct}% BTC (V5)` : '';
-      $('kpi-raw-util').textContent = `Raw utility: ${s.rawUtil} · Режим: ${DATA.market_regime || '—'}${allocTxt}`;
-      $('kpi-entry20').textContent = fmtUSD(s.entry20);
-      if (s.entry20 && s.spot) {
-        const pct = ((s.entry20 / s.spot) - 1) * 100;
-        $('kpi-realized').textContent = `${pct.toFixed(1)}% від поточної · Realized: ${fmtUSD(s.realized)}`;
-      }
-      $('kpi-forward').textContent = s.forward != null ? s.forward.toFixed(1) + '%' : '—';
-      $('kpi-phase').textContent = `Фаза: ${DATA.phase?.phase || '—'} · Conf: ${DATA.confidence_score ?? '—'}`;
-      $('kpi-etf').textContent = s.etf != null ? `${s.etf >= 0 ? '+' : ''}${s.etf.toFixed(1)}M` : '—';
-      $('kpi-etf').style.color = s.etf >= 0 ? 'var(--green)' : 'var(--red)';
-      $('kpi-asopr').textContent = `aSOPR: ${s.asopr != null ? s.asopr.toFixed(4) : '—'} · F&G: ${s.fg ?? '—'}`;
-
-      const dt = DATA.timestamp ? new Date(DATA.timestamp).toLocaleString('uk-UA') : DATA.date;
-      $('pill-updated').textContent = `Дані: ${dt}`;
-      const dq = DATA.data_quality || {};
-      $('pill-quality').textContent = `Якість: ${dq.active_metrics}/${dq.total_metrics} (${dq.quality_pct}%)`;
-      $('pill-quality').className = 'pill ' + (dq.quality_pct >= 90 ? 'green' : 'amber');
-      $('pill-validated').textContent = s.forwardValid ? 'Outlook: валідований' : 'Outlook: не валідований';
-      $('pill-validated').className = 'pill ' + (s.forwardValid ? 'blue' : 'amber');
-    }
-
-    function renderRecommendations() {
-      const s = getMetricsState();
-      // Mode 1: Multi-tranche
-      const t1 = s.bri <= 25 && (!s.wma200 || s.spot < s.wma200) && (s.cvdd == null || s.cvdd <= 1.25);
-      const t2 = s.bri <= 20 || (s.nupl != null && s.nupl <= 2);
-      const t3 = s.bri <= 15 || (s.cvdd != null && s.cvdd <= 1.05) || (s.puell != null && s.puell < 0.55);
-      const etfOk = s.etf != null && s.etf >= 0;
-      const asoprOk = s.asopr != null && s.asopr >= 1.0;
-      const momOk = (s.wt1 != null && s.wt2 != null && s.wt1 > s.wt2) || s.dailyBullDiv;
-      const confCount = [etfOk, asoprOk, momOk].filter(Boolean).length;
-      const t4 = s.bri <= 32 && confCount >= 2;
-
-      $('tranche-verdict').textContent = t1 ? 'BUY 30% ЗАРАЗ' : 'WAIT';
-      $('tranche-verdict').className = 'pill ' + (t1 ? 'green' : 'amber');
-      $('tranche-list').innerHTML = `
-        <div class="check-item"><span><strong>Транш 1 (30%):</strong> BRI ≤ 25 &lt; 200W MA, CVDD ≤ 1.25</span><span class="pill ${t1 ? 'green' : 'amber'}">${t1 ? 'АКТИВНИЙ' : 'Очікування'}</span></div>
-        <div class="check-item"><span><strong>Транш 2 (30%):</strong> BRI ≤ 20 (${fmtUSD(s.entry20)}) або NUPL ≤ 2%</span><span class="pill ${t2 ? 'green' : ''}">${t2 ? 'АКТИВНИЙ' : 'Ліміт ' + fmtUSD(s.entry20)}</span></div>
-        <div class="check-item"><span><strong>Транш 3 (25%):</strong> Капітуляція (BRI ≤ 15 / CVDD ≤ 1.05)</span><span class="pill ${t3 ? 'green' : ''}">${t3 ? 'АКТИВНИЙ' : 'Резерв'}</span></div>
-        <div class="check-item"><span><strong>Транш 4 (15%):</strong> Підтвердження попиту (${confCount}/3)</span><span class="pill ${t4 ? 'green' : ''}">${t4 ? 'АКТИВНИЙ' : confCount + '/3 умов'}</span></div>
-      `;
-
-      // Mode 2: Single-shot Dual-Trigger
-      const trigA = s.bri <= 19 && ((s.nupl != null && s.nupl <= 2) || (s.cvdd != null && s.cvdd <= 1.08));
-      const trigB = s.bri <= 32 && confCount >= 2;
-      const singleAction = trigA ? 'BUY 100% (Тригер А)' : trigB ? 'BUY 100% (Тригер Б)' : 'WAIT (Тримати 100% кеш)';
-      $('single-verdict').textContent = singleAction;
-      $('single-verdict').className = 'pill ' + ((trigA || trigB) ? 'green' : 'amber');
-      $('single-list').innerHTML = `
-        <div class="check-item"><span><strong>Тригер А (Дно):</strong> BRI ≤ 19 та (NUPL ≤ 2% / CVDD ≤ 1.08)</span><span class="pill ${trigA ? 'green' : ''}">${trigA ? 'СПРАЦЮВАВ' : 'Немає'}</span></div>
-        <div class="check-item"><span><strong>Тригер Б1 (ETF):</strong> Приплив Spot ETF ≥ $0 (${s.etf != null ? s.etf.toFixed(1) + 'M' : '—'})</span><span class="pill ${etfOk ? 'green' : 'red'}">${etfOk ? 'ОК' : 'Відтік'}</span></div>
-        <div class="check-item"><span><strong>Тригер Б2 (aSOPR):</strong> aSOPR ≥ 1.00 (${s.asopr != null ? s.asopr.toFixed(4) : '—'})</span><span class="pill ${asoprOk ? 'green' : 'red'}">${asoprOk ? 'ОК' : 'Збитки'}</span></div>
-        <div class="check-item"><span><strong>Тригер Б3 (Імпульс):</strong> Розворот Cipher B / дивергенція</span><span class="pill ${momOk ? 'green' : 'amber'}">${momOk ? 'Сигнал є' : 'Спадає'}</span></div>
-      `;
-
-      // Mode 3: Cipher B Weekly Pool (2016-2026 study)
-      const cbRaw = DATA.metrics?.cipherb?.value || {};
-      const wp = cbRaw.weekly_pool || {};
-      const wtSpread = wp.wt_spread ?? ((s.wt1 != null && s.wt2 != null) ? Number((s.wt1 - s.wt2).toFixed(2)) : null);
-      const smallGreenNow = wp.small_green_now ?? false;
-      const p3State = wp.pair3?.state || (wtSpread != null && wtSpread > 0 ? 'HOLD_BTC' : 'ACCUMULATE_CASH_POOL');
-      const p4State = wp.pair4?.state || (wtSpread != null && wtSpread > 0 ? 'HOLD_BTC' : 'ACCUMULATE_CASH_POOL');
-      const isBuyNow = smallGreenNow || (wtSpread != null && wtSpread > 0);
-      const synergyReady = s.bri <= 30 && smallGreenNow;
-
-      $('cbpool-verdict').textContent = smallGreenNow
-        ? 'BUY POOL (Тижнева мала зелена!)'
-        : (p3State === 'HOLD_BTC' ? 'HOLD BTC (Чекати виходу)' : 'НАКОПИЧУВАТИ ПУЛ КЕШУ');
-      $('cbpool-verdict').className = 'pill ' + (smallGreenNow ? 'green' : (p3State === 'HOLD_BTC' ? 'blue' : 'amber'));
-
-      const fmtState = st => st === 'HOLD_BTC' ? 'Тримати BTC (HOLD)' : 'Копити кеш-пул';
-      $('cbpool-list').innerHTML = `
-        <div class="check-item"><span><strong>Пара #3 (4.76×, XIRR 26.2%):</strong> Тижн. мала зелена → мала червона</span><span class="pill ${p3State === 'HOLD_BTC' ? 'blue' : 'amber'}">${fmtState(p3State)}</span></div>
-        <div class="check-item"><span><strong>Пара #4 (5.78×, XIRR 19.1%):</strong> Тижн. мала зелена → тижн. Div A bear</span><span class="pill ${p4State === 'HOLD_BTC' ? 'blue' : 'amber'}">${fmtState(p4State)}</span></div>
-        <div class="check-item"><span><strong>Тижневий WaveTrend (wt1 − wt2):</strong> ${s.wt1 != null ? s.wt1.toFixed(1) : '—'} − ${s.wt2 != null ? s.wt2.toFixed(1) : '—'} = <strong>${wtSpread != null ? (wtSpread >= 0 ? '+' : '') + wtSpread : '—'}</strong></span><span class="pill ${isBuyNow ? 'green' : 'amber'}">${smallGreenNow ? 'ПЕРЕТИН ВГОРУ!' : 'Чекати wt1 > wt2'}</span></div>
-        <div class="check-item"><span><strong>Синергія BTCBRI ≤ 30 + Тижнева мала зелена:</strong> BRI=${s.bri} (${s.bri <= 30 ? '✅' : '❌'}) + Перетин (${smallGreenNow ? '✅' : '⏳'})</span><span class="pill ${synergyReady ? 'green' : ''}">${synergyReady ? 'ПОВНИЙ ЗБІГ!' : 'Очікується перетин'}</span></div>
-      `;
-
-      // V5 Dual-Sleeve Engine Summary Banner (when allocation_signal present)
-      const alloc = DATA.allocation_signal;
-      let v5Banner = $('v5-engine-banner');
-      if (!v5Banner) {
-        v5Banner = document.createElement('div');
-        v5Banner.id = 'v5-engine-banner';
-        v5Banner.className = 'bench-strip';
-        v5Banner.style.marginTop = '14px';
-        v5Banner.style.marginBottom = '0';
-        $('cbpool-list').parentElement.parentElement.appendChild(v5Banner);
-      }
-      if (alloc) {
-        const armedTxt = alloc.trailing_armed ? `ARMED (пік ${alloc.trailing_peak_bri}, стоп ≤ ${alloc.trailing_exit_trigger})` : 'не активовано';
-        v5Banner.innerHTML = `
-          <span><strong>BTCBRI V5 Dual-Sleeve Engine:</strong> Цільова алокація <strong>${alloc.target_allocation_pct}% BTC</strong> (<code>${escHtml(alloc.action_label)}</code>)</span>
-          <span>Рукав BTCBRI: <strong>${alloc.bri_sleeve_pct}%</strong> · Рукав Cipher B 1W (±2): <strong>${alloc.cipherb_sleeve_pct}%</strong></span>
-          <span>TiZ(BRI≤25): <strong>${alloc.tiz_le25_days}д</strong> ${alloc.tiz_confirmed ? '✅' : '⏳'} · Trailing: <strong>${armedTxt}</strong></span>
-        `;
-      } else {
-        v5Banner.style.display = 'none';
-      }
-    }
-
-    function estimatePriceForBri(targetBri) {
-      const s = getMetricsState();
-      if (!s.spot || !s.entry20 || s.bri == null) return s.entry20 || s.spot;
-      if (targetBri === 20) return s.entry20;
-      if (targetBri === s.bri) return s.spot;
-      // Linear log-price interpolation anchored at (s.bri -> s.spot) and (20 -> s.entry20)
-      const denom = (s.bri - 20) || 4;
-      const slope = (Math.log(s.spot) - Math.log(s.entry20)) / denom;
-      return Math.round(s.entry20 * Math.exp(slope * (targetBri - 20)));
-    }
-
-    function renderCalculator() {
-      const s = getMetricsState();
-      const cap = Math.max(0, parseFloat($('calc-capital').value) || 10000);
-      const targetBri = parseInt($('calc-target-bri').value, 10) || 20;
-      $('calc-target-bri-val').textContent = targetBri;
-      $('calc-bri-echo').textContent = targetBri;
-
-      const estPrice = estimatePriceForBri(targetBri);
-      $('calc-est-price').textContent = fmtUSD(estPrice);
-      if (estPrice && s.spot) {
-        const pct = ((estPrice / s.spot) - 1) * 100;
-        $('calc-est-pct').textContent = `(${pct >= 0 ? '+' : ''}${pct.toFixed(1)}% від споту)`;
-      }
-
-      const p15 = estimatePriceForBri(15);
-      const p20 = s.entry20 || estimatePriceForBri(20);
-      const rows = [
-        { name: 'Транш 1 (30%)', cond: 'BRI ≤ 25 &lt; 200W MA', price: s.spot, share: 0.30, active: s.bri <= 25 },
-        { name: `Транш 2 (30%) / 1-Ордер А`, cond: `BRI ≤ ${targetBri} (цільовий)`, price: estPrice, share: 0.30, active: s.bri <= targetBri },
-        { name: 'Транш 3 (25%)', cond: 'BRI ≤ 15 / Капітуляція', price: p15, share: 0.25, active: s.bri <= 15 },
-        { name: 'Транш 4 (15%)', cond: 'Підтвердження розвороту (2/3)', price: s.spot * 1.05, share: 0.15, active: false },
-      ];
-      $('calc-table-body').innerHTML = rows.map(r => {
-        const usd = cap * r.share;
-        const btc = r.price ? (usd / r.price) : 0;
-        return `<tr>
-          <td><strong>${r.name}</strong></td>
-          <td>${r.cond}</td>
-          <td class="num">${fmtUSD(r.price)}</td>
-          <td class="num">${fmtUSD(usd)}</td>
-          <td class="num">${btc.toFixed(4)} BTC</td>
-          <td><span class="pill ${r.active ? 'green' : ''}">${r.active ? 'Активно' : 'В черзі'}</span></td>
-        </tr>`;
-      }).join('');
-
-      // Exit ladder
-      const exitRows = [
-        { zone: '< 65', share: '0% (HOLD)', cond: 'Усередині бичачого циклу', active: s.bri < 65 },
-        { zone: '65 – 74', share: '20%', cond: 'NUPL > 55%, MVRV Z > 2.5', active: s.bri >= 65 && s.bri < 75 },
-        { zone: '75 – 84', share: '40%', cond: 'NUPL > 65%, перегрів RHODL/Funding', active: s.bri >= 75 && s.bri < 85 },
-        { zone: '≥ 85', share: '30% (+10% хвіст)', cond: 'Pi Cycle Cross або тижнева double_bearish_div', active: s.bri >= 85 },
-      ];
-      $('exit-status').textContent = `Поточний BTCBRI: ${s.bri} — ${s.bri < 65 ? 'Зона набору / HOLD' : 'Зона фіксації'}`;
-      $('exit-table-body').innerHTML = exitRows.map(r => `
-        <tr>
-          <td class="num">${r.zone}</td>
-          <td class="num">${r.share}</td>
-          <td>${r.cond}</td>
-          <td><span class="pill ${r.active ? 'blue' : ''}">${r.active ? 'Поточний режим' : 'Очікування'}</span></td>
-        </tr>
-      `).join('');
+      const alloc = DATA.allocation_signal || null;
+      const targetAlloc = DATA.target_allocation_pct ?? alloc?.target_allocation_pct ?? (bri <= 35 ? 50 : 0);
+      return {
+        bri, rawUtil, spot, wma200, dma200, nupl, cvdd, asopr, puell, etf,
+        wt1, wt2, wtSpread, wScore, dailyBullDiv, entry20, realized,
+        forward, forwardValid, fg, alloc, targetAlloc,
+      };
     }
 
     function computeLiveTizLe25() {
+      if (DATA?.allocation_signal?.tiz_le25_days != null) return DATA.allocation_signal.tiz_le25_days;
       const hist = Array.isArray(DATA?.score_history) ? DATA.score_history : [];
       if (hist.length > 0) {
         let streak = 0;
@@ -809,13 +1173,268 @@
       return PATTERNS?.latest_snapshot?.tiz_le25 ?? 0;
     }
 
+    function renderHeroAndKPIs() {
+      const s = getMetricsState();
+      const alloc = s.alloc || {
+        bri_sleeve_pct: s.bri <= 35 ? 50 : 0,
+        cipherb_sleeve_pct: (s.wtSpread != null && s.wtSpread >= 2) ? 50 : 0,
+        target_allocation_pct: s.targetAlloc,
+        action_label: s.bri <= 35 ? 'ACCUMULATE_50' : 'WAIT_CASH',
+        trailing_armed: false,
+        tiz_le25_days: computeLiveTizLe25(),
+        tiz_confirmed: computeLiveTizLe25() >= 21,
+      };
+
+      // Top bar & meta
+      $('nav-live-price').textContent = fmtUSD(s.spot);
+      const dt = DATA.timestamp ? new Date(DATA.timestamp).toLocaleString('uk-UA') : DATA.date;
+      $('meta-updated').textContent = `Зріз даних: ${dt}`;
+      $('pill-version').textContent = (DATA.bri_version || 'v5').toUpperCase() + ' Engine';
+      $('pill-version').className = 'pill accent';
+
+      const dq = DATA.data_quality || {};
+      $('pill-quality').textContent = `Дані: ${dq.active_metrics ?? '—'}/${dq.total_metrics ?? '—'} (${dq.quality_pct ?? '—'}%)`;
+      $('pill-quality').className = 'pill ' + ((dq.quality_pct || 0) >= 90 ? 'green' : 'amber');
+      $('pill-validated').textContent = s.forwardValid ? 'Outlook: валідований' : 'Outlook: не валідований';
+      $('pill-validated').className = 'pill ' + (s.forwardValid ? 'blue' : 'amber');
+
+      // Hero headline & allocation bar
+      const btcPct = alloc.target_allocation_pct;
+      const cashPct = Math.max(0, 100 - btcPct);
+      $('hero-alloc-headline').textContent = btcPct === 100
+        ? '100% BTC'
+        : (btcPct === 0 ? '100% КЕШ (WAIT)' : `${btcPct}% BTC / ${cashPct}% КЕШ`);
+
+      const regime = DATA.market_regime || 'Wait';
+      $('hero-regime-pill').textContent = `${regime} · ${alloc.action_label}`;
+      $('hero-regime-pill').className = 'pill ' + (regime === 'Buy' ? 'green' : regime === 'Sell' ? 'red' : regime === 'Hold' ? 'blue' : 'amber');
+
+      let subTxt = '';
+      if (alloc.bri_sleeve_pct > 0 && alloc.cipherb_sleeve_pct === 0) {
+        const need = s.wtSpread != null ? (2 - s.wtSpread).toFixed(1) : '—';
+        subTxt = `Оцінка циклу вже дешева (BRI = ${s.bri} ≤ 35), тому рукав BTCBRI тримає 50%. Інші 50% у кеші чекають розвороту тижневого Cipher B (wt1 − wt2 ≥ +2; зараз ${s.wtSpread ?? '—'}, до цілі +${need} п.).`;
+      } else if (alloc.bri_sleeve_pct > 0 && alloc.cipherb_sleeve_pct > 0) {
+        subTxt = `Обидва рукави підтверджені: низький ризик циклу (BRI = ${s.bri}) + позитивний тижневий імпульс Cipher B (wt1 − wt2 = +${s.wtSpread}).`;
+      } else if (alloc.trailing_armed) {
+        subTxt = `Увага: активовано Trailing Peak (пік ${alloc.trailing_peak_bri}). Фіксація спрацює при відкаті BRI ≤ ${alloc.trailing_exit_trigger}.`;
+      } else {
+        subTxt = `Обидва рукави у кеші. Очікується зниження BRI ≤ 35 або тижневий імпульс Cipher B (wt1 − wt2 ≥ +2).`;
+      }
+      $('hero-verdict-sub').textContent = subTxt;
+
+      $('alloc-lbl-btc').textContent = `У позиції BTC: ${btcPct}%`;
+      $('alloc-lbl-cash').textContent = `У кеш-резерві: ${cashPct}%`;
+      $('alloc-seg-bri').style.width = `${alloc.bri_sleeve_pct}%`;
+      $('alloc-seg-cb').style.width = `${alloc.cipherb_sleeve_pct}%`;
+
+      // Sleeves details
+      $('sleeve1-pill').textContent = alloc.bri_sleeve_pct > 0 ? 'АКТИВНИЙ (50%)' : 'КЕШ (0%)';
+      $('sleeve1-pill').className = 'pill ' + (alloc.bri_sleeve_pct > 0 ? 'green' : 'amber');
+      const tizDays = alloc.tiz_le25_days ?? computeLiveTizLe25();
+      $('sleeve1-detail').textContent = alloc.trailing_armed
+        ? `Trailing ARMED: пік ${alloc.trailing_peak_bri} → вихід ≤ ${alloc.trailing_exit_trigger}`
+        : `BRI=${s.bri} (вхід ≤35) · Серія TiZ(≤25): ${tizDays}/21 дн.`;
+      $('sleeve1-bar').style.width = `${Math.min(100, alloc.bri_sleeve_pct > 0 ? Math.max(20, (tizDays / 21) * 100) : 0)}%`;
+
+      $('sleeve2-pill').textContent = alloc.cipherb_sleeve_pct > 0 ? 'АКТИВНИЙ (50%)' : 'ОЧІКУВАННЯ (0%)';
+      $('sleeve2-pill').className = 'pill ' + (alloc.cipherb_sleeve_pct > 0 ? 'blue' : 'amber');
+      $('sleeve2-detail').textContent = s.wtSpread != null
+        ? `1W (wt1−wt2) = ${s.wtSpread >= 0 ? '+' : ''}${s.wtSpread} · Ціль: ≥ +2.0 на закритті середи`
+        : 'Немає тижневого спреду WaveTrend';
+      const cbPctProg = s.wtSpread != null ? Math.max(4, Math.min(100, ((s.wtSpread + 50) / 52) * 100)) : 0;
+      $('sleeve2-bar').style.width = `${cbPctProg}%`;
+
+      // Risk Scale
+      $('scale-bri-val').textContent = s.bri;
+      $('scale-phase-val').textContent = DATA.phase?.phase || '—';
+      $('scale-raw-util').textContent = `Raw utility: ${s.rawUtil}`;
+      $('bri-marker').style.left = `${Math.max(2, Math.min(98, s.bri))}%`;
+
+      // Right 2x2 KPIs
+      $('kpi-price').textContent = fmtUSD(s.spot);
+      if (s.wma200) {
+        const diff = ((s.spot / s.wma200) - 1) * 100;
+        $('kpi-ma200w').textContent = `200W MA: ${fmtUSD(s.wma200)} (${diff >= 0 ? '+' : ''}${diff.toFixed(1)}%)`;
+      }
+      $('kpi-entry20').textContent = fmtUSD(s.entry20);
+      if (s.entry20 && s.spot) {
+        const pct = ((s.entry20 / s.spot) - 1) * 100;
+        $('kpi-realized').textContent = `${pct.toFixed(1)}% · Realized ${fmtUSD(s.realized)}`;
+      }
+      $('kpi-forward').textContent = s.forward != null ? s.forward.toFixed(1) + '%' : '—';
+      $('kpi-conf').textContent = `Впевненість: ${DATA.confidence_score ?? '—'} · F&G: ${s.fg ?? '—'}`;
+      $('kpi-wt').textContent = s.wtSpread != null ? `${s.wtSpread >= 0 ? '+' : ''}${s.wtSpread}` : '—';
+      $('kpi-wt').style.color = s.wtSpread != null && s.wtSpread >= 2 ? 'var(--green)' : 'var(--amber)';
+      $('kpi-wscore').textContent = `1W Score: ${s.wScore != null ? s.wScore.toFixed(1) : '—'} (ціль пулу ≤25)`;
+
+      // 3-Trigger Traffic Light
+      const etfOk = s.etf != null && s.etf >= 0;
+      const asoprOk = s.asopr != null && s.asopr >= 1.0;
+      const momOk = (s.wtSpread != null && s.wtSpread > 0) || s.dailyBullDiv;
+      const cnt = [etfOk, asoprOk, momOk].filter(Boolean).length;
+
+      $('triggers-count-pill').textContent = `${cnt} / 3 ОК`;
+      $('triggers-count-pill').className = 'pill ' + (cnt >= 2 ? 'green' : cnt === 1 ? 'amber' : 'red');
+
+      $('trig-etf-val').textContent = s.etf != null ? `(${s.etf >= 0 ? '+' : ''}${s.etf.toFixed(1)}M)` : '(—)';
+      $('trig-etf-pill').textContent = etfOk ? 'Приплив' : 'Відтік';
+      $('trig-etf-pill').className = 'pill ' + (etfOk ? 'green' : 'red');
+
+      $('trig-asopr-val').textContent = s.asopr != null ? `(${s.asopr.toFixed(4)})` : '(—)';
+      $('trig-asopr-pill').textContent = asoprOk ? 'Прибуток' : 'Збитки';
+      $('trig-asopr-pill').className = 'pill ' + (asoprOk ? 'green' : 'red');
+
+      $('trig-cb-val').textContent = s.wtSpread != null ? `(1W: ${s.wtSpread})` : '(—)';
+      $('trig-cb-pill').textContent = momOk ? 'Є сигнал' : 'Спадає';
+      $('trig-cb-pill').className = 'pill ' + (momOk ? 'green' : 'amber');
+    }
+
+    function renderRecommendations() {
+      const s = getMetricsState();
+      const t1 = s.bri <= 25 && (!s.wma200 || s.spot < s.wma200) && (s.cvdd == null || s.cvdd <= 1.25);
+      const etfOk = s.etf != null && s.etf >= 0;
+      const asoprOk = s.asopr != null && s.asopr >= 1.0;
+      const momOk = (s.wtSpread != null && s.wtSpread > 0) || s.dailyBullDiv;
+      const confCount = [etfOk, asoprOk, momOk].filter(Boolean).length;
+
+      $('tranche-verdict').textContent = t1 ? 'BUY 30%' : 'WAIT';
+      $('tranche-verdict').className = 'pill ' + (t1 ? 'green' : 'amber');
+
+      const trigA = s.bri <= 19 && ((s.nupl != null && s.nupl <= 2) || (s.cvdd != null && s.cvdd <= 1.08));
+      const trigB = s.bri <= 32 && confCount >= 2;
+      $('single-verdict').textContent = (trigA || trigB) ? 'BUY 100%' : 'WAIT';
+      $('single-verdict').className = 'pill ' + ((trigA || trigB) ? 'green' : 'amber');
+
+      const cbRaw = DATA.metrics?.cipherb?.value || {};
+      const wp = cbRaw.weekly_pool || {};
+      const smallGreenNow = wp.small_green_now ?? false;
+      const p3State = wp.pair3?.state || (s.wtSpread != null && s.wtSpread > 0 ? 'HOLD_BTC' : 'ACCUMULATE_CASH_POOL');
+      $('cbpool-verdict').textContent = smallGreenNow ? 'BUY POOL' : (p3State === 'HOLD_BTC' ? 'HOLD BTC' : 'КОПИТИ КЕШ');
+      $('cbpool-verdict').className = 'pill ' + (smallGreenNow ? 'green' : p3State === 'HOLD_BTC' ? 'blue' : 'amber');
+
+      renderActiveModeDetails();
+    }
+
+    function renderActiveModeDetails() {
+      if (!DATA) return;
+      const s = getMetricsState();
+      const etfOk = s.etf != null && s.etf >= 0;
+      const asoprOk = s.asopr != null && s.asopr >= 1.0;
+      const momOk = (s.wtSpread != null && s.wtSpread > 0) || s.dailyBullDiv;
+      const confCount = [etfOk, asoprOk, momOk].filter(Boolean).length;
+      const list = $('active-mode-list');
+      const note = $('active-mode-note');
+
+      if (ACTIVE_MODE === 'tranche') {
+        const t1 = s.bri <= 25 && (!s.wma200 || s.spot < s.wma200) && (s.cvdd == null || s.cvdd <= 1.25);
+        const t2 = s.bri <= 20 || (s.nupl != null && s.nupl <= 2);
+        const t3 = s.bri <= 15 || (s.cvdd != null && s.cvdd <= 1.05) || (s.puell != null && s.puell < 0.55);
+        const t4 = s.bri <= 32 && confCount >= 2;
+        list.innerHTML = `
+          <div class="check-item"><span><strong>Транш 1 (30%):</strong> BRI ≤ 25 &lt; 200W MA, CVDD ≤ 1.25</span><span class="pill ${t1 ? 'green' : 'amber'}">${t1 ? 'АКТИВНИЙ' : 'Очікування'}</span></div>
+          <div class="check-item"><span><strong>Транш 2 (30%):</strong> BRI ≤ 20 (${fmtUSD(s.entry20)}) або NUPL ≤ 2%</span><span class="pill ${t2 ? 'green' : ''}">${t2 ? 'АКТИВНИЙ' : 'Ліміт ' + fmtUSD(s.entry20)}</span></div>
+          <div class="check-item"><span><strong>Транш 3 (25%):</strong> Капітуляція (BRI ≤ 15 / CVDD ≤ 1.05)</span><span class="pill ${t3 ? 'green' : ''}">${t3 ? 'АКТИВНИЙ' : 'Резерв'}</span></div>
+          <div class="check-item"><span><strong>Транш 4 (15%):</strong> Підтвердження попиту (${confCount}/3)</span><span class="pill ${t4 ? 'green' : ''}">${t4 ? 'АКТИВНИЙ' : confCount + '/3 умов'}</span></div>
+        `;
+        note.textContent = 'Рекомендовано для більшості інвесторів: зменшує ризик входу на «падаючому ножі» та усереднює ціну біля макро-дна.';
+      } else if (ACTIVE_MODE === 'single') {
+        const trigA = s.bri <= 19 && ((s.nupl != null && s.nupl <= 2) || (s.cvdd != null && s.cvdd <= 1.08));
+        list.innerHTML = `
+          <div class="check-item"><span><strong>Тригер А (Глибоке дно):</strong> BRI ≤ 19 та (NUPL ≤ 2% / CVDD ≤ 1.08)</span><span class="pill ${trigA ? 'green' : ''}">${trigA ? 'СПРАЦЮВАВ' : 'Немає'}</span></div>
+          <div class="check-item"><span><strong>Тригер Б1 (Spot ETF):</strong> Приплив ≥ $0 (${s.etf != null ? s.etf.toFixed(1) + 'M' : '—'})</span><span class="pill ${etfOk ? 'green' : 'red'}">${etfOk ? 'ОК' : 'Відтік'}</span></div>
+          <div class="check-item"><span><strong>Тригер Б2 (aSOPR):</strong> aSOPR ≥ 1.00 (${s.asopr != null ? s.asopr.toFixed(4) : '—'})</span><span class="pill ${asoprOk ? 'green' : 'red'}">${asoprOk ? 'ОК' : 'Збитки'}</span></div>
+          <div class="check-item"><span><strong>Тригер Б3 (Імпульс):</strong> Розворот Cipher B / дивергенція</span><span class="pill ${momOk ? 'green' : 'amber'}">${momOk ? 'Сигнал є' : 'Спадає'}</span></div>
+        `;
+        note.textContent = 'Вхід 100% капіталу відбувається лише при спрацюванні Тригера А (екстремальна капітуляція) або при BRI ≤ 32 та ≥ 2/3 підтверджень розвороту.';
+      } else {
+        const cbRaw = DATA.metrics?.cipherb?.value || {};
+        const wp = cbRaw.weekly_pool || {};
+        const smallGreenNow = wp.small_green_now ?? false;
+        const p3State = wp.pair3?.state || (s.wtSpread != null && s.wtSpread > 0 ? 'HOLD_BTC' : 'ACCUMULATE_CASH_POOL');
+        const p4State = wp.pair4?.state || (s.wtSpread != null && s.wtSpread > 0 ? 'HOLD_BTC' : 'ACCUMULATE_CASH_POOL');
+        const fmtState = st => st === 'HOLD_BTC' ? 'Тримати BTC' : 'Копити кеш-пул';
+        const synergyReady = s.bri <= 30 && smallGreenNow;
+        list.innerHTML = `
+          <div class="check-item"><span><strong>Пара #3 (4.76×, XIRR 26.2%):</strong> 1W мала зелена → мала червона</span><span class="pill ${p3State === 'HOLD_BTC' ? 'blue' : 'amber'}">${fmtState(p3State)}</span></div>
+          <div class="check-item"><span><strong>Пара #4 (5.78×, XIRR 19.1%):</strong> 1W мала зелена → 1W Bear Div A</span><span class="pill ${p4State === 'HOLD_BTC' ? 'blue' : 'amber'}">${fmtState(p4State)}</span></div>
+          <div class="check-item"><span><strong>1W WaveTrend (wt1 − wt2):</strong> ${s.wt1 != null ? s.wt1.toFixed(1) : '—'} − ${s.wt2 != null ? s.wt2.toFixed(1) : '—'} = <strong>${s.wtSpread != null ? (s.wtSpread >= 0 ? '+' : '') + s.wtSpread : '—'}</strong></span><span class="pill ${smallGreenNow ? 'green' : 'amber'}">${smallGreenNow ? 'ПЕРЕТИН ВГОРУ!' : 'Чекати wt1 > wt2'}</span></div>
+          <div class="check-item"><span><strong>Синергія BRI ≤ 30 + 1W зелена:</strong> BRI=${s.bri} (${s.bri <= 30 ? '✅' : '❌'}) + Перетин (${smallGreenNow ? '✅' : '⏳'})</span><span class="pill ${synergyReady ? 'green' : ''}">${synergyReady ? 'ПОВНИЙ ЗБІГ!' : 'Очікування'}</span></div>
+        `;
+        note.textContent = 'Дисклеймер: за дослідженням 2016–2026 лише тижневі «малі зелені» крапки (wt1 > wt2 на закритті тижня) стабільно обходили DCA; виконувати строго для пулу щомісячних внесків.';
+      }
+    }
+
+    function estimatePriceForBri(targetBri) {
+      const s = getMetricsState();
+      if (!s.spot || !s.entry20 || s.bri == null) return s.entry20 || s.spot;
+      if (targetBri === 20) return s.entry20;
+      if (targetBri === s.bri) return s.spot;
+      const denom = (s.bri - 20) || 4;
+      const slope = (Math.log(s.spot) - Math.log(s.entry20)) / denom;
+      return Math.round(s.entry20 * Math.exp(slope * (targetBri - 20)));
+    }
+
+    function renderCalculator() {
+      const s = getMetricsState();
+      const cap = Math.max(0, parseFloat($('calc-capital').value) || 10000);
+      const targetBri = parseInt($('calc-target-bri').value, 10) || 20;
+      $('calc-target-bri-val').textContent = targetBri;
+
+      const estPrice = estimatePriceForBri(targetBri);
+      $('calc-est-price').textContent = fmtUSD(estPrice);
+      if (estPrice && s.spot) {
+        const pct = ((estPrice / s.spot) - 1) * 100;
+        $('calc-est-pct').textContent = `(${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%)`;
+      }
+
+      const nowUsd = cap * (s.targetAlloc / 100);
+      const resUsd = Math.max(0, cap - nowUsd);
+      $('calc-now-usd').textContent = fmtUSD(nowUsd);
+      $('calc-now-btc').textContent = s.spot ? (nowUsd / s.spot).toFixed(4) + ' BTC' : '—';
+      $('calc-res-usd').textContent = fmtUSD(resUsd);
+
+      const p15 = estimatePriceForBri(15);
+      const rows = [
+        { name: 'Транш 1 (30%)', cond: 'BRI ≤ 25 &lt; 200W MA', price: s.spot, share: 0.30, active: s.bri <= 25 },
+        { name: 'Транш 2 (30%)', cond: `BRI ≤ ${targetBri} (ціль)`, price: estPrice, share: 0.30, active: s.bri <= targetBri },
+        { name: 'Транш 3 (25%)', cond: 'BRI ≤ 15 (дно)', price: p15, share: 0.25, active: s.bri <= 15 },
+        { name: 'Транш 4 (15%)', cond: 'Підтвердження (2/3)', price: s.spot * 1.05, share: 0.15, active: false },
+      ];
+      $('calc-table-body').innerHTML = rows.map(r => {
+        const usd = cap * r.share;
+        const btc = r.price ? (usd / r.price) : 0;
+        return `<tr>
+          <td><strong>${r.name}</strong></td>
+          <td>${r.cond}</td>
+          <td class="num">${fmtUSD(r.price)}</td>
+          <td class="num">${fmtUSD(usd)}</td>
+          <td class="num">${btc.toFixed(4)}</td>
+          <td><span class="pill ${r.active ? 'green' : ''}">${r.active ? 'Активно' : 'В черзі'}</span></td>
+        </tr>`;
+      }).join('');
+
+      const exitRows = [
+        { zone: '< 65', share: '0% (HOLD)', cond: 'Усередині бичачого циклу', active: s.bri < 65 },
+        { zone: '65 – 74', share: '20%', cond: 'NUPL > 55%, MVRV Z > 2.5', active: s.bri >= 65 && s.bri < 75 },
+        { zone: '75 – 84', share: '40%', cond: 'Перегрів + 1W wt1 < wt2', active: s.bri >= 75 && s.bri < 85 },
+        { zone: '≥ 85', share: '40% (Trail)', cond: 'Trailing пік ≥85 (−15 п.) / Pi Cross', active: s.bri >= 85 },
+      ];
+      $('exit-status-pill').textContent = s.bri < 65 ? `BRI ${s.bri} · HOLD / Набір` : `BRI ${s.bri} · Зона фіксації`;
+      $('exit-status-pill').className = 'pill ' + (s.bri < 65 ? 'blue' : 'amber');
+      $('exit-table-body').innerHTML = exitRows.map(r => `
+        <tr>
+          <td class="num">${r.zone}</td>
+          <td class="num">${r.share}</td>
+          <td>${r.cond}</td>
+          <td><span class="pill ${r.active ? 'blue' : ''}">${r.active ? 'Зараз' : 'Чекаємо'}</span></td>
+        </tr>
+      `).join('');
+    }
+
     function evaluatePatternLive(p) {
       const s = getMetricsState();
-      const cb = DATA?.metrics?.cipherb?.value || {};
-      const wt1 = s.wt1;
-      const wt2 = s.wt2;
-      const diff = (wt1 != null && wt2 != null) ? (wt1 - wt2) : PATTERNS?.latest_snapshot?.w_diff;
-      const wScore = cb.weekly_score ?? PATTERNS?.latest_snapshot?.w_score;
+      const diff = s.wtSpread ?? PATTERNS?.latest_snapshot?.w_diff;
+      const wScore = s.wScore ?? PATTERNS?.latest_snapshot?.w_score;
       const bri = s.bri;
       const tiz25 = computeLiveTizLe25();
       const spec = p.live_spec || {};
@@ -884,6 +1503,7 @@
         tbody.innerHTML = '<tr><td colspan="6" class="muted">Файл strategy_patterns.json ще не завантажено.</td></tr>';
         return;
       }
+      $('tab-pat-count').textContent = PATTERNS.top_patterns.length;
       const bh18 = PATTERNS.benchmarks?.buy_and_hold?.modern_2018;
       const dca6 = PATTERNS.benchmarks?.dca_monthly_6y;
       const dcaF = PATTERNS.benchmarks?.dca_monthly_full;
@@ -891,7 +1511,7 @@
         strip.innerHTML = `
           <span>Бенчмарк <strong>Buy &amp; Hold (2018–26): ${bh18.multiple}×</strong> (CAGR ${bh18.cagr_pct}%, MaxDD ${bh18.max_dd_pct}%, Calmar ${bh18.calmar})</span>
           <span>Бенчмарк <strong>DCA $100/міс: ${dca6.multiple}×</strong> (6р) / <strong>${dcaF?.multiple ?? '—'}×</strong> (9.3р)</span>
-          <span>Перевірено стратегій: <strong>${PATTERNS.methodology?.strategies_tested ?? '—'}</strong> · Ковзних 4р вікон: <strong>${PATTERNS.methodology?.rolling_4y_windows ?? '—'}</strong></span>
+          <span>Стратегій: <strong>${PATTERNS.methodology?.strategies_tested ?? '—'}</strong> · Ковзних 4р вікон: <strong>${PATTERNS.methodology?.rolling_4y_windows ?? '—'}</strong></span>
         `;
       }
       const list = PATTERNS.top_patterns.filter(p => ACTIVE_PAT_FAM === 'ALL' || p.family === ACTIVE_PAT_FAM);
@@ -939,6 +1559,57 @@
       }).join('');
     }
 
+    function renderMetricsBreakdown() {
+      const s = getMetricsState();
+      const norm = DATA.v3_normalized_scores || DATA.normalized_scores || {};
+      const fmtN = (v, suffix = '') => v == null ? '—' : (typeof v === 'number' ? v.toFixed(2) + suffix : String(v));
+      const row = (label, rawStr, score) => {
+        const cls = score == null ? '' : score <= 30 ? 'green' : score >= 70 ? 'red' : 'amber';
+        return `<div class="metric-row"><span><strong>${label}</strong> <span class="muted">${rawStr}</span></span><span class="pill ${cls}">${score ?? '—'}</span></div>`;
+      };
+      const ocHtml = [
+        row('NUPL', s.nupl != null ? s.nupl.toFixed(1) + '%' : '—', norm.nupl),
+        row('MVRV Z-Score', fmtN(DATA.mvrv_z_score), norm.mvrv_z_score),
+        row('CVDD Ratio', fmtN(s.cvdd), norm.cvdd_ratio),
+        row('RHODL Ratio', DATA.rhodl_ratio != null ? Math.round(DATA.rhodl_ratio).toLocaleString() : '—', norm.rhodl_ratio),
+        row('Puell Multiple', fmtN(s.puell), norm.puell),
+        row('aSOPR', s.asopr != null ? s.asopr.toFixed(4) : '—', norm.asopr),
+      ].join('');
+
+      const techHtml = [
+        row('Cipher B (1W)', s.wScore != null ? s.wScore.toFixed(1) : '—', norm.cipherb),
+        row('Mayer Multiple', fmtN(DATA.ma_context?.mayer_multiple), norm.mayer_multiple),
+        row('Fear & Greed', s.fg ?? '—', norm.fear_greed),
+        row('Spot ETF Flow', s.etf != null ? `${s.etf >= 0 ? '+' : ''}${s.etf.toFixed(1)}M` : '—', norm.etf_flows),
+        row('Pi Cycle Gap', DATA.pi_gap_pct != null ? DATA.pi_gap_pct.toFixed(1) + '%' : '—', norm.pi_gap),
+        row('200W MA Ratio', DATA.ma_context?.ma200w_ratio != null ? DATA.ma_context.ma200w_ratio + '×' : '—', norm.btc_price_cycle),
+      ].join('');
+
+      const macroHtml = [
+        row('Global M2 YoY', DATA.m2_yoy != null ? DATA.m2_yoy.toFixed(1) + '%' : '—', norm.m2_yoy),
+        row('DXY Index', fmtN(DATA.metrics?.dxy?.value), norm.dxy),
+        row('Yield Curve 10Y-2Y', fmtN(DATA.metrics?.yield_curve?.value, '%'), norm.yield_curve_spread),
+        row('Funding Rate (7d)', DATA.metrics?.funding_rate?.value?.avg_7d != null ? (DATA.metrics.funding_rate.value.avg_7d * 100).toFixed(3) + '%' : '—', norm.funding_rate),
+        row('LTH Supply', DATA.metrics?.lth_supply_pct?.value != null ? Number(DATA.metrics.lth_supply_pct.value).toFixed(1) + '%' : '—', norm.lth_supply),
+      ].join('');
+
+      const scoreColor = v => v == null ? 'var(--text)' : v <= 30 ? 'var(--green)' : v >= 70 ? 'var(--red)' : 'var(--amber)';
+      $('baskets-grid').innerHTML = `
+        <div class="basket-card">
+          <div class="basket-head"><strong>On-Chain Оцінка</strong><span class="basket-score" style="color:${scoreColor(DATA.onchain_score)}">${DATA.onchain_score ?? '—'}</span></div>
+          ${ocHtml}
+        </div>
+        <div class="basket-card">
+          <div class="basket-head"><strong>Технічний / Імпульс</strong><span class="basket-score" style="color:${scoreColor(DATA.tech_score)}">${DATA.tech_score ?? '—'}</span></div>
+          ${techHtml}
+        </div>
+        <div class="basket-card">
+          <div class="basket-head"><strong>Макро / Деривативи</strong><span class="basket-score" style="color:${scoreColor(DATA.macro_score)}">${DATA.macro_score ?? '—'}</span></div>
+          ${macroHtml}
+        </div>
+      `;
+    }
+
     function buildContextPackageText() {
       const s = getMetricsState();
       const compact = {
@@ -973,7 +1644,7 @@
           dxy_dtwexbgs: DATA.metrics?.dxy?.value,
           yield_curve_10y2y: DATA.metrics?.yield_curve?.value,
           cipherb: {
-            weekly_score: DATA.metrics?.cipherb?.value?.weekly_score,
+            weekly_score: s.wScore,
             daily_score: DATA.metrics?.cipherb?.value?.daily_score,
             wt1: s.wt1,
             wt2: s.wt2,
@@ -1001,10 +1672,6 @@
 `\`\`\`json\n${JSON.stringify(compact, null, 2)}\n\`\`\`\n`;
     }
 
-    function escHtml(str) {
-      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    }
-
     function inlineFmt(str) {
       return escHtml(str)
         .replace(/`([^`]+)`/g, '<code>$1</code>')
@@ -1023,7 +1690,6 @@
           if (inList) { out.push('</ul>'); inList = false; }
           i++; continue;
         }
-        // Markdown table
         if (line.startsWith('|') && i + 1 < lines.length && /^\|[\s:|-]+\|?$/.test(lines[i + 1].trim())) {
           if (inList) { out.push('</ul>'); inList = false; }
           const parseRow = r => r.replace(/^\||\|$/g, '').split('|').map(c => c.trim());
@@ -1066,7 +1732,7 @@
     }
 
     function setReportHtml(metaText, mdText) {
-      $('ai-output').innerHTML = (metaText ? `<div class="ai-meta">${escHtml(metaText)}</div>` : '') + renderMarkdownToHtml(mdText);
+      $('ai-output').innerHTML = `<div class="ai-output-inner">${metaText ? `<div class="ai-meta">${escHtml(metaText)}</div>` : ''}${renderMarkdownToHtml(mdText)}</div>`;
     }
 
     function generateLocalReport() {
@@ -1075,23 +1741,21 @@
       const etfStr = s.etf != null ? `${s.etf >= 0 ? '+' : ''}${s.etf.toFixed(1)}M` : '—';
       const cap = parseFloat($('calc-capital').value) || 10000;
       const report =
-`### Звіт BTCBRI — ${DATA.date}
+`### Системний звіт BTCBRI V5 — ${DATA.date}
 - **Спотова ціна BTC:** ${fmtUSD(s.spot)} (200W MA: ${fmtUSD(s.wma200)})
-- **Індекс BTCBRI:** **${s.bri}/100** (Raw Utility: ${s.rawUtil}) · Фаза: **${DATA.phase?.phase}**
+- **Індекс BTCBRI:** **${s.bri}/100** (Raw Utility: ${s.rawUtil}) · Фаза: **${DATA.phase?.phase}** · Ціль V5: **${s.targetAlloc}% BTC**
 - **Кошики:** On-Chain \`${DATA.onchain_score}\` | Tech \`${DATA.tech_score}\` | Macro \`${DATA.macro_score}\`
 - **Forward Risk (365d):** ${s.forward != null ? s.forward.toFixed(1) + '%' : '—'} (validated=\`${s.forwardValid}\`)
 - **Ціна входу для BRI < 20:** **${fmtUSD(s.entry20)}** · Realized Price: ${fmtUSD(s.realized)}
 
 ### 1. Вердикт для капіталу ${fmtUSD(cap)}
-- **Мульти-траншева сітка (4 транші):** ${t1 ? '**BUY 30% ЗАРАЗ (' + fmtUSD(cap * 0.3) + ')**' : '**WAIT**'} — ціна вже нижче 200W MA при CVDD=${s.cvdd}, MVRV Z=${DATA.mvrv_z_score?.toFixed(2)}, F&G=${s.fg}.
-- **1-ордерна стратегія (100% капіталу):** **WAIT** — поки триває відтік по ETF (${etfStr}), aSOPR=${s.asopr?.toFixed(4)} (<1.0), а тижневий Cipher B (wt1=${s.wt1?.toFixed(1)}) ще не розвернувся.
+- **V5 Dual-Sleeve (${s.targetAlloc}% BTC):** **${fmtUSD(cap * s.targetAlloc / 100)}** у BTC, **${fmtUSD(cap * (100 - s.targetAlloc) / 100)}** у кеші.
+- **Мульти-траншева сітка (4 транші):** ${t1 ? '**BUY 30% ЗАРАЗ (' + fmtUSD(cap * 0.3) + ')**' : '**WAIT**'} — CVDD=${s.cvdd}, MVRV Z=${DATA.mvrv_z_score?.toFixed(2)}, F&G=${s.fg}.
+- **1-ордерна стратегія (100%):** **WAIT** — відтік по ETF (${etfStr}), aSOPR=${s.asopr?.toFixed(4)}, тижневий Cipher B (${s.wtSpread}).
 
 ### 2. Наступні тригери
 - **Лівосторонній вхід (дно):** \`BRI ≤ 19\` (${fmtUSD(estimatePriceForBri(19))}) або тест Realized Price (${fmtUSD(s.realized)}).
-- **Правосторонній вхід (підтвердження):** припинення відтоків ETF + \`aSOPR ≥ 1.00\` + розворот імпульсу Cipher B.
-
-### 3. Сітка виходу (1–3 роки)
-- **HOLD** до \`BRI < 65\` | **20%** фіксація на \`BRI 65–74\` | **40%** на \`BRI 75–84\` | **30%** на \`BRI ≥ 85\`.`;
+- **Правосторонній вхід (підтвердження):** припинення відтоків ETF + \`aSOPR ≥ 1.00\` + тижневий розворот Cipher B \`(wt1 − wt2) ≥ +2\`.`;
       setReportHtml(`Системний звіт (0₴) · Зріз ${DATA.date}`, report);
       return report;
     }
@@ -1109,11 +1773,13 @@
           setReportHtml(`Зріз: ${DATA.date} · Кеш 1/оновлення · Модель: ${saved.model}`, saved.report);
           $('ai-cache-pill').textContent = 'Звіт актуальний (кеш)';
           $('ai-cache-pill').className = 'pill green';
+          $('tab-ai-badge').textContent = 'Готово';
           return true;
         }
       } catch (_) {}
       $('ai-cache-pill').textContent = 'Доступна 1 генерація';
       $('ai-cache-pill').className = 'pill blue';
+      $('tab-ai-badge').textContent = 'Новий';
       return false;
     }
 
@@ -1124,6 +1790,7 @@
         return;
       }
       $('ai-output').innerHTML = '<div class="ai-meta">Генерація ШІ-звіту через безкоштовну модель OpenRouter...</div>';
+      $('tab-ai-badge').textContent = '…';
       const prompt = buildContextPackageText();
       try {
         const resp = await fetch('/api/report', {
@@ -1144,19 +1811,22 @@
         setReportHtml(`Зріз: ${DATA.date} · Модель: ${json.model}`, json.report);
         $('ai-cache-pill').textContent = 'Звіт актуальний (кеш)';
         $('ai-cache-pill').className = 'pill green';
+        $('tab-ai-badge').textContent = 'Готово';
       } catch (err) {
         $('ai-cache-pill').textContent = 'Системний fallback';
         $('ai-cache-pill').className = 'pill amber';
+        $('tab-ai-badge').textContent = 'Лок.';
         const fallbackMd = generateLocalReport();
         setReportHtml(`Системний звіт (OpenRouter недоступний: ${err.message})`, fallbackMd);
       }
     }
 
     function renderAll() {
-      renderKPIs();
+      renderHeroAndKPIs();
       renderRecommendations();
       renderPatterns();
       renderCalculator();
+      renderMetricsBreakdown();
       if (!loadCachedOpenRouterReport()) {
         generateWithOpenRouter(false);
       }
