@@ -846,6 +846,14 @@ def compute_score(
     )
     _prev_cb_in_pos = infer_prev_cipherb_state(current_bar_date=_cb_bar_date)
 
+    _mvrv_info = compute_causal_mvrv_rank(_mix_raw.get('mvrv'), as_of_date=target_date)
+    _checklist = build_entry_exit_checklist(
+        raw_metrics=raw_metrics,
+        mvrv_info=_mvrv_info,
+        tail_risk=tail_risk_13w,
+        data_quality=quality,
+    )
+
     allocation_signal = compute_allocation_signal(
         final_score=final,
         scores_history=scores_history,
@@ -855,16 +863,10 @@ def compute_score(
         forward_risk=v5b_score,
         forward_risk_validated=v5b_validated,
         prev_cb_in_pos=_prev_cb_in_pos,
+        value_sell_veto=bool(_mvrv_info.get('value_sell_veto')),
+        abstain=bool(_checklist.get('abstain')),
     )
     market_regime = allocation_signal['market_regime']
-
-    _mvrv_info = compute_causal_mvrv_rank(_mix_raw.get('mvrv'), as_of_date=target_date)
-    _checklist = build_entry_exit_checklist(
-        raw_metrics=raw_metrics,
-        mvrv_info=_mvrv_info,
-        tail_risk=tail_risk_13w,
-        data_quality=quality,
-    )
 
     if final is not None and v5b_score is not None:
         _mc = float(final)

@@ -366,8 +366,8 @@
   "v3_tiz_days": 191,
   "v3_tiz_maturity": 0.682,
   "v3_tiz_calibration": 280,
-  "v5b_score": 17.5,
-  "v5b_validated": true,
+  "v5b_score": 28.5,
+  "v5b_validated": false,
   "meta_score": 23.7,
   "signal_agreement": 0.99,
   "market_regime": "Buy",
@@ -409,8 +409,8 @@
   },
   "bri_score": 24,
   "bri_version": "v5",
-  "forward_risk": 17.5,
-  "forward_risk_validated": true,
+  "forward_risk": 28.5,
+  "forward_risk_validated": false,
   "target_allocation_pct": 50,
   "allocation_signal": {
     "market_regime": "Buy",
@@ -30319,13 +30319,22 @@
     "peak_score_in_run": 0
   },
   "tail_risk_13w": {
-    "score": 17.5,
-    "prob_dd25_13w_pct": 17.5,
-    "validated": true,
+    "score": 28.5,
+    "prob_dd25_13w_pct": 28.5,
+    "validated": false,
     "method": "causal_vol13_logistic",
-    "shadow_m2_pct": 13.9,
-    "train_n": 457,
-    "vol13_ann_pct": 39.7
+    "ohlc_source": "daily_close_resampled",
+    "shadow_m2_pct": 20.8,
+    "train_n": 456,
+    "vol13_ann_pct": 65.1,
+    "oos_validation": {
+      "n_oos": 344,
+      "brier": 0.17846,
+      "prevalence_brier": 0.19849,
+      "bss_vs_prevalence": 0.1009,
+      "ece_5bin": 0.0943,
+      "passed": false
+    }
   },
   "forward_risk_method": "causal_vol13_logistic",
   "causal_valuation": {
@@ -30423,13 +30432,22 @@
         "label": "Глобальна M2 YoY (%)",
         "role": "macro",
         "value": 8.24,
-        "observation_date": null,
+        "observation_date": "2026-09-01",
         "status": "liquidity_expansion",
+        "stale": false
+      },
+      {
+        "key": "cipherb_1w_div",
+        "label": "Cipher B (1W Дивергенції)",
+        "role": "core_timing",
+        "value": "NONE",
+        "status": "neutral",
         "stale": false
       }
     ],
     "abstain": true,
     "abstain_reasons": [
+      "tail_risk_unvalidated",
       "value_vs_momentum_conflict"
     ],
     "status_label": "UNCERTAIN"

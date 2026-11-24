@@ -408,6 +408,7 @@ def sync_cipherb_history_files(series_w, series_d, hist_dir='data/history'):
                 'date': d_str,
                 'close': round(float(it['close']), 2),
                 'wt1': round(float(it['wt1']), 4) if it.get('wt1') is not None else None,
+                'wt2': round(float(it['wt2']), 4) if it.get('wt2') is not None else None,
                 'weekly_score': round(float(it['weekly_score']), 4),
                 'fast_bearish_div': bool(it.get('fast_bearish_div', False)),
                 'fast_bullish_div': bool(it.get('fast_bullish_div', False)),
@@ -415,6 +416,7 @@ def sync_cipherb_history_files(series_w, series_d, hist_dir='data/history'):
                 'bullish_div': bool(it.get('bullish_divergence', False)),
                 'double_bearish_div': bool(it.get('double_bearish_div', False)),
                 'double_bullish_div': bool(it.get('double_bullish_div', False)),
+                'is_closed_bar': True,
             }
         merged_w = [existing_w[k] for k in sorted(existing_w)]
         with open(wk_path, 'w', encoding='utf-8') as f:

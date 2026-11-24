@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-24T18:52:18Z",
+  "generated_at": "2026-11-24T19:07:33Z",
   "formula": "Causal BTCBRI = 0.40*MVRV_pct + 0.30*Mayer_pct + 0.30*CipherB_1W_closed (0% future leakage)",
   "extremes": [
     {
@@ -203,28 +203,28 @@
   "bri_trailing_backtest": {
     "2018_2026": {
       "causal_bri": {
-        "multiple": 2.13,
-        "max_dd_pct": 68.8,
+        "multiple": 2.47,
+        "max_dd_pct": 67.4,
         "closed_trades": 4,
         "open": 1
       },
       "legacy_bri": {
-        "multiple": 2.84,
-        "max_dd_pct": 67.4,
+        "multiple": 2.91,
+        "max_dd_pct": 68.2,
         "closed_trades": 7,
         "open": 1
       }
     },
     "2021_2026": {
       "causal_bri": {
-        "multiple": 1.15,
-        "max_dd_pct": 68.8,
+        "multiple": 1.25,
+        "max_dd_pct": 67.4,
         "closed_trades": 2,
         "open": 1
       },
       "legacy_bri": {
-        "multiple": 2.1,
-        "max_dd_pct": 67.0,
+        "multiple": 2.04,
+        "max_dd_pct": 68.2,
         "closed_trades": 5,
         "open": 1
       }

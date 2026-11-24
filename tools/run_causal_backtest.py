@@ -90,15 +90,15 @@ def load_weekly_dataset() -> list[dict]:
             'weekly_score': cb.get('weekly_score'),
         })
 
-    # Add causal SMA40w, wt2 (4-week SMA of wt1 if missing), vol13, and expanding B1_vol13
+    # Add causal SMA40w, wt2 (3-week SMA of wt1 matching cipherb.py wtSmaLength=3), vol13
     closes = [w['close'] for w in weeks]
     n = len(weeks)
     ret1 = [None] + [math.log(closes[i] / closes[i - 1]) for i in range(1, n)]
     for i, w in enumerate(weeks):
-        if w.get('wt2') is None and i >= 3:
-            w1_win = [weeks[k].get('wt1') for k in range(i - 3, i + 1)]
+        if w.get('wt2') is None and i >= 2:
+            w1_win = [weeks[k].get('wt1') for k in range(i - 2, i + 1)]
             if all(x is not None for x in w1_win):
-                w['wt2'] = sum(float(x) for x in w1_win) / 4.0
+                w['wt2'] = sum(float(x) for x in w1_win) / 3.0
         w['sma40'] = sum(closes[i - 39:i + 1]) / 40.0 if i >= 39 else None
         if i >= 13:
             win = [ret1[k] for k in range(i - 12, i + 1) if ret1[k] is not None]

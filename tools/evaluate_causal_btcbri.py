@@ -174,34 +174,42 @@ def main():
             'legacy_spearman_dd365': round(float(stats.spearmanr(lg_v, d365).statistic), 4),
         }
 
-    # 3. Trailing-peak backtest (entry <= 30, arm >= 75, exit <= peak - 15) on Causal vs Legacy BRI
+    # 3. Next-day (t+1) trailing-peak backtest (entry <= 30, arm >= 75, exit <= peak - 15)
     def bt_bri(bri_map: dict[str, float], start_d: str, fee: float = 0.005) -> dict:
         ds = [d for d in sorted(bri_map) if d >= start_d and d in price_map]
         cash, btc = 10000.0, 0.0
         armed, peak = False, 0.0
+        pending_act = None
         eq = []
         closed = []
         entry_p = None
-        for i, d in enumerate(ds):
+        for d in ds:
             p = price_map[d]
-            sc = bri_map[d]
-            if btc == 0.0 and sc <= 30.0:
+            if pending_act == 'BUY' and btc == 0.0:
                 btc = cash * (1.0 - fee) / p
                 cash = 0.0
                 armed = False
-                peak = sc
+                peak = bri_map[d]
                 entry_p = p
+                pending_act = None
+            elif pending_act == 'SELL' and btc > 0.0:
+                cash = btc * p * (1.0 - fee)
+                btc = 0.0
+                armed = False
+                peak = 0.0
+                closed.append((p / entry_p * ((1.0 - fee) ** 2) - 1.0) * 100.0)
+                pending_act = None
+
+            sc = bri_map[d]
+            if btc == 0.0 and sc <= 30.0:
+                pending_act = 'BUY'
             elif btc > 0.0:
                 if sc >= 75.0:
                     armed = True
                 if sc > peak:
                     peak = sc
                 if armed and sc <= peak - 15.0:
-                    cash = btc * p * (1.0 - fee)
-                    btc = 0.0
-                    armed = False
-                    peak = 0.0
-                    closed.append((p / entry_p * ((1.0 - fee) ** 2) - 1.0) * 100.0)
+                    pending_act = 'SELL'
             eq.append(cash + btc * p)
         arr = np.array([10000.0] + eq, dtype=float)
         dd = float(np.max(1.0 - arr / np.maximum.accumulate(arr)) * 100.0)

@@ -83,16 +83,45 @@ def test_tail_risk_13w_causal_on_repo_history():
         target_date=datetime.date(2026, 11, 24),
         scores_path='data/history/scores.json',
     )
-    assert res['validated'] is True
     assert res['method'] == 'causal_vol13_logistic'
+    assert res['ohlc_source'] == 'daily_close_resampled'
     assert 0.0 <= res['score'] <= 100.0
     assert res['train_n'] >= 200
+    assert isinstance(res['oos_validation'], dict)
+    assert res['validated'] is bool(res['oos_validation']['passed'])
+
+    # Closed-week invariance: Tuesday partial week vs Sunday closed week must match
+    res_sun = predict_tail_risk_13w(target_date=datetime.date(2026, 11, 23), scores_path='data/history/scores.json')
+    res_tue = predict_tail_risk_13w(btc_price_today=999999.0, target_date=datetime.date(2026, 11, 24), scores_path='data/history/scores.json')
+    assert res_sun['vol13_ann_pct'] == res_tue['vol13_ann_pct']
 
     # Missing/insufficient history must fail cleanly without silent heuristic fallback
     empty_res = predict_tail_risk_13w(scores_path='data/nonexistent_scores_xyz.json')
     assert empty_res['validated'] is False
     assert empty_res['score'] is None
     assert empty_res['method'] == 'insufficient_history'
+
+
+def test_empty_checklist_triggers_abstain_and_allocation_veto():
+    from scraper.allocation_engine import compute_allocation_signal
+    from scraper.causal_core import build_entry_exit_checklist, infer_prev_cipherb_state
+
+    # Empty metrics MUST trigger abstain (never CLEAR)
+    empty_cl = build_entry_exit_checklist({}, {'valuation_score': None, 'mvrv_pct': None}, None, {'status': 'valid'})
+    assert empty_cl['abstain'] is True
+    assert 'insufficient_metrics' in empty_cl['abstain_reasons']
+
+    # Allocation engine must respect value_sell_veto and abstain
+    veto_res = compute_allocation_signal(80, cipherb_val={'wt1': -10.0, 'wt2': 5.0}, value_sell_veto=True)
+    assert veto_res['market_regime'] != 'Sell'
+    assert veto_res['action_label'] == 'VALUE_VETO_HOLD'
+
+    abstain_res = compute_allocation_signal(20, cipherb_val={'wt1': 10.0, 'wt2': 5.0}, abstain=True)
+    assert abstain_res['abstain'] is True
+    assert abstain_res['action_label'] != 'STRONG_BUY_100'
+
+    # Live cipherb_btcusdt_1w.json must return a boolean prev state (not None)
+    assert infer_prev_cipherb_state('2026-11-12') in (True, False)
 
 
 def test_causal_core_valuation_and_checklist():
@@ -121,6 +150,6 @@ def test_causal_core_valuation_and_checklist():
         tail_risk={'validated': True, 'prob_dd25_13w_pct': 24.0},
         data_quality={'status': 'valid'},
     )
-    assert len(cl['items']) == 11
+    assert len(cl['items']) == 12
     assert cl['abstain'] is True
     assert 'value_vs_momentum_conflict' in cl['abstain_reasons']

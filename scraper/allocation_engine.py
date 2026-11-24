@@ -20,6 +20,8 @@ def compute_allocation_signal(
     forward_risk: float | None = None,
     forward_risk_validated: bool = False,
     prev_cb_in_pos: bool | None = None,
+    value_sell_veto: bool = False,
+    abstain: bool = False,
 ) -> dict:
     """Compute causal V5 dual-sleeve allocation and backward-compatible market_regime."""
     if final_score is None:
@@ -115,23 +117,30 @@ def compute_allocation_signal(
         market_regime = 'Wait'
         action_label = 'DEGRADED_WAIT'
     elif cur_bri >= 65.0 and not bri_in_pos and not cb_in_pos:
-        market_regime = 'Sell'
-        action_label = 'EXIT_CASH'
+        if value_sell_veto:
+            market_regime = 'Hold'
+            action_label = 'VALUE_VETO_HOLD'
+        else:
+            market_regime = 'Sell'
+            action_label = 'EXIT_CASH'
     elif bri_in_pos and trailing_armed:
         market_regime = 'Hold'
         action_label = 'ARMED_TOP_HOLD' if cb_in_pos else 'TRIM_50'
-    elif target_allocation_pct == 100 and cur_bri <= 40.0 and not high_dd_guard:
+    elif target_allocation_pct == 100 and cur_bri <= 40.0 and not high_dd_guard and not abstain:
         market_regime = 'Buy'
         action_label = 'STRONG_BUY_100'
     elif cur_bri <= 35.0 and bri_in_pos and confidence_score >= 45 and not high_dd_guard:
         market_regime = 'Buy'
-        action_label = 'STRONG_BUY_100' if (cb_in_pos or tiz_confirmed) else 'ACCUMULATE_50'
+        if abstain:
+            action_label = 'ACCUMULATE_50_ABSTAIN'
+        else:
+            action_label = 'STRONG_BUY_100' if (cb_in_pos or tiz_confirmed) else 'ACCUMULATE_50'
     elif target_allocation_pct >= 50 and cur_bri > 35.0:
         market_regime = 'Hold'
         action_label = 'HOLD_100' if target_allocation_pct == 100 else 'HOLD_50'
     else:
         market_regime = 'Wait'
-        action_label = 'WAIT_CASH'
+        action_label = 'WAIT_ABSTAIN' if abstain else 'WAIT_CASH'
 
     return {
         'market_regime': market_regime,
@@ -147,4 +156,6 @@ def compute_allocation_signal(
         'tiz_confirmed': tiz_confirmed,
         'weekly_wt_spread': wt_spread,
         'weekly_score': round(float(weekly_score), 1) if weekly_score is not None else None,
+        'value_sell_veto': bool(value_sell_veto),
+        'abstain': bool(abstain),
     }

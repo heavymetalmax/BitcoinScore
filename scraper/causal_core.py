@@ -38,6 +38,9 @@ def infer_prev_cipherb_state(
         d = str(row['date'])[:10]
         if current_bar_date and d >= current_bar_date[:10]:
             break
+        dt = datetime.date.fromisoformat(d)
+        if dt.weekday() != 3 and not row.get('is_closed_bar'):
+            continue
         wt1, wt2 = row.get('wt1'), row.get('wt2')
         if wt1 is None or wt2 is None:
             continue
@@ -131,6 +134,24 @@ def build_entry_exit_checklist(
     wt1, wt2 = cb_val.get('wt1'), cb_val.get('wt2')
     wt_spread = round(float(wt1) - float(wt2), 2) if (wt1 is not None and wt2 is not None) else None
 
+    m2_obs_date = m2_meta.get('observation_date') or (
+        raw_metrics.get('m2', {}).get('observation_date')
+        if isinstance(raw_metrics.get('m2'), dict) else None
+    )
+    cb_bear_div = bool(
+        cb_val.get('double_bearish_div')
+        or cb_val.get('fast_bearish_div')
+        or cb_val.get('bearish_divergence')
+        or cb_val.get('bearish_div')
+    )
+    cb_bull_div = bool(
+        cb_val.get('double_bullish_div')
+        or cb_val.get('fast_bullish_div')
+        or cb_val.get('bullish_divergence')
+        or cb_val.get('bullish_div')
+    )
+    cb_div_status = 'bearish_caution' if cb_bear_div else ('bullish_confirm' if cb_bull_div else 'neutral')
+
     items = [
         {
             'key': 'mvrv',
@@ -219,13 +240,29 @@ def build_entry_exit_checklist(
             'label': 'Глобальна M2 YoY (%)',
             'role': 'macro',
             'value': round(m2_val, 2) if m2_val is not None else None,
-            'observation_date': m2_meta.get('observation_date'),
+            'observation_date': m2_obs_date,
             'status': 'liquidity_expansion' if (m2_val is not None and m2_val >= 5.0) else ('tightening' if (m2_val is not None and m2_val < 0) else 'neutral'),
             'stale': bool(m2_meta.get('is_fallback', False)),
+        },
+        {
+            'key': 'cipherb_1w_div',
+            'label': 'Cipher B (1W Дивергенції)',
+            'role': 'core_timing',
+            'value': 'BEAR_DIV' if cb_bear_div else ('BULL_DIV' if cb_bull_div else ('NONE' if cb_val else None)),
+            'status': cb_div_status,
+            'stale': False,
         },
     ]
 
     reasons: list[str] = []
+    available_count = sum(1 for it in items if it.get('value') is not None)
+    core_missing = any(
+        it.get('value') is None
+        for it in items
+        if it.get('key') in ('mvrv', 'cipherb_1w', 'mayer_multiple')
+    )
+    if available_count < 6 or core_missing:
+        reasons.append('insufficient_metrics')
     if data_quality.get('status') != 'valid':
         reasons.append(f"data_quality_{data_quality.get('status')}")
     if not (tail_risk and tail_risk.get('validated')):
