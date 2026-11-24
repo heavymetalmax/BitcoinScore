@@ -1,11 +1,17 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
-  "buildCommand": "rm -rf _vercel_dist && mkdir -p _vercel_dist && cp web/trade.html _vercel_dist/index.html && cp web/data.json _vercel_dist/data.json",
+  "buildCommand": "rm -rf _vercel_dist && mkdir -p _vercel_dist && cp web/trade.html _vercel_dist/index.html && cp web/data.json _vercel_dist/data.json && cp web/strategy_patterns.json _vercel_dist/strategy_patterns.json",
   "outputDirectory": "_vercel_dist",
   "headers": [
     {
       "source": "/data.json",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
+      ]
+    },
+    {
+      "source": "/strategy_patterns.json",
       "headers": [
         { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
       ]

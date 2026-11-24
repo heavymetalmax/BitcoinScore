@@ -264,6 +264,54 @@
       z-index: 999;
       box-shadow: 0 8px 24px rgba(0,0,0,0.3);
     }
+    .pat-tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+    .pat-tab {
+      padding: 5px 11px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid var(--border2);
+      background: var(--surface2);
+      color: var(--muted);
+      transition: all 0.12s;
+    }
+    .pat-tab.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+    .bench-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 18px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+    .bench-strip strong { color: var(--text); }
+    .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .pat-name { font-weight: 700; font-size: 13px; color: var(--text); }
+    .pat-rule { font-size: 11.5px; color: var(--muted); margin-top: 3px; line-height: 1.4; }
+    .pat-last { font-size: 11px; color: var(--muted); margin-top: 3px; opacity: 0.85; }
+    .pat-trigger { font-size: 11.5px; color: var(--muted); margin-top: 4px; line-height: 1.35; max-width: 260px; }
+    .fam-badge {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 6px;
+      font-size: 10.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-right: 6px;
+    }
+    .fam-Hybrid { background: rgba(99, 102, 241, 0.18); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.32); }
+    .fam-BTCBRI { background: var(--green-bg); color: var(--green); border: 1px solid rgba(34, 197, 94, 0.28); }
+    .fam-Cipher { background: var(--blue-bg); color: var(--blue); border: 1px solid rgba(56, 189, 248, 0.28); }
   </style>
 </head>
 <body>
@@ -359,6 +407,42 @@
       </div>
     </div>
 
+    <!-- Discovered Strategy Patterns (Zero-Lookahead Backtest 2017-2026) -->
+    <div class="card">
+      <div class="card-hdr">
+        <div class="card-title">Потенційні патерни для майбутніх угод (Бектест 2017–2026)</div>
+        <div class="pat-tabs" id="pat-tabs">
+          <button class="pat-tab active" data-fam="ALL" type="button">Усі (7)</button>
+          <button class="pat-tab" data-fam="Hybrid" type="button">Гібрид (3)</button>
+          <button class="pat-tab" data-fam="BTCBRI" type="button">BTCBRI (2)</button>
+          <button class="pat-tab" data-fam="Cipher B" type="button">Cipher B (2)</button>
+        </div>
+      </div>
+      <div class="bench-strip" id="pat-bench-strip">
+        <span>Завантаження результатів бектесту...</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Патерн та правило</th>
+              <th>2018–26 (2 цикли)</th>
+              <th>MaxDD / Calmar</th>
+              <th>Цикл 1 / Цикл 2 · 4р Calmar</th>
+              <th>Пул 6р (vs DCA)</th>
+              <th>Живий сигнал і наступний тригер</th>
+            </tr>
+          </thead>
+          <tbody id="pat-table-body">
+            <tr><td colspan="6" class="muted">Завантаження патернів...</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="muted" style="font-size:11.5px; line-height:1.45; margin-top:12px;">
+        Zero-Lookahead аудит: тижневі свічки Kraken (<code>cipherb_btcusdt_1w.json</code>, четвергові бари) закриваються у середу (+6 днів) і стають видимими строго після закриття середи; ордери виконуються на <code>t+1</code> закритті з комісією 0.5% за сторону. Контрольний тест денних дивергенцій (<code>1D</code>) показав лише 1.41× (Calmar 0.06), що підтверджує перевагу тижневих та гібридних правил. Історична прибутковість не гарантує майбутніх результатів.
+      </div>
+    </div>
+
     <!-- Entry Price & Capital Calculator -->
     <div class="card">
       <div class="card-hdr">
@@ -441,6 +525,8 @@
 
   <script>
     let DATA = null;
+    let PATTERNS = null;
+    let ACTIVE_PAT_FAM = 'ALL';
     let LIVE_PRICE = null;
 
     const $ = id => document.getElementById(id);
@@ -463,6 +549,20 @@
       localStorage.setItem('btcbri_trade_theme', next);
     });
 
+    async function loadPatterns() {
+      const urls = ['strategy_patterns.json?t=' + Date.now(), 'https://btcbri.com/strategy_patterns.json?t=' + Date.now()];
+      for (const u of urls) {
+        try {
+          const r = await fetch(u);
+          if (r.ok) {
+            PATTERNS = await r.json();
+            break;
+          }
+        } catch (_) {}
+      }
+      renderPatterns();
+    }
+
     async function loadDashboard() {
       const urls = ['data.json?t=' + Date.now(), 'https://btcbri.com/data.json?t=' + Date.now()];
       for (const u of urls) {
@@ -479,6 +579,7 @@
         return;
       }
       LIVE_PRICE = LIVE_PRICE || DATA.btc_price;
+      await loadPatterns();
       renderAll();
       fetchLivePrice();
       setInterval(fetchLivePrice, 30000);
@@ -670,6 +771,150 @@
       `).join('');
     }
 
+    function computeLiveTizLe25() {
+      const hist = Array.isArray(DATA?.score_history) ? DATA.score_history : [];
+      if (hist.length > 0) {
+        let streak = 0;
+        for (let i = hist.length - 1; i >= 0; i--) {
+          const v = hist[i]?.final_score ?? hist[i]?.bri_score ?? hist[i]?.score;
+          if (v != null && v <= 25) streak++;
+          else break;
+        }
+        return streak;
+      }
+      return PATTERNS?.latest_snapshot?.tiz_le25 ?? 0;
+    }
+
+    function evaluatePatternLive(p) {
+      const s = getMetricsState();
+      const cb = DATA?.metrics?.cipherb?.value || {};
+      const wt1 = s.wt1;
+      const wt2 = s.wt2;
+      const diff = (wt1 != null && wt2 != null) ? (wt1 - wt2) : PATTERNS?.latest_snapshot?.w_diff;
+      const wScore = cb.weekly_score ?? PATTERNS?.latest_snapshot?.w_score;
+      const bri = s.bri;
+      const tiz25 = computeLiveTizLe25();
+      const spec = p.live_spec || {};
+      const histAlloc = Math.round(p.full?.end_alloc_pct ?? 0);
+
+      if (spec.type === 'hyb_blend_bri35_hyst2') {
+        const s1Buy = bri <= spec.buy;
+        const s2Buy = diff != null && diff >= spec.margin;
+        const need = diff != null ? (spec.margin - diff).toFixed(1) : '—';
+        if (s1Buy && s2Buy) return { badge: '100% BTC (ОБА РУКАВИ)', cls: 'green', detail: `BRI=${bri} ≤ ${spec.buy} ✅ · 1W diff=${diff.toFixed(1)} ≥ +${spec.margin} ✅` };
+        if (s1Buy || histAlloc >= 40) return { badge: '50% BTC / 50% КЕШ', cls: 'blue', detail: `BRI-рукав активний (BRI=${bri}≤${spec.buy}); 1W-рукав у кеші (diff=${diff != null ? diff.toFixed(1) : '—'}, до +${spec.margin} ще +${need} п.)` };
+        return { badge: 'WAIT (КЕШ)', cls: 'amber', detail: `Чекаємо BRI ≤ ${spec.buy} або 1W (wt1−wt2) ≥ +${spec.margin}` };
+      }
+      if (spec.type === 'hyb_blend_tiz21_hyst2') {
+        const s1Ready = tiz25 >= spec.tiz_days;
+        const s2Ready = diff != null && diff >= spec.margin;
+        if (s1Ready && s2Ready) return { badge: '100% BTC (ОБА РУКАВИ)', cls: 'green', detail: `TiZ(≤25)=${tiz25}/${spec.tiz_days}д ✅ · 1W diff=+${diff.toFixed(1)} ✅` };
+        return {
+          badge: histAlloc >= 40 ? '50% BTC / 50% КЕШ' : 'WAIT (КЕШ)',
+          cls: histAlloc >= 40 ? 'blue' : 'amber',
+          detail: `TiZ(BRI≤25): ${tiz25}/${spec.tiz_days}д ${s1Ready ? '✅' : '⏳'} · 1W diff=${diff != null ? diff.toFixed(1) : '—'} (ціль ≥ +${spec.margin})`
+        };
+      }
+      if (spec.type === 'hyb_blend_bri35_cbscore') {
+        const s1Buy = bri <= spec.buy;
+        const s2Buy = wScore != null && wScore <= spec.buy_score;
+        if (s1Buy && s2Buy) return { badge: '100% BTC (ОБА РУКАВИ)', cls: 'green', detail: `BRI=${bri} ≤ ${spec.buy} ✅ · 1W score=${wScore.toFixed(1)} ≤ ${spec.buy_score} ✅` };
+        return {
+          badge: (s1Buy || histAlloc >= 40) ? '50% BTC / 50% КЕШ' : 'WAIT (КЕШ)',
+          cls: (s1Buy || histAlloc >= 40) ? 'blue' : 'amber',
+          detail: `BRI-рукав: ${s1Buy ? '50% BTC ✅' : 'HOLD'} · 1W Score-рукав: кеш (зараз ${wScore != null ? wScore.toFixed(1) : '—'}, ціль ≤ ${spec.buy_score})`
+        };
+      }
+      if (spec.type === 'bri_tiz_trail') {
+        const ready = tiz25 >= spec.tiz_days;
+        if (ready) return { badge: 'BUY / HOLD 100%', cls: 'green', detail: `TiZ(BRI≤25)=${tiz25}д ≥ ${spec.tiz_days}д ✅ · Вихід лише після піку BRI ≥ ${spec.arm} (-${spec.drop})` };
+        return {
+          badge: histAlloc >= 90 ? 'HOLD 100% (Новим: ⏳)' : 'ОЧІКУВАННЯ TiZ',
+          cls: histAlloc >= 90 ? 'blue' : 'amber',
+          detail: `Серія BRI≤25: ${tiz25}/${spec.tiz_days}д (до нового входу ще ${Math.max(0, spec.tiz_days - tiz25)} дн.) · Історично в BTC`
+        };
+      }
+      if (spec.type === 'bri_trail') {
+        if (bri <= spec.buy) return { badge: 'BUY / HOLD 100%', cls: 'green', detail: `BRI=${bri} ≤ ${spec.buy} ✅ (зона входу активна) · Фіксація після піку ≥ ${spec.arm} (-${spec.drop})` };
+        if (bri >= spec.arm) return { badge: 'ARMED (ПІК!)', cls: 'red', detail: `BRI=${bri} ≥ ${spec.arm} — чекати спаду -${spec.drop} п. для продажу` };
+        return { badge: histAlloc >= 90 ? 'HOLD 100% BTC' : 'WAIT (КЕШ)', cls: histAlloc >= 90 ? 'blue' : 'amber', detail: `BRI=${bri} · Вхід ≤ ${spec.buy}, арм виходу ≥ ${spec.arm}` };
+      }
+      if (spec.type === 'cb_w_hyst') {
+        if (diff != null && diff >= spec.margin) return { badge: 'BUY / HOLD 100%', cls: 'green', detail: `1W (wt1−wt2) = +${diff.toFixed(1)} ≥ +${spec.margin} ✅` };
+        const need = diff != null ? (spec.margin - diff).toFixed(1) : '—';
+        return { badge: 'WAIT (100% КЕШ)', cls: 'amber', detail: `1W (wt1−wt2) = ${diff != null ? diff.toFixed(1) : '—'} · До входу на закритті середи: ≥ +${spec.margin} (ще +${need} п.)` };
+      }
+      if (spec.type === 'cb_w_score') {
+        if (wScore != null && wScore <= spec.buy_score) return { badge: 'BUY POOL (100%)', cls: 'green', detail: `1W weekly_score = ${wScore.toFixed(1)} ≤ ${spec.buy_score} ✅` };
+        if (wScore != null && wScore >= spec.sell_score && diff != null && diff < 0) return { badge: 'SELL (КЕШ)', cls: 'red', detail: `1W score=${wScore.toFixed(1)} ≥ ${spec.sell_score} і wt1 < wt2` };
+        const gap = wScore != null ? (wScore - spec.buy_score).toFixed(1) : '—';
+        return { badge: 'КОПИТИ КЕШ-ПУЛ', cls: 'amber', detail: `1W score = ${wScore != null ? wScore.toFixed(1) : '—'} · До входу ≤ ${spec.buy_score} (ще −${gap} п.)` };
+      }
+      return { badge: histAlloc > 0 ? `${histAlloc}% BTC` : 'WAIT', cls: histAlloc > 0 ? 'blue' : 'amber', detail: p.next_trigger_hint || '' };
+    }
+
+    function renderPatterns() {
+      const tbody = $('pat-table-body');
+      const strip = $('pat-bench-strip');
+      if (!PATTERNS || !Array.isArray(PATTERNS.top_patterns)) {
+        tbody.innerHTML = '<tr><td colspan="6" class="muted">Файл strategy_patterns.json ще не завантажено.</td></tr>';
+        return;
+      }
+      const bh18 = PATTERNS.benchmarks?.buy_and_hold?.modern_2018;
+      const dca6 = PATTERNS.benchmarks?.dca_monthly_6y;
+      const dcaF = PATTERNS.benchmarks?.dca_monthly_full;
+      if (bh18 && dca6) {
+        strip.innerHTML = `
+          <span>Бенчмарк <strong>Buy &amp; Hold (2018–26): ${bh18.multiple}×</strong> (CAGR ${bh18.cagr_pct}%, MaxDD ${bh18.max_dd_pct}%, Calmar ${bh18.calmar})</span>
+          <span>Бенчмарк <strong>DCA $100/міс: ${dca6.multiple}×</strong> (6р) / <strong>${dcaF?.multiple ?? '—'}×</strong> (9.3р)</span>
+          <span>Перевірено стратегій: <strong>${PATTERNS.methodology?.strategies_tested ?? '—'}</strong> · Ковзних 4р вікон: <strong>${PATTERNS.methodology?.rolling_4y_windows ?? '—'}</strong></span>
+        `;
+      }
+      const list = PATTERNS.top_patterns.filter(p => ACTIVE_PAT_FAM === 'ALL' || p.family === ACTIVE_PAT_FAM);
+      tbody.innerHTML = list.map(p => {
+        const m18 = p.modern_2018 || {};
+        const c1 = p.cycle1 || {};
+        const c2 = p.cycle2 || {};
+        const r4 = p.rolling_4y || {};
+        const p6 = p.pool_6y || {};
+        const pf = p.pool_full || {};
+        const live = evaluatePatternLive(p);
+        const famKey = p.family === 'Cipher B' ? 'Cipher' : p.family;
+        const lt = p.last_trade;
+        const lastStr = lt ? `Остання угода: ${lt.date} ${lt.action} @ ${fmtUSD(lt.price)} (BRI=${Math.round(lt.bri)})` : '';
+        const multColor = (bh18 && m18.multiple > bh18.multiple * 1.5) ? 'var(--green)' : (bh18 && m18.multiple > bh18.multiple ? 'var(--blue)' : 'var(--text)');
+        const ddColor = m18.max_dd_pct <= 50 ? 'var(--green)' : (m18.max_dd_pct <= 60 ? 'var(--blue)' : 'var(--amber)');
+        const p6Beats = dca6 && p6.multiple > dca6.multiple;
+        return `<tr>
+          <td>
+            <div class="pat-name"><span class="fam-badge fam-${famKey}">${escHtml(p.family)}</span>${escHtml(p.name)}</div>
+            <div class="pat-rule"><strong>${escHtml(p.role_tag || '')}</strong> · ${escHtml(p.rule_short)}</div>
+            ${lastStr ? `<div class="pat-last">${escHtml(lastStr)}</div>` : ''}
+          </td>
+          <td class="num">
+            <div style="font-size:15px; font-weight:800; color:${multColor};">${m18.multiple}×</div>
+            <div class="muted" style="font-size:11px;">CAGR ${m18.cagr_pct}% · ${m18.trades} угод</div>
+          </td>
+          <td class="num">
+            <div style="color:${ddColor}; font-weight:700;">DD −${m18.max_dd_pct}%</div>
+            <div class="muted" style="font-size:11.5px;">Calmar <strong style="color:var(--text);">${m18.calmar}</strong></div>
+          </td>
+          <td class="num">
+            <div>${p.beats_bh_both_cycles ? '✅ ' : ''}${c1.return_pct >= 0 ? '+' : ''}${Math.round(c1.return_pct)}% / ${c2.return_pct >= 0 ? '+' : ''}${Math.round(c2.return_pct)}%</div>
+            <div class="muted" style="font-size:11px;">4р Calmar &gt; B&amp;H: <strong>${Math.round(r4.beats_bh_calmar_pct)}%</strong></div>
+          </td>
+          <td class="num">
+            <div style="color:${p6Beats ? 'var(--green)' : 'var(--text)'}; font-weight:700;">${p6.multiple}× ${p6Beats ? '▲' : ''}</div>
+            <div class="muted" style="font-size:11px;">9.3р: ${pf.multiple}×</div>
+          </td>
+          <td>
+            <span class="pill ${live.cls}">${escHtml(live.badge)}</span>
+            <div class="pat-trigger">${escHtml(live.detail)}</div>
+          </td>
+        </tr>`;
+      }).join('');
+    }
+
     function buildContextPackageText() {
       const s = getMetricsState();
       const compact = {
@@ -709,11 +954,23 @@
           },
         },
         data_quality: DATA.data_quality,
+        backtested_top_patterns: PATTERNS?.top_patterns ? PATTERNS.top_patterns.map(p => ({
+          id: p.id,
+          family: p.family,
+          role: p.role_tag,
+          rule: p.rule_short,
+          mult_2018_2026: p.modern_2018?.multiple,
+          max_dd_pct: p.modern_2018?.max_dd_pct,
+          calmar: p.modern_2018?.calmar,
+          pool_6y_mult: p.pool_6y?.multiple,
+          live_status: evaluatePatternLive(p).badge,
+          live_detail: evaluatePatternLive(p).detail,
+        })) : undefined,
       };
       return `# BTCBRI Аналітичний контекст-пакет (${DATA.date})\n\n` +
 `Ти — кількісний аналітик BTC на горизонті 1–3 роки. Проаналізуй поточний знімок даних BTCBRI, оціни:\n` +
 `1) Чому модель дає такий бал та де є суперечності між оцінкою вартості (on-chain) і потоками/імпульсом.\n` +
-`2) Чи варто відкривати позицію зараз у мульти-траншевому режимі (4 транші) та в режимі 1 єдиного ордера.\n` +
+`2) Чи варто відкривати позицію зараз у мульти-траншевому режимі (4 транші), у режимі 1 єдиного ордера та в контексті відібраних гібридних патернів BTCBRI + Cipher B.\n` +
 `3) Конкретні цінові тригери та умови підтвердження розвороту (aSOPR, ETF, Cipher B).\n\n` +
 `\`\`\`json\n${JSON.stringify(compact, null, 2)}\n\`\`\`\n`;
     }
@@ -872,12 +1129,20 @@
     function renderAll() {
       renderKPIs();
       renderRecommendations();
+      renderPatterns();
       renderCalculator();
       if (!loadCachedOpenRouterReport()) {
         generateWithOpenRouter(false);
       }
     }
 
+    $('pat-tabs').addEventListener('click', e => {
+      const btn = e.target.closest('.pat-tab');
+      if (!btn) return;
+      ACTIVE_PAT_FAM = btn.dataset.fam || 'ALL';
+      $('pat-tabs').querySelectorAll('.pat-tab').forEach(b => b.classList.toggle('active', b === btn));
+      renderPatterns();
+    });
     $('calc-capital').addEventListener('input', renderCalculator);
     $('calc-target-bri').addEventListener('input', renderCalculator);
     $('btn-regen-openrouter').addEventListener('click', () => generateWithOpenRouter(true));
