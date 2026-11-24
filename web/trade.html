@@ -325,6 +325,18 @@
           <div class="check-list" id="single-list"></div>
         </div>
       </div>
+
+      <!-- Mode C: Cipher B Weekly Pool (2016-2026 Study) -->
+      <div class="box" style="margin-top:16px;">
+        <div class="box-head">
+          <div class="box-title">Режим 3 (окремо): Cipher B Weekly Pool · Дослідження 2016–2026</div>
+          <span class="pill" id="cbpool-verdict">—</span>
+        </div>
+        <div class="check-list" id="cbpool-list"></div>
+        <div class="muted" style="font-size:11.5px; line-height:1.45;">
+          Дисклеймер: за тестом 50 пар на 2016–2026 лише тижневі «малі зелені» крапки (<code>wt1 &gt; wt2</code> на закритті тижня) обійшли DCA на обох 3-річних половинах і на 59 ковзних 6-річних вікнах (Пара #3: медіана 4.76×, XIRR 26.2%; Пара #4: 5.78×, XIRR 19.1% проти DCA 4.24×). Загальна кореляція рангів пар між половинами відʼємна (-0.27); виконувати суворо для пулу внесків по закриттю тижня.
+        </div>
+      </div>
     </div>
 
     <!-- Entry Price & Capital Calculator -->
@@ -400,11 +412,13 @@
       </div>
 
       <div class="ai-toolbar">
-        <button class="btn btn-primary" id="btn-gen-openrouter" type="button">Згенерувати ШІ-звіт (OpenRouter Free)</button>
+        <button class="btn btn-primary" id="btn-gen-openrouter" type="button">ШІ-звіт (OpenRouter Free)</button>
+        <button class="btn" id="btn-regen-openrouter" type="button" title="Перегенерувати примусово для поточного зрізу">↻</button>
         <button class="btn btn-green" id="btn-gen-local" type="button">Миттєвий системний звіт (0₴)</button>
         <button class="btn" id="btn-copy-prompt" type="button">Скопіювати Prompt + Дані для ChatGPT/Claude/Gemini</button>
         <button class="btn" id="btn-dl-package" type="button">Завантажити .md пакет для моделі</button>
         <button class="btn" id="btn-dl-json" type="button">Завантажити compact data.json</button>
+        <span class="pill" id="ai-cache-pill">1 звіт на оновлення</span>
       </div>
 
       <div class="ai-output" id="ai-output">Натисніть «Згенерувати ШІ-звіт (OpenRouter Free)» або «Миттєвий системний звіт», щоб сформувати аналітику за поточними даними...</div>
@@ -562,6 +576,29 @@
         <div class="check-item"><span><strong>Тригер Б2 (aSOPR):</strong> aSOPR ≥ 1.00 (${s.asopr != null ? s.asopr.toFixed(4) : '—'})</span><span class="pill ${asoprOk ? 'green' : 'red'}">${asoprOk ? 'ОК' : 'Збитки'}</span></div>
         <div class="check-item"><span><strong>Тригер Б3 (Імпульс):</strong> Розворот Cipher B / дивергенція</span><span class="pill ${momOk ? 'green' : 'amber'}">${momOk ? 'Сигнал є' : 'Спадає'}</span></div>
       `;
+
+      // Mode 3: Cipher B Weekly Pool (2016-2026 study)
+      const cbRaw = DATA.metrics?.cipherb?.value || {};
+      const wp = cbRaw.weekly_pool || {};
+      const wtSpread = wp.wt_spread ?? ((s.wt1 != null && s.wt2 != null) ? Number((s.wt1 - s.wt2).toFixed(2)) : null);
+      const smallGreenNow = wp.small_green_now ?? false;
+      const p3State = wp.pair3?.state || (wtSpread != null && wtSpread > 0 ? 'HOLD_BTC' : 'ACCUMULATE_CASH_POOL');
+      const p4State = wp.pair4?.state || (wtSpread != null && wtSpread > 0 ? 'HOLD_BTC' : 'ACCUMULATE_CASH_POOL');
+      const isBuyNow = smallGreenNow || (wtSpread != null && wtSpread > 0);
+      const synergyReady = s.bri <= 30 && smallGreenNow;
+
+      $('cbpool-verdict').textContent = smallGreenNow
+        ? 'BUY POOL (Тижнева мала зелена!)'
+        : (p3State === 'HOLD_BTC' ? 'HOLD BTC (Чекати виходу)' : 'НАКОПИЧУВАТИ ПУЛ КЕШУ');
+      $('cbpool-verdict').className = 'pill ' + (smallGreenNow ? 'green' : (p3State === 'HOLD_BTC' ? 'blue' : 'amber'));
+
+      const fmtState = st => st === 'HOLD_BTC' ? 'Тримати BTC (HOLD)' : 'Копити кеш-пул';
+      $('cbpool-list').innerHTML = `
+        <div class="check-item"><span><strong>Пара #3 (4.76×, XIRR 26.2%):</strong> Тижн. мала зелена → мала червона</span><span class="pill ${p3State === 'HOLD_BTC' ? 'blue' : 'amber'}">${fmtState(p3State)}</span></div>
+        <div class="check-item"><span><strong>Пара #4 (5.78×, XIRR 19.1%):</strong> Тижн. мала зелена → тижн. Div A bear</span><span class="pill ${p4State === 'HOLD_BTC' ? 'blue' : 'amber'}">${fmtState(p4State)}</span></div>
+        <div class="check-item"><span><strong>Тижневий WaveTrend (wt1 − wt2):</strong> ${s.wt1 != null ? s.wt1.toFixed(1) : '—'} − ${s.wt2 != null ? s.wt2.toFixed(1) : '—'} = <strong>${wtSpread != null ? (wtSpread >= 0 ? '+' : '') + wtSpread : '—'}</strong></span><span class="pill ${isBuyNow ? 'green' : 'amber'}">${smallGreenNow ? 'ПЕРЕТИН ВГОРУ!' : 'Чекати wt1 > wt2'}</span></div>
+        <div class="check-item"><span><strong>Синергія BTCBRI ≤ 30 + Тижнева мала зелена:</strong> BRI=${s.bri} (${s.bri <= 30 ? '✅' : '❌'}) + Перетин (${smallGreenNow ? '✅' : '⏳'})</span><span class="pill ${synergyReady ? 'green' : ''}">${synergyReady ? 'ПОВНИЙ ЗБІГ!' : 'Очікується перетин'}</span></div>
+      `;
     }
 
     function estimatePriceForBri(targetBri) {
@@ -703,8 +740,33 @@ Forward Risk (365d): ${s.forward != null ? s.forward.toFixed(1) + '%' : '—'} (
       $('ai-output').textContent = report;
     }
 
-    async function generateWithOpenRouter() {
+    function getSnapshotKey() {
+      return DATA ? (DATA.timestamp || DATA.date || 'unknown') : null;
+    }
+
+    function loadCachedOpenRouterReport() {
+      const snap = getSnapshotKey();
+      if (!snap) return false;
+      try {
+        const saved = JSON.parse(localStorage.getItem('btcbri_ai_report_v1') || 'null');
+        if (saved && saved.snapshot === snap && saved.report) {
+          $('ai-output').textContent = `[Зріз: ${DATA.date} · Кеш 1/оновлення · Модель: ${saved.model}]\n\n${saved.report}`;
+          $('ai-cache-pill').textContent = 'Звіт актуальний (кеш)';
+          $('ai-cache-pill').className = 'pill green';
+          return true;
+        }
+      } catch (_) {}
+      $('ai-cache-pill').textContent = 'Доступна 1 генерація';
+      $('ai-cache-pill').className = 'pill blue';
+      return false;
+    }
+
+    async function generateWithOpenRouter(force = false) {
       if (!DATA) return;
+      if (!force && loadCachedOpenRouterReport()) {
+        showToast('Показано готовий ШІ-звіт — індекс ще не оновлювався');
+        return;
+      }
       $('ai-output').textContent = 'Генерація ШІ-звіту через безкоштовну модель OpenRouter...';
       const prompt = buildContextPackageText();
       try {
@@ -715,7 +777,17 @@ Forward Risk (365d): ${s.forward != null ? s.forward.toFixed(1) + '%' : '—'} (
         });
         const json = await resp.json();
         if (!resp.ok) throw new Error(json.error || 'Server error');
-        $('ai-output').textContent = `[Модель: ${json.model}]\n\n${json.report}`;
+        const snap = getSnapshotKey();
+        try {
+          localStorage.setItem('btcbri_ai_report_v1', JSON.stringify({
+            snapshot: snap,
+            model: json.model,
+            report: json.report,
+          }));
+        } catch (_) {}
+        $('ai-output').textContent = `[Зріз: ${DATA.date} · Модель: ${json.model}]\n\n${json.report}`;
+        $('ai-cache-pill').textContent = 'Звіт актуальний (кеш)';
+        $('ai-cache-pill').className = 'pill green';
       } catch (err) {
         $('ai-output').textContent = 'Помилка генерації OpenRouter: ' + err.message + '\n\nВикористайте «Миттєвий системний звіт» або «Завантажити .md пакет».';
       }
@@ -748,11 +820,13 @@ Forward Risk (365d): ${s.forward != null ? s.forward.toFixed(1) + '%' : '—'} (
       renderKPIs();
       renderRecommendations();
       renderCalculator();
+      loadCachedOpenRouterReport();
     }
 
     $('calc-capital').addEventListener('input', renderCalculator);
     $('calc-target-bri').addEventListener('input', renderCalculator);
-    $('btn-gen-openrouter').addEventListener('click', generateWithOpenRouter);
+    $('btn-gen-openrouter').addEventListener('click', () => generateWithOpenRouter(false));
+    $('btn-regen-openrouter').addEventListener('click', () => generateWithOpenRouter(true));
     $('btn-gen-local').addEventListener('click', generateLocalReport);
     $('btn-gen-gemini').addEventListener('click', generateWithGemini);
     $('btn-copy-prompt').addEventListener('click', () => {

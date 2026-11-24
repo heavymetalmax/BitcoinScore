@@ -300,11 +300,23 @@ def compute_cipherb_from_ohlcv(ohlc, channelLength=9, averageLength=12, wtSmaLen
         # signals
         buy = False
         sell = False
+        small_green = False
+        small_red = False
+        big_green = False
+        big_red = False
         if i>0 and wt1[i-1] is not None and wt2[i-1] is not None and wt1[i] is not None and wt2[i] is not None:
-            if wt1[i-1] < wt2[i-1] and wt1[i] > wt2[i] and wt1[i] < oversoldLevel:
-                buy = True
-            if wt1[i-1] > wt2[i-1] and wt1[i] < wt2[i] and wt1[i] > overboughtLevel:
-                sell = True
+            if wt1[i-1] < wt2[i-1] and wt1[i] > wt2[i]:
+                small_green = True
+                if wt1[i] < oversoldLevel:
+                    buy = True
+                if wt2[i] <= -53.0:
+                    big_green = True
+            if wt1[i-1] > wt2[i-1] and wt1[i] < wt2[i]:
+                small_red = True
+                if wt1[i] > overboughtLevel:
+                    sell = True
+                if wt2[i] >= 53.0:
+                    big_red = True
         # weekly score normalization — wider, asymmetric band (decoupled from signals)
         score = None
         if wt1[i] is not None:
@@ -342,6 +354,10 @@ def compute_cipherb_from_ohlcv(ohlc, channelLength=9, averageLength=12, wtSmaLen
             'sellSignal': sell,
             'green_dot': green_dot,
             'red_dot': red_dot,
+            'small_green_dot': small_green,
+            'small_red_dot': small_red,
+            'big_green_dot': big_green,
+            'big_red_dot': big_red,
             'weekly_score': score,
             'distance_to_buy': distance_to_buy,
             'distance_to_sell': distance_to_sell,
@@ -437,6 +453,48 @@ def sync_cipherb_history_files(series_w, series_d, hist_dir='data/history'):
             json.dump({'series': merged_d}, f, separators=(',', ':'))
 
 
+def _weekly_pool_state(series_w):
+    """Compute state of the two robust weekly Cipher B pool strategies (2016-2026 study):
+    - Pair #3: small_green_dot -> small_red_dot (median 4.76x, +115.8%)
+    - Pair #4: small_green_dot -> bearish_divergence (median 5.78x, +75.9%)
+    """
+    if not series_w:
+        return None
+    p3_state = 'ACCUMULATE_CASH_POOL'
+    p4_state = 'ACCUMULATE_CASH_POOL'
+    p3_sig = p4_sig = None
+    p3_ts = p4_ts = None
+    last_green_ts = last_red_ts = None
+    for row in series_w:
+        ts = row.get('timestamp')
+        sg = bool(row.get('small_green_dot'))
+        sr = bool(row.get('small_red_dot'))
+        bd = bool(row.get('bearish_divergence'))
+        if sg:
+            last_green_ts = ts
+            if p3_state != 'HOLD_BTC':
+                p3_state, p3_sig, p3_ts = 'HOLD_BTC', 'small_green_dot', ts
+            if p4_state != 'HOLD_BTC':
+                p4_state, p4_sig, p4_ts = 'HOLD_BTC', 'small_green_dot', ts
+        if sr:
+            last_red_ts = ts
+            if p3_state != 'ACCUMULATE_CASH_POOL':
+                p3_state, p3_sig, p3_ts = 'ACCUMULATE_CASH_POOL', 'small_red_dot', ts
+        if bd and p4_state != 'ACCUMULATE_CASH_POOL':
+            p4_state, p4_sig, p4_ts = 'ACCUMULATE_CASH_POOL', 'bearish_divergence', ts
+    last = series_w[-1]
+    w1, w2 = last.get('wt1'), last.get('wt2')
+    return {
+        'wt_spread': round(float(w1 - w2), 2) if (w1 is not None and w2 is not None) else None,
+        'small_green_now': bool(last.get('small_green_dot')),
+        'small_red_now': bool(last.get('small_red_dot')),
+        'last_small_green_ts': last_green_ts,
+        'last_small_red_ts': last_red_ts,
+        'pair3': {'state': p3_state, 'last_signal': p3_sig, 'last_signal_ts': p3_ts},
+        'pair4': {'state': p4_state, 'last_signal': p4_sig, 'last_signal_ts': p4_ts},
+    }
+
+
 def get_cipherb(symbol='BTCUSDT'):
     ohlc_w = fetch_ohlcv_kraken(symbol=symbol, interval='1w', limit=500)
     ohlc_d = fetch_ohlcv_kraken(symbol=symbol, interval='1d', limit=500)
@@ -475,6 +533,7 @@ def get_cipherb(symbol='BTCUSDT'):
         'daily_fast_bullish_div': last_d['fast_bullish_div'],
         'daily_double_bearish_div': last_d['double_bearish_div'],
         'daily_double_bullish_div': last_d['double_bullish_div'],
+        'weekly_pool': _weekly_pool_state(res_w.get('series')),
     }
     
     return {
