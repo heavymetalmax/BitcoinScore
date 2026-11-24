@@ -222,6 +222,8 @@ def test_data_json_synced_with_live_compute_score():
     assert d['allocation_signal']['ohlc_bar_date'] == '2026-11-16'
     assert d['allocation_signal']['weekly_wt_spread'] == live['allocation_signal']['weekly_wt_spread']
     assert d['allocation_signal']['action_label'] == live['allocation_signal']['action_label']
+    assert d['causal_btcbri'] == live['causal_btcbri']
+    assert 0.0 <= d['causal_btcbri'] <= 100.0
     assert d['allocation_signal']['target_allocation_pct'] == live['allocation_signal']['target_allocation_pct']
     assert d['v5b_validated'] == live['v5b_validated'] is True
     assert d['entry_exit_checklist']['abstain'] == live['entry_exit_checklist']['abstain']

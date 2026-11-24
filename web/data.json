@@ -142,7 +142,7 @@
         "dma_200": 72232.3,
         "dma_200_slope_30d": -0.92,
         "above_dma_200": false,
-        "wma_200": 67479.2,
+        "wma_200": 67479.3,
         "ma200w_ratio": 0.885,
         "ma_regime": "DEEP_ACCUMULATION",
         "current_price": 59747.1,
@@ -307,12 +307,12 @@
     "cvdd_ratio": 1.0,
     "asopr": 0.1,
     "puell": 1.0,
-    "mayer_multiple": 0.18849668122636226,
+    "mayer_multiple": 0.1884296456348982,
     "fear_greed": 0.7898980771288272,
     "m2_yoy": 0.31431,
     "yield_curve_spread": 0.31365021842398305,
     "etf_flows": 0.2614816546382892,
-    "funding_rate": 0.16201272713644604,
+    "funding_rate": 0.16207378225478322,
     "dxy": 0.4061012682174671,
     "lth_supply": 0.34,
     "pi_gap": 0.1,
@@ -395,7 +395,9 @@
     "mvrv_pct": 0.1924,
     "value_sell_veto": true,
     "cost_basis_components": 3,
-    "history_n": 5924
+    "history_n": 5924,
+    "causal_btcbri": 23.3,
+    "wt1_causal_rank": 29.6
   },
   "entry_exit_checklist": {
     "items": [
@@ -590,7 +592,7 @@
     "dma_200_slope_30d": -0.92,
     "above_dma_200": false,
     "mayer_multiple": 0.847,
-    "wma_200": 67479.2,
+    "wma_200": 67479.3,
     "ma200w_ratio": 0.885,
     "ma_regime": "DEEP_ACCUMULATION"
   },
@@ -605,7 +607,7 @@
     "ma_regime": "DEEP_ACCUMULATION",
     "dma_200": 72232.3,
     "dma_200_slope_30d": -0.92,
-    "wma_200": 67479.2,
+    "wma_200": 67479.3,
     "ma200w_ratio": 0.885
   },
   "sp_v2": 24,
@@ -652,7 +654,7 @@
         "dma_200": 72232.3,
         "dma_200_slope_30d": -0.92,
         "above_dma_200": false,
-        "wma_200": 67479.2,
+        "wma_200": 67479.3,
         "ma200w_ratio": 0.885,
         "ma_regime": "DEEP_ACCUMULATION",
         "current_price": 59747.1,
@@ -732,7 +734,7 @@
       "dma_200_slope_30d": -0.92,
       "above_dma_200": false,
       "mayer_multiple": 0.847,
-      "wma_200": 67479.2,
+      "wma_200": 67479.3,
       "ma200w_ratio": 0.885,
       "ma_regime": "DEEP_ACCUMULATION"
     },
@@ -755,12 +757,12 @@
       "cvdd_ratio": 1.0,
       "asopr": 0.1,
       "puell": 1.0,
-      "mayer_multiple": 0.18849668122636226,
+      "mayer_multiple": 0.1884296456348982,
       "fear_greed": 0.7898980771288272,
       "m2_yoy": 0.31431,
       "yield_curve_spread": 0.31365021842398305,
       "etf_flows": 0.2614816546382892,
-      "funding_rate": 0.16201272713644604,
+      "funding_rate": 0.16207378225478322,
       "dxy": 0.4061012682174671,
       "lth_supply": 0.34,
       "pi_gap": 0.1,
@@ -30485,5 +30487,6 @@
     "last_action_price": 60855.47,
     "trailing_trigger_score": null,
     "peak_score_in_run": 0
-  }
+  },
+  "causal_btcbri": 23.3
 }

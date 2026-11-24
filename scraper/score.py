@@ -823,6 +823,7 @@ def compute_score(
     from scraper.allocation_engine import compute_allocation_signal
     from scraper.causal_core import (
         build_entry_exit_checklist,
+        compute_causal_btcbri,
         compute_causal_d1_state,
         compute_causal_mvrv_rank,
         infer_prev_cipherb_state,
@@ -858,6 +859,9 @@ def compute_score(
         puell_today=_mix_raw.get('puell'),
         cvdd_today=_mix_raw.get('cvdd_ratio'),
     )
+    _causal_btcbri = compute_causal_btcbri(_mvrv_info, _d1_state)
+    _mvrv_info['causal_btcbri'] = _causal_btcbri
+    _mvrv_info['wt1_causal_rank'] = _d1_state.get('wt1_causal_rank') if _d1_state.get('available') else None
     _checklist = build_entry_exit_checklist(
         raw_metrics=raw_metrics,
         mvrv_info=_mvrv_info,
@@ -929,6 +933,7 @@ def compute_score(
         'tail_risk_13w':      tail_risk_13w,
         'forward_risk_method': forward_risk_method,
         'causal_valuation':   _mvrv_info,
+        'causal_btcbri':      _causal_btcbri,
         'entry_exit_checklist': _checklist,
         'market_regime':      market_regime,
         'target_allocation_pct': allocation_signal['target_allocation_pct'],

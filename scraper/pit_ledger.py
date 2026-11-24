@@ -44,6 +44,7 @@ def append_pit_record(payload: dict[str, Any], ledger_path: str = 'data/pit_ledg
         'as_of_date': payload.get('date') or (str(payload.get('timestamp') or '')[:10] or now_utc[:10]),
         'btc_price': payload.get('btc_price'),
         'bri_score': payload.get('bri_score', payload.get('final_score')),
+        'causal_btcbri': payload.get('causal_btcbri'),
         'causal_valuation': payload.get('causal_valuation'),
         'forward_risk_13w': payload.get('forward_risk', payload.get('v5b_score')),
         'forward_risk_validated': bool(payload.get('v5b_validated', False)),

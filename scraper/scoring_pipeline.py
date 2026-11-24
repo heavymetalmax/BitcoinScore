@@ -262,6 +262,7 @@ def run_scoring_pipeline(p, build_metric_history_fn=None):
         p['tail_risk_13w']        = scores.get('tail_risk_13w')
         p['forward_risk_method']  = scores.get('forward_risk_method')
         p['causal_valuation']     = scores.get('causal_valuation')
+        p['causal_btcbri']        = scores.get('causal_btcbri')
         p['entry_exit_checklist'] = scores.get('entry_exit_checklist')
         p['meta_score']           = scores.get('meta_score')
         p['signal_agreement']     = scores.get('signal_agreement')

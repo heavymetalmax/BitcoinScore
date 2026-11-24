@@ -140,6 +140,8 @@ def compute_causal_d1_state(
     mv_idx = 0
     last_mv_pct: float | None = None
     last_sma40: float | None = None
+    wt1_buf: list[float] = []
+    wt1_rank_last: float | None = None
 
     for i, w in enumerate(weeks):
         wk_close = w['week_close']
@@ -158,6 +160,9 @@ def compute_causal_d1_state(
         prev_cb_in = cb_in
         veto_blocked = False
         w1, w2 = wt1_list[i], wt2_list[i]
+        if w1 is not None:
+            wt1_rank_last = (bisect.bisect_right(wt1_buf, float(w1)) / len(wt1_buf) * 100.0) if wt1_buf else 50.0
+            bisect.insort(wt1_buf, float(w1))
         if w1 is not None and w2 is not None:
             spread = w1 - w2
             if not cb_in and spread >= 2.0:
@@ -182,9 +187,36 @@ def compute_causal_d1_state(
         'wt1': round(float(w1_last), 2) if w1_last is not None else None,
         'wt2': round(float(w2_last), 2) if w2_last is not None else None,
         'wt_spread': sp_last,
+        'wt1_causal_rank': round(wt1_rank_last, 1) if wt1_rank_last is not None else None,
         'veto_blocked_exit': veto_blocked,
         'mvrv_pct_week': round(last_mv_pct, 4) if last_mv_pct is not None else None,
     }
+
+
+def compute_causal_btcbri(
+    mvrv_info: dict[str, Any] | None,
+    d1_state: dict[str, Any] | None,
+) -> float | None:
+    """Compute unified 0-100 Causal BTCBRI Thermometer (Formula C, 0% lookahead).
+
+    Combines:
+      - 70% Causal Cost-Basis Valuation (MVRV, Puell, CVDD expanding rank)
+      - 30% Causal Weekly WaveTrend WT1 expanding rank
+      - +15/+10 D1 distribution break premium when MVRV >= 50th pct and D1 sleeves exit
+    """
+    val = (mvrv_info or {}).get('valuation_score')
+    if val is None:
+        return None
+    wt1_rank = (d1_state or {}).get('wt1_causal_rank')
+    eff_wt = float(wt1_rank) if wt1_rank is not None else float(val)
+    score = 0.70 * float(val) + 0.30 * eff_wt
+    mv_pct = (mvrv_info or {}).get('mvrv_pct')
+    if mv_pct is not None and float(mv_pct) >= 0.50 and (d1_state or {}).get('available'):
+        if not d1_state.get('cb_in_pos'):
+            score += 15.0
+        if not d1_state.get('sma40_in_pos'):
+            score += 10.0
+    return round(min(100.0, max(0.0, score)), 1)
 
 
 def infer_prev_cipherb_state(
