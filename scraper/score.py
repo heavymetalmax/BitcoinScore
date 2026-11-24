@@ -819,10 +819,11 @@ def compute_score(
         except Exception as e:
             print(f'Warning: Tail Risk 13w failed — {e}')
 
-    # ── Market Regime & V5 Dual-Sleeve Allocation Engine ─────────────────────
+    # ── Market Regime & Causal D1 Dual-Sleeve Allocation Engine ──────────────
     from scraper.allocation_engine import compute_allocation_signal
     from scraper.causal_core import (
         build_entry_exit_checklist,
+        compute_causal_d1_state,
         compute_causal_mvrv_rank,
         infer_prev_cipherb_state,
     )
@@ -838,20 +839,32 @@ def compute_score(
     if not v5b_validated:
         suppression_reasons.append('tail_risk_unvalidated')
 
+    _d1_state = compute_causal_d1_state(as_of_date=target_date)
     _cb_inner_for_alloc = _cb.get('value', _cb) if isinstance(_cb, dict) else {}
     _cb_ts = _cb_inner_for_alloc.get('timestamp') if isinstance(_cb_inner_for_alloc, dict) else None
     _cb_bar_date = (
         datetime.datetime.fromtimestamp(int(_cb_ts), tz=datetime.timezone.utc).strftime('%Y-%m-%d')
         if _cb_ts is not None else None
     )
-    _prev_cb_in_pos = infer_prev_cipherb_state(current_bar_date=_cb_bar_date)
+    _prev_cb_in_pos = (
+        _d1_state.get('prev_cb_in_pos')
+        if _d1_state.get('available')
+        else infer_prev_cipherb_state(current_bar_date=_cb_bar_date)
+    )
 
-    _mvrv_info = compute_causal_mvrv_rank(_mix_raw.get('mvrv'), as_of_date=target_date)
+    _mvrv_info = compute_causal_mvrv_rank(
+        _mix_raw.get('mvrv'),
+        as_of_date=target_date,
+        puell_today=_mix_raw.get('puell'),
+        cvdd_today=_mix_raw.get('cvdd_ratio'),
+    )
     _checklist = build_entry_exit_checklist(
         raw_metrics=raw_metrics,
         mvrv_info=_mvrv_info,
         tail_risk=tail_risk_13w,
         data_quality=quality,
+        as_of_date=target_date,
+        d1_state=_d1_state,
     )
 
     allocation_signal = compute_allocation_signal(
@@ -865,6 +878,10 @@ def compute_score(
         prev_cb_in_pos=_prev_cb_in_pos,
         value_sell_veto=bool(_mvrv_info.get('value_sell_veto')),
         abstain=bool(_checklist.get('abstain')),
+        sma40_in_pos=_d1_state.get('sma40_in_pos') if _d1_state.get('available') else None,
+        sma40_value=_d1_state.get('sma40_value') if _d1_state.get('available') else None,
+        mvrv_pct=_mvrv_info.get('mvrv_pct'),
+        d1_state=_d1_state,
     )
     market_regime = allocation_signal['market_regime']
 

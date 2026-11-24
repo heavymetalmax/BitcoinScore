@@ -514,6 +514,12 @@ def get_cipherb(symbol='BTCUSDT'):
         sync_cipherb_history_files(res_w.get('series'), res_d.get('series'))
     except Exception as e:
         print(f"Warning: failed to sync cipherb history files: {e}")
+
+    try:
+        from .ohlc_store import sync_weekly_ohlc_from_daily
+        sync_weekly_ohlc_from_daily(ohlc_d)
+    except Exception as e:
+        print(f"Warning: failed to sync weekly OHLC archive: {e}")
         
     last = {
         'timestamp': last_w['timestamp'],

@@ -1,27 +1,33 @@
 #!/usr/bin/env python3
-"""Evaluate Zero-Lookahead Causal BTCBRI on Historical Extremes & Forward Outcomes.
+"""Evaluate Production Causal Core (Valuation + D1 Allocator) on Historical Extremes.
 
-Constructs a strictly causal 3-axis BTCBRI (0-100) using ONLY data < date:
-  - 40% Cost Basis (causal expanding percentile of MVRV)
-  - 30% Trend Extension (causal expanding percentile of Mayer Multiple)
-  - 30% Momentum / Miner Stress (closed weekly Cipher B score, fallback causal Puell pct)
-
-Compares Causal BTCBRI vs Legacy BRI (which contains 2025 calibration leakage) at:
-  1. Every historical cycle extreme in data/cycle_extremes.json + today (2026-11-24)
-  2. Out-of-sample forward 365d return / drawdown buckets & Spearman IC (2017-20, 2021-25)
-  3. Trailing-Peak Valuation Sleeve backtest (2018-2026 and 2021-2026)
+Evaluates the ACTUAL production causal engine (zero future leakage, zero ad-hoc
+manual composite):
+  1. Causal Cost-Basis Valuation Score (0-100): equal-weighted causal expanding
+     percentile of MVRV, Puell, and CVDD strictly < date (catches bottoms cleanly).
+  2. Causal D1 Dual-Sleeve Target Allocation (0% / 50% / 100%) on closed weekly
+     OHLC (`50% SMA40w + 50% Cipher B 1W SMA3 + MVRV Value-Veto <= 25%`) at each
+     extreme AND 4w / 8w after tops — showing how trend/momentum exits mature tops
+     like 2025-10 without waiting for a static 0-100 thermometer >= 85.
+  3. Out-of-sample forward 365d Spearman IC of Causal Valuation vs Legacy BRI.
 """
 from __future__ import annotations
 
 import bisect
 import datetime
 import json
+import sys
 from pathlib import Path
 
 import numpy as np
 from scipy import stats
 
 ROOT = Path(__file__).resolve().parent.parent
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from scraper.causal_core import _load_daily_mvrv_ranks, compute_cipherb_wt_on_ohlc
+from scraper.ohlc_store import load_closed_weekly_ohlc
 
 
 def causal_expanding_pct(series_by_date: dict[str, float]) -> dict[str, float]:
@@ -35,108 +41,147 @@ def causal_expanding_pct(series_by_date: dict[str, float]) -> dict[str, float]:
     return out
 
 
+def replay_d1_weekly_history(as_of: datetime.date) -> list[dict]:
+    weeks = load_closed_weekly_ohlc(as_of_date=as_of, ohlc_path=str(ROOT / 'data/history/btc_weekly_ohlc.json'))
+    wt1, wt2 = compute_cipherb_wt_on_ohlc(weeks)
+    mvrv_ranks = _load_daily_mvrv_ranks(scores_path=str(ROOT / 'data/history/scores.json'), as_of_date=as_of)
+
+    closes = [w['close'] for w in weeks]
+    s1_in, s2_in = False, False
+    mv_idx = 0
+    last_mv = None
+    out = []
+    for i, w in enumerate(weeks):
+        wk_close = w['week_close']
+        while mv_idx < len(mvrv_ranks) and mvrv_ranks[mv_idx][0] <= wk_close:
+            last_mv = mvrv_ranks[mv_idx][1]
+            mv_idx += 1
+        if i >= 39:
+            sma40 = sum(closes[i - 39:i + 1]) / 40.0
+            if not s1_in and w['close'] > sma40:
+                s1_in = True
+            elif s1_in and w['close'] < sma40:
+                s1_in = False
+        sp = (wt1[i] - wt2[i]) if (wt1[i] is not None and wt2[i] is not None) else None
+        if sp is not None:
+            if not s2_in and sp >= 2.0:
+                s2_in = True
+            elif s2_in and sp <= -2.0:
+                if last_mv is None or last_mv > 0.25:
+                    s2_in = False
+        out.append({
+            'avail_date': (wk_close + datetime.timedelta(days=1)).isoformat(),
+            'week_open': w['date'],
+            'sma40_in': s1_in,
+            'cb_in': s2_in,
+            'd1_alloc_pct': (50 if s1_in else 0) + (50 if s2_in else 0),
+            'wt_spread': round(float(sp), 1) if sp is not None else None,
+        })
+    return out
+
+
+def d1_state_at(d1_hist: list[dict], target_date: str) -> dict | None:
+    best = None
+    for row in d1_hist:
+        if row['avail_date'] <= target_date:
+            best = row
+        else:
+            break
+    return best
+
+
 def main():
     scores = json.loads((ROOT / 'data/history/scores.json').read_text(encoding='utf-8'))
     extremes = json.loads((ROOT / 'data/cycle_extremes.json').read_text(encoding='utf-8')).get('extremes', [])
-    cb_raw = json.loads((ROOT / 'data/history/cipherb_btcusdt_1w.json').read_text(encoding='utf-8'))
-    cb_series = cb_raw.get('series', cb_raw) if isinstance(cb_raw, dict) else cb_raw
     data_now = json.loads((ROOT / 'data/data.json').read_text(encoding='utf-8'))
+    today_d = str(data_now.get('date') or scores[-1]['date'])[:10]
 
-    # Closed weekly Cipher B scores available strictly AFTER bar close (week_open + 7d)
-    cb_avail: list[tuple[str, float]] = []
-    for r in cb_series:
-        d = str(r.get('date', ''))[:10]
-        ws = r.get('weekly_score')
-        if not d or ws is None:
-            continue
-        dt = datetime.date.fromisoformat(d)
-        if dt.weekday() != 3 and not r.get('is_closed_bar'):
-            continue
-        avail_d = (dt + datetime.timedelta(days=7)).isoformat()
-        cb_avail.append((avail_d, float(ws)))
-    cb_avail.sort(key=lambda x: x[0])
-
-    # Daily raw series from scores.json
-    mvrv_raw, mayer_raw, puell_raw, price_map, legacy_map = {}, {}, {}, {}, {}
+    mvrv_raw, puell_raw, cvdd_raw, price_map, legacy_map = {}, {}, {}, {}, {}
     for r in scores:
         d = str(r.get('date', ''))[:10]
         if not d:
             continue
         if r.get('mvrv') is not None:
             mvrv_raw[d] = float(r['mvrv'])
-        if r.get('mayer_multiple') is not None:
-            mayer_raw[d] = float(r['mayer_multiple'])
         if r.get('puell') is not None:
             puell_raw[d] = float(r['puell'])
+        if r.get('cvdd_ratio') is not None:
+            cvdd_raw[d] = float(r['cvdd_ratio'])
         if r.get('btc_price') is not None and float(r['btc_price']) > 0:
             price_map[d] = float(r['btc_price'])
         if r.get('final_score') is not None:
             legacy_map[d] = float(r['final_score'])
 
     mvrv_pct = causal_expanding_pct(mvrv_raw)
-    mayer_pct = causal_expanding_pct(mayer_raw)
     puell_pct = causal_expanding_pct(puell_raw)
+    cvdd_pct = causal_expanding_pct(cvdd_raw)
 
-    # Compute Causal BTCBRI for every BTC-priced date
-    causal_bri: dict[str, float] = {}
+    # Actual production Causal Cost-Basis Valuation Score (MVRV + Puell + CVDD)
+    causal_val: dict[str, float] = {}
     causal_parts: dict[str, dict] = {}
-    cb_idx = 0
-    last_cb = None
     for d in sorted(price_map):
-        while cb_idx < len(cb_avail) and cb_avail[cb_idx][0] <= d:
-            last_cb = cb_avail[cb_idx][1]
-            cb_idx += 1
-        mv = mvrv_pct.get(d)
-        my = mayer_pct.get(d)
-        pu = puell_pct.get(d)
-        mom = last_cb if last_cb is not None else pu
-        if mv is not None and my is not None and mom is not None:
-            val = round(0.40 * mv + 0.30 * my + 0.30 * mom, 1)
-            causal_bri[d] = val
-            causal_parts[d] = {
-                'mvrv_pct': round(mv, 1),
-                'mayer_pct': round(my, 1),
-                'momentum_pct': round(mom, 1),
-            }
+        comps = []
+        p_d = {}
+        if d in mvrv_pct:
+            comps.append(mvrv_pct[d])
+            p_d['mvrv_pct'] = round(mvrv_pct[d], 1)
+        if d in puell_pct:
+            comps.append(puell_pct[d])
+            p_d['puell_pct'] = round(puell_pct[d], 1)
+        if d in cvdd_pct:
+            comps.append(cvdd_pct[d])
+            p_d['cvdd_pct'] = round(cvdd_pct[d], 1)
+        if comps:
+            causal_val[d] = round(sum(comps) / len(comps), 1)
+            causal_parts[d] = p_d
 
-    # 1. Historical Cycle Extremes + Today
+    d1_hist = replay_d1_weekly_history(datetime.date.fromisoformat(today_d))
+
     ext_rows = []
     for ex in sorted(extremes, key=lambda x: x['date']):
         d = ex['date'][:10]
-        if causal_bri.get(d) is None and legacy_map.get(d) is None:
+        if causal_val.get(d) is None and legacy_map.get(d) is None:
             continue
         t_low = str(ex['type']).lower()
+        st_now = d1_state_at(d1_hist, d)
+        d_plus_8w = (datetime.date.fromisoformat(d) + datetime.timedelta(days=56)).isoformat()
+        st_8w = d1_state_at(d1_hist, d_plus_8w) if d_plus_8w <= today_d else None
         ext_rows.append({
             'date': d,
             'type': t_low,
             'major_cycle': bool(ex.get('major_cycle')),
             'label': f"{ex['type']} ({d[:7]})",
             'price': ex.get('price') or price_map.get(d),
-            'causal_bri': causal_bri.get(d),
+            'causal_valuation': causal_val.get(d),
+            'causal_bri': causal_val.get(d),
             'legacy_bri': legacy_map.get(d),
+            'd1_alloc_pct': st_now['d1_alloc_pct'] if st_now else None,
+            'd1_alloc_plus8w_pct': st_8w['d1_alloc_pct'] if st_8w else None,
             'parts': causal_parts.get(d),
         })
 
-    today_d = data_now.get('date', '2026-11-24')[:10]
+    st_today = d1_state_at(d1_hist, today_d)
     ext_rows.append({
         'date': today_d,
         'type': 'today',
         'label': f'Поточний зріз ({today_d})',
         'price': data_now.get('btc_price'),
-        'causal_bri': causal_bri.get(today_d),
+        'causal_valuation': (data_now.get('causal_valuation') or {}).get('valuation_score', causal_val.get(today_d)),
+        'causal_bri': (data_now.get('causal_valuation') or {}).get('valuation_score', causal_val.get(today_d)),
         'legacy_bri': data_now.get('bri_score', data_now.get('final_score')),
+        'd1_alloc_pct': st_today['d1_alloc_pct'] if st_today else None,
+        'd1_alloc_plus8w_pct': None,
         'parts': causal_parts.get(today_d),
     })
 
-    bots = [r['causal_bri'] for r in ext_rows if r['type'] == 'bottom' and r['causal_bri'] is not None]
-    tops = [r['causal_bri'] for r in ext_rows if r['type'] == 'top' and r['causal_bri'] is not None]
+    bots = [r['causal_valuation'] for r in ext_rows if r['type'] == 'bottom' and r['causal_valuation'] is not None]
+    tops = [r['causal_valuation'] for r in ext_rows if r['type'] == 'top' and r['causal_valuation'] is not None]
     leg_bots = [r['legacy_bri'] for r in ext_rows if r['type'] == 'bottom' and r['legacy_bri'] is not None]
     leg_tops = [r['legacy_bri'] for r in ext_rows if r['type'] == 'top' and r['legacy_bri'] is not None]
 
-    # 2. Forward 365d return & drawdown evaluation (2017-2025)
     max_p_d = datetime.date.fromisoformat(max(price_map))
     eval_rows = []
-    for d in sorted(causal_bri):
+    for d in sorted(causal_val):
         if d not in legacy_map or d not in price_map:
             continue
         d0 = datetime.date.fromisoformat(d)
@@ -151,78 +196,30 @@ def main():
             continue
         p0 = price_map[d]
         p365 = price_map.get((d0 + datetime.timedelta(days=365)).isoformat(), fut[-1])
-        ret365 = (p365 / p0 - 1.0) * 100.0
-        dd365 = max(0.0, (p0 - min(fut)) / p0 * 100.0)
         eval_rows.append({
             'date': d,
-            'causal_bri': causal_bri[d],
+            'causal_val': causal_val[d],
             'legacy_bri': legacy_map[d],
-            'ret365': ret365,
-            'dd365': dd365,
+            'ret365': (p365 / p0 - 1.0) * 100.0,
+            'dd365': max(0.0, (p0 - min(fut)) / p0 * 100.0),
         })
 
     def regime_ic(sub_rows):
-        cb_v = [r['causal_bri'] for r in sub_rows]
-        lg_v = [r['legacy_bri'] for r in sub_rows]
+        cv = [r['causal_val'] for r in sub_rows]
+        lg = [r['legacy_bri'] for r in sub_rows]
         r365 = [r['ret365'] for r in sub_rows]
         d365 = [r['dd365'] for r in sub_rows]
         return {
             'days': len(sub_rows),
-            'causal_spearman_ret365': round(float(stats.spearmanr(cb_v, r365).statistic), 4),
-            'legacy_spearman_ret365': round(float(stats.spearmanr(lg_v, r365).statistic), 4),
-            'causal_spearman_dd365': round(float(stats.spearmanr(cb_v, d365).statistic), 4),
-            'legacy_spearman_dd365': round(float(stats.spearmanr(lg_v, d365).statistic), 4),
-        }
-
-    # 3. Next-day (t+1) trailing-peak backtest (entry <= 30, arm >= 75, exit <= peak - 15)
-    def bt_bri(bri_map: dict[str, float], start_d: str, fee: float = 0.005) -> dict:
-        ds = [d for d in sorted(bri_map) if d >= start_d and d in price_map]
-        cash, btc = 10000.0, 0.0
-        armed, peak = False, 0.0
-        pending_act = None
-        eq = []
-        closed = []
-        entry_p = None
-        for d in ds:
-            p = price_map[d]
-            if pending_act == 'BUY' and btc == 0.0:
-                btc = cash * (1.0 - fee) / p
-                cash = 0.0
-                armed = False
-                peak = bri_map[d]
-                entry_p = p
-                pending_act = None
-            elif pending_act == 'SELL' and btc > 0.0:
-                cash = btc * p * (1.0 - fee)
-                btc = 0.0
-                armed = False
-                peak = 0.0
-                closed.append((p / entry_p * ((1.0 - fee) ** 2) - 1.0) * 100.0)
-                pending_act = None
-
-            sc = bri_map[d]
-            if btc == 0.0 and sc <= 30.0:
-                pending_act = 'BUY'
-            elif btc > 0.0:
-                if sc >= 75.0:
-                    armed = True
-                if sc > peak:
-                    peak = sc
-                if armed and sc <= peak - 15.0:
-                    pending_act = 'SELL'
-            eq.append(cash + btc * p)
-        arr = np.array([10000.0] + eq, dtype=float)
-        dd = float(np.max(1.0 - arr / np.maximum.accumulate(arr)) * 100.0)
-        return {
-            'multiple': round(float(arr[-1] / 10000.0), 2),
-            'max_dd_pct': round(dd, 1),
-            'closed_trades': len(closed),
-            'open': int(btc > 0.0),
+            'causal_spearman_ret365': round(float(stats.spearmanr(cv, r365).statistic), 4),
+            'legacy_spearman_ret365': round(float(stats.spearmanr(lg, r365).statistic), 4),
+            'causal_spearman_dd365': round(float(stats.spearmanr(cv, d365).statistic), 4),
+            'legacy_spearman_dd365': round(float(stats.spearmanr(lg, d365).statistic), 4),
         }
 
     out = {
         'generated_at': datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0).isoformat().replace('+00:00', 'Z'),
-        'formula': 'Causal BTCBRI = 0.40*MVRV_pct + 0.30*Mayer_pct + 0.30*CipherB_1W_closed (0% future leakage)',
+        'formula': 'Production Causal Valuation = mean causal expanding rank of (MVRV, Puell, CVDD) + D1 Dual-Sleeve allocation (50% SMA40w + 50% Cipher B 1W & MVRV Veto)',
         'extremes': ext_rows,
         'separation': {
             'causal_mean_bottom': round(float(np.mean(bots)), 1),
@@ -235,16 +232,6 @@ def main():
         'regime_ic': {
             '2017_2020': regime_ic([r for r in eval_rows if r['date'] < '2021-01-01']),
             '2021_2025': regime_ic([r for r in eval_rows if r['date'] >= '2021-01-01']),
-        },
-        'bri_trailing_backtest': {
-            '2018_2026': {
-                'causal_bri': bt_bri(causal_bri, '2018-01-01'),
-                'legacy_bri': bt_bri(legacy_map, '2018-01-01'),
-            },
-            '2021_2026': {
-                'causal_bri': bt_bri(causal_bri, '2021-01-01'),
-                'legacy_bri': bt_bri(legacy_map, '2021-01-01'),
-            },
         },
     }
     for rel in ('data/causal_bri_extremes.json', 'web/causal_bri_extremes.json'):

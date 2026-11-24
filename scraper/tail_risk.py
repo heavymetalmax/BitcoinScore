@@ -1,11 +1,12 @@
-"""Causal 13-week Tail Risk Classifier (replaces V5B).
+"""Causal 13-week Tail Risk Classifier (replaces legacy V5B).
 
 Active model (B1_vol13):
   1-factor L2 logistic regression on causal 13-week realized weekly log-return
-  volatility over strictly CLOSED weekly bars (no partial current-week bar),
-  trained strictly on matured 13-week drawdown labels (label_known_at < as_of).
-  `validated=True` is set ONLY if expanding OOS walk-forward beats prevalence
-  (BSS > 0) with acceptable calibration (ECE_5bin <= 0.08, n_oos >= 52).
+  volatility over strictly CLOSED Monday-opening weekly OHLC bars
+  (data/history/btc_weekly_ohlc.json, real H/L/O/C since 2011), trained strictly
+  on matured 13-week drawdown labels (label_known_at < as_of).
+  `validated=True` is set ONLY if expanding purged OOS walk-forward beats
+  prevalence (BSS > 0) with acceptable calibration (ECE_5bin <= 0.08, n_oos >= 52).
 
 Shadow model (M2_vol_mvrv):
   2-factor L2 logistic regression (vol13 + standardized MVRV Z-score without
@@ -19,6 +20,8 @@ import json
 import math
 import os
 from typing import Any
+
+from .ohlc_store import DEFAULT_OHLC_PATH, load_closed_weekly_ohlc
 
 
 def _load_daily_series(
@@ -54,15 +57,34 @@ def _load_daily_series(
     return [(d, v[0], v[1]) for d, v in sorted(by_date.items())]
 
 
+def _load_mvrv_by_date(
+    scores_path: str = 'data/history/scores.json',
+    as_of_date: datetime.date | None = None,
+) -> list[tuple[datetime.date, float]]:
+    """Load sorted (date, mvrv_z_score) strictly <= as_of_date."""
+    if not os.path.exists(scores_path):
+        return []
+    out: dict[datetime.date, float] = {}
+    try:
+        for r in json.load(open(scores_path, encoding='utf-8')):
+            d_str = str(r.get('date', ''))[:10]
+            mv = r.get('mvrv')
+            if not d_str or mv is None:
+                continue
+            d = datetime.date.fromisoformat(d_str)
+            if as_of_date is not None and d > as_of_date:
+                continue
+            out[d] = float(mv)
+    except Exception:
+        return []
+    return sorted(out.items())
+
+
 def _to_closed_monday_weekly(
     daily: list[tuple[datetime.date, float, float | None]],
     as_of_date: datetime.date,
 ) -> list[dict[str, Any]]:
-    """Aggregate daily closes into strictly CLOSED Monday-opening weekly bars.
-
-    Note: scores.json contains daily closes (not intraday OHLC highs/lows), so
-    weekly high/low here are close-derived envelopes.
-    """
+    """Fallback: aggregate daily closes into CLOSED Monday-opening weekly bars."""
     buckets: dict[datetime.date, list[tuple[datetime.date, float, float | None]]] = {}
     for d, p, mv in daily:
         wk_open = d - datetime.timedelta(days=d.weekday())
@@ -90,6 +112,18 @@ def _to_closed_monday_weekly(
     return weeks
 
 
+def _attach_causal_mvrv(weeks: list[dict[str, Any]], mvrv_daily: list[tuple[datetime.date, float]]) -> None:
+    """Attach latest MVRV Z-score observed strictly <= week_close to each weekly bar."""
+    idx = 0
+    last_mv: float | None = None
+    for w in weeks:
+        wk_close = w['week_close']
+        while idx < len(mvrv_daily) and mvrv_daily[idx][0] <= wk_close:
+            last_mv = mvrv_daily[idx][1]
+            idx += 1
+        w['mvrv_z'] = last_mv
+
+
 def _ece_5bin(y_true, y_prob) -> float:
     import numpy as np
 
@@ -110,6 +144,7 @@ def predict_tail_risk_13w(
     mvrv_today: float | None = None,
     target_date: datetime.date | str | None = None,
     scores_path: str = 'data/history/scores.json',
+    ohlc_path: str | None = DEFAULT_OHLC_PATH,
 ) -> dict[str, Any]:
     """Compute causal P(MaxDD_13w >= 25%) in [0, 100] with real OOS validation."""
     if target_date is None:
@@ -119,13 +154,26 @@ def predict_tail_risk_13w(
     else:
         as_of = target_date
 
-    daily = _load_daily_series(
-        scores_path=scores_path,
-        btc_price_today=btc_price_today,
-        mvrv_today=mvrv_today,
-        as_of_date=as_of,
-    )
-    weeks = _to_closed_monday_weekly(daily, as_of_date=as_of)
+    weeks: list[dict[str, Any]] = []
+    ohlc_source = 'daily_close_resampled'
+
+    if ohlc_path and os.path.exists(ohlc_path):
+        weeks = load_closed_weekly_ohlc(as_of_date=as_of, ohlc_path=ohlc_path)
+        if weeks:
+            ohlc_source = 'weekly_ohlc_archive'
+            mvrv_daily = _load_mvrv_by_date(scores_path=scores_path, as_of_date=as_of)
+            _attach_causal_mvrv(weeks, mvrv_daily)
+
+    if not weeks:
+        daily = _load_daily_series(
+            scores_path=scores_path,
+            btc_price_today=btc_price_today,
+            mvrv_today=mvrv_today,
+            as_of_date=as_of,
+        )
+        weeks = _to_closed_monday_weekly(daily, as_of_date=as_of)
+        ohlc_source = 'daily_close_resampled'
+
     n = len(weeks)
     if n < 80:
         return {
@@ -133,10 +181,11 @@ def predict_tail_risk_13w(
             'prob_dd25_13w_pct': None,
             'validated': False,
             'method': 'insufficient_history',
-            'ohlc_source': 'daily_close_resampled',
+            'ohlc_source': ohlc_source,
             'shadow_m2_pct': None,
             'train_n': 0,
             'vol13_ann_pct': None,
+            'last_closed_week': weeks[-1]['week_open'].isoformat() if weeks else None,
             'oos_validation': None,
         }
 
@@ -160,7 +209,7 @@ def predict_tail_risk_13w(
             continue
         label_end = weeks[i + 13]['week_open']
         label_known = label_end + datetime.timedelta(days=7)
-        if label_known >= as_of:
+        if label_known > as_of:
             continue
         op_next = weeks[i + 1]['open']
         if op_next <= 0:
@@ -171,45 +220,50 @@ def predict_tail_risk_13w(
             'week_open': weeks[i]['week_open'],
             'label_known': label_known,
             'vol13': v,
-            'mvrv_z': weeks[i]['mvrv_z'],
+            'mvrv_z': weeks[i].get('mvrv_z'),
             'y': 1 if dd13 >= 0.25 else 0,
         })
 
     cur_v = vol13[-1]
+    last_wk_str = weeks[-1]['week_open'].isoformat()
     if cur_v is None or len(matured_rows) < 60 or len({r['y'] for r in matured_rows}) < 2:
         return {
             'score': None,
             'prob_dd25_13w_pct': None,
             'validated': False,
             'method': 'insufficient_history',
-            'ohlc_source': 'daily_close_resampled',
+            'ohlc_source': ohlc_source,
             'shadow_m2_pct': None,
             'train_n': len(matured_rows),
             'vol13_ann_pct': round(cur_v * math.sqrt(52) * 100.0, 1) if cur_v is not None else None,
+            'last_closed_week': last_wk_str,
             'oos_validation': None,
         }
 
     try:
         import numpy as np
         from sklearn.linear_model import LogisticRegression
+        from sklearn.metrics import average_precision_score
     except ImportError:
         return {
             'score': None,
             'prob_dd25_13w_pct': None,
             'validated': False,
             'method': 'sklearn_unavailable',
-            'ohlc_source': 'daily_close_resampled',
+            'ohlc_source': ohlc_source,
             'shadow_m2_pct': None,
             'train_n': len(matured_rows),
             'vol13_ann_pct': round(cur_v * math.sqrt(52) * 100.0, 1),
+            'last_closed_week': last_wk_str,
             'oos_validation': None,
         }
 
-    # Expanding purged OOS validation before setting validated=True
+    # Expanding purged OOS validation (from 2017 when real OHLC archive starts in 2011, else +2y warmup)
     oos_y: list[int] = []
     oos_p: list[float] = []
     oos_b0: list[float] = []
-    start_yr = matured_rows[0]['week_open'].year + 2
+    first_yr = matured_rows[0]['week_open'].year
+    start_yr = max(first_yr + 2, 2017) if ohlc_source == 'weekly_ohlc_archive' else (first_yr + 2)
     end_yr = matured_rows[-1]['week_open'].year
     for yr in range(start_yr, end_yr + 1):
         cutoff = datetime.date(yr, 1, 1)
@@ -242,12 +296,14 @@ def predict_tail_risk_13w(
         br_b0 = float(np.mean((b0 - ya) ** 2))
         bss = (1.0 - br_mod / br_b0) if br_b0 > 0 else 0.0
         ece = _ece_5bin(ya, pa)
+        pr_auc = float(average_precision_score(ya, pa))
         validated = bool(bss > 0.0 and ece <= 0.08)
         oos_summary = {
             'n_oos': len(oos_y),
             'brier': round(br_mod, 5),
             'prevalence_brier': round(br_b0, 5),
             'bss_vs_prevalence': round(bss, 4),
+            'pr_auc': round(pr_auc, 4),
             'ece_5bin': round(ece, 4),
             'passed': validated,
         }
@@ -264,9 +320,9 @@ def predict_tail_risk_13w(
     clf1.fit(Z1_tr, y_all)
     prob1 = float(clf1.predict_proba(np.array([[Z1_cur]], dtype=float))[0, 1]) * 100.0
 
-    # Shadow M2 (vol13 + standardized mvrv_z_score — keeps all negative/zero Z-scores!)
+    # Shadow M2 (vol13 + standardized mvrv_z_score — keeps all negative/zero Z-scores)
     shadow_m2: float | None = None
-    cur_mv = weeks[-1]['mvrv_z']
+    cur_mv = weeks[-1].get('mvrv_z')
     m2_rows = [r for r in matured_rows if r['mvrv_z'] is not None]
     if cur_mv is not None and len(m2_rows) >= 60 and len({r['y'] for r in m2_rows}) == 2:
         arr2 = np.array([[r['vol13'], r['mvrv_z']] for r in m2_rows], dtype=float)
@@ -285,9 +341,10 @@ def predict_tail_risk_13w(
         'prob_dd25_13w_pct': score_rounded,
         'validated': validated,
         'method': 'causal_vol13_logistic',
-        'ohlc_source': 'daily_close_resampled',
+        'ohlc_source': ohlc_source,
         'shadow_m2_pct': shadow_m2,
         'train_n': len(matured_rows),
         'vol13_ann_pct': round(cur_v * math.sqrt(52) * 100.0, 1),
+        'last_closed_week': last_wk_str,
         'oos_validation': oos_summary,
     }

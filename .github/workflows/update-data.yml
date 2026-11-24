@@ -112,7 +112,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git remote set-url origin "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
           git add -u
-          git add -f data/pit_ledger.jsonl 2>/dev/null || true
+          git add -f data/pit_ledger.jsonl data/history/btc_weekly_ohlc.json 2>/dev/null || true
           git commit -m "chore: update data.json [skip ci]" || echo "No changes to commit"
           git pull --rebase --strategy-option=theirs origin main
           git push
