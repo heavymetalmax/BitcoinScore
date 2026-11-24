@@ -1405,16 +1405,16 @@
                 <!-- Needle indicator dot at value 33 -->
                 <circle id="gauge-needle" cx="79.5" cy="39.8" r="5.5" fill="var(--bg)" stroke="#22C55E" stroke-width="2"/>
 
-                <!-- Inner Causal Thermometer Arc (Clickable for explanation) -->
-                <g id="uncertainty-group" class="uncertainty-interactive" role="button" tabindex="0" aria-label="Causal Thermometer explanation">
-                  <title>Causal BTCBRI Thermometer (0% lookahead) / Причинний термометр BTCBRI</title>
+                <!-- Inner V5.2 New Index Arc (Clickable for explanation) -->
+                <g id="uncertainty-group" class="uncertainty-interactive" role="button" tabindex="0" aria-label="New Index v5.2 explanation">
+                  <title>New Risk Index v5.2 (no hindsight bias) / Новий індекс ризику v5.2 (без підгонки під історію)</title>
                   <!-- Generous invisible click hit area -->
                   <path d="M 34 120 A 86 86 0 0 1 206 120" stroke="transparent" stroke-width="22" stroke-linecap="round" fill="none" style="pointer-events: stroke; cursor: pointer;"/>
                   <path class="conflict-arc-track" d="M 34 120 A 86 86 0 0 1 206 120" stroke="var(--border)" stroke-width="3" stroke-linecap="round" fill="none"/>
                   <path class="conflict-arc-path" id="gauge-conflict-arc" d="" stroke="#22C55E" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.92"/>
                   <circle class="conflict-needle-dot" id="gauge-conflict-needle" cx="34" cy="120" r="3.2" fill="var(--bg)" stroke="#22C55E" stroke-width="1.5"/>
-                  <text class="en" font-size="5.5" font-weight="600" letter-spacing="0.12em" fill="var(--muted)" opacity="0.85"><textPath href="#uncertainty-label-path" startOffset="4.5%">CAUSAL BRI</textPath></text>
-                  <text class="ua" font-size="5.3" font-weight="600" letter-spacing="0.10em" fill="var(--muted)" opacity="0.85"><textPath href="#uncertainty-label-path" startOffset="4.5%">CAUSAL ТЕРМОМЕТР</textPath></text>
+                  <text class="en" font-size="5.5" font-weight="600" letter-spacing="0.12em" fill="var(--muted)" opacity="0.85"><textPath href="#uncertainty-label-path" startOffset="4.5%">INDEX V5.2</textPath></text>
+                  <text class="ua" font-size="5.3" font-weight="600" letter-spacing="0.10em" fill="var(--muted)" opacity="0.85"><textPath href="#uncertainty-label-path" startOffset="4.5%">НОВИЙ ІНДЕКС</textPath></text>
                 </g>
               </svg>
               <!-- Center Score Value (Lowered & Scaled) -->
@@ -2239,8 +2239,8 @@
       <button class="disc-close" id="uncertainty-modal-close" aria-label="Close">×</button>
       <div class="disc-modal-title" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; padding-right: 36px;">
         <span style="font-size: 16px; font-weight: 700;">
-          <span class="en">Causal BTCBRI Thermometer (0% Leakage)</span>
-          <span class="ua">Причинний термометр Causal BTCBRI (0% витоку)</span>
+          <span class="en">New Risk Index v5.2 (Unbiased)</span>
+          <span class="ua">Новий індекс ризику v5.2 (без підгонки)</span>
         </span>
         <div id="modal-uncertainty-badge" style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 9999px; font-size: 11px; font-weight: 700; border: 1px solid var(--border); background: var(--surface2); flex-shrink: 0;">
           <span id="modal-uncertainty-score" style="font-variant-numeric: tabular-nums;">—</span>
@@ -2249,15 +2249,15 @@
       </div>
       <div class="disc-modal-body" style="display: flex; flex-direction: column; gap: 14px; font-size: 13px; line-height: 1.65;">
         <p>
-          <span class="en"><strong>What does the inner arc represent?</strong> The inner arc displays the strictly causal <strong>Causal BTCBRI Thermometer (0–100)</strong> computed with zero future lookahead, alongside the outer Legacy BRI arc.</span>
-          <span class="ua"><strong>Що показує внутрішня дуга?</strong> Внутрішня дуга показує суворо причинний <strong>термометр Causal BTCBRI (0–100)</strong> без жодного витоку майбутнього, поруч із зовнішньою дугою Legacy BRI.</span>
+          <span class="en"><strong>What does the inner arc represent?</strong> The inner arc shows the updated <strong>v5.2 Risk Index (0–100)</strong> calculated strictly on historical data known at each moment — without hindsight tuning.</span>
+          <span class="ua"><strong>Що показує внутрішня дуга?</strong> Внутрішня дуга показує оновлений <strong>індекс ризику v5.2 (0–100)</strong>, порахований чесно на даних, відомих на момент часу — без підгонки під минулі цикли.</span>
         </p>
 
         <div style="background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
           <div>
             <div style="font-size: 10.5px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em;">
-              <span class="en">Causal BTCBRI</span>
-              <span class="ua">Causal BTCBRI</span>
+              <span class="en">New Index v5.2</span>
+              <span class="ua">Новий індекс v5.2</span>
             </div>
             <div id="modal-cs-val" style="font-size: 20px; font-weight: 800; margin-top: 3px; font-variant-numeric: tabular-nums;">—</div>
           </div>
