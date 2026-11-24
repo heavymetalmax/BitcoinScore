@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BTCBRI Trading Desk — V5 Сигнали, Патерни та ШІ-аналітика</title>
+  <title>BTCBRI Trading Desk — Alpha v5.2 (Causal D1 + 13w Tail Risk)</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
@@ -713,19 +713,19 @@
     <div class="meta-strip">
       <span id="meta-updated">Завантаження актуального зрізу...</span>
       <div class="meta-pills">
-        <span class="pill" id="pill-version">BTCBRI V5</span>
+        <span class="pill" id="pill-version">Alpha v5.2 · Causal D1</span>
         <span class="pill" id="pill-quality">Якість: —</span>
-        <span class="pill" id="pill-validated">Forward Risk: —</span>
+        <span class="pill" id="pill-validated">13w Tail Risk: —</span>
       </div>
     </div>
 
     <!-- HERO DECISION COCKPIT -->
     <div class="hero-grid">
-      <!-- Left: Primary V5 Dual-Sleeve Verdict -->
+      <!-- Left: Primary Causal D1 Dual-Sleeve Verdict -->
       <div class="card hero-verdict-card">
         <div class="hero-top">
           <div>
-            <div class="eyebrow">Головний вердикт · BTCBRI V5 Dual-Sleeve Engine</div>
+            <div class="eyebrow">Головний вердикт · Alpha v5.2 · Causal D1 (оновлення алгоритму 24.11)</div>
             <div class="verdict-headline">
               <span id="hero-alloc-headline">—</span>
               <span class="pill" id="hero-regime-pill">—</span>
@@ -1264,7 +1264,8 @@
       $('nav-live-price').textContent = fmtUSD(s.spot);
       const dt = DATA.timestamp ? new Date(DATA.timestamp).toLocaleString('uk-UA') : DATA.date;
       $('meta-updated').textContent = `Зріз даних: ${dt}`;
-      $('pill-version').textContent = (DATA.bri_version || 'v5').toUpperCase() + ' Engine';
+      $('pill-version').textContent = 'Alpha v5.2 · Causal D1';
+      $('pill-version').title = 'Оновлення алгоритму 24.11.2026: реальний тижневий OHLC, D1 (SMA40w + Cipher B 1W & MVRV Value-Veto), OOS-валідований 13w Tail Risk';
       $('pill-version').className = 'pill accent';
 
       const dq = DATA.data_quality || {};
