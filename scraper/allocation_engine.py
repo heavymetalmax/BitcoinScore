@@ -121,22 +121,32 @@ def compute_allocation_signal(
         or cb_dict.get('bearish_div')
     )
 
-    if isinstance(d1_state, dict) and d1_state.get('available') and wt1 is None and wt2 is None:
-        wt1 = d1_state.get('wt1')
-        wt2 = d1_state.get('wt2')
-
     wt_spread = round(float(wt1) - float(wt2), 2) if (wt1 is not None and wt2 is not None) else None
+    kraken_wt_spread = wt_spread
     veto_blocked_exit = False
+    ohlc_bar_date = None
 
-    if isinstance(d1_state, dict) and d1_state.get('available') and cipherb_val is None:
-        cb_in_pos = bool(d1_state.get('cb_in_pos'))
-        veto_blocked_exit = bool(d1_state.get('veto_blocked_exit'))
+    if isinstance(d1_state, dict) and d1_state.get('available'):
+        # 100% Monday-closed OHLC parity with tools/run_causal_backtest.py
+        ohlc_bar_date = d1_state.get('last_closed_week')
         wt_spread = d1_state.get('wt_spread')
+        eff_prev_cb = prev_cb_in_pos if prev_cb_in_pos is not None else d1_state.get('prev_cb_in_pos')
+        cb_in_pos = False
+        if wt_spread is not None:
+            if wt_spread >= 2.0:
+                cb_in_pos = True
+            elif wt_spread <= -2.0:
+                if value_sell_veto and eff_prev_cb is True:
+                    cb_in_pos = True
+                    veto_blocked_exit = True
+                else:
+                    cb_in_pos = False
+            elif eff_prev_cb is not None:
+                cb_in_pos = bool(eff_prev_cb)
+            else:
+                cb_in_pos = wt_spread > 0.0
     else:
         eff_prev_cb = prev_cb_in_pos
-        if eff_prev_cb is None and isinstance(d1_state, dict) and d1_state.get('available'):
-            eff_prev_cb = d1_state.get('prev_cb_in_pos')
-
         cb_in_pos = False
         if wt_spread is not None:
             if wt_spread >= 2.0:
@@ -226,6 +236,8 @@ def compute_allocation_signal(
         'tiz_le25_days': tiz_le25_days,
         'tiz_confirmed': tiz_confirmed,
         'weekly_wt_spread': wt_spread,
+        'kraken_wt_spread': kraken_wt_spread,
+        'ohlc_bar_date': ohlc_bar_date,
         'weekly_score': round(float(weekly_score), 1) if weekly_score is not None else None,
         'value_sell_veto': bool(value_sell_veto),
         'abstain': bool(abstain),

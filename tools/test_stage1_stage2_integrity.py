@@ -219,6 +219,8 @@ def test_data_json_synced_with_live_compute_score():
         persist_hmm_cache=False,
     )
     assert d['allocation_signal']['allocation_engine'] == 'causal_d1_sma40_cb_veto'
+    assert d['allocation_signal']['ohlc_bar_date'] == '2026-11-16'
+    assert d['allocation_signal']['weekly_wt_spread'] == live['allocation_signal']['weekly_wt_spread']
     assert d['allocation_signal']['action_label'] == live['allocation_signal']['action_label']
     assert d['allocation_signal']['target_allocation_pct'] == live['allocation_signal']['target_allocation_pct']
     assert d['v5b_validated'] == live['v5b_validated'] is True
