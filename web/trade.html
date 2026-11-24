@@ -887,8 +887,8 @@
         <!-- Capital Calculator -->
         <div class="card">
           <div class="card-hdr">
-            <div class="card-title">Калькулятор капіталу та ордерів</div>
-            <span class="muted">Інтерполяція від <code>zone_forecast</code></span>
+            <div class="card-title" id="calc-title">Калькулятор капіталу та ордерів</div>
+            <span class="muted" id="calc-subtitle">Синхронізовано з обраним режимом</span>
           </div>
 
           <div class="calc-controls">
@@ -904,7 +904,7 @@
 
           <div class="calc-summary">
             <div class="calc-sum-box">
-              <div class="kpi-label">Задіяти зараз (V5)</div>
+              <div class="kpi-label" id="calc-now-label">Задіяти зараз</div>
               <div class="calc-sum-val" style="color:var(--green);" id="calc-now-usd">—</div>
             </div>
             <div class="calc-sum-box">
@@ -1080,6 +1080,7 @@
       ACTIVE_MODE = btn.dataset.mode;
       $('mode-switcher').querySelectorAll('.mode-card').forEach(b => b.classList.toggle('active', b === btn));
       renderActiveModeDetails();
+      renderCalculator();
     });
 
     async function loadPatterns() {
@@ -1270,7 +1271,7 @@
       // 3-Trigger Traffic Light
       const etfOk = s.etf != null && s.etf >= 0;
       const asoprOk = s.asopr != null && s.asopr >= 1.0;
-      const momOk = (s.wtSpread != null && s.wtSpread > 0) || s.dailyBullDiv;
+      const momOk = s.wtSpread != null && s.wtSpread > 0;
       const cnt = [etfOk, asoprOk, momOk].filter(Boolean).length;
 
       $('triggers-count-pill').textContent = `${cnt} / 3 ОК`;
@@ -1285,7 +1286,7 @@
       $('trig-asopr-pill').className = 'pill ' + (asoprOk ? 'green' : 'red');
 
       $('trig-cb-val').textContent = s.wtSpread != null ? `(1W: ${s.wtSpread})` : '(—)';
-      $('trig-cb-pill').textContent = momOk ? 'Є сигнал' : 'Спадає';
+      $('trig-cb-pill').textContent = momOk ? '1W Вгору' : (s.dailyBullDiv ? '1D див / 1W ⏳' : 'Спадає');
       $('trig-cb-pill').className = 'pill ' + (momOk ? 'green' : 'amber');
     }
 
@@ -1294,7 +1295,7 @@
       const t1 = s.bri <= 25 && (!s.wma200 || s.spot < s.wma200) && (s.cvdd == null || s.cvdd <= 1.25);
       const etfOk = s.etf != null && s.etf >= 0;
       const asoprOk = s.asopr != null && s.asopr >= 1.0;
-      const momOk = (s.wtSpread != null && s.wtSpread > 0) || s.dailyBullDiv;
+      const momOk = s.wtSpread != null && s.wtSpread > 0;
       const confCount = [etfOk, asoprOk, momOk].filter(Boolean).length;
 
       $('tranche-verdict').textContent = t1 ? 'BUY 30%' : 'WAIT';
@@ -1320,7 +1321,7 @@
       const s = getMetricsState();
       const etfOk = s.etf != null && s.etf >= 0;
       const asoprOk = s.asopr != null && s.asopr >= 1.0;
-      const momOk = (s.wtSpread != null && s.wtSpread > 0) || s.dailyBullDiv;
+      const momOk = s.wtSpread != null && s.wtSpread > 0;
       const confCount = [etfOk, asoprOk, momOk].filter(Boolean).length;
       const list = $('active-mode-list');
       const note = $('active-mode-note');
@@ -1343,7 +1344,7 @@
           <div class="check-item"><span><strong>Тригер А (Глибоке дно):</strong> BRI ≤ 19 та (NUPL ≤ 2% / CVDD ≤ 1.08)</span><span class="pill ${trigA ? 'green' : ''}">${trigA ? 'СПРАЦЮВАВ' : 'Немає'}</span></div>
           <div class="check-item"><span><strong>Тригер Б1 (Spot ETF):</strong> Приплив ≥ $0 (${s.etf != null ? s.etf.toFixed(1) + 'M' : '—'})</span><span class="pill ${etfOk ? 'green' : 'red'}">${etfOk ? 'ОК' : 'Відтік'}</span></div>
           <div class="check-item"><span><strong>Тригер Б2 (aSOPR):</strong> aSOPR ≥ 1.00 (${s.asopr != null ? s.asopr.toFixed(4) : '—'})</span><span class="pill ${asoprOk ? 'green' : 'red'}">${asoprOk ? 'ОК' : 'Збитки'}</span></div>
-          <div class="check-item"><span><strong>Тригер Б3 (Імпульс):</strong> Розворот Cipher B / дивергенція</span><span class="pill ${momOk ? 'green' : 'amber'}">${momOk ? 'Сигнал є' : 'Спадає'}</span></div>
+          <div class="check-item"><span><strong>Тригер Б3 (1W Імпульс):</strong> Тижневий Cipher B (wt1 &gt; wt2)</span><span class="pill ${momOk ? 'green' : 'amber'}">${momOk ? '1W Вгору' : (s.dailyBullDiv ? '1D див / 1W спадає' : 'Спадає')}</span></div>
         `;
         note.textContent = 'Вхід 100% капіталу відбувається лише при спрацюванні Тригера А (екстремальна капітуляція) або при BRI ≤ 32 та ≥ 2/3 підтверджень розвороту.';
       } else {
@@ -1387,19 +1388,57 @@
         $('calc-est-pct').textContent = `(${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%)`;
       }
 
-      const nowUsd = cap * (s.targetAlloc / 100);
+      const etfOk = s.etf != null && s.etf >= 0;
+      const asoprOk = s.asopr != null && s.asopr >= 1.0;
+      const momOk = s.wtSpread != null && s.wtSpread > 0;
+      const confCount = [etfOk, asoprOk, momOk].filter(Boolean).length;
+      const t1 = s.bri <= 25 && (!s.wma200 || s.spot < s.wma200) && (s.cvdd == null || s.cvdd <= 1.25);
+      const trigA = s.bri <= 19 && ((s.nupl != null && s.nupl <= 2) || (s.cvdd != null && s.cvdd <= 1.08));
+      const trigB = s.bri <= 32 && confCount >= 2;
+      const cbRaw = DATA.metrics?.cipherb?.value || {};
+      const smallGreenNow = cbRaw.weekly_pool?.small_green_now ?? (s.wtSpread != null && s.wtSpread > 0);
+
+      let nowPct = 0;
+      let rows = [];
+      if (ACTIVE_MODE === 'tranche') {
+        $('calc-title').textContent = 'Калькулятор · Режим 1 (Мульти-транш)';
+        $('calc-subtitle').textContent = 'Сітка 30% / 30% / 25% / 15%';
+        $('calc-now-label').textContent = 'Задіяти зараз (Транш 1)';
+        nowPct = (t1 ? 30 : 0) + (s.bri <= targetBri ? 30 : 0) + (s.bri <= 15 ? 25 : 0);
+        const p15 = estimatePriceForBri(15);
+        rows = [
+          { name: 'Транш 1 (30%)', cond: 'BRI ≤ 25 &lt; 200W MA', price: s.spot, share: 0.30, active: t1 },
+          { name: 'Транш 2 (30%)', cond: `BRI ≤ ${targetBri} (ціль)`, price: estPrice, share: 0.30, active: s.bri <= targetBri },
+          { name: 'Транш 3 (25%)', cond: 'BRI ≤ 15 (дно)', price: p15, share: 0.25, active: s.bri <= 15 },
+          { name: 'Транш 4 (15%)', cond: 'Підтвердження (2/3)', price: s.spot * 1.05, share: 0.15, active: s.bri <= 32 && confCount >= 2 },
+        ];
+      } else if (ACTIVE_MODE === 'single') {
+        $('calc-title').textContent = 'Калькулятор · Режим 2 (1-Ордер 100%)';
+        $('calc-subtitle').textContent = 'Вхід усім капіталом по 1 з 2 тригерів';
+        $('calc-now-label').textContent = 'Задіяти зараз (1-Ордер)';
+        nowPct = (trigA || trigB) ? 100 : 0;
+        const p19 = estimatePriceForBri(19);
+        rows = [
+          { name: 'Ордер А (100%)', cond: 'Ліміт: BRI ≤ 19 + NUPL ≤ 2% / CVDD ≤ 1.08', price: p19, share: 1.00, active: trigA },
+          { name: 'Ордер Б (100%)', cond: `Маркет: BRI ≤ 32 + ≥ 2/3 підтверджень (${confCount}/3)`, price: s.spot, share: 1.00, active: trigB },
+        ];
+      } else {
+        $('calc-title').textContent = 'Калькулятор · Режим 3 (Cipher B Pool)';
+        $('calc-subtitle').textContent = '100% накопиченого пулу по 1W закриттю';
+        $('calc-now-label').textContent = 'Задіяти пул зараз';
+        nowPct = smallGreenNow ? 100 : 0;
+        rows = [
+          { name: 'Пара #3 (100% пулу)', cond: `1W мала зелена (wt1 > wt2; зараз ${s.wtSpread ?? '—'}) → 1W червона`, price: s.spot, share: 1.00, active: smallGreenNow },
+          { name: 'Пара #4 (100% пулу)', cond: '1W мала зелена → 1W Bearish Div A', price: s.spot, share: 1.00, active: smallGreenNow },
+        ];
+      }
+
+      const nowUsd = cap * (nowPct / 100);
       const resUsd = Math.max(0, cap - nowUsd);
-      $('calc-now-usd').textContent = fmtUSD(nowUsd);
+      $('calc-now-usd').textContent = `${fmtUSD(nowUsd)} (${nowPct}%)`;
       $('calc-now-btc').textContent = s.spot ? (nowUsd / s.spot).toFixed(4) + ' BTC' : '—';
       $('calc-res-usd').textContent = fmtUSD(resUsd);
 
-      const p15 = estimatePriceForBri(15);
-      const rows = [
-        { name: 'Транш 1 (30%)', cond: 'BRI ≤ 25 &lt; 200W MA', price: s.spot, share: 0.30, active: s.bri <= 25 },
-        { name: 'Транш 2 (30%)', cond: `BRI ≤ ${targetBri} (ціль)`, price: estPrice, share: 0.30, active: s.bri <= targetBri },
-        { name: 'Транш 3 (25%)', cond: 'BRI ≤ 15 (дно)', price: p15, share: 0.25, active: s.bri <= 15 },
-        { name: 'Транш 4 (15%)', cond: 'Підтвердження (2/3)', price: s.spot * 1.05, share: 0.15, active: false },
-      ];
       $('calc-table-body').innerHTML = rows.map(r => {
         const usd = cap * r.share;
         const btc = r.price ? (usd / r.price) : 0;
