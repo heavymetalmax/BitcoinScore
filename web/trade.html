@@ -401,27 +401,19 @@
     <!-- AI Report & Prompt Studio -->
     <div class="card">
       <div class="card-hdr">
-        <div class="card-title">Генератор ШІ-звітів та експорт контекст-пакета</div>
-        <span class="muted">Працює повністю безкоштовно у браузері або через ваш безкоштовний Gemini API ключ</span>
-      </div>
-
-      <div class="api-row">
-        <label for="gemini-key" style="font-size:12px;font-weight:700;color:var(--muted);">Gemini Free API Key (aistudio.google.com):</label>
-        <input type="password" id="gemini-key" placeholder="AIza... (опціонально, зберігається лише в localStorage)" />
-        <button class="btn btn-primary" id="btn-gen-gemini" type="button">Згенерувати через Gemini (Free)</button>
+        <div class="card-title">ШІ-звіт та експорт контекст-пакета</div>
+        <span class="pill" id="ai-cache-pill">Перевірка...</span>
       </div>
 
       <div class="ai-toolbar">
-        <button class="btn btn-primary" id="btn-gen-openrouter" type="button">ШІ-звіт (OpenRouter Free)</button>
-        <button class="btn" id="btn-regen-openrouter" type="button" title="Перегенерувати примусово для поточного зрізу">↻</button>
-        <button class="btn btn-green" id="btn-gen-local" type="button">Миттєвий системний звіт (0₴)</button>
-        <button class="btn" id="btn-copy-prompt" type="button">Скопіювати Prompt + Дані для ChatGPT/Claude/Gemini</button>
-        <button class="btn" id="btn-dl-package" type="button">Завантажити .md пакет для моделі</button>
-        <button class="btn" id="btn-dl-json" type="button">Завантажити compact data.json</button>
-        <span class="pill" id="ai-cache-pill">1 звіт на оновлення</span>
+        <button class="btn btn-primary" id="btn-regen-openrouter" type="button">↻ Перегенерувати ШІ-звіт</button>
+        <button class="btn btn-green" id="btn-gen-local" type="button">Системний звіт (0₴)</button>
+        <button class="btn" id="btn-copy-prompt" type="button">Скопіювати Prompt + Дані</button>
+        <button class="btn" id="btn-dl-package" type="button">Завантажити .md пакет</button>
+        <button class="btn" id="btn-dl-json" type="button">Завантажити data.json</button>
       </div>
 
-      <div class="ai-output" id="ai-output">Натисніть «Згенерувати ШІ-звіт (OpenRouter Free)» або «Миттєвий системний звіт», щоб сформувати аналітику за поточними даними...</div>
+      <div class="ai-output" id="ai-output">Завантаження актуального ШІ-звіту...</div>
     </div>
   </div>
 
@@ -449,13 +441,6 @@
       const next = cur === 'dark' ? 'light' : 'dark';
       document.documentElement.setAttribute('data-theme', next);
       localStorage.setItem('btcbri_trade_theme', next);
-    });
-
-    // Restore saved Gemini key
-    const savedKey = localStorage.getItem('btcbri_gemini_key');
-    if (savedKey) $('gemini-key').value = savedKey;
-    $('gemini-key').addEventListener('change', e => {
-      localStorage.setItem('btcbri_gemini_key', e.target.value.trim());
     });
 
     async function loadDashboard() {
@@ -789,30 +774,10 @@ Forward Risk (365d): ${s.forward != null ? s.forward.toFixed(1) + '%' : '—'} (
         $('ai-cache-pill').textContent = 'Звіт актуальний (кеш)';
         $('ai-cache-pill').className = 'pill green';
       } catch (err) {
-        $('ai-output').textContent = 'Помилка генерації OpenRouter: ' + err.message + '\n\nВикористайте «Миттєвий системний звіт» або «Завантажити .md пакет».';
-      }
-    }
-
-    async function generateWithGemini() {
-      const key = $('gemini-key').value.trim();
-      if (!key) {
-        showToast('Вставте безкоштовний Gemini API ключ з aistudio.google.com');
-        return;
-      }
-      $('ai-output').textContent = 'Генерація звіту через Google Gemini (безкоштовний рівень)...';
-      const prompt = buildContextPackageText() + '\nВідповідай українською мовою, структуровано, без води, спираючись виключно на наведені цифри.';
-      try {
-        const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(key)}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),
-        });
-        const json = await resp.json();
-        if (!resp.ok) throw new Error(json.error?.message || 'API error');
-        const txt = json.candidates?.[0]?.content?.parts?.[0]?.text || 'Порожня відповідь моделі.';
-        $('ai-output').textContent = txt;
-      } catch (err) {
-        $('ai-output').textContent = 'Помилка запиту Gemini: ' + err.message + '\n\nВикористайте «Миттєвий системний звіт» або «Завантажити .md пакет».';
+        $('ai-cache-pill').textContent = 'Системний fallback';
+        $('ai-cache-pill').className = 'pill amber';
+        generateLocalReport();
+        $('ai-output').textContent = `[OpenRouter тимчасово недоступний: ${err.message}]\n\n` + $('ai-output').textContent;
       }
     }
 
@@ -820,15 +785,15 @@ Forward Risk (365d): ${s.forward != null ? s.forward.toFixed(1) + '%' : '—'} (
       renderKPIs();
       renderRecommendations();
       renderCalculator();
-      loadCachedOpenRouterReport();
+      if (!loadCachedOpenRouterReport()) {
+        generateWithOpenRouter(false);
+      }
     }
 
     $('calc-capital').addEventListener('input', renderCalculator);
     $('calc-target-bri').addEventListener('input', renderCalculator);
-    $('btn-gen-openrouter').addEventListener('click', () => generateWithOpenRouter(false));
     $('btn-regen-openrouter').addEventListener('click', () => generateWithOpenRouter(true));
     $('btn-gen-local').addEventListener('click', generateLocalReport);
-    $('btn-gen-gemini').addEventListener('click', generateWithGemini);
     $('btn-copy-prompt').addEventListener('click', () => {
       if (!DATA) return;
       navigator.clipboard.writeText(buildContextPackageText()).then(() => showToast('Prompt + JSON скопійовано в буфер!'));
