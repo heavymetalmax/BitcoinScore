@@ -1,11 +1,8 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
-  "buildCommand": null,
-  "outputDirectory": "web",
-  "rewrites": [
-    { "source": "/", "destination": "/trade.html" }
-  ],
+  "buildCommand": "rm -rf _vercel_dist && mkdir -p _vercel_dist && cp web/trade.html _vercel_dist/index.html && cp web/data.json _vercel_dist/data.json",
+  "outputDirectory": "_vercel_dist",
   "headers": [
     {
       "source": "/data.json",
