@@ -400,13 +400,14 @@
       </div>
 
       <div class="ai-toolbar">
+        <button class="btn btn-primary" id="btn-gen-openrouter" type="button">Згенерувати ШІ-звіт (OpenRouter Free)</button>
         <button class="btn btn-green" id="btn-gen-local" type="button">Миттєвий системний звіт (0₴)</button>
         <button class="btn" id="btn-copy-prompt" type="button">Скопіювати Prompt + Дані для ChatGPT/Claude/Gemini</button>
         <button class="btn" id="btn-dl-package" type="button">Завантажити .md пакет для моделі</button>
         <button class="btn" id="btn-dl-json" type="button">Завантажити compact data.json</button>
       </div>
 
-      <div class="ai-output" id="ai-output">Натисніть «Миттєвий системний звіт» або «Згенерувати через Gemini», щоб сформувати звіт за поточними даними...</div>
+      <div class="ai-output" id="ai-output">Натисніть «Згенерувати ШІ-звіт (OpenRouter Free)» або «Миттєвий системний звіт», щоб сформувати аналітику за поточними даними...</div>
     </div>
   </div>
 
@@ -702,6 +703,24 @@ Forward Risk (365d): ${s.forward != null ? s.forward.toFixed(1) + '%' : '—'} (
       $('ai-output').textContent = report;
     }
 
+    async function generateWithOpenRouter() {
+      if (!DATA) return;
+      $('ai-output').textContent = 'Генерація ШІ-звіту через безкоштовну модель OpenRouter...';
+      const prompt = buildContextPackageText();
+      try {
+        const resp = await fetch('/api/report', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt }),
+        });
+        const json = await resp.json();
+        if (!resp.ok) throw new Error(json.error || 'Server error');
+        $('ai-output').textContent = `[Модель: ${json.model}]\n\n${json.report}`;
+      } catch (err) {
+        $('ai-output').textContent = 'Помилка генерації OpenRouter: ' + err.message + '\n\nВикористайте «Миттєвий системний звіт» або «Завантажити .md пакет».';
+      }
+    }
+
     async function generateWithGemini() {
       const key = $('gemini-key').value.trim();
       if (!key) {
@@ -733,6 +752,7 @@ Forward Risk (365d): ${s.forward != null ? s.forward.toFixed(1) + '%' : '—'} (
 
     $('calc-capital').addEventListener('input', renderCalculator);
     $('calc-target-bri').addEventListener('input', renderCalculator);
+    $('btn-gen-openrouter').addEventListener('click', generateWithOpenRouter);
     $('btn-gen-local').addEventListener('click', generateLocalReport);
     $('btn-gen-gemini').addEventListener('click', generateWithGemini);
     $('btn-copy-prompt').addEventListener('click', () => {
