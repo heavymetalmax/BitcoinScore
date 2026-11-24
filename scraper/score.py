@@ -830,26 +830,28 @@ def compute_score(
     composite_risk:   float | None = None
     signal_agreement: float | None = None
     meta_score:       float | None = None
-    decision_suppressed = quality['status'] != 'valid' or not v5b_validated
+    decision_suppressed = quality['status'] != 'valid'
     suppression_reasons = []
     if quality['status'] != 'valid':
         suppression_reasons.append(f"data_quality_{quality['status']}")
     if not v5b_validated:
         suppression_reasons.append('v5b_not_better_than_baseline')
-    if v5b_score is not None and final is not None:
+    if final is not None:
         _mc = float(final)
-        buy  = _mc <  35 and v5b_score <  20
-        sell = _mc >= 65 and v5b_score >= 45
-        hold = _mc >= 65 and v5b_score <  45
+        _high_dd_guard = bool(v5b_validated and v5b_score is not None and v5b_score >= 55)
+        buy  = _mc < 35 and confidence_score >= 45 and not _high_dd_guard
+        sell = _mc >= 65 and (w_top >= 0.35 or _mc >= 75 or (v5b_validated and v5b_score is not None and v5b_score >= 45))
+        hold = _mc >= 65 and not sell
         market_regime = 'Buy' if buy else 'Sell' if sell else 'Hold' if hold else 'Wait'
         if decision_suppressed:
             market_regime = 'Unavailable' if quality['status'] == 'invalid' else 'Wait'
-        # Composite risk = √(Market Context × Outlook) — display gauge only, not used in market_regime.
-        composite_risk   = round(math.sqrt(max(0.0, _mc) * max(0.0, v5b_score)), 1)
-        signal_agreement = round(1.0 - abs(_mc - v5b_score) / 100.0, 2)
-        _w_mc  = signal_agreement / 2
-        _w_v5b = 1.0 - _w_mc
-        meta_score = round(_w_mc * _mc + _w_v5b * v5b_score, 1)
+        if v5b_score is not None:
+            # Composite risk = √(Market Context × Outlook) — display gauge only, not used in market_regime.
+            composite_risk   = round(math.sqrt(max(0.0, _mc) * max(0.0, v5b_score)), 1)
+            signal_agreement = round(1.0 - abs(_mc - v5b_score) / 100.0, 2)
+            _w_mc  = signal_agreement / 2
+            _w_v5b = 1.0 - _w_mc
+            meta_score = round(_w_mc * _mc + _w_v5b * v5b_score, 1)
 
     return {
         'final_score':        final,

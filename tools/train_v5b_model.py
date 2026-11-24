@@ -166,9 +166,12 @@ def main():
     X, y, dates, labeled_rows, all_rows = load_data()
     if len(X) < 1000:
         raise RuntimeError(f'Insufficient fully labeled rows: {len(X)}')
-    print(f'V5B: {len(X)} complete labels × {X.shape[1]} features ({dates[0]} → {dates[-1]})')
 
-    reports, oof = walk_forward(X, y, dates, FEATURE_COLS)
+    train_cols = [c for c in FEATURE_COLS if c not in ABLATION_GROUPS['without_price_position']]
+    train_idx_cols = [FEATURE_COLS.index(c) for c in train_cols]
+    print(f'V5B: {len(X)} complete labels × {len(train_cols)} stationary features ({dates[0]} → {dates[-1]})')
+
+    reports, oof = walk_forward(X, y, dates, train_cols)
     summary = aggregate(reports)
     if not reports:
         raise RuntimeError('No valid purged walk-forward folds')
@@ -176,9 +179,21 @@ def main():
         print(f"  fold {r['fold']}: train≤{r['train_end']} test={r['test_start']}→{r['test_end']} "
               f"MAE={r['mae']:.2f} mean-baseline={r['mean_baseline_mae']:.2f}")
 
+    try:
+        from scipy.stats import spearmanr
+        from sklearn.metrics import roc_auc_score
+        _y_oos = np.array([a for _, a, _ in oof])
+        _p_oos = np.array([p for _, _, p in oof])
+        summary['oos_spearman'] = round(float(spearmanr(_y_oos, _p_oos).statistic), 4)
+        summary['oos_roc_auc_dd30'] = round(float(roc_auc_score(_y_oos > 30.0, _p_oos)), 4)
+    except Exception:
+        pass
+
     ablations = {}
     for name, excluded in ABLATION_GROUPS.items():
-        cols = [c for c in FEATURE_COLS if c not in excluded]
+        cols = [c for c in train_cols if c not in excluded]
+        if not cols or cols == train_cols:
+            continue
         ablation_reports, _ = walk_forward(X, y, dates, cols)
         ablations[name] = {'features': len(cols), **aggregate(ablation_reports)}
 
@@ -187,9 +202,10 @@ def main():
     baseline_mae = min(summary['mean_baseline_mae'], summary['median_baseline_mae'])
     passes_baseline = summary['mae'] < baseline_mae
     validation = {
-        'schema_version': 2,
+        'schema_version': 3,
         'label': 'max_drawdown_365d',
         'purge_days': PURGE_DAYS,
+        'feature_count': len(train_cols),
         'folds': reports,
         'aggregate': summary,
         'passes_baseline': passes_baseline,
@@ -199,16 +215,17 @@ def main():
     }
     Path('data/v5b_validation.json').write_text(json.dumps(validation, indent=2))
 
-    medians = fit_imputer(X)
+    X_train_full = X[:, train_idx_cols]
+    medians = fit_imputer(X_train_full)
     model = make_model()
-    model.fit(impute(X, medians), y)
+    model.fit(impute(X_train_full, medians), y)
     source_bytes = Path('data/training_features_b.json').read_bytes()
     package = {
         'model': model,
-        'feature_cols': FEATURE_COLS,
+        'feature_cols': train_cols,
         'col_medians': medians,
         'metric_history': build_metric_history(all_rows),
-        'version': 'v5b.2-purged-walk-forward',
+        'version': 'v5b.3-stationary-purged',
         'label': 'max_drawdown_365d',
         'metadata': {
             'trained_at': datetime.datetime.now(datetime.timezone.utc).isoformat(),
@@ -216,7 +233,7 @@ def main():
             'training_sha256': hashlib.sha256(source_bytes).hexdigest(),
             'validation': summary, 'purge_days': PURGE_DAYS,
             'passes_baseline': passes_baseline,
-            'version': 'v5b.2-purged-walk-forward',
+            'version': 'v5b.3-stationary-purged',
         },
     }
     with open('data/v5b_model.pkl', 'wb') as f:

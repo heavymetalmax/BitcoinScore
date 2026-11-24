@@ -326,10 +326,7 @@ def predict_b(
     feat = np.array(raw_vals, dtype=np.float32).reshape(1, -1)
     try:
         gbdt_score = float(_MODEL_B.predict(feat)[0])
-        gbdt_score = max(0.0, min(100.0, gbdt_score))
-        # Clamp non-stationary GBDT divergence within ±15pp of the monotonic structural anchor
-        clamped_gbdt = max(mono_dd - 15.0, min(mono_dd + 15.0, gbdt_score))
-        score = round(0.55 * mono_dd + 0.45 * clamped_gbdt, 1)
+        score = round(max(0.0, min(100.0, gbdt_score)), 1)
     except Exception:
         score = mono_dd
 
@@ -337,5 +334,5 @@ def predict_b(
         'score': score,
         'label': 'max_drawdown_365d',
         'validated': _is_validated_b(),
-        'model_version': 'v5b_monotonic_ensemble',
+        'model_version': _METADATA_B.get('version', 'v5b.3-stationary-purged'),
     }
