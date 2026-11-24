@@ -17,6 +17,7 @@ def sync_public_names(payload: dict, scores: dict) -> None:
         payload.pop(retired_key, None)
     payload['bri_score'] = final
     payload['forward_risk'] = scores.get('v5b_score')
+    payload['forward_risk_validated'] = bool(scores.get('v5b_validated', False))
     if scores.get('onchain_avg') is not None:
         payload['onchain_score'] = scores['onchain_avg']
     if scores.get('tech_avg') is not None:
@@ -362,8 +363,10 @@ def run_scoring_pipeline(p, build_metric_history_fn=None):
 
         # Layer 3 — scoring: BRI and Forward Risk outputs
         _scoring = {
-            'final_score':   scores['final_score'],
-            'v5b_score':     scores.get('v5b_score'),
+            'final_score':             scores['final_score'],
+            'forward_risk':            scores.get('v5b_score'),
+            'forward_risk_validated':  bool(scores.get('v5b_validated', False)),
+            'v5b_score':               scores.get('v5b_score'),
             'meta_score':       scores.get('meta_score'),
             'signal_agreement': scores.get('signal_agreement'),
             'market_regime':    scores.get('market_regime'),

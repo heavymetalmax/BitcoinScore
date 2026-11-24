@@ -2775,8 +2775,8 @@ function drawHistory(range, hoverIndex) {
     }
   }
 
-  // V5B Outlook line — dashed cyan, same 0-100 scale (v5b_score is % drawdown mapped to 0-100)
-  const v5bPts = pts.map(e => e.v5b_score != null ? e.v5b_score : null);
+  // Forward Risk (365d Drawdown Outlook) line — dashed cyan, 0-100 scale
+  const v5bPts = pts.map(e => (e.forward_risk ?? e.v5b_score) != null ? (e.forward_risk ?? e.v5b_score) : null);
   const hasV5B = v5bPts.some(v => v != null);
   if (hasV5B) {
     // Threshold bands: ≤20 = entry, ≥45 = exit
@@ -2845,7 +2845,8 @@ function drawHistory(range, hoverIndex) {
 
     const dateFormatted = e.date ? new Date(e.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : '';
     const scoreText  = `Cycle: ${Math.round(e.score)}/100`;
-    const outlookText = e.v5b_score != null ? `Outlook: ${e.v5b_score.toFixed(1)}%` : '';
+    const outlookVal = (e.forward_risk ?? e.v5b_score);
+    const outlookText = outlookVal != null ? `Outlook: ${outlookVal.toFixed(1)}%` : '';
     const regimeText  = e.market_regime ? `Regime: ${e.market_regime}` : '';
     const priceText  = e.price != null ? `Price: $${Math.round(e.price).toLocaleString()}` : '';
 
@@ -3416,7 +3417,8 @@ async function loadData() {
     }
 
     // Outlook stat — V5B expected max drawdown (primary numeric signal)
-    const outlookVal = data.v5b_score != null ? data.v5b_score.toFixed(1) + '%' : '—';
+    const rawOutlook = data.forward_risk ?? data.v5b_score;
+    const outlookVal = rawOutlook != null ? rawOutlook.toFixed(1) + '%' : '—';
     set('sig-conv', outlookVal);
 
     // Cycle Context stat — V3 on-chain score (interpretability layer)
