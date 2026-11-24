@@ -797,29 +797,36 @@ def compute_score(
         'dxy':            _s(raw_metrics.get('dxy')),
     }
 
-    # ── Forward Risk (diagnostic prediction layer) ───────────────────────────
-    # Predicts expected max drawdown over the next 365 days. Its inputs include
-    # V3 context, so it is a distinct target rather than an independent signal.
+    # ── Forward 13-week Tail Risk (replaces legacy V5B) ───────────────────────
+    # Predicts calibrated P(MaxDD_13w >= 25%) from causal 13-week realized
+    # volatility (B1_vol13) trained strictly on matured labels (< target_date).
     v5b_score: float | None = None
     v5b_validated = False
+    tail_risk_13w: dict | None = None
+    forward_risk_method: str | None = None
     if include_v5b:
         try:
-            from scraper import mixing_model_b as _v5b
-            _v5b_result = _v5b.predict_b(
-                _mix_raw,
+            from scraper.tail_risk import predict_tail_risk_13w
+            tail_risk_13w = predict_tail_risk_13w(
+                btc_price_today=_mix_raw.get('btc_price'),
+                mvrv_today=_mix_raw.get('mvrv'),
                 target_date=target_date,
-                w_top=round(w_top, 3),
-                w_bot=round(w_bot, 3),
-                v3_score=float(final),
             )
-            if isinstance(_v5b_result, dict):
-                v5b_score = _v5b_result['score']
-                v5b_validated = bool(_v5b_result.get('validated'))
+            if isinstance(tail_risk_13w, dict):
+                v5b_score = tail_risk_13w.get('score')
+                v5b_validated = bool(tail_risk_13w.get('validated'))
+                forward_risk_method = tail_risk_13w.get('method')
         except Exception as e:
-            print(f'Warning: V5B (v5b_score / Outlook) failed — {e}')
+            print(f'Warning: Tail Risk 13w failed — {e}')
 
-    # ── Market Regime & V5 Dual-Sleeve Allocation Engine ─────────────────────
+    # ── Market Regime & Causal D1 Dual-Sleeve Allocation Engine ──────────────
     from scraper.allocation_engine import compute_allocation_signal
+    from scraper.causal_core import (
+        build_entry_exit_checklist,
+        compute_causal_d1_state,
+        compute_causal_mvrv_rank,
+        infer_prev_cipherb_state,
+    )
 
     market_regime:    str | None = None
     composite_risk:   float | None = None
@@ -830,9 +837,36 @@ def compute_score(
     if quality['status'] != 'valid':
         suppression_reasons.append(f"data_quality_{quality['status']}")
     if not v5b_validated:
-        suppression_reasons.append('v5b_not_better_than_baseline')
+        suppression_reasons.append('tail_risk_unvalidated')
 
+    _d1_state = compute_causal_d1_state(as_of_date=target_date)
     _cb_inner_for_alloc = _cb.get('value', _cb) if isinstance(_cb, dict) else {}
+    _cb_ts = _cb_inner_for_alloc.get('timestamp') if isinstance(_cb_inner_for_alloc, dict) else None
+    _cb_bar_date = (
+        datetime.datetime.fromtimestamp(int(_cb_ts), tz=datetime.timezone.utc).strftime('%Y-%m-%d')
+        if _cb_ts is not None else None
+    )
+    _prev_cb_in_pos = (
+        _d1_state.get('prev_cb_in_pos')
+        if _d1_state.get('available')
+        else infer_prev_cipherb_state(current_bar_date=_cb_bar_date)
+    )
+
+    _mvrv_info = compute_causal_mvrv_rank(
+        _mix_raw.get('mvrv'),
+        as_of_date=target_date,
+        puell_today=_mix_raw.get('puell'),
+        cvdd_today=_mix_raw.get('cvdd_ratio'),
+    )
+    _checklist = build_entry_exit_checklist(
+        raw_metrics=raw_metrics,
+        mvrv_info=_mvrv_info,
+        tail_risk=tail_risk_13w,
+        data_quality=quality,
+        as_of_date=target_date,
+        d1_state=_d1_state,
+    )
+
     allocation_signal = compute_allocation_signal(
         final_score=final,
         scores_history=scores_history,
@@ -841,6 +875,13 @@ def compute_score(
         confidence_score=confidence_score,
         forward_risk=v5b_score,
         forward_risk_validated=v5b_validated,
+        prev_cb_in_pos=_prev_cb_in_pos,
+        value_sell_veto=bool(_mvrv_info.get('value_sell_veto')),
+        abstain=bool(_checklist.get('abstain')),
+        sma40_in_pos=_d1_state.get('sma40_in_pos') if _d1_state.get('available') else None,
+        sma40_value=_d1_state.get('sma40_value') if _d1_state.get('available') else None,
+        mvrv_pct=_mvrv_info.get('mvrv_pct'),
+        d1_state=_d1_state,
     )
     market_regime = allocation_signal['market_regime']
 
@@ -885,6 +926,10 @@ def compute_score(
         'utilities':          utilities,
         'v5b_score':          v5b_score,
         'v5b_validated':      v5b_validated,
+        'tail_risk_13w':      tail_risk_13w,
+        'forward_risk_method': forward_risk_method,
+        'causal_valuation':   _mvrv_info,
+        'entry_exit_checklist': _checklist,
         'market_regime':      market_regime,
         'target_allocation_pct': allocation_signal['target_allocation_pct'],
         'allocation_signal':  allocation_signal,

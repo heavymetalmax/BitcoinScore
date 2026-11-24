@@ -635,6 +635,14 @@ def main():
     # Write the updated data with history fields
     write_json('data/data.json', p)
 
+    # ── Append immutable Point-in-Time (PiT) snapshot for prospective audit ───
+    try:
+        from .pit_ledger import append_pit_record
+        append_pit_record(p)
+        print('Appended PiT record to data/pit_ledger.jsonl')
+    except Exception as e:
+        print(f'Warning: failed to append PiT ledger: {e}')
+
 
     # ── Append the FULL daily indicator vector to history ──────────────────────
     # Builds the per-day training matrix (raw inputs + mapped 0-100 scores +

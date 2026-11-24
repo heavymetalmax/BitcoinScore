@@ -1,0 +1,242 @@
+{
+  "generated_at": "2026-11-24T19:29:02Z",
+  "formula": "Production Causal Valuation = mean causal expanding rank of (MVRV, Puell, CVDD) + D1 Dual-Sleeve allocation (50% SMA40w + 50% Cipher B 1W & MVRV Veto)",
+  "extremes": [
+    {
+      "date": "2013-11-30",
+      "type": "top",
+      "major_cycle": true,
+      "label": "TOP (2013-11)",
+      "price": 1132.0,
+      "causal_valuation": null,
+      "causal_bri": null,
+      "legacy_bri": 84.0,
+      "d1_alloc_pct": 100,
+      "d1_alloc_plus8w_pct": 50,
+      "parts": null
+    },
+    {
+      "date": "2015-01-14",
+      "type": "bottom",
+      "major_cycle": true,
+      "label": "BOTTOM (2015-01)",
+      "price": 178.0,
+      "causal_valuation": null,
+      "causal_bri": null,
+      "legacy_bri": 6.0,
+      "d1_alloc_pct": 50,
+      "d1_alloc_plus8w_pct": 50,
+      "parts": null
+    },
+    {
+      "date": "2017-12-16",
+      "type": "top",
+      "major_cycle": true,
+      "label": "TOP (2017-12)",
+      "price": 19102.66,
+      "causal_valuation": 94.4,
+      "causal_bri": 94.4,
+      "legacy_bri": 100.0,
+      "d1_alloc_pct": 100,
+      "d1_alloc_plus8w_pct": 50,
+      "parts": {
+        "mvrv_pct": 99.6,
+        "puell_pct": 97.2,
+        "cvdd_pct": 86.4
+      }
+    },
+    {
+      "date": "2018-12-15",
+      "type": "bottom",
+      "major_cycle": true,
+      "label": "BOTTOM (2018-12)",
+      "price": 3211.72,
+      "causal_valuation": 1.0,
+      "causal_bri": 1.0,
+      "legacy_bri": 6.0,
+      "d1_alloc_pct": 0,
+      "d1_alloc_plus8w_pct": 50,
+      "parts": {
+        "mvrv_pct": 1.2,
+        "puell_pct": 1.7,
+        "cvdd_pct": 0.0
+      }
+    },
+    {
+      "date": "2019-06-26",
+      "type": "top",
+      "major_cycle": false,
+      "label": "TOP (2019-06)",
+      "price": 13093.8,
+      "causal_valuation": 73.7,
+      "causal_bri": 73.7,
+      "legacy_bri": 96.0,
+      "d1_alloc_pct": 100,
+      "d1_alloc_plus8w_pct": 50,
+      "parts": {
+        "mvrv_pct": 80.8,
+        "puell_pct": 84.0,
+        "cvdd_pct": 56.3
+      }
+    },
+    {
+      "date": "2020-03-12",
+      "type": "bottom",
+      "major_cycle": false,
+      "label": "BOTTOM (2020-03)",
+      "price": 4800.0,
+      "causal_valuation": 7.8,
+      "causal_bri": 7.8,
+      "legacy_bri": 17.0,
+      "d1_alloc_pct": 0,
+      "d1_alloc_plus8w_pct": 100,
+      "parts": {
+        "mvrv_pct": 9.4,
+        "puell_pct": 12.4,
+        "cvdd_pct": 1.4
+      }
+    },
+    {
+      "date": "2021-04-13",
+      "type": "top",
+      "major_cycle": true,
+      "label": "TOP (2021-04)",
+      "price": 63575.0,
+      "causal_valuation": 88.7,
+      "causal_bri": 88.7,
+      "legacy_bri": 95.0,
+      "d1_alloc_pct": 50,
+      "d1_alloc_plus8w_pct": 50,
+      "parts": {
+        "mvrv_pct": 95.3,
+        "puell_pct": 86.6,
+        "cvdd_pct": 84.3
+      }
+    },
+    {
+      "date": "2021-11-08",
+      "type": "top",
+      "major_cycle": true,
+      "label": "TOP (2021-11)",
+      "price": 67525.83,
+      "causal_valuation": 74.2,
+      "causal_bri": 74.2,
+      "legacy_bri": 87.0,
+      "d1_alloc_pct": 100,
+      "d1_alloc_plus8w_pct": 0,
+      "parts": {
+        "mvrv_pct": 85.6,
+        "puell_pct": 60.6,
+        "cvdd_pct": 76.2
+      }
+    },
+    {
+      "date": "2022-06-18",
+      "type": "bottom",
+      "major_cycle": false,
+      "label": "BOTTOM (2022-06)",
+      "price": 17600.0,
+      "causal_valuation": 4.0,
+      "causal_bri": 4.0,
+      "legacy_bri": 9.0,
+      "d1_alloc_pct": 0,
+      "d1_alloc_plus8w_pct": 50,
+      "parts": {
+        "mvrv_pct": 5.8,
+        "puell_pct": 3.1,
+        "cvdd_pct": 2.9
+      }
+    },
+    {
+      "date": "2022-11-21",
+      "type": "bottom",
+      "major_cycle": true,
+      "label": "BOTTOM (2022-11)",
+      "price": 15781.29,
+      "causal_valuation": 1.8,
+      "causal_bri": 1.8,
+      "legacy_bri": 9.0,
+      "d1_alloc_pct": 50,
+      "d1_alloc_plus8w_pct": 50,
+      "parts": {
+        "mvrv_pct": 3.1,
+        "puell_pct": 2.4,
+        "cvdd_pct": 0.0
+      }
+    },
+    {
+      "date": "2024-03-14",
+      "type": "top",
+      "major_cycle": false,
+      "label": "TOP (2024-03)",
+      "price": 73500.0,
+      "causal_valuation": 76.3,
+      "causal_bri": 76.3,
+      "legacy_bri": 91.0,
+      "d1_alloc_pct": 100,
+      "d1_alloc_plus8w_pct": 50,
+      "parts": {
+        "mvrv_pct": 84.7,
+        "puell_pct": 79.9,
+        "cvdd_pct": 64.2
+      }
+    },
+    {
+      "date": "2025-10-06",
+      "type": "top",
+      "major_cycle": true,
+      "label": "TOP (2025-10)",
+      "price": 124658.54,
+      "causal_valuation": 60.0,
+      "causal_bri": 60.0,
+      "legacy_bri": 79.0,
+      "d1_alloc_pct": 100,
+      "d1_alloc_plus8w_pct": 0,
+      "parts": {
+        "mvrv_pct": 80.4,
+        "puell_pct": 43.5,
+        "cvdd_pct": 56.2
+      }
+    },
+    {
+      "date": "2026-11-24",
+      "type": "today",
+      "label": "Поточний зріз (2026-11-24)",
+      "price": 59648.44,
+      "causal_valuation": 20.6,
+      "causal_bri": 20.6,
+      "legacy_bri": 24,
+      "d1_alloc_pct": 0,
+      "d1_alloc_plus8w_pct": null,
+      "parts": {
+        "mvrv_pct": 19.2,
+        "puell_pct": 39.8,
+        "cvdd_pct": 2.8
+      }
+    }
+  ],
+  "separation": {
+    "causal_mean_bottom": 3.7,
+    "causal_mean_top": 77.9,
+    "causal_separation": 74.2,
+    "legacy_mean_bottom": 9.4,
+    "legacy_mean_top": 90.3,
+    "legacy_separation": 80.9
+  },
+  "regime_ic": {
+    "2017_2020": {
+      "days": 1233,
+      "causal_spearman_ret365": -0.4505,
+      "legacy_spearman_ret365": -0.2541,
+      "causal_spearman_dd365": 0.3166,
+      "legacy_spearman_dd365": 0.1169
+    },
+    "2021_2025": {
+      "days": 1789,
+      "causal_spearman_ret365": -0.5407,
+      "legacy_spearman_ret365": -0.0967,
+      "causal_spearman_dd365": 0.3998,
+      "legacy_spearman_dd365": 0.0151
+    }
+  }
+}

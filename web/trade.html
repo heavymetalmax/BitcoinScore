@@ -746,11 +746,11 @@
           </div>
         </div>
 
-        <!-- Two Orthogonal Sleeves -->
+        <!-- Two Orthogonal Sleeves (Causal D1) -->
         <div class="sleeves-grid">
           <div class="sleeve-box">
             <div class="sleeve-head">
-              <span>Рукав 1 · BTCBRI Цикл (50%)</span>
+              <span>Рукав 1 · Тренд SMA40w (50%)</span>
               <span class="pill" id="sleeve1-pill">—</span>
             </div>
             <div class="sleeve-detail" id="sleeve1-detail">—</div>
@@ -758,7 +758,7 @@
           </div>
           <div class="sleeve-box">
             <div class="sleeve-head">
-              <span>Рукав 2 · Cipher B 1W ±2 (50%)</span>
+              <span>Рукав 2 · Cipher B 1W + MVRV Veto (50%)</span>
               <span class="pill" id="sleeve2-pill">—</span>
             </div>
             <div class="sleeve-detail" id="sleeve2-detail">—</div>
@@ -766,11 +766,11 @@
           </div>
         </div>
 
-        <!-- BRI Risk Scale -->
+        <!-- Causal Cost-Basis Scale (with Legacy BRI archive) -->
         <div class="bri-scale-wrap">
           <div class="bri-scale-top">
-            <span><strong>Позиція індексу BTCBRI:</strong> <span id="scale-bri-val">—</span> / 100 (<span id="scale-phase-val">—</span>)</span>
-            <span class="muted" id="scale-raw-util">Raw utility: —</span>
+            <span><strong>Оцінка собівартості (Causal):</strong> <span id="scale-bri-val">—</span> / 100 (<span id="scale-phase-val">—</span>)</span>
+            <span class="muted" id="scale-raw-util">Legacy BRI (архів): —</span>
           </div>
           <div class="bri-track">
             <div class="bri-marker" id="bri-marker" style="left:50%;"></div>
@@ -794,12 +794,12 @@
             <div class="kpi-sub" id="kpi-ma200w">200W MA: —</div>
           </div>
           <div class="kpi">
-            <div class="kpi-label">Ціна входу (BRI &lt; 20)</div>
+            <div class="kpi-label">Тригер SMA40w / Realized</div>
             <div class="kpi-val" id="kpi-entry20" style="color:var(--green);">—</div>
             <div class="kpi-sub" id="kpi-realized">Realized: —</div>
           </div>
           <div class="kpi">
-            <div class="kpi-label">Forward Risk (365d)</div>
+            <div class="kpi-label">Ризик падіння ≥25% (13т)</div>
             <div class="kpi-val" id="kpi-forward">—</div>
             <div class="kpi-sub" id="kpi-conf">Впевненість: —</div>
           </div>
@@ -842,6 +842,9 @@
       <button class="ws-tab" data-tab="ai" type="button">
         ШІ-Звіт <span class="tab-badge" id="tab-ai-badge">…</span>
       </button>
+      <button class="ws-tab" data-tab="causal" type="button">
+        Причинне ядро &amp; Бектест <span class="tab-badge">NEW</span>
+      </button>
       <button class="ws-tab" data-tab="metrics" type="button">
         Метрики (On-Chain / Macro)
       </button>
@@ -851,31 +854,31 @@
     <div class="tab-panel active" id="panel-plan">
       <div class="card">
         <div class="card-hdr">
-          <div class="card-title">Обери торговий режим (горизонт 1–3 роки)</div>
-          <span class="muted">Детерміновані правила на основі живого <code>data.json</code></span>
+          <div class="card-title">Дві ролі капіталу: Активний D1 vs Баффетівський DCA на страху</div>
+          <span class="muted">100% причинні правила без витоку майбутнього</span>
         </div>
 
         <div class="mode-switcher" id="mode-switcher">
           <button class="mode-card active" data-mode="tranche" type="button">
             <div class="mode-card-top">
-              <span class="mode-card-title">1. Мульти-транш (4 транші)</span>
+              <span class="mode-card-title">1. Активний портфель D1 (Основний)</span>
               <span class="pill" id="tranche-verdict">—</span>
             </div>
-            <div class="mode-card-sub">Плавний набір 30% / 30% / 25% / 15%</div>
+            <div class="mode-card-sub">50% SMA40w + 50% Cipher B 1W &amp; MVRV Veto</div>
           </button>
           <button class="mode-card" data-mode="single" type="button">
             <div class="mode-card-top">
-              <span class="mode-card-title">2. 1-Ордер (Dual-Trigger)</span>
+              <span class="mode-card-title">2. DCA на страху (Собівартість)</span>
               <span class="pill" id="single-verdict">—</span>
             </div>
-            <div class="mode-card-sub">100% на капітуляції або 2/3 підтверджень</div>
+            <div class="mode-card-sub">План регулярних покупок (MVRV · Puell · CVDD)</div>
           </button>
           <button class="mode-card" data-mode="cbpool" type="button">
             <div class="mode-card-top">
               <span class="mode-card-title">3. Cipher B Weekly Pool</span>
               <span class="pill" id="cbpool-verdict">—</span>
             </div>
-            <div class="mode-card-sub">Пул внесків · Дослідження 2016–2026</div>
+            <div class="mode-card-sub">Пул внесків по закритому тижню (Mon OHLC)</div>
           </button>
         </div>
 
@@ -897,8 +900,8 @@
               <input type="number" id="calc-capital" value="10000" min="100" step="100" />
             </div>
             <div class="field">
-              <label for="calc-target-bri">Цільовий поріг BRI: <strong id="calc-target-bri-val">20</strong> → <span id="calc-est-price" style="color:var(--green);">—</span> <span id="calc-est-pct"></span></label>
-              <input type="range" id="calc-target-bri" min="10" max="30" value="20" step="1" />
+              <label for="calc-target-bri">Поріг Causal Собівартості: ≤ <strong id="calc-target-bri-val">20</strong> → орієнтир <span id="calc-est-price" style="color:var(--green);">—</span> <span id="calc-est-pct"></span></label>
+              <input type="range" id="calc-target-bri" min="5" max="25" value="20" step="1" />
             </div>
           </div>
 
@@ -923,7 +926,7 @@
                 <tr>
                   <th>Транш</th>
                   <th>Умова</th>
-                  <th>Ціна BTC</th>
+                  <th>Орієнтир BTC</th>
                   <th>Сума</th>
                   <th>BTC</th>
                   <th>Статус</th>
@@ -934,19 +937,19 @@
           </div>
         </div>
 
-        <!-- Exit Ladder -->
+        <!-- Causal D1 Exit Protocol -->
         <div class="card">
           <div class="card-hdr">
-            <div class="card-title">Сітка фіксації (Exit Ladder + Trailing)</div>
+            <div class="card-title">Протокол виходу та захисту (Causal D1)</div>
             <span class="pill" id="exit-status-pill">—</span>
           </div>
           <div class="table-wrap">
             <table>
               <thead>
                 <tr>
-                  <th>Зона BRI</th>
+                  <th>Крок</th>
                   <th>Частка</th>
-                  <th>Умова</th>
+                  <th>Причинне правило (закритий тиждень)</th>
                   <th>Статус</th>
                 </tr>
               </thead>
@@ -954,7 +957,7 @@
             </table>
           </div>
           <div class="muted" style="margin-top:12px; line-height:1.45;">
-            Порада V5: під час параболічного росту не продавайте 100% на першому дотику <code>BRI ≥ 80</code> — дочекайтесь армування <strong>Trailing Peak (BRI ≥ 85, відкат −15 п.)</strong> або тижневого розвороту <code>1W (wt2 − wt1) ≥ +2</code>.
+            Чому без порогу <code>BRI ≥ 85</code>: у зрілих циклах (як вершина 2025-10 на $124.7k) оцінка не доходить до 85. Протокол <strong>D1</strong> виходить за зламом імпульсу (<code>Cipher B ≤ −2.0</code>) і тренду (<code>Close &lt; SMA40w</code>), а на дешевому ринку (<code>MVRV ≤ 25%</code>) вмикає <strong>Value Sell-Veto</strong> проти панічних продажів.
           </div>
         </div>
       </div>
@@ -1018,7 +1021,75 @@
       </div>
     </div>
 
-    <!-- TAB 4: METRICS BREAKDOWN -->
+    <!-- TAB 4: CAUSAL CORE & ZERO-LOOKAHEAD BACKTEST -->
+    <div class="tab-panel" id="panel-causal">
+      <div class="card" style="margin-bottom:14px;">
+        <div class="card-hdr">
+          <div class="card-title">Причинне ядро (4 незалежні виходи · без витоку майбутнього)</div>
+          <span class="pill" id="checklist-status-pill">—</span>
+        </div>
+        <div class="calc-summary" id="causal-core-summary" style="margin-bottom:12px;"></div>
+        <div class="card-hdr" style="margin-top:8px;">
+          <div class="card-title" style="font-size:13px;">Чек-лист підтвердження входу/виходу (12 ортогональних факторів · причинні ранги)</div>
+          <span class="muted">Собівартість · Цикл · Психологія · Деривативи · Потоки · Макро</span>
+        </div>
+        <div class="check-list" id="checklist-grid"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-hdr">
+          <div class="card-title">Бектест ефективності правил (Zero-Lookahead · Реальний тижневий OHLC)</div>
+          <div style="display:flex; gap:6px; align-items:center;">
+            <button class="pill active" id="bt-win-2018" type="button" style="cursor:pointer;">2017–2026 (10р)</button>
+            <button class="pill" id="bt-win-2021" type="button" style="cursor:pointer;">2021–2026 (6р)</button>
+          </div>
+        </div>
+        <div class="muted" id="bt-methodology" style="margin-bottom:10px; line-height:1.45;">Завантаження даних бектесту...</div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Стратегія</th>
+                <th class="num">Дохід (0.5% / 1%)</th>
+                <th class="num">MaxDD (intra-wk) / Calmar</th>
+                <th class="num">Угоди · Win%</th>
+                <th class="num">DD26т після входу</th>
+                <th class="num">Бутстреп vs B&amp;H</th>
+              </tr>
+            </thead>
+            <tbody id="causal-backtest-tbody">
+              <tr><td colspan="6" class="muted">Завантаження...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:14px;">
+        <div class="card-hdr">
+          <div class="card-title">Причинне ядро (Valuation + D1 алокація) на історичних мінімумах і максимумах</div>
+          <span class="pill blue" id="causal-bri-today-pill">Сьогодні: —</span>
+        </div>
+        <div class="muted" id="causal-bri-meta" style="margin-bottom:10px; line-height:1.45;">Завантаження...</div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Дата · Подія</th>
+                <th class="num">Ціна BTC</th>
+                <th class="num">Собівартість (Causal)</th>
+                <th class="num">D1 BTC% (після +8т)</th>
+                <th class="num">Legacy BRI · (MVRV · Puell · CVDD)</th>
+              </tr>
+            </thead>
+            <tbody id="causal-extremes-tbody">
+              <tr><td colspan="5" class="muted">Завантаження...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 5: METRICS BREAKDOWN -->
     <div class="tab-panel" id="panel-metrics">
       <div class="card">
         <div class="card-hdr">
@@ -1035,6 +1106,9 @@
   <script>
     let DATA = null;
     let PATTERNS = null;
+    let CAUSAL_BT = null;
+    let CAUSAL_EXT = null;
+    let ACTIVE_BT_WIN = 'full_2018_2026';
     let ACTIVE_TAB = 'plan';
     let ACTIVE_MODE = 'tranche';
     let ACTIVE_PAT_FAM = 'ALL';
@@ -1210,46 +1284,52 @@
       $('hero-regime-pill').textContent = `${regime} · ${alloc.action_label}`;
       $('hero-regime-pill').className = 'pill ' + (regime === 'Buy' ? 'green' : regime === 'Sell' ? 'red' : regime === 'Hold' ? 'blue' : 'amber');
 
+      const s1Pct = alloc.sma40_sleeve_pct ?? alloc.bri_sleeve_pct ?? 0;
+      const s2Pct = alloc.cipherb_sleeve_pct ?? 0;
+      const cvNow = DATA.causal_valuation || {};
       let subTxt = '';
-      if (alloc.bri_sleeve_pct > 0 && alloc.cipherb_sleeve_pct === 0) {
-        const need = s.wtSpread != null ? (2 - s.wtSpread).toFixed(1) : '—';
-        subTxt = `Оцінка циклу вже дешева (BRI = ${s.bri} ≤ 35), тому рукав BTCBRI тримає 50%. Інші 50% у кеші чекають розвороту тижневого Cipher B (wt1 − wt2 ≥ +2; зараз ${s.wtSpread ?? '—'}, до цілі +${need} п.).`;
-      } else if (alloc.bri_sleeve_pct > 0 && alloc.cipherb_sleeve_pct > 0) {
-        subTxt = `Обидва рукави підтверджені: низький ризик циклу (BRI = ${s.bri}) + позитивний тижневий імпульс Cipher B (wt1 − wt2 = +${s.wtSpread}).`;
-      } else if (alloc.trailing_armed) {
-        subTxt = `Увага: активовано Trailing Peak (пік ${alloc.trailing_peak_bri}). Фіксація спрацює при відкаті BRI ≤ ${alloc.trailing_exit_trigger}.`;
+      if (alloc.abstain) {
+        subTxt = `Режим ABSTAIN: частина ключових даних або OOS-валідація ризику недоступна. Рішення призупинено до відновлення якості даних.`;
+      } else if (s1Pct > 0 && s2Pct > 0) {
+        subTxt = `Обидва причинні рукави активні (100% BTC): тижневий тренд вище SMA40w (${fmtUSD(alloc.sma40_value)}) + позитивний тижневий Cipher B (wt1 − wt2 = ${alloc.weekly_wt_spread ?? '—'}).`;
+      } else if (s1Pct > 0 || s2Pct > 0) {
+        const vetoNote = alloc.veto_blocked_exit ? ' · Value Sell-Veto заблокувало вихід у кеш на дешевому ринку.' : '';
+        subTxt = `Часткова позиція 50% BTC: ${s1Pct > 0 ? 'SMA40w активний' : 'SMA40w у кеші'}, ${s2Pct > 0 ? 'Cipher B 1W активний' : 'Cipher B 1W у кеші'}${vetoNote}`;
+      } else if (alloc.value_sell_veto) {
+        subTxt = `Оцінка собівартості вже дешева (MVRV ранг ${cvNow.mvrv_rank_pct ?? '—'}% ≤ 25%, Value Veto ON), але тренд (SMA40w ${fmtUSD(alloc.sma40_value)}) і тижневий Cipher B (${alloc.weekly_wt_spread ?? '—'}) ще спадають → ACCUMULATE_WATCH (спокійний поетапний набір або очікування першого розвороту).`;
       } else {
-        subTxt = `Обидва рукави у кеші. Очікується зниження BRI ≤ 35 або тижневий імпульс Cipher B (wt1 − wt2 ≥ +2).`;
+        subTxt = `Обидва причинні рукави у кеші (0% BTC). Вхід активується при закритті тижня вище SMA40w (${fmtUSD(alloc.sma40_value)}) або тижневому розвороті Cipher B (wt1 − wt2 ≥ +2).`;
       }
       $('hero-verdict-sub').textContent = subTxt;
 
       $('alloc-lbl-btc').textContent = `У позиції BTC: ${btcPct}%`;
       $('alloc-lbl-cash').textContent = `У кеш-резерві: ${cashPct}%`;
-      $('alloc-seg-bri').style.width = `${alloc.bri_sleeve_pct}%`;
-      $('alloc-seg-cb').style.width = `${alloc.cipherb_sleeve_pct}%`;
+      $('alloc-seg-bri').style.width = `${s1Pct}%`;
+      $('alloc-seg-cb').style.width = `${s2Pct}%`;
 
-      // Sleeves details
-      $('sleeve1-pill').textContent = alloc.bri_sleeve_pct > 0 ? 'АКТИВНИЙ (50%)' : 'КЕШ (0%)';
-      $('sleeve1-pill').className = 'pill ' + (alloc.bri_sleeve_pct > 0 ? 'green' : 'amber');
-      const tizDays = alloc.tiz_le25_days ?? computeLiveTizLe25();
-      $('sleeve1-detail').textContent = alloc.trailing_armed
-        ? `Trailing ARMED: пік ${alloc.trailing_peak_bri} → вихід ≤ ${alloc.trailing_exit_trigger}`
-        : `BRI=${s.bri} (вхід ≤35) · Серія TiZ(≤25): ${tizDays}/21 дн.`;
-      $('sleeve1-bar').style.width = `${Math.min(100, alloc.bri_sleeve_pct > 0 ? Math.max(20, (tizDays / 21) * 100) : 0)}%`;
+      // Sleeves details (Causal D1)
+      $('sleeve1-pill').textContent = s1Pct > 0 ? 'АКТИВНИЙ (50%)' : 'КЕШ (0%)';
+      $('sleeve1-pill').className = 'pill ' + (s1Pct > 0 ? 'green' : 'amber');
+      $('sleeve1-detail').textContent = alloc.sma40_value != null
+        ? `Закритий тиждень ${s1Pct > 0 ? '>' : '<'} SMA40w (${fmtUSD(alloc.sma40_value)}) · MVRV ранг: ${cvNow.mvrv_rank_pct ?? '—'}%`
+        : `SMA40w тренд: ${s1Pct > 0 ? 'UP' : 'DOWN'}`;
+      $('sleeve1-bar').style.width = `${s1Pct > 0 ? 100 : 12}%`;
 
-      $('sleeve2-pill').textContent = alloc.cipherb_sleeve_pct > 0 ? 'АКТИВНИЙ (50%)' : 'ОЧІКУВАННЯ (0%)';
-      $('sleeve2-pill').className = 'pill ' + (alloc.cipherb_sleeve_pct > 0 ? 'blue' : 'amber');
-      $('sleeve2-detail').textContent = s.wtSpread != null
-        ? `1W (wt1−wt2) = ${s.wtSpread >= 0 ? '+' : ''}${s.wtSpread} · Ціль: ≥ +2.0 на закритті середи`
+      $('sleeve2-pill').textContent = s2Pct > 0 ? (alloc.veto_blocked_exit ? 'VETO HOLD (50%)' : 'АКТИВНИЙ (50%)') : 'ОЧІКУВАННЯ (0%)';
+      $('sleeve2-pill').className = 'pill ' + (s2Pct > 0 ? 'blue' : 'amber');
+      const liveSpread = alloc.weekly_wt_spread ?? s.wtSpread;
+      $('sleeve2-detail').textContent = liveSpread != null
+        ? `1W (wt1−wt2) = ${liveSpread >= 0 ? '+' : ''}${liveSpread} · Вхід ≥ +2.0 · Veto ≤25%: ${alloc.value_sell_veto ? 'ON' : 'OFF'}`
         : 'Немає тижневого спреду WaveTrend';
-      const cbPctProg = s.wtSpread != null ? Math.max(4, Math.min(100, ((s.wtSpread + 50) / 52) * 100)) : 0;
+      const cbPctProg = liveSpread != null ? Math.max(4, Math.min(100, ((liveSpread + 50) / 52) * 100)) : 0;
       $('sleeve2-bar').style.width = `${cbPctProg}%`;
 
-      // Risk Scale
-      $('scale-bri-val').textContent = s.bri;
-      $('scale-phase-val').textContent = DATA.phase?.phase || '—';
-      $('scale-raw-util').textContent = `Raw utility: ${s.rawUtil}`;
-      $('bri-marker').style.left = `${Math.max(2, Math.min(98, s.bri))}%`;
+      // Causal Valuation Scale (with Legacy BRI archive)
+      const valScoreShow = cvNow.valuation_score ?? s.bri;
+      $('scale-bri-val').textContent = valScoreShow;
+      $('scale-phase-val').textContent = alloc.value_sell_veto ? 'VALUE ZONE' : (DATA.phase?.phase || '—');
+      $('scale-raw-util').textContent = `Legacy BRI (архів): ${s.bri} · TiZ(≤25): ${alloc.tiz_le25_days ?? 0} дн.`;
+      $('bri-marker').style.left = `${Math.max(2, Math.min(98, valScoreShow))}%`;
 
       // Right 2x2 KPIs
       $('kpi-price').textContent = fmtUSD(s.spot);
@@ -1257,21 +1337,29 @@
         const diff = ((s.spot / s.wma200) - 1) * 100;
         $('kpi-ma200w').textContent = `200W MA: ${fmtUSD(s.wma200)} (${diff >= 0 ? '+' : ''}${diff.toFixed(1)}%)`;
       }
-      $('kpi-entry20').textContent = fmtUSD(s.entry20);
-      if (s.entry20 && s.spot) {
-        const pct = ((s.entry20 / s.spot) - 1) * 100;
-        $('kpi-realized').textContent = `${pct.toFixed(1)}% · Realized ${fmtUSD(s.realized)}`;
+      const smaVal = alloc.sma40_value;
+      $('kpi-entry20').textContent = smaVal ? fmtUSD(smaVal) : fmtUSD(s.realized);
+      if (smaVal && s.spot) {
+        const pct = ((smaVal / s.spot) - 1) * 100;
+        $('kpi-realized').textContent = `До SMA40w: ${pct >= 0 ? '+' : ''}${pct.toFixed(1)}% · Realized ${fmtUSD(s.realized)}`;
       }
-      $('kpi-forward').textContent = s.forward != null ? s.forward.toFixed(1) + '%' : '—';
-      $('kpi-conf').textContent = `Впевненість: ${DATA.confidence_score ?? '—'} · F&G: ${s.fg ?? '—'}`;
-      $('kpi-wt').textContent = s.wtSpread != null ? `${s.wtSpread >= 0 ? '+' : ''}${s.wtSpread}` : '—';
-      $('kpi-wt').style.color = s.wtSpread != null && s.wtSpread >= 2 ? 'var(--green)' : 'var(--amber)';
-      $('kpi-wscore').textContent = `1W Score: ${s.wScore != null ? s.wScore.toFixed(1) : '—'} (ціль пулу ≤25)`;
+      const tr13 = DATA.tail_risk_13w;
+      const riskPct = tr13?.prob_dd25_13w_pct ?? s.forward;
+      $('kpi-forward').textContent = riskPct != null ? riskPct.toFixed(1) + '%' : '—';
+      const absLbl = DATA.entry_exit_checklist?.abstain ? ' · UNCERTAIN' : '';
+      $('kpi-conf').textContent = `OOS ECE: ${tr13?.oos_validation?.ece_5bin ?? '—'}${absLbl} · F&G: ${s.fg ?? '—'}`;
+      const authSpread = alloc.weekly_wt_spread ?? s.wtSpread;
+      $('kpi-wt').textContent = authSpread != null ? `${authSpread >= 0 ? '+' : ''}${authSpread}` : '—';
+      $('kpi-wt').style.color = authSpread != null && authSpread >= 2 ? 'var(--green)' : 'var(--amber)';
+      const needPts = authSpread != null ? (2.0 - authSpread).toFixed(1) : '—';
+      $('kpi-wscore').textContent = authSpread != null && authSpread >= 2
+        ? `Вхід ≥ +2.0 АКТИВНИЙ (бар ${alloc.ohlc_bar_date ?? '1W'})`
+        : `До входу ≥ +2.0: +${needPts} п. (бар ${alloc.ohlc_bar_date ?? '1W'})`;
 
       // 3-Trigger Traffic Light
       const etfOk = s.etf != null && s.etf >= 0;
       const asoprOk = s.asopr != null && s.asopr >= 1.0;
-      const momOk = s.wtSpread != null && s.wtSpread > 0;
+      const momOk = authSpread != null && authSpread >= 2.0;
       const cnt = [etfOk, asoprOk, momOk].filter(Boolean).length;
 
       $('triggers-count-pill').textContent = `${cnt} / 3 ОК`;
@@ -1285,33 +1373,29 @@
       $('trig-asopr-pill').textContent = asoprOk ? 'Прибуток' : 'Збитки';
       $('trig-asopr-pill').className = 'pill ' + (asoprOk ? 'green' : 'red');
 
-      $('trig-cb-val').textContent = s.wtSpread != null ? `(1W: ${s.wtSpread})` : '(—)';
-      $('trig-cb-pill').textContent = momOk ? '1W Вгору' : (s.dailyBullDiv ? '1D див / 1W ⏳' : 'Спадає');
+      $('trig-cb-val').textContent = authSpread != null ? `(1W: ${authSpread})` : '(—)';
+      $('trig-cb-pill').textContent = momOk ? '1W ≥ +2' : (s.dailyBullDiv ? '1D див / 1W ⏳' : 'Спадає');
       $('trig-cb-pill').className = 'pill ' + (momOk ? 'green' : 'amber');
     }
 
     function renderRecommendations() {
       const s = getMetricsState();
-      const t1 = s.bri <= 25 && (!s.wma200 || s.spot < s.wma200) && (s.cvdd == null || s.cvdd <= 1.25);
-      const etfOk = s.etf != null && s.etf >= 0;
-      const asoprOk = s.asopr != null && s.asopr >= 1.0;
-      const momOk = s.wtSpread != null && s.wtSpread > 0;
-      const confCount = [etfOk, asoprOk, momOk].filter(Boolean).length;
+      const alloc = DATA.allocation_signal || {};
+      const cv = DATA.causal_valuation || {};
+      const valScore = cv.valuation_score ?? 50;
+      const d1Pct = alloc.target_allocation_pct ?? 0;
 
-      $('tranche-verdict').textContent = t1 ? 'BUY 30%' : 'WAIT';
-      $('tranche-verdict').className = 'pill ' + (t1 ? 'green' : 'amber');
+      $('tranche-verdict').textContent = d1Pct > 0 ? `${d1Pct}% BTC` : (alloc.value_sell_veto ? 'WATCH (0%)' : 'КЕШ (0%)');
+      $('tranche-verdict').className = 'pill ' + (d1Pct === 100 ? 'green' : d1Pct === 50 ? 'blue' : 'amber');
 
-      const trigA = s.bri <= 19 && ((s.nupl != null && s.nupl <= 2) || (s.cvdd != null && s.cvdd <= 1.08));
-      const trigB = s.bri <= 32 && confCount >= 2;
-      $('single-verdict').textContent = (trigA || trigB) ? 'BUY 100%' : 'WAIT';
-      $('single-verdict').className = 'pill ' + ((trigA || trigB) ? 'green' : 'amber');
+      const dcaActive = valScore <= 25;
+      $('single-verdict').textContent = valScore <= 12 ? 'STRONG DCA' : (dcaActive ? 'DCA ON' : 'ПАУЗА DCA');
+      $('single-verdict').className = 'pill ' + (dcaActive ? 'green' : 'amber');
 
-      const cbRaw = DATA.metrics?.cipherb?.value || {};
-      const wp = cbRaw.weekly_pool || {};
-      const smallGreenNow = wp.small_green_now ?? false;
-      const p3State = wp.pair3?.state || (s.wtSpread != null && s.wtSpread > 0 ? 'HOLD_BTC' : 'ACCUMULATE_CASH_POOL');
-      $('cbpool-verdict').textContent = smallGreenNow ? 'BUY POOL' : (p3State === 'HOLD_BTC' ? 'HOLD BTC' : 'КОПИТИ КЕШ');
-      $('cbpool-verdict').className = 'pill ' + (smallGreenNow ? 'green' : p3State === 'HOLD_BTC' ? 'blue' : 'amber');
+      const sp = alloc.weekly_wt_spread ?? s.wtSpread;
+      const cbIn = !!(alloc.cb_in_position);
+      $('cbpool-verdict').textContent = (sp != null && sp >= 2.0) ? 'BUY / HOLD' : (cbIn ? 'VETO HOLD' : 'КОПИТИ КЕШ');
+      $('cbpool-verdict').className = 'pill ' + ((sp != null && sp >= 2.0) ? 'green' : cbIn ? 'blue' : 'amber');
 
       renderActiveModeDetails();
     }
@@ -1319,117 +1403,110 @@
     function renderActiveModeDetails() {
       if (!DATA) return;
       const s = getMetricsState();
-      const etfOk = s.etf != null && s.etf >= 0;
-      const asoprOk = s.asopr != null && s.asopr >= 1.0;
-      const momOk = s.wtSpread != null && s.wtSpread > 0;
-      const confCount = [etfOk, asoprOk, momOk].filter(Boolean).length;
+      const alloc = DATA.allocation_signal || {};
+      const cv = DATA.causal_valuation || {};
+      const valScore = cv.valuation_score ?? 50;
+      const s1In = !!(alloc.sma40_in_position);
+      const s2In = !!(alloc.cb_in_position);
+      const sp = alloc.weekly_wt_spread ?? s.wtSpread;
       const list = $('active-mode-list');
       const note = $('active-mode-note');
 
       if (ACTIVE_MODE === 'tranche') {
-        const t1 = s.bri <= 25 && (!s.wma200 || s.spot < s.wma200) && (s.cvdd == null || s.cvdd <= 1.25);
-        const t2 = s.bri <= 20 || (s.nupl != null && s.nupl <= 2);
-        const t3 = s.bri <= 15 || (s.cvdd != null && s.cvdd <= 1.05) || (s.puell != null && s.puell < 0.55);
-        const t4 = s.bri <= 32 && confCount >= 2;
+        const needPts = sp != null ? Math.max(0, 2.0 - sp).toFixed(1) : '—';
         list.innerHTML = `
-          <div class="check-item"><span><strong>Транш 1 (30%):</strong> BRI ≤ 25 &lt; 200W MA, CVDD ≤ 1.25</span><span class="pill ${t1 ? 'green' : 'amber'}">${t1 ? 'АКТИВНИЙ' : 'Очікування'}</span></div>
-          <div class="check-item"><span><strong>Транш 2 (30%):</strong> BRI ≤ 20 (${fmtUSD(s.entry20)}) або NUPL ≤ 2%</span><span class="pill ${t2 ? 'green' : ''}">${t2 ? 'АКТИВНИЙ' : 'Ліміт ' + fmtUSD(s.entry20)}</span></div>
-          <div class="check-item"><span><strong>Транш 3 (25%):</strong> Капітуляція (BRI ≤ 15 / CVDD ≤ 1.05)</span><span class="pill ${t3 ? 'green' : ''}">${t3 ? 'АКТИВНИЙ' : 'Резерв'}</span></div>
-          <div class="check-item"><span><strong>Транш 4 (15%):</strong> Підтвердження попиту (${confCount}/3)</span><span class="pill ${t4 ? 'green' : ''}">${t4 ? 'АКТИВНИЙ' : confCount + '/3 умов'}</span></div>
+          <div class="check-item"><span><strong>Рукав 1 — Тренд SMA40w (50%):</strong> Закриття тижня &gt; ${fmtUSD(alloc.sma40_value)}</span><span class="pill ${s1In ? 'green' : 'amber'}">${s1In ? 'АКТИВНИЙ (50%)' : 'Кеш (нижче SMA40w)'}</span></div>
+          <div class="check-item"><span><strong>Рукав 2 — Cipher B 1W (50%):</strong> Спред (wt1−wt2) ≥ +2.0 (зараз ${sp ?? '—'})</span><span class="pill ${s2In ? 'blue' : 'amber'}">${s2In ? (alloc.veto_blocked_exit ? 'VETO HOLD (50%)' : 'АКТИВНИЙ (50%)') : 'Ще +' + needPts + ' п. до входу'}</span></div>
+          <div class="check-item"><span><strong>Захист дна (Value Sell-Veto):</strong> MVRV ранг ≤ 25% (зараз ${cv.mvrv_rank_pct ?? '—'}%)</span><span class="pill ${alloc.value_sell_veto ? 'green' : ''}">${alloc.value_sell_veto ? 'VETO ON (не продавати на дні)' : 'Вимкнено'}</span></div>
+          <div class="check-item"><span><strong>OOS Хвостовий ризик (13 тиж.):</strong> P(MaxDD ≥ 25%) = ${DATA.tail_risk_13w?.prob_dd25_13w_pct ?? '—'}%</span><span class="pill ${DATA.v5b_validated ? 'blue' : 'amber'}">${DATA.v5b_validated ? 'Валідовано (ECE ' + (DATA.tail_risk_13w?.oos_validation?.ece_5bin ?? '') + ')' : 'Не валідовано'}</span></div>
         `;
-        note.textContent = 'Рекомендовано для більшості інвесторів: зменшує ризик входу на «падаючому ножі» та усереднює ціну біля макро-дна.';
+        note.textContent = 'Основний системний портфель (2017–2026: 82.44×, MaxDD −61.3%, Calmar 0.91; 2021–2026: 2.65× vs 1.84× B&H, MaxDD −41.9% vs −77.6%). Торгується виключно раз на тиждень по закритій понеділковій свічці.';
       } else if (ACTIVE_MODE === 'single') {
-        const trigA = s.bri <= 19 && ((s.nupl != null && s.nupl <= 2) || (s.cvdd != null && s.cvdd <= 1.08));
+        const z1 = valScore <= 25;
+        const z2 = valScore <= 12 || (s.realized && s.spot <= s.realized * 1.05);
+        const z3 = valScore <= 5 || (s.cvdd != null && s.cvdd <= 1.05);
         list.innerHTML = `
-          <div class="check-item"><span><strong>Тригер А (Глибоке дно):</strong> BRI ≤ 19 та (NUPL ≤ 2% / CVDD ≤ 1.08)</span><span class="pill ${trigA ? 'green' : ''}">${trigA ? 'СПРАЦЮВАВ' : 'Немає'}</span></div>
-          <div class="check-item"><span><strong>Тригер Б1 (Spot ETF):</strong> Приплив ≥ $0 (${s.etf != null ? s.etf.toFixed(1) + 'M' : '—'})</span><span class="pill ${etfOk ? 'green' : 'red'}">${etfOk ? 'ОК' : 'Відтік'}</span></div>
-          <div class="check-item"><span><strong>Тригер Б2 (aSOPR):</strong> aSOPR ≥ 1.00 (${s.asopr != null ? s.asopr.toFixed(4) : '—'})</span><span class="pill ${asoprOk ? 'green' : 'red'}">${asoprOk ? 'ОК' : 'Збитки'}</span></div>
-          <div class="check-item"><span><strong>Тригер Б3 (1W Імпульс):</strong> Тижневий Cipher B (wt1 &gt; wt2)</span><span class="pill ${momOk ? 'green' : 'amber'}">${momOk ? '1W Вгору' : (s.dailyBullDiv ? '1D див / 1W спадає' : 'Спадає')}</span></div>
+          <div class="check-item"><span><strong>Рівень 1 (40% DCA-ліміту):</strong> Зона страху — Собівартість ≤ 25 (зараз ${valScore}/100)</span><span class="pill ${z1 ? 'green' : 'amber'}">${z1 ? 'АКТИВНИЙ' : 'Очікування'}</span></div>
+          <div class="check-item"><span><strong>Рівень 2 (35% DCA-ліміту):</strong> Глибока недооцінка — Собівартість ≤ 12 або тест Realized (${fmtUSD(s.realized)})</span><span class="pill ${z2 ? 'green' : ''}">${z2 ? 'АКТИВНИЙ' : 'Орієнтир ' + fmtUSD(s.realized)}</span></div>
+          <div class="check-item"><span><strong>Рівень 3 (25% DCA-ліміту):</strong> Капітуляція — Собівартість ≤ 5 / CVDD ≤ 1.05 (зараз ${s.cvdd?.toFixed(2) ?? '—'})</span><span class="pill ${z3 ? 'green' : ''}">${z3 ? 'АКТИВНИЙ' : 'Резерв дна'}</span></div>
         `;
-        note.textContent = 'Вхід 100% капіталу відбувається лише при спрацюванні Тригера А (екстремальна капітуляція) або при BRI ≤ 32 та ≥ 2/3 підтверджень розвороту.';
+        note.textContent = 'План для регулярного вільного кеш-флоу (ідеологія Баффета «купуй, коли всі бояться»). Причинна Собівартість (MVRV·Puell·CVDD) має OOS кореляцію −0.54 з 365-денною дохідністю у 2021–2025.';
       } else {
-        const cbRaw = DATA.metrics?.cipherb?.value || {};
-        const wp = cbRaw.weekly_pool || {};
-        const smallGreenNow = wp.small_green_now ?? false;
-        const p3State = wp.pair3?.state || (s.wtSpread != null && s.wtSpread > 0 ? 'HOLD_BTC' : 'ACCUMULATE_CASH_POOL');
-        const p4State = wp.pair4?.state || (s.wtSpread != null && s.wtSpread > 0 ? 'HOLD_BTC' : 'ACCUMULATE_CASH_POOL');
-        const fmtState = st => st === 'HOLD_BTC' ? 'Тримати BTC' : 'Копити кеш-пул';
-        const synergyReady = s.bri <= 30 && smallGreenNow;
+        const crossUp = sp != null && sp >= 2.0;
         list.innerHTML = `
-          <div class="check-item"><span><strong>Пара #3 (4.76×, XIRR 26.2%):</strong> 1W мала зелена → мала червона</span><span class="pill ${p3State === 'HOLD_BTC' ? 'blue' : 'amber'}">${fmtState(p3State)}</span></div>
-          <div class="check-item"><span><strong>Пара #4 (5.78×, XIRR 19.1%):</strong> 1W мала зелена → 1W Bear Div A</span><span class="pill ${p4State === 'HOLD_BTC' ? 'blue' : 'amber'}">${fmtState(p4State)}</span></div>
-          <div class="check-item"><span><strong>1W WaveTrend (wt1 − wt2):</strong> ${s.wt1 != null ? s.wt1.toFixed(1) : '—'} − ${s.wt2 != null ? s.wt2.toFixed(1) : '—'} = <strong>${s.wtSpread != null ? (s.wtSpread >= 0 ? '+' : '') + s.wtSpread : '—'}</strong></span><span class="pill ${smallGreenNow ? 'green' : 'amber'}">${smallGreenNow ? 'ПЕРЕТИН ВГОРУ!' : 'Чекати wt1 > wt2'}</span></div>
-          <div class="check-item"><span><strong>Синергія BRI ≤ 30 + 1W зелена:</strong> BRI=${s.bri} (${s.bri <= 30 ? '✅' : '❌'}) + Перетин (${smallGreenNow ? '✅' : '⏳'})</span><span class="pill ${synergyReady ? 'green' : ''}">${synergyReady ? 'ПОВНИЙ ЗБІГ!' : 'Очікування'}</span></div>
+          <div class="check-item"><span><strong>Вхід пулу (100% накопиченого кешу):</strong> Закритий тиждень (wt1 − wt2) ≥ +2.0</span><span class="pill ${crossUp ? 'green' : 'amber'}">${crossUp ? 'АКТИВНИЙ' : 'Копити кеш (зараз ' + (sp ?? '—') + ')'}</span></div>
+          <div class="check-item"><span><strong>Утримання на дні (Value Veto):</strong> MVRV ранг ≤ 25% блокує хибний вихід</span><span class="pill ${alloc.value_sell_veto ? 'green' : ''}">${alloc.value_sell_veto ? 'VETO ON (' + (cv.mvrv_rank_pct ?? '—') + '%)' : 'Вимкнено'}</span></div>
+          <div class="check-item"><span><strong>Вихід у кеш-пул:</strong> Закритий тиждень (wt1 − wt2) ≤ −2.0 при MVRV &gt; 25%</span><span class="pill ${!s2In ? 'amber' : 'blue'}">${s2In ? 'У позиції BTC' : 'У кеш-пулі'}</span></div>
         `;
-        note.textContent = 'Дисклеймер: за дослідженням 2016–2026 лише тижневі «малі зелені» крапки (wt1 > wt2 на закритті тижня) стабільно обходили DCA; виконувати строго для пулу щомісячних внесків.';
+        note.textContent = 'Правило S3 на реальному тижневому OHLC (2021–2026: 2.22× та −49.9% DD проти 1.57× без Value-Veto): кеш накопичується щомісяця й заходить одним ордером на тижневому розвороті.';
       }
     }
 
-    function estimatePriceForBri(targetBri) {
+    function estimatePriceForBri(targetVal) {
       const s = getMetricsState();
-      if (!s.spot || !s.entry20 || s.bri == null) return s.entry20 || s.spot;
-      if (targetBri === 20) return s.entry20;
-      if (targetBri === s.bri) return s.spot;
-      const denom = (s.bri - 20) || 4;
-      const slope = (Math.log(s.spot) - Math.log(s.entry20)) / denom;
-      return Math.round(s.entry20 * Math.exp(slope * (targetBri - 20)));
+      const cv = DATA.causal_valuation || {};
+      const curVal = cv.valuation_score ?? 20.6;
+      const realP = s.realized || (s.spot * 0.85);
+      if (!s.spot) return null;
+      if (Math.abs(targetVal - curVal) < 0.5) return Math.round(s.spot);
+      const anchorVal = 8.0;
+      const denom = Math.max(4.0, curVal - anchorVal);
+      const slope = (Math.log(s.spot) - Math.log(realP)) / denom;
+      return Math.round(realP * Math.exp(slope * (targetVal - anchorVal)));
     }
 
     function renderCalculator() {
       const s = getMetricsState();
+      const alloc = DATA.allocation_signal || {};
+      const cv = DATA.causal_valuation || {};
+      const valScore = cv.valuation_score ?? 50;
       const cap = Math.max(0, parseFloat($('calc-capital').value) || 10000);
-      const targetBri = parseInt($('calc-target-bri').value, 10) || 20;
-      $('calc-target-bri-val').textContent = targetBri;
+      const targetVal = parseInt($('calc-target-bri').value, 10) || 20;
+      $('calc-target-bri-val').textContent = targetVal;
 
-      const estPrice = estimatePriceForBri(targetBri);
+      const estPrice = estimatePriceForBri(targetVal);
       $('calc-est-price').textContent = fmtUSD(estPrice);
       if (estPrice && s.spot) {
         const pct = ((estPrice / s.spot) - 1) * 100;
         $('calc-est-pct').textContent = `(${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%)`;
       }
 
-      const etfOk = s.etf != null && s.etf >= 0;
-      const asoprOk = s.asopr != null && s.asopr >= 1.0;
-      const momOk = s.wtSpread != null && s.wtSpread > 0;
-      const confCount = [etfOk, asoprOk, momOk].filter(Boolean).length;
-      const t1 = s.bri <= 25 && (!s.wma200 || s.spot < s.wma200) && (s.cvdd == null || s.cvdd <= 1.25);
-      const trigA = s.bri <= 19 && ((s.nupl != null && s.nupl <= 2) || (s.cvdd != null && s.cvdd <= 1.08));
-      const trigB = s.bri <= 32 && confCount >= 2;
-      const cbRaw = DATA.metrics?.cipherb?.value || {};
-      const smallGreenNow = cbRaw.weekly_pool?.small_green_now ?? (s.wtSpread != null && s.wtSpread > 0);
+      const s1In = !!(alloc.sma40_in_position);
+      const s2In = !!(alloc.cb_in_position);
+      const sp = alloc.weekly_wt_spread ?? s.wtSpread;
+      const z1 = valScore <= 25;
+      const z2 = valScore <= targetVal || (s.realized && s.spot <= s.realized * 1.05);
+      const z3 = valScore <= 5 || (s.cvdd != null && s.cvdd <= 1.05);
 
       let nowPct = 0;
       let rows = [];
       if (ACTIVE_MODE === 'tranche') {
-        $('calc-title').textContent = 'Калькулятор · Режим 1 (Мульти-транш)';
-        $('calc-subtitle').textContent = 'Сітка 30% / 30% / 25% / 15%';
-        $('calc-now-label').textContent = 'Задіяти зараз (Транш 1)';
-        nowPct = (t1 ? 30 : 0) + (s.bri <= targetBri ? 30 : 0) + (s.bri <= 15 ? 25 : 0);
-        const p15 = estimatePriceForBri(15);
+        $('calc-title').textContent = 'Калькулятор · Активний портфель D1';
+        $('calc-subtitle').textContent = '50% SMA40w + 50% Cipher B 1W & MVRV Veto';
+        $('calc-now-label').textContent = 'У позиції D1 зараз';
+        nowPct = alloc.target_allocation_pct ?? 0;
         rows = [
-          { name: 'Транш 1 (30%)', cond: 'BRI ≤ 25 &lt; 200W MA', price: s.spot, share: 0.30, active: t1 },
-          { name: 'Транш 2 (30%)', cond: `BRI ≤ ${targetBri} (ціль)`, price: estPrice, share: 0.30, active: s.bri <= targetBri },
-          { name: 'Транш 3 (25%)', cond: 'BRI ≤ 15 (дно)', price: p15, share: 0.25, active: s.bri <= 15 },
-          { name: 'Транш 4 (15%)', cond: 'Підтвердження (2/3)', price: s.spot * 1.05, share: 0.15, active: s.bri <= 32 && confCount >= 2 },
+          { name: 'Рукав 1 · SMA40w (50%)', cond: `Закриття тижня > ${fmtUSD(alloc.sma40_value)}`, price: alloc.sma40_value || s.spot, share: 0.50, active: s1In },
+          { name: 'Рукав 2 · Cipher B 1W (50%)', cond: `1W (wt1−wt2) ≥ +2.0 (зараз ${sp ?? '—'})`, price: s.spot, share: 0.50, active: s2In },
         ];
       } else if (ACTIVE_MODE === 'single') {
-        $('calc-title').textContent = 'Калькулятор · Режим 2 (1-Ордер 100%)';
-        $('calc-subtitle').textContent = 'Вхід усім капіталом по 1 з 2 тригерів';
-        $('calc-now-label').textContent = 'Задіяти зараз (1-Ордер)';
-        nowPct = (trigA || trigB) ? 100 : 0;
-        const p19 = estimatePriceForBri(19);
+        $('calc-title').textContent = 'Калькулятор · Баффетівський DCA на страху';
+        $('calc-subtitle').textContent = 'Розподіл ліміту накопичення за Causal Собівартістю';
+        $('calc-now-label').textContent = 'Активний ліміт DCA зараз';
+        nowPct = (z1 ? 40 : 0) + (z2 ? 35 : 0) + (z3 ? 25 : 0);
+        const pCap = estimatePriceForBri(5);
         rows = [
-          { name: 'Ордер А (100%)', cond: 'Ліміт: BRI ≤ 19 + NUPL ≤ 2% / CVDD ≤ 1.08', price: p19, share: 1.00, active: trigA },
-          { name: 'Ордер Б (100%)', cond: `Маркет: BRI ≤ 32 + ≥ 2/3 підтверджень (${confCount}/3)`, price: s.spot, share: 1.00, active: trigB },
+          { name: 'Транш 1 (40%)', cond: `Собівартість ≤ 25 (зараз ${valScore})`, price: s.spot, share: 0.40, active: z1 },
+          { name: 'Транш 2 (35%)', cond: `Собівартість ≤ ${targetVal} або Realized`, price: estPrice || s.realized, share: 0.35, active: z2 },
+          { name: 'Транш 3 (25%)', cond: 'Капітуляція: Собівартість ≤ 5 / CVDD ≤ 1.05', price: pCap || s.realized, share: 0.25, active: z3 },
         ];
       } else {
-        $('calc-title').textContent = 'Калькулятор · Режим 3 (Cipher B Pool)';
-        $('calc-subtitle').textContent = '100% накопиченого пулу по 1W закриттю';
+        $('calc-title').textContent = 'Калькулятор · Cipher B Weekly Pool (S3)';
+        $('calc-subtitle').textContent = '100% накопиченого пулу по закритому тижню';
         $('calc-now-label').textContent = 'Задіяти пул зараз';
-        nowPct = smallGreenNow ? 100 : 0;
+        nowPct = s2In ? 100 : 0;
         rows = [
-          { name: 'Пара #3 (100% пулу)', cond: `1W мала зелена (wt1 > wt2; зараз ${s.wtSpread ?? '—'}) → 1W червона`, price: s.spot, share: 1.00, active: smallGreenNow },
-          { name: 'Пара #4 (100% пулу)', cond: '1W мала зелена → 1W Bearish Div A', price: s.spot, share: 1.00, active: smallGreenNow },
+          { name: 'Пул S3 (100%)', cond: `1W (wt1−wt2) ≥ +2.0 (зараз ${sp ?? '—'}) + Veto ≤ 25%`, price: s.spot, share: 1.00, active: s2In },
         ];
       }
 
@@ -1452,20 +1529,24 @@
         </tr>`;
       }).join('');
 
+      const cbDivItem = (DATA.entry_exit_checklist?.items || []).find(x => x.key === 'cipherb_1w_div');
+      const bearDivNow = cbDivItem?.value === 'BEAR_DIV';
       const exitRows = [
-        { zone: '< 65', share: '0% (HOLD)', cond: 'Усередині бичачого циклу', active: s.bri < 65 },
-        { zone: '65 – 74', share: '20%', cond: 'NUPL > 55%, MVRV Z > 2.5', active: s.bri >= 65 && s.bri < 75 },
-        { zone: '75 – 84', share: '40%', cond: 'Перегрів + 1W wt1 < wt2', active: s.bri >= 75 && s.bri < 85 },
-        { zone: '≥ 85', share: '40% (Trail)', cond: 'Trailing пік ≥85 (−15 п.) / Pi Cross', active: s.bri >= 85 },
+        { zone: '1. Дивергенція', share: 'Увага', cond: '1W Bearish Div при Собівартості ≥ 50 (чек-лист)', active: bearDivNow && valScore >= 50 },
+        { zone: '2. Імпульс 1W', share: '−50% BTC', cond: `1W (wt1−wt2) ≤ −2.0 при MVRV > 25%`, active: !s2In && !alloc.value_sell_veto },
+        { zone: '3. Злам SMA40w', share: '−50% BTC', cond: `Закриття тижня < SMA40w (${fmtUSD(alloc.sma40_value)})`, active: !s1In },
+        { zone: '4. Value Veto', share: 'Блок продажу', cond: `MVRV ранг ≤ 25% утримує Рукав 2 на дні`, active: !!alloc.value_sell_veto },
       ];
-      $('exit-status-pill').textContent = s.bri < 65 ? `BRI ${s.bri} · HOLD / Набір` : `BRI ${s.bri} · Зона фіксації`;
-      $('exit-status-pill').className = 'pill ' + (s.bri < 65 ? 'blue' : 'amber');
+      $('exit-status-pill').textContent = alloc.value_sell_veto
+        ? `VETO ON · Зона вартості (${valScore}/100)`
+        : `D1: ${alloc.target_allocation_pct ?? 0}% BTC`;
+      $('exit-status-pill').className = 'pill ' + (alloc.value_sell_veto ? 'green' : (alloc.target_allocation_pct > 0 ? 'blue' : 'amber'));
       $('exit-table-body').innerHTML = exitRows.map(r => `
         <tr>
-          <td class="num">${r.zone}</td>
+          <td><strong>${r.zone}</strong></td>
           <td class="num">${r.share}</td>
           <td>${r.cond}</td>
-          <td><span class="pill ${r.active ? 'blue' : ''}">${r.active ? 'Зараз' : 'Чекаємо'}</span></td>
+          <td><span class="pill ${r.active ? 'blue' : ''}">${r.active ? 'Активно' : 'Очікування'}</span></td>
         </tr>
       `).join('');
     }
@@ -1598,7 +1679,103 @@
       }).join('');
     }
 
+    function renderCausalBacktest() {
+      const tbody = $('causal-backtest-tbody');
+      if (!tbody) return;
+      if (!CAUSAL_BT?.windows) {
+        tbody.innerHTML = '<tr><td colspan="6" class="muted">Файл causal_backtest.json ще не завантажено.</td></tr>';
+        return;
+      }
+      const win = CAUSAL_BT.windows[ACTIVE_BT_WIN];
+      if (!win) return;
+      if ($('bt-methodology')) {
+        $('bt-methodology').textContent = `${CAUSAL_BT.methodology} Період: ${win.start} .. ${win.end} (${win.weeks} тижнів).`;
+      }
+      tbody.innerHTML = (win.strategies || []).map(st => {
+        const boot = st.boot_vs_bh
+          ? `<strong>${st.boot_vs_bh.rel_multiple}×</strong> <span class="muted">[${st.boot_vs_bh.p05}..${st.boot_vs_bh.p95}] · P&gt;1: ${st.boot_vs_bh.prob_gt_1}%</span>`
+          : '<span class="muted">Бенчмарк</span>';
+        const tradesTxt = st.closed_trades > 0
+          ? `${st.closed_trades} (${st.win_rate_pct ?? '—'}%)`
+          : '0 (Hold)';
+        const ddEntryTxt = st.median_post_entry_dd26_pct != null ? `−${st.median_post_entry_dd26_pct}%` : '—';
+        const multColor = st.multiple >= 4 ? 'var(--green)' : (st.multiple >= 2 ? 'var(--blue)' : 'var(--text)');
+        return `<tr>
+          <td><strong>${escHtml(st.label || st.mode)}</strong><div class="muted" style="font-size:11px;">Експозиція: ${st.exposure_pct}%</div></td>
+          <td class="num"><strong style="color:${multColor};">${st.multiple}×</strong> <span class="muted">/ ${st.multiple_fee10}×</span><div class="muted" style="font-size:11px;">CAGR ${st.cagr_pct}%</div></td>
+          <td class="num">−${st.max_dd_pct}% <div class="muted" style="font-size:11px;">Calmar ${st.calmar}</div></td>
+          <td class="num">${tradesTxt}</td>
+          <td class="num">${ddEntryTxt}</td>
+          <td class="num">${boot}</td>
+        </tr>`;
+      }).join('');
+    }
+
+    function renderCausalExtremes() {
+      const tbody = $('causal-extremes-tbody');
+      if (!tbody || !CAUSAL_EXT) return;
+      const rows = (CAUSAL_EXT.extremes || []).filter(r => (r.causal_valuation ?? r.causal_bri) != null);
+      const todayRow = rows.find(r => r.type === 'today');
+      if ($('causal-bri-today-pill') && todayRow) {
+        const cvVal = todayRow.causal_valuation ?? todayRow.causal_bri;
+        $('causal-bri-today-pill').textContent = `Собівартість: ${cvVal}/100 · D1: ${todayRow.d1_alloc_pct ?? '—'}% BTC`;
+      }
+      if ($('causal-bri-meta') && CAUSAL_EXT.separation && CAUSAL_EXT.regime_ic) {
+        const sep = CAUSAL_EXT.separation;
+        const ic21 = CAUSAL_EXT.regime_ic['2021_2025'] || {};
+        $('causal-bri-meta').textContent = `${CAUSAL_EXT.formula}. Середнє дно: ${sep.causal_mean_bottom}, середня вершина: ${sep.causal_mean_top} (розділення ${sep.causal_separation} б.). IC 2021–25: дохід ${ic21.causal_spearman_ret365} (vs Legacy ${ic21.legacy_spearman_ret365}), просадка ${ic21.causal_spearman_dd365} (vs Legacy ${ic21.legacy_spearman_dd365}).`;
+      }
+      tbody.innerHTML = rows.map(r => {
+        const cls = r.type === 'bottom' ? 'green' : (r.type === 'top' ? 'red' : 'blue');
+        const p = r.parts || {};
+        const cvVal = r.causal_valuation ?? r.causal_bri;
+        const d1Now = r.d1_alloc_pct != null ? `${r.d1_alloc_pct}%` : '—';
+        const d1After = r.d1_alloc_plus8w_pct != null ? ` → ${r.d1_alloc_plus8w_pct}%` : '';
+        const partsTxt = `Leg ${r.legacy_bri ?? '—'} · (${p.mvrv_pct ?? '—'} · ${p.puell_pct ?? '—'} · ${p.cvdd_pct ?? '—'})`;
+        return `<tr>
+          <td><strong>${escHtml(r.date)}</strong> · <span class="pill ${cls}">${escHtml(r.label)}</span></td>
+          <td class="num">${fmtUSD(r.price)}</td>
+          <td class="num"><strong>${cvVal}</strong></td>
+          <td class="num"><strong>${d1Now}</strong><span class="muted">${d1After}</span></td>
+          <td class="num muted">${partsTxt}</td>
+        </tr>`;
+      }).join('');
+    }
+
     function renderMetricsBreakdown() {
+      const cv = DATA.causal_valuation || {};
+      const tr = DATA.tail_risk_13w || {};
+      const cl = DATA.entry_exit_checklist || {};
+      const stPill = $('checklist-status-pill');
+      if (stPill) {
+        const isUnc = !!cl.abstain;
+        const notes = (cl.regime_notes || []).length ? ` · ${(cl.regime_notes || []).join(', ')}` : '';
+        stPill.textContent = isUnc ? `UNCERTAIN (${(cl.abstain_reasons || []).join(', ')})` : `CLEAR${notes}`;
+        stPill.className = 'pill ' + (isUnc ? 'amber' : 'green');
+      }
+      if ($('causal-core-summary')) {
+        const valStr = cv.valuation_score != null ? `${cv.valuation_score}/100 (MVRV ${cv.mvrv_rank_pct ?? '—'}%)` : '—';
+        const vetoStr = cv.value_sell_veto ? 'VETO ON' : 'OFF';
+        const riskStr = tr.prob_dd25_13w_pct != null ? `${tr.prob_dd25_13w_pct}%` : '—';
+        const oos = tr.oos_validation || {};
+        const oosTxt = oos.n_oos ? `OOS n=${oos.n_oos} · BSS ${(oos.bss_vs_prevalence * 100).toFixed(1)}% · ECE ${oos.ece_5bin} (${oos.passed ? 'PASS' : 'FAIL'})` : 'OOS n/a';
+        const cbSpread = (DATA.allocation_signal?.weekly_wt_spread != null) ? `${DATA.allocation_signal.weekly_wt_spread >= 0 ? '+' : ''}${DATA.allocation_signal.weekly_wt_spread}` : '—';
+        const smaTxt = DATA.allocation_signal?.sma40_in_position ? 'SMA40w UP' : 'SMA40w DOWN';
+        $('causal-core-summary').innerHTML = `
+          <div class="calc-sum-box"><div class="kpi-label">1. Собівартість (MVRV·Puell·CVDD)</div><div class="calc-sum-val" style="font-size:14px;">${valStr}</div></div>
+          <div class="calc-sum-box"><div class="kpi-label">2. D1 Тренд + Cipher B 1W</div><div class="calc-sum-val" style="font-size:13px;">${smaTxt} · 1W ${cbSpread} · ${vetoStr}</div></div>
+          <div class="calc-sum-box"><div class="kpi-label">3. Tail Risk ≥25% (13т · OHLC)</div><div class="calc-sum-val" style="font-size:14px;">${riskStr}</div><div class="muted" style="font-size:10px;margin-top:2px;">${oosTxt}</div></div>
+        `;
+      }
+      if ($('checklist-grid') && Array.isArray(cl.items)) {
+        const statusTone = st => (['value_zone','bullish_confirm','bull_trend','profit_recovery','extreme_fear','inflow','liquidity_expansion'].includes(st) ? 'green' : (['overheated','bearish_caution','overheated_longs','outflow','tightening','macro_pressure'].includes(st) ? 'red' : 'amber'));
+        $('checklist-grid').innerHTML = cl.items.map(it => {
+          const valTxt = it.value != null ? it.value : '—';
+          const obsTxt = it.observation_date ? ` · obs ${it.observation_date}` : '';
+          const staleTxt = it.stale ? ' · STALE' : '';
+          return `<div class="check-item"><div class="check-left"><div class="check-title">${escHtml(it.label)}</div><div class="check-sub">Значення: ${valTxt}${it.causal_pct != null ? ' (ранг ' + it.causal_pct + '%)' : ''}${obsTxt}${staleTxt}</div></div><span class="pill ${statusTone(it.status)}">${escHtml(it.status)}</span></div>`;
+        }).join('');
+      }
       const s = getMetricsState();
       const norm = DATA.v3_normalized_scores || DATA.normalized_scores || {};
       const fmtN = (v, suffix = '') => v == null ? '—' : (typeof v === 'number' ? v.toFixed(2) + suffix : String(v));
@@ -1776,26 +1953,30 @@
 
     function generateLocalReport() {
       const s = getMetricsState();
-      const t1 = s.bri <= 25 && (!s.wma200 || s.spot < s.wma200);
+      const alloc = DATA.allocation_signal || {};
+      const cv = DATA.causal_valuation || {};
+      const valScore = cv.valuation_score ?? '—';
       const etfStr = s.etf != null ? `${s.etf >= 0 ? '+' : ''}${s.etf.toFixed(1)}M` : '—';
       const cap = parseFloat($('calc-capital').value) || 10000;
+      const d1Pct = alloc.target_allocation_pct ?? s.targetAlloc ?? 0;
+      const sp = alloc.weekly_wt_spread ?? s.wtSpread;
       const report =
-`### Системний звіт BTCBRI V5 — ${DATA.date}
-- **Спотова ціна BTC:** ${fmtUSD(s.spot)} (200W MA: ${fmtUSD(s.wma200)})
-- **Індекс BTCBRI:** **${s.bri}/100** (Raw Utility: ${s.rawUtil}) · Фаза: **${DATA.phase?.phase}** · Ціль V5: **${s.targetAlloc}% BTC**
-- **Кошики:** On-Chain \`${DATA.onchain_score}\` | Tech \`${DATA.tech_score}\` | Macro \`${DATA.macro_score}\`
-- **Forward Risk (365d):** ${s.forward != null ? s.forward.toFixed(1) + '%' : '—'} (validated=\`${s.forwardValid}\`)
-- **Ціна входу для BRI < 20:** **${fmtUSD(s.entry20)}** · Realized Price: ${fmtUSD(s.realized)}
+`### Системний звіт BitcoinScore Causal v2 — ${DATA.date}
+- **Спотова ціна BTC:** ${fmtUSD(s.spot)} (SMA40w: ${fmtUSD(alloc.sma40_value)} · 200W MA: ${fmtUSD(s.wma200)})
+- **Причинна Собівартість (MVRV·Puell·CVDD):** **${valScore}/100** (MVRV ранг: ${cv.mvrv_rank_pct ?? '—'}%, Value Veto: \`${alloc.value_sell_veto}\`)
+- **Алокатор D1 (Активний портфель):** **${d1Pct}% BTC** (\`${alloc.action_label ?? '—'}\`, бар \`${alloc.ohlc_bar_date ?? '—'}\`)
+- **Tail Risk 13w (P(MaxDD ≥ 25%)):** ${s.forward != null ? s.forward.toFixed(1) + '%' : '—'} (validated=\`${s.forwardValid}\`, ECE=\`${DATA.tail_risk_13w?.oos_validation?.ece_5bin ?? '—'}\`, ohlc=\`${DATA.tail_risk_13w?.ohlc_source ?? '—'}\`)
+- **Архівний Legacy BRI:** ${s.bri}/100 · Realized Price: ${fmtUSD(s.realized)}
 
 ### 1. Вердикт для капіталу ${fmtUSD(cap)}
-- **V5 Dual-Sleeve (${s.targetAlloc}% BTC):** **${fmtUSD(cap * s.targetAlloc / 100)}** у BTC, **${fmtUSD(cap * (100 - s.targetAlloc) / 100)}** у кеші.
-- **Мульти-траншева сітка (4 транші):** ${t1 ? '**BUY 30% ЗАРАЗ (' + fmtUSD(cap * 0.3) + ')**' : '**WAIT**'} — CVDD=${s.cvdd}, MVRV Z=${DATA.mvrv_z_score?.toFixed(2)}, F&G=${s.fg}.
-- **1-ордерна стратегія (100%):** **WAIT** — відтік по ETF (${etfStr}), aSOPR=${s.asopr?.toFixed(4)}, тижневий Cipher B (${s.wtSpread}).
+- **Активний портфель D1 (${d1Pct}% BTC):** **${fmtUSD(cap * d1Pct / 100)}** у BTC, **${fmtUSD(cap * (100 - d1Pct) / 100)}** у кеші (SMA40w: ${alloc.sma40_sleeve_pct ?? 0}%, Cipher B 1W: ${alloc.cipherb_sleeve_pct ?? 0}%).
+- **Баффетівський DCA-потік (Собівартість ≤ 25):** ${valScore <= 25 ? '**DCA АКТИВНИЙ** (зона дешевої собівартості, OOS IC = −0.54 на 365д)' : '**ПАУЗА DCA**'} — CVDD=${s.cvdd}, MVRV Z=${DATA.mvrv_z_score?.toFixed(2)}, F&G=${s.fg}.
 
-### 2. Наступні тригери
-- **Лівосторонній вхід (дно):** \`BRI ≤ 19\` (${fmtUSD(estimatePriceForBri(19))}) або тест Realized Price (${fmtUSD(s.realized)}).
-- **Правосторонній вхід (підтвердження):** припинення відтоків ETF + \`aSOPR ≥ 1.00\` + тижневий розворот Cipher B \`(wt1 − wt2) ≥ +2\`.`;
-      setReportHtml(`Системний звіт (0₴) · Зріз ${DATA.date}`, report);
+### 2. Наступні тригери D1 (закриття понеділкової свічки)
+- **Вхід Рукава 2 (+50% BTC):** тижневий розворот Cipher B \`(wt1 − wt2) ≥ +2.0\` (зараз \`${sp}\`).
+- **Вхід Рукава 1 (+50% BTC):** закриття тижня вище \`SMA40w\` (${fmtUSD(alloc.sma40_value)}).
+- **Підтвердження попиту:** приплив Spot ETF (${etfStr}) + \`aSOPR ≥ 1.00\` (${s.asopr?.toFixed(4)}).`;
+      setReportHtml(`Системний звіт Causal v2 · Зріз ${DATA.date}`, report);
       return report;
     }
 
@@ -1865,6 +2046,31 @@
       renderRecommendations();
       renderPatterns();
       renderCalculator();
+      fetch('causal_backtest.json?t=' + Date.now())
+        .then(r => r.ok ? r.json() : null)
+        .then(bt => {
+          if (bt) { CAUSAL_BT = bt; renderCausalBacktest(); }
+        }).catch(() => {});
+
+      fetch('causal_bri_extremes.json?t=' + Date.now())
+        .then(r => r.ok ? r.json() : null)
+        .then(ex => {
+          if (ex) { CAUSAL_EXT = ex; renderCausalExtremes(); }
+        }).catch(() => {});
+
+      $('bt-win-2018')?.addEventListener('click', () => {
+        ACTIVE_BT_WIN = 'full_2018_2026';
+        $('bt-win-2018').classList.add('active');
+        $('bt-win-2021')?.classList.remove('active');
+        renderCausalBacktest();
+      });
+      $('bt-win-2021')?.addEventListener('click', () => {
+        ACTIVE_BT_WIN = 'modern_2021_2026';
+        $('bt-win-2021').classList.add('active');
+        $('bt-win-2018')?.classList.remove('active');
+        renderCausalBacktest();
+      });
+
       renderMetricsBreakdown();
       if (!loadCachedOpenRouterReport()) {
         generateWithOpenRouter(false);

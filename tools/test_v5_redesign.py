@@ -10,22 +10,47 @@ from scraper.allocation_engine import compute_allocation_signal
 from scraper.score import compute_score
 
 
-def test_allocation_engine_trailing_peak_and_tiz():
-    a1 = compute_allocation_signal(30, [('2026-11-01', 40)], {'wt1': -5, 'wt2': 0})
-    assert a1['bri_sleeve_pct'] == 50
+def test_allocation_engine_causal_d1_dual_sleeve():
+    # Sleeve 1 (SMA40w) + Sleeve 2 (Cipher B 1W ±2.0 + real MVRV Value-Veto)
+    a1 = compute_allocation_signal(
+        30,
+        [('2026-11-01', 40)],
+        {'wt1': -5, 'wt2': 0},
+        sma40_in_pos=True,
+        mvrv_pct=0.20,
+        value_sell_veto=True,
+    )
+    assert a1['allocation_engine'] == 'causal_d1_sma40_cb_veto'
+    assert a1['sma40_sleeve_pct'] == 50
     assert a1['cipherb_sleeve_pct'] == 0
     assert a1['target_allocation_pct'] == 50
     assert a1['market_regime'] == 'Buy'
 
-    a2 = compute_allocation_signal(87, [('2026-11-01', 30)], {'wt1': 10, 'wt2': 5})
-    assert a2['trailing_armed'] is True
+    # Both sleeves active in bull trend
+    a2 = compute_allocation_signal(
+        87,
+        [('2026-11-01', 30)],
+        {'wt1': 10, 'wt2': 5},
+        sma40_in_pos=True,
+        mvrv_pct=0.75,
+    )
+    assert a2['trailing_armed'] is True  # legacy archive diagnostic preserved
     assert a2['target_allocation_pct'] == 100
     assert a2['market_regime'] == 'Hold'
 
-    a3 = compute_allocation_signal(71, [('2026-11-01', 30), ('2026-11-02', 87)], {'wt1': -5, 'wt2': 0})
+    # Both sleeves out in overheated regime -> Sell / EXIT_CASH
+    a3 = compute_allocation_signal(
+        71,
+        [('2026-11-01', 30), ('2026-11-02', 87)],
+        {'wt1': -5, 'wt2': 0},
+        sma40_in_pos=False,
+        mvrv_pct=0.75,
+    )
     assert a3['target_allocation_pct'] == 0
     assert a3['market_regime'] == 'Sell'
+    assert a3['action_label'] == 'EXIT_CASH'
 
+    # Invalid data quality -> Unavailable
     a_inv = compute_allocation_signal(30, [], {'wt1': 0, 'wt2': 0}, data_quality_status='invalid')
     assert a_inv['market_regime'] == 'Unavailable'
 

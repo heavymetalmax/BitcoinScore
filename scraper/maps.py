@@ -99,19 +99,21 @@ def _load_metric_history(metric):
                 pass
         pts = sorted(dxy_by_date.items())
 
-    # Tail: daily_vector for very recent dates not yet flushed to scores.json
+    # Tail: daily_vector for very recent dates not yet flushed to scores.json (deduped by date)
+    by_date = dict(pts)
     try:
         dv = 'data/history/daily_vector.json'
         if os.path.exists(dv):
             dv_key = _DV_KEY.get(metric, metric)
             for row in json.load(open(dv, encoding='utf-8')):
+                d = (row.get('date') or '')[:10]
                 v = (row.get('raw') or {}).get(dv_key)
-                if v is not None:
-                    pts.append((row['date'], float(v)))
+                if d and v is not None:
+                    by_date[d] = float(v)
     except Exception:
         pass
 
-    pts.sort(key=lambda r: r[0])
+    pts = sorted(by_date.items())
     _HIST_CACHE[metric] = pts
     return pts
 
