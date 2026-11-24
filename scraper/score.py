@@ -136,9 +136,6 @@ def _extract_cipherb(cb) -> tuple[int | None, int | None, int | None]:
     if w is None:
         return weekly_raw, daily_raw, None
 
-    # Weekly divergence shifts: when a fast or double bearish divergence fires on
-    # a higher price high (while raw weekly score w >= 58), it signals structural
-    # top exhaustion even if raw WT1 is lower than Peak 1.
     if val_dict.get('double_bearish_div'):
         w = min(100.0, max(w + 22.0, 94.0 if w >= 58.0 else w + 22.0))
     elif val_dict.get('fast_bearish_div'):
@@ -154,7 +151,6 @@ def _extract_cipherb(cb) -> tuple[int | None, int | None, int | None]:
         w = max(0.0, w - 10.0)
 
     if d is not None:
-        # Daily divergence shifts
         if val_dict.get('daily_double_bearish_div'):
             d = min(100.0, d + 20.0)
         elif val_dict.get('daily_fast_bearish_div') or val_dict.get('fast_bear_div'):
@@ -822,10 +818,9 @@ def compute_score(
         except Exception as e:
             print(f'Warning: V5B (v5b_score / Outlook) failed — {e}')
 
-    # ── Market Regime — decision layer (Outlook + Market Context) ───────────
-    # Thresholds derived from 2018-2026 backtest (163x return vs 4.8x B&H).
-    # Mirrors scraper/scoring_v3.py::_market_regime() — see docs/architecture.md
-    # §7.2 for the full rationale and the Wait-vs-Hold distinction.
+    # ── Market Regime & V5 Dual-Sleeve Allocation Engine ─────────────────────
+    from scraper.allocation_engine import compute_allocation_signal
+
     market_regime:    str | None = None
     composite_risk:   float | None = None
     signal_agreement: float | None = None
@@ -836,24 +831,29 @@ def compute_score(
         suppression_reasons.append(f"data_quality_{quality['status']}")
     if not v5b_validated:
         suppression_reasons.append('v5b_not_better_than_baseline')
-    if final is not None:
+
+    _cb_inner_for_alloc = _cb.get('value', _cb) if isinstance(_cb, dict) else {}
+    allocation_signal = compute_allocation_signal(
+        final_score=final,
+        scores_history=scores_history,
+        cipherb_val=_cb_inner_for_alloc,
+        data_quality_status=quality['status'],
+        confidence_score=confidence_score,
+        forward_risk=v5b_score,
+        forward_risk_validated=v5b_validated,
+    )
+    market_regime = allocation_signal['market_regime']
+
+    if final is not None and v5b_score is not None:
         _mc = float(final)
-        _high_dd_guard = bool(v5b_validated and v5b_score is not None and v5b_score >= 55)
-        buy  = _mc < 35 and confidence_score >= 45 and not _high_dd_guard
-        sell = _mc >= 65 and (w_top >= 0.35 or _mc >= 75 or (v5b_validated and v5b_score is not None and v5b_score >= 45))
-        hold = _mc >= 65 and not sell
-        market_regime = 'Buy' if buy else 'Sell' if sell else 'Hold' if hold else 'Wait'
-        if decision_suppressed:
-            market_regime = 'Unavailable' if quality['status'] == 'invalid' else 'Wait'
-        if v5b_score is not None:
-            # Composite risk = √(Market Context × Outlook) — display gauge only, not used in market_regime.
-            composite_risk   = round(math.sqrt(max(0.0, _mc) * max(0.0, v5b_score)), 1)
-            signal_agreement = round(1.0 - abs(_mc - v5b_score) / 100.0, 2)
-            _w_mc  = signal_agreement / 2
-            _w_v5b = 1.0 - _w_mc
-            meta_score = round(_w_mc * _mc + _w_v5b * v5b_score, 1)
+        composite_risk   = round(math.sqrt(max(0.0, _mc) * max(0.0, v5b_score)), 1)
+        signal_agreement = round(1.0 - abs(_mc - v5b_score) / 100.0, 2)
+        _w_mc  = signal_agreement / 2
+        _w_v5b = 1.0 - _w_mc
+        meta_score = round(_w_mc * _mc + _w_v5b * v5b_score, 1)
 
     return {
+        'bri_version':        'v5',
         'final_score':        final,
         'raw_utility_score':  round(flat_avg) if flat_avg is not None else None,
         'phase':              phase,
@@ -886,6 +886,8 @@ def compute_score(
         'v5b_score':          v5b_score,
         'v5b_validated':      v5b_validated,
         'market_regime':      market_regime,
+        'target_allocation_pct': allocation_signal['target_allocation_pct'],
+        'allocation_signal':  allocation_signal,
         'score_status':       quality['status'],
         'basket_coverage':    quality['baskets'],
         'decision_suppressed': decision_suppressed,

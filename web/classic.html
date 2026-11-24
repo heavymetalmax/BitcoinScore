@@ -1684,26 +1684,26 @@
             </div>
 
             <div class="base-inversion-cards">
-              <!-- Buy Zone Target -->
+              <!-- Low Risk Zone -->
               <div class="base-inv-card inv-buy">
                 <div class="base-inv-badge-row">
                   <span class="base-inv-dot" style="background:#22C55E"></span>
-                  <span class="base-inv-name"><span class="en">Buy Zone (≤20)</span><span class="ua">Зона купівлі (≤20)</span></span>
+                  <span class="base-inv-name"><span class="en">Low Risk Zone (≤20)</span><span class="ua">Зона низького ризику (≤20)</span></span>
                   <span class="base-inv-delta delta-up" id="inv-buy-pct">—</span>
                 </div>
                 <div class="base-inv-price" id="inv-buy-price">—</div>
-                <div class="base-inv-sub"><span class="en">Target entry trigger</span><span class="ua">Розрахунковий тригер купівлі</span></div>
+                <div class="base-inv-sub"><span class="en">Implied price at BRI = 20</span><span class="ua">Розрахункова ціна при BRI = 20</span></div>
               </div>
 
-              <!-- Sell Zone Target -->
+              <!-- High Risk Zone -->
               <div class="base-inv-card inv-sell">
                 <div class="base-inv-badge-row">
                   <span class="base-inv-dot" style="background:#EF4444"></span>
-                  <span class="base-inv-name"><span class="en">Sell Zone (≥80)</span><span class="ua">Зона продажу (≥80)</span></span>
+                  <span class="base-inv-name"><span class="en">High Risk Zone (≥80)</span><span class="ua">Зона високого ризику (≥80)</span></span>
                   <span class="base-inv-delta delta-down" id="inv-sell-pct">—</span>
                 </div>
                 <div class="base-inv-price" id="inv-sell-price">—</div>
-                <div class="base-inv-sub"><span class="en">Take-profit trigger</span><span class="ua">Розрахунковий тригер фіксації</span></div>
+                <div class="base-inv-sub"><span class="en">Implied price at BRI = 80</span><span class="ua">Розрахункова ціна при BRI = 80</span></div>
               </div>
 
               <!-- Realized Price / Network Cost Basis -->
@@ -2085,9 +2085,9 @@
         <button class="time-btn" data-range="3M">3M</button>
       </div>
       <div class="chart-legend">
-        <span><span class="legend-dot" style="background:#22C55E"></span><span class="en">Buy zone (≤20)</span><span class="ua">Зона купівлі (≤20)</span></span>
+        <span><span class="legend-dot" style="background:#22C55E"></span><span class="en">Low risk (≤20)</span><span class="ua">Низький ризик (≤20)</span></span>
         <span><span class="legend-dot" style="background:#EAB308"></span><span class="en">Neutral (50)</span><span class="ua">Нейтрально (50)</span></span>
-        <span><span class="legend-dot" style="background:#EF4444"></span><span class="en">Sell zone (≥80)</span><span class="ua">Зона продажу (≥80)</span></span>
+        <span><span class="legend-dot" style="background:#EF4444"></span><span class="en">High risk (≥80)</span><span class="ua">Високий ризик (≥80)</span></span>
         <span><span class="legend-dot" style="background:#38BDF8; border-radius:2px;"></span><span class="en">Outlook / expected drawdown %</span><span class="ua">Прогноз drawdown %</span></span>
       </div>
     </div>
@@ -2445,11 +2445,11 @@ function scoreToColor(s) {
 function riskZone(s) {
   if (s == null) return { label: '—', labelUa: '—', color: 'var(--muted)', hint: '', hintUa: '', stateEn: '—', stateUa: '—' };
   const color = scoreToColor(s);
-  if (s < 25) return { label: 'VERY LOW RISK',  labelUa: 'МІНІМАЛЬНИЙ РИЗИК',  color, hint: 'Very low risk — historically strong accumulation zone.', hintUa: 'Мінімальний ризик — зона для активного накопичення.', stateEn: 'Accumulation', stateUa: 'Накопичення' };
-  if (s < 35) return { label: 'LOW RISK',        labelUa: 'НЕЗНАЧНИЙ РИЗИК',    color, hint: 'Low risk — favorable for gradual accumulation.', hintUa: 'Незначний ризик — сприятливо для поступового накопичення.', stateEn: 'Undervalued', stateUa: 'Недооцінено' };
-  if (s < 55) return { label: 'MODERATE RISK',   labelUa: 'ПОМІРНИЙ РИЗИК',     color, hint: 'Moderate risk — proceed with caution.', hintUa: 'Помірний ризик — дійте обережно.', stateEn: 'Hold', stateUa: 'Утримання' };
-  if (s < 75) return { label: 'HIGH RISK',        labelUa: 'ЗНАЧНИЙ РИЗИК',      color, hint: 'High risk — consider reducing exposure.', hintUa: 'Значний ризик — розгляньте зниження позицій.', stateEn: 'Distribution', stateUa: 'Розподіл' };
-  return             { label: 'VERY HIGH RISK',   labelUa: 'НАДМІРНИЙ РИЗИК',    color, hint: 'Very high risk — historically poor entry point.', hintUa: 'Надмірний ризик — несприятливий момент для входу.', stateEn: 'Sell Zone', stateUa: 'Зона продажу' };
+  if (s < 25) return { label: 'VERY LOW RISK',  labelUa: 'МІНІМАЛЬНИЙ РИЗИК',  color, hint: 'Very low cycle risk — historically depressed valuation.', hintUa: 'Мінімальний цикловий ризик — історично занижена оцінка.', stateEn: 'Low Risk', stateUa: 'Низький ризик' };
+  if (s < 35) return { label: 'LOW RISK',        labelUa: 'НЕЗНАЧНИЙ РИЗИК',    color, hint: 'Low cycle risk — below historical median.', hintUa: 'Незначний цикловий ризик — нижче історичної медіани.', stateEn: 'Below Avg', stateUa: 'Нижче середнього' };
+  if (s < 55) return { label: 'MODERATE RISK',   labelUa: 'ПОМІРНИЙ РИЗИК',     color, hint: 'Moderate cycle risk — balanced market regime.', hintUa: 'Помірний цикловий ризик — збалансований стан ринку.', stateEn: 'Neutral', stateUa: 'Нейтрально' };
+  if (s < 75) return { label: 'HIGH RISK',        labelUa: 'ЗНАЧНИЙ РИЗИК',      color, hint: 'Elevated cycle risk — above historical median.', hintUa: 'Значний цикловий ризик — вище історичної медіани.', stateEn: 'Elevated', stateUa: 'Підвищений' };
+  return             { label: 'VERY HIGH RISK',   labelUa: 'НАДМІРНИЙ РИЗИК',    color, hint: 'Extreme cycle risk — historically overheated territory.', hintUa: 'Надмірний цикловий ризик — історично перегріта зона.', stateEn: 'High Risk', stateUa: 'Високий ризик' };
 }
 
 const fmtPrice  = p => '$' + Math.round(p).toLocaleString('en-US');
@@ -3394,10 +3394,10 @@ async function loadData() {
       'Unavailable': { bg:'#64748B18', color:'#64748B', border:'#64748B40' },
     };
     const REGIME_LABELS = {
-      'Buy':  { en: 'Buy',  ua: 'Купувати' },
-      'Sell': { en: 'Sell', ua: 'Продавати' },
-      'Hold': { en: 'Hold', ua: 'Тримати' },
-      'Wait': { en: 'Wait', ua: 'Чекати' },
+      'Buy':  { en: 'Low Risk',  ua: 'Низький ризик' },
+      'Sell': { en: 'High Risk', ua: 'Високий ризик' },
+      'Hold': { en: 'Elevated',  ua: 'Підвищений' },
+      'Wait': { en: 'Neutral',   ua: 'Нейтрально' },
       'Unavailable': { en: 'Unavailable', ua: 'Недоступно' },
     };
     const flagEl = document.getElementById('sig-flag');

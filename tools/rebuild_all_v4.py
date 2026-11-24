@@ -100,15 +100,38 @@ def recompute_recent_scores(days: int = 365) -> None:
     inv_maps()
     inv_wr()
 
-    # Load weekly and daily CipherB history for accurate historical reconstruction
-    wk_rows_by_date = {}
+    # Load weekly and daily CipherB history for accurate zero-lookahead historical reconstruction.
+    # Kraken 1W bars are dated on Thursday open and close on Wednesday (+6 days).
+    wk_rows_by_close_date = {}
     wk_path = os.path.join(ROOT, 'data', 'history', 'cipherb_btcusdt_1w.json')
     if os.path.exists(wk_path):
         raw_wk = json.load(open(wk_path, encoding='utf-8'))
-        for r in (raw_wk.get('series', raw_wk) if isinstance(raw_wk, dict) else raw_wk):
-            if isinstance(r, dict) and r.get('date') and r.get('weekly_score') is not None:
-                wk_rows_by_date[r['date'][:10]] = r
-    wk_dates = sorted(wk_rows_by_date.keys())
+        wk_all = raw_wk.get('series', raw_wk) if isinstance(raw_wk, dict) else raw_wk
+        thu_rows = []
+        seen_thu = set()
+        for r in wk_all:
+            if not isinstance(r, dict) or not r.get('date') or r.get('weekly_score') is None:
+                continue
+            d_str_w = r['date'][:10]
+            if d_str_w in seen_thu:
+                continue
+            if datetime.date.fromisoformat(d_str_w).strftime('%a') == 'Thu':
+                seen_thu.add(d_str_w)
+                thu_rows.append(r)
+        thu_rows.sort(key=lambda x: x['date'][:10])
+        wt1_hist = []
+        for idx_w, r in enumerate(thu_rows):
+            w1 = float(r['wt1']) if r.get('wt1') is not None else None
+            wt1_hist.append(w1)
+            w2 = None
+            if idx_w >= 2 and w1 is not None and wt1_hist[idx_w - 1] is not None and wt1_hist[idx_w - 2] is not None:
+                w2 = (w1 + wt1_hist[idx_w - 1] + wt1_hist[idx_w - 2]) / 3.0
+            close_d = (datetime.date.fromisoformat(r['date'][:10]) + datetime.timedelta(days=6)).isoformat()
+            item = dict(r)
+            item['wt1'] = w1
+            item['wt2'] = w2
+            wk_rows_by_close_date[close_d] = item
+    wk_dates = sorted(wk_rows_by_close_date.keys())
 
     d1_rows_by_date = {}
     d1_path = os.path.join(ROOT, 'data', 'history', 'cipherb_btcusdt_1d.json')
@@ -142,7 +165,7 @@ def recompute_recent_scores(days: int = 365) -> None:
         if wk_dates:
             idx = bisect.bisect_right(wk_dates, d_str) - 1
             if idx >= 0:
-                wk_r = wk_rows_by_date[wk_dates[idx]]
+                wk_r = wk_rows_by_close_date[wk_dates[idx]]
         d1_r = d1_rows_by_date.get(d_str, {})
         wk_score = wk_r.get('weekly_score', cb_val)
 
@@ -151,6 +174,8 @@ def recompute_recent_scores(days: int = 365) -> None:
             cb_dict = {
                 'weekly_score':             wk_score if wk_score is not None else cb_val,
                 'daily_score':              cb_val,
+                'wt1':                      wk_r.get('wt1'),
+                'wt2':                      wk_r.get('wt2'),
                 'fast_bearish_div':         bool(wk_r.get('fast_bearish_div', False)),
                 'fast_bullish_div':         bool(wk_r.get('fast_bullish_div', False)),
                 'bearish_div':              bool(wk_r.get('bearish_div', False)),
@@ -204,6 +229,8 @@ def recompute_recent_scores(days: int = 365) -> None:
                 row['v5b_score'] = res['v5b_score']
             if res.get('market_regime') is not None:
                 row['market_regime'] = res['market_regime']
+            if res.get('target_allocation_pct') is not None:
+                row['target_allocation_pct'] = res['target_allocation_pct']
             updated += 1
             last_res = res
 
@@ -211,10 +238,11 @@ def recompute_recent_scores(days: int = 365) -> None:
 
     with open(scores_path, 'w', encoding='utf-8') as f:
         json.dump(rows, f, separators=(',', ':'))
-    print(f"Recomputed V4 scores for {updated} rows in {scores_path}")
+    print(f"Recomputed V5 scores for {updated} rows in {scores_path}")
 
     # Sync latest recomputed score into data/data.json and web/data.json
     if last_res is not None:
+        from scraper.scoring_pipeline import sync_public_names
         for dp in [os.path.join(ROOT, 'data', 'data.json'), os.path.join(ROOT, 'web', 'data.json')]:
             if os.path.exists(dp):
                 try:
@@ -222,7 +250,29 @@ def recompute_recent_scores(days: int = 365) -> None:
                     payload['final_score'] = last_res['final_score']
                     payload['onchain_score'] = last_res.get('onchain_avg')
                     payload['tech_score'] = last_res.get('tech_avg')
-                    payload['phase'] = last_res.get('phase')
+                    payload['macro_score'] = last_res.get('macro_avg')
+                    if isinstance(payload.get('phase'), dict):
+                        payload['phase'].update({
+                            'phase': last_res.get('phase'),
+                            'top_signal': last_res.get('top_signal'),
+                            'bot_signal': last_res.get('bot_signal'),
+                            'w_bot': last_res.get('w_bot'),
+                            'w_neutral': last_res.get('w_neutral'),
+                            'w_top': last_res.get('w_top'),
+                            'ma_regime': (last_res.get('ma_context') or {}).get('ma_regime'),
+                        })
+                    else:
+                        payload['phase'] = {
+                            'phase': last_res.get('phase'),
+                            'top_signal': last_res.get('top_signal'),
+                            'bot_signal': last_res.get('bot_signal'),
+                            'w_bot': last_res.get('w_bot'),
+                            'w_neutral': last_res.get('w_neutral'),
+                            'w_top': last_res.get('w_top'),
+                            'ma_regime': (last_res.get('ma_context') or {}).get('ma_regime'),
+                            'method': last_res.get('phase_method'),
+                            'probabilistic': last_res.get('phase_probabilistic', False),
+                        }
                     payload['w_bot'] = last_res.get('w_bot')
                     payload['w_neutral'] = last_res.get('w_neutral')
                     payload['w_top'] = last_res.get('w_top')
@@ -234,6 +284,14 @@ def recompute_recent_scores(days: int = 365) -> None:
                     payload['normalized_scores'] = last_res.get('normalized_scores')
                     payload['v3_normalized_scores'] = last_res.get('normalized_scores')
                     payload['v3_utilities'] = last_res.get('utilities')
+                    if isinstance(payload.get('computed'), dict):
+                        payload['computed']['raw_utility_score'] = last_res.get('raw_utility_score')
+                    if isinstance(payload.get('scoring'), dict):
+                        payload['scoring']['bri_version'] = last_res.get('bri_version', 'v5')
+                        payload['scoring']['final_score'] = last_res['final_score']
+                        payload['scoring']['market_regime'] = last_res.get('market_regime')
+                        payload['scoring']['target_allocation_pct'] = last_res.get('target_allocation_pct')
+                        payload['scoring']['allocation_signal'] = last_res.get('allocation_signal')
                     if last_res.get('ma_context') is not None:
                         payload['ma_context'] = last_res['ma_context']
                         _mm_obj = (payload.get('metrics') or {}).get('mayer_multiple')
@@ -249,6 +307,7 @@ def recompute_recent_scores(days: int = 365) -> None:
                         payload['composite_risk'] = last_res['composite_risk']
                     if last_res.get('meta_score') is not None:
                         payload['meta_score'] = last_res['meta_score']
+                    sync_public_names(payload, last_res)
                     with open(dp, 'w', encoding='utf-8') as f:
                         json.dump(payload, f, indent=2)
                 except Exception as e:

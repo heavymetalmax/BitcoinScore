@@ -19,11 +19,11 @@
 
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Bitcoin Buy Risk Index — Is It a Good Time to Buy BTC?</title>
+  <title>Bitcoin Buy Risk Index — Cycle Risk &amp; On-Chain Analytics</title>
   <meta name="description" content="A composite index scoring Bitcoin's market risk on a 0–100 scale, aggregating 10+ on-chain and macro indicators updated daily." />
   <link rel="canonical" href="https://btcbri.com/" />
   <meta name="theme-color" content="#f7931a" />
-  <meta property="og:title" content="Bitcoin Buy Risk Index — Is It a Good Time to Buy BTC?" />
+  <meta property="og:title" content="Bitcoin Buy Risk Index — Cycle Risk &amp; On-Chain Analytics" />
   <meta property="og:description" content="A composite index scoring Bitcoin's market risk on a 0–100 scale, aggregating 10+ on-chain and macro indicators updated daily." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://btcbri.com/" />
@@ -35,7 +35,7 @@
   <meta property="og:image:width" content="1024" />
   <meta property="og:image:height" content="1024" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Bitcoin Buy Risk Index — Is It a Good Time to Buy BTC?" />
+  <meta name="twitter:title" content="Bitcoin Buy Risk Index — Cycle Risk &amp; On-Chain Analytics" />
   <meta name="twitter:description" content="A composite index scoring Bitcoin's market risk on a 0–100 scale, aggregating 10+ on-chain and macro indicators updated daily." />
   <meta name="twitter:image" content="https://btcbri.com/og_preview.jpg" />
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
@@ -1747,52 +1747,27 @@
                   <span class="risk-marker-lbl" id="marker-lbl">—</span>
                 </div>
               </div>
-              <!-- Ticks at 25% and 75% -->
-              <div class="risk-tick" style="left: 20%;" title="Buy zone boundary (20)"></div>
-              <div class="risk-tick" style="left: 80%;" title="Sell zone boundary (80)"></div>
+              <!-- Ticks at 20% and 80% -->
+              <div class="risk-tick" style="left: 20%;" title="Low risk boundary (20)"></div>
+              <div class="risk-tick" style="left: 80%;" title="High risk boundary (80)"></div>
             </div>
             
             <div class="risk-track-legend">
               <span>
-                <span class="en">Buy</span>
-                <span class="ua">Купувати</span>
+                <span class="en">Low Risk</span>
+                <span class="ua">Низький ризик</span>
               </span>
               <span>
                 <span class="en">Neutral</span>
                 <span class="ua">Нейтрально</span>
               </span>
               <span>
-                <span class="en">Sell</span>
-                <span class="ua">Продавати</span>
+                <span class="en">High Risk</span>
+                <span class="ua">Високий ризик</span>
               </span>
             </div>
           </div>
         </div><!-- /.main-inner (front) -->
-
-        <!-- Secret back face: zone-price inversion (click card to flip) -->
-        <div class="main-back" aria-hidden="true">
-          <div class="zone-back-title">
-            <span class="en">Not a price prediction</span>
-            <span class="ua">Це не прогноз ціни</span>
-          </div>
-          <div class="zone-gauge-row">
-            <div class="zone-side buy">
-              <span class="zone-side-num" id="zone-buy-price">—</span>
-              <span class="zone-side-lbl"><span class="en">Buy</span><span class="ua">Купівля</span></span>
-            </div>
-            <div class="zone-gauge-mid">
-              <canvas id="zone-gauge-canvas"></canvas>
-            </div>
-            <div class="zone-side sell">
-              <span class="zone-side-num" id="zone-sell-price">—</span>
-              <span class="zone-side-lbl"><span class="en">Sell</span><span class="ua">Продаж</span></span>
-            </div>
-          </div>
-          <div class="zone-disclaimer">
-            <span class="en">The index read <em>backwards</em>: holding today's on-chain cost basis fixed, the formula is solved for the price at which the score would reach each zone, assuming momentum and sentiment move with price as they usually do.</span>
-            <span class="ua">Це індекс, прочитаний <em>навпаки</em>: тримаючи сьогоднішню ончейн-собівартість незмінною, формула розв'язується щодо ціни, за якої бал дійшов би до кожної зони, припускаючи, що моментум і настрої рухаються разом із ціною, як зазвичай.</span>
-          </div>
-        </div>
         </div><!-- /.main-flip -->
       </div>
 
@@ -2044,8 +2019,8 @@
           <span class="ua">Станом на останнє щоденне оновлення Індекс ризику купівлі Bitcoin становить <strong id="seo-score-ua">—</strong> / 100 — <span id="seo-status-ua">—</span>.</span>
         </p>
         <p style="margin-bottom:12px;">
-          <span class="en">The <strong>Bitcoin Buy Risk Index</strong> answers a single question: <strong>is it a good time to buy Bitcoin?</strong> It condenses 10+ on-chain and macro indicators into one <strong>0–100 score</strong>, updated daily. A low score reflects historically low risk — zones where Bitcoin has often been undervalued — while a high score reflects elevated risk and historically expensive territory.</span>
-          <span class="ua">Цей <strong>Індекс ризику купівлі Bitcoin</strong> відповідає на одне питання: <strong>чи вдалий зараз момент купувати Bitcoin?</strong> Він зводить 10+ ончейн- та макропоказників в єдину оцінку <strong>0–100</strong>, що оновлюється щодня. Низька оцінка означає історично низький ризик — зони, де Bitcoin часто був недооціненим, — а висока оцінка означає підвищений ризик та історично дорогу зону.</span>
+          <span class="en">The <strong>Bitcoin Buy Risk Index</strong> answers a single question: <strong>where is Bitcoin in its historical risk cycle?</strong> It condenses 10+ on-chain and macro indicators into one <strong>0–100 score</strong>, updated daily. A low score reflects historically low cycle risk, while a high score reflects elevated cycle risk and historically expensive territory.</span>
+          <span class="ua">Цей <strong>Індекс ризику Bitcoin</strong> відповідає на одне питання: <strong>де Bitcoin перебуває у своєму історичному циклі ризику?</strong> Він зводить 10+ ончейн- та макропоказників в єдину оцінку <strong>0–100</strong>, що оновлюється щодня. Низька оцінка означає історично низький ризик циклу, а висока оцінка означає підвищений ризик та історично перегріту зону.</span>
         </p>
         <p style="margin-bottom:12px;">
           <span class="en">Instead of relying on price predictions, the index aggregates proven valuation metrics — <strong>MVRV Z-Score, NUPL, the RHODL Ratio, aSOPR, the Mayer Multiple</strong>, Spot ETF flows, the Fear &amp; Greed Index, and macro signals such as global M2 growth and the yield curve. Each indicator is normalized and weighted into on-chain and tech/macro subscores that combine into the headline composite risk score.</span>
@@ -3262,11 +3237,11 @@
         
         let lbl = 'Neutral';
         let shortLbl = 'Neutral';
-        if(finalVal <= 20)      { lbl = 'Buy Zone'; shortLbl = 'Buy'; }
-        else if(finalVal <= 40) { lbl = 'Accumulate'; shortLbl = 'Accumulate'; }
+        if(finalVal <= 20)      { lbl = 'Low Risk'; shortLbl = 'Low'; }
+        else if(finalVal <= 40) { lbl = 'Below Avg'; shortLbl = 'Below Avg'; }
         else if(finalVal <= 60) { lbl = 'Neutral'; shortLbl = 'Neutral'; }
-        else if(finalVal <= 80) { lbl = 'Distribute'; shortLbl = 'Distribute'; }
-        else                    { lbl = 'Sell Zone'; shortLbl = 'Sell'; }
+        else if(finalVal <= 80) { lbl = 'Elevated'; shortLbl = 'Elevated'; }
+        else                    { lbl = 'High Risk'; shortLbl = 'High'; }
         
         const numEl = document.getElementById('marker-num');
         const lblEl = document.getElementById('marker-lbl');
@@ -3430,34 +3405,10 @@
       const mainBadge = document.getElementById('main-tactical-badge');
       const techBadge = document.getElementById('tech-tactical-badge');
 
-      // Tactical mark: a small icon next to the score (no card glow, no badge).
-      // Buy  = bitcoin coin  (low index + negative funding = leverage capitulation)
-      // Heat = plain coin     (high index + crowded long funding); both bitcoin-orange
+      // Trading/tactical signals are kept exclusively on the Trading Desk (trade.btcbri.com).
       window.activeTacticalState = 'neutral';
-      window._tacticalSignal = null;   // 'buy' | 'overheat' | null — drawn on the modern gauge
-      const COIN_SVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M9 8h4.09c1.055 0 1.91 .895 1.91 2s-.855 2 -1.91 2c1.055 0 1.91 .895 1.91 2s-.855 2 -1.91 2h-4.09"/><path d="M10 12h4"/><path d="M10 7v10v-9"/><path d="M13 7v1"/><path d="M13 16v1"/></svg>';
-      const FLAME_SVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M14.8 9a2 2 0 0 0 -1.8 -1h-2a2 2 0 1 0 0 4h2a2 2 0 1 1 0 4h-2a2 2 0 0 1 -1.8 -1"/><path d="M12 7v10"/></svg>';
+      window._tacticalSignal = null;
       [mainBadge, techBadge].forEach(b => { if (b) { b.style.display = 'none'; b.className = 'tactical-badge'; b.removeAttribute('title'); } });
-      if (finalVal != null && fr && fr.latest != null) {
-        let icon = null, cls = null, tip = null;
-        if (finalVal <= 30 && fr.latest < 0) {
-          icon = COIN_SVG; cls = 'buy';
-          tip = 'Tactical buy: low index + negative funding (leverage capitulation) · Тактична купівля: низький індекс + відʼємний funding (капітуляція плеча)';
-        } else if (finalVal >= 50 && fr.latest >= 0.05) {
-          icon = FLAME_SVG; cls = 'overheat';
-          tip = 'Leverage overheat: high index + crowded long funding · Перегрів плеча: високий індекс + перегріті лонги';
-        }
-        if (icon) {
-          window._tacticalSignal = cls;   // for the canvas-drawn modern gauge
-          [mainBadge, techBadge].forEach(b => {
-            if (!b) return;
-            b.innerHTML = icon;
-            b.classList.add(cls);
-            b.title = tip;
-            b.style.display = 'inline-flex';
-          });
-        }
-      }
 
       // Contradiction detection: warn if any indicator is in the opposite zone from the final score
       if (finalVal != null) {

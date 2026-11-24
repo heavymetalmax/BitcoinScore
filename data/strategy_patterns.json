@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-24T13:28:51.470626+00:00",
+  "generated_at": "2026-11-24T14:17:14.702427+00:00",
   "methodology": {
     "zero_lookahead": true,
     "weekly_candle_close_shift_days": 6,
@@ -27,7 +27,7 @@
     "price": 61360.89,
     "bri": 24.0,
     "bri_min45": 24.0,
-    "tiz_le25": 4,
+    "tiz_le25": 2,
     "phase": "BOTTOM",
     "w_last_close_date": "2026-11-18",
     "w_wt1": -2.1,
@@ -1898,7 +1898,7 @@
           "date": "2026-11-21",
           "action": "BUY",
           "price": 60425.0,
-          "bri": 24.0,
+          "bri": 26.0,
           "w_wt1": -2.1,
           "w_score": 40.6,
           "target_alloc": 0.5
@@ -1944,7 +1944,7 @@
             "date": "2026-11-12",
             "action": "SELL",
             "price": 72901.6,
-            "bri": 32.0,
+            "bri": 36.0,
             "w_wt1": 23.0,
             "w_score": 56.7,
             "target_alloc": 0.5
@@ -1953,7 +1953,7 @@
             "date": "2026-11-21",
             "action": "BUY",
             "price": 60425.0,
-            "bri": 24.0,
+            "bri": 26.0,
             "w_wt1": -2.1,
             "w_score": 40.6,
             "target_alloc": 0.5
@@ -2750,7 +2750,7 @@
           "date": "2026-11-12",
           "action": "SELL",
           "price": 72901.6,
-          "bri": 32.0,
+          "bri": 36.0,
           "w_wt1": 23.0,
           "w_score": 56.7,
           "target_alloc": 0.0
@@ -2805,7 +2805,7 @@
             "date": "2026-11-12",
             "action": "SELL",
             "price": 72901.6,
-            "bri": 32.0,
+            "bri": 36.0,
             "w_wt1": 23.0,
             "w_score": 56.7,
             "target_alloc": 0.0
@@ -2909,8 +2909,8 @@
         },
         "pool_6y": {
           "contributed": 7100.0,
-          "final_val": 10398.3,
-          "return_pct": 46.5,
+          "final_val": 10353.1,
+          "return_pct": 45.8,
           "multiple": 1.46,
           "trades": 23
         },
@@ -3610,7 +3610,7 @@
           "date": "2026-11-21",
           "action": "BUY",
           "price": 60425.0,
-          "bri": 24.0,
+          "bri": 26.0,
           "w_wt1": -2.1,
           "w_score": 40.6,
           "target_alloc": 0.5
@@ -3656,7 +3656,7 @@
             "date": "2026-11-12",
             "action": "SELL",
             "price": 72901.6,
-            "bri": 32.0,
+            "bri": 36.0,
             "w_wt1": 23.0,
             "w_score": 56.7,
             "target_alloc": 0.5
@@ -3665,7 +3665,7 @@
             "date": "2026-11-21",
             "action": "BUY",
             "price": 60425.0,
-            "bri": 24.0,
+            "bri": 26.0,
             "w_wt1": -2.1,
             "w_score": 40.6,
             "target_alloc": 0.5
@@ -4292,8 +4292,8 @@
         },
         "pool_6y": {
           "contributed": 7100.0,
-          "final_val": 10398.3,
-          "return_pct": 46.5,
+          "final_val": 10353.1,
+          "return_pct": 45.8,
           "multiple": 1.46,
           "trades": 23
         },
@@ -4652,7 +4652,7 @@
           "date": "2026-11-12",
           "action": "SELL",
           "price": 72901.6,
-          "bri": 32.0,
+          "bri": 36.0,
           "w_wt1": 23.0,
           "w_score": 56.7,
           "target_alloc": 0.0
@@ -4707,7 +4707,7 @@
             "date": "2026-11-12",
             "action": "SELL",
             "price": 72901.6,
-            "bri": 32.0,
+            "bri": 36.0,
             "w_wt1": 23.0,
             "w_score": 56.7,
             "target_alloc": 0.0
@@ -5715,7 +5715,7 @@
           "date": "2026-11-21",
           "action": "BUY",
           "price": 60425.0,
-          "bri": 24.0,
+          "bri": 26.0,
           "w_wt1": -2.1,
           "w_score": 40.6,
           "target_alloc": 0.5
@@ -5761,7 +5761,7 @@
             "date": "2026-11-12",
             "action": "SELL",
             "price": 72901.6,
-            "bri": 32.0,
+            "bri": 36.0,
             "w_wt1": 23.0,
             "w_score": 56.7,
             "target_alloc": 0.5
@@ -5770,7 +5770,7 @@
             "date": "2026-11-21",
             "action": "BUY",
             "price": 60425.0,
-            "bri": 24.0,
+            "bri": 26.0,
             "w_wt1": -2.1,
             "w_score": 40.6,
             "target_alloc": 0.5
@@ -6066,7 +6066,7 @@
           "date": "2026-11-12",
           "action": "SELL",
           "price": 72901.6,
-          "bri": 32.0,
+          "bri": 36.0,
           "w_wt1": 23.0,
           "w_score": 56.7,
           "target_alloc": 0.0
@@ -6121,7 +6121,7 @@
             "date": "2026-11-12",
             "action": "SELL",
             "price": 72901.6,
-            "bri": 32.0,
+            "bri": 36.0,
             "w_wt1": 23.0,
             "w_score": 56.7,
             "target_alloc": 0.0
@@ -6726,8 +6726,8 @@
         },
         "pool_6y": {
           "contributed": 7100.0,
-          "final_val": 10398.3,
-          "return_pct": 46.5,
+          "final_val": 10353.1,
+          "return_pct": 45.8,
           "multiple": 1.46,
           "trades": 23
         },
@@ -7349,7 +7349,7 @@
           "exposure_pct": 44.4,
           "end_alloc_pct": 100.0,
           "end_armed": false,
-          "end_peak_bri": 33.0,
+          "end_peak_bri": 27.0,
           "pending_tomorrow": null
         },
         "modern_2018": {
@@ -7365,7 +7365,7 @@
           "exposure_pct": 46.3,
           "end_alloc_pct": 100.0,
           "end_armed": false,
-          "end_peak_bri": 33.0,
+          "end_peak_bri": 27.0,
           "pending_tomorrow": null
         },
         "cycle1": {
@@ -7397,7 +7397,7 @@
           "exposure_pct": 39.9,
           "end_alloc_pct": 100.0,
           "end_armed": false,
-          "end_peak_bri": 33.0,
+          "end_peak_bri": 27.0,
           "pending_tomorrow": null
         },
         "rolling_4y": {
@@ -7424,7 +7424,7 @@
           "date": "2026-11-19",
           "action": "BUY",
           "price": 63888.0,
-          "bri": 26.0,
+          "bri": 28.0,
           "w_wt1": -2.1,
           "w_score": 40.6,
           "target_alloc": 1.0
@@ -7479,7 +7479,7 @@
             "date": "2026-11-19",
             "action": "BUY",
             "price": 63888.0,
-            "bri": 26.0,
+            "bri": 28.0,
             "w_wt1": -2.1,
             "w_score": 40.6,
             "target_alloc": 1.0

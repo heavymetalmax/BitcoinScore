@@ -16,8 +16,13 @@ def sync_public_names(payload: dict, scores: dict) -> None:
     for retired_key in ('v5_score', 'v5_confidence', 'v5_shap_top5', 'legacy_model'):
         payload.pop(retired_key, None)
     payload['bri_score'] = final
+    payload['bri_version'] = scores.get('bri_version', 'v5')
     payload['forward_risk'] = scores.get('v5b_score')
     payload['forward_risk_validated'] = bool(scores.get('v5b_validated', False))
+    if scores.get('target_allocation_pct') is not None:
+        payload['target_allocation_pct'] = scores.get('target_allocation_pct')
+    if scores.get('allocation_signal') is not None:
+        payload['allocation_signal'] = scores.get('allocation_signal')
     if scores.get('onchain_avg') is not None:
         payload['onchain_score'] = scores['onchain_avg']
     if scores.get('tech_avg') is not None:
@@ -363,6 +368,7 @@ def run_scoring_pipeline(p, build_metric_history_fn=None):
 
         # Layer 3 — scoring: BRI and Forward Risk outputs
         _scoring = {
+            'bri_version':             scores.get('bri_version', 'v5'),
             'final_score':             scores['final_score'],
             'forward_risk':            scores.get('v5b_score'),
             'forward_risk_validated':  bool(scores.get('v5b_validated', False)),
@@ -370,6 +376,8 @@ def run_scoring_pipeline(p, build_metric_history_fn=None):
             'meta_score':       scores.get('meta_score'),
             'signal_agreement': scores.get('signal_agreement'),
             'market_regime':    scores.get('market_regime'),
+            'target_allocation_pct': scores.get('target_allocation_pct'),
+            'allocation_signal': scores.get('allocation_signal'),
             'composite_risk':   scores.get('composite_risk'),
             'dxy_adj':       scores.get('dxy_adj'),
             'pi_cross':      scores.get('pi_cross'),
@@ -441,7 +449,8 @@ def run_scoring_pipeline(p, build_metric_history_fn=None):
                 'dxy':            (_m.get('dxy') or {}).get('value'),
                 'v5b_score':      scores.get('v5b_score'),
                 'market_regime':  scores.get('market_regime'),
-                'source':         'live_v4',
+                'target_allocation_pct': scores.get('target_allocation_pct'),
+                'source':         'live_v5',
             }
             _hist: list = []
             if os.path.exists(_scores_path):

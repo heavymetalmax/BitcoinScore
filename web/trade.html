@@ -628,7 +628,9 @@
       }
       $('kpi-bri').textContent = `${s.bri} / 100`;
       $('kpi-bri').style.color = s.bri <= 25 ? 'var(--green)' : s.bri >= 65 ? 'var(--red)' : 'var(--amber)';
-      $('kpi-raw-util').textContent = `Raw utility: ${s.rawUtil} · Режим: ${DATA.market_regime || '—'}`;
+      const allocPct = DATA.target_allocation_pct ?? DATA.allocation_signal?.target_allocation_pct;
+      const allocTxt = allocPct != null ? ` · Ціль: ${allocPct}% BTC (V5)` : '';
+      $('kpi-raw-util').textContent = `Raw utility: ${s.rawUtil} · Режим: ${DATA.market_regime || '—'}${allocTxt}`;
       $('kpi-entry20').textContent = fmtUSD(s.entry20);
       if (s.entry20 && s.spot) {
         const pct = ((s.entry20 / s.spot) - 1) * 100;
@@ -705,6 +707,28 @@
         <div class="check-item"><span><strong>Тижневий WaveTrend (wt1 − wt2):</strong> ${s.wt1 != null ? s.wt1.toFixed(1) : '—'} − ${s.wt2 != null ? s.wt2.toFixed(1) : '—'} = <strong>${wtSpread != null ? (wtSpread >= 0 ? '+' : '') + wtSpread : '—'}</strong></span><span class="pill ${isBuyNow ? 'green' : 'amber'}">${smallGreenNow ? 'ПЕРЕТИН ВГОРУ!' : 'Чекати wt1 > wt2'}</span></div>
         <div class="check-item"><span><strong>Синергія BTCBRI ≤ 30 + Тижнева мала зелена:</strong> BRI=${s.bri} (${s.bri <= 30 ? '✅' : '❌'}) + Перетин (${smallGreenNow ? '✅' : '⏳'})</span><span class="pill ${synergyReady ? 'green' : ''}">${synergyReady ? 'ПОВНИЙ ЗБІГ!' : 'Очікується перетин'}</span></div>
       `;
+
+      // V5 Dual-Sleeve Engine Summary Banner (when allocation_signal present)
+      const alloc = DATA.allocation_signal;
+      let v5Banner = $('v5-engine-banner');
+      if (!v5Banner) {
+        v5Banner = document.createElement('div');
+        v5Banner.id = 'v5-engine-banner';
+        v5Banner.className = 'bench-strip';
+        v5Banner.style.marginTop = '14px';
+        v5Banner.style.marginBottom = '0';
+        $('cbpool-list').parentElement.parentElement.appendChild(v5Banner);
+      }
+      if (alloc) {
+        const armedTxt = alloc.trailing_armed ? `ARMED (пік ${alloc.trailing_peak_bri}, стоп ≤ ${alloc.trailing_exit_trigger})` : 'не активовано';
+        v5Banner.innerHTML = `
+          <span><strong>BTCBRI V5 Dual-Sleeve Engine:</strong> Цільова алокація <strong>${alloc.target_allocation_pct}% BTC</strong> (<code>${escHtml(alloc.action_label)}</code>)</span>
+          <span>Рукав BTCBRI: <strong>${alloc.bri_sleeve_pct}%</strong> · Рукав Cipher B 1W (±2): <strong>${alloc.cipherb_sleeve_pct}%</strong></span>
+          <span>TiZ(BRI≤25): <strong>${alloc.tiz_le25_days}д</strong> ${alloc.tiz_confirmed ? '✅' : '⏳'} · Trailing: <strong>${armedTxt}</strong></span>
+        `;
+      } else {
+        v5Banner.style.display = 'none';
+      }
     }
 
     function estimatePriceForBri(targetBri) {
@@ -929,6 +953,8 @@
         forward_risk: s.forward,
         forward_risk_validated: s.forwardValid,
         market_regime: DATA.market_regime,
+        target_allocation_pct: DATA.target_allocation_pct,
+        allocation_signal: DATA.allocation_signal,
         phase: DATA.phase,
         confidence_score: DATA.confidence_score,
         zone_forecast: DATA.zone_forecast,

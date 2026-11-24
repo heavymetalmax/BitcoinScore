@@ -122,10 +122,10 @@
     "mayer_multiple": {
       "value": {
         "value": 0.846,
-        "dma_200": 72326.3,
-        "dma_200_slope_30d": -0.73,
+        "dma_200": 72530.6,
+        "dma_200_slope_30d": -0.17,
         "above_dma_200": false,
-        "wma_200": 67417.0,
+        "wma_200": 67448.7,
         "ma200w_ratio": 0.91,
         "ma_regime": "DEEP_ACCUMULATION",
         "current_price": 61360.9,
@@ -284,19 +284,19 @@
   "v3_w_neutral": 0.059,
   "v3_w_top": 0.0,
   "v3_utilities": {
-    "nupl": 0.366420761397212,
-    "mvrv_z_score": 0.3625574668247164,
-    "rhodl_ratio": 0.6670440883476466,
+    "nupl": 0.36681573555048064,
+    "mvrv_z_score": 0.36274540368180574,
+    "rhodl_ratio": 0.6650887734699877,
     "cvdd_ratio": 1.0,
     "asopr": 0.1,
     "puell": 1.0,
-    "mayer_multiple": 0.1887083711667644,
-    "fear_greed": 0.7810862333897822,
+    "mayer_multiple": 0.18910922212353615,
+    "fear_greed": 0.7830686353056145,
     "m2_yoy": 0.31760999999999995,
-    "yield_curve_spread": 0.3167492827083331,
-    "etf_flows": 0.27381764626485355,
-    "funding_rate": 0.1585447125988269,
-    "dxy": 0.40914709682056677,
+    "yield_curve_spread": 0.31694329125271625,
+    "etf_flows": 0.1,
+    "funding_rate": 0.19943762040488233,
+    "dxy": 0.41174,
     "lth_supply": 0.34,
     "pi_gap": 0.1,
     "cipherb": 1.0,
@@ -315,9 +315,8 @@
     "fear_greed": 10,
     "m2_yoy": 40,
     "yield_curve_spread": 57,
-    "etf_flows": 15,
-    "funding_rate": 42,
-    "dxy": 78,
+    "funding_rate": 25,
+    "dxy": 80,
     "lth_supply": 20,
     "pi_gap": 24,
     "cipherb": 32,
@@ -349,17 +348,17 @@
   "v3_tiz_days": 191,
   "v3_tiz_maturity": 0.682,
   "v3_tiz_calibration": 280,
-  "v5b_score": 16.9,
+  "v5b_score": 26.5,
   "v5b_validated": false,
-  "meta_score": 20.2,
+  "meta_score": 25.3,
   "signal_agreement": 0.93,
-  "market_regime": "Wait",
+  "market_regime": "Buy",
   "decision_suppressed": true,
   "decision_suppression_reason": "v5b_not_better_than_baseline",
-  "composite_risk": 20.1,
+  "composite_risk": 25.2,
   "v3_oc_coherence": 0.57,
-  "conflict_score": 50,
-  "confidence_score": 50,
+  "conflict_score": 51,
+  "confidence_score": 49,
   "data_quality": {
     "active_metrics": 16,
     "total_metrics": 16,
@@ -391,14 +390,14 @@
     }
   },
   "bri_score": 24,
-  "forward_risk": 16.9,
-  "macro_score": 60,
+  "forward_risk": 26.5,
+  "macro_score": 61,
   "ma_context": {
-    "dma_200": 72326.3,
-    "dma_200_slope_30d": -0.73,
+    "dma_200": 72530.6,
+    "dma_200_slope_30d": -0.17,
     "above_dma_200": false,
     "mayer_multiple": 0.846,
-    "wma_200": 67417.0,
+    "wma_200": 67448.7,
     "ma200w_ratio": 0.91,
     "ma_regime": "DEEP_ACCUMULATION"
   },
@@ -408,12 +407,12 @@
     "bottom_weight": 0.941,
     "neutral_weight": 0.059,
     "top_weight": 0.0,
-    "conflict_score": 50,
-    "confidence_score": 50,
+    "conflict_score": 51,
+    "confidence_score": 49,
     "ma_regime": "DEEP_ACCUMULATION",
-    "dma_200": 72326.3,
-    "dma_200_slope_30d": -0.73,
-    "wma_200": 67417.0,
+    "dma_200": 72530.6,
+    "dma_200_slope_30d": -0.17,
+    "wma_200": 67448.7,
     "ma200w_ratio": 0.91
   },
   "sp_v2": 24,
@@ -583,12 +582,29 @@
     "v5b_score": 16.9,
     "meta_score": 20.2,
     "signal_agreement": 0.93,
-    "market_regime": "Wait",
+    "market_regime": "Buy",
     "composite_risk": 20.1,
     "dxy_adj": 0.0,
     "pi_cross": false,
     "flag": "CONFIRMED_BOTTOM",
-    "conviction": 0.846
+    "conviction": 0.846,
+    "bri_version": "v5",
+    "target_allocation_pct": 50,
+    "allocation_signal": {
+      "market_regime": "Buy",
+      "action_label": "ACCUMULATE_50",
+      "target_allocation_pct": 50,
+      "bri_sleeve_pct": 50,
+      "cipherb_sleeve_pct": 0,
+      "bri_in_position": true,
+      "trailing_armed": false,
+      "trailing_peak_bri": 83.0,
+      "trailing_exit_trigger": null,
+      "tiz_le25_days": 2,
+      "tiz_confirmed": false,
+      "weekly_wt_spread": -21.88,
+      "weekly_score": 40.6
+    }
   },
   "archive": {
     "v1": {
@@ -606,7 +622,7 @@
   },
   "prev_week": {
     "date": "2026-11-16",
-    "final_score": 35,
+    "final_score": 32,
     "onchain_score": 33,
     "tech_score": 34
   },
@@ -614,7 +630,7 @@
     "date": "2026-11-22",
     "final_score": 24,
     "onchain_score": 25,
-    "tech_score": 24
+    "tech_score": 22
   },
   "score_history": [
     {
@@ -30179,27 +30195,27 @@
     },
     {
       "date": "2026-11-10",
-      "score": 36,
+      "score": 40,
       "price": 73277.86466262747
     },
     {
       "date": "2026-11-11",
-      "score": 35,
+      "score": 39,
       "price": 74317.87987919895
     },
     {
       "date": "2026-11-12",
-      "score": 32,
+      "score": 36,
       "price": 72901.58
     },
     {
       "date": "2026-11-13",
-      "score": 31,
+      "score": 35,
       "price": 68944.13
     },
     {
       "date": "2026-11-14",
-      "score": 33,
+      "score": 31,
       "price": 65279.08
     },
     {
@@ -30209,32 +30225,32 @@
     },
     {
       "date": "2026-11-16",
-      "score": 35,
+      "score": 32,
       "price": 64143.75
     },
     {
       "date": "2026-11-17",
-      "score": 35,
+      "score": 31,
       "price": 63747.45
     },
     {
       "date": "2026-11-18",
-      "score": 33,
+      "score": 27,
       "price": 64076.16
     },
     {
       "date": "2026-11-19",
-      "score": 26,
+      "score": 28,
       "price": 63888.01
     },
     {
       "date": "2026-11-20",
-      "score": 25,
+      "score": 27,
       "price": 59216.16
     },
     {
       "date": "2026-11-21",
-      "score": 24,
+      "score": 26,
       "price": 60424.97
     },
     {
@@ -30254,9 +30270,73 @@
   "trading_signals": {
     "state": "HOLD_BTC",
     "last_action": "BUY",
-    "last_action_date": "2026-11-20",
-    "last_action_price": 59216.16,
+    "last_action_date": "2026-11-22",
+    "last_action_price": 60855.47,
     "trailing_trigger_score": null,
     "peak_score_in_run": 0
+  },
+  "w_bot": 0.941,
+  "w_neutral": 0.059,
+  "w_top": 0.0,
+  "oc_basket": 26,
+  "ms_basket": 22,
+  "mc_basket": 48,
+  "cp_basket": 19,
+  "utilities": {
+    "nupl": 0.36681573555048064,
+    "mvrv_z_score": 0.36274540368180574,
+    "rhodl_ratio": 0.6650887734699877,
+    "cvdd_ratio": 1.0,
+    "asopr": 0.1,
+    "puell": 1.0,
+    "mayer_multiple": 0.18910922212353615,
+    "fear_greed": 0.7830686353056145,
+    "m2_yoy": 0.31760999999999995,
+    "yield_curve_spread": 0.31694329125271625,
+    "etf_flows": 0.1,
+    "funding_rate": 0.19943762040488233,
+    "dxy": 0.41174,
+    "lth_supply": 0.34,
+    "pi_gap": 0.1,
+    "cipherb": 1.0,
+    "cipherb_weekly": 0.5,
+    "cipherb_daily": 0.5,
+    "btc_price_cycle": 0.05494505494505495
+  },
+  "normalized_scores": {
+    "nupl": 38,
+    "mvrv_z_score": 25,
+    "rhodl_ratio": 18,
+    "cvdd_ratio": 14,
+    "asopr": 43,
+    "puell": 42,
+    "mayer_multiple": 20,
+    "fear_greed": 10,
+    "m2_yoy": 40,
+    "yield_curve_spread": 57,
+    "funding_rate": 25,
+    "dxy": 80,
+    "lth_supply": 20,
+    "pi_gap": 24,
+    "cipherb": 32,
+    "btc_price_cycle": 10
+  },
+  "bri_version": "v5",
+  "forward_risk_validated": true,
+  "target_allocation_pct": 50,
+  "allocation_signal": {
+    "market_regime": "Buy",
+    "action_label": "ACCUMULATE_50",
+    "target_allocation_pct": 50,
+    "bri_sleeve_pct": 50,
+    "cipherb_sleeve_pct": 0,
+    "bri_in_position": true,
+    "trailing_armed": false,
+    "trailing_peak_bri": 83.0,
+    "trailing_exit_trigger": null,
+    "tiz_le25_days": 2,
+    "tiz_confirmed": false,
+    "weekly_wt_spread": -21.88,
+    "weekly_score": 40.6
   }
 }
