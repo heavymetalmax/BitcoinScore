@@ -23,6 +23,7 @@ import math
 import os
 from typing import Any
 
+from .mvrv_ratio_store import DEFAULT_MVRV_RATIO_PATH, load_daily_mvrv_ratio
 from .ohlc_store import DEFAULT_OHLC_PATH, load_closed_weekly_ohlc
 
 
@@ -100,6 +101,7 @@ def compute_causal_d1_state(
     as_of_date: datetime.date | str | None = None,
     ohlc_path: str = DEFAULT_OHLC_PATH,
     scores_path: str = 'data/history/scores.json',
+    mvrv_ratio_path: str = DEFAULT_MVRV_RATIO_PATH,
 ) -> dict[str, Any]:
     """Replay exact causal D1 Dual-Sleeve state over strictly closed weekly OHLC bars.
 
@@ -132,6 +134,7 @@ def compute_causal_d1_state(
 
     wt1_list, wt2_list = compute_cipherb_wt_on_ohlc(weeks)
     mvrv_ranks = _load_daily_mvrv_ranks(scores_path=scores_path, as_of_date=as_of)
+    mvrv_ratios = load_daily_mvrv_ratio(as_of_date=as_of, path=mvrv_ratio_path)
 
     closes = [w['close'] for w in weeks]
     highs = [w['high'] for w in weeks]
@@ -146,14 +149,15 @@ def compute_causal_d1_state(
     prev_cb_in = False
     veto_blocked = False
     mv_idx = 0
+    mv_ratio_idx = 0
     last_mv_pct: float | None = None
+    last_mvrv_ratio: float | None = None
     last_sma40: float | None = None
     wt1_buf: list[float] = []
     wt1_rank_last: float | None = None
 
     running_ath = highs[0]
-    vgain_buf: list[float] = []
-    vdd_buf: list[float] = []
+    log_mvrv_hist: list[float] = []
     amp_last: dict[str, Any] | None = None
 
     for i, w in enumerate(weeks):
@@ -161,6 +165,9 @@ def compute_causal_d1_state(
         while mv_idx < len(mvrv_ranks) and mvrv_ranks[mv_idx][0] <= wk_close:
             last_mv_pct = mvrv_ranks[mv_idx][1]
             mv_idx += 1
+        while mv_ratio_idx < len(mvrv_ratios) and mvrv_ratios[mv_ratio_idx][0] <= wk_close:
+            last_mvrv_ratio = mvrv_ratios[mv_ratio_idx][1]
+            mv_ratio_idx += 1
 
         if i >= 39:
             sma40 = sum(closes[i - 39:i + 1]) / 40.0
@@ -186,11 +193,10 @@ def compute_causal_d1_state(
                 else:
                     cb_in = False
 
-        # Strictly causal vol-scaled cycle amplitude (auto-adapts to diminishing vol/cycles)
+        # Strictly causal Cost-Basis 4Y Cycle Amplitude: log(Price / Realized Price) in 208w corridor
         running_ath = max(running_ath, highs[i])
         low_4y = min(lows[max(0, i - 207):i + 1])
         dd_ath_pct = (closes[i] / running_ath - 1.0) * 100.0 if running_ath > 0 else 0.0
-        log_gain = math.log(closes[i] / low_4y) if (low_4y > 0 and closes[i] > 0) else 0.0
         log_dd = math.log(closes[i] / running_ath) if (running_ath > 0 and closes[i] > 0) else 0.0
 
         r_win = [r for r in ret1[max(1, i - 51):i + 1] if r is not None]
@@ -200,26 +206,35 @@ def compute_causal_d1_state(
             var_r = sum((x - mu_r) ** 2 for x in r_win) / (len(r_win) - 1)
             vol52 = math.sqrt(max(0.0, var_r)) * math.sqrt(52.0)
 
-        vgain = (log_gain / vol52) if (vol52 is not None and vol52 > 0.05) else None
         vdd = (log_dd / vol52) if (vol52 is not None and vol52 > 0.05) else None
-        vg_rank = 50.0
-        if vgain is not None:
-            vg_rank = (bisect.bisect_right(vgain_buf, vgain) / len(vgain_buf) * 100.0) if vgain_buf else 50.0
-            bisect.insort(vgain_buf, vgain)
-        vd_rank = 50.0
-        if vdd is not None:
-            vd_rank = (bisect.bisect_right(vdd_buf, vdd) / len(vdd_buf) * 100.0) if vdd_buf else 50.0
-            bisect.insort(vdd_buf, vdd)
-        amp_sc = 0.50 * vg_rank + 0.50 * vd_rank
+        amp_sc = 50.0
+        lo_4y_ratio: float | None = None
+        hi_4y_ratio: float | None = None
+        realized_price: float | None = None
+        if last_mvrv_ratio is not None and last_mvrv_ratio > 0:
+            log_mv = math.log(last_mvrv_ratio)
+            log_mvrv_hist.append(log_mv)
+            win_4y = log_mvrv_hist[-208:]
+            lo_4y = min(win_4y)
+            hi_4y = max(win_4y)
+            span_4y = hi_4y - lo_4y
+            if len(win_4y) >= 2 and span_4y > 1e-9:
+                amp_sc = min(100.0, max(0.0, (log_mv - lo_4y) / span_4y * 100.0))
+            lo_4y_ratio = math.exp(lo_4y)
+            hi_4y_ratio = math.exp(hi_4y)
+            realized_price = closes[i] / last_mvrv_ratio
+
         amp_last = {
+            'method': 'cost_basis_4y',
+            'mvrv_ratio': round(last_mvrv_ratio, 3) if last_mvrv_ratio is not None else None,
+            'realized_price': round(realized_price, 2) if realized_price is not None else None,
+            'mvrv_ratio_4y_min': round(lo_4y_ratio, 3) if lo_4y_ratio is not None else None,
+            'mvrv_ratio_4y_max': round(hi_4y_ratio, 3) if hi_4y_ratio is not None else None,
             'running_ath': round(running_ath, 2),
             'low_4y': round(low_4y, 2),
             'dd_from_ath_pct': round(dd_ath_pct, 1),
             'vol52_ann_pct': round(vol52 * 100.0, 1) if vol52 is not None else None,
-            'vol_scaled_gain': round(vgain, 2) if vgain is not None else None,
             'vol_scaled_dd': round(vdd, 2) if vdd is not None else None,
-            'vgain_rank': round(vg_rank, 1),
-            'vdd_rank': round(vd_rank, 1),
             'amp_score': round(amp_sc, 1),
             'risk_adjustment_pts': round((amp_sc - 50.0) * 0.35, 1),
         }

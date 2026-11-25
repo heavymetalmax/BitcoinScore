@@ -179,6 +179,12 @@ def run_scoring_pipeline(p, build_metric_history_fn=None):
 
     # ── Clean V3 Master Score ─────────────────────────────────────────────────
     try:
+        from .mvrv_ratio_store import sync_mvrv_ratio_from_coinmetrics
+        sync_mvrv_ratio_from_coinmetrics()
+    except Exception as e:
+        print(f'Warning: failed to sync MVRV ratio store: {e}')
+
+    try:
         from .score import compute_score
         from .orchestrator import orchestrate
         import datetime as _dt

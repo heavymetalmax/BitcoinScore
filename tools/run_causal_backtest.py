@@ -27,6 +27,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from scraper.causal_core import _load_daily_mvrv_ranks, compute_cipherb_wt_on_ohlc
+from scraper.mvrv_ratio_store import load_daily_mvrv_ratio
 from scraper.ohlc_store import load_closed_weekly_ohlc
 from scraper.tail_risk import predict_tail_risk_13w
 
@@ -63,22 +64,19 @@ def load_weekly_dataset(as_of_date: datetime.date | None = None) -> list[dict]:
     )
     wt1, wt2 = compute_cipherb_wt_on_ohlc(weeks)
     mvrv_ranks = _load_daily_mvrv_ranks(scores_path=str(scores_path), as_of_date=as_of_date)
+    mvrv_ratios = load_daily_mvrv_ratio(as_of_date=as_of_date, path=str(ROOT / 'data/history/mvrv_ratio_history.json'))
     puell_ranks = _causal_daily_ranks(scores_path, 'puell', as_of_date)
     cvdd_ranks = _causal_daily_ranks(scores_path, 'cvdd_ratio', as_of_date)
 
     closes = [w['close'] for w in weeks]
-    highs = [w['high'] for w in weeks]
-    lows = [w['low'] for w in weeks]
-    ret1 = [None] + [math.log(closes[i] / closes[i - 1]) if (closes[i - 1] > 0 and closes[i] > 0) else None for i in range(1, len(weeks))]
 
-    mv_idx = pu_idx = cv_idx = 0
+    mv_idx = mv_ratio_idx = pu_idx = cv_idx = 0
     last_mv: float | None = None
+    last_mvrv_ratio: float | None = None
     last_pu: float | None = None
     last_cv: float | None = None
     wt1_buf: list[float] = []
-    vgain_buf: list[float] = []
-    vdd_buf: list[float] = []
-    running_ath = highs[0] if highs else 0.0
+    log_mvrv_hist: list[float] = []
     s1_in = False
     s2_in = False
 
@@ -88,6 +86,9 @@ def load_weekly_dataset(as_of_date: datetime.date | None = None) -> list[dict]:
         while mv_idx < len(mvrv_ranks) and mvrv_ranks[mv_idx][0] <= wk_close:
             last_mv = mvrv_ranks[mv_idx][1]
             mv_idx += 1
+        while mv_ratio_idx < len(mvrv_ratios) and mvrv_ratios[mv_ratio_idx][0] <= wk_close:
+            last_mvrv_ratio = mvrv_ratios[mv_ratio_idx][1]
+            mv_ratio_idx += 1
         while pu_idx < len(puell_ranks) and puell_ranks[pu_idx][0] <= wk_close:
             last_pu = puell_ranks[pu_idx][1]
             pu_idx += 1
@@ -115,26 +116,16 @@ def load_weekly_dataset(as_of_date: datetime.date | None = None) -> list[dict]:
             wt1_rank = (bisect.bisect_right(wt1_buf, float(wt1[i])) / len(wt1_buf) * 100.0) if wt1_buf else 50.0
             bisect.insort(wt1_buf, float(wt1[i]))
 
-        running_ath = max(running_ath, highs[i])
-        low_4y = min(lows[max(0, i - 207):i + 1])
-        log_gain = math.log(closes[i] / low_4y) if (low_4y > 0 and closes[i] > 0) else 0.0
-        log_dd = math.log(closes[i] / running_ath) if (running_ath > 0 and closes[i] > 0) else 0.0
-        r_win = [r for r in ret1[max(1, i - 51):i + 1] if r is not None]
-        vol52 = None
-        if len(r_win) >= 26:
-            mu_r = sum(r_win) / len(r_win)
-            var_r = sum((x - mu_r) ** 2 for x in r_win) / (len(r_win) - 1)
-            vol52 = math.sqrt(max(0.0, var_r)) * math.sqrt(52.0)
-
-        vg_rank = vd_rank = 50.0
-        if vol52 is not None and vol52 > 0.05:
-            vg = log_gain / vol52
-            vd = log_dd / vol52
-            vg_rank = (bisect.bisect_right(vgain_buf, vg) / len(vgain_buf) * 100.0) if vgain_buf else 50.0
-            bisect.insort(vgain_buf, vg)
-            vd_rank = (bisect.bisect_right(vdd_buf, vd) / len(vdd_buf) * 100.0) if vdd_buf else 50.0
-            bisect.insort(vdd_buf, vd)
-        amp_sc = 0.50 * vg_rank + 0.50 * vd_rank
+        amp_sc = 50.0
+        if last_mvrv_ratio is not None and last_mvrv_ratio > 0:
+            log_mv = math.log(last_mvrv_ratio)
+            log_mvrv_hist.append(log_mv)
+            win_4y = log_mvrv_hist[-208:]
+            lo_4y = min(win_4y)
+            hi_4y = max(win_4y)
+            span_4y = hi_4y - lo_4y
+            if len(win_4y) >= 2 and span_4y > 1e-9:
+                amp_sc = min(100.0, max(0.0, (log_mv - lo_4y) / span_4y * 100.0))
 
         cb_comps = [x for x in (last_mv * 100.0 if last_mv is not None else None, last_pu, last_cv) if x is not None]
         causal_v52 = None

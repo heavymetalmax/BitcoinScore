@@ -1885,10 +1885,12 @@
         const smaTxt = DATA.allocation_signal?.sma40_in_position ? 'SMA40w UP' : 'SMA40w DOWN';
         const amp = DATA.cycle_amplitude || {};
         const ampAdj = amp.risk_adjustment_pts != null ? `${amp.risk_adjustment_pts >= 0 ? '+' : ''}${amp.risk_adjustment_pts} б.` : '—';
-        const ampSub = amp.dd_from_ath_pct != null ? `Від ATH: ${amp.dd_from_ath_pct}% (${amp.vol_scaled_dd ?? '—'}σ) · Вол.52т: ${amp.vol52_ann_pct ?? '—'}%` : '—';
+        const ampSub = amp.mvrv_ratio != null
+          ? `MVRV ${amp.mvrv_ratio}x (собів. $${Number(amp.realized_price || 0).toLocaleString()}) · 4Y [${amp.mvrv_ratio_4y_min ?? '—'}–${amp.mvrv_ratio_4y_max ?? '—'}x]`
+          : (amp.dd_from_ath_pct != null ? `Від ATH: ${amp.dd_from_ath_pct}% (${amp.vol_scaled_dd ?? '—'}σ) · Вол.52т: ${amp.vol52_ann_pct ?? '—'}%` : '—');
         $('causal-core-summary').innerHTML = `
           <div class="calc-sum-box"><div class="kpi-label">1. Собівартість (MVRV·Puell·CVDD)</div><div class="calc-sum-val" style="font-size:14px;">${valStr}</div><div class="muted" style="font-size:10px;margin-top:2px;">Індекс v5.2: ${DATA.causal_btcbri ?? '—'}/100</div></div>
-          <div class="calc-sum-box"><div class="kpi-label">2. Амплітуда циклу (vol-scaled)</div><div class="calc-sum-val" style="font-size:14px;">${amp.amp_score ?? '—'}/100 (${ampAdj})</div><div class="muted" style="font-size:10px;margin-top:2px;">${ampSub}</div></div>
+          <div class="calc-sum-box"><div class="kpi-label">2. Амплітуда ціна / собівартість (4Y)</div><div class="calc-sum-val" style="font-size:14px;">${amp.amp_score ?? '—'}/100 (${ampAdj})</div><div class="muted" style="font-size:10px;margin-top:2px;">${ampSub}</div></div>
           <div class="calc-sum-box"><div class="kpi-label">3. Тренд + Tail Risk 13т (OHLC)</div><div class="calc-sum-val" style="font-size:13px;">${smaTxt} · 1W ${cbSpread} · DD≥25%: ${riskStr}</div><div class="muted" style="font-size:10px;margin-top:2px;">${oosTxt} · ${vetoStr}</div></div>
         `;
       }

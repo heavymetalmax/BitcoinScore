@@ -396,7 +396,7 @@
     "value_sell_veto": true,
     "cost_basis_components": 3,
     "history_n": 5924,
-    "causal_btcbri": 11.1,
+    "causal_btcbri": 15.2,
     "wt1_causal_rank": 29.6
   },
   "entry_exit_checklist": {
@@ -30491,7 +30491,7 @@
     "trailing_trigger_score": null,
     "peak_score_in_run": 0
   },
-  "causal_btcbri": 11.1,
+  "causal_btcbri": 15.2,
   "uncertainty_breakdown": {
     "core_std": 13.7,
     "dispersion_pts": 25.1,
@@ -30500,15 +30500,17 @@
     "core_components_n": 4
   },
   "cycle_amplitude": {
+    "method": "cost_basis_4y",
+    "mvrv_ratio": 1.148,
+    "realized_price": 53263.46,
+    "mvrv_ratio_4y_min": 0.84,
+    "mvrv_ratio_4y_max": 2.684,
     "running_ath": 126198.1,
     "low_4y": 16004.0,
     "dd_from_ath_pct": -51.5,
     "vol52_ann_pct": 43.0,
-    "vol_scaled_gain": 3.12,
     "vol_scaled_dd": -1.68,
-    "vgain_rank": 10.2,
-    "vdd_rank": 19.9,
-    "amp_score": 15.1,
-    "risk_adjustment_pts": -12.2
+    "amp_score": 27.0,
+    "risk_adjustment_pts": -8.1
   }
 }
