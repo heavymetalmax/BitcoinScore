@@ -3031,8 +3031,8 @@ async function loadData() {
   try {
     const [r1, r2, r3] = await Promise.allSettled([
       fetch('data.json?t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()),
-      fetch('data_exp.json', { cache: 'no-store' }).then(r => r.json()),
-      fetch('score_history.json', { cache: 'no-store' }).then(r => r.json()),
+      fetch('data_exp.json?t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()),
+      fetch('score_history.json?t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()),
     ]);
     if (r3.status === 'fulfilled' && Array.isArray(r3.value)) fullHistory = r3.value;
     const main = r1.status === 'fulfilled' ? r1.value : {};
@@ -3043,7 +3043,10 @@ async function loadData() {
     if (main.phase)                 data.phase         = main.phase;
     if (main.timestamp)             data.timestamp     = main.timestamp;
     if (main.btc_price != null)     data.btc_price     = main.btc_price;
+    if (main.causal_btcbri != null) data.causal_btcbri = main.causal_btcbri;
     if (main.final_score != null)   data.final_score   = main.final_score;
+    if (main.prev_day)              data.prev_day      = main.prev_day;
+    if (main.prev_week)             data.prev_week     = main.prev_week;
     if (main.onchain_score != null) data.onchain_score = main.onchain_score;
     if (main.tech_score != null)    data.tech_score    = main.tech_score;
     // Merge metrics: exp wins where non-null, fall back to main for missing/null fields
