@@ -3048,7 +3048,7 @@
           if (Array.isArray(fullHistory) && fullHistory.length > 0)
             data.score_history = fullHistory.map(e => ({
               ...e,
-              score: e.score ?? e.final_score,
+              score: e.causal_btcbri ?? e.score ?? e.final_score,
               price: e.price ?? e.btc_price,
             }));
         }

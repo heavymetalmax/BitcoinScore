@@ -3658,17 +3658,18 @@ async function loadData() {
     }
   }
 
-  // History — prefer full history file (2018-present) over 90-day score_history
+  // History — prefer full history file with Causal Index v5.2
   if (fullHistory && fullHistory.length > 0) {
-    historyScores = fullHistory.filter(e => e.score != null);
+    historyScores = fullHistory.map(e => ({ ...e, score: e.causal_btcbri ?? e.score })).filter(e => e.score != null);
     // Append today's data point if not already covered
     const lastDate = historyScores[historyScores.length - 1]?.date || '';
     const todayDate = (data.timestamp || '').slice(0, 10);
-    if (todayDate > lastDate && data.final_score != null) {
-      historyScores.push({ date: todayDate, score: data.final_score, price: data.btc_price || null });
+    const todayScore = data.causal_btcbri ?? data.final_score;
+    if (todayDate > lastDate && todayScore != null) {
+      historyScores.push({ date: todayDate, score: todayScore, price: data.btc_price || null });
     }
   } else {
-    historyScores = (data.score_history || []).filter(e => e.score != null);
+    historyScores = (data.score_history || []).map(e => ({ ...e, score: e.causal_btcbri ?? e.score })).filter(e => e.score != null);
   }
   initHistoryEvents();
   drawHistory(activeRange);
