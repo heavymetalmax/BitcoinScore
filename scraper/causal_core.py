@@ -97,11 +97,12 @@ def _load_daily_mvrv_ranks(
     return out
 
 
-def _load_daily_cvdd_series(
+def _load_daily_score_field(
+    field: str,
     scores_path: str = 'data/history/scores.json',
     as_of_date: datetime.date | str | None = None,
 ) -> list[tuple[datetime.date, float]]:
-    """Return sorted (date, cvdd_ratio) strictly <= as_of_date."""
+    """Return sorted (date, field_value) strictly <= as_of_date."""
     if not os.path.exists(scores_path):
         return []
     as_of_dt: datetime.date | None = None
@@ -113,29 +114,56 @@ def _load_daily_cvdd_series(
     try:
         for row in json.load(open(scores_path, encoding='utf-8')):
             d_str = str(row.get('date', ''))[:10]
-            cv = row.get('cvdd_ratio')
-            if not d_str or cv is None:
+            val = row.get(field)
+            if not d_str or val is None:
                 continue
             d = datetime.date.fromisoformat(d_str)
             if as_of_dt is not None and d > as_of_dt:
                 continue
-            raw_by_d[d] = float(cv)
+            raw_by_d[d] = float(val)
     except Exception:
         return []
     return [(d, raw_by_d[d]) for d in sorted(raw_by_d)]
 
 
-def compute_causal_d1_state(
+def _avg_ranks(vals: list[float]) -> list[float]:
+    n = len(vals)
+    order = sorted(range(n), key=lambda idx: vals[idx])
+    ranks = [0.0] * n
+    i = 0
+    while i < n:
+        j = i + 1
+        while j < n and vals[order[j]] == vals[order[i]]:
+            j += 1
+        avg_r = 0.5 * (i + j - 1)
+        for k in range(i, j):
+            ranks[order[k]] = avg_r
+        i = j
+    return ranks
+
+
+def _spearman_rho(xs: list[float], ys: list[float]) -> float | None:
+    n = len(xs)
+    if n < 3 or n != len(ys):
+        return None
+    rx = _avg_ranks(xs)
+    ry = _avg_ranks(ys)
+    mx = sum(rx) / n
+    my = sum(ry) / n
+    num = sum((a - mx) * (b - my) for a, b in zip(rx, ry))
+    dx = sum((a - mx) ** 2 for a in rx)
+    dy = sum((b - my) ** 2 for b in ry)
+    denom = math.sqrt(dx * dy)
+    return (num / denom) if denom > 1e-12 else 0.0
+
+
+def compute_causal_weekly_history(
     as_of_date: datetime.date | str | None = None,
     ohlc_path: str = DEFAULT_OHLC_PATH,
     scores_path: str = 'data/history/scores.json',
     mvrv_ratio_path: str = DEFAULT_MVRV_RATIO_PATH,
-) -> dict[str, Any]:
-    """Replay exact causal D1 Dual-Sleeve state over strictly closed weekly OHLC bars.
-
-    Sleeve 1 (50%): close > SMA40w / < SMA40w
-    Sleeve 2 (50%): weekly Cipher B (wt1 - wt2 >= +2.0 / <= -2.0) with MVRV <= 25% Value-Veto
-    """
+) -> list[dict[str, Any]]:
+    """Compute strictly causal weekly D1 + Smart Purged-IC v5.2 series (0% lookahead)."""
     if as_of_date is None:
         as_of = datetime.date.today()
     elif isinstance(as_of_date, str):
@@ -144,7 +172,253 @@ def compute_causal_d1_state(
         as_of = as_of_date
 
     weeks = load_closed_weekly_ohlc(as_of_date=as_of, ohlc_path=ohlc_path)
-    if len(weeks) < 40:
+    n = len(weeks)
+    if n < 40:
+        return []
+
+    wt1_list, wt2_list = compute_cipherb_wt_on_ohlc(weeks)
+    mvrv_ranks = _load_daily_mvrv_ranks(scores_path=scores_path, as_of_date=as_of)
+    mvrv_caps = load_daily_mvrv_and_cap(as_of_date=as_of, path=mvrv_ratio_path)
+    cvdd_series = _load_daily_score_field('cvdd_ratio', scores_path=scores_path, as_of_date=as_of)
+    puell_series = _load_daily_score_field('puell', scores_path=scores_path, as_of_date=as_of)
+
+    closes = [w['close'] for w in weeks]
+    highs = [w['high'] for w in weeks]
+    lows = [w['low'] for w in weeks]
+    ret1: list[float | None] = [None]
+    for i in range(1, n):
+        c0, c1 = closes[i - 1], closes[i]
+        ret1.append(math.log(c1 / c0) if (c0 > 0 and c1 > 0) else None)
+
+    sma40_in = False
+    cb_in = False
+    mv_idx = mv_cap_idx = cv_idx = pu_idx = 0
+    last_mv_pct: float | None = None
+    last_mvrv_ratio: float | None = None
+    last_rcap: float | None = None
+    last_cvdd: float | None = None
+    last_puell: float | None = None
+    wt1_buf: list[float] = []
+
+    running_ath = highs[0]
+    log_mvrv_hist: list[float | None] = []
+    rcap_hist: list[float | None] = []
+    cvdd_hist: list[float | None] = []
+    puell_hist: list[float | None] = []
+
+    sub_names = ('cb4y', 'cvdd4', 'mcap', 'puell4', 'cb_div')
+    sub_hist: dict[str, list[float | None]] = {k: [] for k in sub_names}
+    out: list[dict[str, Any]] = []
+
+    for i, w in enumerate(weeks):
+        wk_close = w['week_close']
+        while mv_idx < len(mvrv_ranks) and mvrv_ranks[mv_idx][0] <= wk_close:
+            last_mv_pct = mvrv_ranks[mv_idx][1]
+            mv_idx += 1
+        while mv_cap_idx < len(mvrv_caps) and mvrv_caps[mv_cap_idx][0] <= wk_close:
+            last_mvrv_ratio = mvrv_caps[mv_cap_idx][1]
+            last_rcap = mvrv_caps[mv_cap_idx][2]
+            mv_cap_idx += 1
+        while cv_idx < len(cvdd_series) and cvdd_series[cv_idx][0] <= wk_close:
+            last_cvdd = cvdd_series[cv_idx][1]
+            cv_idx += 1
+        while pu_idx < len(puell_series) and puell_series[pu_idx][0] <= wk_close:
+            last_puell = puell_series[pu_idx][1]
+            pu_idx += 1
+
+        sma40 = sum(closes[i - 39:i + 1]) / 40.0 if i >= 39 else None
+        if sma40 is not None:
+            if not sma40_in and w['close'] > sma40:
+                sma40_in = True
+            elif sma40_in and w['close'] < sma40:
+                sma40_in = False
+
+        prev_cb_in = cb_in
+        veto_blocked = False
+        w1, w2 = wt1_list[i], wt2_list[i]
+        wt1_rank: float | None = None
+        if w1 is not None:
+            wt1_rank = (bisect.bisect_right(wt1_buf, float(w1)) / len(wt1_buf) * 100.0) if wt1_buf else 50.0
+            bisect.insort(wt1_buf, float(w1))
+        if w1 is not None and w2 is not None:
+            spread = w1 - w2
+            if not cb_in and spread >= 2.0:
+                cb_in = True
+            elif cb_in and spread <= -2.0:
+                if last_mv_pct is not None and last_mv_pct <= 0.25:
+                    veto_blocked = True
+                else:
+                    cb_in = False
+
+        running_ath = max(running_ath, highs[i])
+        low_4y = min(lows[max(0, i - 207):i + 1])
+        dd_ath_pct = (closes[i] / running_ath - 1.0) * 100.0 if running_ath > 0 else 0.0
+        log_dd = math.log(closes[i] / running_ath) if (running_ath > 0 and closes[i] > 0) else 0.0
+
+        r_win = [r for r in ret1[max(1, i - 51):i + 1] if r is not None]
+        vol52 = None
+        if len(r_win) >= 26:
+            mu_r = sum(r_win) / len(r_win)
+            var_r = sum((x - mu_r) ** 2 for x in r_win) / (len(r_win) - 1)
+            vol52 = math.sqrt(max(0.0, var_r)) * math.sqrt(52.0)
+        vdd = (log_dd / vol52) if (vol52 is not None and vol52 > 0.05) else None
+
+        cur_log_mv = math.log(last_mvrv_ratio) if (last_mvrv_ratio is not None and last_mvrv_ratio > 0) else None
+        log_mvrv_hist.append(cur_log_mv)
+        rcap_hist.append(last_rcap)
+        cvdd_hist.append(last_cvdd)
+        puell_hist.append(last_puell)
+
+        cb4y_sc: float | None = None
+        lo_4y_ratio: float | None = None
+        hi_4y_ratio: float | None = None
+        realized_price: float | None = None
+        if cur_log_mv is not None and last_mvrv_ratio is not None:
+            win_4y = [x for x in log_mvrv_hist[max(0, i - 207):i + 1] if x is not None]
+            if len(win_4y) >= 26:
+                lo_4y, hi_4y = min(win_4y), max(win_4y)
+                if (hi_4y - lo_4y) > 1e-9:
+                    cb4y_sc = min(100.0, max(0.0, (cur_log_mv - lo_4y) / (hi_4y - lo_4y) * 100.0))
+                lo_4y_ratio, hi_4y_ratio = math.exp(lo_4y), math.exp(hi_4y)
+            realized_price = closes[i] / last_mvrv_ratio
+
+        cvdd_4y_sc: float | None = None
+        if last_cvdd is not None:
+            c_win = sorted(x for x in cvdd_hist[max(0, i - 207):i + 1] if x is not None)
+            if len(c_win) >= 26:
+                cvdd_4y_sc = bisect.bisect_right(c_win, last_cvdd) / len(c_win) * 100.0
+
+        puell_4y_sc: float | None = None
+        if last_puell is not None:
+            p_win = sorted(x for x in puell_hist[max(0, i - 207):i + 1] if x is not None)
+            if len(p_win) >= 26:
+                puell_4y_sc = bisect.bisect_right(p_win, last_puell) / len(p_win) * 100.0
+
+        mcap_adj_sc: float | None = None
+        exp_amp: float | None = None
+        if cur_log_mv is not None and last_rcap is not None and last_rcap > 1e6 and i >= 104:
+            xs, ys = [], []
+            for k in range(max(0, i - 520), i):
+                lm_k, rc_k = log_mvrv_hist[k], rcap_hist[k]
+                if lm_k is not None and rc_k is not None and rc_k > 1e6:
+                    xs.append(math.log10(rc_k))
+                    ys.append(abs(lm_k))
+            if len(xs) >= 52:
+                mx, my = sum(xs) / len(xs), sum(ys) / len(ys)
+                vx = sum((x - mx) ** 2 for x in xs)
+                slope = sum((x - mx) * (y - my) for x, y in zip(xs, ys)) / vx if vx > 1e-9 else 0.0
+                exp_amp = max(0.15, (my - slope * mx) + slope * math.log10(last_rcap))
+                mcap_adj_sc = 100.0 / (1.0 + math.exp(-1.5 * (cur_log_mv / exp_amp - 0.35)))
+
+        cb_div_sc: float | None = None
+        if i >= 26 and w1 is not None:
+            w26 = [float(wt1_list[k]) for k in range(i - 26, i + 1) if wt1_list[k] is not None]
+            if len(w26) >= 15:
+                p_lo, p_hi = min(lows[i - 26:i + 1]), max(highs[i - 26:i + 1])
+                w_lo, w_hi = min(w26), max(w26)
+                p_pos = (closes[i] - p_lo) / max(1e-9, p_hi - p_lo)
+                w_pos = (float(w1) - w_lo) / max(1e-9, w_hi - w_lo)
+                cb_div_sc = min(100.0, max(0.0, 50.0 + (p_pos - w_pos) * 50.0))
+
+        cur_subs = {
+            'cb4y': cb4y_sc,
+            'cvdd4': cvdd_4y_sc,
+            'mcap': mcap_adj_sc,
+            'puell4': puell_4y_sc,
+            'cb_div': cb_div_sc,
+        }
+        for k in sub_names:
+            sub_hist[k].append(cur_subs[k])
+
+        avail = {k: cur_subs[k] for k in sub_names if cur_subs[k] is not None}
+        smart_bri: float | None = None
+        weights_pct: dict[str, float] = {}
+        if len(avail) >= 2:
+            ic_w: dict[str, float] = {}
+            if i >= 104:
+                m_start = max(0, i - 260)
+                m_end = i - 51  # strictly matured 52w outcomes: m + 52 <= i
+                for k in avail:
+                    arr_k = sub_hist[k]
+                    pts_x: list[float] = []
+                    pts_y: list[float] = []
+                    for m in range(m_start, m_end):
+                        xv = arr_k[m]
+                        if xv is not None and closes[m] > 0 and closes[m + 52] > 0:
+                            pts_x.append(xv)
+                            pts_y.append(math.log(closes[m + 52] / closes[m]))
+                    rho = _spearman_rho(pts_x, pts_y) if len(pts_x) >= 40 else None
+                    ic_w[k] = (max(0.05, -rho) ** 2) if rho is not None else 0.05
+            else:
+                ic_w = {k: 1.0 for k in avail}
+
+            sw = sum(ic_w.values())
+            if sw > 0:
+                raw_smart = sum(ic_w[k] * avail[k] for k in ic_w) / sw
+                smart_bri = round(soft_risk_compress(raw_smart), 1)
+                weights_pct = {k: round(ic_w[k] / sw * 100.0, 1) for k in ic_w}
+
+        eff_amp = cb4y_sc if cb4y_sc is not None else 50.0
+        amp_dict = {
+            'method': 'smart_purged_ic_v1',
+            'mvrv_ratio': round(last_mvrv_ratio, 3) if last_mvrv_ratio is not None else None,
+            'realized_price': round(realized_price, 2) if realized_price is not None else None,
+            'realized_cap_b_usd': round(last_rcap / 1e9, 1) if last_rcap is not None else None,
+            'mvrv_ratio_4y_min': round(lo_4y_ratio, 3) if lo_4y_ratio is not None else None,
+            'mvrv_ratio_4y_max': round(hi_4y_ratio, 3) if hi_4y_ratio is not None else None,
+            'running_ath': round(running_ath, 2),
+            'low_4y': round(low_4y, 2),
+            'dd_from_ath_pct': round(dd_ath_pct, 1),
+            'vol52_ann_pct': round(vol52 * 100.0, 1) if vol52 is not None else None,
+            'vol_scaled_dd': round(vdd, 2) if vdd is not None else None,
+            'amp_score': round(eff_amp, 1),
+            'cvdd_4y_score': round(cvdd_4y_sc, 1) if cvdd_4y_sc is not None else None,
+            'puell_4y_score': round(puell_4y_sc, 1) if puell_4y_sc is not None else None,
+            'mcap_adj_score': round(mcap_adj_sc, 1) if mcap_adj_sc is not None else None,
+            'cb_div_score': round(cb_div_sc, 1) if cb_div_sc is not None else None,
+            'expected_mvrv_amp': round(exp_amp, 3) if exp_amp is not None else None,
+            'smart_weights_pct': weights_pct,
+            'smart_btcbri': smart_bri,
+            'risk_adjustment_pts': round((eff_amp - 50.0) * 0.35, 1),
+        }
+        sp = round(float(w1) - float(w2), 2) if (w1 is not None and w2 is not None) else None
+        out.append({
+            'week_open': w['date'],
+            'week_close': wk_close.isoformat(),
+            'open': w['open'],
+            'high': w['high'],
+            'low': w['low'],
+            'close': w['close'],
+            'sma40': sma40,
+            'sma40_in_pos': sma40_in,
+            'cb_in_pos': cb_in,
+            'prev_cb_in_pos': prev_cb_in,
+            'wt1': round(float(w1), 2) if w1 is not None else None,
+            'wt2': round(float(w2), 2) if w2 is not None else None,
+            'wt_spread': sp,
+            'wt1_causal_rank': round(wt1_rank, 1) if wt1_rank is not None else None,
+            'veto_blocked_exit': veto_blocked,
+            'mvrv_pct': round(last_mv_pct, 4) if last_mv_pct is not None else None,
+            'causal_v52': smart_bri,
+            'cycle_amplitude': amp_dict,
+        })
+    return out
+
+
+def compute_causal_d1_state(
+    as_of_date: datetime.date | str | None = None,
+    ohlc_path: str = DEFAULT_OHLC_PATH,
+    scores_path: str = 'data/history/scores.json',
+    mvrv_ratio_path: str = DEFAULT_MVRV_RATIO_PATH,
+) -> dict[str, Any]:
+    """Return latest closed-week causal D1 Dual-Sleeve & Smart Purged-IC state."""
+    hist = compute_causal_weekly_history(
+        as_of_date=as_of_date,
+        ohlc_path=ohlc_path,
+        scores_path=scores_path,
+        mvrv_ratio_path=mvrv_ratio_path,
+    )
+    if not hist:
         return {
             'available': False,
             'sma40_in_pos': None,
@@ -159,180 +433,22 @@ def compute_causal_d1_state(
             'veto_blocked_exit': False,
             'mvrv_pct_week': None,
         }
-
-    wt1_list, wt2_list = compute_cipherb_wt_on_ohlc(weeks)
-    mvrv_ranks = _load_daily_mvrv_ranks(scores_path=scores_path, as_of_date=as_of)
-    mvrv_caps = load_daily_mvrv_and_cap(as_of_date=as_of, path=mvrv_ratio_path)
-    cvdd_series = _load_daily_cvdd_series(scores_path=scores_path, as_of_date=as_of)
-
-    closes = [w['close'] for w in weeks]
-    highs = [w['high'] for w in weeks]
-    lows = [w['low'] for w in weeks]
-    ret1: list[float | None] = [None]
-    for i in range(1, len(weeks)):
-        c0, c1 = closes[i - 1], closes[i]
-        ret1.append(math.log(c1 / c0) if (c0 > 0 and c1 > 0) else None)
-
-    sma40_in = False
-    cb_in = False
-    prev_cb_in = False
-    veto_blocked = False
-    mv_idx = 0
-    mv_cap_idx = 0
-    cv_idx = 0
-    last_mv_pct: float | None = None
-    last_mvrv_ratio: float | None = None
-    last_rcap: float | None = None
-    last_cvdd: float | None = None
-    last_sma40: float | None = None
-    wt1_buf: list[float] = []
-    wt1_rank_last: float | None = None
-
-    running_ath = highs[0]
-    log_mvrv_hist: list[float | None] = []
-    rcap_hist: list[float | None] = []
-    cvdd_hist: list[float | None] = []
-    amp_last: dict[str, Any] | None = None
-
-    for i, w in enumerate(weeks):
-        wk_close = w['week_close']
-        while mv_idx < len(mvrv_ranks) and mvrv_ranks[mv_idx][0] <= wk_close:
-            last_mv_pct = mvrv_ranks[mv_idx][1]
-            mv_idx += 1
-        while mv_cap_idx < len(mvrv_caps) and mvrv_caps[mv_cap_idx][0] <= wk_close:
-            last_mvrv_ratio = mvrv_caps[mv_cap_idx][1]
-            last_rcap = mvrv_caps[mv_cap_idx][2]
-            mv_cap_idx += 1
-        while cv_idx < len(cvdd_series) and cvdd_series[cv_idx][0] <= wk_close:
-            last_cvdd = cvdd_series[cv_idx][1]
-            cv_idx += 1
-
-        if i >= 39:
-            sma40 = sum(closes[i - 39:i + 1]) / 40.0
-            last_sma40 = sma40
-            if not sma40_in and w['close'] > sma40:
-                sma40_in = True
-            elif sma40_in and w['close'] < sma40:
-                sma40_in = False
-
-        prev_cb_in = cb_in
-        veto_blocked = False
-        w1, w2 = wt1_list[i], wt2_list[i]
-        if w1 is not None:
-            wt1_rank_last = (bisect.bisect_right(wt1_buf, float(w1)) / len(wt1_buf) * 100.0) if wt1_buf else 50.0
-            bisect.insort(wt1_buf, float(w1))
-        if w1 is not None and w2 is not None:
-            spread = w1 - w2
-            if not cb_in and spread >= 2.0:
-                cb_in = True
-            elif cb_in and spread <= -2.0:
-                if last_mv_pct is not None and last_mv_pct <= 0.25:
-                    veto_blocked = True
-                else:
-                    cb_in = False
-
-        # Strictly causal M3 Structural Core:
-        #   1) CostBasis4Y: rolling 208w corridor of ln(Price / Realized Price)
-        #   2) CVDD_4Y: rolling 208w causal rank of CVDD ratio
-        #   3) MVRV_MCapAdj: causal OLS of |ln(MVRV)| on log10(Realized Cap)
-        running_ath = max(running_ath, highs[i])
-        low_4y = min(lows[max(0, i - 207):i + 1])
-        dd_ath_pct = (closes[i] / running_ath - 1.0) * 100.0 if running_ath > 0 else 0.0
-        log_dd = math.log(closes[i] / running_ath) if (running_ath > 0 and closes[i] > 0) else 0.0
-
-        r_win = [r for r in ret1[max(1, i - 51):i + 1] if r is not None]
-        vol52 = None
-        if len(r_win) >= 26:
-            mu_r = sum(r_win) / len(r_win)
-            var_r = sum((x - mu_r) ** 2 for x in r_win) / (len(r_win) - 1)
-            vol52 = math.sqrt(max(0.0, var_r)) * math.sqrt(52.0)
-
-        vdd = (log_dd / vol52) if (vol52 is not None and vol52 > 0.05) else None
-
-        cur_log_mv = math.log(last_mvrv_ratio) if (last_mvrv_ratio is not None and last_mvrv_ratio > 0) else None
-        log_mvrv_hist.append(cur_log_mv)
-        rcap_hist.append(last_rcap)
-        cvdd_hist.append(last_cvdd)
-
-        amp_sc = 50.0
-        lo_4y_ratio: float | None = None
-        hi_4y_ratio: float | None = None
-        realized_price: float | None = None
-        if cur_log_mv is not None and last_mvrv_ratio is not None:
-            win_4y = [x for x in log_mvrv_hist[max(0, i - 207):i + 1] if x is not None]
-            if len(win_4y) >= 26:
-                lo_4y = min(win_4y)
-                hi_4y = max(win_4y)
-                span_4y = hi_4y - lo_4y
-                if span_4y > 1e-9:
-                    amp_sc = min(100.0, max(0.0, (cur_log_mv - lo_4y) / span_4y * 100.0))
-                lo_4y_ratio = math.exp(lo_4y)
-                hi_4y_ratio = math.exp(hi_4y)
-            realized_price = closes[i] / last_mvrv_ratio
-
-        cvdd_4y_sc: float | None = None
-        if last_cvdd is not None:
-            c_win = [x for x in cvdd_hist[max(0, i - 207):i + 1] if x is not None]
-            if len(c_win) >= 26:
-                c_win.sort()
-                cvdd_4y_sc = bisect.bisect_right(c_win, last_cvdd) / len(c_win) * 100.0
-
-        mcap_adj_sc: float | None = None
-        exp_amp: float | None = None
-        if cur_log_mv is not None and last_rcap is not None and last_rcap > 1e6 and i >= 104:
-            xs: list[float] = []
-            ys: list[float] = []
-            for k in range(max(0, i - 520), i):
-                lm_k = log_mvrv_hist[k]
-                rc_k = rcap_hist[k]
-                if lm_k is not None and rc_k is not None and rc_k > 1e6:
-                    xs.append(math.log10(rc_k))
-                    ys.append(abs(lm_k))
-            if len(xs) >= 52:
-                mx = sum(xs) / len(xs)
-                my = sum(ys) / len(ys)
-                vx = sum((x - mx) ** 2 for x in xs)
-                slope = sum((x - mx) * (y - my) for x, y in zip(xs, ys)) / vx if vx > 1e-9 else 0.0
-                exp_amp = max(0.15, (my - slope * mx) + slope * math.log10(last_rcap))
-                mcap_adj_sc = 100.0 / (1.0 + math.exp(-1.5 * (cur_log_mv / exp_amp - 0.35)))
-
-        amp_last = {
-            'method': 'm3_cost_basis_cvdd_mcap',
-            'mvrv_ratio': round(last_mvrv_ratio, 3) if last_mvrv_ratio is not None else None,
-            'realized_price': round(realized_price, 2) if realized_price is not None else None,
-            'realized_cap_b_usd': round(last_rcap / 1e9, 1) if last_rcap is not None else None,
-            'mvrv_ratio_4y_min': round(lo_4y_ratio, 3) if lo_4y_ratio is not None else None,
-            'mvrv_ratio_4y_max': round(hi_4y_ratio, 3) if hi_4y_ratio is not None else None,
-            'running_ath': round(running_ath, 2),
-            'low_4y': round(low_4y, 2),
-            'dd_from_ath_pct': round(dd_ath_pct, 1),
-            'vol52_ann_pct': round(vol52 * 100.0, 1) if vol52 is not None else None,
-            'vol_scaled_dd': round(vdd, 2) if vdd is not None else None,
-            'amp_score': round(amp_sc, 1),
-            'cvdd_4y_score': round(cvdd_4y_sc, 1) if cvdd_4y_sc is not None else None,
-            'mcap_adj_score': round(mcap_adj_sc, 1) if mcap_adj_sc is not None else None,
-            'expected_mvrv_amp': round(exp_amp, 3) if exp_amp is not None else None,
-            'risk_adjustment_pts': round((amp_sc - 50.0) * 0.35, 1),
-        }
-
-    last_w = weeks[-1]
-    w1_last, w2_last = wt1_list[-1], wt2_list[-1]
-    sp_last = round(float(w1_last) - float(w2_last), 2) if (w1_last is not None and w2_last is not None) else None
+    last = hist[-1]
     return {
         'available': True,
-        'sma40_in_pos': sma40_in,
-        'sma40_value': round(last_sma40, 2) if last_sma40 is not None else None,
-        'last_closed_week': last_w['date'],
-        'last_closed_close': round(last_w['close'], 2),
-        'cb_in_pos': cb_in,
-        'prev_cb_in_pos': prev_cb_in,
-        'wt1': round(float(w1_last), 2) if w1_last is not None else None,
-        'wt2': round(float(w2_last), 2) if w2_last is not None else None,
-        'wt_spread': sp_last,
-        'wt1_causal_rank': round(wt1_rank_last, 1) if wt1_rank_last is not None else None,
-        'veto_blocked_exit': veto_blocked,
-        'mvrv_pct_week': round(last_mv_pct, 4) if last_mv_pct is not None else None,
-        'cycle_amplitude': amp_last,
+        'sma40_in_pos': last['sma40_in_pos'],
+        'sma40_value': round(last['sma40'], 2) if last['sma40'] is not None else None,
+        'last_closed_week': last['week_open'],
+        'last_closed_close': round(last['close'], 2),
+        'cb_in_pos': last['cb_in_pos'],
+        'prev_cb_in_pos': last['prev_cb_in_pos'],
+        'wt1': last['wt1'],
+        'wt2': last['wt2'],
+        'wt_spread': last['wt_spread'],
+        'wt1_causal_rank': last['wt1_causal_rank'],
+        'veto_blocked_exit': last['veto_blocked_exit'],
+        'mvrv_pct_week': last['mvrv_pct'],
+        'cycle_amplitude': last['cycle_amplitude'],
     }
 
 
@@ -354,25 +470,10 @@ def compute_causal_btcbri(
     mvrv_info: dict[str, Any] | None,
     d1_state: dict[str, Any] | None,
 ) -> float | None:
-    """Compute unified M3 Causal BTCBRI v5.2 Index in (1.0, 99.0) with 0% lookahead.
-
-    Pure structural 4Y + Market-Cap-Adjusted core (WT1 removed as 52w drag):
-      - 40% CostBasis4Y (rolling 208w corridor of ln(Price / Realized Price))
-      - 40% CVDD_4Y (rolling 208w causal rank of CVDD ratio)
-      - 20% MVRV_MCapAdj (causal OLS of |ln(MVRV)| on log10(Realized Cap))
-      - Smooth asymptotic tail compression in (1.0, 99.0)
-    """
+    """Return Smart Purged-IC Causal BTCBRI v5.2 Index in (1.0, 99.0) with 0% lookahead."""
     amp = (d1_state or {}).get('cycle_amplitude')
-    if isinstance(amp, dict) and amp.get('amp_score') is not None:
-        cb4y = float(amp['amp_score'])
-        cvdd4y = amp.get('cvdd_4y_score')
-        mcap_adj = amp.get('mcap_adj_score')
-        eff_mcap = float(mcap_adj) if mcap_adj is not None else cb4y
-        if cvdd4y is not None:
-            raw = 0.40 * cb4y + 0.40 * float(cvdd4y) + 0.20 * eff_mcap
-        else:
-            raw = 0.67 * cb4y + 0.33 * eff_mcap
-        return round(soft_risk_compress(raw), 1)
+    if isinstance(amp, dict) and amp.get('smart_btcbri') is not None:
+        return float(amp['smart_btcbri'])
 
     val = (mvrv_info or {}).get('valuation_score')
     if val is None:

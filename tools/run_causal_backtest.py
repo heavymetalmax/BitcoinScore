@@ -26,30 +26,8 @@ ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from scraper.causal_core import _load_daily_cvdd_series, _load_daily_mvrv_ranks, compute_cipherb_wt_on_ohlc, soft_risk_compress
-from scraper.mvrv_ratio_store import load_daily_mvrv_and_cap
-from scraper.ohlc_store import load_closed_weekly_ohlc
+from scraper.causal_core import compute_causal_weekly_history
 from scraper.tail_risk import predict_tail_risk_13w
-
-
-def _causal_daily_ranks(scores_path: Path, field: str, as_of_date: datetime.date) -> list[tuple[datetime.date, float]]:
-    raw_by_d: dict[datetime.date, float] = {}
-    for row in json.loads(scores_path.read_text(encoding='utf-8')):
-        d_str = str(row.get('date', ''))[:10]
-        v = row.get(field)
-        if not d_str or v is None:
-            continue
-        d = datetime.date.fromisoformat(d_str)
-        if d <= as_of_date:
-            raw_by_d[d] = float(v)
-    buf: list[float] = []
-    out: list[tuple[datetime.date, float]] = []
-    for d in sorted(raw_by_d):
-        v = raw_by_d[d]
-        rank = (bisect.bisect_right(buf, v) / len(buf) * 100.0) if buf else 50.0
-        out.append((d, rank))
-        bisect.insort(buf, v)
-    return out
 
 
 def load_weekly_dataset(as_of_date: datetime.date | None = None) -> list[dict]:
@@ -58,110 +36,12 @@ def load_weekly_dataset(as_of_date: datetime.date | None = None) -> list[dict]:
         scores = json.loads(scores_path.read_text(encoding='utf-8'))
         as_of_date = datetime.date.fromisoformat(str(scores[-1]['date'])[:10])
 
-    weeks = load_closed_weekly_ohlc(
+    return compute_causal_weekly_history(
         as_of_date=as_of_date,
         ohlc_path=str(ROOT / 'data/history/btc_weekly_ohlc.json'),
+        scores_path=str(scores_path),
+        mvrv_ratio_path=str(ROOT / 'data/history/mvrv_ratio_history.json'),
     )
-    wt1, wt2 = compute_cipherb_wt_on_ohlc(weeks)
-    mvrv_ranks = _load_daily_mvrv_ranks(scores_path=str(scores_path), as_of_date=as_of_date)
-    mvrv_caps = load_daily_mvrv_and_cap(as_of_date=as_of_date, path=str(ROOT / 'data/history/mvrv_ratio_history.json'))
-    cvdd_series = _load_daily_cvdd_series(scores_path=str(scores_path), as_of_date=as_of_date)
-
-    closes = [w['close'] for w in weeks]
-
-    mv_idx = mv_cap_idx = cv_idx = 0
-    last_mv: float | None = None
-    last_mvrv_ratio: float | None = None
-    last_rcap: float | None = None
-    last_cvdd: float | None = None
-    log_mvrv_hist: list[float | None] = []
-    rcap_hist: list[float | None] = []
-    cvdd_hist: list[float | None] = []
-    s1_in = False
-    s2_in = False
-
-    out: list[dict] = []
-    for i, w in enumerate(weeks):
-        wk_close = w['week_close']
-        while mv_idx < len(mvrv_ranks) and mvrv_ranks[mv_idx][0] <= wk_close:
-            last_mv = mvrv_ranks[mv_idx][1]
-            mv_idx += 1
-        while mv_cap_idx < len(mvrv_caps) and mvrv_caps[mv_cap_idx][0] <= wk_close:
-            last_mvrv_ratio = mvrv_caps[mv_cap_idx][1]
-            last_rcap = mvrv_caps[mv_cap_idx][2]
-            mv_cap_idx += 1
-        while cv_idx < len(cvdd_series) and cvdd_series[cv_idx][0] <= wk_close:
-            last_cvdd = cvdd_series[cv_idx][1]
-            cv_idx += 1
-
-        sma40 = sum(closes[i - 39:i + 1]) / 40.0 if i >= 39 else None
-        if sma40 is not None:
-            if not s1_in and closes[i] > sma40:
-                s1_in = True
-            elif s1_in and closes[i] < sma40:
-                s1_in = False
-
-        sp = (wt1[i] - wt2[i]) if (wt1[i] is not None and wt2[i] is not None) else None
-        if sp is not None:
-            if not s2_in and sp >= 2.0:
-                s2_in = True
-            elif s2_in and sp <= -2.0:
-                if last_mv is None or last_mv > 0.25:
-                    s2_in = False
-
-        cur_log_mv = math.log(last_mvrv_ratio) if (last_mvrv_ratio is not None and last_mvrv_ratio > 0) else None
-        log_mvrv_hist.append(cur_log_mv)
-        rcap_hist.append(last_rcap)
-        cvdd_hist.append(last_cvdd)
-
-        amp_sc = 50.0
-        if cur_log_mv is not None:
-            win_4y = [x for x in log_mvrv_hist[max(0, i - 207):i + 1] if x is not None]
-            if len(win_4y) >= 26:
-                lo_4y, hi_4y = min(win_4y), max(win_4y)
-                if (hi_4y - lo_4y) > 1e-9:
-                    amp_sc = min(100.0, max(0.0, (cur_log_mv - lo_4y) / (hi_4y - lo_4y) * 100.0))
-
-        cvdd_4y_sc: float | None = None
-        if last_cvdd is not None:
-            c_win = [x for x in cvdd_hist[max(0, i - 207):i + 1] if x is not None]
-            if len(c_win) >= 26:
-                c_win.sort()
-                cvdd_4y_sc = bisect.bisect_right(c_win, last_cvdd) / len(c_win) * 100.0
-
-        mcap_adj_sc: float | None = None
-        if cur_log_mv is not None and last_rcap is not None and last_rcap > 1e6 and i >= 104:
-            xs, ys = [], []
-            for k in range(max(0, i - 520), i):
-                lm_k, rc_k = log_mvrv_hist[k], rcap_hist[k]
-                if lm_k is not None and rc_k is not None and rc_k > 1e6:
-                    xs.append(math.log10(rc_k))
-                    ys.append(abs(lm_k))
-            if len(xs) >= 52:
-                mx, my = sum(xs) / len(xs), sum(ys) / len(ys)
-                vx = sum((x - mx) ** 2 for x in xs)
-                slope = sum((x - mx) * (y - my) for x, y in zip(xs, ys)) / vx if vx > 1e-9 else 0.0
-                exp_amp = max(0.15, (my - slope * mx) + slope * math.log10(last_rcap))
-                mcap_adj_sc = 100.0 / (1.0 + math.exp(-1.5 * (cur_log_mv / exp_amp - 0.35)))
-
-        eff_mcap = mcap_adj_sc if mcap_adj_sc is not None else amp_sc
-        raw_v52 = (0.40 * amp_sc + 0.40 * cvdd_4y_sc + 0.20 * eff_mcap) if cvdd_4y_sc is not None else (0.67 * amp_sc + 0.33 * eff_mcap)
-        causal_v52 = round(soft_risk_compress(raw_v52), 1)
-
-        out.append({
-            'week_open': w['date'],
-            'week_close': wk_close.isoformat(),
-            'open': w['open'],
-            'high': w['high'],
-            'low': w['low'],
-            'close': w['close'],
-            'sma40': sma40,
-            'wt1': wt1[i],
-            'wt2': wt2[i],
-            'mvrv_pct': last_mv,
-            'causal_v52': causal_v52,
-        })
-    return out
 
 
 def run_sim(weeks: list[dict], start_date: str, mode: str, fee: float = 0.005, end_date: str | None = None) -> dict:

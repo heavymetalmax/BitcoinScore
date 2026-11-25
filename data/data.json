@@ -396,7 +396,7 @@
     "value_sell_veto": true,
     "cost_basis_components": 3,
     "history_n": 5924,
-    "causal_btcbri": 21.6,
+    "causal_btcbri": 20.3,
     "wt1_causal_rank": 29.6
   },
   "entry_exit_checklist": {
@@ -30491,7 +30491,7 @@
     "trailing_trigger_score": null,
     "peak_score_in_run": 0
   },
-  "causal_btcbri": 21.6,
+  "causal_btcbri": 20.3,
   "uncertainty_breakdown": {
     "core_std": 13.7,
     "dispersion_pts": 25.1,
@@ -30500,7 +30500,7 @@
     "core_components_n": 4
   },
   "cycle_amplitude": {
-    "method": "m3_cost_basis_cvdd_mcap",
+    "method": "smart_purged_ic_v1",
     "mvrv_ratio": 1.148,
     "realized_price": 53263.46,
     "realized_cap_b_usd": 1070.3,
@@ -30513,8 +30513,18 @@
     "vol_scaled_dd": -1.68,
     "amp_score": 27.0,
     "cvdd_4y_score": 3.4,
+    "puell_4y_score": 34.6,
     "mcap_adj_score": 47.3,
+    "cb_div_score": 46.0,
     "expected_mvrv_amp": 0.497,
+    "smart_weights_pct": {
+      "cb4y": 38.4,
+      "cvdd4": 43.5,
+      "mcap": 15.0,
+      "puell4": 0.3,
+      "cb_div": 2.9
+    },
+    "smart_btcbri": 20.3,
     "risk_adjustment_pts": -8.1
   }
 }
