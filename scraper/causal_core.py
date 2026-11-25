@@ -25,6 +25,7 @@ from typing import Any
 
 from .mvrv_ratio_store import DEFAULT_MVRV_RATIO_PATH, load_daily_mvrv_and_cap
 from .ohlc_store import DEFAULT_OHLC_PATH, load_closed_weekly_ohlc
+from .stablecoin_store import DEFAULT_STABLECOIN_PATH, load_daily_stablecoins
 from .us10y_store import DEFAULT_US10Y_PATH, load_daily_us10y
 
 
@@ -184,6 +185,7 @@ def compute_causal_weekly_history(
     puell_series = _load_daily_score_field('puell', scores_path=scores_path, as_of_date=as_of)
     dxy_series = _load_daily_score_field('dxy', scores_path=scores_path, as_of_date=as_of)
     us10y_series = load_daily_us10y(as_of_date=as_of, path=DEFAULT_US10Y_PATH)
+    stable_series = load_daily_stablecoins(as_of_date=as_of, path=DEFAULT_STABLECOIN_PATH)
 
     closes = [w['close'] for w in weeks]
     highs = [w['high'] for w in weeks]
@@ -207,7 +209,7 @@ def compute_causal_weekly_history(
     psoft_peak = 0.0
     psoft_min_v = 100.0
     psoft_buying = True
-    mv_idx = mv_cap_idx = cv_idx = pu_idx = dxy_idx = y10_idx = 0
+    mv_idx = mv_cap_idx = cv_idx = pu_idx = dxy_idx = y10_idx = st_idx = 0
     last_mv_pct: float | None = None
     last_mvrv_ratio: float | None = None
     last_rcap: float | None = None
@@ -215,6 +217,7 @@ def compute_causal_weekly_history(
     last_puell: float | None = None
     last_dxy: float | None = None
     last_y10: float | None = None
+    last_stable: float | None = None
     wt1_buf: list[float] = []
 
     running_ath = highs[0]
@@ -226,8 +229,11 @@ def compute_causal_weekly_history(
     dxy_vs_sma_hist: list[float | None] = []
     y10_hist: list[float | None] = []
     y10_vs_sma_hist: list[float | None] = []
+    stable_hist: list[float | None] = []
+    stable_roc26_hist: list[float | None] = []
 
-    sub_names = ('cb4y', 'cvdd4', 'mcap', 'puell4', 'cb_div')
+    core_sub_names = ('cb4y', 'cvdd4', 'mcap', 'puell4', 'cb_div')
+    sub_names = ('cb4y', 'cvdd4', 'mcap', 'puell4', 'cb_div', 'st_roc4')
     sub_hist: dict[str, list[float | None]] = {k: [] for k in sub_names}
     out: list[dict[str, Any]] = []
 
@@ -266,6 +272,14 @@ def compute_causal_weekly_history(
             y10_sma20 = sum(float(x) for x in y10_hist[-20:]) / 20.0
             y10_vs_sma = float(last_y10) - y10_sma20
         y10_vs_sma_hist.append(y10_vs_sma)
+        while st_idx < len(stable_series) and stable_series[st_idx][0] <= wk_close:
+            last_stable = stable_series[st_idx][1]
+            st_idx += 1
+        stable_hist.append(last_stable)
+        st_roc26: float | None = None
+        if i >= 26 and last_stable is not None and stable_hist[i - 26] is not None and float(stable_hist[i - 26]) >= 5e9:
+            st_roc26 = math.log(float(last_stable) / float(stable_hist[i - 26]))
+        stable_roc26_hist.append(st_roc26)
 
         sma40 = sum(closes[i - 39:i + 1]) / 40.0 if i >= 39 else None
         if sma40 is not None:
@@ -361,12 +375,19 @@ def compute_causal_weekly_history(
                 w_pos = (float(w1) - w_lo) / max(1e-9, w_hi - w_lo)
                 cb_div_sc = min(100.0, max(0.0, 50.0 + (p_pos - w_pos) * 50.0))
 
+        st_roc4_sc: float | None = None
+        if st_roc26 is not None:
+            st_win = sorted(x for x in stable_roc26_hist[max(0, i - 207):i + 1] if x is not None)
+            if len(st_win) >= 26:
+                st_roc4_sc = bisect.bisect_right(st_win, st_roc26) / len(st_win) * 100.0
+
         cur_subs = {
             'cb4y': cb4y_sc,
             'cvdd4': cvdd_4y_sc,
             'mcap': mcap_adj_sc,
             'puell4': puell_4y_sc,
             'cb_div': cb_div_sc,
+            'st_roc4': st_roc4_sc,
         }
         for k in sub_names:
             sub_hist[k].append(cur_subs[k])
@@ -393,10 +414,15 @@ def compute_causal_weekly_history(
                         if xv is not None and closes[m] > 0 and closes[m + 52] > 0:
                             pts_x.append(xv)
                             pts_y.append(math.log(closes[m + 52] / closes[m]))
-                    rho = _spearman_rho(pts_x, pts_y) if len(pts_x) >= 40 else None
-                    ic_w[k] = (max(0.05, -rho) ** 2) if rho is not None else 0.05
+                    if len(pts_x) >= 40:
+                        rho = _spearman_rho(pts_x, pts_y)
+                        ic_w[k] = (max(0.05, -rho) ** 2) if rho is not None else 0.05
+                    elif k in core_sub_names:
+                        ic_w[k] = 0.05
+                    else:
+                        ic_w[k] = 0.0  # zero cold-start weight until 40 matured 52w observations
             else:
-                ic_w = {k: 1.0 for k in avail}
+                ic_w = {k: (1.0 if k in core_sub_names else 0.0) for k in avail}
 
             sw = sum(ic_w.values())
             dxy_ic_13w: float | None = None
@@ -520,6 +546,8 @@ def compute_causal_weekly_history(
             'puell_4y_score': round(puell_4y_sc, 1) if puell_4y_sc is not None else None,
             'mcap_adj_score': round(mcap_adj_sc, 1) if mcap_adj_sc is not None else None,
             'cb_div_score': round(cb_div_sc, 1) if cb_div_sc is not None else None,
+            'stable_roc4_score': round(st_roc4_sc, 1) if st_roc4_sc is not None else None,
+            'stable_supply_b_usd': round(last_stable / 1e9, 1) if last_stable is not None else None,
             'expected_mvrv_amp': round(exp_amp, 3) if exp_amp is not None else None,
             'smart_weights_pct': weights_pct,
             'dxy_sma20w': round(dxy_sma20, 3) if dxy_sma20 is not None else None,
@@ -683,6 +711,7 @@ def _score_daily_point_in_time(
         'mcap': mcap_sc if mcap_sc is not None else amp.get('mcap_adj_score'),
         'puell4': puell4_sc if puell4_sc is not None else amp.get('puell_4y_score'),
         'cb_div': amp.get('cb_div_score'),
+        'st_roc4': amp.get('stable_roc4_score'),
     }
     w_sum = 0.0
     v_sum = 0.0
@@ -765,19 +794,25 @@ def compute_v52_components(
             val_w_sum += w
             val_v_sum += w * float(sv)
     val_score = round(val_v_sum / val_w_sum) if val_w_sum > 0 else None
-    mcap_score = round(float(mcap_sc)) if mcap_sc is not None else None
+    cyc_w_sum = 0.0
+    cyc_v_sum = 0.0
+    for k, sv in (('mcap', mcap_sc), ('st_roc4', amp.get('stable_roc4_score'))):
+        w = float(weights_pct.get(k) or 0.0)
+        if sv is not None and w > 0:
+            cyc_w_sum += w
+            cyc_v_sum += w * float(sv)
+    mcap_score = round(cyc_v_sum / cyc_w_sum) if cyc_w_sum > 0 else (round(float(mcap_sc)) if mcap_sc is not None else None)
     mom_score = round(float(amp['cb_div_score'])) if amp.get('cb_div_score') is not None else None
 
-    w_mcap = float(weights_pct.get('mcap') or 0.0)
     w_mom = float(weights_pct.get('cb_div') or 0.0)
-    w_tot = val_w_sum + w_mcap + w_mom
+    w_tot = val_w_sum + cyc_w_sum + w_mom
     return {
         'valuation': val_score,
         'cycle_mcap': mcap_score,
         'momentum': mom_score,
         'weights': {
             'valuation': round(val_w_sum / w_tot * 100.0, 1) if w_tot > 0 else 80.0,
-            'cycle_mcap': round(w_mcap / w_tot * 100.0, 1) if w_tot > 0 else 15.0,
+            'cycle_mcap': round(cyc_w_sum / w_tot * 100.0, 1) if w_tot > 0 else 15.0,
             'momentum': round(w_mom / w_tot * 100.0, 1) if w_tot > 0 else 5.0,
         },
     }

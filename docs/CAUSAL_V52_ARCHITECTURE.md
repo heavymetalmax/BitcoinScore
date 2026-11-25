@@ -22,6 +22,7 @@ Alpha v5.2 separates **zero-lookahead causal risk measurement** from **legacy V3
 | `data/history/btc_weekly_ohlc.json` | `scraper/ohlc_store.py` | 794 closed Monday-opening weekly BTC/USD OHLC bars (`2011–2026`), auto-synced from Kraken 1D OHLC. |
 | `data/history/mvrv_ratio_history.json` | `scraper/mvrv_ratio_store.py` | 5,974 daily CoinMetrics Community API rows (`CapMVRVCur`, `CapMrktCurUSD`, derived `realized_cap_usd`), synced incrementally before scoring. |
 | `data/history/us10y_history.json` | `scraper/us10y_store.py` | 3,998 daily Yahoo Finance `^TNX` (US 10Y Treasury yield) rows (`2011–2026`), synced incrementally before scoring. |
+| `data/history/stablecoin_history.json` | `scraper/stablecoin_store.py` | 3,284 daily DefiLlama total USD stablecoin supply rows (`2017–2026`), synced incrementally before scoring. |
 | `data/history/scores.json` | `scraper/history_writer.py` | Daily on-chain/macro metrics (`cvdd_ratio`, `puell`, `mvrv`, `dxy`, etc.) + legacy `final_score` & `causal_btcbri`. |
 | `web/history/scores.json` & `web/score_history.json` | `tools/sync_web_scores.py` (via `tools/export_web.py`) | Daily point-in-time `causal_btcbri` (from `compute_causal_daily_series()`) used as single source of truth across `index.html`, `classic.html`, `minimal.html`, `about.html`, `compare.html`, and `trade.html`. |
 
@@ -35,17 +36,19 @@ Computed identically for live production and backtests in `scraper/causal_core.p
 1. **`CostBasis4Y` (`cb4y`):** Rolling 4-year (`208w`) corridor position of $\ln(\text{Price} / \text{Realized Price}) = \ln(\text{CapMVRVCur}) \in [0, 100]$.
 2. **`CVDD_4Y` (`cvdd4`):** Rolling 4-year (`208w`) causal percentile rank of `cvdd_ratio`.
 3. **`MVRV_MCapAdj` (`mcap`):** Market-cap-adjusted MVRV using causal OLS of $|\ln(\text{MVRV})|$ on $\log_{10}(\text{Realized Cap})$ over past weeks `< i` (captures empirical cycle compression: $\rho(\log_{10}(\text{RCap}), \text{4Y Range}) = -0.9461$).
-4. **`CB_Divergence` (`cb_div`):** 26-week causal price vs WaveTrend `WT1` divergence (`50 + (p_pos - w_pos) * 50`), capturing exhaustion without the momentum drag of raw `WT1`.
-5. **`Puell_4Y` (`puell4`):** Rolling 4-year (`208w`) causal percentile rank of `puell`.
+4. **`StableROC_26w_4Y` (`st_roc4`):** Rolling 4-year (`208w`) causal percentile rank of 26-week log-growth in DefiLlama total USD stablecoin supply (`supply >= $5B`), gated with **zero cold-start weight** until `>= 40` matured 52-week observations.
+5. **`CB_Divergence` (`cb_div`):** 26-week causal price vs WaveTrend `WT1` divergence (`50 + (p_pos - w_pos) * 50`), capturing exhaustion without the momentum drag of raw `WT1`.
+6. **`Puell_4Y` (`puell4`):** Rolling 4-year (`208w`) causal percentile rank of `puell`.
 
 ### Smart Purged-IC Weighting & Macro Pressure (`DXY + US10Y`)
 At each week `i >= 104`, weights are learned **strictly from matured 52-week forward returns** (`k in [max(0, i-260) .. i-52]`):
 $$w_k(i) \propto \max(0.05,\; -\rho_{\text{Spearman}}(x_k, r_{52w}))^2$$
 As of `2026-11-25`, live smart weights automatically converged to:
-- `CVDD_4Y`: **43.5%**
-- `CostBasis4Y`: **38.4%**
-- `MVRV_MCapAdj`: **15.0%**
-- `CB_Divergence`: **2.9%**
+- `CVDD_4Y`: **40.6%**
+- `CostBasis4Y`: **35.9%**
+- `MVRV_MCapAdj`: **14.0%**
+- `StableROC_26w_4Y`: **6.6%**
+- `CB_Divergence`: **2.7%**
 - `Puell_4Y`: **0.3%** *(halving decay detected automatically)*
 
 **Asymmetric Smart Purged-IC 13w Macro Pressure (`70% DXY + 30% US10Y`):**
@@ -53,8 +56,8 @@ As of `2026-11-25`, live smart weights automatically converged to:
 - When `DXY > SMA20w` or `US10Y > SMA20w`, an adaptive `Smart Purged-IC 13w` risk penalty (`max +6` pts, `0` pts when `IC >= 0` or below `SMA20w`) is added before `soft_risk_compress()`.
 
 **Daily Pulse vs Weekly Execution:**
-- **Display score (`causal_btcbri`):** evaluated daily point-in-time (`_score_daily_point_in_time()` in `scraper/causal_core.py`) using live `price`, `cvdd_ratio`, `puell`, `dxy`, `us10y`, and the latest closed week's weights/corridors (`2026-11-25`: **`20.7 / 100`**, `v52_components`: Valuation `13`, MVRV Cycle `45`, Momentum `46`).
-- **Trading execution:** strictly evaluated on **Sunday weekly candle closes** (`2026-11-22`: `22.1 / 100`), filtering out single-day spikes such as `2024-03-12`.
+- **Display score (`causal_btcbri`):** evaluated daily point-in-time (`_score_daily_point_in_time()` in `scraper/causal_core.py`) using live `price`, `cvdd_ratio`, `puell`, `dxy`, `us10y`, and the latest closed week's weights/corridors (`2026-11-25`: **`20.3 / 100`**, `v52_components`: Valuation `13`, MVRV & Liquidity Cycle `34`, Momentum `46`).
+- **Trading execution:** strictly evaluated on **Sunday weekly candle closes** (`2026-11-22`: `21.6 / 100`, activating `20/30/50` Tranche 1 at `20% BTC`), filtering out single-day spikes such as `2024-03-12`.
 
 ---
 

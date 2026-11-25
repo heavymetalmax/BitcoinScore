@@ -191,6 +191,12 @@ def run_scoring_pipeline(p, build_metric_history_fn=None):
         print(f'Warning: failed to sync US10Y store: {e}')
 
     try:
+        from .stablecoin_store import sync_stablecoins_from_defillama
+        sync_stablecoins_from_defillama()
+    except Exception as e:
+        print(f'Warning: failed to sync Stablecoin store: {e}')
+
+    try:
         from .score import compute_score
         from .orchestrator import orchestrate
         import datetime as _dt

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-25T14:41:05Z",
+  "generated_at": "2026-11-25T15:08:34Z",
   "methodology": "Production-parity zero-lookahead test on closed Monday weekly OHLC (2011–2026, real H/L/O/C) + causal MVRV/Puell/CVDD + vol-scaled amplitude + WaveTrend SMA3. Execution: next-week open (t+1), true intra-week MaxDD, 0.5% and 1.0% one-way fees.",
   "ohlc_bars": 794,
   "tail_risk_oos": {
