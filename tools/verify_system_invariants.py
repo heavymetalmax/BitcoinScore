@@ -170,20 +170,33 @@ def verify_layer_3(suite: InvariantSuite):
 
 def verify_layer_4(suite: InvariantSuite):
     print("\n=== LAYER 4: Historical Cycle Milestone Calibration ===")
-    scores_path = os.path.join(ROOT, "data", "history", "scores.json")
-    ref_path = os.path.join(ROOT, "data", "reference_extremes.json")
-    by_date = {r["date"]: r for r in json.load(open(scores_path, encoding="utf-8")) if r.get("date")}
-    ref_rows = json.load(open(ref_path, encoding="utf-8")).get("extremes", [])
+    import csv
 
+    scores_path = os.path.join(ROOT, "data", "history", "scores.json")
+    csv_path = os.path.join(ROOT, "docs", "btc_extrema_events.csv")
+    by_date = {r["date"]: r for r in json.load(open(scores_path, encoding="utf-8")) if r.get("date")}
+    with open(csv_path, encoding="utf-8", newline="") as f:
+        ref_rows = list(csv.DictReader(f))
+
+    skip_statuses = {"alternate_price_basis", "alternate_price_basis_not_interchangeable"}
+    skip_ids = {"2021_summer_low"}
     bottom_milestones = [
-        (r["date"], r["label"])
+        (r["date"], r["event_id"])
         for r in ref_rows
-        if r.get("kind") == "BOTTOM" and r.get("date", "") >= "2017-01-01" and r.get("date") in by_date
+        if r.get("kind") == "LOW"
+        and r.get("date", "") >= "2017-01-01"
+        and r.get("status") not in skip_statuses
+        and r.get("event_id") not in skip_ids
+        and r.get("date") in by_date
     ]
     top_milestones = [
-        (r["date"], r["label"])
+        (r["date"], r["event_id"])
         for r in ref_rows
-        if r.get("kind") == "TOP" and r.get("date", "") >= "2017-01-01" and r.get("date") in by_date
+        if r.get("kind") == "HIGH"
+        and r.get("date", "") >= "2017-01-01"
+        and r.get("status") not in skip_statuses
+        and r.get("event_id") not in skip_ids
+        and r.get("date") in by_date
     ]
 
     bot_scores = []

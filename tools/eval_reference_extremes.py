@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
-"""Evaluate Causal v5.2 & Legacy scores against data/reference_extremes.json."""
+"""Evaluate Causal v5.2 & Legacy scores against docs/btc_extrema_events.csv."""
 from __future__ import annotations
 
+import csv
+import datetime
 import json
 import sys
 from pathlib import Path
@@ -14,17 +16,28 @@ from scraper.causal_core import compute_causal_btcbri, compute_causal_d1_state, 
 
 
 def main() -> None:
-    ref = json.loads((ROOT / 'data/reference_extremes.json').read_text(encoding='utf-8'))
-    scores = {r['date'][:10]: r for r in json.loads((ROOT / 'data/history/scores.json').read_text(encoding='utf-8')) if r.get('date')}
+    csv_path = ROOT / 'docs/btc_extrema_events.csv'
+    with open(csv_path, encoding='utf-8', newline='') as f:
+        events = list(csv.DictReader(f))
+    scores = {
+        r['date'][:10]: r
+        for r in json.loads((ROOT / 'data/history/scores.json').read_text(encoding='utf-8'))
+        if r.get('date')
+    }
 
-    print(f"{'Date':10s} {'Kind':6s} {'WeekOpen':10s} {'Label':28s} | {'v3':>4s} {'v5.2':>5s} {'CB4Y':>5s} {'MVRV_R':>6s} {'WT1%':>5s} {'SMA40':>5s} {'CB1W':>4s}")
-    print('-' * 105)
-    for row in ref['extremes']:
+    print(
+        f"{'EventID':24s} {'Date':10s} {'Kind':4s} {'WeekOpen':10s} | "
+        f"{'v3':>4s} {'v5.2':>5s} {'CB4Y':>5s} {'MVRV_R':>6s} {'WT1%':>5s} {'SMA40':>5s} {'CB1W':>4s}"
+    )
+    print('-' * 98)
+    for row in events:
         d = row['date']
-        eval_d = row['week_eval_date']
+        dt = datetime.date.fromisoformat(d)
+        wk_open = dt - datetime.timedelta(days=dt.weekday())
+        wk_eval = wk_open + datetime.timedelta(days=7)
         sc_row = scores.get(d, {})
         d1 = compute_causal_d1_state(
-            as_of_date=eval_d,
+            as_of_date=wk_eval.isoformat(),
             ohlc_path=str(ROOT / 'data/history/btc_weekly_ohlc.json'),
             scores_path=str(ROOT / 'data/history/scores.json'),
             mvrv_ratio_path=str(ROOT / 'data/history/mvrv_ratio_history.json'),
@@ -47,7 +60,7 @@ def main() -> None:
         sma_s = 'IN' if d1.get('sma40_in_pos') else 'OUT'
         cb_s = 'IN' if d1.get('cb_in_pos') else 'OUT'
         print(
-            f"{d:10s} {row['kind']:6s} {row['week_open']:10s} {row['label']:28s} | "
+            f"{row['event_id']:24s} {d:10s} {row['kind']:4s} {wk_open.isoformat():10s} | "
             f"{v3_s:>4s} {b52_s:>5s} {amp_s:>5s} {mvr_s:>6s} {wt1_s:>5s} {sma_s:>5s} {cb_s:>4s}"
         )
 
