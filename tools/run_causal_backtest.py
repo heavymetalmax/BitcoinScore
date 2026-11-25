@@ -26,7 +26,7 @@ ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from scraper.causal_core import _load_daily_mvrv_ranks, compute_cipherb_wt_on_ohlc
+from scraper.causal_core import _load_daily_mvrv_ranks, compute_cipherb_wt_on_ohlc, soft_risk_compress
 from scraper.mvrv_ratio_store import load_daily_mvrv_ratio
 from scraper.ohlc_store import load_closed_weekly_ohlc
 from scraper.tail_risk import predict_tail_risk_13w
@@ -137,7 +137,7 @@ def load_weekly_dataset(as_of_date: datetime.date | None = None) -> list[dict]:
                     sc += 15.0
                 if not s1_in:
                     sc += 10.0
-            causal_v52 = round(min(100.0, max(0.0, sc)), 1)
+            causal_v52 = round(soft_risk_compress(sc), 1)
 
         out.append({
             'week_open': w['date'],

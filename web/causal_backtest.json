@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-25T06:42:45Z",
+  "generated_at": "2026-11-25T06:56:51Z",
   "methodology": "Production-parity zero-lookahead test on closed Monday weekly OHLC (2011–2026, real H/L/O/C) + causal MVRV/Puell/CVDD + vol-scaled amplitude + WaveTrend SMA3. Execution: next-week open (t+1), true intra-week MaxDD, 0.5% and 1.0% one-way fees.",
   "ohlc_bars": 794,
   "tail_risk_oos": {
@@ -70,7 +70,7 @@
             "date": "2026-11-16",
             "action": "SELL",
             "price": 65314.6,
-            "bri": 14.1
+            "bri": 14.4
           },
           "label": "Режим 50/50 (Поетапний: Тренд SMA40w + Імпульс Cipher B & Захист дна)",
           "multiple_fee10": 64.96,
@@ -105,7 +105,7 @@
             "date": "2026-11-16",
             "action": "SELL",
             "price": 65314.6,
-            "bri": 14.1
+            "bri": 14.4
           },
           "label": "Режим 100/100 (Один ордер: Тижневий тренд SMA40w)",
           "multiple_fee10": 83.1,
@@ -252,7 +252,7 @@
             "date": "2021-01-04",
             "action": "BUY",
             "price": 33068.83,
-            "bri": 100.0
+            "bri": 95.6
           },
           "label": "Buy & Hold (бенчмарк)",
           "multiple_fee10": 1.83,
@@ -282,7 +282,7 @@
             "date": "2026-11-16",
             "action": "SELL",
             "price": 65314.6,
-            "bri": 14.1
+            "bri": 14.4
           },
           "label": "Режим 50/50 (Поетапний: Тренд SMA40w + Імпульс Cipher B & Захист дна)",
           "multiple_fee10": 2.29,
@@ -317,7 +317,7 @@
             "date": "2026-11-16",
             "action": "SELL",
             "price": 65314.6,
-            "bri": 14.1
+            "bri": 14.4
           },
           "label": "Режим 100/100 (Один ордер: Тижневий тренд SMA40w)",
           "multiple_fee10": 2.31,

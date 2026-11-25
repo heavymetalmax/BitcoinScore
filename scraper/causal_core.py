@@ -260,17 +260,32 @@ def compute_causal_d1_state(
     }
 
 
+def soft_risk_compress(raw_score: float) -> float:
+    """Smooth C1 tail compression keeping risk strictly in (1.0, 99.0).
+
+    Leaves [15, 85] untouched and asymptotically compresses extreme tails
+    instead of hard-clipping at 0 or 100, preserving monotonic ordering and
+    reflecting that true cycle extremes are never known with 100% certainty.
+    """
+    if raw_score < 15.0:
+        return 15.0 - 14.0 * math.tanh((15.0 - raw_score) / 20.0)
+    if raw_score > 85.0:
+        return 85.0 + 14.0 * math.tanh((raw_score - 85.0) / 20.0)
+    return raw_score
+
+
 def compute_causal_btcbri(
     mvrv_info: dict[str, Any] | None,
     d1_state: dict[str, Any] | None,
 ) -> float | None:
-    """Compute unified 0-100 Causal BTCBRI v5.2 Index (0% lookahead).
+    """Compute unified Causal BTCBRI v5.2 Index in (1.0, 99.0) with 0% lookahead.
 
     Combines:
       - 70% Causal Cost-Basis Valuation (MVRV, Puell, CVDD expanding rank)
       - 30% Causal Weekly WaveTrend WT1 expanding rank
-      - Vol-scaled Cycle Amplitude risk premium/discount: (amp_score - 50) * 0.35 (±17.5 pts)
+      - CostBasis4Y Cycle Amplitude risk premium/discount: (amp_score - 50) * 0.35 (±17.5 pts)
       - +15/+10 D1 distribution break premium when MVRV >= 50th pct and sleeves exit
+      - Smooth asymptotic tail compression (never hard-saturates at 0 or 100)
     """
     val = (mvrv_info or {}).get('valuation_score')
     if val is None:
@@ -289,7 +304,7 @@ def compute_causal_btcbri(
             score += 15.0
         if not d1_state.get('sma40_in_pos'):
             score += 10.0
-    return round(min(100.0, max(0.0, score)), 1)
+    return round(soft_risk_compress(score), 1)
 
 
 def compute_causal_uncertainty(

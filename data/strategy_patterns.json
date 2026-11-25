@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-25T06:42:45Z",
+  "generated_at": "2026-11-25T06:56:51Z",
   "methodology": {
     "zero_lookahead": true,
     "ohlc_source": "data/history/btc_weekly_ohlc.json",
@@ -10,7 +10,7 @@
   "latest_snapshot": {
     "date": "2026-11-16",
     "price": 61170.1,
-    "causal_v52": 14.1,
+    "causal_v52": 14.4,
     "w_diff": -21.69
   },
   "top_patterns": [
@@ -46,7 +46,7 @@
           "date": "2026-11-16",
           "action": "SELL",
           "price": 65314.6,
-          "bri": 14.1
+          "bri": 14.4
         }
       },
       "modern_2018": {
@@ -72,7 +72,7 @@
           "date": "2026-11-16",
           "action": "SELL",
           "price": 65314.6,
-          "bri": 14.1
+          "bri": 14.4
         }
       },
       "cycle1": {
@@ -124,7 +124,7 @@
           "date": "2026-11-16",
           "action": "SELL",
           "price": 65314.6,
-          "bri": 14.1
+          "bri": 14.4
         }
       },
       "pool_6y": {
@@ -150,7 +150,7 @@
           "date": "2026-11-16",
           "action": "SELL",
           "price": 65314.6,
-          "bri": 14.1
+          "bri": 14.4
         }
       },
       "pool_full": {
@@ -176,14 +176,14 @@
           "date": "2026-11-16",
           "action": "SELL",
           "price": 65314.6,
-          "bri": 14.1
+          "bri": 14.4
         }
       },
       "last_trade": {
         "date": "2026-11-16",
         "action": "SELL",
         "price": 65314.6,
-        "bri": 14.1
+        "bri": 14.4
       }
     },
     {
@@ -218,7 +218,7 @@
           "date": "2026-11-16",
           "action": "SELL",
           "price": 65314.6,
-          "bri": 14.1
+          "bri": 14.4
         }
       },
       "modern_2018": {
@@ -244,7 +244,7 @@
           "date": "2026-11-16",
           "action": "SELL",
           "price": 65314.6,
-          "bri": 14.1
+          "bri": 14.4
         }
       },
       "cycle1": {
@@ -296,7 +296,7 @@
           "date": "2026-11-16",
           "action": "SELL",
           "price": 65314.6,
-          "bri": 14.1
+          "bri": 14.4
         }
       },
       "pool_6y": {
@@ -322,7 +322,7 @@
           "date": "2026-11-16",
           "action": "SELL",
           "price": 65314.6,
-          "bri": 14.1
+          "bri": 14.4
         }
       },
       "pool_full": {
@@ -348,14 +348,14 @@
           "date": "2026-11-16",
           "action": "SELL",
           "price": 65314.6,
-          "bri": 14.1
+          "bri": 14.4
         }
       },
       "last_trade": {
         "date": "2026-11-16",
         "action": "SELL",
         "price": 65314.6,
-        "bri": 14.1
+        "bri": 14.4
       }
     },
     {
@@ -934,7 +934,7 @@
           "date": "2018-01-01",
           "action": "BUY",
           "price": 13880.0,
-          "bri": 100.0
+          "bri": 97.5
         }
       },
       "cycle1": {
@@ -960,7 +960,7 @@
           "date": "2018-01-01",
           "action": "BUY",
           "price": 13880.0,
-          "bri": 100.0
+          "bri": 97.5
         }
       },
       "cycle2": {
@@ -986,7 +986,7 @@
           "date": "2022-06-20",
           "action": "BUY",
           "price": 20557.2,
-          "bri": 0.0
+          "bri": 4.0
         }
       },
       "pool_6y": {
@@ -1012,7 +1012,7 @@
           "date": "2021-01-04",
           "action": "BUY",
           "price": 33068.83,
-          "bri": 100.0
+          "bri": 95.6
         }
       },
       "pool_full": {
@@ -1045,7 +1045,7 @@
         "date": "2018-01-01",
         "action": "BUY",
         "price": 13880.0,
-        "bri": 100.0
+        "bri": 97.5
       }
     }
   ]
