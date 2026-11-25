@@ -588,12 +588,13 @@
       const tr = DATA.tail_risk_13w || {};
       const spot = LIVE_PRICE || DATA.btc_price;
       const v52 = DATA.causal_btcbri != null ? Number(DATA.causal_btcbri) : null;
+      const v52Wk = amp.smart_btcbri != null ? Number(amp.smart_btcbri) : v52;
       const v52In = !!(alloc.v52_in_position);
       const pct100 = alloc.mode_100_target_pct ?? (v52In ? 100 : 0);
       const pctMax = alloc.mode_pyr_max_target_pct ?? 0;
       const pctSoft = alloc.mode_pyr_soft_target_pct ?? 0;
       return {
-        alloc, amp, tr, spot, v52, v52In, pct100, pctMax, pctSoft,
+        alloc, amp, tr, spot, v52, v52Wk, v52In, pct100, pctMax, pctSoft,
         minVMax: alloc.mode_pyr_max_min_v52,
         minVSoft: alloc.mode_pyr_soft_min_v52,
         stopDdPct: alloc.mode_100_stop_dd_pct ?? 25.8,
@@ -632,22 +633,23 @@
       let barColor = pct === 0 ? 'var(--amber)' : (ACTIVE_MODE === '100_100' ? 'var(--blue)' : 'var(--green)');
       let sub = '';
 
+      const vPair = s.v52Wk != null ? `${s.v52 ?? '—'} (тиждень: ${s.v52Wk})` : `${s.v52 ?? '—'}`;
       if (ACTIVE_MODE === 'pyr_max') {
         sub = pct === 0
-          ? `Чекаємо першого траншу 20% при Індексі v5.2 ≤ 22.0 (зараз ${s.v52 ?? '—'}).`
+          ? `Чекаємо закриття тижня ≤ 22.0 для першого траншу 20% (зараз ${vPair}).`
           : (pct < 100
             ? `Зайшли частиною (${pct}% BTC) у дешевій зоні. Решта ${cashPct}% кешу чекає глибшого дна або підтвердження розвороту.`
             : 'Усі 3 транші (20/30/50) набрано. Тримаємо 100% BTC до Індексу ≥ 80 або адаптивного стопу.');
       } else if (ACTIVE_MODE === 'pyr_soft') {
         sub = pct === 0
-          ? `Чекаємо перших 50% при Індексі v5.2 ≤ 20.0 (зараз ${s.v52 ?? '—'}). Найнижча просадка (−23.7%).`
+          ? `Чекаємо закриття тижня ≤ 20.0 для перших 50% (зараз ${vPair}). Найнижча просадка (−23.7%).`
           : (pct < 100
             ? `Перші 50% BTC вже набрано. Решта 50% чекає капітуляції ≤ 12 або підтвердження розвороту +15 б.`
             : 'Обидві половини (100% BTC) у ринку. Фіксація 50% при ≥ 75, решта 50% при ≥ 85 або адапт. стопі.');
       } else {
         sub = pct === 100
           ? 'Позиція 100% відкрита при Індексі ≤ 20. Тримаємо до ≥ 80 або адаптивного трейлінг-стопу.'
-          : `Індекс v5.2 = ${s.v52 ?? '—'} — до порогу покупки ≤ 20.0 залишилось ${s.v52 != null ? Math.max(0, s.v52 - 20).toFixed(1) : '—'} б.`;
+          : `Індекс v5.2 = ${vPair} — вхід по закриттю тижня ≤ 20.0 (залишилось ${s.v52Wk != null ? Math.max(0, s.v52Wk - 20).toFixed(1) : '—'} б.).`;
       }
 
       $('s1-headline').textContent = headline;
@@ -681,9 +683,10 @@
 
     function renderStep2(s) {
       const pct = activePct(s);
+      const vPair = s.v52Wk != null ? `${s.v52 ?? '—'} (тиждень: ${s.v52Wk})` : `${s.v52 ?? '—'}`;
       if (ACTIVE_MODE === '100_100') {
         if (s.v52In) {
-          const left = s.v52 != null ? Math.max(0, 80 - s.v52).toFixed(1) : '—';
+          const left = s.v52Wk != null ? Math.max(0, 80 - s.v52Wk).toFixed(1) : '—';
           const prog = s.v52 != null ? Math.max(5, Math.min(100, ((s.v52 - 20) / 60) * 100)) : 50;
           $('s2-pill').textContent = 'Тримаємо до ≥ 80';
           $('s2-pill').className = 'pill blue';
@@ -693,24 +696,24 @@
               <div class="wait-desc">Доки тижнева свічка закривається нижче 80.0 і не пробитий стоп, жодних дій не робимо.</div>
               <div class="mini-bar"><div style="width:${prog}%;background:var(--blue);"></div></div>
               <div class="wait-metrics">
-                <span>Зараз: <strong>${s.v52 ?? '—'}</strong></span>
+                <span>Зараз: <strong>${vPair}</strong></span>
                 <span>Вихід: <strong>≥ 80.0</strong> (запас +${left} б.)</span>
                 <span>Адапт. стоп: <strong>−${s.stopDdPct}%</strong></span>
                 <span>Тиждень: <strong>${esc(s.barDate)}</strong></span>
               </div>
             </div>`;
         } else {
-          const left = s.v52 != null ? Math.max(0, s.v52 - 20).toFixed(1) : '—';
+          const left = s.v52Wk != null ? Math.max(0, s.v52Wk - 20).toFixed(1) : '—';
           const prog = s.v52 != null ? Math.max(5, Math.min(100, ((100 - s.v52) / 80) * 100)) : 0;
           $('s2-pill').textContent = s.v52 != null && s.v52 <= 25 ? 'Зовсім близько до входу' : 'Чекаємо ≤ 20';
           $('s2-pill').className = 'pill ' + (s.v52 != null && s.v52 <= 25 ? 'green' : 'amber');
           $('s2-body').innerHTML = `
             <div class="wait-hero">
               <div class="wait-title">Чекаємо закриття тижня з Індексом v5.2 ≤ 20.0 для входу 100% у BTC</div>
-              <div class="wait-desc">Зараз Індекс v5.2 = <strong>${s.v52 ?? '—'}</strong> — залишилось <strong>${left} бала</strong>. Вхід одним ордером на відкритті понеділка після тижня ≤ 20.0.</div>
+              <div class="wait-desc">Зараз Індекс v5.2 = <strong>${vPair}</strong> — до порогу по закриттю тижня залишилось <strong>${left} бала</strong>. Вхід одним ордером на відкритті понеділка після тижня ≤ 20.0.</div>
               <div class="mini-bar"><div style="width:${prog}%;background:var(--green);"></div></div>
               <div class="wait-metrics">
-                <span>Зараз: <strong>${s.v52 ?? '—'}</strong></span>
+                <span>Зараз: <strong>${vPair}</strong></span>
                 <span>Поріг входу: <strong>≤ 20.0</strong></span>
                 <span>Залишилось: <strong>${left} б.</strong></span>
                 <span>Закритий тиждень: <strong>${esc(s.barDate)}</strong></span>
@@ -730,7 +733,7 @@
           <div class="sleeve-grid">
             <div class="sleeve-card">
               <div class="sleeve-head"><span>Половина 1 · 50% (Дно)</span><span class="pill ${pct >= 50 ? 'green' : 'amber'}">${pct >= 50 ? 'Куплено' : '≤ 20.0'}</span></div>
-              <div class="sleeve-text">Вхід 50% капіталу при Індексі v5.2 <strong>≤ 20.0</strong> (зараз ${s.v52 ?? '—'}).</div>
+              <div class="sleeve-text">Вхід 50% капіталу по закриттю тижня <strong>≤ 20.0</strong> (зараз ${vPair}).</div>
             </div>
             <div class="sleeve-card">
               <div class="sleeve-head"><span>Половина 2 · +50% (Підтвердження)</span><span class="pill ${pct >= 100 ? 'green' : 'amber'}">${pct >= 100 ? 'Куплено' : '≤ 12 або +15б'}</span></div>
@@ -754,7 +757,7 @@
         <div class="rules-strip" style="margin-bottom:0;">
           <div class="sleeve-card">
             <div class="sleeve-head"><span>Транш 1 · 20%</span><span class="pill ${t1Done ? 'green' : 'amber'}">${t1Done ? 'Куплено' : `≤ ${th1}`}</span></div>
-            <div class="sleeve-text">Вхід 20% капіталу при Індексі v5.2 <strong>≤ ${th1}</strong> (зараз ${s.v52 ?? '—'}).</div>
+            <div class="sleeve-text">Вхід 20% капіталу по закриттю тижня <strong>≤ ${th1}</strong> (зараз ${vPair}).</div>
           </div>
           <div class="sleeve-card">
             <div class="sleeve-head"><span>Транш 2 · +30%</span><span class="pill ${t2Done ? 'green' : 'amber'}">${t2Done ? 'Куплено' : `≤ ${th2}`}</span></div>
