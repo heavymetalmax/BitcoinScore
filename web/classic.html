@@ -1676,49 +1676,46 @@
           <!-- Vertical Divider -->
           <div class="base-back-divider"></div>
 
-          <!-- Column 2: Inverted Entry Price / Zone Forecast -->
+          <!-- Column 2: How Alpha v5.2 Causal Algorithm Works -->
           <div class="base-back-inversion">
             <div class="base-back-section-lbl">
-              <span class="en">INVERSE ENTRY PRICE (ZONE FORECAST)</span>
-              <span class="ua">ЗВОРОТНИЙ РОЗРАХУНОК ЦІНИ ВХОДУ</span>
+              <span class="en">HOW THE ALGORITHM WORKS (ALPHA v5.2)</span>
+              <span class="ua">ЯК ПРАЦЮЄ АЛГОРИТМ (ALPHA v5.2)</span>
             </div>
 
             <div class="base-inversion-cards">
-              <!-- Low Risk Zone -->
               <div class="base-inv-card inv-buy">
                 <div class="base-inv-badge-row">
                   <span class="base-inv-dot" style="background:#22C55E"></span>
-                  <span class="base-inv-name"><span class="en">Low Risk Zone (≤20)</span><span class="ua">Зона низького ризику (≤20)</span></span>
-                  <span class="base-inv-delta delta-up" id="inv-buy-pct">—</span>
+                  <span class="base-inv-name"><span class="en">1. Zero-Lookahead Causal Core</span><span class="ua">1. Каузальне ядро без заглядання вперед</span></span>
                 </div>
-                <div class="base-inv-price" id="inv-buy-price">—</div>
-                <div class="base-inv-sub"><span class="en">Implied price at BRI = 20</span><span class="ua">Розрахункова ціна при BRI = 20</span></div>
+                <div class="base-inv-sub" style="margin-top:4px;line-height:1.45;">
+                  <span class="en">Combines 5 on-chain &amp; structure sub-indices (CVDD 4Y, CostBasis 4Y, Market-Cap-Adjusted MVRV, Cipher B Divergence, Puell 4Y) using only data available on that day.</span>
+                  <span class="ua">Поєднує 5 ончейн та структурних субіндексів (CVDD 4Y, CostBasis 4Y, MVRV з поправкою на капіталізацію, дивергенція Cipher B, Puell 4Y) лише на даних, відомих на момент розрахунку.</span>
+                </div>
               </div>
 
-              <!-- High Risk Zone -->
-              <div class="base-inv-card inv-sell">
-                <div class="base-inv-badge-row">
-                  <span class="base-inv-dot" style="background:#EF4444"></span>
-                  <span class="base-inv-name"><span class="en">High Risk Zone (≥80)</span><span class="ua">Зона високого ризику (≥80)</span></span>
-                  <span class="base-inv-delta delta-down" id="inv-sell-pct">—</span>
-                </div>
-                <div class="base-inv-price" id="inv-sell-price">—</div>
-                <div class="base-inv-sub"><span class="en">Implied price at BRI = 80</span><span class="ua">Розрахункова ціна при BRI = 80</span></div>
-              </div>
-
-              <!-- Realized Price / Network Cost Basis -->
               <div class="base-inv-card inv-cost">
                 <div class="base-inv-badge-row">
                   <span class="base-inv-dot" style="background:#8B5CF6"></span>
-                  <span class="base-inv-name"><span class="en">Realized Price (Network Basis)</span><span class="ua">Реалізована ціна (Собівартість)</span></span>
+                  <span class="base-inv-name"><span class="en">2. Smart Purged-IC Weighting</span><span class="ua">2. Адаптивні ваги Smart Purged-IC</span></span>
                 </div>
-                <div class="base-inv-price" id="inv-realized-price">—</div>
+                <div class="base-inv-sub" style="margin-top:4px;line-height:1.45;">
+                  <span class="en">Every closed week, weights are re-ranked by proven 52-week predictive power (Spearman IC with a 52w purge gap) — metrics that lose signal automatically lose weight.</span>
+                  <span class="ua">Щопонеділка ваги перераховуються за доведеною 52-тижневою точністю (Spearman IC із 52-тижневим розривом) — метрики без сигналу автоматично втрачають вагу.</span>
+                </div>
               </div>
-            </div>
 
-            <div class="base-inv-explainer">
-              <span class="en"><strong>Not a price prediction.</strong> Holding today's on-chain cost basis fixed, the formula is solved for the exact price at which the composite score enters each zone.</span>
-              <span class="ua"><strong>Не є прогнозом ціни.</strong> Тримаючи поточну ончейн-собівартість незмінною, формула розв'язується відносно ціни, за якої зведений індекс досягне меж кожної зони.</span>
+              <div class="base-inv-card inv-sell">
+                <div class="base-inv-badge-row">
+                  <span class="base-inv-dot" style="background:#3B82F6"></span>
+                  <span class="base-inv-name"><span class="en">3. Daily Pulse · Weekly Execution</span><span class="ua">3. Денний пульс · Тижневі сигнали</span></span>
+                </div>
+                <div class="base-inv-sub" style="margin-top:4px;line-height:1.45;">
+                  <span class="en">The score updates daily for live context, while trade models (20/30/50, 50/50, 100/100) act strictly on Sunday weekly closes (≤20 buy, ≥80 sell + adaptive trailing stop) to filter noise.</span>
+                  <span class="ua">Індекс оновлюється щодня, а торгові моделі (20/30/50, 50/50, 100/100) спрацьовують лише по закриттю тижня у неділю (≤20 вхід, ≥80 вихід + адаптивний стоп), відфільтровуючи денний шум.</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
