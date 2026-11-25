@@ -192,6 +192,7 @@ def compute_causal_weekly_history(
 
     sma40_in = False
     cb_in = False
+    v52_in = False
     mv_idx = mv_cap_idx = cv_idx = pu_idx = 0
     last_mv_pct: float | None = None
     last_mvrv_ratio: float | None = None
@@ -358,6 +359,13 @@ def compute_causal_weekly_history(
                 smart_bri = round(soft_risk_compress(raw_smart), 1)
                 weights_pct = {k: round(ic_w[k] / sw * 100.0, 1) for k in ic_w}
 
+        prev_v52_in = v52_in
+        if smart_bri is not None:
+            if not v52_in and smart_bri <= 20.0:
+                v52_in = True
+            elif v52_in and smart_bri >= 80.0:
+                v52_in = False
+
         eff_amp = cb4y_sc if cb4y_sc is not None else 50.0
         amp_dict = {
             'method': 'smart_purged_ic_v1',
@@ -400,6 +408,8 @@ def compute_causal_weekly_history(
             'veto_blocked_exit': veto_blocked,
             'mvrv_pct': round(last_mv_pct, 4) if last_mv_pct is not None else None,
             'causal_v52': smart_bri,
+            'v52_in_pos': v52_in,
+            'prev_v52_in_pos': prev_v52_in,
             'cycle_amplitude': amp_dict,
         })
     return out
@@ -448,6 +458,8 @@ def compute_causal_d1_state(
         'wt1_causal_rank': last['wt1_causal_rank'],
         'veto_blocked_exit': last['veto_blocked_exit'],
         'mvrv_pct_week': last['mvrv_pct'],
+        'v52_in_pos': last['v52_in_pos'],
+        'prev_v52_in_pos': last['prev_v52_in_pos'],
         'cycle_amplitude': last['cycle_amplitude'],
     }
 

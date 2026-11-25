@@ -215,8 +215,9 @@ def compute_allocation_signal(
             market_regime = 'Wait'
             action_label = 'WAIT_CASH'
 
-    # ── 4. Isolated Mode 100/100 (Single-Order Binary: 100% BTC or 100% Cash) ─
-    mode_100_target_pct = 100 if eff_sma40_in else 0
+    # ── 4. Isolated Mode 100/100 (Single-Order Binary: Index v5.2 <=20 / >=80)
+    v52_in_pos = bool(d1_state.get('v52_in_pos')) if (d1_state and d1_state.get('available')) else False
+    mode_100_target_pct = 100 if v52_in_pos else 0
     if data_quality_status == 'invalid':
         mode_100_regime = 'Unavailable'
         mode_100_action_label = 'UNAVAILABLE'
@@ -226,7 +227,7 @@ def compute_allocation_signal(
     elif abstain:
         mode_100_regime = 'Wait'
         mode_100_action_label = 'ABSTAIN_UNCERTAIN'
-    elif eff_sma40_in:
+    elif v52_in_pos:
         if is_cheap and not high_dd_guard:
             mode_100_regime = 'Buy'
             mode_100_action_label = 'ALL_IN_100'
@@ -246,6 +247,7 @@ def compute_allocation_signal(
 
     return {
         'allocation_engine': 'causal_d1_sma40_cb_veto',
+        'mode_100_engine': 'causal_v52_index_20_80',
         'market_regime': market_regime,
         'action_label': action_label,
         'target_allocation_pct': target_allocation_pct,
@@ -254,6 +256,7 @@ def compute_allocation_signal(
         'mode_100_target_pct': mode_100_target_pct,
         'mode_100_regime': mode_100_regime,
         'mode_100_action_label': mode_100_action_label,
+        'v52_in_position': v52_in_pos,
         # Backward-compat alias for legacy readers; points to active Sleeve 1 (SMA40w)
         'bri_sleeve_pct': sma40_sleeve_pct,
         'legacy_bri_sleeve_pct': legacy_bri_sleeve_pct,

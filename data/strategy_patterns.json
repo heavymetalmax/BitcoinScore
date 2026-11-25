@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-25T07:29:21Z",
+  "generated_at": "2026-11-25T07:34:55Z",
   "methodology": {
     "zero_lookahead": true,
     "ohlc_source": "data/history/btc_weekly_ohlc.json",
@@ -188,12 +188,12 @@
     },
     {
       "mode": "S1_SMA40w",
-      "name": "Режим 100 / 100 (Один ордер SMA40w)",
+      "name": "Тижневий тренд SMA40w (100%)",
       "family": "Trend",
-      "role_tag": "ПРОСТИЙ · 100/100",
-      "rule_short": "Одномоментний вхід 100% при закритті тижня > SMA40w та повний вихід < SMA40w",
+      "role_tag": "ТРЕНД",
+      "rule_short": "Вхід 100% при закритті тижня > SMA40w та повний вихід < SMA40w",
       "live_spec": {
-        "type": "causal_100_100"
+        "type": "causal_s1_sma40"
       },
       "full": {
         "mode": "S1_SMA40w",
@@ -704,14 +704,14 @@
     },
     {
       "mode": "V52_Index_Threshold",
-      "name": "Індекс v5.2 (Пороги ≤ 25 / ≥ 75)",
+      "name": "Режим 100 / 100 (Індекс v5.2 · ≤20 / ≥80)",
       "family": "Index v5.2",
-      "role_tag": "ТЕРМОМЕТР",
-      "rule_short": "Вхід 100% коли Індекс v5.2 (з амплітудою) ≤ 25; вихід коли ≥ 75",
+      "role_tag": "ПРОСТИЙ · 100/100",
+      "rule_short": "Одномоментний вхід 100% коли Індекс v5.2 ≤ 20; повний вихід у кеш коли ≥ 80",
       "live_spec": {
         "type": "causal_v52_idx",
-        "buy": 25,
-        "sell": 75
+        "buy": 20,
+        "sell": 80
       },
       "full": {
         "mode": "V52_Index_Threshold",

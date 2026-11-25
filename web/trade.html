@@ -851,10 +851,10 @@
           </div>
         </div>
 
-        <!-- Mode 100/100: Single All-In / All-Out Rule -->
+        <!-- Mode 100/100: Single All-In / All-Out Rule (Index v5.2 <=20 / >=80) -->
         <div class="single-rule-box" id="single-rule-box-100">
           <div class="sleeve-head">
-            <span>Один ордер 100% · Тижневий тренд (SMA40w)</span>
+            <span>Один ордер 100% · Індекс v5.2 (≤20 вхід / ≥80 вихід)</span>
             <span class="pill" id="mode100-pill">—</span>
           </div>
           <div class="sleeve-detail" id="mode100-detail">—</div>
@@ -1044,7 +1044,7 @@
           <div class="pat-tabs" id="pat-tabs">
             <button class="pat-tab active" data-fam="ALL" type="button">Усі (6)</button>
             <button class="pat-tab" data-fam="Hybrid" type="button">50/50</button>
-            <button class="pat-tab" data-fam="Trend" type="button">100/100</button>
+            <button class="pat-tab" data-fam="Index v5.2" type="button">100/100</button>
             <button class="pat-tab" data-fam="Cipher B" type="button">Cipher B</button>
             <button class="pat-tab" data-fam="Index v5.2" type="button">Індекс v5.2</button>
           </div>
@@ -1443,24 +1443,24 @@
       const cbPctProg = liveSpread != null ? Math.max(4, Math.min(100, ((liveSpread + 50) / 52) * 100)) : 0;
       $('sleeve2-bar').style.width = `${cbPctProg}%`;
 
-      // Mode 100/100 single rule details
+      // Mode 100/100 single rule details (Index v5.2 <=20 / >=80)
+      const idxV52 = DATA.causal_btcbri != null ? Number(DATA.causal_btcbri) : (cvNow.valuation_score ?? s.bri);
       if ($('mode100-pill')) {
         $('mode100-pill').textContent = pct100 === 100 ? '100% BTC' : '100% КЕШ';
         $('mode100-pill').className = 'pill ' + (pct100 === 100 ? 'blue' : 'amber');
-        const distPct = (alloc.sma40_value && s.spot) ? (((s.spot / alloc.sma40_value) - 1) * 100).toFixed(1) : '—';
-        $('mode100-detail').textContent = alloc.sma40_value != null
-          ? `Поріг входу/виходу: SMA40w = ${fmtUSD(alloc.sma40_value)} · Спот зараз ${distPct >= 0 ? '+' : ''}${distPct}% від порогу · Бар: ${alloc.ohlc_bar_date ?? '1W'}`
-          : 'Очікування тижневого бару SMA40w';
-        const m100Prog = (alloc.sma40_value && s.spot) ? Math.max(8, Math.min(100, (s.spot / alloc.sma40_value) * 100)) : 0;
+        $('mode100-detail').textContent = idxV52 != null
+          ? `Індекс v5.2 = ${idxV52}/100 · Вхід 100% при ≤ 20 · Вихід у кеш при ≥ 80 · Бар: ${alloc.ohlc_bar_date ?? '1W'}`
+          : 'Очікування Індексу v5.2';
+        const m100Prog = idxV52 != null ? Math.max(6, Math.min(100, idxV52)) : 0;
         $('mode100-bar').style.width = `${m100Prog}%`;
       }
 
       // Unified Causal Index v5.2 Scale
-      const idxV52 = DATA.causal_btcbri != null ? Math.round(DATA.causal_btcbri) : (cvNow.valuation_score ?? s.bri);
-      $('scale-bri-val').textContent = idxV52;
+      const idxV52Round = Math.round(idxV52);
+      $('scale-bri-val').textContent = idxV52Round;
       $('scale-phase-val').textContent = alloc.value_sell_veto ? 'ЗОНА СТРАХУ' : (DATA.phase?.phase || '—');
       $('scale-raw-util').textContent = `Невизначеність: ${DATA.conflict_score ?? '—'}/100 · Впевненість: ${DATA.confidence_score ?? '—'}%`;
-      $('bri-marker').style.left = `${Math.max(2, Math.min(98, idxV52))}%`;
+      $('bri-marker').style.left = `${Math.max(2, Math.min(98, idxV52Round))}%`;
 
       // Right 2x2 KPIs
       $('kpi-price').textContent = fmtUSD(s.spot);
@@ -1562,7 +1562,7 @@
           <div class="check-item"><span><strong>Індекс ризику v5.2 / Собівартість:</strong> ${DATA.causal_btcbri ?? '—'}/100 (MVRV ранг ${cv.mvrv_rank_pct ?? '—'}%)</span><span class="pill ${alloc.value_sell_veto ? 'green' : ''}">${alloc.value_sell_veto ? 'Зона дешевизни' : 'Нейтрально'}</span></div>
           <div class="check-item"><span><strong>Хвостовий ризик 13 тижнів:</strong> P(падіння ≥ 25%) = ${DATA.tail_risk_13w?.prob_dd25_13w_pct ?? '—'}%</span><span class="pill ${DATA.v5b_validated ? 'blue' : 'amber'}">${DATA.v5b_validated ? 'OOS валідовано (ECE ' + (DATA.tail_risk_13w?.oos_validation?.ece_5bin ?? '') + ')' : 'Не валідовано'}</span></div>
         `;
-        note.textContent = 'Режим 100 / 100 створений для максимальної простоти та мінімуму угод (~2–3 ребаланси на рік): заходите всім капіталом одним ордером після закриття тижня вище SMA40w і виходите 100% у кеш при закритті нижче SMA40w. На піку 2025-10 ($124.7k) цей режим вийшов 100% у кеш 2025-11-17 по $94,186.';
+        note.textContent = 'Режим 100 / 100 працює за Індексом v5.2 (≤20 / ≥80): заходите 100% одним ордером коли Індекс v5.2 ≤ 20, тримаєте позицію весь цикл і виходите 100% у кеш коли Індекс v5.2 ≥ 80. У циклі 2021–2026 цей режим зайшов 2022-06-20 по $20,557 і вийшов 2025-07-14 по $119,102 (5.74×).';
       } else {
         const needPts = sp != null ? Math.max(0, 2.0 - sp).toFixed(1) : '—';
         list.innerHTML = `
@@ -1665,7 +1665,7 @@
             <td><span class="pill ${r.active ? 'blue' : ''}">${r.active ? 'Зараз' : 'Очікування'}</span></td>
           </tr>
         `).join('');
-        $('exit-card-note').textContent = 'У режимі 100/100 немає часткових фіксацій: ви або тримаєте 100% BTC вище SMA40w, або 100% кешу нижче SMA40w. Усі розрахунки комісії в таблиці зліва враховують обраний % біржі.';
+        $('exit-card-note').textContent = 'У режимі 100/100 немає часткових фіксацій: ви або тримаєте 100% BTC після входу при Індексі v5.2 ≤ 20, або 100% кешу після виходу при ≥ 80. Усі розрахунки комісії в таблиці зліва враховують обраний % біржі.';
       } else {
         const cbDivItem = (DATA.entry_exit_checklist?.items || []).find(x => x.key === 'cipherb_1w_div');
         const bearDivNow = cbDivItem?.value === 'BEAR_DIV';

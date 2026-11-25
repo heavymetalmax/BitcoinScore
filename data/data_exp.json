@@ -562,6 +562,7 @@
   "target_allocation_pct": 0,
   "allocation_signal": {
     "allocation_engine": "causal_d1_sma40_cb_veto",
+    "mode_100_engine": "causal_v52_index_20_80",
     "market_regime": "Wait",
     "action_label": "ACCUMULATE_WATCH",
     "target_allocation_pct": 0,
@@ -570,6 +571,7 @@
     "mode_100_target_pct": 0,
     "mode_100_regime": "Wait",
     "mode_100_action_label": "ALL_CASH_WATCH",
+    "v52_in_position": false,
     "bri_sleeve_pct": 0,
     "legacy_bri_sleeve_pct": 50,
     "sma40_in_position": false,

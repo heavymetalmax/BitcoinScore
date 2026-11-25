@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-25T07:29:21Z",
+  "generated_at": "2026-11-25T07:34:55Z",
   "methodology": "Production-parity zero-lookahead test on closed Monday weekly OHLC (2011–2026, real H/L/O/C) + causal MVRV/Puell/CVDD + vol-scaled amplitude + WaveTrend SMA3. Execution: next-week open (t+1), true intra-week MaxDD, 0.5% and 1.0% one-way fees.",
   "ohlc_bars": 794,
   "tail_risk_oos": {
@@ -107,7 +107,7 @@
             "price": 65314.6,
             "bri": 20.3
           },
-          "label": "Режим 100/100 (Один ордер: Тижневий тренд SMA40w)",
+          "label": "Тижневий тренд SMA40w (100%)",
           "multiple_fee10": 83.1,
           "max_dd_fee10_pct": 69.9,
           "boot_vs_bh": {
@@ -212,7 +212,7 @@
             "price": 119102.2,
             "bri": 77.5
           },
-          "label": "Індекс v5.2 (Пороги ≤20 / ≥80)",
+          "label": "Режим 100/100 (Індекс v5.2 · ≤20 / ≥80)",
           "multiple_fee10": 37.12,
           "max_dd_fee10_pct": 72.3,
           "boot_vs_bh": {
@@ -319,7 +319,7 @@
             "price": 65314.6,
             "bri": 20.3
           },
-          "label": "Режим 100/100 (Один ордер: Тижневий тренд SMA40w)",
+          "label": "Тижневий тренд SMA40w (100%)",
           "multiple_fee10": 2.31,
           "max_dd_fee10_pct": 59.8,
           "boot_vs_bh": {
@@ -424,7 +424,7 @@
             "price": 119102.2,
             "bri": 77.5
           },
-          "label": "Індекс v5.2 (Пороги ≤20 / ≥80)",
+          "label": "Режим 100/100 (Індекс v5.2 · ≤20 / ≥80)",
           "multiple_fee10": 5.68,
           "max_dd_fee10_pct": 38.6,
           "boot_vs_bh": {

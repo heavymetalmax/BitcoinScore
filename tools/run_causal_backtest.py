@@ -219,11 +219,11 @@ def build_strategy_patterns(weeks: list[dict], gen_ts: str) -> dict:
         },
         {
             'mode': 'S1_SMA40w',
-            'name': 'Режим 100 / 100 (Один ордер SMA40w)',
+            'name': 'Тижневий тренд SMA40w (100%)',
             'family': 'Trend',
-            'role_tag': 'ПРОСТИЙ · 100/100',
-            'rule_short': 'Одномоментний вхід 100% при закритті тижня > SMA40w та повний вихід < SMA40w',
-            'live_spec': {'type': 'causal_100_100'},
+            'role_tag': 'ТРЕНД',
+            'rule_short': 'Вхід 100% при закритті тижня > SMA40w та повний вихід < SMA40w',
+            'live_spec': {'type': 'causal_s1_sma40'},
         },
         {
             'mode': 'S3_CipherB_ValueVeto',
@@ -243,11 +243,11 @@ def build_strategy_patterns(weeks: list[dict], gen_ts: str) -> dict:
         },
         {
             'mode': 'V52_Index_Threshold',
-            'name': 'Індекс v5.2 (Пороги ≤ 25 / ≥ 75)',
+            'name': 'Режим 100 / 100 (Індекс v5.2 · ≤20 / ≥80)',
             'family': 'Index v5.2',
-            'role_tag': 'ТЕРМОМЕТР',
-            'rule_short': 'Вхід 100% коли Індекс v5.2 (з амплітудою) ≤ 25; вихід коли ≥ 75',
-            'live_spec': {'type': 'causal_v52_idx', 'buy': 25, 'sell': 75},
+            'role_tag': 'ПРОСТИЙ · 100/100',
+            'rule_short': 'Одномоментний вхід 100% коли Індекс v5.2 ≤ 20; повний вихід у кеш коли ≥ 80',
+            'live_spec': {'type': 'causal_v52_idx', 'buy': 20, 'sell': 80},
         },
         {
             'mode': 'BH',
@@ -325,10 +325,10 @@ def main():
     labels = {
         'BH': 'Buy & Hold (бенчмарк)',
         'D1_Causal_DualSleeve': 'Режим 50/50 (Поетапний: Тренд SMA40w + Імпульс Cipher B & Захист дна)',
-        'S1_SMA40w': 'Режим 100/100 (Один ордер: Тижневий тренд SMA40w)',
+        'S1_SMA40w': 'Тижневий тренд SMA40w (100%)',
         'S2_CipherB_1W': 'Лише Cipher B 1W (SMA3, ±2.0 гістерезис)',
         'S3_CipherB_ValueVeto': 'Cipher B 1W + Захист дна MVRV (≤25%)',
-        'V52_Index_Threshold': 'Індекс v5.2 (Пороги ≤20 / ≥80)',
+        'V52_Index_Threshold': 'Режим 100/100 (Індекс v5.2 · ≤20 / ≥80)',
     }
 
     windows = {}
