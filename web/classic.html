@@ -3294,7 +3294,19 @@ async function loadData() {
   { const el = document.getElementById('r-m2'); if (el) el.textContent = ''; }
   // DXY: show raw index value
   { const el = document.getElementById('v-dxy'); if (el) el.textContent = dxyVal != null ? (+dxyVal).toFixed(1) : '—'; }
-  { const el = document.getElementById('r-dxy'); if (el) el.textContent = ''; }
+  {
+    const el = document.getElementById('r-dxy');
+    const dm = data.tail_risk_13w?.dxy_momentum;
+    if (el) {
+      if (dm && dm.dxy_roc_13w_pct != null) {
+        const s13 = (dm.dxy_roc_13w_pct >= 0 ? '+' : '') + dm.dxy_roc_13w_pct.toFixed(1) + '%';
+        const s20 = (dm.dxy_vs_sma20w_pct >= 0 ? '+' : '') + dm.dxy_vs_sma20w_pct.toFixed(1) + '%';
+        el.textContent = `13w ${s13} · ${s20} vs SMA20w`;
+      } else {
+        el.textContent = '';
+      }
+    }
+  }
 
   const setNormScore = (id, key, normScores) => {
     const el = document.getElementById(id);

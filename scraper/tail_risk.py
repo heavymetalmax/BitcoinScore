@@ -112,6 +112,41 @@ def _to_closed_monday_weekly(
     return weeks
 
 
+def _load_dxy_by_date(
+    scores_path: str = 'data/history/scores.json',
+    as_of_date: datetime.date | None = None,
+) -> list[tuple[datetime.date, float]]:
+    """Load sorted (date, dxy) strictly <= as_of_date."""
+    if not os.path.exists(scores_path):
+        return []
+    out: dict[datetime.date, float] = {}
+    try:
+        for r in json.load(open(scores_path, encoding='utf-8')):
+            d_str = str(r.get('date', ''))[:10]
+            v = r.get('dxy')
+            if not d_str or v is None or float(v) <= 0:
+                continue
+            d = datetime.date.fromisoformat(d_str)
+            if as_of_date is not None and d > as_of_date:
+                continue
+            out[d] = float(v)
+    except Exception:
+        return []
+    return sorted(out.items())
+
+
+def _attach_causal_dxy(weeks: list[dict[str, Any]], dxy_daily: list[tuple[datetime.date, float]]) -> None:
+    """Attach latest DXY observed strictly <= week_close to each weekly bar."""
+    idx = 0
+    last_v: float | None = None
+    for w in weeks:
+        wk_close = w['week_close']
+        while idx < len(dxy_daily) and dxy_daily[idx][0] <= wk_close:
+            last_v = dxy_daily[idx][1]
+            idx += 1
+        w['dxy'] = last_v
+
+
 def _attach_causal_mvrv(weeks: list[dict[str, Any]], mvrv_daily: list[tuple[datetime.date, float]]) -> None:
     """Attach latest MVRV Z-score observed strictly <= week_close to each weekly bar."""
     idx = 0
@@ -163,6 +198,10 @@ def predict_tail_risk_13w(
             ohlc_source = 'weekly_ohlc_archive'
             mvrv_daily = _load_mvrv_by_date(scores_path=scores_path, as_of_date=as_of)
             _attach_causal_mvrv(weeks, mvrv_daily)
+            dxy_daily = _load_dxy_by_date(scores_path=scores_path, as_of_date=as_of)
+            _attach_causal_dxy(weeks, dxy_daily)
+    else:
+        dxy_daily = _load_dxy_by_date(scores_path=scores_path, as_of_date=as_of)
 
     if not weeks:
         daily = _load_daily_series(
@@ -216,11 +255,15 @@ def predict_tail_risk_13w(
             continue
         min_low = min(weeks[k]['low'] for k in range(i + 1, i + 14))
         dd13 = max(0.0, 1.0 - min_low / op_next)
+        dxy_i = weeks[i].get('dxy')
+        dxy_13 = weeks[i - 13].get('dxy') if i >= 13 else None
+        dxy_roc_13 = math.log(dxy_i / dxy_13) if (dxy_i and dxy_13 and dxy_i > 0 and dxy_13 > 0) else None
         matured_rows.append({
             'week_open': weeks[i]['week_open'],
             'label_known': label_known,
             'vol13': v,
             'mvrv_z': weeks[i].get('mvrv_z'),
+            'dxy_roc_13': dxy_roc_13,
             'y': 1 if dd13 >= 0.25 else 0,
         })
 
@@ -335,6 +378,37 @@ def predict_tail_risk_13w(
         clf2.fit(Z2_tr, y2)
         shadow_m2 = round(float(clf2.predict_proba(Z2_cur)[0, 1]) * 100.0, 1)
 
+    # Macro DXY 13w momentum & SMA20w pressure (causal; IC_13w = -0.385 vs BTC return)
+    dxy_momentum: dict[str, Any] | None = None
+    shadow_vol_dxy: float | None = None
+    dxy_wk_vals = [w.get('dxy') for w in weeks]
+    if dxy_daily and len(dxy_wk_vals) >= 20 and all(x is not None for x in dxy_wk_vals[-20:]):
+        dxy_now = float(dxy_daily[-1][1])
+        dxy_sma20 = sum(float(x) for x in dxy_wk_vals[-20:]) / 20.0
+        dxy_13ago = float(dxy_wk_vals[-13])
+        vs_sma_pct = (dxy_now / dxy_sma20 - 1.0) * 100.0 if dxy_sma20 > 0 else 0.0
+        roc13_pct = (dxy_now / dxy_13ago - 1.0) * 100.0 if dxy_13ago > 0 else 0.0
+        dxy_momentum = {
+            'dxy_now': round(dxy_now, 2),
+            'dxy_sma20w': round(dxy_sma20, 2),
+            'dxy_vs_sma20w_pct': round(vs_sma_pct, 2),
+            'dxy_roc_13w_pct': round(roc13_pct, 2),
+            'pressure_active': bool(dxy_now > dxy_sma20 and roc13_pct > 0.0),
+            'as_of': dxy_daily[-1][0].isoformat(),
+        }
+        cur_dxy_roc = math.log(dxy_now / dxy_13ago) if dxy_13ago > 0 else None
+        md_rows = [r for r in matured_rows if r.get('dxy_roc_13') is not None]
+        if cur_dxy_roc is not None and len(md_rows) >= 60 and len({r['y'] for r in md_rows}) == 2:
+            arr_d = np.array([[r['vol13'], r['dxy_roc_13']] for r in md_rows], dtype=float)
+            y_d = np.array([r['y'] for r in md_rows], dtype=int)
+            mu_d = arr_d.mean(axis=0)
+            sd_d = np.maximum(arr_d.std(axis=0), 1e-8)
+            Zd_tr = np.clip((arr_d - mu_d) / sd_d, -4.0, 4.0)
+            Zd_cur = np.clip((np.array([cur_v, cur_dxy_roc]) - mu_d) / sd_d, -4.0, 4.0).reshape(1, -1)
+            clfd = LogisticRegression(C=0.25, solver='lbfgs', max_iter=300)
+            clfd.fit(Zd_tr, y_d)
+            shadow_vol_dxy = round(float(clfd.predict_proba(Zd_cur)[0, 1]) * 100.0, 1)
+
     score_rounded = round(prob1, 1)
     return {
         'score': score_rounded,
@@ -343,6 +417,8 @@ def predict_tail_risk_13w(
         'method': 'causal_vol13_logistic',
         'ohlc_source': ohlc_source,
         'shadow_m2_pct': shadow_m2,
+        'shadow_vol_dxy_pct': shadow_vol_dxy,
+        'dxy_momentum': dxy_momentum,
         'train_n': len(matured_rows),
         'vol13_ann_pct': round(cur_v * math.sqrt(52) * 100.0, 1),
         'last_closed_week': last_wk_str,
