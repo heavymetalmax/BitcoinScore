@@ -932,7 +932,7 @@
         План дій &amp; Калькулятор
       </button>
       <button class="ws-tab" data-tab="patterns" type="button">
-        Патерни (2017–2026) <span class="tab-badge" id="tab-pat-count">7</span>
+        Патерни (2017–2026) <span class="tab-badge" id="tab-pat-count">6</span>
       </button>
       <button class="ws-tab" data-tab="ai" type="button">
         ШІ-Звіт <span class="tab-badge" id="tab-ai-badge">…</span>
@@ -1036,16 +1036,17 @@
       </div>
     </div>
 
-    <!-- TAB 2: BACKTESTED PATTERNS -->
+    <!-- TAB 2: BACKTESTED PATTERNS (CAUSAL v5.2) -->
     <div class="tab-panel" id="panel-patterns">
       <div class="card">
         <div class="card-hdr">
-          <div class="card-title">Потенційні патерни для майбутніх угод (Бектест 2017–2026)</div>
+          <div class="card-title">Причинні стратегії та патерни (0% витоку · Бектест 2017–2026)</div>
           <div class="pat-tabs" id="pat-tabs">
-            <button class="pat-tab active" data-fam="ALL" type="button">Усі (7)</button>
-            <button class="pat-tab" data-fam="Hybrid" type="button">Гібрид (3)</button>
-            <button class="pat-tab" data-fam="BTCBRI" type="button">BTCBRI (2)</button>
-            <button class="pat-tab" data-fam="Cipher B" type="button">Cipher B (2)</button>
+            <button class="pat-tab active" data-fam="ALL" type="button">Усі (6)</button>
+            <button class="pat-tab" data-fam="Hybrid" type="button">50/50</button>
+            <button class="pat-tab" data-fam="Trend" type="button">100/100</button>
+            <button class="pat-tab" data-fam="Cipher B" type="button">Cipher B</button>
+            <button class="pat-tab" data-fam="Index v5.2" type="button">Індекс v5.2</button>
           </div>
         </div>
         <div class="bench-strip" id="pat-bench-strip">
@@ -1056,11 +1057,11 @@
             <thead>
               <tr>
                 <th>Стратегія та правило</th>
-                <th>Результат (2018–26)</th>
-                <th>Макс. падіння / Віддача</th>
+                <th>2018–26 (0.5% ком.)</th>
+                <th>Макс. падіння / Calmar</th>
                 <th>Цикл 1 / 2 · Успішні угоди</th>
-                <th>Кеш-пул 6р / 9.3р</th>
-                <th>Живий сигнал і тригер</th>
+                <th>2021–26 (6р) / 2017–26</th>
+                <th>Живий сигнал зараз</th>
               </tr>
             </thead>
             <tbody id="pat-table-body">
@@ -1069,7 +1070,7 @@
           </table>
         </div>
         <div class="muted" style="margin-top:12px; line-height:1.45;">
-          Zero-Lookahead аудит: тижневі свічки Kraken (четвергові бари) стають доступними строго на закритті середи (+6 днів); ордери виконуються на <code>t+1</code> із комісією 0.5% за сторону. Контрольний тест денних дивергенцій (<code>1D</code>) показав лише 1.41× (Calmar 0.06). Історична прибутковість не гарантує майбутніх результатів.
+          Zero-Lookahead аудит v5.2: реальні закриті понеділкові свічки OHLC (<code>btc_weekly_ohlc.json</code>), причинні ранги собівартості й vol-scaled амплітуда; ордери виконуються на відкритті наступного тижня (<code>t+1</code>) із комісією 0.5% за сторону та внутрішньотижневим MaxDD.
         </div>
       </div>
     </div>
@@ -1694,67 +1695,47 @@
 
     function evaluatePatternLive(p) {
       const s = getMetricsState();
-      const diff = s.wtSpread ?? PATTERNS?.latest_snapshot?.w_diff;
-      const wScore = s.wScore ?? PATTERNS?.latest_snapshot?.w_score;
-      const bri = s.bri;
-      const tiz25 = computeLiveTizLe25();
+      const alloc = DATA?.allocation_signal || {};
+      const diff = alloc.weekly_wt_spread ?? s.wtSpread ?? PATTERNS?.latest_snapshot?.w_diff;
+      const v52 = DATA?.causal_btcbri ?? PATTERNS?.latest_snapshot?.causal_v52;
       const spec = p.live_spec || {};
-      const histAlloc = Math.round(p.full?.end_alloc_pct ?? 0);
+      const s1In = !!(alloc.sma40_in_position);
+      const s2In = !!(alloc.cb_in_position);
+      const sma = alloc.sma40_value;
+      const veto = !!(alloc.value_sell_veto);
 
-      if (spec.type === 'hyb_blend_bri35_hyst2') {
-        const s1Buy = bri <= spec.buy;
-        const s2Buy = diff != null && diff >= spec.margin;
-        const need = diff != null ? (spec.margin - diff).toFixed(1) : '—';
-        if (s1Buy && s2Buy) return { badge: '100% BTC (ОБА РУКАВИ)', cls: 'green', detail: `BRI=${bri} ≤ ${spec.buy} ✅ · 1W diff=${diff.toFixed(1)} ≥ +${spec.margin} ✅` };
-        if (s1Buy || histAlloc >= 40) return { badge: '50% BTC / 50% КЕШ', cls: 'blue', detail: `BRI-рукав активний (BRI=${bri}≤${spec.buy}); 1W-рукав у кеші (diff=${diff != null ? diff.toFixed(1) : '—'}, до +${spec.margin} ще +${need} п.)` };
-        return { badge: 'WAIT (КЕШ)', cls: 'amber', detail: `Чекаємо BRI ≤ ${spec.buy} або 1W (wt1−wt2) ≥ +${spec.margin}` };
+      if (spec.type === 'causal_50_50') {
+        const pct = alloc.target_allocation_pct ?? 0;
+        if (pct === 100) return { badge: '100% BTC', cls: 'green', detail: `SMA40w (${fmtUSD(sma)}) UP ✅ · 1W diff=${diff} ✅` };
+        if (pct === 50) return { badge: '50% BTC / 50% КЕШ', cls: 'blue', detail: `${s1In ? 'SMA40w ✅' : 'SMA40w ⏳'} · ${s2In ? (alloc.veto_blocked_exit ? 'Cipher B VETO HOLD ✅' : 'Cipher B ✅') : 'Cipher B ⏳ (1W=' + diff + ')'}` };
+        const need = diff != null ? (2.0 - diff).toFixed(1) : '—';
+        return { badge: veto ? '0% · WATCH (ДЕШЕВО)' : '0% · КЕШ', cls: 'amber', detail: `Чекаємо > SMA40w (${fmtUSD(sma)}) або 1W ≥ +2.0 (ще +${need} п.)` };
       }
-      if (spec.type === 'hyb_blend_tiz21_hyst2') {
-        const s1Ready = tiz25 >= spec.tiz_days;
-        const s2Ready = diff != null && diff >= spec.margin;
-        if (s1Ready && s2Ready) return { badge: '100% BTC (ОБА РУКАВИ)', cls: 'green', detail: `TiZ(≤25)=${tiz25}/${spec.tiz_days}д ✅ · 1W diff=+${diff.toFixed(1)} ✅` };
-        return {
-          badge: histAlloc >= 40 ? '50% BTC / 50% КЕШ' : 'WAIT (КЕШ)',
-          cls: histAlloc >= 40 ? 'blue' : 'amber',
-          detail: `TiZ(BRI≤25): ${tiz25}/${spec.tiz_days}д ${s1Ready ? '✅' : '⏳'} · 1W diff=${diff != null ? diff.toFixed(1) : '—'} (ціль ≥ +${spec.margin})`
-        };
+      if (spec.type === 'causal_100_100') {
+        if (s1In) return { badge: '100% BTC', cls: 'blue', detail: `Закритий тиждень > SMA40w (${fmtUSD(sma)}) ✅` };
+        const distPct = (sma && s.spot) ? (((sma / s.spot) - 1) * 100).toFixed(1) : '—';
+        return { badge: '100% КЕШ', cls: 'amber', detail: `Нижче SMA40w (${fmtUSD(sma)}) · До пробою +${distPct}%` };
       }
-      if (spec.type === 'hyb_blend_bri35_cbscore') {
-        const s1Buy = bri <= spec.buy;
-        const s2Buy = wScore != null && wScore <= spec.buy_score;
-        if (s1Buy && s2Buy) return { badge: '100% BTC (ОБА РУКАВИ)', cls: 'green', detail: `BRI=${bri} ≤ ${spec.buy} ✅ · 1W score=${wScore.toFixed(1)} ≤ ${spec.buy_score} ✅` };
-        return {
-          badge: (s1Buy || histAlloc >= 40) ? '50% BTC / 50% КЕШ' : 'WAIT (КЕШ)',
-          cls: (s1Buy || histAlloc >= 40) ? 'blue' : 'amber',
-          detail: `BRI-рукав: ${s1Buy ? '50% BTC ✅' : 'HOLD'} · 1W Score-рукав: кеш (зараз ${wScore != null ? wScore.toFixed(1) : '—'}, ціль ≤ ${spec.buy_score})`
-        };
+      if (spec.type === 'causal_s3') {
+        if (s2In) return { badge: alloc.veto_blocked_exit ? 'VETO HOLD (100%)' : '100% BTC', cls: 'blue', detail: `1W diff=${diff} · Value Veto=${veto ? 'ON' : 'OFF'}` };
+        const need = diff != null ? (2.0 - diff).toFixed(1) : '—';
+        return { badge: '100% КЕШ', cls: 'amber', detail: `1W diff=${diff} · Вхід при ≥ +2.0 (ще +${need} п.)` };
       }
-      if (spec.type === 'bri_tiz_trail') {
-        const ready = tiz25 >= spec.tiz_days;
-        if (ready) return { badge: 'BUY / HOLD 100%', cls: 'green', detail: `TiZ(BRI≤25)=${tiz25}д ≥ ${spec.tiz_days}д ✅ · Вихід лише після піку BRI ≥ ${spec.arm} (-${spec.drop})` };
-        return {
-          badge: histAlloc >= 90 ? 'HOLD 100% (Новим: ⏳)' : 'ОЧІКУВАННЯ TiZ',
-          cls: histAlloc >= 90 ? 'blue' : 'amber',
-          detail: `Серія BRI≤25: ${tiz25}/${spec.tiz_days}д (до нового входу ще ${Math.max(0, spec.tiz_days - tiz25)} дн.) · Історично в BTC`
-        };
+      if (spec.type === 'causal_s2') {
+        if (diff != null && diff >= 2.0) return { badge: '100% BTC', cls: 'green', detail: `1W (wt1−wt2) = +${diff} ≥ +2.0 ✅` };
+        const need = diff != null ? (2.0 - diff).toFixed(1) : '—';
+        return { badge: '100% КЕШ', cls: 'amber', detail: `1W (wt1−wt2) = ${diff} · До входу ≥ +2.0 (ще +${need} п.)` };
       }
-      if (spec.type === 'bri_trail') {
-        if (bri <= spec.buy) return { badge: 'BUY / HOLD 100%', cls: 'green', detail: `BRI=${bri} ≤ ${spec.buy} ✅ (зона входу активна) · Фіксація після піку ≥ ${spec.arm} (-${spec.drop})` };
-        if (bri >= spec.arm) return { badge: 'ARMED (ПІК!)', cls: 'red', detail: `BRI=${bri} ≥ ${spec.arm} — чекати спаду -${spec.drop} п. для продажу` };
-        return { badge: histAlloc >= 90 ? 'HOLD 100% BTC' : 'WAIT (КЕШ)', cls: histAlloc >= 90 ? 'blue' : 'amber', detail: `BRI=${bri} · Вхід ≤ ${spec.buy}, арм виходу ≥ ${spec.arm}` };
+      if (spec.type === 'causal_v52_idx') {
+        if (v52 != null && v52 <= spec.buy) return { badge: 'BUY / HOLD 100%', cls: 'green', detail: `Індекс v5.2 = ${v52} ≤ ${spec.buy} ✅ (зона страху + амплітуда)` };
+        if (v52 != null && v52 >= spec.sell) return { badge: 'SELL (КЕШ)', cls: 'red', detail: `Індекс v5.2 = ${v52} ≥ ${spec.sell} (перегрів)` };
+        return { badge: 'NEUTRAL / HOLD', cls: 'blue', detail: `Індекс v5.2 = ${v52} · Вхід ≤ ${spec.buy}, вихід ≥ ${spec.sell}` };
       }
-      if (spec.type === 'cb_w_hyst') {
-        if (diff != null && diff >= spec.margin) return { badge: 'BUY / HOLD 100%', cls: 'green', detail: `1W (wt1−wt2) = +${diff.toFixed(1)} ≥ +${spec.margin} ✅` };
-        const need = diff != null ? (spec.margin - diff).toFixed(1) : '—';
-        return { badge: 'WAIT (100% КЕШ)', cls: 'amber', detail: `1W (wt1−wt2) = ${diff != null ? diff.toFixed(1) : '—'} · До входу на закритті середи: ≥ +${spec.margin} (ще +${need} п.)` };
+      if (spec.type === 'causal_bh') {
+        return { badge: '100% BTC (HOLD)', cls: 'blue', detail: 'Пасивний бенчмарк без виходів' };
       }
-      if (spec.type === 'cb_w_score') {
-        if (wScore != null && wScore <= spec.buy_score) return { badge: 'BUY POOL (100%)', cls: 'green', detail: `1W weekly_score = ${wScore.toFixed(1)} ≤ ${spec.buy_score} ✅` };
-        if (wScore != null && wScore >= spec.sell_score && diff != null && diff < 0) return { badge: 'SELL (КЕШ)', cls: 'red', detail: `1W score=${wScore.toFixed(1)} ≥ ${spec.sell_score} і wt1 < wt2` };
-        const gap = wScore != null ? (wScore - spec.buy_score).toFixed(1) : '—';
-        return { badge: 'КОПИТИ КЕШ-ПУЛ', cls: 'amber', detail: `1W score = ${wScore != null ? wScore.toFixed(1) : '—'} · До входу ≤ ${spec.buy_score} (ще −${gap} п.)` };
-      }
-      return { badge: histAlloc > 0 ? `${histAlloc}% BTC` : 'WAIT', cls: histAlloc > 0 ? 'blue' : 'amber', detail: p.next_trigger_hint || '' };
+      const histAlloc = Math.round(p.full?.end_alloc_pct ?? 0);
+      return { badge: histAlloc > 0 ? `${histAlloc}% BTC` : 'WAIT', cls: histAlloc > 0 ? 'blue' : 'amber', detail: p.rule_short || '' };
     }
 
     function renderPatterns() {
@@ -1785,7 +1766,7 @@
         const live = evaluatePatternLive(p);
         const famKey = p.family === 'Cipher B' ? 'Cipher' : p.family;
         const lt = p.last_trade;
-        const lastStr = lt ? `Остання угода: ${lt.date} ${lt.action} @ ${fmtUSD(lt.price)} (BRI=${Math.round(lt.bri)})` : '';
+        const lastStr = lt ? `Остання угода: ${lt.date} ${lt.action} @ ${fmtUSD(lt.price)}${lt.bri != null ? ' (v5.2=' + Math.round(lt.bri) + ')' : ''}` : '';
         const multColor = m18.multiple >= 9.5 ? 'var(--green)' : (m18.multiple >= 6.0 ? 'var(--blue)' : 'var(--text)');
         const ddColor = m18.max_dd_pct <= 50 ? 'var(--green)' : (m18.max_dd_pct <= 60 ? 'var(--blue)' : 'var(--amber)');
         const wr = p.full?.win_rate_pct != null ? `${p.full.win_rate_pct}%` : '—';
