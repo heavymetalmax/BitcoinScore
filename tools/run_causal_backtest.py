@@ -55,6 +55,7 @@ def run_sim(weeks: list[dict], start_date: str, mode: str, fee: float = 0.005, e
     s1_in = False
     s2_in = False
     v52_in = False
+    v52_trade_peak = 0.0
 
     eq: list[float] = []
     peak_eq = 10000.0
@@ -134,11 +135,19 @@ def run_sim(weeks: list[dict], start_date: str, mode: str, fee: float = 0.005, e
                     s2_in = False
 
         v52 = w.get('causal_v52')
+        stop_dd = float(w.get('v52_stop_dd') or 0.30)
+        if v52_in:
+            v52_trade_peak = max(v52_trade_peak, cl)
         if v52 is not None:
             if not v52_in and v52 <= 20.0:
                 v52_in = True
-            elif v52_in and v52 >= 80.0:
+                v52_trade_peak = cl
+            elif v52_in and (
+                v52 >= 80.0
+                or (v52_trade_peak > 0 and cl <= v52_trade_peak * (1.0 - stop_dd) and v52 > 30.0)
+            ):
                 v52_in = False
+                v52_trade_peak = 0.0
 
         if mode == 'S1_SMA40w':
             nxt = 1.0 if s1_in else 0.0
@@ -328,7 +337,7 @@ def main():
         'S1_SMA40w': 'Тижневий тренд SMA40w (100%)',
         'S2_CipherB_1W': 'Лише Cipher B 1W (SMA3, ±2.0 гістерезис)',
         'S3_CipherB_ValueVeto': 'Cipher B 1W + Захист дна MVRV (≤25%)',
-        'V52_Index_Threshold': 'Режим 100/100 (Індекс v5.2 · ≤20 / ≥80)',
+        'V52_Index_Threshold': 'Режим 100/100 (Індекс v5.2 ≤20 / ≥80 + адапт. стоп)',
     }
 
     windows = {}

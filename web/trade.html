@@ -584,6 +584,8 @@
         smaVal: alloc.sma40_value,
         wtSpread: alloc.weekly_wt_spread,
         veto: !!(alloc.value_sell_veto),
+        stopDdPct: alloc.mode_100_stop_dd_pct ?? 25.8,
+        stopPrice: alloc.mode_100_stop_price,
         realized: amp.realized_price,
         mvrvRatio: amp.mvrv_ratio,
         rcapB: amp.realized_cap_b_usd,
@@ -759,8 +761,8 @@
         }
         $('s3-rules').innerHTML = `
           <div class="rule-item"><div class="rule-k">1. Вхід</div><div class="rule-v">100% у BTC на відкритті понеділка після тижня ≤ 20.0</div></div>
-          <div class="rule-item"><div class="rule-k">2. Утримання</div><div class="rule-v">Не реагуємо на шум між 20 і 80 — тримаємо весь цикл</div></div>
-          <div class="rule-item"><div class="rule-k">3. Вихід</div><div class="rule-v">100% у кеш одним ордером після тижня ≥ 80.0</div></div>`;
+          <div class="rule-item"><div class="rule-k">2. Захист (стоп)</div><div class="rule-v">Адапт. трейлінг −${s.stopDdPct}% (0.6×vol52, межі 18–30%) при v5.2 &gt; 30</div></div>
+          <div class="rule-item"><div class="rule-k">3. Вихід</div><div class="rule-v">100% у кеш при Індексі ≥ 80.0 або спрацюванні трейлінг-стопу</div></div>`;
       } else {
         const halfUsd = cap * 0.5;
         const halfQty = s.spot ? (halfUsd * feeMult) / s.spot : 0;

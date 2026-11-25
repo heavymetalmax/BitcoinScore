@@ -193,6 +193,7 @@ def compute_causal_weekly_history(
     sma40_in = False
     cb_in = False
     v52_in = False
+    v52_trade_peak = 0.0
     mv_idx = mv_cap_idx = cv_idx = pu_idx = 0
     last_mv_pct: float | None = None
     last_mvrv_ratio: float | None = None
@@ -360,11 +361,20 @@ def compute_causal_weekly_history(
                 weights_pct = {k: round(ic_w[k] / sw * 100.0, 1) for k in ic_w}
 
         prev_v52_in = v52_in
+        v52_stop_dd = max(0.18, min(0.30, 0.60 * (vol52 if vol52 is not None else 0.50)))
+        if v52_in:
+            v52_trade_peak = max(v52_trade_peak, closes[i])
         if smart_bri is not None:
             if not v52_in and smart_bri <= 20.0:
                 v52_in = True
-            elif v52_in and smart_bri >= 80.0:
+                v52_trade_peak = closes[i]
+            elif v52_in and (
+                smart_bri >= 80.0
+                or (v52_trade_peak > 0 and closes[i] <= v52_trade_peak * (1.0 - v52_stop_dd) and smart_bri > 30.0)
+            ):
                 v52_in = False
+                v52_trade_peak = 0.0
+        v52_stop_price = round(v52_trade_peak * (1.0 - v52_stop_dd), 2) if (v52_in and v52_trade_peak > 0) else None
 
         eff_amp = cb4y_sc if cb4y_sc is not None else 50.0
         amp_dict = {
@@ -410,6 +420,9 @@ def compute_causal_weekly_history(
             'causal_v52': smart_bri,
             'v52_in_pos': v52_in,
             'prev_v52_in_pos': prev_v52_in,
+            'v52_stop_dd': round(v52_stop_dd, 4),
+            'v52_stop_dd_pct': round(v52_stop_dd * 100.0, 1),
+            'v52_stop_price': v52_stop_price,
             'cycle_amplitude': amp_dict,
         })
     return out
@@ -460,6 +473,8 @@ def compute_causal_d1_state(
         'mvrv_pct_week': last['mvrv_pct'],
         'v52_in_pos': last['v52_in_pos'],
         'prev_v52_in_pos': last['prev_v52_in_pos'],
+        'v52_stop_dd_pct': last['v52_stop_dd_pct'],
+        'v52_stop_price': last['v52_stop_price'],
         'cycle_amplitude': last['cycle_amplitude'],
     }
 

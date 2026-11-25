@@ -256,6 +256,8 @@ def compute_allocation_signal(
         'mode_100_target_pct': mode_100_target_pct,
         'mode_100_regime': mode_100_regime,
         'mode_100_action_label': mode_100_action_label,
+        'mode_100_stop_dd_pct': (d1_state or {}).get('v52_stop_dd_pct'),
+        'mode_100_stop_price': (d1_state or {}).get('v52_stop_price'),
         'v52_in_position': v52_in_pos,
         # Backward-compat alias for legacy readers; points to active Sleeve 1 (SMA40w)
         'bri_sleeve_pct': sma40_sleeve_pct,

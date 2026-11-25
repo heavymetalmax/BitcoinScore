@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-25T07:34:55Z",
+  "generated_at": "2026-11-25T08:07:20Z",
   "methodology": "Production-parity zero-lookahead test on closed Monday weekly OHLC (2011–2026, real H/L/O/C) + causal MVRV/Puell/CVDD + vol-scaled amplitude + WaveTrend SMA3. Execution: next-week open (t+1), true intra-week MaxDD, 0.5% and 1.0% one-way fees.",
   "ohlc_bars": 794,
   "tail_risk_oos": {
@@ -193,18 +193,18 @@
           "end": "2026-11-16",
           "weeks": 516,
           "fee_pct": 0.5,
-          "multiple": 37.88,
-          "return_pct": 3687.9,
-          "cagr_pct": 44.2,
-          "max_dd_pct": 72.3,
-          "max_dd_close_pct": 53.6,
-          "calmar": 0.61,
-          "exposure_pct": 52.1,
-          "closed_trades": 2,
-          "trades": 4,
-          "rebalances": 4,
+          "multiple": 56.47,
+          "return_pct": 5546.6,
+          "cagr_pct": 50.2,
+          "max_dd_pct": 52.4,
+          "max_dd_close_pct": 33.2,
+          "calmar": 0.96,
+          "exposure_pct": 47.5,
+          "closed_trades": 3,
+          "trades": 6,
+          "rebalances": 6,
           "win_rate_pct": 100.0,
-          "median_post_entry_dd26_pct": 22.7,
+          "median_post_entry_dd26_pct": 20.6,
           "end_alloc_pct": 0.0,
           "last_trade": {
             "date": "2025-07-14",
@@ -212,14 +212,14 @@
             "price": 119102.2,
             "bri": 77.5
           },
-          "label": "Режим 100/100 (Індекс v5.2 · ≤20 / ≥80)",
-          "multiple_fee10": 37.12,
-          "max_dd_fee10_pct": 72.3,
+          "label": "Режим 100/100 (Індекс v5.2 ≤20 / ≥80 + адапт. стоп)",
+          "multiple_fee10": 54.78,
+          "max_dd_fee10_pct": 52.8,
           "boot_vs_bh": {
-            "rel_multiple": 0.62,
+            "rel_multiple": 0.93,
             "p05": 0.02,
-            "p95": 16.17,
-            "prob_gt_1": 41.0
+            "p95": 26.61,
+            "prob_gt_1": 48.6
           }
         }
       ]
@@ -424,7 +424,7 @@
             "price": 119102.2,
             "bri": 77.5
           },
-          "label": "Режим 100/100 (Індекс v5.2 · ≤20 / ≥80)",
+          "label": "Режим 100/100 (Індекс v5.2 ≤20 / ≥80 + адапт. стоп)",
           "multiple_fee10": 5.68,
           "max_dd_fee10_pct": 38.6,
           "boot_vs_bh": {
