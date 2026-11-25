@@ -665,10 +665,12 @@
       $('k-realized-sub').textContent = s.mvrvRatio != null ? `MVRV ${s.mvrvRatio}x · RCap $${s.rcapB ?? '—'}B` : '—';
       $('k-tail').textContent = s.tailPct != null ? `${s.tailPct}%` : '—';
       const dm = s.tr?.dxy_momentum;
+      const y10 = s.amp?.us10y_now;
       if (dm && dm.dxy_roc_13w_pct != null) {
         const s13 = (dm.dxy_roc_13w_pct >= 0 ? '+' : '') + dm.dxy_roc_13w_pct.toFixed(1) + '%';
-        const dxyTag = dm.pressure_active ? `DXY 13т ${s13} (тиск ↑)` : `DXY 13т ${s13} (тиск знято)`;
-        $('k-conf').textContent = `${dxyTag}${s.conf != null ? ` · Впевн. ${s.conf}%` : ''}`;
+        const dxyTag = dm.pressure_active ? `DXY 13т ${s13} (↑)` : `DXY 13т ${s13}`;
+        const y10Tag = y10 != null ? ` · US10Y ${Number(y10).toFixed(2)}%` : '';
+        $('k-conf').textContent = `${dxyTag}${y10Tag}`;
       } else {
         $('k-conf').textContent = s.conf != null ? `Впевненість моделі: ${s.conf}%` : '—';
       }

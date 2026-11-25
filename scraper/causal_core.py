@@ -25,6 +25,7 @@ from typing import Any
 
 from .mvrv_ratio_store import DEFAULT_MVRV_RATIO_PATH, load_daily_mvrv_and_cap
 from .ohlc_store import DEFAULT_OHLC_PATH, load_closed_weekly_ohlc
+from .us10y_store import DEFAULT_US10Y_PATH, load_daily_us10y
 
 
 def _ema_list(vals: list[float], length: int) -> list[float]:
@@ -182,6 +183,7 @@ def compute_causal_weekly_history(
     cvdd_series = _load_daily_score_field('cvdd_ratio', scores_path=scores_path, as_of_date=as_of)
     puell_series = _load_daily_score_field('puell', scores_path=scores_path, as_of_date=as_of)
     dxy_series = _load_daily_score_field('dxy', scores_path=scores_path, as_of_date=as_of)
+    us10y_series = load_daily_us10y(as_of_date=as_of, path=DEFAULT_US10Y_PATH)
 
     closes = [w['close'] for w in weeks]
     highs = [w['high'] for w in weeks]
@@ -205,13 +207,14 @@ def compute_causal_weekly_history(
     psoft_peak = 0.0
     psoft_min_v = 100.0
     psoft_buying = True
-    mv_idx = mv_cap_idx = cv_idx = pu_idx = dxy_idx = 0
+    mv_idx = mv_cap_idx = cv_idx = pu_idx = dxy_idx = y10_idx = 0
     last_mv_pct: float | None = None
     last_mvrv_ratio: float | None = None
     last_rcap: float | None = None
     last_cvdd: float | None = None
     last_puell: float | None = None
     last_dxy: float | None = None
+    last_y10: float | None = None
     wt1_buf: list[float] = []
 
     running_ath = highs[0]
@@ -221,6 +224,8 @@ def compute_causal_weekly_history(
     puell_hist: list[float | None] = []
     dxy_hist: list[float | None] = []
     dxy_vs_sma_hist: list[float | None] = []
+    y10_hist: list[float | None] = []
+    y10_vs_sma_hist: list[float | None] = []
 
     sub_names = ('cb4y', 'cvdd4', 'mcap', 'puell4', 'cb_div')
     sub_hist: dict[str, list[float | None]] = {k: [] for k in sub_names}
@@ -251,6 +256,16 @@ def compute_causal_weekly_history(
             dxy_sma20 = sum(float(x) for x in dxy_hist[-20:]) / 20.0
             dxy_vs_sma = (float(last_dxy) / dxy_sma20 - 1.0) * 100.0
         dxy_vs_sma_hist.append(dxy_vs_sma)
+        while y10_idx < len(us10y_series) and us10y_series[y10_idx][0] <= wk_close:
+            last_y10 = us10y_series[y10_idx][1]
+            y10_idx += 1
+        y10_hist.append(last_y10)
+        y10_sma20: float | None = None
+        y10_vs_sma: float | None = None
+        if len(y10_hist) >= 20 and all(x is not None and x > 0 for x in y10_hist[-20:]):
+            y10_sma20 = sum(float(x) for x in y10_hist[-20:]) / 20.0
+            y10_vs_sma = float(last_y10) - y10_sma20
+        y10_vs_sma_hist.append(y10_vs_sma)
 
         sma40 = sum(closes[i - 39:i + 1]) / 40.0 if i >= 39 else None
         if sma40 is not None:
@@ -361,6 +376,9 @@ def compute_causal_weekly_history(
         weights_pct: dict[str, float] = {}
         dxy_ic_13w: float | None = None
         dxy_adj_pts = 0.0
+        y10_ic_13w: float | None = None
+        y10_adj_pts = 0.0
+        macro_adj_pts = 0.0
         if len(avail) >= 2:
             ic_w: dict[str, float] = {}
             if i >= 104:
@@ -397,9 +415,24 @@ def compute_causal_weekly_history(
                 if dxy_vs_sma > 0.0 and dxy_ic_13w is not None and dxy_ic_13w < 0.0:
                     strength = min(1.0, max(0.0, -dxy_ic_13w) * 2.0)
                     dxy_adj_pts = strength * 6.0 * math.tanh(dxy_vs_sma / 2.5)
+            if i >= 104 and y10_vs_sma is not None:
+                m_start_y = max(20, i - 260)
+                m_end_y = i - 12
+                yx_x: list[float] = []
+                yx_y: list[float] = []
+                for m in range(m_start_y, m_end_y):
+                    yv = y10_vs_sma_hist[m]
+                    if yv is not None and closes[m] > 0 and closes[m + 13] > 0:
+                        yx_x.append(yv)
+                        yx_y.append(math.log(closes[m + 13] / closes[m]))
+                y10_ic_13w = _spearman_rho(yx_x, yx_y) if len(yx_x) >= 40 else None
+                if y10_vs_sma > 0.0 and y10_ic_13w is not None and y10_ic_13w < 0.0:
+                    st_y = min(1.0, max(0.0, -y10_ic_13w) * 2.0)
+                    y10_adj_pts = st_y * 6.0 * math.tanh(y10_vs_sma / 0.40)
+            macro_adj_pts = 0.70 * dxy_adj_pts + 0.30 * y10_adj_pts
             if sw > 0:
                 raw_smart = sum(ic_w[k] * avail[k] for k in ic_w) / sw
-                smart_bri = round(soft_risk_compress(raw_smart + dxy_adj_pts), 1)
+                smart_bri = round(soft_risk_compress(raw_smart + macro_adj_pts), 1)
                 weights_pct = {k: round(ic_w[k] / sw * 100.0, 1) for k in ic_w}
 
         prev_v52_in = v52_in
@@ -492,6 +525,11 @@ def compute_causal_weekly_history(
             'dxy_sma20w': round(dxy_sma20, 3) if dxy_sma20 is not None else None,
             'dxy_ic_13w': round(dxy_ic_13w, 4) if dxy_ic_13w is not None else None,
             'dxy_macro_adj': round(dxy_adj_pts, 2),
+            'us10y_now': round(last_y10, 3) if last_y10 is not None else None,
+            'us10y_sma20w': round(y10_sma20, 3) if y10_sma20 is not None else None,
+            'us10y_ic_13w': round(y10_ic_13w, 4) if y10_ic_13w is not None else None,
+            'us10y_macro_adj': round(y10_adj_pts, 2),
+            'macro_pressure_adj': round(macro_adj_pts, 2),
             'smart_btcbri': smart_bri,
             'risk_adjustment_pts': round((eff_amp - 50.0) * 0.35, 1),
         }
@@ -605,6 +643,7 @@ def _score_daily_point_in_time(
     cvdd_today: float | None,
     puell_today: float | None,
     dxy_today: float | None = None,
+    us10y_today: float | None = None,
 ) -> float | None:
     """Evaluate Smart Purged-IC v5.2 for a single day using strictly closed-week weights & 4Y corridors."""
     amp = (w_closed or {}).get('cycle_amplitude')
@@ -664,7 +703,20 @@ def _score_daily_point_in_time(
             dxy_adj_pts = strength * 6.0 * math.tanh(vs_sma / 2.5)
     elif dxy_today is None and amp.get('dxy_macro_adj') is not None:
         dxy_adj_pts = float(amp['dxy_macro_adj'])
-    return round(soft_risk_compress((v_sum / w_sum) + dxy_adj_pts), 1)
+
+    y10_adj_pts = 0.0
+    y10_sma20 = amp.get('us10y_sma20w')
+    y10_ic = amp.get('us10y_ic_13w')
+    if us10y_today is not None and y10_sma20 and float(y10_sma20) > 0 and y10_ic is not None and float(y10_ic) < 0.0:
+        vs_y10 = float(us10y_today) - float(y10_sma20)
+        if vs_y10 > 0.0:
+            st_y = min(1.0, max(0.0, -float(y10_ic)) * 2.0)
+            y10_adj_pts = st_y * 6.0 * math.tanh(vs_y10 / 0.40)
+    elif us10y_today is None and amp.get('us10y_macro_adj') is not None:
+        y10_adj_pts = float(amp['us10y_macro_adj'])
+
+    macro_adj_pts = 0.70 * dxy_adj_pts + 0.30 * y10_adj_pts
+    return round(soft_risk_compress((v_sum / w_sum) + macro_adj_pts), 1)
 
 
 def compute_v52_components(
@@ -792,10 +844,13 @@ def compute_causal_daily_series(
             pass
     mv_by_d = {d.isoformat(): (mv_r, mv_price_by_d.get(d.isoformat())) for d, mv_r, _rc in mv_raw if mv_r > 0}
     mv_dates = sorted(mv_by_d)
+    y10_raw = load_daily_us10y(as_of_date=cutoff, path=DEFAULT_US10Y_PATH)
+    y10_dates = [d.isoformat() for d, _ in y10_raw]
 
     out: dict[str, float] = {}
     wk_idx = -1
     mv_idx = -1
+    y10_idx = -1
     for r in sorted((x for x in scores_rows if x.get('date')), key=lambda x: str(x['date'])[:10]):
         d = str(r['date'])[:10]
         if d > cutoff:
@@ -806,6 +861,9 @@ def compute_causal_daily_series(
             continue
         while mv_idx + 1 < len(mv_dates) and mv_dates[mv_idx + 1] <= d:
             mv_idx += 1
+        while y10_idx + 1 < len(y10_dates) and y10_dates[y10_idx + 1] <= d:
+            y10_idx += 1
+        y10_val = y10_raw[y10_idx][1] if y10_idx >= 0 else None
 
         mv_ratio: float | None = None
         if mv_idx >= 0:
@@ -830,6 +888,7 @@ def compute_causal_daily_series(
             cvdd_today=r.get('cvdd_ratio'),
             puell_today=r.get('puell'),
             dxy_today=r.get('dxy'),
+            us10y_today=y10_val,
         )
         if val is not None:
             out[d] = val
@@ -869,6 +928,8 @@ def compute_causal_btcbri(
                     datetime.date.today().isoformat() if as_of_date is None
                     else (as_of_date[:10] if isinstance(as_of_date, str) else as_of_date.isoformat())
                 )
+                y10_caps = load_daily_us10y(as_of_date=cutoff, path=DEFAULT_US10Y_PATH)
+                us10y_today = y10_caps[-1][1] if y10_caps else None
                 mv_caps = load_daily_mvrv_and_cap(as_of_date=cutoff, path=mvrv_ratio_path)
                 mv_ratio: float | None = None
                 if mv_caps:
@@ -901,6 +962,7 @@ def compute_causal_btcbri(
                     cvdd_today=cvdd_today,
                     puell_today=puell_today,
                     dxy_today=dxy_today,
+                    us10y_today=us10y_today,
                 )
                 if daily_val is not None:
                     return daily_val

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-25T14:31:18Z",
+  "generated_at": "2026-11-25T14:41:05Z",
   "methodology": "Production-parity zero-lookahead test on closed Monday weekly OHLC (2011–2026, real H/L/O/C) + causal MVRV/Puell/CVDD + vol-scaled amplitude + WaveTrend SMA3. Execution: next-week open (t+1), true intra-week MaxDD, 0.5% and 1.0% one-way fees.",
   "ohlc_bars": 794,
   "tail_risk_oos": {
@@ -40,7 +40,7 @@
             "date": "2025-07-14",
             "action": "SELL",
             "price": 119102.2,
-            "bri": 77.5
+            "bri": 77.7
           },
           "label": "20/30/50 · Піраміда (≤22/16/12|+15б → ≥80+стоп)",
           "multiple_fee10": 68.12,
@@ -75,7 +75,7 @@
             "date": "2025-11-17",
             "action": "SELL",
             "price": 94190.1,
-            "bri": 48.4
+            "bri": 47.8
           },
           "label": "50/50 · Дно + Підтвердження (≤20/12|+15б → 50%≥75 / 50%≥85+стоп)",
           "multiple_fee10": 44.02,
@@ -110,7 +110,7 @@
             "date": "2025-07-14",
             "action": "SELL",
             "price": 119102.2,
-            "bri": 77.5
+            "bri": 77.7
           },
           "label": "100/100 · Один ордер (≤20 / ≥80 + адапт. стоп)",
           "multiple_fee10": 54.78,
@@ -145,7 +145,7 @@
             "date": "2017-01-02",
             "action": "BUY",
             "price": 997.75,
-            "bri": 83.6
+            "bri": 82.9
           },
           "label": "Buy & Hold (бенчмарк)",
           "multiple_fee10": 60.69,
@@ -182,7 +182,7 @@
             "date": "2025-07-14",
             "action": "SELL",
             "price": 119102.2,
-            "bri": 77.5
+            "bri": 77.7
           },
           "label": "20/30/50 · Піраміда (≤22/16/12|+15б → ≥80+стоп)",
           "multiple_fee10": 6.86,
@@ -217,7 +217,7 @@
             "date": "2025-11-17",
             "action": "SELL",
             "price": 94190.1,
-            "bri": 48.4
+            "bri": 47.8
           },
           "label": "50/50 · Дно + Підтвердження (≤20/12|+15б → 50%≥75 / 50%≥85+стоп)",
           "multiple_fee10": 4.24,
@@ -252,7 +252,7 @@
             "date": "2025-07-14",
             "action": "SELL",
             "price": 119102.2,
-            "bri": 77.5
+            "bri": 77.7
           },
           "label": "100/100 · Один ордер (≤20 / ≥80 + адапт. стоп)",
           "multiple_fee10": 5.68,
@@ -287,7 +287,7 @@
             "date": "2021-01-04",
             "action": "BUY",
             "price": 33068.83,
-            "bri": 89.1
+            "bri": 89.3
           },
           "label": "Buy & Hold (бенчмарк)",
           "multiple_fee10": 1.83,

@@ -185,6 +185,12 @@ def run_scoring_pipeline(p, build_metric_history_fn=None):
         print(f'Warning: failed to sync MVRV ratio store: {e}')
 
     try:
+        from .us10y_store import sync_us10y_from_yahoo
+        sync_us10y_from_yahoo()
+    except Exception as e:
+        print(f'Warning: failed to sync US10Y store: {e}')
+
+    try:
         from .score import compute_score
         from .orchestrator import orchestrate
         import datetime as _dt
