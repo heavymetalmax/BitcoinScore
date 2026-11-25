@@ -1,0 +1,20 @@
+event_id,date,kind,scope,price_basis,source_id,status,causal_signal
+2011_peak,2011-06-08,HIGH,major_historical_turn,MtGox reported early-market high,drawdown_table,early_market_limited_evidence,false
+2011_low,2011-11-18,LOW,major_historical_turn,MtGox reported early-market low,drawdown_table,early_market_limited_evidence,false
+2013_spring_peak,2013-04-09,HIGH,large_intermediate_turn,Bitstamp daily close as reported,drawdown_table,hindsight_reference,false
+2013_summer_low,2013-07-06,LOW,large_intermediate_turn,Bitstamp daily close as reported,drawdown_table,hindsight_reference,false
+2013_close_peak,2013-12-04,HIGH,major_historical_turn,Bitstamp daily close as reported,drawdown_table,hindsight_reference,false
+2013_intraday_peak,2013-11-30,HIGH,major_historical_turn,mixed historical venue point record as reported,data_guide,alternate_price_basis,false
+2015_low,2015-01-14,LOW,major_historical_turn,Bitstamp daily close as reported,drawdown_table,hindsight_reference,false
+2017_close_peak,2017-12-16,HIGH,major_historical_turn,Bitstamp daily close as reported,drawdown_table,hindsight_reference,false
+2017_intraday_peak,2017-12-17,HIGH,major_historical_turn,Coinbase daily candle high as reported,data_guide,alternate_price_basis,false
+2018_low,2018-12-15,LOW,major_historical_turn,Bitstamp daily close as reported,drawdown_table,hindsight_reference,false
+2020_covid_low,2020-03-12,LOW,large_intermediate_turn,Coinbase daily candle low as reported,data_guide,venue_specific_hindsight_reference,false
+2021_spring_peak,2021-04-13,HIGH,large_intermediate_turn,Bitstamp daily close as reported,drawdown_table,hindsight_reference,false
+2021_summer_low,2021-07-20,LOW,large_intermediate_turn,Bitstamp daily close as reported,drawdown_table,hindsight_reference,false
+2021_close_peak,2021-11-08,HIGH,major_historical_turn,Bitstamp daily close as reported,drawdown_table,hindsight_reference,false
+2021_intraday_peak,2021-11-10,HIGH,major_historical_turn,Coinbase daily candle high as reported,data_guide,alternate_price_basis,false
+2022_composite_close_low,2022-11-09,LOW,major_historical_turn,composite daily close as reported,by_numbers,alternate_price_basis_not_interchangeable,false
+2022_bitstamp_close_low,2022-11-21,LOW,major_historical_turn,Bitstamp daily close as reported,drawdown_table,hindsight_reference,false
+2024_first_peak,2024-03-14,HIGH,large_intermediate_turn,Coinbase daily candle high as reported,data_guide,hindsight_reference,false
+2025_close_peak,2025-10-06,HIGH,open_cycle_candidate,Bitstamp daily close as reported,drawdown_table,not_a_completed_cycle,false
