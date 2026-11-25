@@ -1591,18 +1591,22 @@
 
       let nowPct = 0;
       let rows = [];
+      const v52In = !!(alloc.v52_in_position);
+      const idxV52Val = DATA.causal_btcbri ?? PATTERNS?.latest_snapshot?.causal_v52;
       if (is100) {
         $('calc-title').textContent = 'Калькулятор · Режим 100 / 100 (Один ордер)';
-        $('calc-subtitle').textContent = `Усе в BTC або усе в кеш · Комісія ${feePct}%`;
+        $('calc-subtitle').textContent = `Індекс v5.2 (≤20 вхід / ≥80 вихід) · Комісія ${feePct}%`;
         $('calc-now-label').textContent = 'У позиції BTC зараз (100/100)';
-        nowPct = alloc.mode_100_target_pct ?? (s1In ? 100 : 0);
+        nowPct = alloc.mode_100_target_pct ?? (v52In ? 100 : 0);
         rows = [
           {
             name: 'Єдиний ордер (100%)',
-            cond: `Закриття тижня > SMA40w (${fmtUSD(smaPrice)})`,
-            price: s1In ? s.spot : smaPrice,
+            cond: v52In
+              ? `Утримання 100% BTC до Індексу v5.2 ≥ 80 (зараз ${idxV52Val ?? '—'})`
+              : `Закриття тижня з Індексом v5.2 ≤ 20 (зараз ${idxV52Val ?? '—'})`,
+            price: s.spot,
             share: 1.00,
-            active: s1In,
+            active: v52In,
           },
         ];
       } else {
@@ -1651,11 +1655,13 @@
       // Isolated Exit Protocol table
       if (is100) {
         $('exit-card-title').textContent = 'Протокол виходу · Режим 100 / 100';
-        $('exit-status-pill').textContent = s1In ? '100% BTC · Стоп ' + fmtUSD(smaPrice) : '100% КЕШ (поза ринком)';
-        $('exit-status-pill').className = 'pill ' + (s1In ? 'blue' : 'amber');
+        $('exit-status-pill').textContent = v52In
+          ? `100% BTC · Вихід ≥ 80 (зараз ${idxV52Val ?? '—'})`
+          : `100% КЕШ · Вхід ≤ 20 (зараз ${idxV52Val ?? '—'})`;
+        $('exit-status-pill').className = 'pill ' + (v52In ? 'blue' : 'amber');
         const exitRows100 = [
-          { zone: '1. Єдиний вихід', share: '−100% → КЕШ', cond: `Закриття понеділкового тижня < SMA40w (${fmtUSD(smaPrice)})`, active: !s1In },
-          { zone: '2. Повернення', share: '+100% → BTC', cond: `Закриття понеділкового тижня > SMA40w (${fmtUSD(smaPrice)})`, active: s1In },
+          { zone: '1. Єдиний вихід', share: '−100% → КЕШ', cond: `Закриття понеділкового тижня з Індексом v5.2 ≥ 80 (зараз ${idxV52Val ?? '—'})`, active: !v52In },
+          { zone: '2. Повернення', share: '+100% → BTC', cond: `Закриття понеділкового тижня з Індексом v5.2 ≤ 20 (зараз ${idxV52Val ?? '—'})`, active: v52In },
         ];
         $('exit-table-body').innerHTML = exitRows100.map(r => `
           <tr>
@@ -1711,7 +1717,7 @@
         const need = diff != null ? (2.0 - diff).toFixed(1) : '—';
         return { badge: veto ? '0% · WATCH (ДЕШЕВО)' : '0% · КЕШ', cls: 'amber', detail: `Чекаємо > SMA40w (${fmtUSD(sma)}) або 1W ≥ +2.0 (ще +${need} п.)` };
       }
-      if (spec.type === 'causal_100_100') {
+      if (spec.type === 'causal_100_100' || spec.type === 'causal_s1_sma40') {
         if (s1In) return { badge: '100% BTC', cls: 'blue', detail: `Закритий тиждень > SMA40w (${fmtUSD(sma)}) ✅` };
         const distPct = (sma && s.spot) ? (((sma / s.spot) - 1) * 100).toFixed(1) : '—';
         return { badge: '100% КЕШ', cls: 'amber', detail: `Нижче SMA40w (${fmtUSD(sma)}) · До пробою +${distPct}%` };
@@ -1727,9 +1733,10 @@
         return { badge: '100% КЕШ', cls: 'amber', detail: `1W (wt1−wt2) = ${diff} · До входу ≥ +2.0 (ще +${need} п.)` };
       }
       if (spec.type === 'causal_v52_idx') {
-        if (v52 != null && v52 <= spec.buy) return { badge: 'BUY / HOLD 100%', cls: 'green', detail: `Індекс v5.2 = ${v52} ≤ ${spec.buy} ✅ (зона страху + амплітуда)` };
-        if (v52 != null && v52 >= spec.sell) return { badge: 'SELL (КЕШ)', cls: 'red', detail: `Індекс v5.2 = ${v52} ≥ ${spec.sell} (перегрів)` };
-        return { badge: 'NEUTRAL / HOLD', cls: 'blue', detail: `Індекс v5.2 = ${v52} · Вхід ≤ ${spec.buy}, вихід ≥ ${spec.sell}` };
+        const v52In = !!(alloc.v52_in_position);
+        if (v52In) return { badge: '100% BTC (HOLD)', cls: 'blue', detail: `Індекс v5.2 = ${v52} · Тримаємо до ≥ ${spec.sell}` };
+        if (v52 != null && v52 <= spec.buy) return { badge: 'BUY 100%', cls: 'green', detail: `Індекс v5.2 = ${v52} ≤ ${spec.buy} ✅ (зона входу)` };
+        return { badge: '100% КЕШ (WAIT)', cls: 'amber', detail: `Індекс v5.2 = ${v52} · Вхід ≤ ${spec.buy}, вихід ≥ ${spec.sell}` };
       }
       if (spec.type === 'causal_bh') {
         return { badge: '100% BTC (HOLD)', cls: 'blue', detail: 'Пасивний бенчмарк без виходів' };
