@@ -1,5 +1,8 @@
 # BitcoinScore — Architecture & Calculation Reference
 
+> [!NOTE]
+> **Active Production Engine (Alpha v5.2 · 2026-11-25):** See [`docs/CAUSAL_V52_ARCHITECTURE.md`](CAUSAL_V52_ARCHITECTURE.md) for the current zero-lookahead Causal Core (`Smart Purged-IC`, `CostBasis4Y`, `Realized Cap` adjustment, Monday Weekly OHLC, 13w Tail Risk, and the 3 production trading models). This document preserves the legacy V3/V5B reference.
+
 **Version:** BRI Market Context + Forward Risk 2.3
 **Updated:** 2026-10-22
 
