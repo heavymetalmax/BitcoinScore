@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-25T07:27:34Z",
+  "generated_at": "2026-11-25T07:29:21Z",
   "methodology": "Production-parity zero-lookahead test on closed Monday weekly OHLC (2011–2026, real H/L/O/C) + causal MVRV/Puell/CVDD + vol-scaled amplitude + WaveTrend SMA3. Execution: next-week open (t+1), true intra-week MaxDD, 0.5% and 1.0% one-way fees.",
   "ohlc_bars": 794,
   "tail_risk_oos": {
@@ -193,33 +193,33 @@
           "end": "2026-11-16",
           "weeks": 516,
           "fee_pct": 0.5,
-          "multiple": 23.14,
-          "return_pct": 2214.3,
-          "cagr_pct": 37.2,
-          "max_dd_pct": 38.6,
-          "max_dd_close_pct": 33.2,
-          "calmar": 0.96,
-          "exposure_pct": 29.8,
-          "closed_trades": 3,
-          "trades": 6,
-          "rebalances": 6,
+          "multiple": 37.88,
+          "return_pct": 3687.9,
+          "cagr_pct": 44.2,
+          "max_dd_pct": 72.3,
+          "max_dd_close_pct": 53.6,
+          "calmar": 0.61,
+          "exposure_pct": 52.1,
+          "closed_trades": 2,
+          "trades": 4,
+          "rebalances": 4,
           "win_rate_pct": 100.0,
-          "median_post_entry_dd26_pct": 20.6,
+          "median_post_entry_dd26_pct": 22.7,
           "end_alloc_pct": 0.0,
           "last_trade": {
-            "date": "2024-02-26",
+            "date": "2025-07-14",
             "action": "SELL",
-            "price": 51738.0,
-            "bri": 76.6
+            "price": 119102.2,
+            "bri": 77.5
           },
-          "label": "Індекс v5.2 (Пороги ≤20 / ≥70)",
-          "multiple_fee10": 22.45,
-          "max_dd_fee10_pct": 38.6,
+          "label": "Індекс v5.2 (Пороги ≤20 / ≥80)",
+          "multiple_fee10": 37.12,
+          "max_dd_fee10_pct": 72.3,
           "boot_vs_bh": {
-            "rel_multiple": 0.38,
-            "p05": 0.01,
-            "p95": 15.68,
-            "prob_gt_1": 33.9
+            "rel_multiple": 0.62,
+            "p05": 0.02,
+            "p95": 16.17,
+            "prob_gt_1": 41.0
           }
         }
       ]
@@ -405,13 +405,13 @@
           "end": "2026-11-16",
           "weeks": 307,
           "fee_pct": 0.5,
-          "multiple": 2.49,
-          "return_pct": 149.2,
-          "cagr_pct": 16.7,
+          "multiple": 5.74,
+          "return_pct": 473.6,
+          "cagr_pct": 34.4,
           "max_dd_pct": 38.6,
           "max_dd_close_pct": 33.2,
-          "calmar": 0.43,
-          "exposure_pct": 28.7,
+          "calmar": 0.89,
+          "exposure_pct": 52.1,
           "closed_trades": 1,
           "trades": 2,
           "rebalances": 2,
@@ -419,19 +419,19 @@
           "median_post_entry_dd26_pct": 24.7,
           "end_alloc_pct": 0.0,
           "last_trade": {
-            "date": "2024-02-26",
+            "date": "2025-07-14",
             "action": "SELL",
-            "price": 51738.0,
-            "bri": 76.6
+            "price": 119102.2,
+            "bri": 77.5
           },
-          "label": "Індекс v5.2 (Пороги ≤20 / ≥70)",
-          "multiple_fee10": 2.47,
+          "label": "Індекс v5.2 (Пороги ≤20 / ≥80)",
+          "multiple_fee10": 5.68,
           "max_dd_fee10_pct": 38.6,
           "boot_vs_bh": {
-            "rel_multiple": 1.35,
-            "p05": 0.19,
-            "p95": 11.13,
-            "prob_gt_1": 60.4
+            "rel_multiple": 3.12,
+            "p05": 0.57,
+            "p95": 18.14,
+            "prob_gt_1": 86.1
           }
         }
       ]
