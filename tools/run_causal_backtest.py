@@ -161,11 +161,11 @@ def run_sim(weeks: list[dict], start_date: str, mode: str, fee: float = 0.005, e
             nxt = (0.5 if s1_in else 0.0) + (0.5 if s2_in else 0.0)
         elif mode == 'V52_Index_Threshold':
             nxt = 1.0 if v52_in else 0.0
-        elif mode in ('Pyramid_Max', 'Pyramid_Soft'):
+        elif mode in ('Pyramid_Max', 'Staged_50_50'):
             if pyr_alloc > 0:
                 pyr_peak = max(pyr_peak, cl)
             if v52 is not None:
-                in_steps = ((0.2, 22.0), (0.5, 16.0), (1.0, 12.0)) if mode == 'Pyramid_Max' else ((0.2, 25.0), (0.5, 18.0), (1.0, 12.0))
+                in_steps = ((0.2, 22.0), (0.5, 16.0), (1.0, 12.0)) if mode == 'Pyramid_Max' else ((0.5, 20.0), (1.0, 12.0))
                 if pyr_buying:
                     for ta, th in in_steps:
                         if pyr_alloc < ta and v52 <= th:
@@ -180,10 +180,11 @@ def run_sim(weeks: list[dict], start_date: str, mode: str, fee: float = 0.005, e
                     if pyr_alloc >= 1.0:
                         pyr_buying = False
                 if pyr_alloc > 0:
-                    if mode == 'Pyramid_Soft' and pyr_alloc > 0.7 and v52 >= 75.0:
-                        pyr_alloc = 0.7
+                    if mode == 'Staged_50_50' and pyr_alloc > 0.5 and v52 >= 75.0:
+                        pyr_alloc = 0.5
                         pyr_buying = False
-                    if v52 >= 80.0 or (pyr_peak > 0 and cl <= pyr_peak * (1.0 - stop_dd) and v52 > 30.0):
+                    sell_th = 85.0 if mode == 'Staged_50_50' else 80.0
+                    if v52 >= sell_th or (pyr_peak > 0 and cl <= pyr_peak * (1.0 - stop_dd) and v52 > 30.0):
                         pyr_alloc = 0.0
                         pyr_peak = 0.0
                         pyr_min_v = 100.0
@@ -259,12 +260,12 @@ def build_strategy_patterns(weeks: list[dict], gen_ts: str) -> dict:
             'live_spec': {'type': 'causal_pyr_max'},
         },
         {
-            'mode': 'Pyramid_Soft',
-            'name': '20 / 30 / 50 · М\'яка просадка',
-            'family': 'Pyramid',
-            'role_tag': 'ЗАХИСТ · 20/30/50',
-            'rule_short': 'Вхід 20% (≤25) + 30% (≤18) + 50% (≤12 або +15б); вихід 30% при ≥75, решта ≥80 або стоп',
-            'live_spec': {'type': 'causal_pyr_soft'},
+            'mode': 'Staged_50_50',
+            'name': '50 / 50 · Дно + Підтвердження',
+            'family': '50/50',
+            'role_tag': 'ЗАХИСТ · 50/50',
+            'rule_short': 'Вхід 50% (≤20) + 50% (≤12 або +15б); вихід 50% при ≥75, решта ≥85 або адапт. стоп',
+            'live_spec': {'type': 'causal_50_50_idx'},
         },
         {
             'mode': 'V52_Index_Threshold',
@@ -341,13 +342,13 @@ def main():
     )
     modes = [
         'Pyramid_Max',
-        'Pyramid_Soft',
+        'Staged_50_50',
         'V52_Index_Threshold',
         'BH',
     ]
     labels = {
-        'Pyramid_Max': '20/30/50 · Максимум прибутку (≤22/16/12|+15б → ≥80+стоп)',
-        'Pyramid_Soft': '20/30/50 · М\'яка просадка (≤25/18/12|+15б → 30%≥75 / 70%≥80+стоп)',
+        'Pyramid_Max': '20/30/50 · Піраміда (≤22/16/12|+15б → ≥80+стоп)',
+        'Staged_50_50': '50/50 · Дно + Підтвердження (≤20/12|+15б → 50%≥75 / 50%≥85+стоп)',
         'V52_Index_Threshold': '100/100 · Один ордер (≤20 / ≥80 + адапт. стоп)',
         'BH': 'Buy & Hold (бенчмарк)',
     }

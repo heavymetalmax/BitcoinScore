@@ -410,12 +410,12 @@ def compute_causal_weekly_history(
                     pmax_min_v = 100.0
                     pmax_buying = True
 
-        # Replay Pyramid Soft (20/30/50 -> 30% >=75, 70% >=80 + AdaptTS)
+        # Replay Best 50/50 (BotConfirm: 50% <=20, +50% <=12 or +15pt rebound; exit 50% >=75, rest >=85 or AdaptTS)
         if psoft_alloc > 0:
             psoft_peak = max(psoft_peak, closes[i])
         if smart_bri is not None:
             if psoft_buying:
-                for ta, th in ((0.2, 25.0), (0.5, 18.0), (1.0, 12.0)):
+                for ta, th in ((0.5, 20.0), (1.0, 12.0)):
                     if psoft_alloc < ta and smart_bri <= th:
                         psoft_alloc = ta
                         psoft_peak = max(psoft_peak, closes[i])
@@ -428,10 +428,10 @@ def compute_causal_weekly_history(
                 if psoft_alloc >= 1.0:
                     psoft_buying = False
             if psoft_alloc > 0:
-                if psoft_alloc > 0.7 and smart_bri >= 75.0:
-                    psoft_alloc = 0.7
+                if psoft_alloc > 0.5 and smart_bri >= 75.0:
+                    psoft_alloc = 0.5
                     psoft_buying = False
-                if smart_bri >= 80.0 or (psoft_peak > 0 and closes[i] <= psoft_peak * (1.0 - v52_stop_dd) and smart_bri > 30.0):
+                if smart_bri >= 85.0 or (psoft_peak > 0 and closes[i] <= psoft_peak * (1.0 - v52_stop_dd) and smart_bri > 30.0):
                     psoft_alloc = 0.0
                     psoft_peak = 0.0
                     psoft_min_v = 100.0

@@ -331,10 +331,10 @@
       </button>
       <button class="mode-btn" data-mode="pyr_soft" type="button" role="tab" aria-selected="false">
         <div class="mode-top">
-          <span class="mode-title">20/30/50 · М'який</span>
+          <span class="mode-title">50/50 · Дно + Підтвердження</span>
           <span class="pill amber" id="badge-soft">—</span>
         </div>
-        <div class="mode-desc">Вхід ≤25 / ≤18 / ≤12 (+15б), вихід 30% ≥75 / 70% ≥80 + стоп. 2021–26: <strong>5.17×</strong> · DD <strong>−25.6%</strong>.</div>
+        <div class="mode-desc">Вхід 50% (≤20) + 50% (≤12 або +15б), вихід 50% ≥75 / 50% ≥85 + стоп. 2021–26: <strong>4.28×</strong> · DD <strong>−23.7%</strong>.</div>
       </button>
       <button class="mode-btn" data-mode="100_100" type="button" role="tab" aria-selected="false">
         <div class="mode-top">
@@ -639,10 +639,10 @@
             : 'Усі 3 транші (20/30/50) набрано. Тримаємо 100% BTC до Індексу ≥ 80 або адаптивного стопу.');
       } else if (ACTIVE_MODE === 'pyr_soft') {
         sub = pct === 0
-          ? `Чекаємо першого траншу 20% при Індексі v5.2 ≤ 25.0 (зараз ${s.v52 ?? '—'}).`
+          ? `Чекаємо перших 50% при Індексі v5.2 ≤ 20.0 (зараз ${s.v52 ?? '—'}). Найнижча просадка (−23.7%).`
           : (pct < 100
-            ? `У позиції ${pct}% BTC (${cashPct}% кеш). М'який режим із частковою фіксацією 30% при ≥ 75.`
-            : 'Усі 3 транші набрано. Перша фіксація 30% при Індексі ≥ 75, повний вихід при ≥ 80 або адапт. стопі.');
+            ? `Перші 50% BTC вже набрано. Решта 50% чекає капітуляції ≤ 12 або підтвердження розвороту +15 б.`
+            : 'Обидві половини (100% BTC) у ринку. Фіксація 50% при ≥ 75, решта 50% при ≥ 85 або адапт. стопі.');
       } else {
         sub = pct === 100
           ? 'Позиція 100% відкрита при Індексі ≤ 20. Тримаємо до ≥ 80 або адаптивного трейлінг-стопу.'
@@ -711,13 +711,30 @@
       }
 
       const isMax = ACTIVE_MODE === 'pyr_max';
-      const th1 = isMax ? 22 : 25;
-      const th2 = isMax ? 16 : 18;
-      const th3 = 12;
-      const minV = isMax ? s.minVMax : s.minVSoft;
+      if (!isMax) {
+        const minV = s.minVSoft;
+        const confTarget = minV != null ? (minV + 15).toFixed(1) : '35.0';
+        $('s2-pill').textContent = pct === 0 ? 'Чекаємо ≤ 20' : (pct < 100 ? 'Перші 50% куплено' : 'Тримаємо до ≥ 75');
+        $('s2-pill').className = 'pill ' + (pct > 0 ? 'green' : 'amber');
+        $('s2-body').innerHTML = `
+          <div class="sleeve-grid">
+            <div class="sleeve-card">
+              <div class="sleeve-head"><span>Половина 1 · 50% (Дно)</span><span class="pill ${pct >= 50 ? 'green' : 'amber'}">${pct >= 50 ? 'Куплено' : '≤ 20.0'}</span></div>
+              <div class="sleeve-text">Вхід 50% капіталу при Індексі v5.2 <strong>≤ 20.0</strong> (зараз ${s.v52 ?? '—'}).</div>
+            </div>
+            <div class="sleeve-card">
+              <div class="sleeve-head"><span>Половина 2 · +50% (Підтвердження)</span><span class="pill ${pct >= 100 ? 'green' : 'amber'}">${pct >= 100 ? 'Куплено' : '≤ 12 або +15б'}</span></div>
+              <div class="sleeve-text">Другі 50% при глибокому дні <strong>≤ 12</strong> або розвороті <strong>+15 б.</strong> від дна ≤ 20 (${minV != null ? `ціль ≥ ${confTarget}` : 'після входу ≤ 20'}).</div>
+            </div>
+          </div>`;
+        return;
+      }
+
+      const th1 = 22, th2 = 16, th3 = 12;
+      const minV = s.minVMax;
       const confTarget = minV != null ? (minV + 15).toFixed(1) : '35.0';
 
-      $('s2-pill').textContent = pct === 0 ? `Чекаємо ≤ ${th1}` : (pct < 100 ? `Набір піраміди (${pct}% BTC)` : (isMax ? 'Тримаємо до ≥ 80' : 'Перший вихід ≥ 75'));
+      $('s2-pill').textContent = pct === 0 ? `Чекаємо ≤ ${th1}` : (pct < 100 ? `Набір піраміди (${pct}% BTC)` : 'Тримаємо до ≥ 80');
       $('s2-pill').className = 'pill ' + (pct > 0 ? 'green' : 'amber');
 
       const t1Done = pct >= 20;
@@ -752,7 +769,7 @@
       const cashUsd = cap - btcUsd;
       const btcQty = s.spot ? (btcUsd * feeMult) / s.spot : 0;
 
-      const modeNames = { pyr_max: '20/30/50 · Максимум', pyr_soft: '20/30/50 · М\'який', '100_100': '100/100 · Один ордер' };
+      const modeNames = { pyr_max: '20/30/50 · Піраміда', pyr_soft: '50/50 · Дно + Підтвердження', '100_100': '100/100 · Один ордер' };
       const modeCls = { pyr_max: 'green', pyr_soft: 'amber', '100_100': 'blue' };
       $('s3-pill').textContent = modeNames[ACTIVE_MODE];
       $('s3-pill').className = 'pill ' + modeCls[ACTIVE_MODE];
@@ -777,10 +794,27 @@
           <div class="rule-item"><div class="rule-k">1. Вхід</div><div class="rule-v">100% у BTC на відкритті понеділка після тижня ≤ 20.0</div></div>
           <div class="rule-item"><div class="rule-k">2. Захист (стоп)</div><div class="rule-v">Адапт. трейлінг −${s.stopDdPct}% (0.6×vol52, межі 18–30%) при v5.2 &gt; 30</div></div>
           <div class="rule-item"><div class="rule-k">3. Вихід</div><div class="rule-v">100% у кеш при Індексі ≥ 80.0 або спрацюванні стопу</div></div>`;
+      } else if (ACTIVE_MODE === 'pyr_soft') {
+        let nextShare = 0, nextDesc = '';
+        if (pct < 50) { nextShare = 0.50; nextDesc = 'Половина 1 (50%) при Індексі ≤ 20.0'; }
+        else if (pct < 100) { nextShare = 0.50; nextDesc = 'Половина 2 (+50%) при ≤ 12 або розвороті +15 б.'; }
+        if (nextShare > 0) {
+          const usdN = cap * nextShare;
+          const qN = s.spot ? (usdN * feeMult) / s.spot : 0;
+          $('c-next-lbl').textContent = 'Наступний ордер (50%)';
+          $('c-next-val').textContent = `Купити ${qN.toFixed(4)} BTC`;
+          $('c-next-sub').textContent = `${fmtUSD(usdN)} · ${nextDesc}`;
+        } else {
+          $('c-next-lbl').textContent = 'Наступна дія (вихід)';
+          $('c-next-val').textContent = 'Продати 50% при ≥ 75';
+          $('c-next-sub').textContent = `Решта 50% при ≥ 85 або адапт. стопі −${s.stopDdPct}%`;
+        }
+        $('s3-rules').innerHTML = `
+          <div class="rule-item"><div class="rule-k">1. Вхід 50 / 50</div><div class="rule-v">50% при Індексі ≤ 20.0 → +50% при ≤ 12 або розвороті +15 б.</div></div>
+          <div class="rule-item"><div class="rule-k">2. Захист (стоп)</div><div class="rule-v">Адапт. трейлінг −${s.stopDdPct}% (0.6×vol52, 18–30%) при v5.2 &gt; 30</div></div>
+          <div class="rule-item"><div class="rule-k">3. Вихід 50 / 50</div><div class="rule-v">50% фіксація при ≥ 75.0, решта 50% при ≥ 85.0 або стопі</div></div>`;
       } else {
-        const isMax = ACTIVE_MODE === 'pyr_max';
-        const th1 = isMax ? 22 : 25;
-        const th2 = isMax ? 16 : 18;
+        const th1 = 22, th2 = 16;
         let nextShare = 0, nextDesc = '';
         if (pct < 20) { nextShare = 0.20; nextDesc = `Транш 1 (20%) при Індексі ≤ ${th1}`; }
         else if (pct < 50) { nextShare = 0.30; nextDesc = `Транш 2 (+30%) при Індексі ≤ ${th2}`; }
@@ -794,19 +828,17 @@
           $('c-next-sub').textContent = `${fmtUSD(usdN)} · ${nextDesc}`;
         } else {
           $('c-next-lbl').textContent = 'Наступна дія (вихід)';
-          $('c-next-val').textContent = isMax ? 'Продати 100% при ≥ 80' : 'Продати 30% при ≥ 75';
-          $('c-next-sub').textContent = isMax
-            ? `Або адапт. трейлінг-стоп −${s.stopDdPct}% при v5.2 > 30`
-            : `Решта 70% при ≥ 80 або стопі −${s.stopDdPct}%`;
+          $('c-next-val').textContent = 'Продати 100% при ≥ 80';
+          $('c-next-sub').textContent = `Або адапт. трейлінг-стоп −${s.stopDdPct}% при v5.2 > 30`;
         }
         $('s3-rules').innerHTML = `
-          <div class="rule-item"><div class="rule-k">1. Піраміда входу</div><div class="rule-v">20% (≤${th1}) → +30% (≤${th2}) → +50% (≤12 або +15б від дна ≤20)</div></div>
+          <div class="rule-item"><div class="rule-k">1. Піраміда входу</div><div class="rule-v">20% (≤22) → +30% (≤16) → +50% (≤12 або +15б від дна ≤20)</div></div>
           <div class="rule-item"><div class="rule-k">2. Захист (стоп)</div><div class="rule-v">Адапт. трейлінг −${s.stopDdPct}% (0.6×vol52, 18–30%) при v5.2 &gt; 30</div></div>
-          <div class="rule-item"><div class="rule-k">3. Вихід</div><div class="rule-v">${isMax ? '100% у кеш при Індексі ≥ 80.0 або стопі' : '30% фіксація при ≥ 75.0, решта 70% при ≥ 80.0 або стопі'}</div></div>`;
+          <div class="rule-item"><div class="rule-k">3. Вихід</div><div class="rule-v">100% у кеш при Індексі ≥ 80.0 або спрацюванні стопу</div></div>`;
       }
 
       if (BACKTEST) {
-        const modeMap = { pyr_max: 'Pyramid_Max', pyr_soft: 'Pyramid_Soft', '100_100': 'V52_Index_Threshold' };
+        const modeMap = { pyr_max: 'Pyramid_Max', pyr_soft: 'Staged_50_50', '100_100': 'V52_Index_Threshold' };
         const modeKey = modeMap[ACTIVE_MODE];
         const st21 = (BACKTEST.windows?.modern_2021_2026?.strategies || []).find(x => x.mode === modeKey);
         const st17 = (BACKTEST.windows?.full_2018_2026?.strategies || []).find(x => x.mode === modeKey);
@@ -822,7 +854,7 @@
       const tbody = $('bt-tbody');
       if (!BACKTEST) return;
       const list = BACKTEST.windows?.[ACTIVE_BT_WIN]?.strategies || [];
-      const modeMap = { pyr_max: 'Pyramid_Max', pyr_soft: 'Pyramid_Soft', '100_100': 'V52_Index_Threshold' };
+      const modeMap = { pyr_max: 'Pyramid_Max', pyr_soft: 'Staged_50_50', '100_100': 'V52_Index_Threshold' };
       const activeKey = modeMap[ACTIVE_MODE];
       tbody.innerHTML = list.map(st => {
         const hl = st.mode === activeKey ? 'row-hl' : '';
