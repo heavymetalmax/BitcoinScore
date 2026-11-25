@@ -135,9 +135,9 @@ def run_sim(weeks: list[dict], start_date: str, mode: str, fee: float = 0.005, e
 
         v52 = w.get('causal_v52')
         if v52 is not None:
-            if not v52_in and v52 <= 25.0:
+            if not v52_in and v52 <= 20.0:
                 v52_in = True
-            elif v52_in and v52 >= 75.0:
+            elif v52_in and v52 >= 70.0:
                 v52_in = False
 
         if mode == 'S1_SMA40w':
@@ -328,7 +328,7 @@ def main():
         'S1_SMA40w': 'Режим 100/100 (Один ордер: Тижневий тренд SMA40w)',
         'S2_CipherB_1W': 'Лише Cipher B 1W (SMA3, ±2.0 гістерезис)',
         'S3_CipherB_ValueVeto': 'Cipher B 1W + Захист дна MVRV (≤25%)',
-        'V52_Index_Threshold': 'Індекс v5.2 (Пороги ≤25 / ≥75)',
+        'V52_Index_Threshold': 'Індекс v5.2 (Пороги ≤20 / ≥70)',
     }
 
     windows = {}
