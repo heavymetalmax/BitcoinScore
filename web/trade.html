@@ -301,7 +301,7 @@
   <nav class="nav">
     <div class="nav-inner">
       <div class="nav-left">
-        <a class="brand" href="index.html"><span class="logo-accent" id="logo-bri">BTC</span>BRI<span class="alpha-badge">alpha v5.2 · Causal</span><span style="color:var(--muted);font-weight:500;font-size:12px;margin-left:8px;">· Трейд</span></a>
+        <a class="brand" href="index.html">BTC<span class="logo-accent" id="logo-bri">BRI</span><span class="alpha-badge">alpha v5.2 · Causal</span><span style="color:var(--muted);font-weight:500;font-size:12px;margin-left:8px;">· Трейд</span></a>
         <div class="live-ticker" title="Жива ціна BTC/USDT з Binance">
           <span class="live-dot"></span>
           <span>BTC</span>
@@ -528,13 +528,32 @@
       setTimeout(() => { el.style.display = 'none'; }, 2400);
     }
 
-    // Theme
-    const initTheme = localStorage.getItem('btcbri_trade_theme') || 'dark';
-    document.documentElement.setAttribute('data-theme', initTheme);
+    // Theme (supports 'auto' system preference + 'light' / 'dark' cycle)
+    const _sysDark = () => window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const _themeLabels = { auto: 'Тема: Авто', light: 'Тема: Світла', dark: 'Тема: Темна' };
+    const _themeNext = { auto: 'light', light: 'dark', dark: 'auto' };
+    function applyTradeTheme(mode) {
+      const m = _themeLabels[mode] ? mode : 'auto';
+      const actual = m === 'auto' ? (_sysDark() ? 'dark' : 'light') : m;
+      document.documentElement.setAttribute('data-theme', actual);
+      const btn = $('theme-toggle');
+      if (btn) {
+        btn.textContent = _themeLabels[m];
+        btn.title = m === 'auto' ? `Авто (${actual === 'dark' ? 'темна' : 'світла'} за системою)` : _themeLabels[m];
+      }
+    }
+    const initTheme = localStorage.getItem('btcbri_trade_theme') || 'auto';
+    applyTradeTheme(initTheme);
+    if (window.matchMedia) {
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+        if ((localStorage.getItem('btcbri_trade_theme') || 'auto') === 'auto') applyTradeTheme('auto');
+      });
+    }
     $('theme-toggle').addEventListener('click', () => {
-      const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-      document.documentElement.setAttribute('data-theme', next);
+      const cur = localStorage.getItem('btcbri_trade_theme') || 'auto';
+      const next = _themeNext[cur] || 'auto';
       localStorage.setItem('btcbri_trade_theme', next);
+      applyTradeTheme(next);
     });
 
     // Saved capital & fee
