@@ -866,6 +866,7 @@ def compute_score(
     _causal_btcbri = compute_causal_btcbri(_mvrv_info, _d1_state)
     _mvrv_info['causal_btcbri'] = _causal_btcbri
     _mvrv_info['wt1_causal_rank'] = _d1_state.get('wt1_causal_rank') if _d1_state.get('available') else None
+    _cycle_amplitude = _d1_state.get('cycle_amplitude') if _d1_state.get('available') else None
     _checklist = build_entry_exit_checklist(
         raw_metrics=raw_metrics,
         mvrv_info=_mvrv_info,
@@ -950,6 +951,7 @@ def compute_score(
         'forward_risk_method': forward_risk_method,
         'causal_valuation':   _mvrv_info,
         'causal_btcbri':      _causal_btcbri,
+        'cycle_amplitude':    _cycle_amplitude,
         'entry_exit_checklist': _checklist,
         'market_regime':      market_regime,
         'target_allocation_pct': allocation_signal['target_allocation_pct'],

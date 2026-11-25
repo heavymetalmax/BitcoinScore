@@ -226,6 +226,9 @@ def test_data_json_synced_with_live_compute_score():
     assert d['allocation_signal']['action_label'] == live['allocation_signal']['action_label']
     assert d['causal_btcbri'] == live['causal_btcbri']
     assert 0.0 <= d['causal_btcbri'] <= 100.0
+    assert isinstance(d.get('cycle_amplitude'), dict)
+    assert d['cycle_amplitude']['dd_from_ath_pct'] <= 0.0
+    assert 0.0 <= d['cycle_amplitude']['amp_score'] <= 100.0
     assert d['conflict_score'] == live['conflict_score']
     assert d['confidence_score'] == 100 - d['conflict_score']
     assert d['conflict_score'] < 50  # no longer inflated to 52-95 by anti-phase DXY/Macro noise

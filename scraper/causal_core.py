@@ -19,6 +19,7 @@ from __future__ import annotations
 import bisect
 import datetime
 import json
+import math
 import os
 from typing import Any
 
@@ -133,6 +134,13 @@ def compute_causal_d1_state(
     mvrv_ranks = _load_daily_mvrv_ranks(scores_path=scores_path, as_of_date=as_of)
 
     closes = [w['close'] for w in weeks]
+    highs = [w['high'] for w in weeks]
+    lows = [w['low'] for w in weeks]
+    ret1: list[float | None] = [None]
+    for i in range(1, len(weeks)):
+        c0, c1 = closes[i - 1], closes[i]
+        ret1.append(math.log(c1 / c0) if (c0 > 0 and c1 > 0) else None)
+
     sma40_in = False
     cb_in = False
     prev_cb_in = False
@@ -142,6 +150,11 @@ def compute_causal_d1_state(
     last_sma40: float | None = None
     wt1_buf: list[float] = []
     wt1_rank_last: float | None = None
+
+    running_ath = highs[0]
+    vgain_buf: list[float] = []
+    vdd_buf: list[float] = []
+    amp_last: dict[str, Any] | None = None
 
     for i, w in enumerate(weeks):
         wk_close = w['week_close']
@@ -173,6 +186,44 @@ def compute_causal_d1_state(
                 else:
                     cb_in = False
 
+        # Strictly causal vol-scaled cycle amplitude (auto-adapts to diminishing vol/cycles)
+        running_ath = max(running_ath, highs[i])
+        low_4y = min(lows[max(0, i - 207):i + 1])
+        dd_ath_pct = (closes[i] / running_ath - 1.0) * 100.0 if running_ath > 0 else 0.0
+        log_gain = math.log(closes[i] / low_4y) if (low_4y > 0 and closes[i] > 0) else 0.0
+        log_dd = math.log(closes[i] / running_ath) if (running_ath > 0 and closes[i] > 0) else 0.0
+
+        r_win = [r for r in ret1[max(1, i - 51):i + 1] if r is not None]
+        vol52 = None
+        if len(r_win) >= 26:
+            mu_r = sum(r_win) / len(r_win)
+            var_r = sum((x - mu_r) ** 2 for x in r_win) / (len(r_win) - 1)
+            vol52 = math.sqrt(max(0.0, var_r)) * math.sqrt(52.0)
+
+        vgain = (log_gain / vol52) if (vol52 is not None and vol52 > 0.05) else None
+        vdd = (log_dd / vol52) if (vol52 is not None and vol52 > 0.05) else None
+        vg_rank = 50.0
+        if vgain is not None:
+            vg_rank = (bisect.bisect_right(vgain_buf, vgain) / len(vgain_buf) * 100.0) if vgain_buf else 50.0
+            bisect.insort(vgain_buf, vgain)
+        vd_rank = 50.0
+        if vdd is not None:
+            vd_rank = (bisect.bisect_right(vdd_buf, vdd) / len(vdd_buf) * 100.0) if vdd_buf else 50.0
+            bisect.insort(vdd_buf, vdd)
+        amp_sc = 0.50 * vg_rank + 0.50 * vd_rank
+        amp_last = {
+            'running_ath': round(running_ath, 2),
+            'low_4y': round(low_4y, 2),
+            'dd_from_ath_pct': round(dd_ath_pct, 1),
+            'vol52_ann_pct': round(vol52 * 100.0, 1) if vol52 is not None else None,
+            'vol_scaled_gain': round(vgain, 2) if vgain is not None else None,
+            'vol_scaled_dd': round(vdd, 2) if vdd is not None else None,
+            'vgain_rank': round(vg_rank, 1),
+            'vdd_rank': round(vd_rank, 1),
+            'amp_score': round(amp_sc, 1),
+            'risk_adjustment_pts': round((amp_sc - 50.0) * 0.35, 1),
+        }
+
     last_w = weeks[-1]
     w1_last, w2_last = wt1_list[-1], wt2_list[-1]
     sp_last = round(float(w1_last) - float(w2_last), 2) if (w1_last is not None and w2_last is not None) else None
@@ -190,6 +241,7 @@ def compute_causal_d1_state(
         'wt1_causal_rank': round(wt1_rank_last, 1) if wt1_rank_last is not None else None,
         'veto_blocked_exit': veto_blocked,
         'mvrv_pct_week': round(last_mv_pct, 4) if last_mv_pct is not None else None,
+        'cycle_amplitude': amp_last,
     }
 
 
@@ -197,12 +249,13 @@ def compute_causal_btcbri(
     mvrv_info: dict[str, Any] | None,
     d1_state: dict[str, Any] | None,
 ) -> float | None:
-    """Compute unified 0-100 Causal BTCBRI Thermometer (Formula C, 0% lookahead).
+    """Compute unified 0-100 Causal BTCBRI v5.2 Index (0% lookahead).
 
     Combines:
       - 70% Causal Cost-Basis Valuation (MVRV, Puell, CVDD expanding rank)
       - 30% Causal Weekly WaveTrend WT1 expanding rank
-      - +15/+10 D1 distribution break premium when MVRV >= 50th pct and D1 sleeves exit
+      - Vol-scaled Cycle Amplitude risk premium/discount: (amp_score - 50) * 0.35 (±17.5 pts)
+      - +15/+10 D1 distribution break premium when MVRV >= 50th pct and sleeves exit
     """
     val = (mvrv_info or {}).get('valuation_score')
     if val is None:
@@ -210,6 +263,11 @@ def compute_causal_btcbri(
     wt1_rank = (d1_state or {}).get('wt1_causal_rank')
     eff_wt = float(wt1_rank) if wt1_rank is not None else float(val)
     score = 0.70 * float(val) + 0.30 * eff_wt
+
+    amp = (d1_state or {}).get('cycle_amplitude')
+    if isinstance(amp, dict) and amp.get('risk_adjustment_pts') is not None:
+        score += float(amp['risk_adjustment_pts'])
+
     mv_pct = (mvrv_info or {}).get('mvrv_pct')
     if mv_pct is not None and float(mv_pct) >= 0.50 and (d1_state or {}).get('available'):
         if not d1_state.get('cb_in_pos'):
