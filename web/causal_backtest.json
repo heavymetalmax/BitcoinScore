@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-25T08:57:30Z",
+  "generated_at": "2026-11-25T14:31:18Z",
   "methodology": "Production-parity zero-lookahead test on closed Monday weekly OHLC (2011–2026, real H/L/O/C) + causal MVRV/Puell/CVDD + vol-scaled amplitude + WaveTrend SMA3. Execution: next-week open (t+1), true intra-week MaxDD, 0.5% and 1.0% one-way fees.",
   "ohlc_bars": 794,
   "tail_risk_oos": {
@@ -23,33 +23,33 @@
           "end": "2026-11-16",
           "weeks": 516,
           "fee_pct": 0.5,
-          "multiple": 68.37,
-          "return_pct": 6736.5,
-          "cagr_pct": 53.1,
-          "max_dd_pct": 52.4,
+          "multiple": 70.21,
+          "return_pct": 6921.5,
+          "cagr_pct": 53.5,
+          "max_dd_pct": 47.3,
           "max_dd_close_pct": 30.4,
-          "calmar": 1.01,
-          "exposure_pct": 46.1,
+          "calmar": 1.13,
+          "exposure_pct": 43.5,
           "closed_trades": 3,
           "trades": 10,
           "rebalances": 10,
           "win_rate_pct": 100.0,
-          "median_post_entry_dd26_pct": 18.9,
-          "end_alloc_pct": 20.0,
+          "median_post_entry_dd26_pct": 20.6,
+          "end_alloc_pct": 0.0,
           "last_trade": {
-            "date": "2026-06-29",
-            "action": "BUY",
-            "price": 59488.9,
-            "bri": 25.7
+            "date": "2025-07-14",
+            "action": "SELL",
+            "price": 119102.2,
+            "bri": 77.5
           },
           "label": "20/30/50 · Піраміда (≤22/16/12|+15б → ≥80+стоп)",
-          "multiple_fee10": 66.26,
-          "max_dd_fee10_pct": 52.8,
+          "multiple_fee10": 68.12,
+          "max_dd_fee10_pct": 47.7,
           "boot_vs_bh": {
-            "rel_multiple": 1.12,
+            "rel_multiple": 1.15,
             "p05": 0.03,
-            "p95": 32.11,
-            "prob_gt_1": 53.0
+            "p95": 33.79,
+            "prob_gt_1": 53.6
           }
         },
         {
@@ -58,16 +58,16 @@
           "end": "2026-11-16",
           "weeks": 516,
           "fee_pct": 0.5,
-          "multiple": 50.71,
-          "return_pct": 4970.8,
-          "cagr_pct": 48.5,
-          "max_dd_pct": 52.4,
+          "multiple": 45.37,
+          "return_pct": 4437.0,
+          "cagr_pct": 46.9,
+          "max_dd_pct": 47.3,
           "max_dd_close_pct": 30.4,
-          "calmar": 0.93,
-          "exposure_pct": 41.3,
+          "calmar": 0.99,
+          "exposure_pct": 41.0,
           "closed_trades": 3,
-          "trades": 10,
-          "rebalances": 10,
+          "trades": 11,
+          "rebalances": 11,
           "win_rate_pct": 100.0,
           "median_post_entry_dd26_pct": 20.6,
           "end_alloc_pct": 0.0,
@@ -75,16 +75,16 @@
             "date": "2025-11-17",
             "action": "SELL",
             "price": 94190.1,
-            "bri": 46.3
+            "bri": 48.4
           },
           "label": "50/50 · Дно + Підтвердження (≤20/12|+15б → 50%≥75 / 50%≥85+стоп)",
-          "multiple_fee10": 49.2,
-          "max_dd_fee10_pct": 52.8,
+          "multiple_fee10": 44.02,
+          "max_dd_fee10_pct": 47.7,
           "boot_vs_bh": {
-            "rel_multiple": 0.83,
+            "rel_multiple": 0.74,
             "p05": 0.02,
-            "p95": 26.01,
-            "prob_gt_1": 47.2
+            "p95": 21.47,
+            "prob_gt_1": 44.8
           }
         },
         {
@@ -145,7 +145,7 @@
             "date": "2017-01-02",
             "action": "BUY",
             "price": 997.75,
-            "bri": 81.3
+            "bri": 83.6
           },
           "label": "Buy & Hold (бенчмарк)",
           "multiple_fee10": 60.69,
@@ -165,33 +165,33 @@
           "end": "2026-11-16",
           "weeks": 307,
           "fee_pct": 0.5,
-          "multiple": 6.22,
-          "return_pct": 522.1,
-          "cagr_pct": 36.3,
+          "multiple": 6.93,
+          "return_pct": 593.4,
+          "cagr_pct": 38.8,
           "max_dd_pct": 32.8,
           "max_dd_close_pct": 25.0,
-          "calmar": 1.11,
-          "exposure_pct": 50.3,
+          "calmar": 1.18,
+          "exposure_pct": 46.6,
           "closed_trades": 1,
-          "trades": 5,
-          "rebalances": 5,
+          "trades": 3,
+          "rebalances": 3,
           "win_rate_pct": 100.0,
-          "median_post_entry_dd26_pct": 24.5,
-          "end_alloc_pct": 20.0,
+          "median_post_entry_dd26_pct": 24.7,
+          "end_alloc_pct": 0.0,
           "last_trade": {
-            "date": "2026-06-29",
-            "action": "BUY",
-            "price": 59488.9,
-            "bri": 25.7
+            "date": "2025-07-14",
+            "action": "SELL",
+            "price": 119102.2,
+            "bri": 77.5
           },
           "label": "20/30/50 · Піраміда (≤22/16/12|+15б → ≥80+стоп)",
-          "multiple_fee10": 6.15,
+          "multiple_fee10": 6.86,
           "max_dd_fee10_pct": 32.8,
           "boot_vs_bh": {
-            "rel_multiple": 3.38,
-            "p05": 0.67,
-            "p95": 18.4,
-            "prob_gt_1": 88.4
+            "rel_multiple": 3.77,
+            "p05": 0.7,
+            "p95": 21.45,
+            "prob_gt_1": 89.9
           }
         },
         {
@@ -217,7 +217,7 @@
             "date": "2025-11-17",
             "action": "SELL",
             "price": 94190.1,
-            "bri": 46.3
+            "bri": 48.4
           },
           "label": "50/50 · Дно + Підтвердження (≤20/12|+15б → 50%≥75 / 50%≥85+стоп)",
           "multiple_fee10": 4.24,

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-25T08:57:30Z",
+  "generated_at": "2026-11-25T14:31:18Z",
   "methodology": {
     "zero_lookahead": true,
     "ohlc_source": "data/history/btc_weekly_ohlc.json",
@@ -10,7 +10,7 @@
   "latest_snapshot": {
     "date": "2026-11-16",
     "price": 61170.1,
-    "causal_v52": 20.3,
+    "causal_v52": 22.8,
     "w_diff": -21.7
   },
   "top_patterns": [
@@ -29,24 +29,24 @@
         "end": "2026-11-16",
         "weeks": 516,
         "fee_pct": 0.5,
-        "multiple": 68.37,
-        "return_pct": 6736.5,
-        "cagr_pct": 53.1,
-        "max_dd_pct": 52.4,
+        "multiple": 70.21,
+        "return_pct": 6921.5,
+        "cagr_pct": 53.5,
+        "max_dd_pct": 47.3,
         "max_dd_close_pct": 30.4,
-        "calmar": 1.01,
-        "exposure_pct": 46.1,
+        "calmar": 1.13,
+        "exposure_pct": 43.5,
         "closed_trades": 3,
         "trades": 10,
         "rebalances": 10,
         "win_rate_pct": 100.0,
-        "median_post_entry_dd26_pct": 18.9,
-        "end_alloc_pct": 20.0,
+        "median_post_entry_dd26_pct": 20.6,
+        "end_alloc_pct": 0.0,
         "last_trade": {
-          "date": "2026-06-29",
-          "action": "BUY",
-          "price": 59488.9,
-          "bri": 25.7
+          "date": "2025-07-14",
+          "action": "SELL",
+          "price": 119102.2,
+          "bri": 77.5
         }
       },
       "modern_2018": {
@@ -55,24 +55,24 @@
         "end": "2026-11-16",
         "weeks": 464,
         "fee_pct": 0.5,
-        "multiple": 68.37,
-        "return_pct": 6736.5,
-        "cagr_pct": 60.6,
-        "max_dd_pct": 52.4,
+        "multiple": 70.21,
+        "return_pct": 6921.5,
+        "cagr_pct": 61.0,
+        "max_dd_pct": 47.3,
         "max_dd_close_pct": 30.4,
-        "calmar": 1.16,
-        "exposure_pct": 51.3,
+        "calmar": 1.29,
+        "exposure_pct": 48.4,
         "closed_trades": 3,
         "trades": 10,
         "rebalances": 10,
         "win_rate_pct": 100.0,
-        "median_post_entry_dd26_pct": 18.9,
-        "end_alloc_pct": 20.0,
+        "median_post_entry_dd26_pct": 20.6,
+        "end_alloc_pct": 0.0,
         "last_trade": {
-          "date": "2026-06-29",
-          "action": "BUY",
-          "price": 59488.9,
-          "bri": 25.7
+          "date": "2025-07-14",
+          "action": "SELL",
+          "price": 119102.2,
+          "bri": 77.5
         }
       },
       "cycle1": {
@@ -81,24 +81,24 @@
         "end": "2022-06-13",
         "weeks": 233,
         "fee_pct": 0.5,
-        "multiple": 10.49,
-        "return_pct": 948.6,
-        "cagr_pct": 69.0,
-        "max_dd_pct": 52.4,
+        "multiple": 10.13,
+        "return_pct": 912.6,
+        "cagr_pct": 67.6,
+        "max_dd_pct": 47.3,
         "max_dd_close_pct": 30.4,
-        "calmar": 1.32,
-        "exposure_pct": 35.9,
+        "calmar": 1.43,
+        "exposure_pct": 35.0,
         "closed_trades": 2,
-        "trades": 6,
-        "rebalances": 6,
+        "trades": 7,
+        "rebalances": 7,
         "win_rate_pct": 100.0,
-        "median_post_entry_dd26_pct": 20.6,
-        "end_alloc_pct": 20.0,
+        "median_post_entry_dd26_pct": 18.9,
+        "end_alloc_pct": 0.0,
         "last_trade": {
-          "date": "2022-06-13",
-          "action": "BUY",
-          "price": 26538.63,
-          "bri": 14.3
+          "date": "2020-12-28",
+          "action": "SELL",
+          "price": 26242.82,
+          "bri": 87.7
         }
       },
       "cycle2": {
@@ -107,24 +107,24 @@
         "end": "2026-11-16",
         "weeks": 231,
         "fee_pct": 0.5,
-        "multiple": 6.45,
-        "return_pct": 545.0,
-        "cagr_pct": 52.1,
+        "multiple": 6.91,
+        "return_pct": 590.9,
+        "cagr_pct": 54.5,
         "max_dd_pct": 32.8,
         "max_dd_close_pct": 25.0,
-        "calmar": 1.59,
-        "exposure_pct": 66.6,
+        "calmar": 1.66,
+        "exposure_pct": 61.9,
         "closed_trades": 1,
-        "trades": 4,
-        "rebalances": 4,
+        "trades": 3,
+        "rebalances": 3,
         "win_rate_pct": 100.0,
-        "median_post_entry_dd26_pct": 16.9,
-        "end_alloc_pct": 20.0,
+        "median_post_entry_dd26_pct": 26.4,
+        "end_alloc_pct": 0.0,
         "last_trade": {
-          "date": "2026-06-29",
-          "action": "BUY",
-          "price": 59488.9,
-          "bri": 25.7
+          "date": "2025-07-14",
+          "action": "SELL",
+          "price": 119102.2,
+          "bri": 77.5
         }
       },
       "pool_6y": {
@@ -133,24 +133,24 @@
         "end": "2026-11-16",
         "weeks": 307,
         "fee_pct": 0.5,
-        "multiple": 6.22,
-        "return_pct": 522.1,
-        "cagr_pct": 36.3,
+        "multiple": 6.93,
+        "return_pct": 593.4,
+        "cagr_pct": 38.8,
         "max_dd_pct": 32.8,
         "max_dd_close_pct": 25.0,
-        "calmar": 1.11,
-        "exposure_pct": 50.3,
+        "calmar": 1.18,
+        "exposure_pct": 46.6,
         "closed_trades": 1,
-        "trades": 5,
-        "rebalances": 5,
+        "trades": 3,
+        "rebalances": 3,
         "win_rate_pct": 100.0,
-        "median_post_entry_dd26_pct": 24.5,
-        "end_alloc_pct": 20.0,
+        "median_post_entry_dd26_pct": 24.7,
+        "end_alloc_pct": 0.0,
         "last_trade": {
-          "date": "2026-06-29",
-          "action": "BUY",
-          "price": 59488.9,
-          "bri": 25.7
+          "date": "2025-07-14",
+          "action": "SELL",
+          "price": 119102.2,
+          "bri": 77.5
         }
       },
       "pool_full": {
@@ -159,31 +159,31 @@
         "end": "2026-11-16",
         "weeks": 516,
         "fee_pct": 0.5,
-        "multiple": 68.37,
-        "return_pct": 6736.5,
-        "cagr_pct": 53.1,
-        "max_dd_pct": 52.4,
+        "multiple": 70.21,
+        "return_pct": 6921.5,
+        "cagr_pct": 53.5,
+        "max_dd_pct": 47.3,
         "max_dd_close_pct": 30.4,
-        "calmar": 1.01,
-        "exposure_pct": 46.1,
+        "calmar": 1.13,
+        "exposure_pct": 43.5,
         "closed_trades": 3,
         "trades": 10,
         "rebalances": 10,
         "win_rate_pct": 100.0,
-        "median_post_entry_dd26_pct": 18.9,
-        "end_alloc_pct": 20.0,
+        "median_post_entry_dd26_pct": 20.6,
+        "end_alloc_pct": 0.0,
         "last_trade": {
-          "date": "2026-06-29",
-          "action": "BUY",
-          "price": 59488.9,
-          "bri": 25.7
+          "date": "2025-07-14",
+          "action": "SELL",
+          "price": 119102.2,
+          "bri": 77.5
         }
       },
       "last_trade": {
-        "date": "2026-06-29",
-        "action": "BUY",
-        "price": 59488.9,
-        "bri": 25.7
+        "date": "2025-07-14",
+        "action": "SELL",
+        "price": 119102.2,
+        "bri": 77.5
       }
     },
     {
@@ -201,16 +201,16 @@
         "end": "2026-11-16",
         "weeks": 516,
         "fee_pct": 0.5,
-        "multiple": 50.71,
-        "return_pct": 4970.8,
-        "cagr_pct": 48.5,
-        "max_dd_pct": 52.4,
+        "multiple": 45.37,
+        "return_pct": 4437.0,
+        "cagr_pct": 46.9,
+        "max_dd_pct": 47.3,
         "max_dd_close_pct": 30.4,
-        "calmar": 0.93,
-        "exposure_pct": 41.3,
+        "calmar": 0.99,
+        "exposure_pct": 41.0,
         "closed_trades": 3,
-        "trades": 10,
-        "rebalances": 10,
+        "trades": 11,
+        "rebalances": 11,
         "win_rate_pct": 100.0,
         "median_post_entry_dd26_pct": 20.6,
         "end_alloc_pct": 0.0,
@@ -218,7 +218,7 @@
           "date": "2025-11-17",
           "action": "SELL",
           "price": 94190.1,
-          "bri": 46.3
+          "bri": 48.4
         }
       },
       "modern_2018": {
@@ -227,16 +227,16 @@
         "end": "2026-11-16",
         "weeks": 464,
         "fee_pct": 0.5,
-        "multiple": 50.71,
-        "return_pct": 4970.8,
-        "cagr_pct": 55.3,
-        "max_dd_pct": 52.4,
+        "multiple": 45.37,
+        "return_pct": 4437.0,
+        "cagr_pct": 53.3,
+        "max_dd_pct": 47.3,
         "max_dd_close_pct": 30.4,
-        "calmar": 1.06,
-        "exposure_pct": 45.9,
+        "calmar": 1.13,
+        "exposure_pct": 45.6,
         "closed_trades": 3,
-        "trades": 10,
-        "rebalances": 10,
+        "trades": 11,
+        "rebalances": 11,
         "win_rate_pct": 100.0,
         "median_post_entry_dd26_pct": 20.6,
         "end_alloc_pct": 0.0,
@@ -244,7 +244,7 @@
           "date": "2025-11-17",
           "action": "SELL",
           "price": 94190.1,
-          "bri": 46.3
+          "bri": 48.4
         }
       },
       "cycle1": {
@@ -253,16 +253,16 @@
         "end": "2022-06-13",
         "weeks": 233,
         "fee_pct": 0.5,
-        "multiple": 11.84,
-        "return_pct": 1083.9,
-        "cagr_pct": 73.6,
-        "max_dd_pct": 52.4,
+        "multiple": 10.59,
+        "return_pct": 959.3,
+        "cagr_pct": 69.3,
+        "max_dd_pct": 47.3,
         "max_dd_close_pct": 30.4,
-        "calmar": 1.41,
-        "exposure_pct": 35.9,
+        "calmar": 1.47,
+        "exposure_pct": 35.3,
         "closed_trades": 2,
-        "trades": 6,
-        "rebalances": 6,
+        "trades": 7,
+        "rebalances": 7,
         "win_rate_pct": 100.0,
         "median_post_entry_dd26_pct": 18.9,
         "end_alloc_pct": 0.0,
@@ -296,7 +296,7 @@
           "date": "2025-11-17",
           "action": "SELL",
           "price": 94190.1,
-          "bri": 46.3
+          "bri": 48.4
         }
       },
       "pool_6y": {
@@ -322,7 +322,7 @@
           "date": "2025-11-17",
           "action": "SELL",
           "price": 94190.1,
-          "bri": 46.3
+          "bri": 48.4
         }
       },
       "pool_full": {
@@ -331,16 +331,16 @@
         "end": "2026-11-16",
         "weeks": 516,
         "fee_pct": 0.5,
-        "multiple": 50.71,
-        "return_pct": 4970.8,
-        "cagr_pct": 48.5,
-        "max_dd_pct": 52.4,
+        "multiple": 45.37,
+        "return_pct": 4437.0,
+        "cagr_pct": 46.9,
+        "max_dd_pct": 47.3,
         "max_dd_close_pct": 30.4,
-        "calmar": 0.93,
-        "exposure_pct": 41.3,
+        "calmar": 0.99,
+        "exposure_pct": 41.0,
         "closed_trades": 3,
-        "trades": 10,
-        "rebalances": 10,
+        "trades": 11,
+        "rebalances": 11,
         "win_rate_pct": 100.0,
         "median_post_entry_dd26_pct": 20.6,
         "end_alloc_pct": 0.0,
@@ -348,14 +348,14 @@
           "date": "2025-11-17",
           "action": "SELL",
           "price": 94190.1,
-          "bri": 46.3
+          "bri": 48.4
         }
       },
       "last_trade": {
         "date": "2025-11-17",
         "action": "SELL",
         "price": 94190.1,
-        "bri": 46.3
+        "bri": 48.4
       }
     },
     {
@@ -564,7 +564,7 @@
           "date": "2017-01-02",
           "action": "BUY",
           "price": 997.75,
-          "bri": 81.3
+          "bri": 83.6
         }
       },
       "modern_2018": {
@@ -642,7 +642,7 @@
           "date": "2022-06-20",
           "action": "BUY",
           "price": 20557.2,
-          "bri": 15.7
+          "bri": 19.3
         }
       },
       "pool_6y": {
@@ -694,7 +694,7 @@
           "date": "2017-01-02",
           "action": "BUY",
           "price": 997.75,
-          "bri": 81.3
+          "bri": 83.6
         }
       },
       "last_trade": {

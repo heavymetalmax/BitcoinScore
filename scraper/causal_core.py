@@ -181,6 +181,7 @@ def compute_causal_weekly_history(
     mvrv_caps = load_daily_mvrv_and_cap(as_of_date=as_of, path=mvrv_ratio_path)
     cvdd_series = _load_daily_score_field('cvdd_ratio', scores_path=scores_path, as_of_date=as_of)
     puell_series = _load_daily_score_field('puell', scores_path=scores_path, as_of_date=as_of)
+    dxy_series = _load_daily_score_field('dxy', scores_path=scores_path, as_of_date=as_of)
 
     closes = [w['close'] for w in weeks]
     highs = [w['high'] for w in weeks]
@@ -204,12 +205,13 @@ def compute_causal_weekly_history(
     psoft_peak = 0.0
     psoft_min_v = 100.0
     psoft_buying = True
-    mv_idx = mv_cap_idx = cv_idx = pu_idx = 0
+    mv_idx = mv_cap_idx = cv_idx = pu_idx = dxy_idx = 0
     last_mv_pct: float | None = None
     last_mvrv_ratio: float | None = None
     last_rcap: float | None = None
     last_cvdd: float | None = None
     last_puell: float | None = None
+    last_dxy: float | None = None
     wt1_buf: list[float] = []
 
     running_ath = highs[0]
@@ -217,6 +219,8 @@ def compute_causal_weekly_history(
     rcap_hist: list[float | None] = []
     cvdd_hist: list[float | None] = []
     puell_hist: list[float | None] = []
+    dxy_hist: list[float | None] = []
+    dxy_vs_sma_hist: list[float | None] = []
 
     sub_names = ('cb4y', 'cvdd4', 'mcap', 'puell4', 'cb_div')
     sub_hist: dict[str, list[float | None]] = {k: [] for k in sub_names}
@@ -237,6 +241,16 @@ def compute_causal_weekly_history(
         while pu_idx < len(puell_series) and puell_series[pu_idx][0] <= wk_close:
             last_puell = puell_series[pu_idx][1]
             pu_idx += 1
+        while dxy_idx < len(dxy_series) and dxy_series[dxy_idx][0] <= wk_close:
+            last_dxy = dxy_series[dxy_idx][1]
+            dxy_idx += 1
+        dxy_hist.append(last_dxy)
+        dxy_sma20: float | None = None
+        dxy_vs_sma: float | None = None
+        if len(dxy_hist) >= 20 and all(x is not None and x > 0 for x in dxy_hist[-20:]):
+            dxy_sma20 = sum(float(x) for x in dxy_hist[-20:]) / 20.0
+            dxy_vs_sma = (float(last_dxy) / dxy_sma20 - 1.0) * 100.0
+        dxy_vs_sma_hist.append(dxy_vs_sma)
 
         sma40 = sum(closes[i - 39:i + 1]) / 40.0 if i >= 39 else None
         if sma40 is not None:
@@ -345,6 +359,8 @@ def compute_causal_weekly_history(
         avail = {k: cur_subs[k] for k in sub_names if cur_subs[k] is not None}
         smart_bri: float | None = None
         weights_pct: dict[str, float] = {}
+        dxy_ic_13w: float | None = None
+        dxy_adj_pts = 0.0
         if len(avail) >= 2:
             ic_w: dict[str, float] = {}
             if i >= 104:
@@ -365,9 +381,25 @@ def compute_causal_weekly_history(
                 ic_w = {k: 1.0 for k in avail}
 
             sw = sum(ic_w.values())
+            dxy_ic_13w: float | None = None
+            dxy_adj_pts = 0.0
+            if i >= 104 and dxy_vs_sma is not None:
+                m_start_d = max(20, i - 260)
+                m_end_d = i - 12  # strictly matured 13w outcomes: m + 13 <= i
+                dx_x: list[float] = []
+                dx_y: list[float] = []
+                for m in range(m_start_d, m_end_d):
+                    dv = dxy_vs_sma_hist[m]
+                    if dv is not None and closes[m] > 0 and closes[m + 13] > 0:
+                        dx_x.append(dv)
+                        dx_y.append(math.log(closes[m + 13] / closes[m]))
+                dxy_ic_13w = _spearman_rho(dx_x, dx_y) if len(dx_x) >= 40 else None
+                if dxy_vs_sma > 0.0 and dxy_ic_13w is not None and dxy_ic_13w < 0.0:
+                    strength = min(1.0, max(0.0, -dxy_ic_13w) * 2.0)
+                    dxy_adj_pts = strength * 6.0 * math.tanh(dxy_vs_sma / 2.5)
             if sw > 0:
                 raw_smart = sum(ic_w[k] * avail[k] for k in ic_w) / sw
-                smart_bri = round(soft_risk_compress(raw_smart), 1)
+                smart_bri = round(soft_risk_compress(raw_smart + dxy_adj_pts), 1)
                 weights_pct = {k: round(ic_w[k] / sw * 100.0, 1) for k in ic_w}
 
         prev_v52_in = v52_in
@@ -457,6 +489,9 @@ def compute_causal_weekly_history(
             'cb_div_score': round(cb_div_sc, 1) if cb_div_sc is not None else None,
             'expected_mvrv_amp': round(exp_amp, 3) if exp_amp is not None else None,
             'smart_weights_pct': weights_pct,
+            'dxy_sma20w': round(dxy_sma20, 3) if dxy_sma20 is not None else None,
+            'dxy_ic_13w': round(dxy_ic_13w, 4) if dxy_ic_13w is not None else None,
+            'dxy_macro_adj': round(dxy_adj_pts, 2),
             'smart_btcbri': smart_bri,
             'risk_adjustment_pts': round((eff_amp - 50.0) * 0.35, 1),
         }
@@ -569,6 +604,7 @@ def _score_daily_point_in_time(
     mvrv_ratio: float | None,
     cvdd_today: float | None,
     puell_today: float | None,
+    dxy_today: float | None = None,
 ) -> float | None:
     """Evaluate Smart Purged-IC v5.2 for a single day using strictly closed-week weights & 4Y corridors."""
     amp = (w_closed or {}).get('cycle_amplitude')
@@ -618,7 +654,17 @@ def _score_daily_point_in_time(
             v_sum += float(w) * float(sv)
     if w_sum <= 0:
         return float(amp['smart_btcbri']) if amp.get('smart_btcbri') is not None else None
-    return round(soft_risk_compress(v_sum / w_sum), 1)
+    dxy_adj_pts = 0.0
+    dxy_sma20 = amp.get('dxy_sma20w')
+    dxy_ic = amp.get('dxy_ic_13w')
+    if dxy_today is not None and dxy_sma20 and float(dxy_sma20) > 0 and dxy_ic is not None and float(dxy_ic) < 0.0:
+        vs_sma = (float(dxy_today) / float(dxy_sma20) - 1.0) * 100.0
+        if vs_sma > 0.0:
+            strength = min(1.0, max(0.0, -float(dxy_ic)) * 2.0)
+            dxy_adj_pts = strength * 6.0 * math.tanh(vs_sma / 2.5)
+    elif dxy_today is None and amp.get('dxy_macro_adj') is not None:
+        dxy_adj_pts = float(amp['dxy_macro_adj'])
+    return round(soft_risk_compress((v_sum / w_sum) + dxy_adj_pts), 1)
 
 
 def compute_v52_components(
@@ -783,6 +829,7 @@ def compute_causal_daily_series(
             mvrv_ratio=mv_ratio,
             cvdd_today=r.get('cvdd_ratio'),
             puell_today=r.get('puell'),
+            dxy_today=r.get('dxy'),
         )
         if val is not None:
             out[d] = val
@@ -817,6 +864,7 @@ def compute_causal_btcbri(
 
                 cvdd_today, _ = _extract_val(raw_metrics or {}, 'cvdd_ratio')
                 puell_today, _ = _extract_val(raw_metrics or {}, 'puell_multiple')
+                dxy_today, _ = _extract_val(raw_metrics or {}, 'dxy')
                 cutoff = (
                     datetime.date.today().isoformat() if as_of_date is None
                     else (as_of_date[:10] if isinstance(as_of_date, str) else as_of_date.isoformat())
@@ -852,6 +900,7 @@ def compute_causal_btcbri(
                     mvrv_ratio=mv_ratio,
                     cvdd_today=cvdd_today,
                     puell_today=puell_today,
+                    dxy_today=dxy_today,
                 )
                 if daily_val is not None:
                     return daily_val
