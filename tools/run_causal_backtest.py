@@ -26,8 +26,8 @@ ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from scraper.causal_core import _load_daily_mvrv_ranks, compute_cipherb_wt_on_ohlc, soft_risk_compress
-from scraper.mvrv_ratio_store import load_daily_mvrv_ratio
+from scraper.causal_core import _load_daily_cvdd_series, _load_daily_mvrv_ranks, compute_cipherb_wt_on_ohlc, soft_risk_compress
+from scraper.mvrv_ratio_store import load_daily_mvrv_and_cap
 from scraper.ohlc_store import load_closed_weekly_ohlc
 from scraper.tail_risk import predict_tail_risk_13w
 
@@ -64,19 +64,19 @@ def load_weekly_dataset(as_of_date: datetime.date | None = None) -> list[dict]:
     )
     wt1, wt2 = compute_cipherb_wt_on_ohlc(weeks)
     mvrv_ranks = _load_daily_mvrv_ranks(scores_path=str(scores_path), as_of_date=as_of_date)
-    mvrv_ratios = load_daily_mvrv_ratio(as_of_date=as_of_date, path=str(ROOT / 'data/history/mvrv_ratio_history.json'))
-    puell_ranks = _causal_daily_ranks(scores_path, 'puell', as_of_date)
-    cvdd_ranks = _causal_daily_ranks(scores_path, 'cvdd_ratio', as_of_date)
+    mvrv_caps = load_daily_mvrv_and_cap(as_of_date=as_of_date, path=str(ROOT / 'data/history/mvrv_ratio_history.json'))
+    cvdd_series = _load_daily_cvdd_series(scores_path=str(scores_path), as_of_date=as_of_date)
 
     closes = [w['close'] for w in weeks]
 
-    mv_idx = mv_ratio_idx = pu_idx = cv_idx = 0
+    mv_idx = mv_cap_idx = cv_idx = 0
     last_mv: float | None = None
     last_mvrv_ratio: float | None = None
-    last_pu: float | None = None
-    last_cv: float | None = None
-    wt1_buf: list[float] = []
-    log_mvrv_hist: list[float] = []
+    last_rcap: float | None = None
+    last_cvdd: float | None = None
+    log_mvrv_hist: list[float | None] = []
+    rcap_hist: list[float | None] = []
+    cvdd_hist: list[float | None] = []
     s1_in = False
     s2_in = False
 
@@ -86,14 +86,12 @@ def load_weekly_dataset(as_of_date: datetime.date | None = None) -> list[dict]:
         while mv_idx < len(mvrv_ranks) and mvrv_ranks[mv_idx][0] <= wk_close:
             last_mv = mvrv_ranks[mv_idx][1]
             mv_idx += 1
-        while mv_ratio_idx < len(mvrv_ratios) and mvrv_ratios[mv_ratio_idx][0] <= wk_close:
-            last_mvrv_ratio = mvrv_ratios[mv_ratio_idx][1]
-            mv_ratio_idx += 1
-        while pu_idx < len(puell_ranks) and puell_ranks[pu_idx][0] <= wk_close:
-            last_pu = puell_ranks[pu_idx][1]
-            pu_idx += 1
-        while cv_idx < len(cvdd_ranks) and cvdd_ranks[cv_idx][0] <= wk_close:
-            last_cv = cvdd_ranks[cv_idx][1]
+        while mv_cap_idx < len(mvrv_caps) and mvrv_caps[mv_cap_idx][0] <= wk_close:
+            last_mvrv_ratio = mvrv_caps[mv_cap_idx][1]
+            last_rcap = mvrv_caps[mv_cap_idx][2]
+            mv_cap_idx += 1
+        while cv_idx < len(cvdd_series) and cvdd_series[cv_idx][0] <= wk_close:
+            last_cvdd = cvdd_series[cv_idx][1]
             cv_idx += 1
 
         sma40 = sum(closes[i - 39:i + 1]) / 40.0 if i >= 39 else None
@@ -111,33 +109,44 @@ def load_weekly_dataset(as_of_date: datetime.date | None = None) -> list[dict]:
                 if last_mv is None or last_mv > 0.25:
                     s2_in = False
 
-        wt1_rank = 50.0
-        if wt1[i] is not None:
-            wt1_rank = (bisect.bisect_right(wt1_buf, float(wt1[i])) / len(wt1_buf) * 100.0) if wt1_buf else 50.0
-            bisect.insort(wt1_buf, float(wt1[i]))
+        cur_log_mv = math.log(last_mvrv_ratio) if (last_mvrv_ratio is not None and last_mvrv_ratio > 0) else None
+        log_mvrv_hist.append(cur_log_mv)
+        rcap_hist.append(last_rcap)
+        cvdd_hist.append(last_cvdd)
 
         amp_sc = 50.0
-        if last_mvrv_ratio is not None and last_mvrv_ratio > 0:
-            log_mv = math.log(last_mvrv_ratio)
-            log_mvrv_hist.append(log_mv)
-            win_4y = log_mvrv_hist[-208:]
-            lo_4y = min(win_4y)
-            hi_4y = max(win_4y)
-            span_4y = hi_4y - lo_4y
-            if len(win_4y) >= 2 and span_4y > 1e-9:
-                amp_sc = min(100.0, max(0.0, (log_mv - lo_4y) / span_4y * 100.0))
+        if cur_log_mv is not None:
+            win_4y = [x for x in log_mvrv_hist[max(0, i - 207):i + 1] if x is not None]
+            if len(win_4y) >= 26:
+                lo_4y, hi_4y = min(win_4y), max(win_4y)
+                if (hi_4y - lo_4y) > 1e-9:
+                    amp_sc = min(100.0, max(0.0, (cur_log_mv - lo_4y) / (hi_4y - lo_4y) * 100.0))
 
-        cb_comps = [x for x in (last_mv * 100.0 if last_mv is not None else None, last_pu, last_cv) if x is not None]
-        causal_v52 = None
-        if cb_comps:
-            val_sc = sum(cb_comps) / len(cb_comps)
-            sc = 0.70 * val_sc + 0.30 * wt1_rank + (amp_sc - 50.0) * 0.35
-            if last_mv is not None and last_mv >= 0.50:
-                if not s2_in:
-                    sc += 15.0
-                if not s1_in:
-                    sc += 10.0
-            causal_v52 = round(soft_risk_compress(sc), 1)
+        cvdd_4y_sc: float | None = None
+        if last_cvdd is not None:
+            c_win = [x for x in cvdd_hist[max(0, i - 207):i + 1] if x is not None]
+            if len(c_win) >= 26:
+                c_win.sort()
+                cvdd_4y_sc = bisect.bisect_right(c_win, last_cvdd) / len(c_win) * 100.0
+
+        mcap_adj_sc: float | None = None
+        if cur_log_mv is not None and last_rcap is not None and last_rcap > 1e6 and i >= 104:
+            xs, ys = [], []
+            for k in range(max(0, i - 520), i):
+                lm_k, rc_k = log_mvrv_hist[k], rcap_hist[k]
+                if lm_k is not None and rc_k is not None and rc_k > 1e6:
+                    xs.append(math.log10(rc_k))
+                    ys.append(abs(lm_k))
+            if len(xs) >= 52:
+                mx, my = sum(xs) / len(xs), sum(ys) / len(ys)
+                vx = sum((x - mx) ** 2 for x in xs)
+                slope = sum((x - mx) * (y - my) for x, y in zip(xs, ys)) / vx if vx > 1e-9 else 0.0
+                exp_amp = max(0.15, (my - slope * mx) + slope * math.log10(last_rcap))
+                mcap_adj_sc = 100.0 / (1.0 + math.exp(-1.5 * (cur_log_mv / exp_amp - 0.35)))
+
+        eff_mcap = mcap_adj_sc if mcap_adj_sc is not None else amp_sc
+        raw_v52 = (0.40 * amp_sc + 0.40 * cvdd_4y_sc + 0.20 * eff_mcap) if cvdd_4y_sc is not None else (0.67 * amp_sc + 0.33 * eff_mcap)
+        causal_v52 = round(soft_risk_compress(raw_v52), 1)
 
         out.append({
             'week_open': w['date'],

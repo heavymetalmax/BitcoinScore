@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-25T06:56:51Z",
+  "generated_at": "2026-11-25T07:13:20Z",
   "methodology": "Production-parity zero-lookahead test on closed Monday weekly OHLC (2011–2026, real H/L/O/C) + causal MVRV/Puell/CVDD + vol-scaled amplitude + WaveTrend SMA3. Execution: next-week open (t+1), true intra-week MaxDD, 0.5% and 1.0% one-way fees.",
   "ohlc_bars": 794,
   "tail_risk_oos": {
@@ -40,7 +40,7 @@
             "date": "2017-01-02",
             "action": "BUY",
             "price": 997.75,
-            "bri": 69.5
+            "bri": 63.5
           },
           "label": "Buy & Hold (бенчмарк)",
           "multiple_fee10": 60.69,
@@ -70,7 +70,7 @@
             "date": "2026-11-16",
             "action": "SELL",
             "price": 65314.6,
-            "bri": 14.4
+            "bri": 21.6
           },
           "label": "Режим 50/50 (Поетапний: Тренд SMA40w + Імпульс Cipher B & Захист дна)",
           "multiple_fee10": 64.96,
@@ -105,7 +105,7 @@
             "date": "2026-11-16",
             "action": "SELL",
             "price": 65314.6,
-            "bri": 14.4
+            "bri": 21.6
           },
           "label": "Режим 100/100 (Один ордер: Тижневий тренд SMA40w)",
           "multiple_fee10": 83.1,
@@ -140,7 +140,7 @@
             "date": "2026-10-19",
             "action": "SELL",
             "price": 82001.7,
-            "bri": 45.4
+            "bri": 47.0
           },
           "label": "Лише Cipher B 1W (SMA3, ±2.0 гістерезис)",
           "multiple_fee10": 19.31,
@@ -175,7 +175,7 @@
             "date": "2026-10-19",
             "action": "SELL",
             "price": 82001.7,
-            "bri": 45.4
+            "bri": 47.0
           },
           "label": "Cipher B 1W + Захист дна MVRV (≤25%)",
           "multiple_fee10": 28.11,
@@ -193,33 +193,33 @@
           "end": "2026-11-16",
           "weeks": 516,
           "fee_pct": 0.5,
-          "multiple": 2.42,
-          "return_pct": 141.7,
-          "cagr_pct": 9.3,
-          "max_dd_pct": 68.6,
-          "max_dd_close_pct": 66.8,
-          "calmar": 0.14,
-          "exposure_pct": 51.7,
-          "closed_trades": 3,
-          "trades": 7,
-          "rebalances": 7,
+          "multiple": 14.43,
+          "return_pct": 1343.1,
+          "cagr_pct": 30.9,
+          "max_dd_pct": 72.3,
+          "max_dd_close_pct": 53.6,
+          "calmar": 0.43,
+          "exposure_pct": 41.5,
+          "closed_trades": 2,
+          "trades": 5,
+          "rebalances": 5,
           "win_rate_pct": 100.0,
-          "median_post_entry_dd26_pct": 37.2,
+          "median_post_entry_dd26_pct": 20.6,
           "end_alloc_pct": 100.0,
           "last_trade": {
-            "date": "2025-11-24",
+            "date": "2026-06-29",
             "action": "BUY",
-            "price": 86777.5,
-            "bri": 29.5
+            "price": 59488.9,
+            "bri": 27.8
           },
           "label": "Індекс v5.2 (Пороги ≤25 / ≥75)",
-          "multiple_fee10": 2.33,
-          "max_dd_fee10_pct": 68.6,
+          "multiple_fee10": 14.07,
+          "max_dd_fee10_pct": 72.3,
           "boot_vs_bh": {
-            "rel_multiple": 0.04,
-            "p05": 0.0,
-            "p95": 1.24,
-            "prob_gt_1": 6.2
+            "rel_multiple": 0.24,
+            "p05": 0.01,
+            "p95": 8.82,
+            "prob_gt_1": 26.8
           }
         }
       ]
@@ -252,7 +252,7 @@
             "date": "2021-01-04",
             "action": "BUY",
             "price": 33068.83,
-            "bri": 95.6
+            "bri": 90.0
           },
           "label": "Buy & Hold (бенчмарк)",
           "multiple_fee10": 1.83,
@@ -282,7 +282,7 @@
             "date": "2026-11-16",
             "action": "SELL",
             "price": 65314.6,
-            "bri": 14.4
+            "bri": 21.6
           },
           "label": "Режим 50/50 (Поетапний: Тренд SMA40w + Імпульс Cipher B & Захист дна)",
           "multiple_fee10": 2.29,
@@ -317,7 +317,7 @@
             "date": "2026-11-16",
             "action": "SELL",
             "price": 65314.6,
-            "bri": 14.4
+            "bri": 21.6
           },
           "label": "Режим 100/100 (Один ордер: Тижневий тренд SMA40w)",
           "multiple_fee10": 2.31,
@@ -352,7 +352,7 @@
             "date": "2026-10-19",
             "action": "SELL",
             "price": 82001.7,
-            "bri": 45.4
+            "bri": 47.0
           },
           "label": "Лише Cipher B 1W (SMA3, ±2.0 гістерезис)",
           "multiple_fee10": 1.23,
@@ -387,7 +387,7 @@
             "date": "2026-10-19",
             "action": "SELL",
             "price": 82001.7,
-            "bri": 45.4
+            "bri": 47.0
           },
           "label": "Cipher B 1W + Захист дна MVRV (≤25%)",
           "multiple_fee10": 1.8,
@@ -405,33 +405,33 @@
           "end": "2026-11-16",
           "weeks": 307,
           "fee_pct": 0.5,
-          "multiple": 0.81,
-          "return_pct": -19.1,
-          "cagr_pct": -3.5,
-          "max_dd_pct": 67.9,
-          "max_dd_close_pct": 65.3,
-          "calmar": -0.05,
-          "exposure_pct": 49.8,
+          "multiple": 3.11,
+          "return_pct": 211.1,
+          "cagr_pct": 21.2,
+          "max_dd_pct": 38.6,
+          "max_dd_close_pct": 33.2,
+          "calmar": 0.55,
+          "exposure_pct": 35.8,
           "closed_trades": 1,
           "trades": 3,
           "rebalances": 3,
           "win_rate_pct": 100.0,
-          "median_post_entry_dd26_pct": 40.9,
+          "median_post_entry_dd26_pct": 16.0,
           "end_alloc_pct": 100.0,
           "last_trade": {
-            "date": "2025-11-24",
+            "date": "2026-06-29",
             "action": "BUY",
-            "price": 86777.5,
-            "bri": 29.5
+            "price": 59488.9,
+            "bri": 27.8
           },
           "label": "Індекс v5.2 (Пороги ≤25 / ≥75)",
-          "multiple_fee10": 0.8,
-          "max_dd_fee10_pct": 67.9,
+          "multiple_fee10": 3.06,
+          "max_dd_fee10_pct": 38.6,
           "boot_vs_bh": {
-            "rel_multiple": 0.44,
-            "p05": 0.07,
-            "p95": 2.92,
-            "prob_gt_1": 24.2
+            "rel_multiple": 1.69,
+            "p05": 0.24,
+            "p95": 13.23,
+            "prob_gt_1": 66.7
           }
         }
       ]
