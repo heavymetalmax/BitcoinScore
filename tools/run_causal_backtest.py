@@ -227,35 +227,11 @@ def build_strategy_patterns(weeks: list[dict], gen_ts: str) -> dict:
             'live_spec': {'type': 'causal_50_50'},
         },
         {
-            'mode': 'S1_SMA40w',
-            'name': 'Тижневий тренд SMA40w (100%)',
-            'family': 'Trend',
-            'role_tag': 'ТРЕНД',
-            'rule_short': 'Вхід 100% при закритті тижня > SMA40w та повний вихід < SMA40w',
-            'live_spec': {'type': 'causal_s1_sma40'},
-        },
-        {
-            'mode': 'S3_CipherB_ValueVeto',
-            'name': 'Cipher B 1W + Захист дна MVRV',
-            'family': 'Cipher B',
-            'role_tag': 'ІМПУЛЬС + ЗАХИСТ',
-            'rule_short': 'Вхід 100% по 1W (wt1−wt2) ≥ +2.0; вихід ≤ −2.0 лише якщо MVRV ранг > 25%',
-            'live_spec': {'type': 'causal_s3'},
-        },
-        {
-            'mode': 'S2_CipherB_1W',
-            'name': 'Чистий Cipher B 1W (±2.0 гістерезис)',
-            'family': 'Cipher B',
-            'role_tag': 'ІМПУЛЬС',
-            'rule_short': 'Вхід 100% по 1W (wt1−wt2) ≥ +2.0; вихід при ≤ −2.0 без фільтра собівартості',
-            'live_spec': {'type': 'causal_s2'},
-        },
-        {
             'mode': 'V52_Index_Threshold',
-            'name': 'Режим 100 / 100 (Індекс v5.2 · ≤20 / ≥80)',
+            'name': 'Режим 100 / 100 (Індекс v5.2 · ≤20 / ≥80 + адапт. стоп)',
             'family': 'Index v5.2',
             'role_tag': 'ПРОСТИЙ · 100/100',
-            'rule_short': 'Одномоментний вхід 100% коли Індекс v5.2 ≤ 20; повний вихід у кеш коли ≥ 80',
+            'rule_short': 'Одномоментний вхід 100% коли Індекс v5.2 ≤ 20; вихід коли ≥ 80 або адапт. трейлінг −(0.6×vol52, 18–30%)',
             'live_spec': {'type': 'causal_v52_idx', 'buy': 20, 'sell': 80},
         },
         {
@@ -324,20 +300,14 @@ def main():
         ohlc_path=str(ROOT / 'data/history/btc_weekly_ohlc.json'),
     )
     modes = [
-        'BH',
-        'D1_Causal_DualSleeve',
-        'S1_SMA40w',
-        'S2_CipherB_1W',
-        'S3_CipherB_ValueVeto',
         'V52_Index_Threshold',
+        'D1_Causal_DualSleeve',
+        'BH',
     ]
     labels = {
-        'BH': 'Buy & Hold (бенчмарк)',
-        'D1_Causal_DualSleeve': 'Режим 50/50 (Поетапний: Тренд SMA40w + Імпульс Cipher B & Захист дна)',
-        'S1_SMA40w': 'Тижневий тренд SMA40w (100%)',
-        'S2_CipherB_1W': 'Лише Cipher B 1W (SMA3, ±2.0 гістерезис)',
-        'S3_CipherB_ValueVeto': 'Cipher B 1W + Захист дна MVRV (≤25%)',
         'V52_Index_Threshold': 'Режим 100/100 (Індекс v5.2 ≤20 / ≥80 + адапт. стоп)',
+        'D1_Causal_DualSleeve': 'Режим 50/50 (Поетапний: Тренд SMA40w + Імпульс Cipher B & Захист дна)',
+        'BH': 'Buy & Hold (бенчмарк)',
     }
 
     windows = {}
