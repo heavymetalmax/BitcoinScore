@@ -236,10 +236,10 @@ def main():
     ]
     labels = {
         'BH': 'Buy & Hold (бенчмарк)',
-        'D1_Causal_DualSleeve': 'D1 (АКТИВНИЙ): 50% SMA40w + 50% Cipher B & MVRV Veto',
-        'S1_SMA40w': 'S1: Тижневий тренд (SMA40w)',
-        'S2_CipherB_1W': 'S2: Cipher B 1W (SMA3, ±2.0 гістерезис)',
-        'S3_CipherB_ValueVeto': 'S3: Cipher B 1W + MVRV Value-Veto (≤25%)',
+        'D1_Causal_DualSleeve': 'Режим 50/50 (Поетапний: Тренд SMA40w + Імпульс Cipher B & Захист дна)',
+        'S1_SMA40w': 'Режим 100/100 (Один ордер: Тижневий тренд SMA40w)',
+        'S2_CipherB_1W': 'Лише Cipher B 1W (SMA3, ±2.0 гістерезис)',
+        'S3_CipherB_ValueVeto': 'Cipher B 1W + Захист дна MVRV (≤25%)',
     }
 
     windows = {}

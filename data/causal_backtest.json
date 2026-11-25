@@ -1,14 +1,14 @@
 {
-  "generated_at": "2026-11-24T19:28:57Z",
+  "generated_at": "2026-11-25T06:09:48Z",
   "methodology": "Production-parity zero-lookahead test on closed Monday weekly OHLC (2011–2026, real H/L/O/C) + causal MVRV rank + WaveTrend SMA3. Execution: next-week open (t+1), true intra-week MaxDD, 0.5% and 1.0% one-way fees.",
   "ohlc_bars": 794,
   "tail_risk_oos": {
-    "n_oos": 502,
-    "brier": 0.21322,
-    "prevalence_brier": 0.22493,
-    "bss_vs_prevalence": 0.0521,
-    "pr_auc": 0.4657,
-    "ece_5bin": 0.041,
+    "n_oos": 503,
+    "brier": 0.21381,
+    "prevalence_brier": 0.22538,
+    "bss_vs_prevalence": 0.0513,
+    "pr_auc": 0.4662,
+    "ece_5bin": 0.0424,
     "passed": true
   },
   "windows": {
@@ -44,7 +44,7 @@
           "end": "2026-11-16",
           "weeks": 516,
           "fee_pct": 0.5,
-          "multiple": 82.44,
+          "multiple": 82.39,
           "cagr_pct": 56.0,
           "max_dd_pct": 61.3,
           "max_dd_close_pct": 59.3,
@@ -54,8 +54,8 @@
           "rebalances": 94,
           "win_rate_pct": 61.1,
           "median_post_entry_dd26_pct": 28.2,
-          "label": "D1 (АКТИВНИЙ): 50% SMA40w + 50% Cipher B & MVRV Veto",
-          "multiple_fee10": 65.01,
+          "label": "Режим 50/50 (Поетапний: Тренд SMA40w + Імпульс Cipher B & Захист дна)",
+          "multiple_fee10": 64.96,
           "max_dd_fee10_pct": 62.3,
           "boot_vs_bh": {
             "rel_multiple": 1.35,
@@ -70,7 +70,7 @@
           "end": "2026-11-16",
           "weeks": 516,
           "fee_pct": 0.5,
-          "multiple": 94.74,
+          "multiple": 94.73,
           "cagr_pct": 58.2,
           "max_dd_pct": 69.9,
           "max_dd_close_pct": 65.0,
@@ -80,13 +80,13 @@
           "rebalances": 26,
           "win_rate_pct": 61.5,
           "median_post_entry_dd26_pct": 17.4,
-          "label": "S1: Тижневий тренд (SMA40w)",
-          "multiple_fee10": 83.11,
+          "label": "Режим 100/100 (Один ордер: Тижневий тренд SMA40w)",
+          "multiple_fee10": 83.1,
           "max_dd_fee10_pct": 69.9,
           "boot_vs_bh": {
             "rel_multiple": 1.55,
             "p05": 0.26,
-            "p95": 11.22,
+            "p95": 11.21,
             "prob_gt_1": 65.2
           }
         },
@@ -96,7 +96,7 @@
           "end": "2026-11-16",
           "weeks": 516,
           "fee_pct": 0.5,
-          "multiple": 28.65,
+          "multiple": 28.61,
           "cagr_pct": 40.2,
           "max_dd_pct": 63.1,
           "max_dd_close_pct": 60.6,
@@ -106,13 +106,13 @@
           "rebalances": 78,
           "win_rate_pct": 51.3,
           "median_post_entry_dd26_pct": 18.2,
-          "label": "S2: Cipher B 1W (SMA3, ±2.0 гістерезис)",
-          "multiple_fee10": 19.34,
+          "label": "Лише Cipher B 1W (SMA3, ±2.0 гістерезис)",
+          "multiple_fee10": 19.31,
           "max_dd_fee10_pct": 64.5,
           "boot_vs_bh": {
             "rel_multiple": 0.47,
             "p05": 0.03,
-            "p95": 7.15,
+            "p95": 7.13,
             "prob_gt_1": 33.6
           }
         },
@@ -122,7 +122,7 @@
           "end": "2026-11-16",
           "weeks": 516,
           "fee_pct": 0.5,
-          "multiple": 40.45,
+          "multiple": 40.4,
           "cagr_pct": 45.2,
           "max_dd_pct": 63.1,
           "max_dd_close_pct": 60.6,
@@ -132,13 +132,13 @@
           "rebalances": 72,
           "win_rate_pct": 52.8,
           "median_post_entry_dd26_pct": 21.4,
-          "label": "S3: Cipher B 1W + MVRV Value-Veto (≤25%)",
-          "multiple_fee10": 28.15,
+          "label": "Cipher B 1W + Захист дна MVRV (≤25%)",
+          "multiple_fee10": 28.11,
           "max_dd_fee10_pct": 64.5,
           "boot_vs_bh": {
             "rel_multiple": 0.66,
             "p05": 0.04,
-            "p95": 9.84,
+            "p95": 9.82,
             "prob_gt_1": 41.4
           }
         }
@@ -186,13 +186,13 @@
           "rebalances": 57,
           "win_rate_pct": 58.3,
           "median_post_entry_dd26_pct": 25.3,
-          "label": "D1 (АКТИВНИЙ): 50% SMA40w + 50% Cipher B & MVRV Veto",
+          "label": "Режим 50/50 (Поетапний: Тренд SMA40w + Імпульс Cipher B & Захист дна)",
           "multiple_fee10": 2.29,
           "max_dd_fee10_pct": 43.4,
           "boot_vs_bh": {
             "rel_multiple": 1.44,
             "p05": 0.39,
-            "p95": 5.88,
+            "p95": 5.87,
             "prob_gt_1": 67.1
           }
         },
@@ -212,14 +212,14 @@
           "rebalances": 18,
           "win_rate_pct": 44.4,
           "median_post_entry_dd26_pct": 25.1,
-          "label": "S1: Тижневий тренд (SMA40w)",
+          "label": "Режим 100/100 (Один ордер: Тижневий тренд SMA40w)",
           "multiple_fee10": 2.31,
           "max_dd_fee10_pct": 59.8,
           "boot_vs_bh": {
             "rel_multiple": 1.38,
             "p05": 0.39,
             "p95": 5.44,
-            "prob_gt_1": 65.1
+            "prob_gt_1": 65.2
           }
         },
         {
@@ -238,14 +238,14 @@
           "rebalances": 48,
           "win_rate_pct": 45.8,
           "median_post_entry_dd26_pct": 25.0,
-          "label": "S2: Cipher B 1W (SMA3, ±2.0 гістерезис)",
-          "multiple_fee10": 1.24,
+          "label": "Лише Cipher B 1W (SMA3, ±2.0 гістерезис)",
+          "multiple_fee10": 1.23,
           "max_dd_fee10_pct": 56.0,
           "boot_vs_bh": {
-            "rel_multiple": 0.86,
+            "rel_multiple": 0.85,
             "p05": 0.13,
             "p95": 5.61,
-            "prob_gt_1": 43.5
+            "prob_gt_1": 43.4
           }
         },
         {
@@ -264,14 +264,14 @@
           "rebalances": 42,
           "win_rate_pct": 47.6,
           "median_post_entry_dd26_pct": 25.5,
-          "label": "S3: Cipher B 1W + MVRV Value-Veto (≤25%)",
+          "label": "Cipher B 1W + Захист дна MVRV (≤25%)",
           "multiple_fee10": 1.8,
           "max_dd_fee10_pct": 52.9,
           "boot_vs_bh": {
             "rel_multiple": 1.21,
             "p05": 0.19,
-            "p95": 7.7,
-            "prob_gt_1": 56.8
+            "p95": 7.66,
+            "prob_gt_1": 56.7
           }
         }
       ]

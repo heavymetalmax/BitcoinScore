@@ -215,6 +215,35 @@ def compute_allocation_signal(
             market_regime = 'Wait'
             action_label = 'WAIT_CASH'
 
+    # ── 4. Isolated Mode 100/100 (Single-Order Binary: 100% BTC or 100% Cash) ─
+    mode_100_target_pct = 100 if eff_sma40_in else 0
+    if data_quality_status == 'invalid':
+        mode_100_regime = 'Unavailable'
+        mode_100_action_label = 'UNAVAILABLE'
+    elif data_quality_status != 'valid':
+        mode_100_regime = 'Wait'
+        mode_100_action_label = 'DEGRADED_WAIT'
+    elif abstain:
+        mode_100_regime = 'Wait'
+        mode_100_action_label = 'ABSTAIN_UNCERTAIN'
+    elif eff_sma40_in:
+        if is_cheap and not high_dd_guard:
+            mode_100_regime = 'Buy'
+            mode_100_action_label = 'ALL_IN_100'
+        else:
+            mode_100_regime = 'Hold'
+            mode_100_action_label = 'HOLD_100'
+    else:
+        if value_sell_veto:
+            mode_100_regime = 'Wait'
+            mode_100_action_label = 'ALL_CASH_WATCH'
+        elif is_overheated:
+            mode_100_regime = 'Sell'
+            mode_100_action_label = 'EXIT_100_CASH'
+        else:
+            mode_100_regime = 'Wait'
+            mode_100_action_label = 'WAIT_100_CASH'
+
     return {
         'allocation_engine': 'causal_d1_sma40_cb_veto',
         'market_regime': market_regime,
@@ -222,6 +251,9 @@ def compute_allocation_signal(
         'target_allocation_pct': target_allocation_pct,
         'sma40_sleeve_pct': sma40_sleeve_pct,
         'cipherb_sleeve_pct': cipherb_sleeve_pct,
+        'mode_100_target_pct': mode_100_target_pct,
+        'mode_100_regime': mode_100_regime,
+        'mode_100_action_label': mode_100_action_label,
         # Backward-compat alias for legacy readers; points to active Sleeve 1 (SMA40w)
         'bri_sleeve_pct': sma40_sleeve_pct,
         'legacy_bri_sleeve_pct': legacy_bri_sleeve_pct,
