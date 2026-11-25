@@ -1,0 +1,16 @@
+{
+  "prepared_on": "2026-11-25",
+  "purpose": "Evaluation reference only. No production integration.",
+  "sources": [
+    {"id":"drawdown_table","url":"https://bitcoincalculator.tools/learn/bitcoin-drawdown-history","publisher":"BitcoinCalculator.tools","updated":"2026-11-08","type":"secondary historical table","used_for":"Dates of large drawdowns; source describes daily Bitstamp closes and early MtGox exception. No full table or price series reproduced.","limitations":"Open 2025-2026 episode stale; not a current bottom. Full upstream audit not established."},
+    {"id":"data_guide","url":"https://bitcoindataguide.com/historical-data","publisher":"Bitcoin Data Guide","type":"secondary curated event registry","used_for":"Alternative intraday/point extrema and COVID intermediate low.","limitations":"Mixed Coinbase/Bitstamp/CoinDesk early sources; not one homogeneous series. Treat provenance as reported by publisher."},
+    {"id":"by_numbers","url":"https://bitcoinbythenumbers.com/metrics/drawdown/","publisher":"Bitcoin by the Numbers","type":"secondary metric explanation","used_for":"Daily-close versus intraday distinction, alternate 2022 low date.","limitations":"Page itself notes incomplete early history; dates need matching price basis."},
+    {"id":"coinlab","url":"https://coinlab.info/en/articles/bitcoin-annual-returns/","publisher":"Coinlab","updated":"2026-11-05","type":"secondary Coin Metrics analysis","used_for":"Cross-check composite-close event dates; annual versus cycle extrema distinction.","limitations":"Not a raw-data redistribution grant; 2026 numbers stale."},
+    {"id":"bitstamp_api","url":"https://www.bitstamp.net/api/","publisher":"Bitstamp","type":"primary API specification and commercial-use terms","used_for":"OHLC semantics and data-use boundary.","limitations":"Commercial Data License Agreement directed for company commercial use; no license established here. No raw or full derived Bitstamp dataset published."},
+    {"id":"zigzag_method","url":"https://www.investopedia.com/terms/z/zig_zag_indicator.asp","publisher":"Investopedia","updated":"2026-07-21","type":"methodology explanation","used_for":"Reversal-threshold method background and retrospective/repainting limitations; implementation here independently written."},
+    {"id":"coinmetrics_license","url":"https://raw.githubusercontent.com/coinmetrics/data/master/LICENSE","publisher":"Coin Metrics","type":"primary dataset license","used_for":"CC BY-NC 4.0 alternative is not unrestricted commercial redistribution."}
+  ],
+  "selected_basis": "Historical event registry preserves each source basis. Generated tables use exactly the locally supplied daily-close series.",
+  "known_conflicts": ["2022 daily-close trough November 9 in composite sources versus November 21 in Bitstamp table.","2013/2017/2021 close highs differ from intraday highs by date.","2026 provisional lows must not be treated as completed-cycle bottoms."],
+  "license_statement": "Source facts and attribution only, no claim of an open license for third-party market histories. No scraped OHLC data distributed. Establish source rights before distributing locally generated numeric datasets."
+}
