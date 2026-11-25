@@ -63,8 +63,9 @@
       display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
     }
     .nav-left { display: flex; align-items: center; gap: 14px; }
-    .brand { font-weight: 800; font-size: 16px; letter-spacing: -0.02em; display: flex; align-items: center; gap: 8px; }
-    .brand-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--blue); box-shadow: 0 0 10px var(--blue); }
+    .brand { font-weight: 800; font-size: 16px; letter-spacing: 0.03em; display: inline-flex; align-items: baseline; }
+    .brand .logo-accent { color: var(--green); transition: color 0.3s ease; }
+    .brand .alpha-badge { font-size: 0.58rem; font-weight: 400; letter-spacing: 0.05em; color: var(--muted); vertical-align: middle; margin-left: 6px; }
     .live-ticker {
       display: inline-flex; align-items: center; gap: 6px;
       padding: 4px 10px; border-radius: 999px;
@@ -300,7 +301,7 @@
   <nav class="nav">
     <div class="nav-inner">
       <div class="nav-left">
-        <div class="brand"><span class="brand-dot"></span> BTCBRI <span style="color:var(--muted);font-weight:500;">Трейд</span></div>
+        <a class="brand" href="index.html"><span class="logo-accent" id="logo-bri">BTC</span>BRI<span class="alpha-badge">alpha v5.2 · Causal</span><span style="color:var(--muted);font-weight:500;font-size:12px;margin-left:8px;">· Трейд</span></a>
         <div class="live-ticker" title="Жива ціна BTC/USDT з Binance">
           <span class="live-dot"></span>
           <span>BTC</span>
@@ -983,6 +984,10 @@ ${JSON.stringify(pack, null, 2)}
       $('nav-price').textContent = fmtUSD(s.spot);
       $('meta-updated').textContent = `Оновлено: ${DATA.date || '—'} · Режим без підглядання в майбутнє (Alpha v5.2)`;
       $('meta-bar').textContent = `Закритий тиждень: ${s.barDate}`;
+      const logoEl = $('logo-bri');
+      if (logoEl && s.v52 != null) {
+        logoEl.style.color = s.v52 <= 20 ? '#16a34a' : s.v52 <= 40 ? '#22c55e' : s.v52 <= 60 ? '#f59e0b' : s.v52 <= 80 ? '#f97316' : '#ef4444';
+      }
       renderStep1(s);
       renderStep2(s);
       renderStep3();
