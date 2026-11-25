@@ -3449,7 +3449,7 @@ async function loadData() {
     const v3Flag      = (sig && sig.flag) || (data.v3_signal && data.v3_signal.flag) || '';
     const showTiz     = tizMaturity != null && (
       regime === 'Buy' ||
-      (data.final_score != null && data.final_score <= 40) ||
+      (score != null && score <= 40) ||
       v3Flag.includes('ACCUMULATE') ||
       v3Flag.includes('BOTTOM')
     );
@@ -3475,7 +3475,7 @@ async function loadData() {
 
     // Plain-language explanation keyed on market_regime (purely diagnostic, no actionable/trading instructions)
     const v5b = data.v5b_score;
-    const pos  = data.final_score != null ? Math.round(data.final_score) : null;
+    const pos  = score;
     const REGIME_EXPLAIN = {
       'Buy': {
         en: `Outlook shows ${v5b != null ? v5b.toFixed(1) + '%' : 'low'} expected drawdown (below 20% threshold). Cycle context (${pos ?? '—'}/100) aligns with historical macro bottom conditions.`,
@@ -3786,8 +3786,9 @@ function updatePipelineDiagram(data) {
     el.setAttribute('fill', ok ? '#10B981' : '#EF4444');
   };
 
-  // Position (V3)
-  const pos = data.final_score != null ? Math.round(data.final_score) : null;
+  // Position / BRI Score (Single Source of Truth: causal_btcbri)
+  const _briPrimary = data.causal_btcbri != null ? Math.round(data.causal_btcbri) : (data.final_score != null ? Math.round(data.final_score) : null);
+  const pos = _briPrimary;
   _set('pipe-pos-val', pos != null ? String(pos) : '—');
   // Outlook (V5B) — raw % drawdown
   const out = data.v5b_score != null ? data.v5b_score : null;
@@ -3796,7 +3797,7 @@ function updatePipelineDiagram(data) {
   const comp = data.composite_risk != null ? data.composite_risk : null;
   _set('pipe-comp-val', comp != null ? Math.round(comp) : '—');
   // BRI Score Output
-  const briVal = data.final_score != null ? Math.round(data.final_score) : (data.bri_score ?? '—');
+  const briVal = _briPrimary ?? (data.bri_score ?? '—');
   _set('pipe-regime-val', String(briVal));
   const rc = document.getElementById('pipe-regime-circle');
   if (rc) {

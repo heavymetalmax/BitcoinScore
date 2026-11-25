@@ -3508,10 +3508,11 @@
           if (_chartData) {
             drawPhoneHistoryChart(_chartData, null);
             
-            const finalVal = _chartData.final_score;
+            const finalVal = _chartData.causal_btcbri != null ? Math.round(_chartData.causal_btcbri) : _chartData.final_score;
             const changeEl = document.getElementById('phone-change-badge');
-            if (changeEl && _chartData.prev_day && _chartData.prev_day.final_score != null) {
-              const diff = finalVal - _chartData.prev_day.final_score;
+            const prevCausal = yesterdayScore ?? (_chartData.prev_day ? _chartData.prev_day.final_score : null);
+            if (changeEl && finalVal != null && prevCausal != null) {
+              const diff = finalVal - prevCausal;
               const diffStr = (diff >= 0 ? '+' : '') + diff.toFixed(1);
               let trendEn = 'Stable';
               let trendUa = 'Стабільний';
