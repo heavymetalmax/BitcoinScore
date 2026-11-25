@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-11-25T15:08:34Z",
-  "methodology": "Production-parity zero-lookahead test on closed Monday weekly OHLC (2011–2026, real H/L/O/C) + causal MVRV/Puell/CVDD + vol-scaled amplitude + WaveTrend SMA3. Execution: next-week open (t+1), true intra-week MaxDD, 0.5% and 1.0% one-way fees.",
+  "generated_at": "2026-11-25T17:32:21Z",
+  "methodology": "Production-parity zero-lookahead test on closed Monday weekly OHLC (2011–2026, real H/L/O/C) + causal MVRV/Puell/CVDD + vol-scaled amplitude + WaveTrend SMA3. Execution: next-week open (t+1), true intra-week MaxDD, 0.5% and 1.0% one-way fees. Optional cash-yield column (+T-Bills) applies causal max(0, US10Y − 0.5%) annualized yield to idle cash while keeping 0% cash as the primary conservative baseline.",
   "ohlc_bars": 794,
   "tail_risk_oos": {
     "n_oos": 503,
@@ -45,6 +45,9 @@
           "label": "20/30/50 · Піраміда (≤22/16/12|+15б → ≥80+стоп)",
           "multiple_fee10": 68.12,
           "max_dd_fee10_pct": 47.7,
+          "multiple_tbill": 79.64,
+          "max_dd_tbill_pct": 47.0,
+          "calmar_tbill": 1.18,
           "boot_vs_bh": {
             "rel_multiple": 1.15,
             "p05": 0.03,
@@ -80,6 +83,9 @@
           "label": "50/50 · Дно + Підтвердження (≤20/12|+15б → 50%≥75 / 50%≥85+стоп)",
           "multiple_fee10": 44.02,
           "max_dd_fee10_pct": 47.7,
+          "multiple_tbill": 51.98,
+          "max_dd_tbill_pct": 47.0,
+          "calmar_tbill": 1.04,
           "boot_vs_bh": {
             "rel_multiple": 0.74,
             "p05": 0.02,
@@ -115,6 +121,9 @@
           "label": "100/100 · Один ордер (≤20 / ≥80 + адапт. стоп)",
           "multiple_fee10": 54.78,
           "max_dd_fee10_pct": 52.8,
+          "multiple_tbill": 63.37,
+          "max_dd_tbill_pct": 52.1,
+          "calmar_tbill": 1.0,
           "boot_vs_bh": {
             "rel_multiple": 0.93,
             "p05": 0.02,
@@ -150,6 +159,9 @@
           "label": "Buy & Hold (бенчмарк)",
           "multiple_fee10": 60.69,
           "max_dd_fee10_pct": 84.1,
+          "multiple_tbill": 61.0,
+          "max_dd_tbill_pct": 84.1,
+          "calmar_tbill": 0.61,
           "boot_vs_bh": null
         }
       ]
@@ -187,6 +199,9 @@
           "label": "20/30/50 · Піраміда (≤22/16/12|+15б → ≥80+стоп)",
           "multiple_fee10": 6.86,
           "max_dd_fee10_pct": 32.8,
+          "multiple_tbill": 7.51,
+          "max_dd_tbill_pct": 32.8,
+          "calmar_tbill": 1.24,
           "boot_vs_bh": {
             "rel_multiple": 3.77,
             "p05": 0.7,
@@ -222,6 +237,9 @@
           "label": "50/50 · Дно + Підтвердження (≤20/12|+15б → 50%≥75 / 50%≥85+стоп)",
           "multiple_fee10": 4.24,
           "max_dd_fee10_pct": 23.9,
+          "multiple_tbill": 4.69,
+          "max_dd_tbill_pct": 23.4,
+          "calmar_tbill": 1.28,
           "boot_vs_bh": {
             "rel_multiple": 2.33,
             "p05": 0.43,
@@ -257,6 +275,9 @@
           "label": "100/100 · Один ордер (≤20 / ≥80 + адапт. стоп)",
           "multiple_fee10": 5.68,
           "max_dd_fee10_pct": 38.6,
+          "multiple_tbill": 6.15,
+          "max_dd_tbill_pct": 38.6,
+          "calmar_tbill": 0.93,
           "boot_vs_bh": {
             "rel_multiple": 3.12,
             "p05": 0.57,
@@ -292,6 +313,9 @@
           "label": "Buy & Hold (бенчмарк)",
           "multiple_fee10": 1.83,
           "max_dd_fee10_pct": 77.6,
+          "multiple_tbill": 1.84,
+          "max_dd_tbill_pct": 77.6,
+          "calmar_tbill": 0.14,
           "boot_vs_bh": null
         }
       ]

@@ -328,7 +328,7 @@
           <span class="mode-title">20/30/50 · Піраміда</span>
           <span class="pill green" id="badge-max">—</span>
         </div>
-        <div class="mode-desc">Вхід ≤22 / ≤16 / ≤12 (+15б), вихід ≥80 + стоп.<br/>2021–26: <strong>6.22×</strong> · DD <strong>−32.8%</strong> · WR <strong>100%</strong></div>
+        <div class="mode-desc">Вхід ≤22 / ≤16 / ≤12 (+15б), вихід ≥80 + стоп.<br/>2021–26: <strong>6.93×</strong> · DD <strong>−32.8%</strong> · WR <strong>100%</strong></div>
       </button>
       <button class="mode-btn" data-mode="pyr_soft" type="button" role="tab" aria-selected="false">
         <div class="mode-top">
@@ -478,13 +478,14 @@
             <tr>
               <th>Стратегія</th>
               <th class="num">Множник (0.5% / 1%)</th>
+              <th class="num" title="Консервативна дохідність кешу за ставкою max(0, US10Y − 0.5%) у періоди поза BTC">+ T-Bills (кеш)</th>
               <th class="num">Макс. просадка</th>
               <th class="num">Угод · WinRate</th>
               <th>Остання угода</th>
             </tr>
           </thead>
           <tbody id="bt-tbody">
-            <tr><td colspan="5" style="color:var(--muted);">Завантаження...</td></tr>
+            <tr><td colspan="6" style="color:var(--muted);">Завантаження...</td></tr>
           </tbody>
         </table>
       </div>
@@ -856,9 +857,11 @@
         const st21 = (BACKTEST.windows?.modern_2021_2026?.strategies || []).find(x => x.mode === modeKey);
         const st17 = (BACKTEST.windows?.full_2018_2026?.strategies || []).find(x => x.mode === modeKey);
         if (st21 && st17) {
+          const tb21 = st21.multiple_tbill != null ? ` (+T-Bills: <strong>${st21.multiple_tbill}×</strong>)` : '';
+          const tb17 = st17.multiple_tbill != null ? ` (+T-Bills: <strong>${st17.multiple_tbill}×</strong>)` : '';
           $('s3-bt-proof').innerHTML = `
             <span>Перевірено без підглядання в майбутнє (комісія 0.5%):</span>
-            <span>2021–2026: <strong>${st21.multiple}×</strong> (просадка <strong>−${st21.max_dd_pct}%</strong>, WinRate <strong>${st21.win_rate_pct ?? '—'}%</strong>) · 2017–2026: <strong>${st17.multiple}×</strong></span>`;
+            <span>2021–2026: <strong>${st21.multiple}×</strong>${tb21} (просадка <strong>−${st21.max_dd_pct}%</strong>, WinRate <strong>${st21.win_rate_pct ?? '—'}%</strong>) · 2017–2026: <strong>${st17.multiple}×</strong>${tb17}</span>`;
         }
       }
     }
@@ -873,9 +876,11 @@
         const hl = st.mode === activeKey ? 'row-hl' : '';
         const wr = st.win_rate_pct != null ? `${st.win_rate_pct}%` : '—';
         const lt = st.last_trade ? `${st.last_trade.date} · ${st.last_trade.action} @ ${fmtUSD(st.last_trade.price)}` : '—';
+        const tbCell = (st.mode === 'BH' || st.multiple_tbill == null) ? '<span style="color:var(--muted);">—</span>' : `<strong style="color:var(--green);">${st.multiple_tbill}×</strong>`;
         return `<tr class="${hl}">
           <td><strong>${esc(st.label || st.mode)}</strong></td>
           <td class="num"><strong>${st.multiple}×</strong> <span style="color:var(--muted);">/ ${st.multiple_fee10}×</span></td>
+          <td class="num">${tbCell}</td>
           <td class="num">−${st.max_dd_pct}%</td>
           <td class="num">${st.trades} · ${wr}</td>
           <td>${esc(lt)}</td>
@@ -889,6 +894,7 @@
         ['cvdd4', 'CVDD (4Y)'],
         ['cb4y', 'Ціна / Собівартість (4Y)'],
         ['mcap', 'Об\'єм ринку (Realized Cap)'],
+        ['st_roc4', 'Ліквідність стейблкоїнів (26т)'],
         ['cb_div', 'Дивергенція Cipher B'],
         ['puell4', 'Puell Multiple (4Y)'],
       ];

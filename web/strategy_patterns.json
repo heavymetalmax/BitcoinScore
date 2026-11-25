@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-25T15:08:34Z",
+  "generated_at": "2026-11-25T17:32:21Z",
   "methodology": {
     "zero_lookahead": true,
     "ohlc_source": "data/history/btc_weekly_ohlc.json",
@@ -47,7 +47,8 @@
           "action": "SELL",
           "price": 119102.2,
           "bri": 77.7
-        }
+        },
+        "multiple_tbill": 79.64
       },
       "modern_2018": {
         "mode": "Pyramid_Max",
@@ -151,7 +152,8 @@
           "action": "SELL",
           "price": 119102.2,
           "bri": 77.7
-        }
+        },
+        "multiple_tbill": 7.51
       },
       "pool_full": {
         "mode": "Pyramid_Max",
@@ -177,7 +179,8 @@
           "action": "SELL",
           "price": 119102.2,
           "bri": 77.7
-        }
+        },
+        "multiple_tbill": 79.64
       },
       "last_trade": {
         "date": "2025-07-14",
@@ -219,7 +222,8 @@
           "action": "SELL",
           "price": 94190.1,
           "bri": 47.8
-        }
+        },
+        "multiple_tbill": 51.98
       },
       "modern_2018": {
         "mode": "Staged_50_50",
@@ -323,7 +327,8 @@
           "action": "SELL",
           "price": 94190.1,
           "bri": 47.8
-        }
+        },
+        "multiple_tbill": 4.69
       },
       "pool_full": {
         "mode": "Staged_50_50",
@@ -349,7 +354,8 @@
           "action": "SELL",
           "price": 94190.1,
           "bri": 47.8
-        }
+        },
+        "multiple_tbill": 51.98
       },
       "last_trade": {
         "date": "2025-11-17",
@@ -393,7 +399,8 @@
           "action": "SELL",
           "price": 119102.2,
           "bri": 77.7
-        }
+        },
+        "multiple_tbill": 63.37
       },
       "modern_2018": {
         "mode": "V52_Index_Threshold",
@@ -497,7 +504,8 @@
           "action": "SELL",
           "price": 119102.2,
           "bri": 77.7
-        }
+        },
+        "multiple_tbill": 6.15
       },
       "pool_full": {
         "mode": "V52_Index_Threshold",
@@ -523,7 +531,8 @@
           "action": "SELL",
           "price": 119102.2,
           "bri": 77.7
-        }
+        },
+        "multiple_tbill": 63.37
       },
       "last_trade": {
         "date": "2025-07-14",
@@ -565,7 +574,8 @@
           "action": "BUY",
           "price": 997.75,
           "bri": 82.9
-        }
+        },
+        "multiple_tbill": 61.0
       },
       "modern_2018": {
         "mode": "BH",
@@ -669,7 +679,8 @@
           "action": "BUY",
           "price": 33068.83,
           "bri": 89.3
-        }
+        },
+        "multiple_tbill": 1.84
       },
       "pool_full": {
         "mode": "BH",
@@ -695,7 +706,8 @@
           "action": "BUY",
           "price": 997.75,
           "bri": 82.9
-        }
+        },
+        "multiple_tbill": 61.0
       },
       "last_trade": {
         "date": "2018-01-01",

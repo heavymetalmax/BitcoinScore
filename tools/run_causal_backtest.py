@@ -28,6 +28,7 @@ if str(ROOT) not in sys.path:
 
 from scraper.causal_core import compute_causal_weekly_history
 from scraper.tail_risk import predict_tail_risk_13w
+from scraper.us10y_store import load_daily_us10y
 
 
 def load_weekly_dataset(as_of_date: datetime.date | None = None) -> list[dict]:
@@ -36,15 +37,32 @@ def load_weekly_dataset(as_of_date: datetime.date | None = None) -> list[dict]:
         scores = json.loads(scores_path.read_text(encoding='utf-8'))
         as_of_date = datetime.date.fromisoformat(str(scores[-1]['date'])[:10])
 
-    return compute_causal_weekly_history(
+    weeks = compute_causal_weekly_history(
         as_of_date=as_of_date,
         ohlc_path=str(ROOT / 'data/history/btc_weekly_ohlc.json'),
         scores_path=str(scores_path),
         mvrv_ratio_path=str(ROOT / 'data/history/mvrv_ratio_history.json'),
     )
+    us10y_rows = load_daily_us10y(
+        as_of_date=as_of_date,
+        path=str(ROOT / 'data/history/us10y_history.json'),
+    )
+    us10y_dates = [d.isoformat() for d, _ in us10y_rows]
+    us10y_vals = [v for _, v in us10y_rows]
+    for w in weeks:
+        idx = bisect.bisect_right(us10y_dates, w['week_open']) - 1
+        w['us10y_open'] = float(us10y_vals[idx]) if idx >= 0 else 0.0
+    return weeks
 
 
-def run_sim(weeks: list[dict], start_date: str, mode: str, fee: float = 0.005, end_date: str | None = None) -> dict:
+def run_sim(
+    weeks: list[dict],
+    start_date: str,
+    mode: str,
+    fee: float = 0.005,
+    end_date: str | None = None,
+    cash_yield_spread_pct: float | None = None,
+) -> dict:
     sub = [w for w in weeks if w['week_open'] >= start_date and (end_date is None or w['week_open'] <= end_date)]
     n = len(sub)
     cash = 10000.0
@@ -109,6 +127,12 @@ def run_sim(weeks: list[dict], start_date: str, mode: str, fee: float = 0.005, e
                     entry_eq = None
             cur_target = pending_target
             pending_target = None
+
+        if cash_yield_spread_pct is not None and cash > 0.0:
+            y_pct = float(w.get('us10y_open') or 0.0)
+            ann = max(0.0, y_pct - cash_yield_spread_pct) / 100.0
+            if ann > 0.0:
+                cash *= (1.0 + ann) ** (1.0 / 52.0)
 
         eq_hi = cash + btc * hi
         eq_lo = cash + btc * lo
@@ -289,10 +313,14 @@ def build_strategy_patterns(weeks: list[dict], gen_ts: str) -> dict:
     for sp in specs:
         m = sp['mode']
         r_full = run_sim(weeks, '2017-01-01', m, fee=0.005)
+        r_full_tb = run_sim(weeks, '2017-01-01', m, fee=0.005, cash_yield_spread_pct=0.5)
+        r_full['multiple_tbill'] = r_full_tb['multiple']
         r_mod = run_sim(weeks, '2018-01-01', m, fee=0.005)
         r_c1 = run_sim(weeks, '2018-01-01', m, fee=0.005, end_date='2022-06-15')
         r_c2 = run_sim(weeks, '2022-06-16', m, fee=0.005)
         r_6y = run_sim(weeks, '2021-01-01', m, fee=0.005)
+        r_6y_tb = run_sim(weeks, '2021-01-01', m, fee=0.005, cash_yield_spread_pct=0.5)
+        r_6y['multiple_tbill'] = r_6y_tb['multiple']
 
         def clean(r):
             return {k: v for k, v in r.items() if k != 'eq'}
@@ -357,6 +385,7 @@ def main():
     for wkey, start in [('full_2018_2026', '2017-01-01'), ('modern_2021_2026', '2021-01-01')]:
         res_05 = {m: run_sim(weeks, start, m, fee=0.005) for m in modes}
         res_10 = {m: run_sim(weeks, start, m, fee=0.010) for m in modes}
+        res_tb = {m: run_sim(weeks, start, m, fee=0.005, cash_yield_spread_pct=0.5) for m in modes}
         rows = []
         for m in modes:
             r05, r10 = res_05[m], res_10[m]
@@ -365,6 +394,9 @@ def main():
             row['label'] = labels[m]
             row['multiple_fee10'] = r10['multiple']
             row['max_dd_fee10_pct'] = r10['max_dd_pct']
+            row['multiple_tbill'] = res_tb[m]['multiple']
+            row['max_dd_tbill_pct'] = res_tb[m]['max_dd_pct']
+            row['calmar_tbill'] = res_tb[m]['calmar']
             row['boot_vs_bh'] = boot
             rows.append(row)
         windows[wkey] = {
@@ -377,7 +409,7 @@ def main():
     gen_ts = datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0).isoformat().replace('+00:00', 'Z')
     out = {
         'generated_at': gen_ts,
-        'methodology': 'Production-parity zero-lookahead test on closed Monday weekly OHLC (2011–2026, real H/L/O/C) + causal MVRV/Puell/CVDD + vol-scaled amplitude + WaveTrend SMA3. Execution: next-week open (t+1), true intra-week MaxDD, 0.5% and 1.0% one-way fees.',
+        'methodology': 'Production-parity zero-lookahead test on closed Monday weekly OHLC (2011–2026, real H/L/O/C) + causal MVRV/Puell/CVDD + vol-scaled amplitude + WaveTrend SMA3. Execution: next-week open (t+1), true intra-week MaxDD, 0.5% and 1.0% one-way fees. Optional cash-yield column (+T-Bills) applies causal max(0, US10Y − 0.5%) annualized yield to idle cash while keeping 0% cash as the primary conservative baseline.',
         'ohlc_bars': len(weeks),
         'tail_risk_oos': tail_oos.get('oos_validation'),
         'windows': windows,
