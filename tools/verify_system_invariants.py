@@ -171,20 +171,19 @@ def verify_layer_3(suite: InvariantSuite):
 def verify_layer_4(suite: InvariantSuite):
     print("\n=== LAYER 4: Historical Cycle Milestone Calibration ===")
     scores_path = os.path.join(ROOT, "data", "history", "scores.json")
+    ref_path = os.path.join(ROOT, "data", "reference_extremes.json")
     by_date = {r["date"]: r for r in json.load(open(scores_path, encoding="utf-8")) if r.get("date")}
+    ref_rows = json.load(open(ref_path, encoding="utf-8")).get("extremes", [])
 
     bottom_milestones = [
-        ("2018-12-15", "2018 bear bottom ($3.2k)"),
-        ("2020-03-13", "COVID crash ($3.8k)"),
-        ("2022-06-18", "LUNA/3AC low ($17.6k)"),
-        ("2022-11-21", "FTX collapse bottom ($15.5k)"),
+        (r["date"], r["label"])
+        for r in ref_rows
+        if r.get("kind") == "BOTTOM" and r.get("date", "") >= "2017-01-01" and r.get("date") in by_date
     ]
     top_milestones = [
-        ("2017-12-17", "2017 bull ATH ($19.7k)"),
-        ("2021-04-14", "2021 first peak ($64.8k)"),
-        ("2021-11-10", "2021 cycle ATH ($69k)"),
-        ("2024-03-14", "2024 pre-halving ATH ($73k)"),
-        ("2025-10-06", "2025 cycle ATH ($124.7k)"),
+        (r["date"], r["label"])
+        for r in ref_rows
+        if r.get("kind") == "TOP" and r.get("date", "") >= "2017-01-01" and r.get("date") in by_date
     ]
 
     bot_scores = []
