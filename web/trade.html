@@ -916,7 +916,13 @@
     }
 
     function renderAI() {
-      const md = DATA.gpt_commentary || DATA.ai_commentary || DATA.commentary || '';
+      const c = DATA.commentary;
+      if (c && typeof c === 'object' && (c.ua || c.en)) {
+        const block = c.ua || c.en;
+        $('ai-box').innerHTML = `<p><strong>${esc(block.summary || '')}</strong></p><p>${esc(block.analysis || '')}</p>`;
+        return;
+      }
+      const md = DATA.gpt_commentary || DATA.ai_commentary || (typeof c === 'string' ? c : '') || '';
       if (!md) {
         $('ai-box').textContent = 'ШІ-коментар для цього зрізу ще не згенеровано.';
         return;
@@ -936,14 +942,39 @@
       const pack = {
         date: DATA.date,
         btc_price: s.spot,
-        causal_btcbri: s.v52,
-        mode_100_target_pct: s.pct100,
-        mode_50_target_pct: s.pct50,
-        cycle_amplitude: s.amp,
-        tail_risk_13w: s.tr,
+        causal_btcbri_v52: s.v52,
+        cost_basis: {
+          mvrv_ratio: s.mvrvRatio,
+          realized_price: s.realized,
+          realized_cap_b_usd: s.rcapB,
+          cost_basis_4y_score: s.amp.amp_score,
+          cvdd_4y_score: s.amp.cvdd_4y_score,
+          mcap_adj_score: s.amp.mcap_adj_score,
+          smart_weights_pct: s.amp.smart_weights_pct,
+        },
+        tail_risk_13w_pct: s.tailPct,
+        confidence_score: s.conf,
+        models: {
+          pyramid_20_30_50_target_pct: s.pctMax,
+          staged_50_50_target_pct: s.pctSoft,
+          single_100_100_target_pct: s.pct100,
+          adaptive_trailing_stop_pct: s.stopDdPct,
+        },
       };
-      navigator.clipboard.writeText(JSON.stringify(pack, null, 2))
-        .then(() => toast('Контекст скопійовано'))
+      const promptTxt =
+`Ти — кількісний аналітик BTC (архітектура Alpha v5.2, 0% lookahead). Проаналізуй поточний знімок ринку:
+1) Де ми зараз відносно собівартості мережі (Realized Price, MVRV Ratio, 4Y коридор, CVDD_4Y) і що показують смарт-ваги (Purged-IC).
+2) Що робити зараз за 3 нашими моделями:
+   - 20/30/50 · Піраміда (вхід ≤22 / ≤16 / ≤12 або +15б; вихід ≥80 + адапт. стоп)
+   - 50/50 · Поетапний (вхід ≤20 / ≤12 або +15б; вихід 50% ≥75 / ≥85 + адапт. стоп)
+   - 100/100 · Один ордер (вхід ≤20; вихід ≥80 + адапт. стоп)
+3) Який найближчий тригер і ризик падіння ≥25% на горизонті 13 тижнів.
+
+\`\`\`json
+${JSON.stringify(pack, null, 2)}
+\`\`\``;
+      navigator.clipboard.writeText(promptTxt)
+        .then(() => toast('Запит і контекст v5.2 скопійовано'))
         .catch(() => toast('Не вдалося скопіювати'));
     });
 

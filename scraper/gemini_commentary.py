@@ -12,25 +12,25 @@ import requests
 
 
 def _build_context_block(payload: dict, slider_map: dict) -> str:
-    """Compact trend context — trajectory and key signals, not a metric dump."""
+    """Compact causal v5.2 trend context — trajectory, cost basis, and tail risk."""
     lines = []
 
-    score_now = payload.get('final_score')
+    score_now = payload.get('causal_btcbri') if payload.get('causal_btcbri') is not None else payload.get('final_score')
     oc        = payload.get('onchain_score')
     tech      = payload.get('tech_score')
     price_now = payload.get('btc_price')
 
     prev_w    = (payload.get('prev_week') or {})
-    score_7d  = prev_w.get('final_score')
+    score_7d  = prev_w.get('causal_btcbri') if prev_w.get('causal_btcbri') is not None else prev_w.get('final_score')
 
     # 30-day lookback from score_history
     sh = payload.get('score_history') or []
     score_30d, price_30d = None, None
     if len(sh) >= 30:
-        score_30d = sh[-30].get('score')
+        score_30d = sh[-30].get('causal_btcbri') or sh[-30].get('score')
         price_30d = sh[-30].get('price')
     elif sh:
-        score_30d = sh[0].get('score')
+        score_30d = sh[0].get('causal_btcbri') or sh[0].get('score')
         price_30d = sh[0].get('price')
 
     # Score trajectory
@@ -39,7 +39,7 @@ def _build_context_block(payload: dict, slider_map: dict) -> str:
     if score_7d  is not None: parts.append(f'{score_7d} (7d ago)')
     if score_now is not None: parts.append(f'{score_now} (today)')
     if parts:
-        lines.append('Risk index: ' + ' → '.join(parts))
+        lines.append('Causal Risk Index v5.2: ' + ' → '.join(parts))
 
     # Price trajectory
     if price_now and price_30d:
@@ -47,6 +47,33 @@ def _build_context_block(payload: dict, slider_map: dict) -> str:
         lines.append(f'BTC: ${price_30d:,.0f} → ${price_now:,.0f}  ({pct:+.1f}% in 30 days)')
     elif price_now:
         lines.append(f'BTC price: ${price_now:,.0f}')
+
+    # Cost-Basis 4Y, Realized Cap & Smart Purged-IC context
+    amp = payload.get('cycle_amplitude') or {}
+    if amp.get('mvrv_ratio') is not None and amp.get('realized_price') is not None:
+        rcap = amp.get('realized_cap_b_usd')
+        rcap_s = f', Realized Cap ${rcap:.1f}B' if rcap is not None else ''
+        lines.append(
+            f"Cost Basis: MVRV Ratio {amp['mvrv_ratio']}x "
+            f"(Realized Price ${amp['realized_price']:,.0f}{rcap_s}, "
+            f"4Y CostBasis corridor {amp.get('amp_score', '—')}/100)"
+        )
+    sw = amp.get('smart_weights_pct') or {}
+    if sw:
+        lines.append(
+            f"Smart Purged-IC weights: CVDD4Y {sw.get('cvdd4', '—')}% · "
+            f"CB4Y {sw.get('cb4y', '—')}% · MCapAdj {sw.get('mcap', '—')}% · "
+            f"CBdiv {sw.get('cb_div', '—')}%"
+        )
+
+    # 13w Tail Risk & Causal Model Confidence
+    tr = payload.get('tail_risk_13w') or {}
+    conf = payload.get('confidence_score')
+    if tr.get('prob_dd25_13w_pct') is not None:
+        lines.append(
+            f"13w Tail Risk P(DD≥25%): {tr['prob_dd25_13w_pct']}% · "
+            f"Model confidence: {conf if conf is not None else '—'}%"
+        )
 
     # Signal alignment
     if oc is not None and tech is not None:
@@ -134,17 +161,17 @@ _DEVELOPER_INSTRUCTION = (
 )
 
 
-def _build_prompt(score: int, oc: int, tech: int, price: float, payload: dict, slider_map: dict) -> str:
+def _build_prompt(score: float, oc: int, tech: int, price: float, payload: dict, slider_map: dict) -> str:
     context = _build_context_block(payload, slider_map)
     zone = (
-        'historically strong buy zone' if score < 25 else
-        'discount / accumulation zone'  if score < 40 else
-        'neutral zone'                   if score < 55 else
-        'caution / overheating zone'     if score < 75 else
-        'extreme risk zone'
+        'deep accumulation zone (≤20 entry)' if score <= 20 else
+        'discount / accumulation zone'      if score < 35 else
+        'neutral mid-cycle zone'            if score < 65 else
+        'caution / overheating zone'        if score < 80 else
+        'extreme overheating zone (≥80 exit)'
     )
     return (
-        f"BTCBRI = {score}/100  ({zone})\n\n"
+        f"BTCBRI Causal v5.2 = {score}/100  ({zone})\n\n"
         f"{context}\n\n"
         "Write your analyst note."
     )
@@ -262,7 +289,7 @@ def generate_commentary(payload: dict, slider_map: dict) -> Optional[dict]:
         print('OPENAI_API_KEY not set — skipping commentary')
         return None
 
-    score = payload.get('final_score')
+    score = payload.get('causal_btcbri') if payload.get('causal_btcbri') is not None else payload.get('final_score')
     oc    = payload.get('onchain_score')
     tech  = payload.get('tech_score')
     price = payload.get('btc_price')
