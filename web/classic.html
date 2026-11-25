@@ -3136,8 +3136,22 @@ async function loadData() {
     if (hlp && !hlp.dataset.liveLoaded) hlp.textContent = 'LIVE ' + fmtPrice(data.btc_price);
   }
 
-  const prev1d = data.prev_day?.final_score ?? null;
-  const _hist7 = (data.score_history || []).filter(e => e.score != null).slice(-7);
+  const _causalHist = (fullHistory && fullHistory.length > 0
+    ? fullHistory
+    : (data.score_history || [])
+  ).map(e => ({ ...e, score: e.causal_btcbri ?? e.score })).filter(e => e.score != null);
+  const _todayStr = data.date || (data.timestamp || '').slice(0, 10) || new Date().toISOString().slice(0, 10);
+  let prev1d = null;
+  for (let i = _causalHist.length - 1; i >= 0; i--) {
+    if (_causalHist[i].date < _todayStr) {
+      prev1d = Math.round(_causalHist[i].score);
+      break;
+    }
+  }
+  if (prev1d == null && _causalHist.length >= 2) prev1d = Math.round(_causalHist[_causalHist.length - 2].score);
+  if (prev1d == null) prev1d = data.prev_day?.final_score ?? null;
+
+  const _hist7 = _causalHist.slice(-7);
   const prev7d = _hist7.length
     ? Math.round(_hist7.reduce((a, e) => a + e.score, 0) / _hist7.length)
     : (data.prev_week?.final_score ?? null);
