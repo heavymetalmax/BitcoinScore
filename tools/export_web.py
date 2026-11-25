@@ -51,29 +51,12 @@ def export_main_data():
 
 
 def export_score_history():
-    src = os.path.join(DATA, 'history', 'scores.json')
-    if not os.path.exists(src):
-        print('export_web: data/history/scores.json missing — skipping score history')
-        return
-
-    records = _read(src)
-
-    mini = [
-        {
-            'date':          r['date'],
-            'score':         r.get('final_score'),
-            'price':         r.get('btc_price'),
-            'v5b_score':     r.get('v5b_score'),
-            'market_regime': r.get('market_regime'),
-        }
-        for r in records
-        if r.get('date') and r.get('final_score') is not None
-    ]
-    _write(os.path.join(WEB, 'score_history.json'), mini)
-
-    os.makedirs(os.path.join(WEB, 'history'), exist_ok=True)
-    _write(os.path.join(WEB, 'history', 'scores.json'), records)
-    print(f'export_web: score_history ({len(mini)} entries) → web/')
+    try:
+        sys.path.insert(0, ROOT)
+        from tools.sync_web_scores import main as sync_scores
+        sync_scores()
+    except Exception as e:
+        print(f'export_web: sync_web_scores failed — {e}', file=sys.stderr)
 
 
 # History files the website reads from web/history/

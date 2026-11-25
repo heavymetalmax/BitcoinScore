@@ -562,11 +562,238 @@ def soft_risk_compress(raw_score: float) -> float:
     return raw_score
 
 
+def _score_daily_point_in_time(
+    w_closed: dict[str, Any],
+    cvdd_win_base: list[float],
+    puell_win_base: list[float],
+    mvrv_ratio: float | None,
+    cvdd_today: float | None,
+    puell_today: float | None,
+) -> float | None:
+    """Evaluate Smart Purged-IC v5.2 for a single day using strictly closed-week weights & 4Y corridors."""
+    amp = (w_closed or {}).get('cycle_amplitude')
+    if not isinstance(amp, dict):
+        return None
+    weights_pct = amp.get('smart_weights_pct') or {}
+    if not weights_pct:
+        return float(amp['smart_btcbri']) if amp.get('smart_btcbri') is not None else None
+
+    cb4y_sc: float | None = None
+    mcap_sc: float | None = None
+    if mvrv_ratio is not None and mvrv_ratio > 0:
+        cur_lm = math.log(float(mvrv_ratio))
+        lo_r, hi_r = amp.get('mvrv_ratio_4y_min'), amp.get('mvrv_ratio_4y_max')
+        if lo_r is not None and hi_r is not None and lo_r > 0 and hi_r > 0:
+            lo_4y = min(math.log(float(lo_r)), cur_lm)
+            hi_4y = max(math.log(float(hi_r)), cur_lm)
+            if (hi_4y - lo_4y) > 1e-9:
+                cb4y_sc = min(100.0, max(0.0, (cur_lm - lo_4y) / (hi_4y - lo_4y) * 100.0))
+        exp_amp = amp.get('expected_mvrv_amp')
+        if exp_amp is not None and float(exp_amp) > 1e-9:
+            mcap_sc = 100.0 / (1.0 + math.exp(-1.5 * (cur_lm / float(exp_amp) - 0.35)))
+
+    cvdd4_sc: float | None = None
+    if cvdd_today is not None and len(cvdd_win_base) >= 25:
+        c_win = sorted([*cvdd_win_base, float(cvdd_today)])
+        cvdd4_sc = bisect.bisect_right(c_win, float(cvdd_today)) / len(c_win) * 100.0
+
+    puell4_sc: float | None = None
+    if puell_today is not None and len(puell_win_base) >= 25:
+        p_win = sorted([*puell_win_base, float(puell_today)])
+        puell4_sc = bisect.bisect_right(p_win, float(puell_today)) / len(p_win) * 100.0
+
+    subs = {
+        'cb4y': cb4y_sc if cb4y_sc is not None else amp.get('amp_score'),
+        'cvdd4': cvdd4_sc if cvdd4_sc is not None else amp.get('cvdd_4y_score'),
+        'mcap': mcap_sc if mcap_sc is not None else amp.get('mcap_adj_score'),
+        'puell4': puell4_sc if puell4_sc is not None else amp.get('puell_4y_score'),
+        'cb_div': amp.get('cb_div_score'),
+    }
+    w_sum = 0.0
+    v_sum = 0.0
+    for k, w in weights_pct.items():
+        sv = subs.get(k)
+        if sv is not None and w is not None and float(w) > 0:
+            w_sum += float(w)
+            v_sum += float(w) * float(sv)
+    if w_sum <= 0:
+        return float(amp['smart_btcbri']) if amp.get('smart_btcbri') is not None else None
+    return round(soft_risk_compress(v_sum / w_sum), 1)
+
+
+def _extract_closed_week_metric_buffers(
+    weekly: list[dict[str, Any]],
+    scores_rows: list[dict[str, Any]],
+) -> tuple[list[float | None], list[float | None]]:
+    """Align latest daily cvdd_ratio / puell <= week_close onto each closed weekly bar."""
+    sc_sorted = sorted((r for r in scores_rows if r.get('date')), key=lambda r: str(r['date'])[:10])
+    cv_wk: list[float | None] = []
+    pu_wk: list[float | None] = []
+    idx = 0
+    last_cv: float | None = None
+    last_pu: float | None = None
+    for w in weekly:
+        wc = str(w['week_close'])[:10]
+        while idx < len(sc_sorted) and str(sc_sorted[idx]['date'])[:10] <= wc:
+            if sc_sorted[idx].get('cvdd_ratio') is not None:
+                last_cv = float(sc_sorted[idx]['cvdd_ratio'])
+            if sc_sorted[idx].get('puell') is not None:
+                last_pu = float(sc_sorted[idx]['puell'])
+            idx += 1
+        cv_wk.append(last_cv)
+        pu_wk.append(last_pu)
+    return cv_wk, pu_wk
+
+
+def compute_causal_daily_series(
+    as_of_date: datetime.date | str | None = None,
+    ohlc_path: str = DEFAULT_OHLC_PATH,
+    scores_path: str = 'data/history/scores.json',
+    mvrv_ratio_path: str = DEFAULT_MVRV_RATIO_PATH,
+) -> dict[str, float]:
+    """Compute strictly causal daily point-in-time Smart Purged-IC v5.2 scores (0% lookahead)."""
+    weekly = compute_causal_weekly_history(
+        as_of_date=as_of_date,
+        ohlc_path=ohlc_path,
+        scores_path=scores_path,
+        mvrv_ratio_path=mvrv_ratio_path,
+    )
+    if not weekly or not os.path.exists(scores_path):
+        return {}
+    try:
+        scores_rows = json.load(open(scores_path, encoding='utf-8'))
+    except Exception:
+        return {}
+
+    cutoff = (
+        datetime.date.today().isoformat() if as_of_date is None
+        else (as_of_date[:10] if isinstance(as_of_date, str) else as_of_date.isoformat())
+    )
+    cv_wk, pu_wk = _extract_closed_week_metric_buffers(weekly, scores_rows)
+    mv_raw = load_daily_mvrv_and_cap(as_of_date=cutoff, path=mvrv_ratio_path)
+    # Also load price_usd from mvrv_ratio_history for exact mark-to-market when date > latest CoinMetrics row
+    mv_price_by_d: dict[str, float] = {}
+    if os.path.exists(mvrv_ratio_path):
+        try:
+            for mr in (json.load(open(mvrv_ratio_path, encoding='utf-8')).get('series') or []):
+                if mr.get('date') and mr.get('price_usd'):
+                    mv_price_by_d[str(mr['date'])[:10]] = float(mr['price_usd'])
+        except Exception:
+            pass
+    mv_by_d = {d.isoformat(): (mv_r, mv_price_by_d.get(d.isoformat())) for d, mv_r, _rc in mv_raw if mv_r > 0}
+    mv_dates = sorted(mv_by_d)
+
+    out: dict[str, float] = {}
+    wk_idx = -1
+    mv_idx = -1
+    for r in sorted((x for x in scores_rows if x.get('date')), key=lambda x: str(x['date'])[:10]):
+        d = str(r['date'])[:10]
+        if d > cutoff:
+            break
+        while wk_idx + 1 < len(weekly) and str(weekly[wk_idx + 1]['week_close'])[:10] <= d:
+            wk_idx += 1
+        if wk_idx < 0:
+            continue
+        while mv_idx + 1 < len(mv_dates) and mv_dates[mv_idx + 1] <= d:
+            mv_idx += 1
+
+        mv_ratio: float | None = None
+        if mv_idx >= 0:
+            last_mv_d = mv_dates[mv_idx]
+            last_mv_r, last_p_usd = mv_by_d[last_mv_d]
+            if last_mv_d == d:
+                mv_ratio = last_mv_r
+            elif r.get('btc_price') is not None and last_p_usd and last_p_usd > 0:
+                realized_p = last_p_usd / last_mv_r
+                if realized_p > 0:
+                    mv_ratio = float(r['btc_price']) / realized_p
+            else:
+                mv_ratio = last_mv_r
+
+        cv_base = [x for x in cv_wk[max(0, wk_idx - 206):wk_idx + 1] if x is not None]
+        pu_base = [x for x in pu_wk[max(0, wk_idx - 206):wk_idx + 1] if x is not None]
+        val = _score_daily_point_in_time(
+            w_closed=weekly[wk_idx],
+            cvdd_win_base=cv_base,
+            puell_win_base=pu_base,
+            mvrv_ratio=mv_ratio,
+            cvdd_today=r.get('cvdd_ratio'),
+            puell_today=r.get('puell'),
+        )
+        if val is not None:
+            out[d] = val
+    return out
+
+
 def compute_causal_btcbri(
     mvrv_info: dict[str, Any] | None,
     d1_state: dict[str, Any] | None,
+    raw_metrics: dict[str, Any] | None = None,
+    btc_price: float | None = None,
+    as_of_date: datetime.date | str | None = None,
+    ohlc_path: str = DEFAULT_OHLC_PATH,
+    scores_path: str = 'data/history/scores.json',
+    mvrv_ratio_path: str = DEFAULT_MVRV_RATIO_PATH,
 ) -> float | None:
     """Return Smart Purged-IC Causal BTCBRI v5.2 Index in (1.0, 99.0) with 0% lookahead."""
+    if raw_metrics is not None or btc_price is not None:
+        try:
+            weekly = compute_causal_weekly_history(
+                as_of_date=as_of_date,
+                ohlc_path=ohlc_path,
+                scores_path=scores_path,
+                mvrv_ratio_path=mvrv_ratio_path,
+            )
+            if weekly:
+                w_closed = weekly[-1]
+                scores_rows = json.load(open(scores_path, encoding='utf-8')) if os.path.exists(scores_path) else []
+                cv_wk, pu_wk = _extract_closed_week_metric_buffers(weekly, scores_rows)
+                cv_base = [x for x in cv_wk[max(0, len(weekly) - 207):] if x is not None]
+                pu_base = [x for x in pu_wk[max(0, len(weekly) - 207):] if x is not None]
+
+                cvdd_today, _ = _extract_val(raw_metrics or {}, 'cvdd_ratio')
+                puell_today, _ = _extract_val(raw_metrics or {}, 'puell_multiple')
+                cutoff = (
+                    datetime.date.today().isoformat() if as_of_date is None
+                    else (as_of_date[:10] if isinstance(as_of_date, str) else as_of_date.isoformat())
+                )
+                mv_caps = load_daily_mvrv_and_cap(as_of_date=cutoff, path=mvrv_ratio_path)
+                mv_ratio: float | None = None
+                if mv_caps:
+                    last_d, last_mv_r, _rc = mv_caps[-1]
+                    last_d_str = last_d.isoformat()
+                    if last_d_str == cutoff:
+                        mv_ratio = last_mv_r
+                    elif btc_price is not None and float(btc_price) > 0:
+                        last_p: float | None = None
+                        if os.path.exists(mvrv_ratio_path):
+                            try:
+                                for mr in reversed(json.load(open(mvrv_ratio_path, encoding='utf-8')).get('series') or []):
+                                    if str(mr.get('date', ''))[:10] == last_d_str and mr.get('price_usd'):
+                                        last_p = float(mr['price_usd'])
+                                        break
+                            except Exception:
+                                pass
+                        if last_p and last_p > 0:
+                            realized_p = last_p / last_mv_r
+                            mv_ratio = float(btc_price) / realized_p if realized_p > 0 else last_mv_r
+                        else:
+                            mv_ratio = last_mv_r
+                    else:
+                        mv_ratio = last_mv_r
+                daily_val = _score_daily_point_in_time(
+                    w_closed=w_closed,
+                    cvdd_win_base=cv_base,
+                    puell_win_base=pu_base,
+                    mvrv_ratio=mv_ratio,
+                    cvdd_today=cvdd_today,
+                    puell_today=puell_today,
+                )
+                if daily_val is not None:
+                    return daily_val
+        except Exception:
+            pass
+
     amp = (d1_state or {}).get('cycle_amplitude')
     if isinstance(amp, dict) and amp.get('smart_btcbri') is not None:
         return float(amp['smart_btcbri'])

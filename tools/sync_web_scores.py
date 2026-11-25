@@ -16,7 +16,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
-from scraper.causal_core import compute_causal_weekly_history
+from scraper.causal_core import compute_causal_daily_series
 
 SRC = 'data/history/scores.json'
 DST_FULL = 'web/history/scores.json'
@@ -31,20 +31,13 @@ def main():
     with open(SRC, encoding='utf-8') as f:
         records = json.load(f)
 
-    weekly = compute_causal_weekly_history(
+    daily_cbri = compute_causal_daily_series(
         ohlc_path='data/history/btc_weekly_ohlc.json',
         scores_path=SRC,
         mvrv_ratio_path='data/history/mvrv_ratio_history.json',
     )
-    # Build sorted (week_close, causal_v52) list so each day uses the latest CLOSED week
-    wk_pts = [
-        (w['week_close'], w['causal_v52'])
-        for w in weekly
-        if w.get('week_close') and w.get('causal_v52') is not None
-    ]
-    wk_pts.sort(key=lambda x: x[0])
 
-    # Also read live causal_btcbri from data/data.json if available for dates after last closed week
+    # Also read live causal_btcbri from data/data.json if available for dates >= live_date
     live_cbri = None
     live_date = None
     if os.path.exists('data/data.json'):
@@ -55,18 +48,15 @@ def main():
         except Exception:
             pass
 
-    wk_idx = 0
-    last_cbri = None
     out_full = []
     compact = []
     for r in records:
         d = str(r.get('date', ''))[:10]
-        while wk_idx < len(wk_pts) and wk_pts[wk_idx][0] < d:
-            last_cbri = wk_pts[wk_idx][1]
-            wk_idx += 1
-        cbri = last_cbri
-        if live_cbri is not None and live_date and d >= live_date:
+        cbri = daily_cbri.get(d)
+        if live_cbri is not None and live_date and d == live_date:
             cbri = live_cbri
+        elif cbri is None and r.get('causal_btcbri') is not None:
+            cbri = r.get('causal_btcbri')
 
         rec = dict(r)
         if cbri is not None:
@@ -81,6 +71,8 @@ def main():
                 'causal_btcbri': cbri,
                 'legacy_score': r.get('final_score'),
                 'price': r.get('btc_price'),
+                'v5b_score': r.get('v5b_score'),
+                'market_regime': r.get('market_regime'),
             })
 
     os.makedirs('web/history', exist_ok=True)

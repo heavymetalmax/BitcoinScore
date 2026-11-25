@@ -1832,8 +1832,9 @@
         const res = await fetch('data.json');
         if (!res.ok) return;
         const data = await res.json();
-        if (data && data.final_score != null) {
-          const finalVal = data.final_score;
+        const primaryVal = data ? (data.causal_btcbri != null ? Math.round(data.causal_btcbri) : data.final_score) : null;
+        if (primaryVal != null) {
+          const finalVal = primaryVal;
           // Modern theme keeps a fixed orange accent; Classic uses dynamic score colour
           const isModern = (localStorage.getItem('bbr-style') || 'modern') === 'modern';
           if (isModern) {

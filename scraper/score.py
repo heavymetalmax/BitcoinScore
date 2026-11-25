@@ -863,7 +863,13 @@ def compute_score(
         puell_today=_mix_raw.get('puell'),
         cvdd_today=_mix_raw.get('cvdd_ratio'),
     )
-    _causal_btcbri = compute_causal_btcbri(_mvrv_info, _d1_state)
+    _causal_btcbri = compute_causal_btcbri(
+        _mvrv_info,
+        _d1_state,
+        raw_metrics=raw_metrics,
+        btc_price=btc_price,
+        as_of_date=target_date,
+    )
     _mvrv_info['causal_btcbri'] = _causal_btcbri
     _mvrv_info['wt1_causal_rank'] = _d1_state.get('wt1_causal_rank') if _d1_state.get('available') else None
     _cycle_amplitude = _d1_state.get('cycle_amplitude') if _d1_state.get('available') else None

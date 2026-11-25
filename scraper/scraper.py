@@ -597,6 +597,7 @@ def main():
             'yield_curve':    (_m.get('yield_curve') or {}).get('value'),
             'dxy':            (_m.get('dxy') or {}).get('value'),
             'v5b_score':      p.get('v5b_score'),
+            'causal_btcbri':  p.get('causal_btcbri'),
             'market_regime':  p.get('market_regime'),
             'source':         'live_v4',
         }
@@ -615,15 +616,29 @@ def main():
                 continue
             _ed = _dt.fromisoformat(d).date()
             if _ed == yesterday:
-                p['prev_day'] = {'date': d, 'final_score': entry.get('final_score')}
+                p['prev_day'] = {
+                    'date': d,
+                    'final_score': entry.get('final_score'),
+                    'causal_btcbri': entry.get('causal_btcbri'),
+                }
             elif _ed == seven_days_ago:
-                p['prev_week'] = {'date': d, 'final_score': entry.get('final_score')}
+                p['prev_week'] = {
+                    'date': d,
+                    'final_score': entry.get('final_score'),
+                    'causal_btcbri': entry.get('causal_btcbri'),
+                }
 
         _fill_missing_prices(history)
 
         cutoff = today - timedelta(days=90)
         p['score_history'] = [
-            {'date': e['date'], 'score': e.get('final_score'), 'price': e.get('btc_price')}
+            {
+                'date': e['date'],
+                'score': e.get('causal_btcbri') if e.get('causal_btcbri') is not None else e.get('final_score'),
+                'causal_btcbri': e.get('causal_btcbri'),
+                'final_score': e.get('final_score'),
+                'price': e.get('btc_price'),
+            }
             for e in history
             if e.get('date') and _dt.fromisoformat(e['date']).date() >= cutoff
         ]
