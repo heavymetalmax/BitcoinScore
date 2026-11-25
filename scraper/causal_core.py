@@ -194,6 +194,16 @@ def compute_causal_weekly_history(
     cb_in = False
     v52_in = False
     v52_trade_peak = 0.0
+    # Pyramid Max: 20% <=22, 50% <=16, 100% <=12 or +15pt rebound; exit 100% >=80 or AdaptTS
+    pmax_alloc = 0.0
+    pmax_peak = 0.0
+    pmax_min_v = 100.0
+    pmax_buying = True
+    # Pyramid Soft: 20% <=25, 50% <=18, 100% <=12 or +15pt rebound; exit 30% >=75, rest >=80 or AdaptTS
+    psoft_alloc = 0.0
+    psoft_peak = 0.0
+    psoft_min_v = 100.0
+    psoft_buying = True
     mv_idx = mv_cap_idx = cv_idx = pu_idx = 0
     last_mv_pct: float | None = None
     last_mvrv_ratio: float | None = None
@@ -376,6 +386,57 @@ def compute_causal_weekly_history(
                 v52_trade_peak = 0.0
         v52_stop_price = round(v52_trade_peak * (1.0 - v52_stop_dd), 2) if (v52_in and v52_trade_peak > 0) else None
 
+        # Replay Pyramid Max (20/30/50 -> >=80 + AdaptTS)
+        if pmax_alloc > 0:
+            pmax_peak = max(pmax_peak, closes[i])
+        if smart_bri is not None:
+            if pmax_buying:
+                for ta, th in ((0.2, 22.0), (0.5, 16.0), (1.0, 12.0)):
+                    if pmax_alloc < ta and smart_bri <= th:
+                        pmax_alloc = ta
+                        pmax_peak = max(pmax_peak, closes[i])
+                if pmax_alloc > 0:
+                    pmax_min_v = min(pmax_min_v, smart_bri)
+                    if pmax_alloc < 1.0 and pmax_min_v <= 20.0 and smart_bri >= pmax_min_v + 15.0:
+                        pmax_alloc = 1.0
+                        pmax_peak = max(pmax_peak, closes[i])
+                        pmax_buying = False
+                if pmax_alloc >= 1.0:
+                    pmax_buying = False
+            if pmax_alloc > 0:
+                if smart_bri >= 80.0 or (pmax_peak > 0 and closes[i] <= pmax_peak * (1.0 - v52_stop_dd) and smart_bri > 30.0):
+                    pmax_alloc = 0.0
+                    pmax_peak = 0.0
+                    pmax_min_v = 100.0
+                    pmax_buying = True
+
+        # Replay Pyramid Soft (20/30/50 -> 30% >=75, 70% >=80 + AdaptTS)
+        if psoft_alloc > 0:
+            psoft_peak = max(psoft_peak, closes[i])
+        if smart_bri is not None:
+            if psoft_buying:
+                for ta, th in ((0.2, 25.0), (0.5, 18.0), (1.0, 12.0)):
+                    if psoft_alloc < ta and smart_bri <= th:
+                        psoft_alloc = ta
+                        psoft_peak = max(psoft_peak, closes[i])
+                if psoft_alloc > 0:
+                    psoft_min_v = min(psoft_min_v, smart_bri)
+                    if psoft_alloc < 1.0 and psoft_min_v <= 20.0 and smart_bri >= psoft_min_v + 15.0:
+                        psoft_alloc = 1.0
+                        psoft_peak = max(psoft_peak, closes[i])
+                        psoft_buying = False
+                if psoft_alloc >= 1.0:
+                    psoft_buying = False
+            if psoft_alloc > 0:
+                if psoft_alloc > 0.7 and smart_bri >= 75.0:
+                    psoft_alloc = 0.7
+                    psoft_buying = False
+                if smart_bri >= 80.0 or (psoft_peak > 0 and closes[i] <= psoft_peak * (1.0 - v52_stop_dd) and smart_bri > 30.0):
+                    psoft_alloc = 0.0
+                    psoft_peak = 0.0
+                    psoft_min_v = 100.0
+                    psoft_buying = True
+
         eff_amp = cb4y_sc if cb4y_sc is not None else 50.0
         amp_dict = {
             'method': 'smart_purged_ic_v1',
@@ -423,6 +484,10 @@ def compute_causal_weekly_history(
             'v52_stop_dd': round(v52_stop_dd, 4),
             'v52_stop_dd_pct': round(v52_stop_dd * 100.0, 1),
             'v52_stop_price': v52_stop_price,
+            'pyr_max_alloc_pct': int(round(pmax_alloc * 100)),
+            'pyr_max_min_v52': round(pmax_min_v, 1) if pmax_min_v < 100.0 else None,
+            'pyr_soft_alloc_pct': int(round(psoft_alloc * 100)),
+            'pyr_soft_min_v52': round(psoft_min_v, 1) if psoft_min_v < 100.0 else None,
             'cycle_amplitude': amp_dict,
         })
     return out
@@ -475,6 +540,10 @@ def compute_causal_d1_state(
         'prev_v52_in_pos': last['prev_v52_in_pos'],
         'v52_stop_dd_pct': last['v52_stop_dd_pct'],
         'v52_stop_price': last['v52_stop_price'],
+        'pyr_max_alloc_pct': last['pyr_max_alloc_pct'],
+        'pyr_max_min_v52': last['pyr_max_min_v52'],
+        'pyr_soft_alloc_pct': last['pyr_soft_alloc_pct'],
+        'pyr_soft_min_v52': last['pyr_soft_min_v52'],
         'cycle_amplitude': last['cycle_amplitude'],
     }
 

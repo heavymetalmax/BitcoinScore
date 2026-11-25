@@ -258,6 +258,10 @@ def compute_allocation_signal(
         'mode_100_action_label': mode_100_action_label,
         'mode_100_stop_dd_pct': (d1_state or {}).get('v52_stop_dd_pct'),
         'mode_100_stop_price': (d1_state or {}).get('v52_stop_price'),
+        'mode_pyr_max_target_pct': (d1_state or {}).get('pyr_max_alloc_pct', 0),
+        'mode_pyr_max_min_v52': (d1_state or {}).get('pyr_max_min_v52'),
+        'mode_pyr_soft_target_pct': (d1_state or {}).get('pyr_soft_alloc_pct', 0),
+        'mode_pyr_soft_min_v52': (d1_state or {}).get('pyr_soft_min_v52'),
         'v52_in_position': v52_in_pos,
         # Backward-compat alias for legacy readers; points to active Sleeve 1 (SMA40w)
         'bri_sleeve_pct': sma40_sleeve_pct,

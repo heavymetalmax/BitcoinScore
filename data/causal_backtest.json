@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-25T08:44:27Z",
+  "generated_at": "2026-11-25T08:54:10Z",
   "methodology": "Production-parity zero-lookahead test on closed Monday weekly OHLC (2011–2026, real H/L/O/C) + causal MVRV/Puell/CVDD + vol-scaled amplitude + WaveTrend SMA3. Execution: next-week open (t+1), true intra-week MaxDD, 0.5% and 1.0% one-way fees.",
   "ohlc_bars": 794,
   "tail_risk_oos": {
@@ -17,6 +17,76 @@
       "end": "2026-11-16",
       "weeks": 516,
       "strategies": [
+        {
+          "mode": "Pyramid_Max",
+          "start": "2017-01-02",
+          "end": "2026-11-16",
+          "weeks": 516,
+          "fee_pct": 0.5,
+          "multiple": 68.37,
+          "return_pct": 6736.5,
+          "cagr_pct": 53.1,
+          "max_dd_pct": 52.4,
+          "max_dd_close_pct": 30.4,
+          "calmar": 1.01,
+          "exposure_pct": 46.1,
+          "closed_trades": 3,
+          "trades": 10,
+          "rebalances": 10,
+          "win_rate_pct": 100.0,
+          "median_post_entry_dd26_pct": 18.9,
+          "end_alloc_pct": 20.0,
+          "last_trade": {
+            "date": "2026-06-29",
+            "action": "BUY",
+            "price": 59488.9,
+            "bri": 25.7
+          },
+          "label": "20/30/50 · Максимум прибутку (≤22/16/12|+15б → ≥80+стоп)",
+          "multiple_fee10": 66.26,
+          "max_dd_fee10_pct": 52.8,
+          "boot_vs_bh": {
+            "rel_multiple": 1.12,
+            "p05": 0.03,
+            "p95": 32.11,
+            "prob_gt_1": 53.0
+          }
+        },
+        {
+          "mode": "Pyramid_Soft",
+          "start": "2017-01-02",
+          "end": "2026-11-16",
+          "weeks": 516,
+          "fee_pct": 0.5,
+          "multiple": 55.05,
+          "return_pct": 5404.8,
+          "cagr_pct": 49.8,
+          "max_dd_pct": 52.4,
+          "max_dd_close_pct": 30.4,
+          "calmar": 0.95,
+          "exposure_pct": 42.7,
+          "closed_trades": 3,
+          "trades": 12,
+          "rebalances": 12,
+          "win_rate_pct": 100.0,
+          "median_post_entry_dd26_pct": 18.9,
+          "end_alloc_pct": 20.0,
+          "last_trade": {
+            "date": "2026-06-08",
+            "action": "BUY",
+            "price": 63305.6,
+            "bri": 25.3
+          },
+          "label": "20/30/50 · М'яка просадка (≤25/18/12|+15б → 30%≥75 / 70%≥80+стоп)",
+          "multiple_fee10": 53.35,
+          "max_dd_fee10_pct": 52.8,
+          "boot_vs_bh": {
+            "rel_multiple": 0.9,
+            "p05": 0.03,
+            "p95": 27.58,
+            "prob_gt_1": 48.5
+          }
+        },
         {
           "mode": "V52_Index_Threshold",
           "start": "2017-01-02",
@@ -42,7 +112,7 @@
             "price": 119102.2,
             "bri": 77.5
           },
-          "label": "Режим 100/100 (Індекс v5.2 ≤20 / ≥80 + адапт. стоп)",
+          "label": "100/100 · Один ордер (≤20 / ≥80 + адапт. стоп)",
           "multiple_fee10": 54.78,
           "max_dd_fee10_pct": 52.8,
           "boot_vs_bh": {
@@ -50,41 +120,6 @@
             "p05": 0.02,
             "p95": 26.61,
             "prob_gt_1": 48.6
-          }
-        },
-        {
-          "mode": "D1_Causal_DualSleeve",
-          "start": "2017-01-02",
-          "end": "2026-11-16",
-          "weeks": 516,
-          "fee_pct": 0.5,
-          "multiple": 82.39,
-          "return_pct": 8138.7,
-          "cagr_pct": 56.0,
-          "max_dd_pct": 61.3,
-          "max_dd_close_pct": 59.3,
-          "calmar": 0.91,
-          "exposure_pct": 58.0,
-          "closed_trades": 18,
-          "trades": 94,
-          "rebalances": 94,
-          "win_rate_pct": 61.1,
-          "median_post_entry_dd26_pct": 28.2,
-          "end_alloc_pct": 0.0,
-          "last_trade": {
-            "date": "2026-11-16",
-            "action": "SELL",
-            "price": 65314.6,
-            "bri": 20.3
-          },
-          "label": "Режим 50/50 (Поетапний: Тренд SMA40w + Імпульс Cipher B & Захист дна)",
-          "multiple_fee10": 64.96,
-          "max_dd_fee10_pct": 62.3,
-          "boot_vs_bh": {
-            "rel_multiple": 1.35,
-            "p05": 0.21,
-            "p95": 9.49,
-            "prob_gt_1": 60.4
           }
         },
         {
@@ -125,6 +160,76 @@
       "weeks": 307,
       "strategies": [
         {
+          "mode": "Pyramid_Max",
+          "start": "2021-01-04",
+          "end": "2026-11-16",
+          "weeks": 307,
+          "fee_pct": 0.5,
+          "multiple": 6.22,
+          "return_pct": 522.1,
+          "cagr_pct": 36.3,
+          "max_dd_pct": 32.8,
+          "max_dd_close_pct": 25.0,
+          "calmar": 1.11,
+          "exposure_pct": 50.3,
+          "closed_trades": 1,
+          "trades": 5,
+          "rebalances": 5,
+          "win_rate_pct": 100.0,
+          "median_post_entry_dd26_pct": 24.5,
+          "end_alloc_pct": 20.0,
+          "last_trade": {
+            "date": "2026-06-29",
+            "action": "BUY",
+            "price": 59488.9,
+            "bri": 25.7
+          },
+          "label": "20/30/50 · Максимум прибутку (≤22/16/12|+15б → ≥80+стоп)",
+          "multiple_fee10": 6.15,
+          "max_dd_fee10_pct": 32.8,
+          "boot_vs_bh": {
+            "rel_multiple": 3.38,
+            "p05": 0.67,
+            "p95": 18.4,
+            "prob_gt_1": 88.4
+          }
+        },
+        {
+          "mode": "Pyramid_Soft",
+          "start": "2021-01-04",
+          "end": "2026-11-16",
+          "weeks": 307,
+          "fee_pct": 0.5,
+          "multiple": 5.17,
+          "return_pct": 417.3,
+          "cagr_pct": 32.1,
+          "max_dd_pct": 25.6,
+          "max_dd_close_pct": 19.9,
+          "calmar": 1.25,
+          "exposure_pct": 44.7,
+          "closed_trades": 1,
+          "trades": 6,
+          "rebalances": 6,
+          "win_rate_pct": 100.0,
+          "median_post_entry_dd26_pct": 30.7,
+          "end_alloc_pct": 20.0,
+          "last_trade": {
+            "date": "2026-06-08",
+            "action": "BUY",
+            "price": 63305.6,
+            "bri": 25.3
+          },
+          "label": "20/30/50 · М'яка просадка (≤25/18/12|+15б → 30%≥75 / 70%≥80+стоп)",
+          "multiple_fee10": 5.12,
+          "max_dd_fee10_pct": 25.7,
+          "boot_vs_bh": {
+            "rel_multiple": 2.81,
+            "p05": 0.55,
+            "p95": 16.01,
+            "prob_gt_1": 84.7
+          }
+        },
+        {
           "mode": "V52_Index_Threshold",
           "start": "2021-01-04",
           "end": "2026-11-16",
@@ -149,7 +254,7 @@
             "price": 119102.2,
             "bri": 77.5
           },
-          "label": "Режим 100/100 (Індекс v5.2 ≤20 / ≥80 + адапт. стоп)",
+          "label": "100/100 · Один ордер (≤20 / ≥80 + адапт. стоп)",
           "multiple_fee10": 5.68,
           "max_dd_fee10_pct": 38.6,
           "boot_vs_bh": {
@@ -157,41 +262,6 @@
             "p05": 0.57,
             "p95": 18.14,
             "prob_gt_1": 86.1
-          }
-        },
-        {
-          "mode": "D1_Causal_DualSleeve",
-          "start": "2021-01-04",
-          "end": "2026-11-16",
-          "weeks": 307,
-          "fee_pct": 0.5,
-          "multiple": 2.65,
-          "return_pct": 165.1,
-          "cagr_pct": 18.0,
-          "max_dd_pct": 41.9,
-          "max_dd_close_pct": 37.4,
-          "calmar": 0.43,
-          "exposure_pct": 58.0,
-          "closed_trades": 12,
-          "trades": 57,
-          "rebalances": 57,
-          "win_rate_pct": 58.3,
-          "median_post_entry_dd26_pct": 25.3,
-          "end_alloc_pct": 0.0,
-          "last_trade": {
-            "date": "2026-11-16",
-            "action": "SELL",
-            "price": 65314.6,
-            "bri": 20.3
-          },
-          "label": "Режим 50/50 (Поетапний: Тренд SMA40w + Імпульс Cipher B & Захист дна)",
-          "multiple_fee10": 2.29,
-          "max_dd_fee10_pct": 43.4,
-          "boot_vs_bh": {
-            "rel_multiple": 1.44,
-            "p05": 0.39,
-            "p95": 5.87,
-            "prob_gt_1": 67.1
           }
         },
         {
