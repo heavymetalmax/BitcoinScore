@@ -97,3 +97,4 @@ python3 tools/run_causal_backtest.py
 
 - Static site deployment (`web/`): `.github/workflows/deploy.yml` (supports both `push` on `web/**` and manual `workflow_dispatch`).
 - Trading desk (`web/trade.html`): clean 3-step UX (**1. Де ми зараз → 2. Чого чекаємо → 3. План дій і калькулятор**) + detailed analytics tabs below the fold.
+- Full empirical history of all accepted & rejected ideas: [`docs/RESEARCH_LOG.md`](RESEARCH_LOG.md).
