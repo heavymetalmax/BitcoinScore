@@ -523,8 +523,8 @@
   "decision_suppression_reason": null,
   "composite_risk": 22.9,
   "v3_oc_coherence": 0.57,
-  "conflict_score": 52,
-  "confidence_score": 48,
+  "conflict_score": 40,
+  "confidence_score": 60,
   "data_quality": {
     "active_metrics": 16,
     "total_metrics": 16,
@@ -577,7 +577,7 @@
     "trailing_armed": false,
     "trailing_peak_bri": 83.0,
     "trailing_exit_trigger": null,
-    "tiz_le25_days": 4,
+    "tiz_le25_days": 3,
     "tiz_confirmed": false,
     "weekly_wt_spread": -21.69,
     "kraken_wt_spread": -21.88,
@@ -602,8 +602,8 @@
     "bottom_weight": 0.952,
     "neutral_weight": 0.048,
     "top_weight": 0.0,
-    "conflict_score": 52,
-    "confidence_score": 48,
+    "conflict_score": 40,
+    "confidence_score": 60,
     "ma_regime": "DEEP_ACCUMULATION",
     "dma_200": 72232.3,
     "dma_200_slope_30d": -0.92,
@@ -30488,5 +30488,12 @@
     "trailing_trigger_score": null,
     "peak_score_in_run": 0
   },
-  "causal_btcbri": 23.3
+  "causal_btcbri": 23.3,
+  "uncertainty_breakdown": {
+    "core_std": 13.7,
+    "dispersion_pts": 25.1,
+    "regime_pts": 15.0,
+    "data_penalty_pts": 0.0,
+    "core_components_n": 4
+  }
 }

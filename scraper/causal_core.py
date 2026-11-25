@@ -219,6 +219,95 @@ def compute_causal_btcbri(
     return round(min(100.0, max(0.0, score)), 1)
 
 
+def compute_causal_uncertainty(
+    raw_metrics: dict[str, Any],
+    mvrv_info: dict[str, Any] | None,
+    d1_state: dict[str, Any] | None,
+    allocation_signal: dict[str, Any] | None,
+    tail_risk: dict[str, Any] | None,
+    data_quality: dict[str, Any] | None,
+    as_of_date: datetime.date | str | None = None,
+    scores_path: str = 'data/history/scores.json',
+) -> tuple[int, int, dict[str, Any]]:
+    """Compute Causal v5.2 Core Uncertainty (conflict_score) & Confidence in [0, 100].
+
+    Measures real disagreement inside the v5.2 Causal Core (without macro-cycle
+    anti-phase noise from DXY/Yield Curve):
+      1. Core dispersion (0..55): std across causal ranks of (MVRV, Puell, CVDD, WT1).
+      2. Regime conflict (0..25): cheap valuation while D1 still 0% (+15),
+         split D1 sleeves at 50% (+10), or weekly bearish divergence when MVRV >= 50% (+15).
+      3. Data/validation penalty (0..40): missing/stale core metrics or unvalidated tail risk.
+    """
+    mvrv_val, mvrv_meta = _extract_val(raw_metrics, 'mvrv')
+    puell_val, puell_meta = _extract_val(raw_metrics, 'puell_multiple')
+    cvdd_val, cvdd_meta = _extract_val(raw_metrics, 'cvdd_ratio')
+    ranks = compute_causal_ranks(
+        {'mvrv': mvrv_val, 'puell_multiple': puell_val, 'cvdd_ratio': cvdd_val},
+        as_of_date=as_of_date,
+        scores_path=scores_path,
+    )
+
+    core_vals: list[float] = []
+    for k in ('mvrv', 'puell_multiple', 'cvdd_ratio'):
+        if ranks.get(k) is not None:
+            core_vals.append(float(ranks[k]))
+    wt1_rank = (d1_state or {}).get('wt1_causal_rank')
+    if wt1_rank is not None:
+        core_vals.append(float(wt1_rank))
+
+    if len(core_vals) >= 2:
+        mu = sum(core_vals) / len(core_vals)
+        core_std = (sum((x - mu) ** 2 for x in core_vals) / len(core_vals)) ** 0.5
+    else:
+        core_std = 30.0
+    disp_term = min(55.0, (core_std / 30.0) * 55.0)
+
+    alloc_pct = (allocation_signal or {}).get('target_allocation_pct')
+    mv_pct = (mvrv_info or {}).get('mvrv_pct')
+    cb_entry = raw_metrics.get('cipherb') if isinstance(raw_metrics.get('cipherb'), dict) else {}
+    cb_inner = cb_entry.get('value', cb_entry) if isinstance(cb_entry, dict) else {}
+    cb_bear_div = isinstance(cb_inner, dict) and bool(
+        cb_inner.get('double_bearish_div')
+        or cb_inner.get('fast_bearish_div')
+        or cb_inner.get('bearish_divergence')
+        or cb_inner.get('bearish_div')
+    )
+
+    regime_term = 0.0
+    if mv_pct is not None and float(mv_pct) <= 0.25 and alloc_pct == 0:
+        regime_term += 15.0
+    elif mv_pct is not None and float(mv_pct) >= 0.75 and alloc_pct == 0:
+        regime_term += 10.0
+    elif alloc_pct == 50:
+        regime_term += 10.0
+    if cb_bear_div and mv_pct is not None and float(mv_pct) >= 0.50:
+        regime_term += 15.0
+    regime_term = min(25.0, regime_term)
+
+    missing_core = max(0, 4 - len(core_vals))
+    stale_core = sum(
+        1 for meta in (mvrv_meta, puell_meta, cvdd_meta)
+        if isinstance(meta, dict) and meta.get('is_fallback')
+    )
+    data_term = missing_core * 10.0 + stale_core * 8.0
+    if (data_quality or {}).get('status') != 'valid':
+        data_term += 20.0
+    if tail_risk is not None and not tail_risk.get('validated'):
+        data_term += 15.0
+    data_term = min(40.0, data_term)
+
+    conflict = int(min(100, max(0, round(disp_term + regime_term + data_term))))
+    confidence = int(min(100, max(0, 100 - conflict)))
+    breakdown = {
+        'core_std': round(core_std, 1),
+        'dispersion_pts': round(disp_term, 1),
+        'regime_pts': round(regime_term, 1),
+        'data_penalty_pts': round(data_term, 1),
+        'core_components_n': len(core_vals),
+    }
+    return conflict, confidence, breakdown
+
+
 def infer_prev_cipherb_state(
     current_bar_date: str | None = None,
     path: str = 'data/history/cipherb_btcusdt_1w.json',

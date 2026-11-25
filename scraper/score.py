@@ -488,6 +488,8 @@ def compute_uncertainty(
     w_mean_num = 0.0
     w_sum = 0.0
     for k, s in normalized.items():
+        if k in ('cipherb_weekly', 'cipherb_daily'):
+            continue
         if s is not None and not math.isnan(s):
             u = float(utilities.get(k, 0.5))
             if u > 0:
@@ -500,7 +502,8 @@ def compute_uncertainty(
         var_num = sum(
             float(utilities.get(k, 0.5)) * ((float(s) - w_mean) ** 2)
             for k, s in normalized.items()
-            if s is not None and not math.isnan(s) and float(utilities.get(k, 0.5)) > 0
+            if k not in ('cipherb_weekly', 'cipherb_daily')
+            and s is not None and not math.isnan(s) and float(utilities.get(k, 0.5)) > 0
         )
         weighted_std = math.sqrt(var_num / w_sum)
 
@@ -826,6 +829,7 @@ def compute_score(
         compute_causal_btcbri,
         compute_causal_d1_state,
         compute_causal_mvrv_rank,
+        compute_causal_uncertainty,
         infer_prev_cipherb_state,
     )
 
@@ -889,6 +893,18 @@ def compute_score(
     )
     market_regime = allocation_signal['market_regime']
 
+    # Causal v5.2 Core Uncertainty (replaces legacy macro-noisy conflict_score)
+    legacy_conflict_score = conflict_score
+    conflict_score, confidence_score, uncertainty_breakdown = compute_causal_uncertainty(
+        raw_metrics=raw_metrics,
+        mvrv_info=_mvrv_info,
+        d1_state=_d1_state,
+        allocation_signal=allocation_signal,
+        tail_risk=tail_risk_13w,
+        data_quality=quality,
+        as_of_date=target_date,
+    )
+
     if final is not None and v5b_score is not None:
         _mc = float(final)
         composite_risk   = round(math.sqrt(max(0.0, _mc) * max(0.0, v5b_score)), 1)
@@ -947,6 +963,8 @@ def compute_score(
         'meta_score':         meta_score,
         'conflict_score':     conflict_score,
         'confidence_score':   confidence_score,
+        'legacy_conflict_score': legacy_conflict_score,
+        'uncertainty_breakdown': uncertainty_breakdown,
         'normalized_scores':  {
             k: round(v) for k, v in normalized.items()
             if v is not None and k not in ('cipherb_weekly', 'cipherb_daily')

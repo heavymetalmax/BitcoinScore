@@ -224,6 +224,9 @@ def test_data_json_synced_with_live_compute_score():
     assert d['allocation_signal']['action_label'] == live['allocation_signal']['action_label']
     assert d['causal_btcbri'] == live['causal_btcbri']
     assert 0.0 <= d['causal_btcbri'] <= 100.0
+    assert d['conflict_score'] == live['conflict_score']
+    assert d['confidence_score'] == 100 - d['conflict_score']
+    assert d['conflict_score'] < 50  # no longer inflated to 52-95 by anti-phase DXY/Macro noise
     assert d['allocation_signal']['target_allocation_pct'] == live['allocation_signal']['target_allocation_pct']
     assert d['v5b_validated'] == live['v5b_validated'] is True
     assert d['entry_exit_checklist']['abstain'] == live['entry_exit_checklist']['abstain']

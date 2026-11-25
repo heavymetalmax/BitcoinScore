@@ -273,6 +273,7 @@ def run_scoring_pipeline(p, build_metric_history_fn=None):
         p['v3_oc_coherence']      = scores['oc_coherence']
         p['conflict_score']       = scores.get('conflict_score')
         p['confidence_score']     = scores.get('confidence_score')
+        p['uncertainty_breakdown'] = scores.get('uncertainty_breakdown')
         p['wave_resonance']        = _wr
         p['data_quality'] = {
             'active_metrics': len(_active),
