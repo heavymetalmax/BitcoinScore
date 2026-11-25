@@ -1450,35 +1450,35 @@
             </div>
 
             <div class="base-meters-list">
-              <!-- Meter: On-Chain -->
+              <!-- Meter 1: Valuation / Bottom (CVDD + CostBasis + Puell) -->
               <div class="base-meter" data-meter="onchain">
                 <div class="base-meter-header">
-                  <span class="base-meter-label"><span class="en">On-Chain</span><span class="ua">Ончейн</span></span>
+                  <span class="base-meter-label"><span class="en">Valuation · Bottom <small id="lbl-w-val" style="opacity:.65"></small></span><span class="ua">Оцінка дна <small id="lbl-w-val-ua" style="opacity:.65"></small></span></span>
                   <span class="base-meter-val" id="sub-val-oc">—</span>
                 </div>
-                <div class="base-meter-track" role="meter" aria-label="On-Chain Score" aria-valuemin="0" aria-valuemax="100">
+                <div class="base-meter-track" role="meter" aria-label="Valuation Bottom Score" aria-valuemin="0" aria-valuemax="100">
                   <div class="base-meter-indicator" id="sub-bar-oc" style="width: 0%;"></div>
                 </div>
               </div>
 
-              <!-- Meter: Technical -->
+              <!-- Meter 2: MVRV Cycle (MCap-Adjusted) -->
               <div class="base-meter" data-meter="technical">
                 <div class="base-meter-header">
-                  <span class="base-meter-label"><span class="en">Technical</span><span class="ua">Технічний</span></span>
+                  <span class="base-meter-label"><span class="en">MVRV Cycle <small id="lbl-w-mcap" style="opacity:.65"></small></span><span class="ua">Цикл MVRV <small id="lbl-w-mcap-ua" style="opacity:.65"></small></span></span>
                   <span class="base-meter-val" id="sub-val-tech">—</span>
                 </div>
-                <div class="base-meter-track" role="meter" aria-label="Technical Score" aria-valuemin="0" aria-valuemax="100">
+                <div class="base-meter-track" role="meter" aria-label="MVRV Cycle Score" aria-valuemin="0" aria-valuemax="100">
                   <div class="base-meter-indicator" id="sub-bar-tech" style="width: 0%;"></div>
                 </div>
               </div>
 
-              <!-- Meter: Macro -->
+              <!-- Meter 3: Momentum (Cipher B Divergence) -->
               <div class="base-meter" data-meter="macro">
                 <div class="base-meter-header">
-                  <span class="base-meter-label"><span class="en">Macro</span><span class="ua">Макро</span></span>
+                  <span class="base-meter-label"><span class="en">Momentum · CB <small id="lbl-w-mom" style="opacity:.65"></small></span><span class="ua">Імпульс · CB <small id="lbl-w-mom-ua" style="opacity:.65"></small></span></span>
                   <span class="base-meter-val" id="sub-val-macro">—</span>
                 </div>
-                <div class="base-meter-track" role="meter" aria-label="Macro Score" aria-valuemin="0" aria-valuemax="100">
+                <div class="base-meter-track" role="meter" aria-label="Momentum Score" aria-valuemin="0" aria-valuemax="100">
                   <div class="base-meter-indicator" id="sub-bar-macro" style="width: 0%;"></div>
                 </div>
               </div>
@@ -3124,10 +3124,19 @@ async function loadData() {
   updateMiniGauge('mini-arc-1d', 'mini-needle-1d', 'mini-val-1d', prev1d);
   updateMiniGauge('mini-arc-7d', 'mini-needle-7d', 'mini-val-7d', prev7d);
 
-  // Sub-baskets: On-Chain, Technical, Macro
-  let ocVal = data.onchain_score ?? data.v3_onchain_score ?? null;
-  let techVal = data.tech_score ?? data.v3_tech_score ?? null;
-  let macroVal = data.macro_score ?? data.v3_macro_score ?? null;
+  // Sub-components: v5.2 real causal breakdown (Valuation, MVRV Cycle, Momentum)
+  const v52c = data.v52_components || data.causal_valuation?.v52_components || null;
+  let ocVal = v52c?.valuation ?? data.onchain_score ?? data.v3_onchain_score ?? null;
+  let techVal = v52c?.cycle_mcap ?? data.tech_score ?? data.v3_tech_score ?? null;
+  let macroVal = v52c?.momentum ?? data.macro_score ?? data.v3_macro_score ?? null;
+  if (v52c?.weights) {
+    const wv = Math.round(v52c.weights.valuation ?? 0) + '%';
+    const wm = Math.round(v52c.weights.cycle_mcap ?? 0) + '%';
+    const wc = Math.round(v52c.weights.momentum ?? 0) + '%';
+    ['lbl-w-val', 'lbl-w-val-ua'].forEach(id => set(id, `(${wv})`));
+    ['lbl-w-mcap', 'lbl-w-mcap-ua'].forEach(id => set(id, `(${wm})`));
+    ['lbl-w-mom', 'lbl-w-mom-ua'].forEach(id => set(id, `(${wc})`));
+  }
   if (macroVal == null && data.v3_normalized_scores) {
     const mNorm = data.v3_normalized_scores;
     const util = data.v3_utilities || {};

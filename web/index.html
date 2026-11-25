@@ -1718,17 +1718,17 @@
             <div class="concentric-legend" style="display: flex; gap: 16px; justify-content: center; align-items: center; margin-top: 6px; flex-wrap: wrap; font-size: 0.78rem; font-weight: 700;">
               <div style="display: flex; align-items: center; gap: 6px;">
                 <span style="width: 8px; height: 8px; border-radius: 50%; background: #00F2FE; display: inline-block; box-shadow: 0 0 6px rgba(0,242,254,0.6);"></span>
-                <span style="color: var(--text-mute);"><span class="en">On-Chain</span><span class="ua">Ончейн</span>:</span>
+                <span style="color: var(--text-mute);"><span class="en">Valuation</span><span class="ua">Оцінка дна</span>:</span>
                 <span id="arc-val-oc" style="color: #00F2FE;">—</span>
               </div>
               <div style="display: flex; align-items: center; gap: 6px;">
                 <span style="width: 8px; height: 8px; border-radius: 50%; background: #F7931A; display: inline-block; box-shadow: 0 0 6px rgba(247,147,26,0.6);"></span>
-                <span style="color: var(--text-mute);"><span class="en">Tech</span><span class="ua">Тех</span>:</span>
+                <span style="color: var(--text-mute);"><span class="en">MVRV Cycle</span><span class="ua">Цикл MVRV</span>:</span>
                 <span id="arc-val-tech" style="color: #F7931A;">—</span>
               </div>
               <div style="display: flex; align-items: center; gap: 6px;">
                 <span style="width: 8px; height: 8px; border-radius: 50%; background: #A855F7; display: inline-block; box-shadow: 0 0 6px rgba(168,85,247,0.6);"></span>
-                <span style="color: var(--text-mute);"><span class="en">Macro</span><span class="ua">Макро</span>:</span>
+                <span style="color: var(--text-mute);"><span class="en">Momentum</span><span class="ua">Імпульс</span>:</span>
                 <span id="arc-val-macro" style="color: #A855F7;">—</span>
               </div>
             </div>
@@ -3141,10 +3141,13 @@
         if (tDownEl) tDownEl.textContent = '';
       }
       
-      // Update main score values (numerical labels)
+      // Update main score values (numerical labels — prefer v5.2 causal components)
+      const v52c = data.v52_components || data.causal_valuation?.v52_components || null;
+      const compOc = v52c?.valuation ?? data.onchain_score;
+      const compTech = v52c?.cycle_mcap ?? data.tech_score;
       setScore('s-final', 'b-final', primaryScore);
-      setScore('s-oc',    'b-oc',    data.onchain_score);
-      setScore('s-tech',  'b-tech',  data.tech_score);
+      setScore('s-oc',    'b-oc',    compOc);
+      setScore('s-tech',  'b-tech',  compTech);
 
       // Risk label helper — thresholds match the main track ticks (20/40/60/80)
       const riskLabel = v => v == null ? {en:'—', ua:'—'}
@@ -3208,22 +3211,26 @@
         }
         if (macroVal == null) macroVal = 60;
 
-        // Update Concentric Arcs Legend
+        // Update Concentric Arcs Legend (prefer v5.2 causal components)
+        const v52cArc = data.v52_components || data.causal_valuation?.v52_components || null;
+        const arcOcVal = v52cArc?.valuation ?? data.onchain_score;
+        const arcTechVal = v52cArc?.cycle_mcap ?? data.tech_score;
+        const arcMacroVal = v52cArc?.momentum ?? macroVal;
         const arcOcEl = document.getElementById('arc-val-oc');
         const arcTechEl = document.getElementById('arc-val-tech');
         const arcMacroEl = document.getElementById('arc-val-macro');
-        if (arcOcEl) arcOcEl.textContent = data.onchain_score != null ? data.onchain_score : '—';
-        if (arcTechEl) arcTechEl.textContent = data.tech_score != null ? data.tech_score : '—';
-        if (arcMacroEl) arcMacroEl.textContent = macroVal != null ? macroVal : '—';
+        if (arcOcEl) arcOcEl.textContent = arcOcVal != null ? arcOcVal : '—';
+        if (arcTechEl) arcTechEl.textContent = arcTechVal != null ? arcTechVal : '—';
+        if (arcMacroEl) arcMacroEl.textContent = arcMacroVal != null ? arcMacroVal : '—';
 
         const formattedPrice = data.btc_price ? '$' + Math.round(data.btc_price).toLocaleString('en-US') : '';
 
         // Store values and draw all canvas gauges
         window._gaugeValues = {
           final:     finalVal,
-          onchain:   data.onchain_score,
-          tech:      data.tech_score,
-          macro:     macroVal,
+          onchain:   arcOcVal,
+          tech:      arcTechVal,
+          macro:     arcMacroVal,
           price:     formattedPrice,
           yesterday: yesterdayScore,
           week:      (avg7d != null) ? avg7d : (data.prev_week ? data.prev_week.final_score : null),

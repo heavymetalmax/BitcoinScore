@@ -1564,15 +1564,15 @@
             </div>
           </div>
 
-          <!-- Bottom Row: On-Chain / Tech / Macro Sub-Indices -->
+          <!-- Bottom Row: v5.2 Causal Sub-Components -->
           <div class="display-sub-row">
-            <!-- Zone 2: On-Chain -->
+            <!-- Zone 2: Valuation / Bottom -->
             <div class="click-zone sub-item" onclick="flipTo('onchain')">
               <span class="sub-value" id="s-oc-center">—</span>
               <div class="sub-label-col">
                 <span class="sub-title">
-                  <span class="ua">ончейн</span>
-                  <span class="en">on-chain</span>
+                  <span class="ua">оцінка дна</span>
+                  <span class="en">valuation</span>
                 </span>
                 <span class="sub-status" id="s-oc-status-center">—</span>
               </div>
@@ -1580,13 +1580,13 @@
 
             <div class="sub-divider"></div>
 
-            <!-- Zone 3: Technical -->
+            <!-- Zone 3: MVRV Cycle -->
             <div class="click-zone sub-item" onclick="flipTo('tech')">
               <span class="sub-value" id="s-tech-center">—</span>
               <div class="sub-label-col">
                 <span class="sub-title">
-                  <span class="ua">техніч.</span>
-                  <span class="en">tech</span>
+                  <span class="ua">цикл mvrv</span>
+                  <span class="en">mvrv cycle</span>
                 </span>
                 <span class="sub-status" id="s-tech-status-center">—</span>
               </div>
@@ -1594,13 +1594,13 @@
 
             <div class="sub-divider"></div>
 
-            <!-- Zone 4: Macro -->
+            <!-- Zone 4: Momentum (Cipher B) -->
             <div class="click-zone sub-item" onclick="flipTo('macro')">
               <span class="sub-value" id="s-macro-center">—</span>
               <div class="sub-label-col">
                 <span class="sub-title">
-                  <span class="ua">макро</span>
-                  <span class="en">macro</span>
+                  <span class="ua">імпульс</span>
+                  <span class="en">momentum</span>
                 </span>
                 <span class="sub-status" id="s-macro-status-center">—</span>
               </div>
@@ -2664,9 +2664,10 @@
         }
         return wc > 0 ? Math.round(ws / wc) : null;
       }
-      const _ocAgg    = data.onchain_score ?? subgroupAvg(_ocMetrics);
-      const _techAgg  = data.tech_score    ?? subgroupAvg(_techMetrics);
-      const _macroAgg = data.macro_score   ?? (subgroupAvg(_macroMetrics) ?? data.v3_macro_score);
+      const v52c = data.v52_components || data.causal_valuation?.v52_components || null;
+      const _ocAgg    = v52c?.valuation ?? data.onchain_score ?? subgroupAvg(_ocMetrics);
+      const _techAgg  = v52c?.cycle_mcap ?? data.tech_score    ?? subgroupAvg(_techMetrics);
+      const _macroAgg = v52c?.momentum ?? data.macro_score   ?? (subgroupAvg(_macroMetrics) ?? data.v3_macro_score);
       setCenterSubVal(_ocAgg,    's-oc-center',    's-oc-status-center');
       setCenterSubVal(_techAgg,  's-tech-center',  's-tech-status-center');
       setCenterSubVal(_macroAgg, 's-macro-center', 's-macro-status-center');

@@ -825,11 +825,15 @@ def compute_score(
     # ── Market Regime & Causal D1 Dual-Sleeve Allocation Engine ──────────────
     from scraper.allocation_engine import compute_allocation_signal
     from scraper.causal_core import (
+        _extract_closed_week_metric_buffers,
+        _extract_val as _cc_extract_val,
         build_entry_exit_checklist,
         compute_causal_btcbri,
         compute_causal_d1_state,
         compute_causal_mvrv_rank,
         compute_causal_uncertainty,
+        compute_causal_weekly_history,
+        compute_v52_components,
         infer_prev_cipherb_state,
     )
 
@@ -871,6 +875,37 @@ def compute_score(
         as_of_date=target_date,
     )
     _mvrv_info['causal_btcbri'] = _causal_btcbri
+    _v52_components = None
+    try:
+        from scraper.mvrv_ratio_store import load_daily_mvrv_and_cap
+        _wk_all = compute_causal_weekly_history(as_of_date=target_date)
+        if _wk_all:
+            _sc_rows = json.load(open('data/history/scores.json', encoding='utf-8')) if os.path.exists('data/history/scores.json') else []
+            _cv_wk, _pu_wk = _extract_closed_week_metric_buffers(_wk_all, _sc_rows)
+            _cv_t, _ = _cc_extract_val(raw_metrics or {}, 'cvdd_ratio')
+            _pu_t, _ = _cc_extract_val(raw_metrics or {}, 'puell_multiple')
+            _cutoff_s = target_date.isoformat() if isinstance(target_date, datetime.date) else str(target_date)[:10]
+            _mvc = load_daily_mvrv_and_cap(as_of_date=_cutoff_s)
+            _mvr = None
+            if _mvc:
+                _ld, _lmvr, _ = _mvc[-1]
+                _mvr = _lmvr
+                if _ld.isoformat() != _cutoff_s and btc_price and float(btc_price) > 0:
+                    for _mr in reversed(json.load(open('data/history/mvrv_ratio_history.json', encoding='utf-8')).get('series') or []):
+                        if str(_mr.get('date', ''))[:10] == _ld.isoformat() and _mr.get('price_usd'):
+                            _rp = float(_mr['price_usd']) / _lmvr
+                            if _rp > 0:
+                                _mvr = float(btc_price) / _rp
+                            break
+            _v52_components = compute_v52_components(
+                _wk_all[-1],
+                [x for x in _cv_wk[-207:] if x is not None],
+                [x for x in _pu_wk[-207:] if x is not None],
+                _mvr, _cv_t, _pu_t,
+            )
+    except Exception:
+        _v52_components = None
+    _mvrv_info['v52_components'] = _v52_components
     _mvrv_info['wt1_causal_rank'] = _d1_state.get('wt1_causal_rank') if _d1_state.get('available') else None
     _cycle_amplitude = _d1_state.get('cycle_amplitude') if _d1_state.get('available') else None
     _checklist = build_entry_exit_checklist(
@@ -957,6 +992,7 @@ def compute_score(
         'forward_risk_method': forward_risk_method,
         'causal_valuation':   _mvrv_info,
         'causal_btcbri':      _causal_btcbri,
+        'v52_components':     _v52_components,
         'cycle_amplitude':    _cycle_amplitude,
         'entry_exit_checklist': _checklist,
         'market_regime':      market_regime,

@@ -621,6 +621,70 @@ def _score_daily_point_in_time(
     return round(soft_risk_compress(v_sum / w_sum), 1)
 
 
+def compute_v52_components(
+    w_closed: dict[str, Any] | None,
+    cvdd_win_base: list[float],
+    puell_win_base: list[float],
+    mvrv_ratio: float | None,
+    cvdd_today: float | None,
+    puell_today: float | None,
+) -> dict[str, Any] | None:
+    """Return the 3 human-facing v5.2 components (Valuation, MVRV Cycle, Momentum) & weights."""
+    amp = (w_closed or {}).get('cycle_amplitude')
+    if not isinstance(amp, dict):
+        return None
+    weights_pct = amp.get('smart_weights_pct') or {}
+
+    cb4y_sc = amp.get('amp_score')
+    mcap_sc = amp.get('mcap_adj_score')
+    if mvrv_ratio is not None and mvrv_ratio > 0:
+        cur_lm = math.log(float(mvrv_ratio))
+        lo_r, hi_r = amp.get('mvrv_ratio_4y_min'), amp.get('mvrv_ratio_4y_max')
+        if lo_r is not None and hi_r is not None and lo_r > 0 and hi_r > 0:
+            lo_4y = min(math.log(float(lo_r)), cur_lm)
+            hi_4y = max(math.log(float(hi_r)), cur_lm)
+            if (hi_4y - lo_4y) > 1e-9:
+                cb4y_sc = min(100.0, max(0.0, (cur_lm - lo_4y) / (hi_4y - lo_4y) * 100.0))
+        exp_amp = amp.get('expected_mvrv_amp')
+        if exp_amp is not None and float(exp_amp) > 1e-9:
+            mcap_sc = 100.0 / (1.0 + math.exp(-1.5 * (cur_lm / float(exp_amp) - 0.35)))
+
+    cvdd4_sc = amp.get('cvdd_4y_score')
+    if cvdd_today is not None and len(cvdd_win_base) >= 25:
+        c_win = sorted([*cvdd_win_base, float(cvdd_today)])
+        cvdd4_sc = bisect.bisect_right(c_win, float(cvdd_today)) / len(c_win) * 100.0
+
+    puell4_sc = amp.get('puell_4y_score')
+    if puell_today is not None and len(puell_win_base) >= 25:
+        p_win = sorted([*puell_win_base, float(puell_today)])
+        puell4_sc = bisect.bisect_right(p_win, float(puell_today)) / len(p_win) * 100.0
+
+    val_w_sum = 0.0
+    val_v_sum = 0.0
+    for k, sv in (('cb4y', cb4y_sc), ('cvdd4', cvdd4_sc), ('puell4', puell4_sc)):
+        w = float(weights_pct.get(k) or 0.0)
+        if sv is not None and w > 0:
+            val_w_sum += w
+            val_v_sum += w * float(sv)
+    val_score = round(val_v_sum / val_w_sum) if val_w_sum > 0 else None
+    mcap_score = round(float(mcap_sc)) if mcap_sc is not None else None
+    mom_score = round(float(amp['cb_div_score'])) if amp.get('cb_div_score') is not None else None
+
+    w_mcap = float(weights_pct.get('mcap') or 0.0)
+    w_mom = float(weights_pct.get('cb_div') or 0.0)
+    w_tot = val_w_sum + w_mcap + w_mom
+    return {
+        'valuation': val_score,
+        'cycle_mcap': mcap_score,
+        'momentum': mom_score,
+        'weights': {
+            'valuation': round(val_w_sum / w_tot * 100.0, 1) if w_tot > 0 else 80.0,
+            'cycle_mcap': round(w_mcap / w_tot * 100.0, 1) if w_tot > 0 else 15.0,
+            'momentum': round(w_mom / w_tot * 100.0, 1) if w_tot > 0 else 5.0,
+        },
+    }
+
+
 def _extract_closed_week_metric_buffers(
     weekly: list[dict[str, Any]],
     scores_rows: list[dict[str, Any]],
