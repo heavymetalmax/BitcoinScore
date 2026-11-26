@@ -4500,5 +4500,47 @@
         }
       }
     }
+  },
+  {
+    "timestamp": "2026-11-26T13:01:24Z",
+    "btc_price": 60815.33,
+    "cipherb": {
+      "timestamp": 1795046400,
+      "close": 60368.6,
+      "wt1": -22.567080694444737,
+      "wt2": -0.5703369414217434,
+      "mfi": -15.65232629786139,
+      "weekly_score": 27.376076971325976,
+      "bearish_divergence": false,
+      "bullish_divergence": false,
+      "fast_bearish_div": false,
+      "fast_bullish_div": false,
+      "double_bearish_div": false,
+      "double_bullish_div": false,
+      "daily_score": 2.374766995534685,
+      "daily_bearish_div": false,
+      "daily_bullish_div": false,
+      "daily_fast_bearish_div": false,
+      "daily_fast_bullish_div": true,
+      "daily_double_bearish_div": false,
+      "daily_double_bullish_div": false,
+      "weekly_pool": {
+        "wt_spread": -22.0,
+        "small_green_now": false,
+        "small_red_now": false,
+        "last_small_green_ts": 1783555200,
+        "last_small_red_ts": 1791417600,
+        "pair3": {
+          "state": "ACCUMULATE_CASH_POOL",
+          "last_signal": "small_red_dot",
+          "last_signal_ts": 1791417600
+        },
+        "pair4": {
+          "state": "HOLD_BTC",
+          "last_signal": "small_green_dot",
+          "last_signal_ts": 1744848000
+        }
+      }
+    }
   }
 ]
