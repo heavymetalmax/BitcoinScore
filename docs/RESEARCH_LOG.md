@@ -1,6 +1,6 @@
 # BitcoinScore Research & Decisions Log (Alpha v5.2)
 
-**Updated:** 2026-11-25  
+**Updated:** 2026-11-26  
 **Purpose:** Single empirical ledger of all ideas tested on BitcoinScore (`0%` lookahead, `0.5%` one-way fee, real closed Monday weekly OHLC since 2011) — recording **what was accepted**, **what was rejected**, and the **exact quantitative reason**, so failed experiments are never repeated.
 
 ---
@@ -49,3 +49,7 @@
 | **`Core + Trend Sleeve` (`70/30` & `80/20` with `SMA40w & v5.2<75`)** | `70/30`: `47.42× / 5.01×` (`67` rebalances, `DD −49.6%`); `80/20`: `54.59× / 5.60×`; pure Trend: `13.04× / 2.04×` | `SMA40w` whipped in sideways markets (`58–67` trades), dragging returns `−22%..−32%` without reducing 2017–26 MaxDD. |
 | **Continuous Risk Curve (`Linear ±15%/±20%`, `+Stop`, `Sigmoid ±15%`)** | `4.65×–7.63×` (`2017–26`) / `1.51×–1.67×` (`2021–26`), `49–77` rebalances (`P(>Pyr) < 2%`) | Smooth linear/sigmoid scaling sells BTC mid-bull (`v5.2 = 30..50`) and buys into bear drops (`v5.2 = 60..50`); wide hysteresis (`≤22 → ≥80`) is the core source of alpha. |
 | **Post-Stop Re-Entry (`close > SMA20w & v5.2 < 55`)** | `Pyr 100%`: `48.29×` (`DD −74.6%`); `Pyr 50%`: `55.12×` (`DD −58.4%`); `100/100`: `34.75×` (`DD −74.6%`); `2021–26` unchanged (`0` triggers) | Re-entered on `2020-01-20` (`$8,699`) immediately before the March 2020 COVID crash, blowing up MaxDD to `−74.6%` and losing cash to buy the `$5,353` bottom. |
+| **CFTC CME Bitcoin COT (`Asset Mgr`, `Lev Funds`, `Dealer Net`, `Retail`)** | `AM Net` flipped sign (`-0.034` in `18+` → `+0.533` in `21+`); `Dealer Net` 4Y blend cut `2021–26` `20/30/50` at all weights (`5%: 6.64×`, `10%: 5.53×`, `15%: 5.10×` vs `6.93×`); `Tail Risk` OOS Brier degraded (`0.23147 → 0.25285`) | Apparent `Dealer Net` `21+` IC (`-0.747`) was a post-Spot-ETF basis-trade regime shift (`0%` in 2018–21 → `-21%` in 2023 → `+25%..+33%` in 2024–25), not a stationary cycle signal. |
+| **Coinbase Premium (`1w / 4w / 13w`, Coinbase vs Binance)** | Weak `IC52` (`-0.178` / `-0.304`), flipped partial `pIC52` (`+0.086` in `18+` → `-0.160` in `21+`); `Tail Risk` OOS Brier (`0.22639 → 0.22869`) & PR-AUC (`0.2591 → 0.2504`) degraded | No orthogonal predictive edge beyond `v5.2` or `vol13`. |
+| **Spot BTC ETF Flows (`14d` USD & BTC-denominated, `2024–26`)** | `IC13 = -0.096`, partial `pIC13 = +0.001` (`etf_14d_btc`: `-0.110` / `-0.018`) | Only ~2 years of history and near-zero incremental 13w signal beyond `v5.2`. |
+| **Exchange Reserves & Netflows (`CoinMetrics` `SplyExNtv`, `FlowIn/Out`, `2014–26`)** | `ex_roc13` (`-0.146` → `+0.202`), `ex_roc26_4y` (`-0.118` → `+0.190`), `netflow_13w` (`-0.138` → `+0.157`) all flipped sign between `17+` and `21+` | Secular custody migration (exchanges → cold storage / ETF custodians) breaks cross-cycle stability; granular `1k+ BTC` wallet cohorts are paywalled and similarly distorted by UTXO reshuffling. |
